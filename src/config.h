@@ -1,8 +1,8 @@
 #pragma once
 
-#define PACKAGE	"ofxVisualProgramming"
-#define	VERSION	"0.1.0"
-#define DESCRIPTION "A visual programming patching environment for OF"
+#define PACKAGE_OFXVP       "ofxVisualProgramming"
+#define	VERSION_OFXVP       "0.1.0"
+#define DESCRIPTION_OFXVP   "A visual programming patching environment for OF"
 
 
 // choose modifier key based on platform

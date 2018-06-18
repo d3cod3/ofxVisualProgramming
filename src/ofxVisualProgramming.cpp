@@ -575,7 +575,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             output_height = XML.getValue("output_height",0);
 
             // setup audio
-            soundStream.printDeviceList();
+            //soundStream.printDeviceList();
 
             auto devices = soundStream.getDeviceList();
             soundStreamSettings.setInDevice(devices[XML.getValue("audio_device",0)]);
