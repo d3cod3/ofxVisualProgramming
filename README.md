@@ -1,3 +1,4 @@
+
 [ofxVisualProgramming](https://github.com/d3cod3/ofxVisualProgramming)
 ======================
 
@@ -6,15 +7,15 @@
 Table of Contents
 =================
 
-	* [OF COMPATIBLE RELEASE](#of_compatible_release)
-	* [REFERENCE](#reference)
-	* [DESCRIPTION](#reference)
-	* [DEPENDENCIES](#reference)
-	* [INSTALLING](#reference)
-	* [USAGE](#reference)
-	* [EXAMPLE](#reference)
-	* [REFERENCE](#reference)
-	* [CONTRIBUTING](#contributing)
+   * [OF_COMPATIBLE_RELEASE](#of_compatible_release)
+   * [REFERENCE](#reference)
+   * [DESCRIPTION](#reference)
+   * [DEPENDENCIES](#reference)
+   * [INSTALLING](#reference)
+   * [USAGE](#reference)
+   * [EXAMPLE](#reference)
+   * [REFERENCE](#reference)
+   * [CONTRIBUTING](#contributing)
 
 
 # OF COMPATIBLE RELEASE
