@@ -22,6 +22,7 @@ Table of Contents
 
 #### 0.10.0
 Compiled/tested with QTCreator on osx/linux
+
 Compiled with QTCreator on windows (testing)
 
 # REFERENCE
@@ -71,12 +72,11 @@ git clone https://github.com/d3cod3/ofxVisualProgramming
 # USAGE
 
 
-
-# EXAMPLE
+# EXAMPLE
 
 See the ofxVisualProgramming_example included
 
-# CONTRIBUTING
+# CONTRIBUTING
 
 Objects can be easily added, recipie soon...
 
