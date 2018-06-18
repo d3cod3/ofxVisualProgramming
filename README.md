@@ -17,20 +17,20 @@ Table of Contents
 	* [CONTRIBUTING](#contributing)
 
 
-## OF COMPATIBLE RELEASE
+# OF COMPATIBLE RELEASE
 
 #### 0.10.0
 Compiled/tested with QTCreator on osx/linux
 Compiled with QTCreator on windows (testing)
 
-## REFERENCE
+# REFERENCE
 
 ofxVisualProgramming came directly from the idea behind the ofxComposer addon by [patriciogonzalezvivo](https://github.com/patriciogonzalezvivo/ofxComposer), and obviously from the various commercial and no-commercial existing visual programming softwares, Pure Data, Max/Msp, TouchDesigner, etc...
 So special thanks to all the precursors of this ideas, and more thanks to the ofxComposer developer for their code, it has been a great reference to start working on this ofxaddon.
 
-## DESCRIPTION
+# DESCRIPTION
 
-## DEPENDENCIES
+# DEPENDENCIES
 
 #### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
@@ -50,7 +50,7 @@ So special thanks to all the precursors of this ideas, and more thanks to the of
 
 Some addons are forks of the original, due to some mods, compatibility with OF0.10 and the intention of cross-platform compiling (osx,linux,win)
 
-## INSTALLING
+# INSTALLING
 
 Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together all the others addons listed:
 
@@ -67,15 +67,15 @@ git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
 
-## USAGE
+# USAGE
 
 
 
-## EXAMPLE
+# EXAMPLE
 
 See the ofxVisualProgramming_example included
 
-## CONTRIBUTING
+# CONTRIBUTING
 
 Objects can be easily added, recipie soon...
 
