@@ -14,4 +14,10 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    ofxDatGui*              gui;
+    ofxDatGuiValuePlotter*  rPlotter;
+
+    bool                    changeRange;
+    float                   lastMinRange, lastMaxRange;
+
 };

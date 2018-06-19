@@ -109,8 +109,8 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(video->isLoaded()){
-        scaleH = (OBJECT_WIDTH/video->getWidth())*video->getHeight();
-        static_cast<ofTexture *>(_outletParams[0])->draw(0,OBJECT_HEIGHT/2 - scaleH/2,OBJECT_WIDTH,scaleH);
+        scaleH = (this->width/video->getWidth())*video->getHeight();
+        static_cast<ofTexture *>(_outletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
     }else if(!isNewObject){
         ofSetColor(255,0,0);
         ofDrawRectangle(0,0,this->width,this->height);

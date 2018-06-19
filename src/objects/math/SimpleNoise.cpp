@@ -28,12 +28,23 @@ void SimpleNoise::newObject(){
 
 //--------------------------------------------------------------
 void SimpleNoise::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setWidth(this->width);
 
+    noisePlotter = gui->addValuePlotter("",0.0f,1.0f);
+    noisePlotter->setDrawMode(ofxDatGuiGraph::LINES);
+    noisePlotter->setSpeed(0.6);
+
+    gui->setPosition(0,this->height-noisePlotter->getHeight());
 }
 
 //--------------------------------------------------------------
 void SimpleNoise::updateObjectContent(){
     *(float *)&_outletParams[0] = ofNoise(timePosition);
+
+    gui->update();
+    noisePlotter->setValue(*(float *)&_outletParams[0]);
 
     timePosition += *(float *)&_inletParams[0];
 }
@@ -42,6 +53,7 @@ void SimpleNoise::updateObjectContent(){
 void SimpleNoise::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
+    gui->draw();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }

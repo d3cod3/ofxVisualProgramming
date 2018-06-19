@@ -55,8 +55,8 @@ void AudioAnalyzer::updateObjectContent(){
     waveform.clear();
     for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
         float sample = lastBuffer.getSample(i, 0);
-        float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, OBJECT_WIDTH);
-        float y = ofMap(sample, -1, 1, headerHeight, OBJECT_HEIGHT);
+        float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, this->width);
+        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
         waveform.addVertex(x, y);
 
         // TESTING

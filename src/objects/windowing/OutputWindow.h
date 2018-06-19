@@ -31,6 +31,7 @@ public:
     bool                                    isFullscreen;
 
     int                                     output_width, output_height;
+    int                                     window_actual_width, window_actual_height;
     float                                   posX, posY, drawW, drawH;
     glm::vec2                               asRatio;
     float                                   scaleH;

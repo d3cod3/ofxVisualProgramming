@@ -17,6 +17,10 @@ SimpleRandom::SimpleRandom() : PatchObject(){
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
     }
+
+    changeRange = false;
+    lastMinRange = *(float *)&_inletParams[0];
+    lastMaxRange = *(float *)&_inletParams[1];
 }
 
 //--------------------------------------------------------------
@@ -30,17 +34,40 @@ void SimpleRandom::newObject(){
 //--------------------------------------------------------------
 void SimpleRandom::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
     ofSeedRandom(ofGetElapsedTimeMillis());
+
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setWidth(this->width);
+
+    rPlotter = gui->addValuePlotter("",*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
+    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
+    rPlotter->setSpeed(1);
+
+    gui->setPosition(0,this->height-rPlotter->getHeight());
 }
 
 //--------------------------------------------------------------
 void SimpleRandom::updateObjectContent(){
     *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
+
+    gui->update();
+    rPlotter->setValue(*(float *)&_outletParams[0]);
+    if(this->inletsConnected[0] || this->inletsConnected[1]){
+        if(lastMinRange != *(float *)&_inletParams[0] || lastMaxRange != *(float *)&_inletParams[1]){
+            changeRange = true;
+        }
+        if(changeRange){
+            changeRange = false;
+            rPlotter->setRange(*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void SimpleRandom::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
+    gui->draw();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }

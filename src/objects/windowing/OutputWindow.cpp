@@ -18,6 +18,9 @@ OutputWindow::OutputWindow() : PatchObject(){
 
     output_width    = 1280;
     output_height   = 720;
+
+    window_actual_width = STANDARD_PROJECTOR_WINDOW_WIDTH;
+    window_actual_height = STANDARD_PROJECTOR_WINDOW_HEIGHT;
 }
 
 //--------------------------------------------------------------
@@ -38,11 +41,20 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
     settings.shareContextWith = mainWindow;
     settings.resizable = false;
     settings.stencilBits = 0;
-    settings.setSize(854, 480);
-    settings.setPosition(ofDefaultVec2(200,200));
+    // RETINA FIX
+    if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
+        window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH*2;
+        window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT*2;
+        settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(window_actual_width+100),400));
+    }else{
+        settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(STANDARD_PROJECTOR_WINDOW_WIDTH+50),200));
+    }
+    settings.setSize(window_actual_width, window_actual_height);
+
 
     window = ofCreateWindow(settings);
     window->setWindowTitle("Projector"+ofToString(this->getId()));
+    window->setVerticalSync(true);
 
     ofAddListener(window->events().draw,this,&OutputWindow::drawInWindow);
 
@@ -59,13 +71,13 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
     static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA);
 
     // setup drawing  dimensions
-    if(width > window->getWidth()){
-        drawW           = window->getWidth();
-        drawH           = drawW*asRatio.y / asRatio.x;
-        posX            = 0;
-        posY            = (window->getHeight()-drawH)/2.0f;
+    if(output_width > window->getWidth()){
+        drawW           = (output_width*window->getHeight())/output_height;
+        drawH           = window->getHeight();
+        posX            = (window->getWidth()-drawW)/2.0f;
+        posY            = 0;
     }else{
-        if(height < window->getHeight()){
+        if(output_height < window->getHeight()){
             drawW           = window->getWidth();
             drawH           = (output_height*window->getWidth())/output_width;
             posX            = 0;
@@ -90,11 +102,11 @@ void OutputWindow::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        scaleH = OBJECT_WIDTH*asRatio.y / asRatio.x;
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,OBJECT_HEIGHT/2 - scaleH/2,OBJECT_WIDTH,scaleH);
+        scaleH = this->width*asRatio.y / asRatio.x;
+        static_cast<ofTexture *>(_inletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
     }else{
         ofSetColor(0);
-        ofDrawRectangle(0,0,OBJECT_WIDTH,OBJECT_HEIGHT);
+        ofDrawRectangle(0,0,this->width,this->height);
     }
     ofDisableAlphaBlending();
 }
@@ -133,7 +145,7 @@ void OutputWindow::toggleWindowFullscreen(){
     isFullscreen = !isFullscreen;
 
     if(!isFullscreen){
-        window->setWindowShape(854, 480);
+        window->setWindowShape(window_actual_width, window_actual_height);
         if(width > window->getWidth()){
             drawW           = window->getWidth();
             drawH           = drawW*asRatio.y / asRatio.x;
@@ -181,15 +193,22 @@ void OutputWindow::toggleWindowFullscreen(){
             posY            = 0;
         }else{ // smaller than screen
             if(asRatio.x > asRatio.y){ // horizontal texture
-                drawH       = theScreenH;
-                drawW       = (output_width*drawH)/output_height;
-                posX        = (theScreenW-drawW)/2.0f;
-                posY        = 0;
+                if((asRatio.x/asRatio.y) < 3){
+                    drawH       = theScreenH;
+                    drawW       = (output_width*drawH)/output_height;
+                    posX        = (theScreenW-drawW)/2.0f;
+                    posY        = 0;
+                }else{
+                    drawW       = theScreenW;
+                    drawH       = (output_height*drawW)/output_width;
+                    posX        = 0;
+                    posY        = (theScreenH-drawH)/2.0f;
+                }
             }else{ // vertical texture
                 drawW       = theScreenW;
                 drawH       = (output_height*drawW)/output_width;
                 posX        = 0;
-                posY        = drawH/2.0f;
+                posY        = (theScreenH-drawH)/2.0f;
             }
         }
     }

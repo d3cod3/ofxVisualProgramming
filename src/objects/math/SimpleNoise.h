@@ -14,6 +14,9 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    float           timePosition;
+    float                   timePosition;
+
+    ofxDatGui*              gui;
+    ofxDatGuiValuePlotter*  noisePlotter;
 
 };

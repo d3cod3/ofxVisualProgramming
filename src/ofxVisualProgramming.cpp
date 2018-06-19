@@ -192,7 +192,7 @@ void ofxVisualProgramming::draw(){
     ofSetColor(0,200,0);
     font->draw(glVersion,fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
     ofSetColor(200);
-    font->draw(glError.getError(),fontSize,140*scaleFactor,ofGetHeight() - (6*scaleFactor));
+    font->draw(glError.getError(),fontSize,(glVersion.length()*fontSize*0.6f)*scaleFactor,ofGetHeight() - (6*scaleFactor));
 
     ofDisableBlendMode();
 

@@ -122,8 +122,8 @@ void LuaScript::drawObjectContent(ofxFontStash *font){
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
-    scaleH = (OBJECT_WIDTH/fbo->getWidth())*fbo->getHeight();
-    static_cast<ofTexture *>(_outletParams[0])->draw(0,OBJECT_HEIGHT/2 - scaleH/2,OBJECT_WIDTH,scaleH);
+    scaleH = (this->width/fbo->getWidth())*fbo->getHeight();
+    static_cast<ofTexture *>(_outletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
     // GUI
     gui->draw();
     ofDisableAlphaBlending();
@@ -184,6 +184,7 @@ void LuaScript::loadScript(string scriptFile){
     ///////////////////////////////////////////
     // LUA SETUP
     if(scriptLoaded){
+        ofLog(OF_LOG_NOTICE,"lua script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
         lua.scriptSetup();
@@ -251,5 +252,5 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
 
 //--------------------------------------------------------------
 void LuaScript::errorReceived(std::string& msg) {
-    //ofLogNotice() << "got a script error: " << msg;
+    ofLog(OF_LOG_ERROR,"got a script error: %s",msg.c_str());
 }
