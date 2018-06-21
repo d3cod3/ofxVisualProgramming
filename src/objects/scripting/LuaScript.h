@@ -20,6 +20,7 @@ public:
     void            dragGUIObject(ofVec3f _m);
 
     void            loadScript(string scriptFile);
+    bool            loadProjectorSettings();
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     // Filepath watcher callback
@@ -41,6 +42,7 @@ public:
     ofFbo               *fbo;
     ofImage             *kuro;
     float               scaleH;
+    int                 output_width, output_height;
 
     string              mosaicTableName;
     string              tempstring;

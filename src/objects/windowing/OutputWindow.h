@@ -16,8 +16,11 @@ public:
     void            removeObjectContent();
 
     glm::vec2       reduceToAspectRatio(int _w, int _h);
+    void            scaleTextureToWindow(int theScreenW, int theScreenH);
     void            toggleWindowFullscreen();
     void            drawInWindow(ofEventArgs &e);
+
+    bool            loadWindowSettings();
 
     void            keyPressed(ofKeyEventArgs &e);
     void            keyReleased(ofKeyEventArgs &e);
@@ -26,6 +29,7 @@ public:
     void            mousePressed(ofMouseEventArgs &e);
     void            mouseReleased(ofMouseEventArgs &e);
     void            mouseScrolled(ofMouseEventArgs &e);
+    void            windowResized(ofResizeEventArgs &e);
 
     std::shared_ptr<ofAppBaseWindow>        window;
     bool                                    isFullscreen;

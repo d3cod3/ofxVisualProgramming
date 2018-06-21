@@ -21,8 +21,8 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 
     isAudioINObject = true;
 
-
     actualChannel   = 0;
+    numINChannels   = 0;
 }
 
 //--------------------------------------------------------------
@@ -50,17 +50,22 @@ void AudioAnalyzer::updateObjectContent(){
 
     unique_lock<mutex> lock(audioMutex);
 
-    actualChannel = static_cast<int>(floor(*(float *)&_inletParams[0]));
+    if(numINChannels > 0){
+        int receivingChannel = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        if(this->inletsConnected[0] && receivingChannel >= 0 && receivingChannel < numINChannels){
+            actualChannel = receivingChannel;
+        }
 
-    waveform.clear();
-    for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
-        float sample = lastBuffer.getSample(i, 0);
-        float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
+        waveform.clear();
+        for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
+            float sample = lastBuffer.getSample(i,actualChannel);
+            float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, this->width);
+            float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
+            waveform.addVertex(x, y);
 
-        // TESTING
-        static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
+            // TESTING
+            static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
+        }
     }
 
 }
@@ -81,8 +86,10 @@ void AudioAnalyzer::removeObjectContent(){
 //--------------------------------------------------------------
 void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
 
-    for(size_t i = 0; i < inputBuffer.getNumFrames(); i++) {
+    if(numINChannels > 0){
+        /*for(size_t i = 0; i < inputBuffer.getNumFrames(); i++) {
 
+        }*/
     }
 
     unique_lock<mutex> lock(audioMutex);
@@ -97,9 +104,15 @@ bool AudioAnalyzer::loadAudioSettings(){
 
     if (XML.loadFile(patchFile)){
         if (XML.pushTag("settings")){
+            numINChannels   = XML.getValue("input_channels",0);
             sampleRate = XML.getValue("sample_rate",0);
             bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
+        }
+
+        if(numINChannels < 1){
+            ofLog(OF_LOG_ERROR,"%s: The selected Audio Device has no input capabilities!",this->name.c_str());
+            ofLog(OF_LOG_ERROR,"%s: Input Channel Number: %i",this->name.c_str(),numINChannels);
         }
 
         loaded = true;

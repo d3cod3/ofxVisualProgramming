@@ -258,13 +258,13 @@ void PatchObject::draw(ofxFontStash *font){
 
             // on mouse over
             if(bActive){
-                ofSetColor(255,40);
+                ofSetColor(255,255,255,40);
                 ofDrawRectangle(*box);
             }
 
             // Draw inlets names
             if(inletsNames.size() > 0){
-                ofSetColor(0,180);
+                ofSetColor(0,0,0,180);
                 ofDrawRectangle(box->x,box->y,box->width/3,box->height);
                 ofSetColor(245);
                 for(int i=0;i<inletsNames.size();i++){

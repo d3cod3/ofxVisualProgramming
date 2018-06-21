@@ -74,6 +74,7 @@ public:
     void            iconifyObject(int &id);
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
 
+    void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
     void            savePatch();
 

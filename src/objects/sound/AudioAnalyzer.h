@@ -25,6 +25,7 @@ public:
     ofPolyline              waveform;
     std::mutex              audioMutex;
 
+    int                     numINChannels;
     int                     actualChannel;
     int                     bufferSize;
     int                     sampleRate;

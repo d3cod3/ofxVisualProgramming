@@ -64,7 +64,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     selectedObjectID        = -1;
     draggingObject          = false;
 
-    currentPatchFile        = "patch.xml";
+    currentPatchFile        = "empty_patch.xml";
 
     resetTime               = ofGetElapsedTimeMillis();
     wait                    = 3000;
@@ -97,7 +97,6 @@ void ofxVisualProgramming::setup(){
     canvas.toggleOfCam();
     easyCam.enableOrtho();
 
-    // Load empty patch
     loadPatch(currentPatchFile);
 
 }
@@ -187,12 +186,12 @@ void ofxVisualProgramming::draw(){
     canvas.end();
 
     // Draw Bottom Bar
-    ofSetColor(0,60);
+    ofSetColor(0,0,0,60);
     ofDrawRectangle(0,ofGetHeight() - (18*scaleFactor),ofGetWidth(),(18*scaleFactor));
     ofSetColor(0,200,0);
     font->draw(glVersion,fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
     ofSetColor(200);
-    font->draw(glError.getError(),fontSize,(glVersion.length()*fontSize*0.6f)*scaleFactor,ofGetHeight() - (6*scaleFactor));
+    font->draw(glError.getError(),fontSize,(glVersion.length()*fontSize*0.5f + 10)*scaleFactor,ofGetHeight() - (6*scaleFactor));
 
     ofDisableBlendMode();
 
@@ -360,7 +359,7 @@ void ofxVisualProgramming::audioIn(ofSoundBuffer &inputBuffer){
 
     // compute audio input
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->audioInObject(inputBuffer);
+        it->second->audioIn(inputBuffer);
     }
 
     unique_lock<std::mutex> lock(inputAudioMutex);
@@ -377,7 +376,7 @@ void ofxVisualProgramming::audioOut(ofSoundBuffer &outBuffer){
 
     // Compute audio output
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->audioOutObject(outBuffer);
+        it->second->audioOut(outBuffer);
     }
 
     unique_lock<std::mutex> lock(outputAudioMutex);
@@ -562,6 +561,20 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::openPatch(string patchFile){
+    currentPatchFile = patchFile;
+
+    // clear previous patch
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->removeObjectContent();
+    }
+    patchObjects.clear();
+
+    // load new patch
+    loadPatch(currentPatchFile);
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::loadPatch(string patchFile){
 
     ofxXmlSettings XML;
@@ -575,18 +588,36 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             output_height = XML.getValue("output_height",0);
 
             // setup audio
-            //soundStream.printDeviceList();
+            if(patchFile != "empty_patch.xml"){
+                //soundStream.printDeviceList();
+                int audioDev = XML.getValue("audio_device",0);
 
-            auto devices = soundStream.getDeviceList();
-            soundStreamSettings.setInDevice(devices[XML.getValue("audio_device",0)]);
-            soundStreamSettings.setInListener(this);
-            soundStreamSettings.sampleRate = XML.getValue("sample_rate",0);
-            soundStreamSettings.numOutputChannels = XML.getValue("output_channels",0);
-            soundStreamSettings.numInputChannels = XML.getValue("input_channels",0);
-            soundStreamSettings.bufferSize = XML.getValue("buffer_size",0);
-            soundStream.setup(soundStreamSettings);
+                soundStream.close();
 
-            soundStream.start();
+                auto devices = soundStream.getDeviceList();
+                soundStreamSettings.setInDevice(devices[audioDev]);
+                soundStreamSettings.setOutDevice(devices[audioDev]);
+                soundStreamSettings.setInListener(this);
+                soundStreamSettings.sampleRate = XML.getValue("sample_rate",0);
+                soundStreamSettings.numOutputChannels = devices[audioDev].outputChannels;
+                soundStreamSettings.numInputChannels = devices[audioDev].inputChannels;
+                XML.setValue("input_channels",static_cast<int>(devices[audioDev].inputChannels));
+                XML.setValue("output_channels",static_cast<int>(devices[audioDev].outputChannels));
+                soundStreamSettings.bufferSize = XML.getValue("buffer_size",0);
+
+                XML.saveFile();
+
+                bool startingSoundstream = soundStream.setup(soundStreamSettings);
+
+                soundStream.start();
+
+                if(startingSoundstream){
+                    ofLog(OF_LOG_NOTICE,"------------------- Soundstream Started on");
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",devices[audioDev].name.c_str());
+                }else{
+                    ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
+                }
+            }
 
             XML.popTag();
         }

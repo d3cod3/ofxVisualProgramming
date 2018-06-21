@@ -22,12 +22,14 @@ LuaScript::LuaScript() : PatchObject(){
     isOverGui           = true;
 
     fbo = new ofFbo();
-    fbo->allocate(1280,720,GL_RGBA);
 
     kuro = new ofImage();
     kuro->load("images/kuro.jpg");
 
     scaleH = 0.0f;
+
+    output_width    = 320;
+    output_height   = 240;
 
     mosaicTableName = "_mosaic_data_table";
     tempstring      = "";
@@ -43,6 +45,11 @@ void LuaScript::newObject(){
 
 //--------------------------------------------------------------
 void LuaScript::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+    loadProjectorSettings();
+
+    // init output texture container
+    fbo->allocate(output_width,output_height,GL_RGBA_FLOAT32_ATI);
+
     // init lua
     lua.init(true);
     lua.addListener(this);
@@ -99,12 +106,7 @@ void LuaScript::updateObjectContent(){
         *static_cast<ofxLua *>(_outletParams[1]) = lua;
     }
     ///////////////////////////////////////////
-}
 
-//--------------------------------------------------------------
-void LuaScript::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
     ///////////////////////////////////////////
     // LUA DRAW
     fbo->begin();
@@ -122,6 +124,12 @@ void LuaScript::drawObjectContent(ofxFontStash *font){
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+}
+
+//--------------------------------------------------------------
+void LuaScript::drawObjectContent(ofxFontStash *font){
+    ofSetColor(255);
+    ofEnableAlphaBlending();
     scaleH = (this->width/fbo->getWidth())*fbo->getHeight();
     static_cast<ofTexture *>(_outletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
     // GUI
@@ -162,6 +170,24 @@ void LuaScript::dragGUIObject(ofVec3f _m){
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
     }
+}
+
+//--------------------------------------------------------------
+bool LuaScript::loadProjectorSettings(){
+    ofxXmlSettings XML;
+    bool loaded = false;
+
+    if (XML.loadFile(patchFile)){
+        if (XML.pushTag("settings")){
+            output_width = XML.getValue("output_width",0);
+            output_height = XML.getValue("output_height",0);
+            XML.popTag();
+        }
+
+        loaded = true;
+    }
+
+    return loaded;
 }
 
 //--------------------------------------------------------------
