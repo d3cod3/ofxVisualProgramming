@@ -64,7 +64,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofAddListener(window->events().mouseScrolled ,this,&OutputWindow::mouseScrolled);
     ofAddListener(window->events().windowResized ,this,&OutputWindow::windowResized);
 
-    static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA);
+    static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
 
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);

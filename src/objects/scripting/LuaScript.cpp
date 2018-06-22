@@ -48,7 +48,10 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadProjectorSettings();
 
     // init output texture container
-    fbo->allocate(output_width,output_height,GL_RGBA_FLOAT32_ATI);
+    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+    fbo->begin();
+    ofClear(255,255,255, 0);
+    fbo->end();
 
     // init lua
     lua.init(true);
@@ -111,6 +114,8 @@ void LuaScript::updateObjectContent(){
     // LUA DRAW
     fbo->begin();
     if(scriptLoaded){
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+        glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         ofPushView();
         ofPushStyle();
         ofPushMatrix();
@@ -118,6 +123,7 @@ void LuaScript::updateObjectContent(){
         ofPopMatrix();
         ofPopStyle();
         ofPopView();
+        glPopAttrib();
     }else{
         kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
     }
