@@ -1,6 +1,6 @@
 #pragma once
 
-// compiter_vision objects
+// computer_vision objects
 
 // graphics objects
 

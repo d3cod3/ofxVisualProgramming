@@ -27,7 +27,7 @@ void SimpleNoise::newObject(){
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setWidth(this->width);

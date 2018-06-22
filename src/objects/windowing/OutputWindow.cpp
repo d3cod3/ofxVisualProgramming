@@ -31,7 +31,7 @@ void OutputWindow::newObject(){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadWindowSettings();
 
     ofGLFWWindowSettings settings;
@@ -50,7 +50,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
     settings.setSize(window_actual_width, window_actual_height);
 
 
-    window = ofCreateWindow(settings);
+    window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
     window->setWindowTitle("Projector"+ofToString(this->getId()));
     window->setVerticalSync(true);
 

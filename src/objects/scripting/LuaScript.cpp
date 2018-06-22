@@ -44,7 +44,7 @@ void LuaScript::newObject(){
 }
 
 //--------------------------------------------------------------
-void LuaScript::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadProjectorSettings();
 
     // init output texture container

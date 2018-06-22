@@ -35,7 +35,7 @@ void moMessage::newObject(){
 }
 
 //--------------------------------------------------------------
-void moMessage::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);

@@ -35,7 +35,7 @@ void AudioAnalyzer::newObject(){
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
 
     // TESTING

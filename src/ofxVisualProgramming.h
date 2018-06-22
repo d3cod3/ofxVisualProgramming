@@ -103,10 +103,10 @@ public:
     int                     output_height;
 
     // SYSTEM
-    shared_ptr<ofAppBaseWindow> mainWindow;
-    ofxGLError              glError;
-    string                  glVersion;
-    string                  glShadingVersion;
+    shared_ptr<ofAppGLFWWindow>     mainWindow;
+    ofxGLError                      glError;
+    string                          glVersion;
+    string                          glShadingVersion;
 
     // Sound Stream
     ofSoundStream           soundStream;

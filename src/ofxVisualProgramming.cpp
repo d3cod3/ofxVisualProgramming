@@ -34,7 +34,7 @@
 
 ofxVisualProgramming::ofxVisualProgramming(){
 
-    mainWindow = ofGetCurrentWindow();
+    mainWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
 
     // Performance Measurement
     TIME_SAMPLE_SET_DRAW_LOCATION(TIME_MEASUREMENTS_BOTTOM_RIGHT);

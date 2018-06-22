@@ -32,7 +32,7 @@ void SimpleRandom::newObject(){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofSeedRandom(ofGetElapsedTimeMillis());
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );

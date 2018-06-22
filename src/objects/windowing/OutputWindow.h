@@ -10,7 +10,7 @@ public:
     OutputWindow();
 
     void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow);
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent();
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
@@ -31,7 +31,7 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
 
-    std::shared_ptr<ofAppBaseWindow>        window;
+    std::shared_ptr<ofAppGLFWWindow>        window;
     bool                                    isFullscreen;
 
     int                                     output_width, output_height;

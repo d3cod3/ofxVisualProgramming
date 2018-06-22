@@ -44,7 +44,7 @@ void VideoPlayer::newObject(){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow){
+void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     if(filepath != "none"){
         loadVideoFile(filepath);
     }else{

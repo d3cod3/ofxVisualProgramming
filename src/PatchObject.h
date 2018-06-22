@@ -73,13 +73,13 @@ public:
     PatchObject();
     virtual ~PatchObject();
 
-    void                    setup(shared_ptr<ofAppBaseWindow> &mainWindow);
+    void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    update(map<int,PatchObject*> &patchObjects);
     void                    draw(ofxFontStash *font);
 
     // Virtual Methods
     virtual void            newObject() {}
-    virtual void            setupObjectContent(shared_ptr<ofAppBaseWindow> &mainWindow) {}
+    virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            updateObjectContent() {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
@@ -105,7 +105,7 @@ public:
     ofVec2f                 getOutletPosition(int oid);
 
     // LOAD/SAVE
-    bool                    loadConfig(shared_ptr<ofAppBaseWindow> &mainWindow,int oTag, string &configFile);
+    bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, string &configFile);
     bool                    saveConfig(bool newConnection,int objID);
     bool                    removeLinkFromConfig(int outlet);
 

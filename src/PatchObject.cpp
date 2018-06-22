@@ -92,7 +92,7 @@ PatchObject::~PatchObject(){
 }
 
 //--------------------------------------------------------------
-void PatchObject::setup(shared_ptr<ofAppBaseWindow> &mainWindow){
+void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     if(isRetina){
         width           *= 2;
@@ -344,7 +344,7 @@ ofVec2f PatchObject::getOutletPosition(int oid){
 
 //---------------------------------------------------------------------------------- LOAD/SAVE
 //--------------------------------------------------------------
-bool PatchObject::loadConfig(shared_ptr<ofAppBaseWindow> &mainWindow,int oTag, string &configFile){
+bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, string &configFile){
     ofxXmlSettings XML;
     bool loaded = false;
 
