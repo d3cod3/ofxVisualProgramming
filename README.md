@@ -2,6 +2,11 @@
 [ofxVisualProgramming](https://github.com/d3cod3/ofxVisualProgramming)
 ======================
 
+[![Build status](https://travis-ci.org/d3cod3/ofxVisualProgramming.svg?branch=master)](https://travis-ci.org/d3cod3/ofxVisualProgramming)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/65sk40q6y8bqfunw/branch/master?svg=true)](https://ci.appveyor.com/project/d3cod3/ofxvisualprogramming/branch/master)
+
+
 ### A visual programming patching environment for OF
 
 Table of Contents
@@ -78,7 +83,7 @@ git clone https://github.com/d3cod3/ofxVisualProgramming
 
 # EXAMPLE
 
-See the ofxVisualProgramming_example included
+See the example_ofxVisualProgramming included
 
 # CONTRIBUTING
 
