@@ -170,7 +170,7 @@ install:
   - git clone --branch=master https://github.com/armadillu/ofxGLError addons/ofxGLError
   - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot addons/ofxHistoryPlot
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
-  - git clone --branch=of-0.10.0 https://github.com/danomatika/ofxLua addons/ofxLua
+  - git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua addons/ofxLua
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
 
 script:
