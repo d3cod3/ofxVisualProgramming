@@ -1,7 +1,7 @@
 # This file allows testing your addon using travis CI servers to use it you'll need to
-# create an account in travis.org and enable your addon there. 
+# create an account in travis.org and enable your addon there.
 #
-# By default it will test linux 64bit and osx against the master and stable OF branches. 
+# By default it will test linux 64bit and osx against the master and stable OF branches.
 # Other platforms can be enabled by uncommenting the corresponding sections.
 #
 # If any extra install is needed to use the addon it can be included in the corresponding
@@ -59,7 +59,7 @@ matrix:
 #    compiler: clang
 #    env: TARGET="osx" OF_BRANCH="stable"
 
-# Linux ARM6, OF master: Uncomment following lines to enable 
+# Linux ARM6, OF master: Uncomment following lines to enable
 #  - os: linux
 #    sudo: required
 #    dist: trusty
@@ -72,7 +72,7 @@ matrix:
 #    dist: trusty
 #    env: TARGET="linuxarmv6l" OF_BRANCH="stable"
 
-# Linux ARM7, OF master: Uncomment following lines to enable 
+# Linux ARM7, OF master: Uncomment following lines to enable
 #  - os: linux
 #    sudo: false
 #    env: TARGET="linuxarmv7l" OF_BRANCH="master"
@@ -93,7 +93,7 @@ matrix:
 #        - ~/archlinux
 
 
-# Emscripten, OF master: Uncomment following lines to enable 
+# Emscripten, OF master: Uncomment following lines to enable
 #  - os: linux
 #    sudo: false
 #    env: TARGET="emscripten" OF_BRANCH="master"
@@ -117,35 +117,7 @@ matrix:
 #          - libstdc++6
 
 
-# iOS, OF master: Not supported yet
-#  - os: osx
-#    osx_image: xcode8
-#    compiler: clang
-#    env: TARGET="ios" OF_BRANCH="master"
-
-
-# iOS, OF stable: Not supported yet
-#  - os: osx
-#    osx_image: xcode8
-#    compiler: clang
-#    env: TARGET="ios" OF_BRANCH="stable"
-
-
-# tvOS, OF master: Not supported yet
-#  - os: osx
-#    osx_image: xcode8
-#    compiler: clang
-#    env: TARGET="tvos" OF_BRANCH="master"
-
-
-# tvOS, OF stable: Not supported yet
-#  - os: osx
-#    osx_image: xcode8
-#    compiler: clang
-#    env: TARGET="tvos" OF_BRANCH="stable"
-
-
-# Android armv7, OF master: Uncomment following lines to enable 
+# Android armv7, OF master: Uncomment following lines to enable
 #  - os: linux
 #    sudo: false
 #    env: TARGET="android" OPT="armv7" OF_BRANCH="master"
@@ -163,7 +135,7 @@ matrix:
 #        - ~/android-ndk-r12b
 
 
-# Android x86, OF master: Uncomment following lines to enable 
+# Android x86, OF master: Uncomment following lines to enable
 #  - os: linux
 #    sudo: false
 #    env: TARGET="android" OPT="x86" OF_BRANCH="master"
@@ -186,23 +158,15 @@ matrix:
   exclude:
     - compiler: gcc
 
+before_install::
+  - curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/master/scripts/ci/addons/install.sh
+  - source install.sh
+
 install:
-  - cd ~
-  - git clone --depth=1 --branch=$OF_BRANCH https://github.com/openframeworks/openFrameworks
-  - cd openFrameworks
-  - scripts/ci/addons/install.sh
-  - git clone --branch=master https://github.com/d3cod3/ofxAudioAnalyzer
-  - git clone --branch=master https://github.com/d3cod3/ofxBPMDetector
-  - git clone --branch=master https://github.com/d3cod3/ofxDatGui
-  - git clone --branch=master https://github.com/armadillu/ofxFontStash
-  - git clone --branch=master https://github.com/armadillu/ofxGLError
-  - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot
-  - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas
-  - git clone --branch=of-0.10.0 https://github.com/danomatika/ofxLua
-  - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements
+  - do_install
 
 script:
-  - scripts/ci/addons/build.sh
+  - do_script
 
 git:
   depth: 10
