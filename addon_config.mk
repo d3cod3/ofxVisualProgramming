@@ -24,12 +24,12 @@ meta:
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
-        ADDON_DEPENDENCIES = ofxAudioAnalyzer ofxBPMDetector ofxFontStash ofxGLError ofxDatGui ofxHistoryPlot ofxInfiniteCanvas ofxLua ofxTimeMeasurements ofxXmlSettings
+    ADDON_DEPENDENCIES = ofxAudioAnalyzer ofxBPMDetector ofxFontStash ofxGLError ofxDatGui ofxHistoryPlot ofxInfiniteCanvas ofxLua ofxTimeMeasurements ofxXmlSettings
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
 	# specified here separated by spaces or one per line using +=
-	# ADDON_INCLUDES += src
+	ADDON_INCLUDES += ../../../addons/ofxFontStash/src
 
 	# any special flag that should be passed to the compiler when using this
 	# addon

@@ -30,5 +30,6 @@ Desktop.ini
 *.app
 *.dSYM
 bin/.tmp
+obj/
 **/build-ofxVisualProgramming_example-Desktop-Debug
 **/build-ofxVisualProgramming_example-Desktop-Release
