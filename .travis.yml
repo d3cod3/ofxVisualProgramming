@@ -158,15 +158,23 @@ matrix:
   exclude:
     - compiler: gcc
 
-before_install::
-  - curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/master/scripts/ci/addons/install.sh
-  - source install.sh
-
 install:
-  - do_install
+  - cd ~
+  - git clone --depth=1 --branch=$OF_BRANCH https://github.com/openframeworks/openFrameworks
+  - cd openFrameworks
+  - scripts/ci/addons/install.sh
+  - git clone --branch=master https://github.com/d3cod3/ofxAudioAnalyzer addons/ofxAudioAnalyzer
+  - git clone --branch=master https://github.com/d3cod3/ofxBPMDetector addons/ofxBPMDetector
+  - git clone --branch=master https://github.com/d3cod3/ofxDatGui addons/ofxDatGui
+  - git clone --branch=master https://github.com/armadillu/ofxFontStash addons/ofxFontStash
+  - git clone --branch=master https://github.com/armadillu/ofxGLError addons/ofxGLError
+  - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot addons/ofxHistoryPlot
+  - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
+  - git clone --branch=of-0.10.0 https://github.com/danomatika/ofxLua addons/ofxLua
+  - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
 
 script:
-  - do_script
+  - scripts/ci/addons/build.sh
 
 git:
   depth: 10

@@ -34,15 +34,15 @@ init:
 install:
 - cd ..
 - git clone --depth=1 --branch=master https://github.com/openframeworks/openFrameworks
-- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxAudioAnalyzer
-- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxBPMDetector
-- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxDatGui
-- git clone --depth=1 --branch=master https://github.com/armadillu/ofxFontStash
-- git clone --depth=1 --branch=master https://github.com/armadillu/ofxGLError
-- git clone --depth=1 --branch=master https://github.com/armadillu/ofxHistoryPlot
-- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxInfiniteCanvas
-- git clone --depth=1 --branch=of-0.10.0 https://github.com/danomatika/ofxLua
-- git clone --depth=1 --branch=master https://github.com/armadillu/ofxTimeMeasurements
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxAudioAnalyzer openframeworks/addons/ofxAudioAnalyzer
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxBPMDetector openframeworks/addons/ofxBPMDetector
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxDatGui openframeworks/addons/ofxDatGui
+- git clone --depth=1 --branch=master https://github.com/armadillu/ofxFontStash openframeworks/addons/ofxFontStash
+- git clone --depth=1 --branch=master https://github.com/armadillu/ofxGLError openframeworks/addons/ofxGLError
+- git clone --depth=1 --branch=master https://github.com/armadillu/ofxHistoryPlot openframeworks/addons/ofxHistoryPlot
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxInfiniteCanvas openframeworks/addons/ofxInfiniteCanvas
+- git clone --depth=1 --branch=of-0.10.0 https://github.com/danomatika/ofxLua openframeworks/addons/ofxLua
+- git clone --depth=1 --branch=master https://github.com/armadillu/ofxTimeMeasurements openframeworks/addons/ofxTimeMeasurements
 - call openFrameworks\scripts\ci\addons\install.cmd
 
 build_script:
