@@ -62,6 +62,8 @@ PatchObject::PatchObject(){
     fontSize    = 12;
     buttonOffset= 10;
 
+    retinaScale = 1.0f;
+
     // Dynamically allocate pointers
     // so we'll be able to call delete on them
     box                 = new ofRectangle();
@@ -102,6 +104,7 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
         letterHeight    *= 2;
         buttonOffset    *= 2;
         fontSize         = 16;
+        retinaScale      = 2.0f;
     }
 
     box->set(x,y,width,height);
@@ -587,7 +590,12 @@ void PatchObject::mouseDragged(float mx, float my){
 
             for(int j=0;j<outPut.size();j++){
                 outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-                outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+                if(isRetina){
+                    outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+40,outPut[j]->posFrom.y);
+                }else{
+                    outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+                }
+
             }
         }else if(isMouseOver && isGUIObject){
             dragGUIObject(m);

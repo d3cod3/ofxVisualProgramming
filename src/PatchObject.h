@@ -177,5 +177,6 @@ protected:
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
     bool                    willErase;
+    float                   retinaScale;
 
 };

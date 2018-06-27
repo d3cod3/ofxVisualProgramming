@@ -87,7 +87,7 @@ void ofxVisualProgramming::setup(){
     if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
         isRetina = true;
         scaleFactor = 2;
-        fontSize    = 16;
+        fontSize    = 26;
         TIME_SAMPLE_GET_INSTANCE()->setUiScale(scaleFactor);
     }
 
@@ -96,6 +96,11 @@ void ofxVisualProgramming::setup(){
     canvas.setbMouseInputEnabled(true);
     canvas.toggleOfCam();
     easyCam.enableOrtho();
+
+    // RETINA FIX
+    if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
+        canvas.setScale(2);
+    }
 
     loadPatch(currentPatchFile);
 
@@ -191,7 +196,7 @@ void ofxVisualProgramming::draw(){
     ofSetColor(0,200,0);
     font->draw(glVersion,fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
     ofSetColor(200);
-    font->draw(glError.getError(),fontSize,(glVersion.length()*fontSize*0.5f + 10)*scaleFactor,ofGetHeight() - (6*scaleFactor));
+    font->draw(glError.getError(),fontSize,glVersion.length()*fontSize*0.5f + 10*scaleFactor,ofGetHeight() - (6*scaleFactor));
 
     ofDisableBlendMode();
 
@@ -589,7 +594,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
             // setup audio
             if(patchFile != "empty_patch.xml"){
-                //soundStream.printDeviceList();
+                soundStream.printDeviceList();
                 int audioDev = XML.getValue("audio_device",0);
 
                 soundStream.close();

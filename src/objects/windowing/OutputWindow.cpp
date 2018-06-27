@@ -37,6 +37,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofGLFWWindowSettings settings;
     settings.setGLVersion(2,1);
     settings.shareContextWith = mainWindow;
+    settings.decorated = true;
     settings.resizable = true;
     settings.stencilBits = 0;
     // RETINA FIX
