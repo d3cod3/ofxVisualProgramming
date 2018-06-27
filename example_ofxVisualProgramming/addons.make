@@ -1,0 +1,11 @@
+ofxAudioAnalyzer
+ofxBPMDetector
+ofxFontStash
+ofxGLError
+ofxDatGui
+ofxHistoryPlot
+ofxInfiniteCanvas
+ofxLua
+ofxTimeMeasurements
+ofxVisualProgramming
+ofxXmlSettings
