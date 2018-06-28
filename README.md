@@ -211,15 +211,15 @@ public:
     // or just the one you need.
     // for this simple object i'm going to leave commented
     // the ones i don't need
-    void  newObject() {}
-    void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
-    void  updateObjectContent() {}
-    void  drawObjectContent(ofxFontStash *font) {}
-    void  removeObjectContent() {}
-    //void  mouseMovedObjectContent(ofVec3f _m) {}
-    //void  dragGUIObject(ofVec3f _m) {}
-    //void  audioInObject(ofSoundBuffer &inputBuffer) {}
-    //void  audioOutObject(ofSoundBuffer &outBuffer) {}
+    void  newObject();
+    void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void  updateObjectContent();
+    void  drawObjectContent(ofxFontStash *font);
+    void  removeObjectContent();
+    //void  mouseMovedObjectContent(ofVec3f _m);
+    //void  dragGUIObject(ofVec3f _m);
+    //void  audioInObject(ofSoundBuffer &inputBuffer);
+    //void  audioOutObject(ofSoundBuffer &outBuffer);
 
     // my SuperAmazingObject public variables (if any)
     // .............
