@@ -184,9 +184,10 @@ before_script:
   - make
   - cd .libs
   - cp libfftw3f.a ~/openFrameworks/addons/ofxAudioAnalyzer/libs/fftw3f/lib/linux64/
+  - cd ~/openFrameworks
 
 script:
-  - openFrameworks/scripts/ci/addons/build.sh
+  - scripts/ci/addons/build.sh
 
 git:
   depth: 10
