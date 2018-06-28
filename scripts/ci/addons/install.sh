@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [ "$TARGET" == "linux64" ]; then
   cd ~
   curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/fftw/fftw-3.3.2.tar.gz
