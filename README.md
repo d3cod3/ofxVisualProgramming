@@ -14,13 +14,12 @@ Table of Contents
 
    * [OF_COMPATIBLE_RELEASE](#of_compatible_release)
    * [REFERENCE](#reference)
-   * [DESCRIPTION](#reference)
-   * [DEPENDENCIES](#reference)
+   * [DESCRIPTION](#description)
+   * [DEPENDENCIES](#dependencies)
    * [COMPILING](#compiling)
-   * [INSTALLING](#reference)
-   * [USAGE](#reference)
-   * [EXAMPLE](#reference)
-   * [REFERENCE](#reference)
+   * [INSTALLING](#installing)
+   * [USAGE](#usage)
+   * [EXAMPLE](#example)
    * [CONTRIBUTING](#contributing)
 
 
