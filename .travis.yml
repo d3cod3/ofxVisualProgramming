@@ -172,6 +172,15 @@ install:
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
   - git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua addons/ofxLua
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
+  - cd ~
+  - wget ftp://ftp.fftw.org/pub/fftw/fftw-3.3.2.tar.gz
+  - tar -xvzf fftw-3.3.2.tar.gz
+  - cd fftw-3.3.2
+  - ./configure --prefix=`pwd` --enable-float --enable-sse2 --with-incoming-stack-boundary=2 --with-our-malloc16 --disable-shared --enable-static
+  - make
+  - cd .libs
+  - cp libfftw3f.a ~/openFrameworks/addons/ofxAudioAnalyzer/libs/fftw3f/lib/linux64/
+  - cd ~/openFrameworks
 
 script:
   - scripts/ci/addons/build.sh
