@@ -177,6 +177,7 @@ install:
   - chmod +x install.sh
 
 before_script:
+  - cd ~
   - ./install.sh
 
 script:
