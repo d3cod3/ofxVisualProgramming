@@ -49,10 +49,7 @@ int main(int argc, char *argv[]){
     shared_ptr<ofApp> mosaicApp(new ofApp);
 
     ofGLFWWindowSettings settings;
-    int major = 0, minor = -1; // momentarily deactivated -- TODO
-    if(major > 0 && major < 5 && minor > -1 && minor < 6) {
-        settings.setGLVersion(major, minor);
-    }
+    settings.setGLVersion(2, 1);
     settings.stencilBits = 0;
     settings.setSize(1280,720);
 
