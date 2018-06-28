@@ -174,10 +174,11 @@ install:
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
   - cd ~
   - curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/scripts/ci/addons/install.sh
-  - install.sh
-  - cd ~/openFrameworks
 
 script:
+  - cd ~
+  - install.sh
+  - cd ~/openFrameworks
   - scripts/ci/addons/build.sh
 
 git:
