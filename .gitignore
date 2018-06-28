@@ -29,6 +29,7 @@ Desktop.ini
 .mailmap
 *.app
 *.dSYM
+example_ofxVisualProgramming/bin/.tmp
 bin/.tmp
 obj/
 **/build-ofxVisualProgramming_example-Desktop-Debug
