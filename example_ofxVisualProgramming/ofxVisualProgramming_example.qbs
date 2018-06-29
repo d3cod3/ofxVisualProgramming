@@ -19,7 +19,7 @@ Project{
 
         of.addons: [
             'ofxAudioAnalyzer',
-            'ofxBPMDetector',
+            'ofxBTrack',
             'ofxFontStash',
             'ofxGLError',
             'ofxDatGui',

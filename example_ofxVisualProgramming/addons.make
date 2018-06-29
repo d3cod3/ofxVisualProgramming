@@ -1,5 +1,5 @@
 ofxAudioAnalyzer
-ofxBPMDetector
+ofxBTrack
 ofxFontStash
 ofxGLError
 ofxDatGui

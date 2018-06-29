@@ -3,7 +3,7 @@
 #include "PatchObject.h"
 
 #include "ofxAudioAnalyzer.h"
-#include "ofxBPMDetector.h"
+#include "ofxBTrack.h"
 #include "ofxHistoryPlot.h"
 
 class AudioAnalyzer : public PatchObject {
@@ -82,7 +82,7 @@ public:
 
     // Analysis variables
     ofxAudioAnalyzer                        audioAnalyzer;
-    ofxBPMDetector                          *bpmDetector;
+    ofxBTrack                               *beatTrack;
     vector<float>                           spectrum;
     vector<float>                           melBands;
     vector<float>                           mfcc;
@@ -109,10 +109,3 @@ public:
     int                                     sampleRate;
 
 };
-
-static inline float hardClip(float x){
-    float x1 = fabsf(x + 1.0f);
-    float x2 = fabsf(x - 1.0f);
-
-    return 0.5f * (x1 - x2);
-}

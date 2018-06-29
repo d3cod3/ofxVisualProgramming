@@ -228,8 +228,8 @@ void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
         inputBuffer.copyTo(monoBuffer, inputBuffer.getNumFrames(), 1, 0);
         audioAnalyzer.analyze(monoBuffer);
 
-        // BPM detector
-        bpmDetector->processFrame(monoBuffer.getBuffer(), 1);
+        // BTrack
+        beatTrack->audioIn(&monoBuffer.getBuffer()[0], bufferSize, 1);
 
         unique_lock<mutex> lock(audioMutex);
         lastBuffer = monoBuffer;
@@ -281,8 +281,8 @@ void AudioAnalyzer::updateInWindow(ofEventArgs &e){
 
     isOnset = audioAnalyzer.getOnsetValue(0);
 
-    bpm     = bpmDetector->getBPM();
-    beat    = bpmDetector->getPeak(hfc);
+    bpm     = beatTrack->getEstimatedBPM();
+    beat    = beatTrack->hasBeat();
 
     bpmPlot->update(bpm);
 }
@@ -380,7 +380,7 @@ void AudioAnalyzer::drawInWindow(ofEventArgs &e){
 
     ypos += yoffset;
     ofSetColor(255);
-    windowFont->draw("RITHM FOLLOWER",this->fontSize*this->retinaScale,0,ypos);
+    windowFont->draw("BEAT TRACKING",this->fontSize*this->retinaScale,0,ypos);
     if(beat){
         ofSetColor(255,220,110,240);
         ofDrawRectangle(140*this->retinaScale,(-9*this->retinaScale)+ypos,10*this->retinaScale,10*this->retinaScale);
@@ -428,7 +428,9 @@ bool AudioAnalyzer::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate",0);
             bufferSize = XML.getValue("buffer_size",0);
 
-            bpmDetector = new ofxBPMDetector(1,sampleRate,(bufferSize/2) + 1);
+            beatTrack = new ofxBTrack();
+            beatTrack->setup(bufferSize);
+            beatTrack->setConfidentThreshold(0.35);
 
             XML.popTag();
         }

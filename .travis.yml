@@ -164,7 +164,7 @@ install:
   - cd openFrameworks
   - scripts/ci/addons/install.sh
   - git clone --branch=master https://github.com/d3cod3/ofxAudioAnalyzer addons/ofxAudioAnalyzer
-  - git clone --branch=master https://github.com/d3cod3/ofxBPMDetector addons/ofxBPMDetector
+  - git clone --branch=master https://github.com/d3cod3/ofxBTrack addons/ofxBTrack
   - git clone --branch=master https://github.com/d3cod3/ofxDatGui addons/ofxDatGui
   - git clone --branch=master https://github.com/armadillu/ofxFontStash addons/ofxFontStash
   - git clone --branch=master https://github.com/armadillu/ofxGLError addons/ofxGLError
@@ -183,7 +183,7 @@ before_script:
   - ./configure --prefix=`pwd` --enable-float --enable-sse2 --with-incoming-stack-boundary=2 --with-our-malloc16 --disable-shared --enable-static
   - make
   - cd .libs
-  - cp libfftw3f.a ~/openFrameworks/addons/ofxAudioAnalyzer/libs/fftw3f/lib/linux64/
+  - cp libfftw3f.a ~/openFrameworks/addons/ofxAudioAnalyzer/libs/fftw3f/lib/$TARGET/
   - cd ~/openFrameworks
 
 script:
