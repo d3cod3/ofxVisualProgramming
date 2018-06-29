@@ -47,6 +47,7 @@ PatchObject::PatchObject(){
     isMouseOver     = false;
     isRetina        = false;
     isGUIObject     = false;
+    isBigGuiViewer  = false;
     isAudioINObject = false;
     isAudioOUTObject= false;
     willErase       = false;
@@ -247,7 +248,11 @@ void PatchObject::draw(ofxFontStash *font){
             }
 
             // Draw the object box
-            ofSetColor(*color);
+            if(isBigGuiViewer){
+                ofSetColor(0);
+            }else{
+                ofSetColor(*color);
+            }
             ofSetLineWidth(1);
             ofDrawRectangle(*box);
 
@@ -261,12 +266,16 @@ void PatchObject::draw(ofxFontStash *font){
 
             // on mouse over
             if(bActive){
-                ofSetColor(255,255,255,40);
+                if(isBigGuiViewer){
+                    ofSetColor(255,255,255,5);
+                }else{
+                    ofSetColor(255,255,255,40);
+                }
                 ofDrawRectangle(*box);
             }
 
             // Draw inlets names
-            if(inletsNames.size() > 0){
+            if(inletsNames.size() > 0 && !isBigGuiViewer){
                 ofSetColor(0,0,0,180);
                 ofDrawRectangle(box->x,box->y,box->width/3,box->height);
                 ofSetColor(245);
@@ -278,11 +287,17 @@ void PatchObject::draw(ofxFontStash *font){
 
         // Draw the header
         ofFill();
-        ofSetColor(50);
+        if(isBigGuiViewer){
+            ofSetColor(0,0,0,0);
+        }else{
+            ofSetColor(50);
+        }
         ofDrawRectangle(*headerBox);
 
-        ofSetColor(230);
-        font->draw(name,fontSize,headerBox->x + 6, headerBox->y + letterHeight);
+        if(!isBigGuiViewer){
+            ofSetColor(230);
+            font->draw(name,fontSize,headerBox->x + 6, headerBox->y + letterHeight);
+        }
 
         for (unsigned int i=0;i<headerButtons.size();i++){
             ofSetColor(230);

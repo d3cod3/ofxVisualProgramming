@@ -34,6 +34,7 @@
 #include "ofMain.h"
 
 #include "config.h"
+#include "utils.h"
 
 #include "ofxFontStash.h"
 #include "ofxDatGui.h"
@@ -174,6 +175,7 @@ protected:
     bool                    isMouseOver;
     bool                    isRetina;
     bool                    isGUIObject;
+    bool                    isBigGuiViewer;
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
     bool                    willErase;

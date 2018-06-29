@@ -7,6 +7,8 @@
 // gui objects
 #include "objects/gui/moMessage.h"
 #include "objects/gui/moSlider.h"
+#include "objects/gui/moSignalViewer.h"
+#include "objects/gui/moVideoViewer.h"
 
 // input_output objects
 

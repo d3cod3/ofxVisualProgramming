@@ -556,6 +556,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new moSlider();
     }else if(objname == "video player"){
         tempObj = new VideoPlayer();
+    }else if(objname == "video viewer"){
+        tempObj = new moVideoViewer();
+    }else if(objname == "signal viewer"){
+        tempObj = new moSignalViewer();
     }else if(objname == "output window"){
         tempObj = new OutputWindow();
     }else{
