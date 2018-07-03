@@ -23,7 +23,6 @@ PythonScript::PythonScript() : PatchObject(){
     fbo = new ofFbo();
 
     kuro = new ofImage();
-    kuro->load("images/kuro.jpg");
 
     scaleH = 0.0f;
 
@@ -45,6 +44,9 @@ void PythonScript::newObject(){
 //--------------------------------------------------------------
 void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadProjectorSettings();
+
+    // load kuro
+    kuro->load("images/kuro.jpg");
 
     // init output texture container
     fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);

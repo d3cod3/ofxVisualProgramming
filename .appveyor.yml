@@ -42,6 +42,7 @@ install:
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxHistoryPlot openframeworks/addons/ofxHistoryPlot
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxInfiniteCanvas openframeworks/addons/ofxInfiniteCanvas
 - git clone --depth=1 --branch=windows https://github.com/d3cod3/ofxLua openframeworks/addons/ofxLua
+- git clone --depth=1 --branch=windows https://github.com/d3cod3/ofxPython  openframeworks/addons/ofxPython
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxTimeMeasurements openframeworks/addons/ofxTimeMeasurements
 - call openFrameworks\scripts\ci\addons\install.cmd
 

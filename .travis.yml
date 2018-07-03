@@ -172,7 +172,7 @@ install:
   - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot addons/ofxHistoryPlot
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
   - git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua addons/ofxLua
-  - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
+  - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython addons/ofxPython
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
   - cd ~
   - curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/scripts/ci/addons/install.sh

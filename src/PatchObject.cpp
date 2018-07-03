@@ -70,6 +70,7 @@ PatchObject::PatchObject(){
     box                 = new ofRectangle();
     headerBox           = new ofRectangle();
     color               = new ofColor(55,55,55);
+
 }
 
 //--------------------------------------------------------------
@@ -680,14 +681,14 @@ void PatchObject::mouseReleased(float mx, float my){
 
 //--------------------------------------------------------------
 void PatchObject::audioIn(ofSoundBuffer &inputBuffer){
-    if(isAudioINObject){
+    if(isAudioINObject && !willErase){
         audioInObject(inputBuffer);
     }
 }
 
 //--------------------------------------------------------------
 void PatchObject::audioOut(ofSoundBuffer &outBuffer){
-    if(isAudioOUTObject){
+    if(isAudioOUTObject && !willErase){
         audioOutObject(outBuffer);
     }
 }

@@ -35,8 +35,9 @@ So special thanks to all the precursors of this ideas, and more thanks to the of
 
 # DESCRIPTION
 
+...Soon
 
-# DEPENDENCIES
+# DEPENDENCIES
 
 #### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
