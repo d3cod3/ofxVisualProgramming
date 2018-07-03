@@ -41,7 +41,7 @@ common:
 
 	# linux only, any library that should be included in the project using
 	# pkg-config
-	# ADDON_PKG_CONFIG_LIBRARIES =
+	ADDON_PKG_CONFIG_LIBRARIES = python
 
 	# osx/iOS only, any framework that should be included in the project
 	# ADDON_FRAMEWORKS =
@@ -67,3 +67,19 @@ common:
 	# when parsing the file system looking for include paths exclude this for all or
 	# a specific platform
 	# ADDON_INCLUDES_EXCLUDE =
+
+	linux64:
+		ADDON_CFLAGS += -I/usr/include/python2.7
+		ADDON_LDFLAGS += -lpython2.7
+
+	linux:
+		ADDON_CFLAGS += -I/usr/include/python2.7
+		ADDON_LDFLAGS += -lpython2.7
+
+	win_cb:
+		ADDON_CFLAGS += -IC:/Python27/include
+		ADDON_LDFLAGS += -LC:/Python27/libs -lpython
+
+	osx:
+		ADDON_CFLAGS += -I/usr/include/python2.7
+		ADDON_LDFLAGS += -lpython2.7
