@@ -1,3 +1,13 @@
+ofxAssimpModelLoader
+ofxGui
+ofxKinect
+ofxNetwork
+ofxOpenCv
+ofxOsc
+ofxPoco
+ofxSvg
+ofxVectorGraphics
+ofxXmlSettings
 ofxAudioAnalyzer
 ofxBTrack
 ofxFontStash
@@ -9,4 +19,3 @@ ofxLua
 ofxPython
 ofxTimeMeasurements
 ofxVisualProgramming
-ofxXmlSettings

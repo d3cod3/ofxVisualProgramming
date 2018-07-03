@@ -18,6 +18,7 @@ Project{
         ]
 
         of.addons: [
+            'ofxAssimpModelLoader','ofxGui','ofxKinect','ofxNetwork','ofxOpenCv','ofxOsc','ofxPoco','ofxSvg','ofxVectorGraphics','ofxXmlSettings',
             'ofxAudioAnalyzer',
             'ofxBTrack',
             'ofxFontStash',
@@ -28,8 +29,7 @@ Project{
             'ofxLua',
             'ofxPython',
             'ofxTimeMeasurements',
-            'ofxVisualProgramming',
-            'ofxXmlSettings'
+            'ofxVisualProgramming'
         ]
 
         // additional flags for the project. the of module sets some
