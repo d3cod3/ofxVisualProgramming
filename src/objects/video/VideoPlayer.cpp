@@ -65,7 +65,7 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::updateObjectContent(){
+void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(video->isLoaded()){
         video->update();
         *static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();

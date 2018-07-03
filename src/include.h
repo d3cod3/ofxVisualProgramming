@@ -28,6 +28,7 @@
 
 // scripting
 #include "objects/scripting/LuaScript.h"
+#include "objects/scripting/PythonScript.h"
 
 // sound objects
 #include "objects/sound/AudioAnalyzer.h"

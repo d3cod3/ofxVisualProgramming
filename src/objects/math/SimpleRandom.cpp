@@ -47,7 +47,7 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(){
+void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects){
     *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
 
     gui->update();

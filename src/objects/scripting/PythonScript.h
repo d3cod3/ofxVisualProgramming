@@ -2,14 +2,14 @@
 
 #include "PatchObject.h"
 
-#include "ofxLua.h"
+#include "ofxPython.h"
 #include "PathWatcher.h"
 
-class LuaScript : public PatchObject, ofxLuaListener{
+class PythonScript : public PatchObject {
 
 public:
 
-    LuaScript();
+    PythonScript();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -26,12 +26,14 @@ public:
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
 
-    // ofxLua error callback
-    void            errorReceived(std::string& msg);
+    ofxPython           python;
+    ofxPythonObject     klass;
+    ofxPythonObject     script;
+    ofxPythonObject     updatePython;
+    ofxPythonObject     updateMosaicList;
+    ofxPythonObject     drawPython;
 
-    ofxLua              lua;
     PathWatcher         watcher;
-    bool                scriptLoaded;
     bool                isNewObject;
 
     ofxDatGui*          gui;

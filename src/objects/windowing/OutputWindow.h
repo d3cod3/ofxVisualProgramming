@@ -2,6 +2,7 @@
 
 #include "PatchObject.h"
 #include "ofxLua.h"
+#include "ofxPython.h"
 
 class OutputWindow : public PatchObject {
 
@@ -11,7 +12,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent();
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
@@ -33,6 +34,8 @@ public:
 
     std::shared_ptr<ofAppGLFWWindow>        window;
     bool                                    isFullscreen;
+    bool                                    isNewScriptConnected;
+    int                                     inletScriptType;
 
     int                                     output_width, output_height;
     int                                     window_actual_width, window_actual_height;

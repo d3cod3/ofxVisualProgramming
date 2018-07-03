@@ -26,6 +26,7 @@ Project{
             'ofxHistoryPlot',
             'ofxInfiniteCanvas',
             'ofxLua',
+            'ofxPython',
             'ofxTimeMeasurements',
             'ofxVisualProgramming',
             'ofxXmlSettings'

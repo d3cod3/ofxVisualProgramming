@@ -49,7 +49,7 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moSlider::updateObjectContent(){
+void moSlider::updateObjectContent(map<int,PatchObject*> &patchObjects){
     gui->update();
     slider->update();
 

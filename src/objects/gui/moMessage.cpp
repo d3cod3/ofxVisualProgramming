@@ -53,7 +53,7 @@ void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moMessage::updateObjectContent(){
+void moMessage::updateObjectContent(map<int,PatchObject*> &patchObjects){
     gui->update();
     sendButton->update();
     message->update();

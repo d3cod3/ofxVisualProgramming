@@ -28,7 +28,7 @@ void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::updateObjectContent(){
+void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(this->inletsConnected[0]){
         waveform.clear();
         for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {

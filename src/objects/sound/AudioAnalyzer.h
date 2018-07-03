@@ -14,7 +14,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent();
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
     void            audioInObject(ofSoundBuffer &inputBuffer);

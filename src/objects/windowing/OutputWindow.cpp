@@ -7,27 +7,29 @@ OutputWindow::OutputWindow() : PatchObject(){
     this->numOutlets = 0;
 
     _inletParams[0] = new ofTexture();  // projector
-    _inletParams[1] = new ofxLua();     // lua script reference
+    _inletParams[1] = new ofxLua();     // script reference
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
     }
 
-    isFullscreen    = false;
-    scaleH          = 0.0f;
+    isFullscreen            = false;
+    scaleH                  = 0.0f;
+    isNewScriptConnected    = false;
+    inletScriptType         = 0;        // 0 -> ofxLua, 1 -> ofxPythonObject, .....
 
-    output_width    = 320;
-    output_height   = 240;
+    output_width            = 320;
+    output_height           = 240;
 
-    window_actual_width = STANDARD_PROJECTOR_WINDOW_WIDTH;
-    window_actual_height = STANDARD_PROJECTOR_WINDOW_HEIGHT;
+    window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
+    window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
 }
 
 //--------------------------------------------------------------
 void OutputWindow::newObject(){
     this->setName("output window");
     this->addInlet(VP_LINK_TEXTURE,"projector");
-    this->addInlet(VP_LINK_ARRAY,"lua script");
+    this->addInlet(VP_LINK_SCRIPT,"script");
 }
 
 //--------------------------------------------------------------
@@ -78,8 +80,34 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::updateObjectContent(){
+void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
+    // Manage the different scripts reference available (ofxLua, ofxPython)
+    if(!isNewScriptConnected && this->inletsConnected[1]){
+
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                    if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                        if(it->second->getName() == "lua script"){
+                            _inletParams[1] = new ofxLua();
+                            inletScriptType         = 0;
+                            //ofLog(OF_LOG_NOTICE,"Init inlet as ofxLua pointer");
+                        }else if(it->second->getName() == "python script"){
+                            _inletParams[1] = new ofxPythonObject();
+                            inletScriptType         = 1;
+                            //ofLog(OF_LOG_NOTICE,"Init inlet as ofxPython pointer");
+                        }else{
+                            _inletParams[1] = nullptr;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    isNewScriptConnected = this->inletsConnected[1];
 }
 
 //--------------------------------------------------------------
@@ -206,66 +234,132 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
         toggleWindowFullscreen();
     }
 
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-            static_cast<ofxLua *>(_inletParams[1])->scriptKeyPressed(e.key);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptKeyPressed(e.key);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("keyPressed");
+                if(at){
+                    at(ofxPythonObject::fromInt(e.key));
+                }
+            }
         }
+
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::keyReleased(ofKeyEventArgs &e){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-            static_cast<ofxLua *>(_inletParams[1])->scriptKeyReleased(e.key);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptKeyReleased(e.key);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("keyReleased");
+                if(at){
+                    at(ofxPythonObject::fromInt(e.key));
+                }
+            }
         }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseMoved(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-            ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
-            static_cast<ofxLua *>(_inletParams[1])->scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseMoved");
+                if(at){
+                    at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)));
+                }
+            }
         }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseDragged(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
-        static_cast<ofxLua *>(_inletParams[1])->scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseDragged");
+                if(at){
+                    at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(e.button));
+                }
+            }
+        }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mousePressed(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-            ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
-            static_cast<ofxLua *>(_inletParams[1])->scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mousePressed");
+                if(at){
+                    at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(e.button));
+                }
+            }
         }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseReleased(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-            ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
-            static_cast<ofxLua *>(_inletParams[1])->scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseReleased");
+                if(at){
+                    at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(e.button));
+                }
+            }
         }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-            ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
-            static_cast<ofxLua *>(_inletParams[1])->scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        if(inletScriptType == 0){
+            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
+                static_cast<ofxLua *>(_inletParams[1])->scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<ofxPythonObject *>(_inletParams[1])){
+                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseScrolled");
+                if(at){
+                    at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(static_cast<int>(e.scrollX)),ofxPythonObject::fromInt(static_cast<int>(e.scrollY)));
+                }
+            }
         }
     }
 }

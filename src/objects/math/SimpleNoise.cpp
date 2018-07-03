@@ -40,7 +40,7 @@ void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::updateObjectContent(){
+void SimpleNoise::updateObjectContent(map<int,PatchObject*> &patchObjects){
     *(float *)&_outletParams[0] = ofNoise(timePosition);
 
     gui->update();

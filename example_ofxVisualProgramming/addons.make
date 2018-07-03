@@ -6,6 +6,7 @@ ofxDatGui
 ofxHistoryPlot
 ofxInfiniteCanvas
 ofxLua
+ofxPython
 ofxTimeMeasurements
 ofxVisualProgramming
 ofxXmlSettings

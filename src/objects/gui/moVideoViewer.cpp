@@ -31,7 +31,7 @@ void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::updateObjectContent(){
+void moVideoViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
 
 }

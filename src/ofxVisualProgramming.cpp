@@ -183,6 +183,8 @@ void ofxVisualProgramming::draw(){
             break;
             case 4: ofSetColor(255,255,120); ofSetLineWidth(2);
             break;
+            case 5: ofSetColor(255,128,128); ofSetLineWidth(1);
+            break;
             default: break;
         }
         ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
@@ -334,13 +336,30 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
     }
 
     if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr){
+        vector<bool> tempEraseLinks;
         for(int j=0;j<patchObjects[selectedObjectID]->outPut.size();j++){
+            //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
             if(patchObjects[selectedObjectID]->outPut[j]->fromOutletID == selectedObjectLink){
-                patchObjects[selectedObjectID]->outPut.erase(patchObjects[selectedObjectID]->outPut.begin()+j);
-                patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
-                patchObjects[patchObjects[selectedObjectID]->outPut[j]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[j]->toInletID] = false;
+                tempEraseLinks.push_back(true);
+            }else{
+                tempEraseLinks.push_back(false);
             }
         }
+
+        vector<PatchLink*> tempBuffer;
+        tempBuffer.reserve(patchObjects[selectedObjectID]->outPut.size()-tempEraseLinks.size());
+
+        for (size_t i=0; i<patchObjects[selectedObjectID]->outPut.size(); i++){
+            if(!tempEraseLinks[i]){
+                tempBuffer.push_back(patchObjects[selectedObjectID]->outPut[i]);
+            }else{
+                patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
+                patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
+                //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
+            }
+        }
+
+        patchObjects[selectedObjectID]->outPut = tempBuffer;
 
     }
 
@@ -544,6 +563,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     PatchObject* tempObj;
     if(objname == "lua script"){
         tempObj = new LuaScript();
+    }else if(objname == "python script"){
+        tempObj = new PythonScript();
     }else if(objname == "audio analyzer"){
         tempObj = new AudioAnalyzer();
     }else if(objname == "message"){

@@ -47,7 +47,8 @@ enum LINK_TYPE {
     VP_LINK_STRING,
     VP_LINK_ARRAY,
     VP_LINK_TEXTURE,
-    VP_LINK_AUDIO
+    VP_LINK_AUDIO,
+    VP_LINK_SCRIPT
 };
 
 struct PatchLink{
@@ -81,7 +82,7 @@ public:
     // Virtual Methods
     virtual void            newObject() {}
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
-    virtual void            updateObjectContent() {}
+    virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}

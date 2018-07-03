@@ -1,7 +1,7 @@
-#include "LuaScript.h"
+#include "PythonScript.h"
 
 //--------------------------------------------------------------
-LuaScript::LuaScript() : PatchObject(){
+PythonScript::PythonScript() : PatchObject(){
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -9,13 +9,12 @@ LuaScript::LuaScript() : PatchObject(){
     _inletParams[0] = new vector<float>();      // data
 
     _outletParams[0] = new ofTexture();         // output
-    _outletParams[1] = new ofxLua();            // lua script reference (for keyboard and mouse events on external windows)
+    _outletParams[1] = new ofxPythonObject();   // python script reference (for keyboard and mouse events on external windows)
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
     }
 
-    scriptLoaded        = false;
     isNewObject         = false;
 
     isGUIObject         = true;
@@ -31,20 +30,20 @@ LuaScript::LuaScript() : PatchObject(){
     output_width    = 320;
     output_height   = 240;
 
-    mosaicTableName = "_mosaic_data_table";
+    mosaicTableName = "_mosaic_data_list";
     tempstring      = "";
 }
 
 //--------------------------------------------------------------
-void LuaScript::newObject(){
-    this->setName("lua script");
+void PythonScript::newObject(){
+    this->setName("python script");
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE);
     this->addOutlet(VP_LINK_SCRIPT);
 }
 
 //--------------------------------------------------------------
-void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadProjectorSettings();
 
     // init output texture container
@@ -53,9 +52,8 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofClear(255,255,255, 0);
     fbo->end();
 
-    // init lua
-    lua.init(true);
-    lua.addListener(this);
+    // init python
+    python.init();
 
     watcher.start();
 
@@ -69,7 +67,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);
     gui->setWidth((this->width/3 * 2) + 1);
-    gui->onButtonEvent(this, &LuaScript::onButtonEvent);
+    gui->onButtonEvent(this, &PythonScript::onButtonEvent);
 
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
@@ -81,7 +79,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // GUI
     gui->update();
     loadButton->update();
@@ -92,34 +90,35 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     }
 
     ///////////////////////////////////////////
-    // LUA UPDATE
-    if(scriptLoaded){
-        // receive external data
-        if(this->inletsConnected[0]){
-            for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
-                lua_getglobal(lua, "_updateMosaicData");
-                lua_pushnumber(lua,i+1);
-                lua_pushnumber(lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
-                lua_pcall(lua,2,0,0);
+    // PYTHON UPDATE
+    if(script){
+        updatePython = script.attr("update");
+        if(updatePython){
+            updateMosaicList = python.getObject("_updateMosaicData");
+            // receive external data (this is slow, fix it using python obj direct access)
+            if(this->inletsConnected[0] && updateMosaicList){
+                for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+                    updateMosaicList(ofxPythonObject::fromInt(static_cast<int>(i)),ofxPythonObject::fromFloat(static_cast<double>(static_cast<vector<float> *>(_inletParams[0])->at(i))));
+                }
             }
+            updatePython();
+            // send script reference (for events)
+            *static_cast<ofxPythonObject *>(_outletParams[1]) = script;
         }
-        // update lua state
-        lua.scriptUpdate();
-        // send script reference (for events)
-        *static_cast<ofxLua *>(_outletParams[1]) = lua;
     }
     ///////////////////////////////////////////
 
     ///////////////////////////////////////////
-    // LUA DRAW
+    // PYTHON DRAW
     fbo->begin();
-    if(scriptLoaded){
+    if(script){
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         ofPushView();
         ofPushStyle();
         ofPushMatrix();
-        lua.scriptDraw();
+        drawPython = script.attr("draw");
+        if (drawPython) drawPython();
         ofPopMatrix();
         ofPopStyle();
         ofPopView();
@@ -130,10 +129,11 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+
 }
 
 //--------------------------------------------------------------
-void LuaScript::drawObjectContent(ofxFontStash *font){
+void PythonScript::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     scaleH = (this->width/fbo->getWidth())*fbo->getHeight();
@@ -144,16 +144,16 @@ void LuaScript::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void LuaScript::removeObjectContent(){
+void PythonScript::removeObjectContent(){
     ///////////////////////////////////////////
-    // LUA EXIT
-    lua.scriptExit();
-    lua.clear();
+    // PYTHON EXIT
+    python.reset();
+    script = ofxPythonObject::_None();
     ///////////////////////////////////////////
 }
 
 //--------------------------------------------------------------
-void LuaScript::mouseMovedObjectContent(ofVec3f _m){
+void PythonScript::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -161,7 +161,7 @@ void LuaScript::mouseMovedObjectContent(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void LuaScript::dragGUIObject(ofVec3f _m){
+void PythonScript::dragGUIObject(ofVec3f _m){
     if(!isOverGui){
         ofNotifyEvent(dragEvent, nId);
 
@@ -179,7 +179,7 @@ void LuaScript::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-bool LuaScript::loadProjectorSettings(){
+bool PythonScript::loadProjectorSettings(){
     ofxXmlSettings XML;
     bool loaded = false;
 
@@ -197,56 +197,57 @@ bool LuaScript::loadProjectorSettings(){
 }
 
 //--------------------------------------------------------------
-void LuaScript::loadScript(string scriptFile){
+void PythonScript::loadScript(string scriptFile){
 
     filepath = scriptFile;
 
-    lua.scriptExit();
-    lua.init(true);
-    lua.doScript(filepath, true);
+    ofFile tempfile (filepath);
 
-    // inject incoming data vector to lua
-    string tempstring = mosaicTableName+" = {}";
-    lua.doString(tempstring);
-    tempstring = "function _updateMosaicData(i,data) "+mosaicTableName+"[i] = data  end";
-    lua.doString(tempstring);
+    python.reset();
+    python.addPath(tempfile.getEnclosingDirectory());
+    python.executeScript(filepath);
+
+    // inject incoming data vector to python as list
+    string tempstring = mosaicTableName+" = [];\n"+mosaicTableName+".append(0)";
+    python.executeString(tempstring);
+    // tabs and newlines are really important in python!
+    tempstring = "def _updateMosaicData( i,data ):\n\t if len("+mosaicTableName+") < i:\n\t\t"+mosaicTableName+".append(0)\n\t elif 0 <= i < len("+mosaicTableName+"):\n\t\t"+mosaicTableName+"[i] = data\n";
+    python.executeString(tempstring);
 
     // set Mosaic scripting vars
-    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
-    lua.doString(tempstring);
-    tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
-    lua.doString(tempstring);
-
-
-    scriptLoaded = lua.isValid();
+    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\n";
+    python.executeString(tempstring);
 
     ///////////////////////////////////////////
-    // LUA SETUP
-    if(scriptLoaded){
-        ofLog(OF_LOG_NOTICE,"lua script: %s loaded & running!",filepath.c_str());
+    // PYTHON SETUP
+    klass = python.getObject("mosaicApp");
+    if(klass){
+        script = klass();
+        ofLog(OF_LOG_NOTICE,"python script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
-        lua.scriptSetup();
+    }else{
+        script = ofxPythonObject::_None();
     }
     ///////////////////////////////////////////
 
 }
 
 //--------------------------------------------------------------
-void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
+void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(e.target == loadButton){
-        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a lua script");
+        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a python script");
         if (openFileResult.bSuccess){
             ofFile file (openFileResult.getPath());
             if (file.exists()){
                 string fileExtension = ofToUpper(file.getExtension());
-                if(fileExtension == "LUA") {
+                if(fileExtension == "PY") {
                     loadScript(file.getAbsolutePath());
                 }
             }
         }
     }else if(e.target == editButton){
-        if(filepath != "none" && scriptLoaded){
+        if(filepath != "none" && script){
             string cmd = "";
 #ifdef TARGET_LINUX
             cmd = "atom "+filepath;
@@ -271,7 +272,7 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
 }
 
 //--------------------------------------------------------------
-void LuaScript::pathChanged(const PathWatcher::Event &event) {
+void PythonScript::pathChanged(const PathWatcher::Event &event) {
     switch(event.change) {
         case PathWatcher::CREATED:
             //ofLogVerbose(PACKAGE) << "path created " << event.path;
@@ -289,7 +290,3 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
 
 }
 
-//--------------------------------------------------------------
-void LuaScript::errorReceived(std::string& msg) {
-    ofLog(OF_LOG_ERROR,"got a script error: %s",msg.c_str());
-}
