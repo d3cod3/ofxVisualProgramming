@@ -189,7 +189,7 @@ before_script:
   - cd ~/openFrameworks
 
 script:
-  - scripts/ci/addons/build.sh
+  - scripts/ci/addons/build.sh > /dev/null
 
 git:
   depth: 10
