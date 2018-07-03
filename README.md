@@ -216,7 +216,7 @@ public:
     // the ones i don't need
     void  newObject();
     void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void  updateObjectContent();
+    void  updateObjectContent(map<int,PatchObject*> &patchObjects);
     void  drawObjectContent(ofxFontStash *font);
     void  removeObjectContent();
     //void  mouseMovedObjectContent(ofVec3f _m);
@@ -300,7 +300,7 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(){
+void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // update your object here, as any ofApp example
 
     // in this case we just need to update the outlet value
