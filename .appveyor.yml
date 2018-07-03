@@ -48,4 +48,4 @@ install:
 
 build_script:
 - cd %OF_PATH%
-- scripts\ci\addons\build.cmd
+- scripts\ci\addons\build.cmd > NUL
