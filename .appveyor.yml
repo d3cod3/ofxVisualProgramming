@@ -9,16 +9,6 @@ environment:
       platform: x86
       BUILDER: MSYS2
 
-  #VisualStudio Building
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: x86
-      BUILDER : VS
-      BITS: 32
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      platform: x64
-      BUILDER : VS
-      BITS: 64
-
 configuration: Debug
 shallow_clone: true
 clone_depth: 10
@@ -33,7 +23,7 @@ init:
 
 install:
 - cd ..
-- git clone --depth=1 --branch=master https://github.com/openframeworks/openFrameworks
+- git clone --depth=1 --branch=stable https://github.com/openframeworks/openFrameworks
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxAudioAnalyzer openframeworks/addons/ofxAudioAnalyzer
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxBTrack openframeworks/addons/ofxBTrack
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxDatGui openframeworks/addons/ofxDatGui
