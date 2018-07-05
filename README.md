@@ -39,6 +39,8 @@ So special thanks to all the precursors of this ideas, and more thanks to the of
 
 # DEPENDENCIES
 
+ofxVisualProgramming needs this addons:
+
 #### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
 #### [ofxBTrack](https://github.com/d3cod3/ofxBTrack)
@@ -69,11 +71,6 @@ Some addons are forks of the original, due to some mods, compatibility with OF0.
 
 **Windows is compiling with qtcreator 4.6.1 only, for now.**
 
-**Right now Appveyor build is failing on MSYS2 due to
-_execvp: /mingw32/bin/g++: Argument list too long_**
-
-**Visual Studio 2017, soon...**
-
 # INSTALLING
 
 Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together all the others addons listed:
@@ -88,25 +85,10 @@ git clone https://github.com/armadillu/ofxFontStash
 git clone https://github.com/armadillu/ofxGLError
 git clone https://github.com/armadillu/ofxHistoryPlot
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
+git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
-```
-
-Then, if on Linux/osx:
-
-```bash
-cd <your_openframeworks_release_folder>/addons
-
-git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
-```
-
-or windows:
-
-```bash
-cd <your_openframeworks_release_folder>/addons
-
-git clone --branch=windows https://github.com/d3cod3/ofxLua
 ```
 
 # USAGE
