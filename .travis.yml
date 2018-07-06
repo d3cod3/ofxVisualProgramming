@@ -23,7 +23,7 @@ matrix:
   - os: linux
     dist: trusty
     sudo: required
-    env: TARGET="linux64" OF_BRANCH="stable"
+    env: TARGET="linux64" OF_BRANCH="master"
     addons:
       apt:
         sources:
@@ -189,7 +189,7 @@ before_script:
   - cd ~/openFrameworks
 
 script:
-  - scripts/ci/addons/build.sh > /dev/null
+  - scripts/ci/addons/build.sh
 
 git:
   depth: 10
