@@ -5,11 +5,15 @@
 #include "ofxLua.h"
 #include "PathWatcher.h"
 
-class LuaScript : public PatchObject, ofxLuaListener{
+#include <atomic>
+
+class LuaScript : public ofThread, public PatchObject, public ofxLuaListener{
 
 public:
 
     LuaScript();
+
+    void            threadedFunction();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -20,6 +24,7 @@ public:
     void            dragGUIObject(ofVec3f _m);
 
     void            loadScript(string scriptFile);
+    void            reloadScriptThreaded();
     bool            loadProjectorSettings();
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
@@ -46,5 +51,11 @@ public:
 
     string              mosaicTableName;
     string              tempstring;
+
+protected:
+
+    std::condition_variable condition;
+    bool                    needToLoadScript;
+    bool                    threadLoaded;
 
 };

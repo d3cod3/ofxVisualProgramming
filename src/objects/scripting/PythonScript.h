@@ -5,11 +5,15 @@
 #include "ofxPython.h"
 #include "PathWatcher.h"
 
-class PythonScript : public PatchObject {
+#include <atomic>
+
+class PythonScript : public ofThread, public PatchObject {
 
 public:
 
     PythonScript();
+
+    void            threadedFunction();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -20,6 +24,7 @@ public:
     void            dragGUIObject(ofVec3f _m);
 
     void            loadScript(string scriptFile);
+    void            reloadScriptThreaded();
     bool            loadProjectorSettings();
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
@@ -48,5 +53,12 @@ public:
 
     string              mosaicTableName;
     string              tempstring;
+
+
+protected:
+
+    std::condition_variable condition;
+    bool                    needToLoadScript;
+    bool                    threadLoaded;
 
 };

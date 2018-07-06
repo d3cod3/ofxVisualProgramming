@@ -31,6 +31,9 @@ PythonScript::PythonScript() : PatchObject(){
 
     mosaicTableName = "_mosaic_data_list";
     tempstring      = "";
+
+    threadLoaded    = false;
+    needToLoadScript= true;
 }
 
 //--------------------------------------------------------------
@@ -39,6 +42,20 @@ void PythonScript::newObject(){
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE);
     this->addOutlet(VP_LINK_SCRIPT);
+}
+
+//--------------------------------------------------------------
+void PythonScript::threadedFunction(){
+    while(isThreadRunning()){
+        std::unique_lock<std::mutex> lock(mutex);
+        if(needToLoadScript){
+            needToLoadScript = false;
+            loadScript(filepath);
+            threadLoaded = true;
+        }
+        condition.wait(lock);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -56,14 +73,16 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // init python
     python.init();
-
     watcher.start();
 
     if(filepath != "none"){
-        loadScript(filepath);
+        if(!isThreadRunning()){
+            startThread();
+        }
     }else{
         isNewObject = true;
     }
+
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
@@ -93,7 +112,7 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     ///////////////////////////////////////////
     // PYTHON UPDATE
-    if(script){
+    if(script && threadLoaded){
         updatePython = script.attr("update");
         if(updatePython){
             updateMosaicList = python.getObject("_updateMosaicData");
@@ -113,7 +132,7 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     ///////////////////////////////////////////
     // PYTHON DRAW
     fbo->begin();
-    if(script){
+    if(script && threadLoaded){
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         ofPushView();
@@ -131,6 +150,7 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+    condition.notify_one();
 
 }
 
@@ -152,6 +172,11 @@ void PythonScript::removeObjectContent(){
     python.reset();
     script = ofxPythonObject::_None();
     ///////////////////////////////////////////
+    std::unique_lock<std::mutex> lck(mutex);
+    stopThread();
+    condition.notify_all();
+    waitForThread(false);
+
 }
 
 //--------------------------------------------------------------
@@ -236,6 +261,12 @@ void PythonScript::loadScript(string scriptFile){
 }
 
 //--------------------------------------------------------------
+void PythonScript::reloadScriptThreaded(){
+    script = ofxPythonObject::_None();
+    needToLoadScript = true;
+}
+
+//--------------------------------------------------------------
 void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(e.target == loadButton){
         ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a python script");
@@ -244,7 +275,13 @@ void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
             if (file.exists()){
                 string fileExtension = ofToUpper(file.getExtension());
                 if(fileExtension == "PY") {
-                    loadScript(file.getAbsolutePath());
+                    threadLoaded = false;
+                    filepath = file.getAbsolutePath();
+                    if(!isThreadRunning()){
+                        startThread();
+                    }else{
+                        reloadScriptThreaded();
+                    }
                 }
             }
         }
@@ -281,7 +318,8 @@ void PythonScript::pathChanged(const PathWatcher::Event &event) {
             break;
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
-            loadScript(event.path);
+            filepath = event.path;
+            reloadScriptThreaded();
             break;
         case PathWatcher::DELETED:
             //ofLogVerbose(PACKAGE) << "path deleted " << event.path;

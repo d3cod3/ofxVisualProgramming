@@ -32,6 +32,9 @@ LuaScript::LuaScript() : PatchObject(){
 
     mosaicTableName = "_mosaic_data_table";
     tempstring      = "";
+
+    threadLoaded    = false;
+    needToLoadScript= true;
 }
 
 //--------------------------------------------------------------
@@ -40,6 +43,20 @@ void LuaScript::newObject(){
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE);
     this->addOutlet(VP_LINK_SCRIPT);
+}
+
+//--------------------------------------------------------------
+void LuaScript::threadedFunction(){
+    while(isThreadRunning()){
+        std::unique_lock<std::mutex> lock(mutex);
+        if(needToLoadScript){
+            needToLoadScript = false;
+            loadScript(filepath);
+            threadLoaded = true;
+        }
+        condition.wait(lock);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -58,11 +75,12 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // init lua
     lua.init(true);
     lua.addListener(this);
-
     watcher.start();
 
     if(filepath != "none"){
-        loadScript(filepath);
+        if(!isThreadRunning()){
+            startThread();
+        }
     }else{
         isNewObject = true;
     }
@@ -95,7 +113,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     ///////////////////////////////////////////
     // LUA UPDATE
-    if(scriptLoaded){
+    if(scriptLoaded && threadLoaded){
         // receive external data
         if(this->inletsConnected[0]){
             for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
@@ -115,7 +133,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     ///////////////////////////////////////////
     // LUA DRAW
     fbo->begin();
-    if(scriptLoaded){
+    if(scriptLoaded && threadLoaded){
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         ofPushView();
@@ -132,6 +150,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+    condition.notify_one();
 }
 
 //--------------------------------------------------------------
@@ -152,6 +171,10 @@ void LuaScript::removeObjectContent(){
     lua.scriptExit();
     lua.clear();
     ///////////////////////////////////////////
+    std::unique_lock<std::mutex> lck(mutex);
+    stopThread();
+    condition.notify_all();
+    waitForThread(false);
 }
 
 //--------------------------------------------------------------
@@ -235,6 +258,12 @@ void LuaScript::loadScript(string scriptFile){
 }
 
 //--------------------------------------------------------------
+void LuaScript::reloadScriptThreaded(){
+    scriptLoaded = false;
+    needToLoadScript = true;
+}
+
+//--------------------------------------------------------------
 void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(e.target == loadButton){
         ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a lua script");
@@ -243,7 +272,13 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
             if (file.exists()){
                 string fileExtension = ofToUpper(file.getExtension());
                 if(fileExtension == "LUA") {
-                    loadScript(file.getAbsolutePath());
+                    threadLoaded = false;
+                    filepath = file.getAbsolutePath();
+                    if(!isThreadRunning()){
+                        startThread();
+                    }else{
+                        reloadScriptThreaded();
+                    }
                 }
             }
         }
@@ -280,7 +315,8 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
             break;
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
-            loadScript(event.path);
+            filepath = event.path;
+            reloadScriptThreaded();
             break;
         case PathWatcher::DELETED:
             //ofLogVerbose(PACKAGE) << "path deleted " << event.path;
