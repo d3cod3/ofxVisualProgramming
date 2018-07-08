@@ -388,6 +388,17 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, s
             setup(mainWindow);
             move(XML.getValue("position:x", 0),XML.getValue("position:y", 0));
 
+            if(XML.pushTag("vars")){
+                int totalCustomVars = XML.getNumTags("var");
+                for (int i=0;i<totalCustomVars;i++){
+                    if(XML.pushTag("var",i)){
+                        customVars[XML.getValue("name", "")] = XML.getValue("value", 0);
+                        XML.popTag();
+                    }
+                }
+                XML.popTag();
+            }
+
             if(XML.pushTag("inlets")){
                 int totalInlets = XML.getNumTags("link");
                 for (int i=0;i<totalInlets;i++){
@@ -459,6 +470,20 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                         XML.setValue("position:x",static_cast<double>(x));
                         XML.setValue("position:y",static_cast<double>(y));
 
+                        // Save Custom Vars (GUI, vars, etc...)
+                        int newCustomVars = XML.addTag("vars");
+                        if(XML.pushTag("vars",newCustomVars)){
+                            for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
+                                int newVar = XML.addTag("var");
+                                if(XML.pushTag("var",newVar)){
+                                    XML.setValue("name",it->first);
+                                    XML.setValue("value",it->second);
+                                    XML.popTag();
+                                }
+                            }
+                            XML.popTag();
+                        }
+
                         // Save inlets
                         int newInlets = XML.addTag("inlets");
                         if(XML.pushTag("inlets",newInlets)){
@@ -497,6 +522,19 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                             XML.setValue("filepath",filepath);
                             XML.setValue("position:x",static_cast<double>(x));
                             XML.setValue("position:y",static_cast<double>(y));
+
+                            if(XML.pushTag("vars")){
+                                int tj = 0;
+                                for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
+                                    if(XML.pushTag("var",tj)){
+                                        XML.setValue("name",it->first);
+                                        XML.setValue("value",it->second);
+                                        XML.popTag();
+                                    }
+                                    tj++;
+                                }
+                                XML.popTag();
+                            }
 
                             if(XML.pushTag("outlets")){
                                 for(int j=0;j<outlets.size();j++){

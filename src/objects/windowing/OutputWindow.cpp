@@ -30,6 +30,9 @@ void OutputWindow::newObject(){
     this->setName("output window");
     this->addInlet(VP_LINK_TEXTURE,"projector");
     this->addInlet(VP_LINK_SCRIPT,"script");
+
+    this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+    this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -218,6 +221,8 @@ bool OutputWindow::loadWindowSettings(){
         if (XML.pushTag("settings")){
             output_width = XML.getValue("output_width",0);
             output_height = XML.getValue("output_height",0);
+            this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+            this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
             XML.popTag();
         }
 

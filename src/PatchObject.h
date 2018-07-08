@@ -114,6 +114,8 @@ public:
     void                    addButton(char letter, bool *variableToControl, int offset);
     void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); }
     void                    addOutlet(int type) { outlets.push_back(type); }
+    void                    setCustomVar(float value, string name){ customVars[name] = value; }
+    float                   getCustomVar(string name) { return customVars[name]; }
 
     // GETTERS
     int                     getId() const { return nId; }
@@ -168,6 +170,7 @@ protected:
     vector<string>          inletsNames;
     vector<int>             inlets;
     vector<int>             outlets;
+    map<string,float>       customVars;
     int                     numInlets;
     int                     numOutlets;
     int                     nId;
