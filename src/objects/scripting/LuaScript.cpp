@@ -171,10 +171,6 @@ void LuaScript::removeObjectContent(){
     lua.scriptExit();
     lua.clear();
     ///////////////////////////////////////////
-    std::unique_lock<std::mutex> lck(mutex);
-    stopThread();
-    condition.notify_all();
-    waitForThread(false);
 }
 
 //--------------------------------------------------------------

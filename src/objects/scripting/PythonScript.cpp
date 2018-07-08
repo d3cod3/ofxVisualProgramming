@@ -172,10 +172,6 @@ void PythonScript::removeObjectContent(){
     python.reset();
     script = ofxPythonObject::_None();
     ///////////////////////////////////////////
-    std::unique_lock<std::mutex> lck(mutex);
-    stopThread();
-    condition.notify_all();
-    waitForThread(false);
 
 }
 
