@@ -32,7 +32,6 @@ matrix:
           - gcc-4.9
           - g++-4.9
           - gdb
-          - python-dev
 
 # Linux 64bit, OF stable:  Not supported yet
 #  - os: linux
@@ -189,7 +188,7 @@ before_script:
   - cd ~/openFrameworks
 
 script:
-  - scripts/ci/addons/build.sh
+  - scripts/ci/addons/build.sh > /dev/null 2>/dev/null
 
 git:
   depth: 10
