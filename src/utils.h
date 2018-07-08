@@ -8,3 +8,4 @@ static inline float hardClip(float x){
 
     return 0.5f * (x1 - x2);
 }
+

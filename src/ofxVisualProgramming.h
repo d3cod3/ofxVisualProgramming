@@ -37,13 +37,12 @@
 #include "include.h"
 #include "config.h"
 
-#include "ofxFontStash.h"
 #include "ofxGLError.h"
 #include "ofxInfiniteCanvas.h"
 #include "ofxTimeMeasurements.h"
-#include "ofxXmlSettings.h"
 
 #include "PatchObject.h"
+
 
 class ofxVisualProgramming {
     
@@ -53,8 +52,11 @@ public:
     ~ofxVisualProgramming();
 
     void            setup();
+    void            initObjectMatrix();
+    void            setupGUI();
     void            update();
     void            draw();
+    void            exit();
 
     void            mouseMoved(ofMouseEventArgs &e);
     void            mouseDragged(ofMouseEventArgs &e);
@@ -64,6 +66,10 @@ public:
 
     void            audioIn(ofSoundBuffer &inputBuffer);
     void            audioOut(ofSoundBuffer &outBuffer);
+
+    // GUI
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onScrollViewEvent(ofxDatGuiScrollViewEvent e);
 
     void            activeObject(int oid);
 
@@ -99,14 +105,25 @@ public:
 
     // LOAD/SAVE
     string                  currentPatchFile;
+    string                  tempPatchFile;
     int                     output_width;
     int                     output_height;
+    string                  alphabet;
+    int                     newFileCounter;
 
     // SYSTEM
     shared_ptr<ofAppGLFWWindow>     mainWindow;
     ofxGLError                      glError;
     string                          glVersion;
     string                          glShadingVersion;
+
+    // GUI
+    ofxDatGui                       *gui;
+    ofxDatGuiHeader                 *guiHeader;
+    map<string,vector<string>>      objectsMatrix;
+    vector<ofxDatGuiScrollView*>    objectNavigators;
+    vector<ofxDatGuiFolder*>        objectFolders;
+    bool                            isOverGui;
 
     // Sound Stream
     ofSoundStream           soundStream;
