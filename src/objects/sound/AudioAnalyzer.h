@@ -55,7 +55,7 @@ public:
     void            drawInWindow(ofEventArgs &e);
     void            drawWindowHeader();
 
-    bool            loadAudioSettings();
+    void            loadAudioSettings();
 
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);

@@ -202,12 +202,7 @@ void PythonScript::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void PythonScript::removeObjectContent(){
-    ///////////////////////////////////////////
-    // PYTHON EXIT
-    python.reset();
     script = ofxPythonObject::_None();
-    ///////////////////////////////////////////
-
 }
 
 //--------------------------------------------------------------

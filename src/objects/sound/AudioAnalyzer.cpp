@@ -186,16 +186,6 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     gui->setPosition(0,this->height - smoothing->getHeight()*2);
 
-    // Audio Analysis
-    if(numINChannels > 0){
-        audioAnalyzer.setup(sampleRate, bufferSize, 1);
-    }
-
-    // TESTING
-    for(int i=0;i<bufferSize;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -450,9 +440,8 @@ void AudioAnalyzer::drawWindowHeader(){
 }
 
 //--------------------------------------------------------------
-bool AudioAnalyzer::loadAudioSettings(){
+void AudioAnalyzer::loadAudioSettings(){
     ofxXmlSettings XML;
-    bool loaded = false;
 
     if (XML.loadFile(patchFile)){
         if (XML.pushTag("settings")){
@@ -470,12 +459,17 @@ bool AudioAnalyzer::loadAudioSettings(){
         if(numINChannels < 1){
             ofLog(OF_LOG_ERROR,"%s: The selected Audio Device has no input capabilities!",this->name.c_str());
             ofLog(OF_LOG_ERROR,"%s: Input Channel Numbers: %i",this->name.c_str(),numINChannels);
+        }else{
+            // Audio Analysis
+            audioAnalyzer.setup(sampleRate, bufferSize, 1);
         }
 
-        loaded = true;
-    }
+        // TESTING
+        for(int i=0;i<bufferSize;i++){
+            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+        }
 
-    return loaded;
+    }
 }
 
 //--------------------------------------------------------------

@@ -122,6 +122,7 @@ public:
     ofPoint                 getPos() const { return ofPoint(x,y); }
     string                  getName() const { return name; }
     bool                    getIsActive() const { return bActive; }
+    bool                    getIsAudioINObject() const { return isAudioINObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
     int                     getOutletType(int oid) const { return outlets[oid]; }
     int                     getNumInlets() { return inlets.size(); }

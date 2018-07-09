@@ -206,8 +206,8 @@ void ofxVisualProgramming::setupGUI(){
     }
 
     ofxDatGuiFooter* footer = gui->addFooter();
-    footer->setLabelWhenExpanded("collapse objects");
-    footer->setLabelWhenCollapsed("expand objects");
+    footer->setLabelWhenExpanded("collapse");
+    footer->setLabelWhenCollapsed("objects");
 
     gui->onButtonEvent(this, &ofxVisualProgramming::onButtonEvent);
 
@@ -801,7 +801,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 audioDevices = soundStreamIN.getDeviceList();
                 ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
                 for(size_t i=0;i<audioDevices.size();i++){
-                    audioDevicesString.push_back(audioDevices[i].name);
+                    audioDevicesString.push_back("  "+audioDevices[i].name);
                     ofLog(OF_LOG_NOTICE,"Device[%i]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
                 }
 
@@ -992,7 +992,7 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::setAudioBufferSize(int bs){
-    setPatchVariable("buffer_size",bs);
+    /*setPatchVariable("buffer_size",bs);
     audioBufferSize = bs;
 
     soundStreamOUT.close();
@@ -1004,10 +1004,16 @@ void ofxVisualProgramming::setAudioBufferSize(int bs){
     soundStreamIN.setup(soundStreamINSettings);
     soundStreamOUT.setup(soundStreamOUTSettings);
 
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getIsAudioINObject()){
+            it->second->loadAudioSettings();
+        }
+    }
+
     soundStreamIN.start();
     soundStreamOUT.start();
 
-    ofLog(OF_LOG_NOTICE,"------------------- BUFFER SIZE changed to %i",audioBufferSize);
+    ofLog(OF_LOG_NOTICE,"------------------- BUFFER SIZE changed to %i",audioBufferSize);*/
 }
 
 //--------------------------------------------------------------
