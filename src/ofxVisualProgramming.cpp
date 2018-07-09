@@ -324,7 +324,12 @@ void ofxVisualProgramming::draw(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
-    ofFile::removeFile(tempPatchFile,false);
+    ofDirectory dir;
+    dir.listDir(ofToDataPath("temp/"));
+    for(int i = 0; i < static_cast<int>(dir.size()); i++){
+        dir.getFile(i).remove();
+    }
+
     soundStream.stop();
 }
 
@@ -746,14 +751,14 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::newPatch(){
-    string newFileName = "patch_"+ofToString(ofGetYear())+ofToString(ofGetMonth())+ofToString(ofGetDay)+alphabet.at(newFileCounter)+".xml";
+    string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
     ofFile fileToRead(ofToDataPath("empty_patch.xml"));
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
     newFileCounter++;
 
     currentPatchFile = newPatchFile.getAbsolutePath();
-    loadPatch(currentPatchFile);
+    openPatch(currentPatchFile);
 
     tempPatchFile = currentPatchFile;
 }
@@ -788,7 +793,6 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
             // setup audio
             if(patchFile != "empty_patch.xml"){
-                soundStream.printDeviceList();
                 int audioDev = XML.getValue("audio_device",0);
 
                 soundStream.close();
@@ -877,16 +881,21 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
     }
 
-
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::savePatch(){
+void ofxVisualProgramming::savePatchAs(string patchFile){
 
-}
+    string newFileName = patchFile;
+    ofFile fileToRead(currentPatchFile);
+    ofFile newPatchFile(newFileName);
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
-//--------------------------------------------------------------
-void ofxVisualProgramming::savePatchAs(){
+    currentPatchFile = newFileName;
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->setPatchfile(currentPatchFile);
+    }
 
 }
 

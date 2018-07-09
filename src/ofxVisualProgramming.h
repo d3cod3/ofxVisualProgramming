@@ -83,8 +83,7 @@ public:
     void            newPatch();
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
-    void            savePatch();
-    void            savePatchAs();
+    void            savePatchAs(string patchFile);
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
