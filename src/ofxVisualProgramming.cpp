@@ -329,9 +329,6 @@ void ofxVisualProgramming::exit(){
     for(size_t i = 0; i < dir.size(); i++){
         dir.getFile(i).remove();
     }
-
-    soundStreamIN.stop();
-    soundStreamOUT.stop();
 }
 
 //--------------------------------------------------------------
@@ -794,37 +791,39 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
             // setup audio
             if(patchFile != "empty_patch.xml"){
-                int audioINDev = XML.getValue("audio_in_device",0);
-                int audioOUTDev = XML.getValue("audio_out_device",0);
+                audioINDev = XML.getValue("audio_in_device",0);
+                audioOUTDev = XML.getValue("audio_out_device",0);
+                audioBufferSize = XML.getValue("buffer_size",0);
 
                 soundStreamIN.close();
                 soundStreamOUT.close();
 
-                auto devices = soundStreamIN.getDeviceList();
+                audioDevices = soundStreamIN.getDeviceList();
                 ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
-                for(size_t i=0;i<devices.size();i++){
-                    ofLog(OF_LOG_NOTICE,"Device[%i]: %s (IN:%i - OUT:%i)",i,devices[i].name.c_str(),devices[i].inputChannels,devices[i].outputChannels);
+                for(size_t i=0;i<audioDevices.size();i++){
+                    audioDevicesString.push_back(audioDevices[i].name);
+                    ofLog(OF_LOG_NOTICE,"Device[%i]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
                 }
 
-                soundStreamINSettings.setInDevice(devices[audioINDev]);
-                soundStreamOUTSettings.setOutDevice(devices[audioOUTDev]);
+                soundStreamINSettings.setInDevice(audioDevices[audioINDev]);
+                soundStreamOUTSettings.setOutDevice(audioDevices[audioOUTDev]);
                 soundStreamINSettings.setInListener(this);
                 soundStreamOUTSettings.setOutListener(this);
-                if(devices[audioINDev].sampleRates[0] < 44100){
+                if(audioDevices[audioINDev].sampleRates[0] < 44100){
                     soundStreamINSettings.sampleRate = 44100;
                     XML.setValue("sample_rate_in",44100);
                 }else{
-                    soundStreamINSettings.sampleRate = devices[audioINDev].sampleRates[0];
-                    XML.setValue("sample_rate_in",static_cast<int>(devices[audioINDev].sampleRates[0]));
+                    soundStreamINSettings.sampleRate = audioDevices[audioINDev].sampleRates[0];
+                    XML.setValue("sample_rate_in",static_cast<int>(audioDevices[audioINDev].sampleRates[0]));
                 }
-                soundStreamOUTSettings.sampleRate = devices[audioOUTDev].sampleRates[0];
-                XML.setValue("sample_rate_out",static_cast<int>(devices[audioOUTDev].sampleRates[0]));
-                soundStreamINSettings.numInputChannels = devices[audioINDev].inputChannels;
-                soundStreamOUTSettings.numOutputChannels = devices[audioOUTDev].outputChannels;
-                XML.setValue("input_channels",static_cast<int>(devices[audioINDev].inputChannels));
-                XML.setValue("output_channels",static_cast<int>(devices[audioOUTDev].outputChannels));
-                soundStreamINSettings.bufferSize = XML.getValue("buffer_size",0);
-                soundStreamOUTSettings.bufferSize = XML.getValue("buffer_size",0);
+                soundStreamOUTSettings.sampleRate = audioDevices[audioOUTDev].sampleRates[0];
+                XML.setValue("sample_rate_out",static_cast<int>(audioDevices[audioOUTDev].sampleRates[0]));
+                soundStreamINSettings.numInputChannels = audioDevices[audioINDev].inputChannels;
+                soundStreamOUTSettings.numOutputChannels = audioDevices[audioOUTDev].outputChannels;
+                XML.setValue("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
+                XML.setValue("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
+                soundStreamINSettings.bufferSize = audioBufferSize;
+                soundStreamOUTSettings.bufferSize = audioBufferSize;
 
                 XML.saveFile();
 
@@ -836,9 +835,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
                 if(startingSoundstreamIN && startingSoundstreamOUT){
                     ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
-                    ofLog(OF_LOG_NOTICE,"Audio device: %s",devices[audioINDev].name.c_str());
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
                     ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
-                    ofLog(OF_LOG_NOTICE,"Audio device: %s",devices[audioOUTDev].name.c_str());
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
                 }else{
                     ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
                 }
@@ -919,6 +918,96 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
         it->second->setPatchfile(currentPatchFile);
     }
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setPatchVariable(string var, int value){
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(currentPatchFile)){
+        if (XML.pushTag("settings")){
+            XML.setValue(var,value);
+            XML.saveFile();
+            XML.popTag();
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setAudioInDevice(int index){
+    setPatchVariable("audio_in_device",index);
+    audioINDev = index;
+
+    soundStreamIN.close();
+    soundStreamINSettings.setInDevice(audioDevices[index]);
+    soundStreamINSettings.setInListener(this);
+    if(audioDevices[index].sampleRates[0] < 44100){
+        soundStreamINSettings.sampleRate = 44100;
+        setPatchVariable("sample_rate_in",44100);
+    }else{
+        soundStreamINSettings.sampleRate = audioDevices[index].sampleRates[0];
+        setPatchVariable("sample_rate_in",static_cast<int>(audioDevices[index].sampleRates[0]));
+    }
+    soundStreamINSettings.numInputChannels = audioDevices[index].inputChannels;
+    setPatchVariable("input_channels",static_cast<int>(audioDevices[index].inputChannels));
+    soundStreamINSettings.bufferSize = audioBufferSize;
+
+    bool startingSoundstreamIN = soundStreamIN.setup(soundStreamINSettings);
+
+    soundStreamIN.start();
+
+    if(startingSoundstreamIN){
+        ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Selected Device");
+        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[index].name.c_str());
+    }else{
+        ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setAudioOutDevice(int index){
+    setPatchVariable("audio_out_device",index);
+    audioOUTDev = index;
+
+    soundStreamOUT.close();
+    soundStreamOUTSettings.setOutDevice(audioDevices[index]);
+    soundStreamOUTSettings.setOutListener(this);
+    soundStreamOUTSettings.sampleRate = audioDevices[index].sampleRates[0];
+    setPatchVariable("sample_rate_out",static_cast<int>(audioDevices[index].sampleRates[0]));
+    soundStreamOUTSettings.numOutputChannels = audioDevices[index].outputChannels;
+    setPatchVariable("output_channels",static_cast<int>(audioDevices[index].outputChannels));
+    soundStreamOUTSettings.bufferSize = audioBufferSize;
+
+    bool startingSoundstreamOUT = soundStreamOUT.setup(soundStreamOUTSettings);
+
+    soundStreamOUT.start();
+
+    if(startingSoundstreamOUT){
+        ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Selected Device");
+        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[index].name.c_str());
+    }else{
+        ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setAudioBufferSize(int bs){
+    setPatchVariable("buffer_size",bs);
+    audioBufferSize = bs;
+
+    soundStreamOUT.close();
+    soundStreamIN.close();
+
+    soundStreamINSettings.bufferSize = audioBufferSize;
+    soundStreamOUTSettings.bufferSize = audioBufferSize;
+
+    soundStreamIN.setup(soundStreamINSettings);
+    soundStreamOUT.setup(soundStreamOUTSettings);
+
+    soundStreamIN.start();
+    soundStreamOUT.start();
+
+    ofLog(OF_LOG_NOTICE,"------------------- BUFFER SIZE changed to %i",audioBufferSize);
 }
 
 //--------------------------------------------------------------

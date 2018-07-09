@@ -84,6 +84,11 @@ public:
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
     void            savePatchAs(string patchFile);
+    void            setPatchVariable(string var, int value);
+
+    void            setAudioInDevice(int index);
+    void            setAudioOutDevice(int index);
+    void            setAudioBufferSize(int bs);
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
@@ -127,6 +132,8 @@ public:
     bool                            isOverGui;
 
     // Sound Stream
+    vector<ofSoundDevice>   audioDevices;
+    vector<string>          audioDevicesString;
     ofSoundStream           soundStreamIN;
     ofSoundStreamSettings   soundStreamINSettings;
     ofSoundStream           soundStreamOUT;
@@ -137,6 +144,9 @@ public:
     ofSoundBuffer           lastOutputBuffer;
     ofPolyline              inputBufferWaveform;
     ofPolyline              outputBufferWaveform;
+    int                     audioINDev;
+    int                     audioOUTDev;
+    int                     audioBufferSize;
 
     // MEMORY
     uint64_t                resetTime;
