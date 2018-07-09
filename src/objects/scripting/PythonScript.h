@@ -4,6 +4,7 @@
 
 #include "ofxPython.h"
 #include "PathWatcher.h"
+#include "ThreadedCommand.h"
 
 #include <atomic>
 
@@ -56,7 +57,7 @@ public:
 
 
 protected:
-
+    ThreadedCommand         tempCommand;
     std::condition_variable condition;
     bool                    needToLoadScript;
     bool                    threadLoaded;

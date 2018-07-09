@@ -4,6 +4,7 @@
 
 #include "ofxLua.h"
 #include "PathWatcher.h"
+#include "ThreadedCommand.h"
 
 #include <atomic>
 
@@ -53,7 +54,7 @@ public:
     string              tempstring;
 
 protected:
-
+    ThreadedCommand         tempCommand;
     std::condition_variable condition;
     bool                    needToLoadScript;
     bool                    threadLoaded;

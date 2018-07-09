@@ -66,6 +66,9 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
 
+    // Setup ThreadedCommand var
+    tempCommand.setup();
+
     // init output texture container
     fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
     fbo->begin();
@@ -288,7 +291,9 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #elif defined(TARGET_WIN32)
             cmd = "atom "+filepath;
 #endif
-            if(system(cmd.c_str()) != 0){ // error
+            tempCommand.execCommand(cmd);
+
+            if(tempCommand.getSysStatus() != 0){ // error
                 ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
 #ifdef TARGET_LINUX
                 cmd = "nano "+filepath;
@@ -297,7 +302,7 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #elif defined(TARGET_WIN32)
                 cmd = "start "+filepath;
 #endif
-                system(cmd.c_str());
+                tempCommand.execCommand(cmd);
             }
         }
     }
