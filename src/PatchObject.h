@@ -4,9 +4,9 @@
 
     Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
-    Mosaic is distributed under the MIT License. This gives everyone the
-    freedoms to use Mosaic in any context: commercial or non-commercial,
-    public or private, open or closed source.
+    ofxVisualProgramming is distributed under the MIT License.
+    This gives everyone the freedoms to use ofxVisualProgramming in any context:
+    commercial or non-commercial, public or private, open or closed source.
 
     Permission is hereby granted, free of charge, to any person obtaining a
     copy of this software and associated documentation files (the "Software"),
