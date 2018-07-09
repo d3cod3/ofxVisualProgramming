@@ -80,9 +80,11 @@ public:
     void            iconifyObject(int &id);
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
 
+    void            newPatch();
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
     void            savePatch();
+    void            savePatchAs();
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;

@@ -164,15 +164,7 @@ void ofxVisualProgramming::setup(){
     setupGUI();
 
     // Create new empty file patch
-    string newFileName = "patch_"+ofToString(ofGetYear())+ofToString(ofGetMonth())+ofToString(ofGetDay)+alphabet.at(newFileCounter)+".xml";
-    ofFile fileToRead(ofToDataPath("empty_patch.xml"));
-    ofFile newPatchFile(ofToDataPath("temp/"+newFileName));
-    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
-
-    currentPatchFile = newPatchFile.getAbsolutePath();
-    loadPatch(currentPatchFile);
-
-    tempPatchFile = currentPatchFile;
+    newPatch();
 
 }
 
@@ -614,6 +606,8 @@ void ofxVisualProgramming::dragObject(int &id){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::removeObject(int &id){
+    resetTime = ofGetElapsedTimeMillis();
+
     if ((id != -1) && (patchObjects[id] != nullptr)){
 
         int targetID = id;
@@ -751,6 +745,20 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::newPatch(){
+    string newFileName = "patch_"+ofToString(ofGetYear())+ofToString(ofGetMonth())+ofToString(ofGetDay)+alphabet.at(newFileCounter)+".xml";
+    ofFile fileToRead(ofToDataPath("empty_patch.xml"));
+    ofFile newPatchFile(ofToDataPath("temp/"+newFileName));
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
+    newFileCounter++;
+
+    currentPatchFile = newPatchFile.getAbsolutePath();
+    loadPatch(currentPatchFile);
+
+    tempPatchFile = currentPatchFile;
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::openPatch(string patchFile){
     currentPatchFile = patchFile;
 
@@ -874,6 +882,11 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::savePatch(){
+
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::savePatchAs(){
 
 }
 
