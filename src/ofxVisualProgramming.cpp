@@ -326,11 +326,12 @@ void ofxVisualProgramming::draw(){
 void ofxVisualProgramming::exit(){
     ofDirectory dir;
     dir.listDir(ofToDataPath("temp/"));
-    for(int i = 0; i < static_cast<int>(dir.size()); i++){
+    for(size_t i = 0; i < dir.size(); i++){
         dir.getFile(i).remove();
     }
 
-    soundStream.stop();
+    soundStreamIN.stop();
+    soundStreamOUT.stop();
 }
 
 //--------------------------------------------------------------
@@ -793,30 +794,51 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
             // setup audio
             if(patchFile != "empty_patch.xml"){
-                int audioDev = XML.getValue("audio_device",0);
+                int audioINDev = XML.getValue("audio_in_device",0);
+                int audioOUTDev = XML.getValue("audio_out_device",0);
 
-                soundStream.close();
+                soundStreamIN.close();
+                soundStreamOUT.close();
 
-                auto devices = soundStream.getDeviceList();
-                soundStreamSettings.setInDevice(devices[audioDev]);
-                soundStreamSettings.setOutDevice(devices[audioDev]);
-                soundStreamSettings.setInListener(this);
-                soundStreamSettings.sampleRate = XML.getValue("sample_rate",0);
-                soundStreamSettings.numOutputChannels = devices[audioDev].outputChannels;
-                soundStreamSettings.numInputChannels = devices[audioDev].inputChannels;
-                XML.setValue("input_channels",static_cast<int>(devices[audioDev].inputChannels));
-                XML.setValue("output_channels",static_cast<int>(devices[audioDev].outputChannels));
-                soundStreamSettings.bufferSize = XML.getValue("buffer_size",0);
+                auto devices = soundStreamIN.getDeviceList();
+                ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
+                for(size_t i=0;i<devices.size();i++){
+                    ofLog(OF_LOG_NOTICE,"Device[%i]: %s (IN:%i - OUT:%i)",i,devices[i].name.c_str(),devices[i].inputChannels,devices[i].outputChannels);
+                }
+
+                soundStreamINSettings.setInDevice(devices[audioINDev]);
+                soundStreamOUTSettings.setOutDevice(devices[audioOUTDev]);
+                soundStreamINSettings.setInListener(this);
+                soundStreamOUTSettings.setOutListener(this);
+                if(devices[audioINDev].sampleRates[0] < 44100){
+                    soundStreamINSettings.sampleRate = 44100;
+                    XML.setValue("sample_rate_in",44100);
+                }else{
+                    soundStreamINSettings.sampleRate = devices[audioINDev].sampleRates[0];
+                    XML.setValue("sample_rate_in",static_cast<int>(devices[audioINDev].sampleRates[0]));
+                }
+                soundStreamOUTSettings.sampleRate = devices[audioOUTDev].sampleRates[0];
+                XML.setValue("sample_rate_out",static_cast<int>(devices[audioOUTDev].sampleRates[0]));
+                soundStreamINSettings.numInputChannels = devices[audioINDev].inputChannels;
+                soundStreamOUTSettings.numOutputChannels = devices[audioOUTDev].outputChannels;
+                XML.setValue("input_channels",static_cast<int>(devices[audioINDev].inputChannels));
+                XML.setValue("output_channels",static_cast<int>(devices[audioOUTDev].outputChannels));
+                soundStreamINSettings.bufferSize = XML.getValue("buffer_size",0);
+                soundStreamOUTSettings.bufferSize = XML.getValue("buffer_size",0);
 
                 XML.saveFile();
 
-                bool startingSoundstream = soundStream.setup(soundStreamSettings);
+                bool startingSoundstreamIN = soundStreamIN.setup(soundStreamINSettings);
+                bool startingSoundstreamOUT = soundStreamOUT.setup(soundStreamOUTSettings);
 
-                soundStream.start();
+                soundStreamIN.start();
+                soundStreamOUT.start();
 
-                if(startingSoundstream){
-                    ofLog(OF_LOG_NOTICE,"------------------- Soundstream Started on");
-                    ofLog(OF_LOG_NOTICE,"Audio device: %s",devices[audioDev].name.c_str());
+                if(startingSoundstreamIN && startingSoundstreamOUT){
+                    ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",devices[audioINDev].name.c_str());
+                    ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",devices[audioOUTDev].name.c_str());
                 }else{
                     ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
                 }

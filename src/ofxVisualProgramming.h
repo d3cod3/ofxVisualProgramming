@@ -127,8 +127,10 @@ public:
     bool                            isOverGui;
 
     // Sound Stream
-    ofSoundStream           soundStream;
-    ofSoundStreamSettings   soundStreamSettings;
+    ofSoundStream           soundStreamIN;
+    ofSoundStreamSettings   soundStreamINSettings;
+    ofSoundStream           soundStreamOUT;
+    ofSoundStreamSettings   soundStreamOUTSettings;
     std::mutex              inputAudioMutex;
     std::mutex              outputAudioMutex;
     ofSoundBuffer           lastInputBuffer;

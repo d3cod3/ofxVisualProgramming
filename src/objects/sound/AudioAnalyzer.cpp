@@ -457,7 +457,7 @@ bool AudioAnalyzer::loadAudioSettings(){
     if (XML.loadFile(patchFile)){
         if (XML.pushTag("settings")){
             numINChannels   = XML.getValue("input_channels",0);
-            sampleRate = XML.getValue("sample_rate",0);
+            sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
             beatTrack = new ofxBTrack();
