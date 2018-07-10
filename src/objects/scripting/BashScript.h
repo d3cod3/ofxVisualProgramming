@@ -32,47 +32,53 @@
 
 #pragma once
 
-// computer_vision objects
+#include "PatchObject.h"
 
-// graphics objects
+#include "PathWatcher.h"
+#include "ThreadedCommand.h"
 
-// gui objects
-#include "objects/gui/moMessage.h"
-#include "objects/gui/moSlider.h"
-#include "objects/gui/moSignalViewer.h"
-#include "objects/gui/moVideoViewer.h"
+#include <atomic>
 
-// input_output objects
+class BashScript : public ofThread, public PatchObject{
 
-// logic objects
+public:
 
-// machine_learning objects
+    BashScript();
 
-// math objects
-#include "objects/math/SimpleRandom.h"
-#include "objects/math/SimpleNoise.h"
+    void            threadedFunction();
 
-// midi objects
+    void            newObject();
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            drawObjectContent(ofxFontStash *font);
+    void            removeObjectContent();
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
-// osc objects
+    void            loadScript(string scriptFile);
+    void            reloadScriptThreaded();
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
-// physics objects
+    // Filepath watcher callback
+    void            pathChanged(const PathWatcher::Event &event);
 
-// scripting
-#include "objects/scripting/BashScript.h"
-#include "objects/scripting/LuaScript.h"
-#include "objects/scripting/PythonScript.h"
-#include "objects/scripting/ShaderObject.h"
 
-// sound objects
-#include "objects/sound/AudioAnalyzer.h"
+    PathWatcher         watcher;
+    bool                scriptLoaded;
+    bool                isNewObject;
 
-// typography objects
+    ofxDatGui*          gui;
+    ofxDatGuiButton*    loadButton;
+    ofxDatGuiButton*    editButton;
+    bool                isOverGui;
+    ofImage             *bashIcon;
 
-// video objects
-#include "objects/video/VideoPlayer.h"
+    string              lastMessage;
 
-// web objects
+protected:
+    ThreadedCommand         tempCommand;
+    std::condition_variable condition;
+    bool                    needToLoadScript;
+    bool                    threadLoaded;
 
-// window objects
-#include "objects/windowing/OutputWindow.h"
+};
