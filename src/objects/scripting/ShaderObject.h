@@ -123,6 +123,6 @@ public:
     int                 output_width, output_height;
 
 protected:
-    ThreadedCommand         tempCommand;
+    ThreadedCommand     tempCommand;
 
 };
