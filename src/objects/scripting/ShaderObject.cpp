@@ -299,6 +299,10 @@ void ShaderObject::doFragmentShader(){
     shader->unload();
     shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
     scriptLoaded = shader->linkProgram();
+
+    if(scriptLoaded){
+        ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s loaded on GPU!",filepath.c_str());
+    }
 }
 
 //--------------------------------------------------------------

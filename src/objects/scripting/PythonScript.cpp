@@ -276,7 +276,7 @@ void PythonScript::loadScript(string scriptFile){
     klass = python.getObject("mosaicApp");
     if(klass){
         script = klass();
-        ofLog(OF_LOG_NOTICE,"python script: %s loaded & running!",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"[verbose] python script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
     }else{

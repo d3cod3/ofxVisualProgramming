@@ -279,7 +279,7 @@ void LuaScript::loadScript(string scriptFile){
     ///////////////////////////////////////////
     // LUA SETUP
     if(scriptLoaded){
-        ofLog(OF_LOG_NOTICE,"lua script: %s loaded & running!",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
         lua.scriptSetup();
