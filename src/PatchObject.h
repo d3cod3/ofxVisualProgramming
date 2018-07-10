@@ -150,6 +150,7 @@ public:
     vector<PushButton*>     headerButtons;
     ofRectangle             *headerBox;
 
+    ofEvent<int>            resetEvent;
     ofEvent<int>            removeEvent;
     ofEvent<int>            dragEvent;
     ofEvent<int>            iconifyEvent;

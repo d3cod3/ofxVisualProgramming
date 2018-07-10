@@ -61,6 +61,7 @@
 // scripting
 #include "objects/scripting/LuaScript.h"
 #include "objects/scripting/PythonScript.h"
+#include "objects/scripting/ShaderObject.h"
 
 // sound objects
 #include "objects/sound/AudioAnalyzer.h"

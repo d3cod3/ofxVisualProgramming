@@ -76,6 +76,7 @@ public:
     PatchObject*    selectObject(string objname);
     void            addObject(string name, ofVec2f pos);
     void            dragObject(int &id);
+    void            resetObject(int &id);
     void            removeObject(int &id);
     void            iconifyObject(int &id);
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
@@ -88,7 +89,6 @@ public:
 
     void            setAudioInDevice(int index);
     void            setAudioOutDevice(int index);
-    void            setAudioBufferSize(int bs);
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;

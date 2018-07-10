@@ -66,7 +66,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["physics"] = vecInit;
 
-    vecInit = {"lua script","python script"};
+    vecInit = {"lua script","python script","shader object"};
     objectsMatrix["scripting"] = vecInit;
 
     vecInit = {"audio analyzer"};
@@ -590,6 +590,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     tempObj->setIsRetina(isRetina);
     ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
+    ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
     ofAddListener(tempObj->iconifyEvent ,this,&ofxVisualProgramming::iconifyObject);
 
     actualObjectID++;
@@ -605,6 +606,62 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 //--------------------------------------------------------------
 void ofxVisualProgramming::dragObject(int &id){
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::resetObject(int &id){
+    if ((id != -1) && (patchObjects[id] != nullptr)){
+
+        ofLog(OF_LOG_NOTICE,"Reset object: %i", id);
+
+        ofxXmlSettings XML;
+        if (XML.loadFile(currentPatchFile)){
+            int totalObjects = XML.getNumTags("object");
+
+            // remove links to the removed object
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) != id){
+                        if(XML.pushTag("outlets")){
+                            int totalLinks = XML.getNumTags("link");
+                            for(int l=0;l<totalLinks;l++){
+                                if(XML.pushTag("link",l)){
+                                    int totalTo = XML.getNumTags("to");
+                                    for(int t=0;t<totalTo;t++){
+                                        if(XML.pushTag("to",t)){
+                                            bool delLink = false;
+                                            if(XML.getValue("id", -1) == id){
+                                                delLink = true;
+                                            }
+                                            XML.popTag();
+                                            if(delLink){
+                                                XML.removeTag("to",t);
+                                            }
+                                        }
+                                    }
+                                    XML.popTag();
+                                }
+                            }
+                            XML.popTag();
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+
+            XML.saveFile();
+
+            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                for(int j=0;j<it->second->outPut.size();j++){
+                    if(it->second->outPut[j]->toObjectID == id){
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
+                }
+            }
+        }
+
+    }
 }
 
 //--------------------------------------------------------------
@@ -722,6 +779,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new LuaScript();
     }else if(objname == "python script"){
         tempObj = new PythonScript();
+    }else if(objname == "shader object"){
+        tempObj = new ShaderObject();
     }else if(objname == "audio analyzer"){
         tempObj = new AudioAnalyzer();
     }else if(objname == "message"){
@@ -860,6 +919,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                         tempObj->setIsRetina(isRetina);
                         ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
                         ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
+                        ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
                         ofAddListener(tempObj->iconifyEvent ,this,&ofxVisualProgramming::iconifyObject);
                         // Insert the new patch into the map
                         patchObjects[tempObj->getId()] = tempObj;
@@ -988,32 +1048,6 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
     }else{
         ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
     }
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::setAudioBufferSize(int bs){
-    /*setPatchVariable("buffer_size",bs);
-    audioBufferSize = bs;
-
-    soundStreamOUT.close();
-    soundStreamIN.close();
-
-    soundStreamINSettings.bufferSize = audioBufferSize;
-    soundStreamOUTSettings.bufferSize = audioBufferSize;
-
-    soundStreamIN.setup(soundStreamINSettings);
-    soundStreamOUT.setup(soundStreamOUTSettings);
-
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getIsAudioINObject()){
-            it->second->loadAudioSettings();
-        }
-    }
-
-    soundStreamIN.start();
-    soundStreamOUT.start();
-
-    ofLog(OF_LOG_NOTICE,"------------------- BUFFER SIZE changed to %i",audioBufferSize);*/
 }
 
 //--------------------------------------------------------------

@@ -536,6 +536,21 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                                 XML.popTag();
                             }
 
+
+                            XML.removeTag("inlets");
+                            int newInlets = XML.addTag("inlets");
+                            if(XML.pushTag("inlets",newInlets)){
+                                for(int i=0;i<inlets.size();i++){
+                                    int newLink = XML.addTag("link");
+                                    if(XML.pushTag("link",newLink)){
+                                        XML.setValue("type",inlets.at(i));
+                                        XML.setValue("name",inletsNames.at(i));
+                                        XML.popTag();
+                                    }
+                                }
+                                XML.popTag();
+                            }
+
                             if(XML.pushTag("outlets")){
                                 for(int j=0;j<outlets.size();j++){
                                     if(XML.pushTag("link", j)){
