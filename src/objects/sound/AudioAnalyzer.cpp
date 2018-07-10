@@ -81,6 +81,10 @@ void AudioAnalyzer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"channel");
     this->addOutlet(VP_LINK_ARRAY);
     this->addOutlet(VP_LINK_AUDIO);
+
+    this->setCustomVar(static_cast<float>(actualChannel),"CHANNEL");
+    this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
+    this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
 }
 
 //--------------------------------------------------------------
@@ -181,8 +185,10 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     inputLevel = gui->addSlider("Level",0.0f,1.0f,1.0f);
     inputLevel->setUseCustomMouse(true);
+    inputLevel->setValue(audioInputLevel);
     smoothing = gui->addSlider("Smooth.",0.0f,0.8f,0.0f);
     smoothing->setUseCustomMouse(true);
+    smoothing->setValue(smoothingValue);
 
     gui->setPosition(0,this->height - smoothing->getHeight()*2);
 
@@ -203,6 +209,7 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
         int receivingChannel = static_cast<int>(floor(*(float *)&_inletParams[0]));
         if(this->inletsConnected[0] && receivingChannel >= 0 && receivingChannel < numINChannels){
             actualChannel = receivingChannel;
+            this->setCustomVar(static_cast<float>(actualChannel),"CHANNEL");
         }
 
         waveform.clear();
@@ -462,6 +469,10 @@ void AudioAnalyzer::loadAudioSettings(){
         }else{
             // Audio Analysis
             audioAnalyzer.setup(sampleRate, bufferSize, 1);
+
+            actualChannel = static_cast<int>(floor(this->getCustomVar("CHANNEL")));
+            audioInputLevel = this->getCustomVar("INPUT_LEVEL");
+            smoothingValue = this->getCustomVar("SMOOTHING");
         }
 
         // TESTING
@@ -555,7 +566,9 @@ void AudioAnalyzer::mouseScrolled(ofMouseEventArgs &e){
 void AudioAnalyzer::onSliderEvent(ofxDatGuiSliderEvent e){
     if(e.target == smoothing){
         smoothingValue = static_cast<float>(smoothing->getValue());
+        this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
     }else if(e.target == inputLevel){
         audioInputLevel = static_cast<float>(inputLevel->getValue());
+        this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
     }
 }

@@ -385,19 +385,20 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, s
             name = XML.getValue("name","none");
             filepath = XML.getValue("filepath","none");
 
-            setup(mainWindow);
             move(XML.getValue("position:x", 0),XML.getValue("position:y", 0));
 
             if(XML.pushTag("vars")){
                 int totalCustomVars = XML.getNumTags("var");
                 for (int i=0;i<totalCustomVars;i++){
                     if(XML.pushTag("var",i)){
-                        customVars[XML.getValue("name", "")] = XML.getValue("value", 0);
+                        customVars[XML.getValue("name", "")] = XML.getValue("value", 0.0);
                         XML.popTag();
                     }
                 }
                 XML.popTag();
             }
+
+            setup(mainWindow);
 
             if(XML.pushTag("inlets")){
                 int totalInlets = XML.getNumTags("link");

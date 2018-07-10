@@ -245,23 +245,9 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
 }
 
 //--------------------------------------------------------------
-bool OutputWindow::loadWindowSettings(){
-    ofxXmlSettings XML;
-    bool loaded = false;
-
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            output_width = XML.getValue("output_width",0);
-            output_height = XML.getValue("output_height",0);
-            this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
-            this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
-            XML.popTag();
-        }
-
-        loaded = true;
-    }
-
-    return loaded;
+void OutputWindow::loadWindowSettings(){
+    output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+    output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 }
 
 //--------------------------------------------------------------

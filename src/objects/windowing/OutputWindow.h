@@ -53,7 +53,7 @@ public:
     void            toggleWindowFullscreen();
     void            drawInWindow(ofEventArgs &e);
 
-    bool            loadWindowSettings();
+    void            loadWindowSettings();
 
     void            keyPressed(ofKeyEventArgs &e);
     void            keyReleased(ofKeyEventArgs &e);
