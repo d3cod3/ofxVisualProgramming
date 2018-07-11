@@ -127,6 +127,10 @@ ofxVisualProgramming::ofxVisualProgramming(){
 
     alphabet                = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY";
     newFileCounter          = 0;
+
+    // PROFILER
+    profilerActive          = false;
+    TIME_SAMPLE_SET_ENABLED(profilerActive);
 }
 
 //--------------------------------------------------------------
@@ -216,8 +220,6 @@ void ofxVisualProgramming::setupGUI(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::update(){
 
-    TS_START("ofxVP update");
-
     // Sound Context
     unique_lock<std::mutex> lock(inputAudioMutex);
     {
@@ -235,7 +237,9 @@ void ofxVisualProgramming::update(){
     canvas.update();
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
         it->second->update(patchObjects);
+        TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
     }
     // Clear map from deleted objects
     if(ofGetElapsedTimeMillis()-resetTime > wait){
@@ -256,15 +260,12 @@ void ofxVisualProgramming::update(){
         }
     }
 
-    TS_STOP("ofxVP update");
-
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::draw(){
 
     TSGL_START("draw");
-    TS_START("ofxVP draw")
 
     ofPushView();
     ofPushStyle();
@@ -278,7 +279,9 @@ void ofxVisualProgramming::draw(){
     ofSetLineWidth(1);
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        TS_START(it->second->getName()+ofToString(it->second->getId())+"_draw");
         it->second->draw(font);
+        TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_draw");
     }
 
     if(selectedObjectLink >= 0){
@@ -317,9 +320,8 @@ void ofxVisualProgramming::draw(){
     ofPopStyle();
     ofPopView();
 
-    TS_STOP("ofxVP draw");
     TSGL_STOP("draw");
-    
+
 }
 
 //--------------------------------------------------------------
@@ -333,8 +335,6 @@ void ofxVisualProgramming::exit(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
-
-    //TS_START("ofxVP mouseMoved");
 
     ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -356,14 +356,10 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
         }
     }
 
-    //TS_STOP("ofxVP mouseMoved");
-
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
-
-    //TS_START("ofxVP mouseDragged");
 
     ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -395,14 +391,10 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
         canvas.mouseDragged(e);
     }
 
-    //TS_STOP("ofxVP mouseDragged");
-
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
-
-    //TS_START("ofxVP mousePressed");
 
     ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -442,14 +434,10 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
         }
     }
 
-    //TS_STOP("ofxVP mousePressed");
-
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
-
-    //TS_START("ofxVP mouseReleased");
 
     ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -520,8 +508,6 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
     }
 
-
-    //TS_STOP("ofxVP mouseReleased");
 }
 
 //--------------------------------------------------------------

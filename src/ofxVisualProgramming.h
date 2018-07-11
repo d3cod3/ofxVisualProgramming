@@ -122,6 +122,7 @@ public:
     ofxGLError                      glError;
     string                          glVersion;
     string                          glShadingVersion;
+    bool                            profilerActive;
 
     // GUI
     ofxDatGui                       *gui;
