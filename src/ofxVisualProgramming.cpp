@@ -91,12 +91,14 @@ ofxVisualProgramming::ofxVisualProgramming(){
 
     mainWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
 
-    // Performance Measurement
+    // Profiler
+    profilerActive          = false;
     TIME_SAMPLE_SET_DRAW_LOCATION(TIME_MEASUREMENTS_BOTTOM_RIGHT);
     TIME_SAMPLE_SET_AVERAGE_RATE(0.3);
     TIME_SAMPLE_SET_REMOVE_EXPIRED_THREADS(true);
     TIME_SAMPLE_GET_INSTANCE()->drawUiWithFontStash(MAIN_FONT);
     TIME_SAMPLE_GET_INSTANCE()->setSavesSettingsOnExit(false);
+    TIME_SAMPLE_SET_ENABLED(profilerActive);
 
     //  Event listeners
     ofAddListener(ofEvents().mouseMoved, this, &ofxVisualProgramming::mouseMoved);
@@ -128,9 +130,6 @@ ofxVisualProgramming::ofxVisualProgramming(){
     alphabet                = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY";
     newFileCounter          = 0;
 
-    // PROFILER
-    profilerActive          = false;
-    TIME_SAMPLE_SET_ENABLED(profilerActive);
 }
 
 //--------------------------------------------------------------
