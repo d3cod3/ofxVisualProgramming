@@ -212,6 +212,8 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
             this->setCustomVar(static_cast<float>(actualChannel),"CHANNEL");
         }
 
+        int index = 0;
+
         waveform.clear();
         for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
             float sample = lastBuffer.getSample(i,actualChannel);
@@ -219,9 +221,48 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
             float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
             waveform.addVertex(x, y);
 
-            // TESTING
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = sample;
+            // SIGNAL BUFFER
+            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = sample;
         }
+
+        index += lastBuffer.getNumFrames();
+        // SPECTRUM
+        for(int i=0;i<spectrum.size();i++){
+            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(spectrum[i],DB_MIN,DB_MAX,0.0,1.0,true);
+        }
+        index += spectrum.size();
+        // MELBANDS
+        for(int i=0;i<melBands.size();i++){
+            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);
+        }
+        index += melBands.size();
+        // MFCC
+        for(int i=0;i<mfcc.size();i++){
+            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true);
+        }
+        index += mfcc.size();
+        // HPCP
+        for(int i=0;i<hpcp.size();i++){
+            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = hpcp[i];
+        }
+        index += hpcp.size();
+        // TRISTIMULUS
+        for(int i=0;i<tristimulus.size();i++){
+            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = tristimulus[i];
+        }
+        index += tristimulus.size();
+        // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
+        static_cast<vector<float> *>(_outletParams[0])->at(index) = rms;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+1) = power;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+2) = pitchFreq;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+3) = hfc;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+4) = centroidNorm;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+5) = inharmonicity;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+6) = dissonance;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+7) = rollOffNorm;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+8) = static_cast<float>(isOnset);
+        static_cast<vector<float> *>(_outletParams[0])->at(index+9) = bpm;
+        static_cast<vector<float> *>(_outletParams[0])->at(index+10) = static_cast<float>(beat);
 
         // Outlet with audio stream
         *static_cast<ofSoundBuffer *>(_outletParams[1]) = lastBuffer;
@@ -473,13 +514,37 @@ void AudioAnalyzer::loadAudioSettings(){
             actualChannel = static_cast<int>(floor(this->getCustomVar("CHANNEL")));
             audioInputLevel = this->getCustomVar("INPUT_LEVEL");
             smoothingValue = this->getCustomVar("SMOOTHING");
-        }
 
-        // TESTING
-        for(int i=0;i<bufferSize;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-        }
+            // SIGNAL BUFFER
+            for(int i=0;i<bufferSize;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
+            // SPECTRUM
+            for(int i=0;i<(bufferSize/2)+1;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
+            // MELBANDS
+            for(int i=0;i<MELBANDS_BANDS_NUM;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
+            // MFCC
+            for(int i=0;i<DCT_COEFF_NUM;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
+            // HPCP
+            for(int i=0;i<HPCP_SIZE;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
+            // TRISTIMULUS
+            for(int i=0;i<TRISTIMULUS_BANDS_NUM;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
+            // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
+            for(int i=0;i<11;i++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            }
 
+        }
     }
 }
 

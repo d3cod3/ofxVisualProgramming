@@ -151,7 +151,6 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         updatePython = script.attr("update");
         if(updatePython){
             updateMosaicList = python.getObject("_updateMosaicData");
-            // receive external data (this is slow, fix it using python obj direct access)
             if(this->inletsConnected[0] && updateMosaicList){
                 for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
                     updateMosaicList(ofxPythonObject::fromInt(static_cast<int>(i)),ofxPythonObject::fromFloat(static_cast<double>(static_cast<vector<float> *>(_inletParams[0])->at(i))));
