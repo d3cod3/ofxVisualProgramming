@@ -274,7 +274,11 @@ void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #endif
             tempCommand.execCommand(cmd);
 
-            if(tempCommand.getSysStatus() != 0){ // error
+            tempCommand.lock();
+            int commandRes = tempCommand.getSysStatus();
+            tempCommand.unlock();
+
+            if(commandRes != 0){ // error
                 ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
 #ifdef TARGET_LINUX
                 cmd = "nano "+filepath;

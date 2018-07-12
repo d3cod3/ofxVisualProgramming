@@ -80,6 +80,7 @@ public:
     void            removeObject(int &id);
     void            iconifyObject(int &id);
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
+    void            checkSpecialConnection(int fromID, int toID, int linkType);
 
     void            newPatch();
     void            openPatch(string patchFile);

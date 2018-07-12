@@ -50,13 +50,14 @@ ShaderObject::ShaderObject() : PatchObject(){
     fbo         = new ofFbo();
     pingPong    = new ofxPingPong();
     shader      = new ofShader();
+    needReset   = false;
 
     kuro        = new ofImage();
 
-    scaleH = 0.0f;
+    posX = posY = drawW = drawH = 0.0f;
 
-    output_width    = 320;
-    output_height   = 240;
+    output_width    = 1280;
+    output_height   = 720;
 
     nTextures       = 0;
     internalFormat  = GL_RGBA;
@@ -69,26 +70,43 @@ ShaderObject::ShaderObject() : PatchObject(){
 void ShaderObject::newObject(){
     this->setName("shader object");
     this->addOutlet(VP_LINK_TEXTURE);
+
+    this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+    this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
 }
 
 //--------------------------------------------------------------
 void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    loadProjectorSettings();
+    initResolution();
 
     // load kuro
     kuro->load("images/kuro.jpg");
 
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onButtonEvent(this, &ShaderObject::onButtonEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+
+    shaderName = gui->addLabel("NONE");
+    gui->addBreak();
+
+    loadButton = gui->addButton("OPEN");
+    loadButton->setUseCustomMouse(true);
+
+    editButton = gui->addButton("EDIT");
+    editButton->setUseCustomMouse(true);
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
+
     // Setup ThreadedCommand var
     tempCommand.setup();
-
-    // init output texture container
-    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
-    fbo->begin();
-    ofClear(255,255,255, 0);
-    fbo->end();
-
-    // init shader
-    pingPong->allocate(output_width,output_height);
 
     // init path watcher
     watcher.start();
@@ -99,25 +117,30 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         isNewObject = true;
     }
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth((this->width/3 * 2) + 1);
-    gui->onButtonEvent(this, &ShaderObject::onButtonEvent);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    editButton = gui->addButton("EDIT");
-    editButton->setUseCustomMouse(true);
-
-    gui->setPosition(this->width/3,this->height - (loadButton->getHeight()*2));
 }
 
 //--------------------------------------------------------------
 void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
+
+    // Recursive reset for shader objects chain
+    if(needReset){
+        needReset = false;
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                    if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                        if(it->second->getName() == "lua script" || it->second->getName() == "python script" || it->second->getName() == "shader object"){
+                            it->second->resetResolution(this->getId(),output_width,output_height);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // GUI
     gui->update();
+    header->update();
     loadButton->update();
     editButton->update();
 
@@ -130,7 +153,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(scriptLoaded){
         // receive external data
         for(int i=0;i<this->numInlets;i++){
-            if(this->inletsConnected[i]){
+            if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
                 textures[i]->begin();
                 static_cast<ofTexture *>(_inletParams[i])->draw(0,0,output_width, output_height);
                 textures[i]->end();
@@ -189,8 +212,18 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void ShaderObject::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    scaleH = (this->width/fbo->getWidth())*fbo->getHeight();
-    static_cast<ofTexture *>(_outletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
+    if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+        drawW           = this->width;
+        drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+        posX            = 0;
+        posY            = (this->height-drawH)/2.0f;
+    }else{ // vertical texture
+        drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+        drawH           = this->height;
+        posX            = (this->width-drawW)/2.0f;
+        posY            = 0;
+    }
+    static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     // GUI
     gui->draw();
     ofDisableAlphaBlending();
@@ -204,6 +237,7 @@ void ShaderObject::removeObjectContent(){
 //--------------------------------------------------------------
 void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     isOverGui = loadButton->hitTest(_m-this->getPos());
@@ -274,8 +308,6 @@ void ShaderObject::doFragmentShader(){
         this->inlets.clear();
         this->inletsNames.clear();
 
-        ofNotifyEvent(this->resetEvent, this->nId);
-
         for( int i = 0; i < nTextures; i++){
             this->addInlet(VP_LINK_TEXTURE,"texture"+ofToString((i+1)));
         }
@@ -295,6 +327,8 @@ void ShaderObject::doFragmentShader(){
         }
     }
 
+    ofNotifyEvent(this->resetEvent, this->nId);
+
     // Compile the shader and load it to the GPU
     shader->unload();
     shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
@@ -306,21 +340,58 @@ void ShaderObject::doFragmentShader(){
 }
 
 //--------------------------------------------------------------
-bool ShaderObject::loadProjectorSettings(){
-    ofxXmlSettings XML;
-    bool loaded = false;
+void ShaderObject::initResolution(){
+    output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+    output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            output_width = XML.getValue("output_width",0);
-            output_height = XML.getValue("output_height",0);
-            XML.popTag();
+    fbo = new ofFbo();
+    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+    fbo->begin();
+    ofClear(255,255,255, 0);
+    fbo->end();
+
+    // init shader
+    pingPong = new ofxPingPong();
+    pingPong->allocate(output_width,output_height);
+
+}
+
+//--------------------------------------------------------------
+void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
+    bool reset = false;
+
+    // Check if we are connected to signaling object
+    for(int j=0;j<outPut.size();j++){
+        if(outPut[j]->toObjectID == fromID){
+            reset = true;
         }
-
-        loaded = true;
     }
 
-    return loaded;
+    if(reset && fromID != -1 && newWidth != -1 && newHeight != -1 && (output_width!=newWidth || output_height!=newHeight)){
+        output_width    = newWidth;
+        output_height   = newHeight;
+
+        this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+        this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+        this->saveConfig(false,this->nId);
+
+        fbo = new ofFbo();
+        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+        fbo->begin();
+        ofClear(255,255,255, 0);
+        fbo->end();
+
+        // init shader
+        pingPong = new ofxPingPong();
+        pingPong->allocate(output_width,output_height);
+
+        if(filepath != "none"){
+            loadScript(filepath);
+        }
+
+        needReset = true;
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -335,6 +406,9 @@ void ShaderObject::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
         doFragmentShader();
+
+        ofFile tempFile(filepath);
+        shaderName->setLabel(tempFile.getFileName());
     }
 
     if(!reloading){
@@ -345,40 +419,46 @@ void ShaderObject::loadScript(string scriptFile){
 
 //--------------------------------------------------------------
 void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(e.target == loadButton){
-        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a shader");
-        if (openFileResult.bSuccess){
-            ofFile file (openFileResult.getPath());
-            if (file.exists()){
-                string fileExtension = ofToUpper(file.getExtension());
-                if(fileExtension == "FS" || fileExtension == "FRAG") {
-                    filepath = file.getAbsolutePath();
-                    loadScript(filepath);
+    if(!header->getIsCollapsed()){
+        if(e.target == loadButton){
+            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a shader");
+            if (openFileResult.bSuccess){
+                ofFile file (openFileResult.getPath());
+                if (file.exists()){
+                    string fileExtension = ofToUpper(file.getExtension());
+                    if(fileExtension == "FS" || fileExtension == "FRAG") {
+                        filepath = file.getAbsolutePath();
+                        loadScript(filepath);
+                    }
                 }
             }
-        }
-    }else if(e.target == editButton){
-        if(filepath != "none" && scriptLoaded){
-            string cmd = "";
+        }else if(e.target == editButton){
+            if(filepath != "none" && scriptLoaded){
+                string cmd = "";
 #ifdef TARGET_LINUX
-            cmd = "atom "+filepath;
+                cmd = "atom "+filepath;
 #elif defined(TARGET_OSX)
-            cmd = "open -a /Applications/Atom.app "+filepath;
+                cmd = "open -a /Applications/Atom.app "+filepath;
 #elif defined(TARGET_WIN32)
-            cmd = "atom "+filepath;
-#endif
-            tempCommand.execCommand(cmd);
-
-            if(tempCommand.getSysStatus() != 0){ // error
-                ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
-#ifdef TARGET_LINUX
-                cmd = "nano "+filepath;
-#elif defined(TARGET_OSX)
-                cmd = "open -a /Applications/TextEdit.app "+filepath;
-#elif defined(TARGET_WIN32)
-                cmd = "start "+filepath;
+                cmd = "atom "+filepath;
 #endif
                 tempCommand.execCommand(cmd);
+
+                tempCommand.lock();
+                int commandRes = tempCommand.getSysStatus();
+                tempCommand.unlock();
+
+                if(commandRes != 0){ // error
+                    ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
+#ifdef TARGET_LINUX
+                    cmd = "nano "+filepath;
+#elif defined(TARGET_OSX)
+                    cmd = "open -a /Applications/TextEdit.app "+filepath;
+#elif defined(TARGET_WIN32)
+                    cmd = "start "+filepath;
+#endif
+                    tempCommand.execCommand(cmd);
+                }
             }
         }
     }

@@ -46,6 +46,6 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    float           scaleH;
+    float           posX, posY, drawW, drawH;
 
 };

@@ -597,10 +597,23 @@ void ofxVisualProgramming::dragObject(int &id){
 void ofxVisualProgramming::resetObject(int &id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
 
-        //ofLog(OF_LOG_NOTICE,"Reset object: %i", id);
-
         ofxXmlSettings XML;
         if (XML.loadFile(currentPatchFile)){
+
+            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                vector<PatchLink*> tempBuffer;
+                for(int j=0;j<it->second->outPut.size();j++){
+                    if(it->second->outPut[j]->toObjectID == id){
+                        if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
+                            tempBuffer.push_back(it->second->outPut[j]);
+                        }
+                    }else{
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }
+                }
+                it->second->outPut = tempBuffer;
+            }
+
             int totalObjects = XML.getNumTags("object");
 
             // remove links to the removed object
@@ -615,7 +628,7 @@ void ofxVisualProgramming::resetObject(int &id){
                                     for(int t=0;t<totalTo;t++){
                                         if(XML.pushTag("to",t)){
                                             bool delLink = false;
-                                            if(XML.getValue("id", -1) == id){
+                                            if(XML.getValue("id", -1) == id && XML.getValue("inlet", -1) >= patchObjects[id]->getNumInlets()){
                                                 delLink = true;
                                             }
                                             XML.popTag();
@@ -636,16 +649,7 @@ void ofxVisualProgramming::resetObject(int &id){
 
             XML.saveFile();
 
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                for(int j=0;j<it->second->outPut.size();j++){
-                    if(it->second->outPut[j]->toObjectID == id){
-                        it->second->outPut[j]->isDisabled = true;
-                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
-                    }
-                }
-            }
         }
-
     }
 }
 
@@ -751,10 +755,26 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         patchObjects[toID]->inletsConnected[toInlet] = true;
 
+        checkSpecialConnection(fromID,toID,linkType);
+
         connected = true;
     }
 
     return connected;
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int linkType){
+    if(patchObjects[fromID]->getName() == "lua script" || patchObjects[fromID]->getName() == "python script"){
+        if((patchObjects[fromID]->getName() == "shader object" || patchObjects[toID]->getName() == "output window") && linkType == VP_LINK_TEXTURE){
+            patchObjects[fromID]->resetResolution(toID,patchObjects[toID]->getOutputWidth(),patchObjects[toID]->getOutputHeight());
+        }
+    }
+    if(patchObjects[fromID]->getName() == "shader object"){
+        if(patchObjects[toID]->getName() == "output window" && linkType == VP_LINK_TEXTURE){
+            patchObjects[fromID]->resetResolution(toID,patchObjects[toID]->getOutputWidth(),patchObjects[toID]->getOutputHeight());
+        }
+    }
 }
 
 //--------------------------------------------------------------

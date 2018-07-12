@@ -91,11 +91,13 @@ public:
     void            removeObjectContent();
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
+    void            resetResolution(int fromID, int newWidth, int newHeight);
 
+    void            initResolution();
     void            doFragmentShader();
 
     void            loadScript(string scriptFile);
-    bool            loadProjectorSettings();
+
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     // Filepath watcher callback
@@ -106,6 +108,7 @@ public:
     ofShader            *shader;
     string              fragmentShader;
     int                 nTextures, internalFormat;
+    bool                needReset;
     
     PathWatcher         watcher;
     bool                scriptLoaded;
@@ -113,14 +116,15 @@ public:
     bool                reloading;
 
     ofxDatGui*          gui;
+    ofxDatGuiHeader*    header;
+    ofxDatGuiLabel*     shaderName;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
     bool                isOverGui;
 
     ofFbo               *fbo;
     ofImage             *kuro;
-    float               scaleH;
-    int                 output_width, output_height;
+    float               posX, posY, drawW, drawH;
 
 protected:
     ThreadedCommand     tempCommand;

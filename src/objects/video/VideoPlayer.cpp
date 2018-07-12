@@ -62,7 +62,7 @@ VideoPlayer::VideoPlayer() : PatchObject(){
 
     isNewObject         = false;
 
-    scaleH              = 0.0f;
+    posX = posY = drawW = drawH = 0.0f;
 }
 
 //--------------------------------------------------------------
@@ -77,23 +77,29 @@ void VideoPlayer::newObject(){
 
 //--------------------------------------------------------------
 void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onButtonEvent(this, &VideoPlayer::onButtonEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+    videoName = gui->addLabel("NONE");
+    gui->addBreak();
+    loadButton = gui->addButton("OPEN");
+    loadButton->setUseCustomMouse(true);
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
+
     if(filepath != "none"){
         loadVideoFile(filepath);
     }else{
         isNewObject = true;
     }
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width/3 * 2);
-    gui->onButtonEvent(this, &VideoPlayer::onButtonEvent);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    gui->setPosition(this->width/3 + 1,this->height - loadButton->getHeight());
-
 }
 
 //--------------------------------------------------------------
@@ -133,6 +139,7 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     }
 
     gui->update();
+    header->update();
     loadButton->update();
 }
 
@@ -141,9 +148,20 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(video->isLoaded()){
-        scaleH = (this->width/video->getWidth())*video->getHeight();
+        //scaleH = (this->width/video->getWidth())*video->getHeight();
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            static_cast<ofTexture *>(_outletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
+            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+                drawW           = this->width;
+                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                posX            = 0;
+                posY            = (this->height-drawH)/2.0f;
+            }else{ // vertical texture
+                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                drawH           = this->height;
+                posX            = (this->width-drawW)/2.0f;
+                posY            = 0;
+            }
+            static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
         }
     }else if(!isNewObject){
         ofSetColor(255,0,0);
@@ -163,8 +181,10 @@ void VideoPlayer::removeObjectContent(){
 //--------------------------------------------------------------
 void VideoPlayer::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    isOverGui = loadButton->hitTest(_m-this->getPos());
+
+    isOverGui = header->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
@@ -200,6 +220,9 @@ void VideoPlayer::loadVideoFile(string videofile){
         // TESTING
         video->setLoopState(OF_LOOP_NORMAL);
         video->play();
+
+        ofFile tempFile(filepath);
+        videoName->setLabel(tempFile.getFileName());
     }else{
         filepath = "none";
     }
@@ -208,14 +231,16 @@ void VideoPlayer::loadVideoFile(string videofile){
 
 //--------------------------------------------------------------
 void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
-    if (e.target == loadButton){
-        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a video file");
-        if (openFileResult.bSuccess){
-            ofFile file (openFileResult.getPath());
-            if (file.exists()){
-                string fileExtension = ofToUpper(file.getExtension());
-                if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
-                    loadVideoFile(file.getAbsolutePath());
+    if(!header->getIsCollapsed()){
+        if (e.target == loadButton){
+            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a video file");
+            if (openFileResult.bSuccess){
+                ofFile file (openFileResult.getPath());
+                if (file.exists()){
+                    string fileExtension = ofToUpper(file.getExtension());
+                    if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
+                        loadVideoFile(file.getAbsolutePath());
+                    }
                 }
             }
         }

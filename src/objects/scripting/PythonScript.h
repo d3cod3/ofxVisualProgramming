@@ -55,10 +55,12 @@ public:
     void            removeObjectContent();
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
+    void            resetResolution(int fromID, int newWidth, int newHeight);
+
+    void            initResolution();
 
     void            loadScript(string scriptFile);
     void            reloadScriptThreaded();
-    bool            loadProjectorSettings();
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     // Filepath watcher callback
@@ -81,8 +83,7 @@ public:
 
     ofFbo               *fbo;
     ofImage             *kuro;
-    float               scaleH;
-    int                 output_width, output_height;
+    float               posX, posY, drawW, drawH;
 
     string              mosaicTableName;
     string              tempstring;

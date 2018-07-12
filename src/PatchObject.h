@@ -86,9 +86,13 @@ public:
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
+    virtual void            mousePressedObjectContent(ofVec3f _m) {}
+    virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
     virtual void            dragGUIObject(ofVec3f _m) {}
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outBuffer) {}
+
+    virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
 
     // Mouse Events
     void                    mouseMoved(float mx, float my);
@@ -129,6 +133,9 @@ public:
     int                     getNumOutlets() { return outlets.size(); }
     bool                    getWillErase() { return willErase; }
 
+    int                     getOutputWidth() { return output_width; }
+    int                     getOutputHeight() { return output_height; }
+
     // SETTERS
     void                    setName(string _name) { name = _name; }
     void                    setFilepath(string fp) { filepath = fp; }
@@ -156,6 +163,9 @@ public:
     ofEvent<int>            iconifyEvent;
 
 protected:
+
+    // Texture drawing object vars
+    int                     output_width, output_height;
 
     // Drawing vars
     ofRectangle             *box;

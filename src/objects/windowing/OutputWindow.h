@@ -36,6 +36,9 @@
 #include "ofxLua.h"
 #include "ofxPython.h"
 
+#define OUTPUT_TEX_MAX_WIDTH        4800
+#define OUTPUT_TEX_MAX_HEIGHT       4800
+
 class OutputWindow : public PatchObject {
 
 public:
@@ -47,6 +50,8 @@ public:
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
     glm::vec2       reduceToAspectRatio(int _w, int _h);
     void            scaleTextureToWindow(int theScreenW, int theScreenH);
@@ -54,6 +59,7 @@ public:
     void            drawInWindow(ofEventArgs &e);
 
     void            loadWindowSettings();
+    void            resetResolution();
 
     void            keyPressed(ofKeyEventArgs &e);
     void            keyReleased(ofKeyEventArgs &e);
@@ -64,15 +70,27 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
 
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+
+
     std::shared_ptr<ofAppGLFWWindow>        window;
     bool                                    isFullscreen;
     bool                                    isNewScriptConnected;
     int                                     inletScriptType;
 
-    int                                     output_width, output_height;
+    int                                     temp_width, temp_height;
     int                                     window_actual_width, window_actual_height;
     float                                   posX, posY, drawW, drawH;
     glm::vec2                               asRatio;
-    float                                   scaleH;
+    float                                   thposX, thposY, thdrawW, thdrawH;
+    bool                                    needReset;
+
+    ofxDatGui*                              gui;
+    ofxDatGuiHeader*                        header;
+    ofxDatGuiTextInput*                     guiTexWidth;
+    ofxDatGuiTextInput*                     guiTexHeight;
+    ofxDatGuiButton*                        applyButton;
+    bool                                    isOverGui;
 
 };

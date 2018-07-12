@@ -44,7 +44,7 @@ moVideoViewer::moVideoViewer() : PatchObject(){
         this->inletsConnected.push_back(false);
     }
 
-    scaleH                  = 0.0f;
+    posX = posY = drawW = drawH = 0.0f;
 
     this->isBigGuiViewer    = true;
     this->width             *= 2;
@@ -72,9 +72,19 @@ void moVideoViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void moVideoViewer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(this->inletsConnected[0]){
-        scaleH = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
+            drawW           = this->width;
+            drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
+            posX            = 0;
+            posY            = (this->height-drawH)/2.0f;
+        }else{ // vertical texture
+            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
+            drawH           = this->height;
+            posX            = (this->width-drawW)/2.0f;
+            posY            = 0;
+        }
+        static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
     }
     ofDisableAlphaBlending();
 }

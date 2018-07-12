@@ -57,10 +57,10 @@ LuaScript::LuaScript() : PatchObject(){
 
     kuro = new ofImage();
 
-    scaleH = 0.0f;
+    posX = posY = drawW = drawH = 0.0f;
 
-    output_width    = 320;
-    output_height   = 240;
+    output_width        = 320;
+    output_height       = 240;
 
     mosaicTableName = "_mosaic_data_table";
     tempstring      = "";
@@ -75,6 +75,9 @@ void LuaScript::newObject(){
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE);
     this->addOutlet(VP_LINK_SCRIPT);
+
+    this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+    this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -93,19 +96,13 @@ void LuaScript::threadedFunction(){
 
 //--------------------------------------------------------------
 void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    loadProjectorSettings();
+    initResolution();
 
     // load kuro
     kuro->load("images/kuro.jpg");
 
     // Setup ThreadedCommand var
     tempCommand.setup();
-
-    // init output texture container
-    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
-    fbo->begin();
-    ofClear(255,255,255, 0);
-    fbo->end();
 
     // init lua
     lua.init(true);
@@ -137,6 +134,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
+
     // GUI
     gui->update();
     loadButton->update();
@@ -192,8 +190,18 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void LuaScript::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    scaleH = (this->width/fbo->getWidth())*fbo->getHeight();
-    static_cast<ofTexture *>(_outletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
+    if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+        drawW           = this->width;
+        drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+        posX            = 0;
+        posY            = (this->height-drawH)/2.0f;
+    }else{ // vertical texture
+        drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+        drawH           = this->height;
+        posX            = (this->width-drawW)/2.0f;
+        posY            = 0;
+    }
+    static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     // GUI
     gui->draw();
     ofDisableAlphaBlending();
@@ -235,21 +243,50 @@ void LuaScript::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-bool LuaScript::loadProjectorSettings(){
-    ofxXmlSettings XML;
-    bool loaded = false;
+void LuaScript::initResolution(){
+    output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+    output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            output_width = XML.getValue("output_width",0);
-            output_height = XML.getValue("output_height",0);
-            XML.popTag();
+    fbo = new ofFbo();
+    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+    fbo->begin();
+    ofClear(255,255,255, 0);
+    fbo->end();
+
+}
+
+//--------------------------------------------------------------
+void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
+    bool reset = false;
+
+    // Check if we are connected to signaling object
+    for(int j=0;j<outPut.size();j++){
+        if(outPut[j]->toObjectID == fromID){
+            reset = true;
         }
-
-        loaded = true;
     }
 
-    return loaded;
+
+    if(reset && fromID != -1 && newWidth != -1 && newHeight != -1 && (output_width!=newWidth || output_height!=newHeight)){
+        output_width    = newWidth;
+        output_height   = newHeight;
+
+        this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+        this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+        this->saveConfig(false,this->nId);
+
+        fbo = new ofFbo();
+        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+        fbo->begin();
+        ofClear(255,255,255, 0);
+        fbo->end();
+
+        tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
+        lua.doString(tempstring);
+        tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
+        lua.doString(tempstring);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -272,7 +309,6 @@ void LuaScript::loadScript(string scriptFile){
     lua.doString(tempstring);
     tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
     lua.doString(tempstring);
-
 
     scriptLoaded = lua.isValid();
 
@@ -325,7 +361,11 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #endif
             tempCommand.execCommand(cmd);
 
-            if(tempCommand.getSysStatus() != 0){ // error
+            tempCommand.lock();
+            int commandRes = tempCommand.getSysStatus();
+            tempCommand.unlock();
+
+            if(commandRes != 0){ // error
                 ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
 #ifdef TARGET_LINUX
                 cmd = "nano "+filepath;

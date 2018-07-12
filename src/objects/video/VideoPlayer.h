@@ -52,10 +52,12 @@ public:
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     ofVideoPlayer*      video;
-    float               scaleH;
+    float               posX, posY, drawW, drawH;
     bool                isNewObject;
 
     ofxDatGui*          gui;
+    ofxDatGuiHeader*    header;
+    ofxDatGuiLabel*     videoName;
     ofxDatGuiButton*    loadButton;
     bool                isOverGui;
 

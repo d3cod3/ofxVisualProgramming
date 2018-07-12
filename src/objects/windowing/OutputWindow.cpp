@@ -45,16 +45,24 @@ OutputWindow::OutputWindow() : PatchObject(){
         this->inletsConnected.push_back(false);
     }
 
-    isFullscreen            = false;
-    scaleH                  = 0.0f;
-    isNewScriptConnected    = false;
-    inletScriptType         = 0;        // 0 -> ofxLua, 1 -> ofxPythonObject, .....
+    isFullscreen                        = false;
+    thposX = thposY = thdrawW = thdrawH = 0.0f;
+    isNewScriptConnected                = false;
+    inletScriptType                     = 0;        // 0 -> ofxLua, 1 -> ofxPythonObject, .....
 
     output_width            = 320;
     output_height           = 240;
 
+    temp_width              = output_width;
+    temp_height             = output_height;
+
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
+
+    isGUIObject     = true;
+    isOverGui       = true;
+
+    needReset       = false;
 }
 
 //--------------------------------------------------------------
@@ -112,10 +120,57 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     asRatio = reduceToAspectRatio(output_width,output_height);
     scaleTextureToWindow(window->getWidth(),window->getHeight());
 
+    // GUI
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onButtonEvent(this, &OutputWindow::onButtonEvent);
+    gui->onTextInputEvent(this, &OutputWindow::onTextInputEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+    guiTexWidth = gui->addTextInput("WIDTH",ofToString(output_width));
+    guiTexWidth->setUseCustomMouse(true);
+    guiTexHeight = gui->addTextInput("HEIGHT",ofToString(output_height));
+    guiTexHeight->setUseCustomMouse(true);
+    applyButton = gui->addButton("APPLY");
+    applyButton->setUseCustomMouse(true);
+    applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects){
+
+    gui->update();
+    header->update();
+    guiTexWidth->update();
+    guiTexHeight->update();
+    applyButton->update();
+
+    if(needReset){
+        needReset = false;
+        resetResolution();
+        if(this->inletsConnected[0]){
+            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                    for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                        if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                            if(it->second->getName() == "lua script" || it->second->getName() == "python script" || it->second->getName() == "shader object"){
+                                it->second->resetResolution(this->getId(),output_width,output_height);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // Manage the different scripts reference available (ofxLua, ofxPython)
     if(!isNewScriptConnected && this->inletsConnected[1]){
@@ -150,18 +205,64 @@ void OutputWindow::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        scaleH = this->width*asRatio.y / asRatio.x;
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,this->height/2 - scaleH/2,this->width,scaleH);
+        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
+            thdrawW           = this->width;
+            thdrawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
+            thposX            = 0;
+            thposY            = (this->height-thdrawH)/2.0f;
+        }else{ // vertical texture
+            thdrawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
+            thdrawH           = this->height;
+            thposX            = (this->width-thdrawW)/2.0f;
+            thposY            = 0;
+        }
+        static_cast<ofTexture *>(_inletParams[0])->draw(thposX,thposY,thdrawW,thdrawH);
     }else{
         ofSetColor(0);
         ofDrawRectangle(0,0,this->width,this->height);
     }
+    gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void OutputWindow::removeObjectContent(){
     window->setWindowShouldClose();
+}
+
+//--------------------------------------------------------------
+void OutputWindow::mouseMovedObjectContent(ofVec3f _m){
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+
+    isOverGui = header->hitTest(_m-this->getPos());
+}
+
+//--------------------------------------------------------------
+void OutputWindow::dragGUIObject(ofVec3f _m){
+    if(isOverGui){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<outPut.size();j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -190,30 +291,60 @@ glm::vec2 OutputWindow::reduceToAspectRatio(int _w, int _h){
 //--------------------------------------------------------------
 void OutputWindow::scaleTextureToWindow(int theScreenW, int theScreenH){
     if(output_width >= output_height){   // horizontal texture
-        if(drawW >= theScreenW){
-            drawW           = theScreenW;
-            drawH           = drawW*asRatio.y / asRatio.x;
-            posX            = 0;
-            posY            = (theScreenH-drawH)/2.0f;
+        if(isFullscreen){
+            if(drawW >= theScreenW){
+                drawW           = theScreenW;
+                drawH           = drawW*asRatio.y / asRatio.x;
+                posX            = 0;
+                posY            = (theScreenH-drawH)/2.0f;
+            }else{
+                drawW           = (output_width*theScreenH)/output_height;
+                drawH           = theScreenH;
+                posX            = (theScreenW-drawW)/2.0f;
+                posY            = 0;
+            }
         }else{
-            drawW           = (output_width*theScreenH)/output_height;
-            drawH           = theScreenH;
-            posX            = (theScreenW-drawW)/2.0f;
-            posY            = 0;
+            if(output_width >= theScreenW){
+                drawW           = theScreenW;
+                drawH           = drawW*asRatio.y / asRatio.x;
+                posX            = 0;
+                posY            = (theScreenH-drawH)/2.0f;
+            }else{
+                drawW           = (output_width*theScreenH)/output_height;
+                drawH           = theScreenH;
+                posX            = (theScreenW-drawW)/2.0f;
+                posY            = 0;
+            }
         }
 
+
     }else{                              // vertical texture
-        if(drawH >= theScreenH){
-            drawW           = (output_width*theScreenH)/output_height;
-            drawH           = theScreenH;
-            posX            = (theScreenW-drawW)/2.0f;
-            posY            = 0;
+        if(isFullscreen){
+            if(drawH >= theScreenH){
+                drawW           = (output_width*theScreenH)/output_height;
+                drawH           = theScreenH;
+                posX            = (theScreenW-drawW)/2.0f;
+                posY            = 0;
+            }else{
+                drawW           = theScreenW;
+                drawH           = drawW*asRatio.y / asRatio.x;
+                posX            = 0;
+                posY            = (theScreenH-drawH)/2.0f;
+            }
         }else{
-            drawW           = theScreenW;
-            drawH           = drawW*asRatio.y / asRatio.x;
-            posX            = 0;
-            posY            = (theScreenH-drawH)/2.0f;
+            if(output_height >= theScreenH){
+                drawW           = (output_width*theScreenH)/output_height;
+                drawH           = theScreenH;
+                posX            = (theScreenW-drawW)/2.0f;
+                posY            = 0;
+            }else{
+                drawW           = theScreenW;
+                drawH           = drawW*asRatio.y / asRatio.x;
+                posX            = 0;
+                posY            = (theScreenH-drawH)/2.0f;
+            }
         }
+
     }
 }
 
@@ -248,6 +379,37 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
 void OutputWindow::loadWindowSettings(){
     output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
     output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
+
+    temp_width      = output_width;
+    temp_height     = output_height;
+}
+
+//--------------------------------------------------------------
+void OutputWindow::resetResolution(){
+
+    if(output_width != temp_width || output_height != temp_height){
+        output_width = temp_width;
+        output_height = temp_height;
+
+        _inletParams[0] = new ofTexture();
+        static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
+
+        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
+            this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+            this->saveConfig(false,this->nId);
+
+            asRatio = reduceToAspectRatio(output_width,output_height);
+            if(!isFullscreen){
+                scaleTextureToWindow(window->getWidth(),window->getHeight());
+            }else{
+                scaleTextureToWindow(window->getScreenSize().x,window->getScreenSize().y);
+            }
+
+            ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),output_width,output_height);
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -390,4 +552,34 @@ void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void OutputWindow::windowResized(ofResizeEventArgs &e){
     scaleTextureToWindow(window->getWidth(),window->getHeight());
+}
+
+//--------------------------------------------------------------
+void OutputWindow::onButtonEvent(ofxDatGuiButtonEvent e){
+    if(!header->getIsCollapsed()){
+        if (e.target == applyButton){
+            needReset = true;
+        }
+    }
+
+}
+
+//--------------------------------------------------------------
+void OutputWindow::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(!header->getIsCollapsed()){
+        int tempInValue = ofToInt(e.text);
+        if(e.target == guiTexWidth){
+            if(tempInValue <= OUTPUT_TEX_MAX_WIDTH){
+                temp_width = tempInValue;
+            }else{
+                temp_width = output_width;
+            }
+        }else if(e.target == guiTexHeight){
+            if(tempInValue <= OUTPUT_TEX_MAX_HEIGHT){
+                temp_height = tempInValue;
+            }else{
+                temp_height = output_height;
+            }
+        }
+    }
 }
