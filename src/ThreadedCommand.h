@@ -65,7 +65,10 @@ public:
         while(isThreadRunning()){
             if(!executed){
                 executed = true;
+                lock();
                 sys_status = system(command.c_str());
+                unlock();
+
             }
         }
     }
