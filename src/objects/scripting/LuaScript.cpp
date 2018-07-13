@@ -109,12 +109,13 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     lua.addListener(this);
     watcher.start();
 
-    if(filepath != "none"){
-        if(!isThreadRunning()){
-            startThread();
-        }
-    }else{
+    if(filepath == "none"){
         isNewObject = true;
+        ofFile file (ofToDataPath("scripts/empty.lua"));
+        filepath = file.getAbsolutePath();
+    }
+    if(!isThreadRunning()){
+        startThread();
     }
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
@@ -209,6 +210,7 @@ void LuaScript::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void LuaScript::removeObjectContent(){
+    tempCommand.stop();
     ///////////////////////////////////////////
     // LUA EXIT
     lua.scriptExit();
@@ -361,9 +363,8 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #endif
             tempCommand.execCommand(cmd);
 
-            tempCommand.lock();
+            std::unique_lock<std::mutex> lock(mutex);
             int commandRes = tempCommand.getSysStatus();
-            tempCommand.unlock();
 
             if(commandRes != 0){ // error
                 ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");

@@ -85,20 +85,8 @@ void BashScript::threadedFunction(){
 
 //--------------------------------------------------------------
 void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    // Setup ThreadedCommand var
-    tempCommand.setup();
-
-    watcher.start();
-
+    // GUI
     bashIcon->load("images/bash.png");
-
-    if(filepath != "none"){
-        if(!isThreadRunning()){
-            startThread();
-        }
-    }else{
-        isNewObject = true;
-    }
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
@@ -113,6 +101,18 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     editButton->setUseCustomMouse(true);
 
     gui->setPosition(this->width/3,this->height - (loadButton->getHeight()*2));
+
+    // Load script
+    tempCommand.setup();
+    watcher.start();
+    if(filepath == "none"){
+        isNewObject = true;
+        ofFile file (ofToDataPath("scripts/empty.sh"));
+        filepath = file.getAbsolutePath();
+    }
+    if(!isThreadRunning()){
+        startThread();
+    }
 }
 
 //--------------------------------------------------------------
@@ -154,7 +154,7 @@ void BashScript::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void BashScript::removeObjectContent(){
-    
+    tempCommand.stop();
 }
 
 //--------------------------------------------------------------
@@ -274,9 +274,8 @@ void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #endif
             tempCommand.execCommand(cmd);
 
-            tempCommand.lock();
+            std::unique_lock<std::mutex> lock(mutex);
             int commandRes = tempCommand.getSysStatus();
-            tempCommand.unlock();
 
             if(commandRes != 0){ // error
                 ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");

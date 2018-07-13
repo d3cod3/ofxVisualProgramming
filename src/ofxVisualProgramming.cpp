@@ -125,7 +125,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     currentPatchFile        = "empty_patch.xml";
 
     resetTime               = ofGetElapsedTimeMillis();
-    wait                    = 3000;
+    wait                    = 2000;
 
     alphabet                = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY";
     newFileCounter          = 0;

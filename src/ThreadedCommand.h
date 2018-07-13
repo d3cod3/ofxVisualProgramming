@@ -65,9 +65,9 @@ public:
         while(isThreadRunning()){
             if(!executed){
                 executed = true;
-                lock();
+                std::unique_lock<std::mutex> lck(mutex);
                 sys_status = system(command.c_str());
-                unlock();
+                condition.notify_all();
 
             }
         }
