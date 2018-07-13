@@ -68,6 +68,8 @@ public:
     bool                isNewObject;
 
     ofxDatGui*          gui;
+    ofxDatGuiHeader*    header;
+    ofxDatGuiLabel*     scriptName;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
     bool                isOverGui;

@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 0;
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // channel
@@ -114,7 +114,7 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
-    window->setVerticalSync(false);
+    window->setVerticalSync(true);
     windowHeaderIcon->load("images/logo_48.png");
 
     ofAddListener(window->events().update,this,&AudioAnalyzer::updateInWindow);
@@ -183,14 +183,31 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setWidth(this->width);
     gui->onSliderEvent(this, &AudioAnalyzer::onSliderEvent);
 
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+    gui->addBreak();
+
     inputLevel = gui->addSlider("Level",0.0f,1.0f,1.0f);
     inputLevel->setUseCustomMouse(true);
     inputLevel->setValue(audioInputLevel);
     smoothing = gui->addSlider("Smooth.",0.0f,0.8f,0.0f);
     smoothing->setUseCustomMouse(true);
     smoothing->setValue(smoothingValue);
+    vector<string> channelsVector;
+    for(int i=0;i<numINChannels;i++){
+        channelsVector.push_back("CHANNEL "+ofToString(i));
+    }
+    channelSelector = gui->addDropdown("CHANNEL",channelsVector);
+    channelSelector->setUseCustomMouse(true);
+    channelSelector->select(actualChannel);
+    for(size_t i=0;i<channelSelector->size();i++){
+        channelSelector->children[i]->setUseCustomMouse(true);
+    }
 
-    gui->setPosition(0,this->height - smoothing->getHeight()*2);
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
 
 }
 
@@ -198,8 +215,13 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     gui->update();
+    header->update();
     inputLevel->update();
     smoothing->update();
+    channelSelector->update();
+    for(size_t i=0;i<channelSelector->size();i++){
+        channelSelector->children[i]->update();
+    }
 
     window->setWindowTitle("AudioAnalyzer on channel "+ofToString(actualChannel));
 
@@ -209,6 +231,7 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
         int receivingChannel = static_cast<int>(floor(*(float *)&_inletParams[0]));
         if(this->inletsConnected[0] && receivingChannel >= 0 && receivingChannel < numINChannels){
             actualChannel = receivingChannel;
+            channelSelector->select(actualChannel);
             this->setCustomVar(static_cast<float>(actualChannel),"CHANNEL");
         }
 
@@ -551,8 +574,13 @@ void AudioAnalyzer::loadAudioSettings(){
 //--------------------------------------------------------------
 void AudioAnalyzer::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     smoothing->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     inputLevel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    channelSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    for(size_t i=0;i<channelSelector->size();i++){
+        channelSelector->children[i]->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));;
+    }
 
     isOverGui = smoothing->hitTest(_m-this->getPos()) || inputLevel->hitTest(_m-this->getPos());
 }
@@ -561,8 +589,10 @@ void AudioAnalyzer::mouseMovedObjectContent(ofVec3f _m){
 void AudioAnalyzer::dragGUIObject(ofVec3f _m){
     if(isOverGui){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         smoothing->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         inputLevel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        channelSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 

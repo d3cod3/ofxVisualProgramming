@@ -100,6 +100,29 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
 
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onButtonEvent(this, &PythonScript::onButtonEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+
+    scriptName = gui->addLabel("NONE");
+    gui->addBreak();
+
+    loadButton = gui->addButton("OPEN");
+    loadButton->setUseCustomMouse(true);
+
+    editButton = gui->addButton("EDIT");
+    editButton->setUseCustomMouse(true);
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
+
     // Setup ThreadedCommand var
     tempCommand.setup();
 
@@ -116,25 +139,13 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         startThread();
     }
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth((this->width/3 * 2) + 1);
-    gui->onButtonEvent(this, &PythonScript::onButtonEvent);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    editButton = gui->addButton("EDIT");
-    editButton->setUseCustomMouse(true);
-
-    gui->setPosition(this->width/3,this->height - (loadButton->getHeight()*2));
 }
 
 //--------------------------------------------------------------
 void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // GUI
     gui->update();
+    header->update();
     loadButton->update();
     editButton->update();
 
@@ -215,6 +226,7 @@ void PythonScript::removeObjectContent(){
 //--------------------------------------------------------------
 void PythonScript::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     isOverGui = loadButton->hitTest(_m-this->getPos());
@@ -289,6 +301,7 @@ void PythonScript::loadScript(string scriptFile){
     filepath = scriptFile;
 
     ofFile tempfile (filepath);
+    scriptName->setLabel(tempfile.getFileName());
 
     python.reset();
     python.addPath(tempfile.getEnclosingDirectory());

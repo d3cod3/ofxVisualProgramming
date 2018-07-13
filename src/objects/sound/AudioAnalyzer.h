@@ -100,8 +100,10 @@ public:
 
     // GUI vars
     ofxDatGui*                              gui;
+    ofxDatGuiHeader*                        header;
     ofxDatGuiSlider*                        inputLevel;
     ofxDatGuiSlider*                        smoothing;
+    ofxDatGuiDropdown*                      channelSelector;
     float                                   smoothingValue;
     float                                   audioInputLevel;
     bool                                    isOverGui;
