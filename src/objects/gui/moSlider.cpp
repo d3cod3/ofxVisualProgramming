@@ -52,8 +52,8 @@ moSlider::moSlider() : PatchObject(){
         this->inletsConnected.push_back(false);
     }
 
-    isGUIObject     = true;
-    isOverGui       = true;
+    isGUIObject         = true;
+    this->isOverGUI     = true;
 
 }
 
@@ -114,12 +114,12 @@ void moSlider::mouseMovedObjectContent(ofVec3f _m){
         slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }
 
-    isOverGui = slider->hitTest(_m-this->getPos());
+    this->isOverGUI = slider->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void moSlider::dragGUIObject(ofVec3f _m){
-    if(isOverGui && !this->inletsConnected[2]){
+    if(this->isOverGUI && !this->inletsConnected[2]){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{

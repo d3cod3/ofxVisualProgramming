@@ -64,7 +64,9 @@ public:
 
 
     PathWatcher         watcher;
+    ofFile              currentScriptFile;
     bool                scriptLoaded;
+    bool                nameLabelLoaded;
     bool                isNewObject;
 
     ofxDatGui*          gui;
@@ -72,7 +74,6 @@ public:
     ofxDatGuiLabel*     scriptName;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
-    bool                isOverGui;
     ofImage             *bashIcon;
 
     string              lastMessage;

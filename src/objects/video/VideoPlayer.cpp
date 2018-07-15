@@ -56,7 +56,7 @@ VideoPlayer::VideoPlayer() : PatchObject(){
     video = new ofVideoPlayer();
 
     isGUIObject         = true;
-    isOverGui           = true;
+    this->isOverGUI     = true;
 
     lastMessage         = "";
 
@@ -184,12 +184,12 @@ void VideoPlayer::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    isOverGui = header->hitTest(_m-this->getPos());
+    this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::dragGUIObject(ofVec3f _m){
-    if(isOverGui){
+    if(this->isOverGUI){
         //gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         //loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{

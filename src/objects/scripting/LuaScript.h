@@ -72,7 +72,9 @@ public:
 
     ofxLua              lua;
     PathWatcher         watcher;
+    ofFile              currentScriptFile;
     bool                scriptLoaded;
+    bool                nameLabelLoaded;
     bool                isNewObject;
 
     ofxDatGui*          gui;
@@ -80,7 +82,6 @@ public:
     ofxDatGuiLabel*     scriptName;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
-    bool                isOverGui;
 
     ofFbo               *fbo;
     ofImage             *kuro;

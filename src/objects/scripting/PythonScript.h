@@ -74,6 +74,8 @@ public:
     ofxPythonObject     drawPython;
 
     PathWatcher         watcher;
+    ofFile              currentScriptFile;
+    bool                nameLabelLoaded;
     bool                isNewObject;
 
     ofxDatGui*          gui;
@@ -81,7 +83,6 @@ public:
     ofxDatGuiLabel*     scriptName;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
-    bool                isOverGui;
 
     ofFbo               *fbo;
     ofImage             *kuro;

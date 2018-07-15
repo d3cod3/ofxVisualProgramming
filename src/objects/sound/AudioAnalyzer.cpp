@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 
-    this->numInlets  = 0;
+    this->numInlets  = 1;
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // channel
@@ -48,18 +48,18 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
         this->inletsConnected.push_back(false);
     }
 
-    isAudioINObject = true;
-    isGUIObject     = true;
-    isOverGui       = true;
+    isAudioINObject     = true;
+    isGUIObject         = true;
+    this->isOverGUI     = true;
 
-    actualChannel   = 0;
-    numINChannels   = 0;
+    actualChannel       = 0;
+    numINChannels       = 0;
 
-    window_actual_width = AUDIO_ANALYZER_WINDOW_WIDTH;
-    window_actual_height = AUDIO_ANALYZER_WINDOW_HEIGHT;
+    window_actual_width             = AUDIO_ANALYZER_WINDOW_WIDTH;
+    window_actual_height            = AUDIO_ANALYZER_WINDOW_HEIGHT;
 
-    smoothingValue  = 0.0f;
-    audioInputLevel = 1.0f;
+    smoothingValue                  = 0.0f;
+    audioInputLevel                 = 1.0f;
 
     windowHeader                    = new ofRectangle();
     windowHeaderHeight              = 24;
@@ -213,7 +213,6 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
-
     gui->update();
     header->update();
     inputLevel->update();
@@ -228,11 +227,14 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     unique_lock<mutex> lock(audioMutex);
 
     if(numINChannels > 0){
-        int receivingChannel = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        if(this->inletsConnected[0] && receivingChannel >= 0 && receivingChannel < numINChannels){
-            actualChannel = receivingChannel;
-            channelSelector->select(actualChannel);
-            this->setCustomVar(static_cast<float>(actualChannel),"CHANNEL");
+
+        if(this->inletsConnected[0]){
+            int receivingChannel = static_cast<int>(floor(*(float *)&_inletParams[0]));
+            if(receivingChannel >= 0 && receivingChannel < numINChannels){
+                actualChannel = receivingChannel;
+                channelSelector->select(actualChannel);
+                this->setCustomVar(static_cast<float>(actualChannel),"CHANNEL");
+            }
         }
 
         int index = 0;
@@ -578,16 +580,20 @@ void AudioAnalyzer::mouseMovedObjectContent(ofVec3f _m){
     smoothing->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     inputLevel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     channelSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    int overChSelected = 0;
     for(size_t i=0;i<channelSelector->size();i++){
-        channelSelector->children[i]->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));;
+        channelSelector->children[i]->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        if(channelSelector->children[i]->hitTest(_m-this->getPos())){
+            overChSelected++;
+        }
     }
 
-    isOverGui = smoothing->hitTest(_m-this->getPos()) || inputLevel->hitTest(_m-this->getPos());
+    this->isOverGUI = header->hitTest(_m-this->getPos()) || smoothing->hitTest(_m-this->getPos()) || inputLevel->hitTest(_m-this->getPos()) || channelSelector->hitTest(_m-this->getPos()) || overChSelected>0;
 }
 
 //--------------------------------------------------------------
 void AudioAnalyzer::dragGUIObject(ofVec3f _m){
-    if(isOverGui){
+    if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         smoothing->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));

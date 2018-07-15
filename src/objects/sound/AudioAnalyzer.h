@@ -106,7 +106,6 @@ public:
     ofxDatGuiDropdown*                      channelSelector;
     float                                   smoothingValue;
     float                                   audioInputLevel;
-    bool                                    isOverGui;
 
     // Audio Input Signal variables
     ofSoundBuffer                           lastBuffer;

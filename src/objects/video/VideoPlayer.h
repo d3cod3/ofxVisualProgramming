@@ -59,7 +59,6 @@ public:
     ofxDatGuiHeader*    header;
     ofxDatGuiLabel*     videoName;
     ofxDatGuiButton*    loadButton;
-    bool                isOverGui;
 
     string              lastMessage;
 

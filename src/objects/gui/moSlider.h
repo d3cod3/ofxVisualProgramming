@@ -52,6 +52,5 @@ public:
 
     ofxDatGui*          gui;
     ofxDatGuiSlider*    slider;
-    bool                isOverGui;
 
 };

@@ -958,7 +958,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                     int toObjectID = XML.getValue("id", 0);
                                     int toInletID = XML.getValue("inlet", 0);
 
-                                    connect(fromID,j,toObjectID,toInletID,linkType);
+                                    if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                        //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                    }
 
                                     XML.popTag();
                                 }

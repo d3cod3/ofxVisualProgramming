@@ -55,7 +55,6 @@ public:
     ofxDatGuiButton*    sendButton;
     ofxDatGuiTextInput* message;
 
-    bool                isOverGui;
     string              actualMessage;
 
 };

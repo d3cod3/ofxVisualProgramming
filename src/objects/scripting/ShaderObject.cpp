@@ -45,7 +45,7 @@ ShaderObject::ShaderObject() : PatchObject(){
     reloading           = false;
 
     isGUIObject         = true;
-    isOverGui           = true;
+    this->isOverGUI     = true;
 
     fbo         = new ofFbo();
     pingPong    = new ofxPingPong();
@@ -82,29 +82,6 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &ShaderObject::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    shaderName = gui->addLabel("NONE");
-    gui->addBreak();
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    editButton = gui->addButton("EDIT");
-    editButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
     // Setup ThreadedCommand var
     tempCommand.setup();
 
@@ -112,9 +89,9 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     watcher.start();
 
     if(filepath == "none"){
-        isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.fs"));
         filepath = file.getAbsolutePath();
+        isNewObject = true;
     }
     loadScript(filepath);
 
@@ -144,6 +121,9 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
     header->update();
     loadButton->update();
     editButton->update();
+    for(size_t i=0;i<shaderSliders.size();i++){
+        shaderSliders.at(i)->update();
+    }
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -171,6 +151,20 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
         }
         shader->setUniform2f("resolution",static_cast<float>(output_width),static_cast<float>(output_height));
         shader->setUniform1f("time",static_cast<float>(ofGetElapsedTimef()));
+
+        // set custom shader vars
+        string paramName, tempVarName;
+        for(size_t i=0;i<shaderSliders.size();i++){
+            if(shaderSliders.at(i)->getPrecision() != 0){// FLOAT
+                paramName = "param1f"+ofToString(shaderSlidersIndex[i]);
+                tempVarName = "GUI_FLOAT_"+shaderSliders.at(i)->getLabel();
+                shader->setUniform1f(paramName.c_str(), static_cast<float>(this->getCustomVar(tempVarName)));
+            }else{ // INT
+                paramName = "param1i"+ofToString(shaderSlidersIndex[i]);
+                tempVarName = "GUI_INT_"+shaderSliders.at(i)->getLabel();
+                shader->setUniform1i(paramName.c_str(), static_cast<int>(floor(this->getCustomVar(tempVarName))));
+            }
+        }
 
         ofSetColor(255,255);
         glBegin(GL_QUADS);
@@ -237,16 +231,28 @@ void ShaderObject::removeObjectContent(){
 
 //--------------------------------------------------------------
 void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
+    int testingOver = 0;
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    isOverGui = loadButton->hitTest(_m-this->getPos());
+    for(size_t i=0;i<shaderSliders.size();i++){
+        shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        if(shaderSliders.at(i)->hitTest(_m-this->getPos())){
+            testingOver++;
+        }
+    }
+
+    this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || testingOver>0;
 }
 
 //--------------------------------------------------------------
 void ShaderObject::dragGUIObject(ofVec3f _m){
-    if(!isOverGui){
+    if(this->isOverGUI){
+        for(size_t i=0;i<shaderSliders.size();i++){
+            shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        }
+    }else{
         ofNotifyEvent(dragEvent, nId);
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
@@ -301,9 +307,8 @@ void ShaderObject::doFragmentShader(){
         textures.push_back(tempFBO);
     }
 
-    // Check if it´s the same number of textures already created and allocated
-    if (num != nTextures && (reloading || isNewObject)){
-
+    if (num != nTextures || reloading || isNewObject){
+        reloading = false;
         nTextures = num;
 
         this->inlets.clear();
@@ -329,6 +334,67 @@ void ShaderObject::doFragmentShader(){
     }
 
     ofNotifyEvent(this->resetEvent, this->nId);
+
+    loadGUI();
+
+    shaderSliders.clear();
+    shaderSlidersIndex.clear();
+
+    // OBJECT CUSTOM STANDARD VARS
+    map<string,float> tempVars = this->loadCustomVars();
+    this->clearCustomVars();
+
+    // INJECT SHADER FLOAT PARAMETER IN OBJECT GUI
+    for (int i = 0; i < 10; i++){
+        string searchFor = "param1f" + ofToString(i);
+        if(fragmentShader.find(searchFor) != static_cast<unsigned long>(-1)){
+            unsigned long subVarStart = fragmentShader.find(searchFor);
+            unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
+            unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
+            string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
+            ofxDatGuiSlider* tempSlider = gui->addSlider(varName,0.0f,10.0f,0.0f);
+            tempSlider->setUseCustomMouse(true);
+            map<string,float>::const_iterator it = tempVars.find("GUI_FLOAT_"+varName);
+            if(it!=tempVars.end()){
+                this->setCustomVar(it->second,"GUI_FLOAT_"+varName);
+                tempSlider->setValue(it->second);
+            }else{
+                this->setCustomVar(0.0f,"GUI_FLOAT_"+varName);
+            }
+
+            shaderSliders.push_back(tempSlider);
+            shaderSlidersIndex.push_back(i);
+        }else{
+            break;
+        }
+    }
+    // INJECT SHADER INT PARAMETER IN OBJECT GUI
+    for (int i = 0; i < 10; i++){
+        string searchFor = "param1i" + ofToString(i);
+        if(fragmentShader.find(searchFor) != static_cast<unsigned long>(-1)){
+            unsigned long subVarStart = fragmentShader.find(searchFor);
+            unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
+            unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
+            string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
+            ofxDatGuiSlider* tempSlider = gui->addSlider(varName,0,30,0);
+            tempSlider->setUseCustomMouse(true);
+            tempSlider->setPrecision(0,true);
+            map<string,float>::const_iterator it = tempVars.find("GUI_INT_"+varName);
+            if(it!=tempVars.end()){
+                this->setCustomVar(it->second,"GUI_INT_"+varName);
+                tempSlider->setValue(it->second);
+            }else{
+                this->setCustomVar(0.0f,"GUI_INT_"+varName);
+            }
+            shaderSliders.push_back(tempSlider);
+            shaderSlidersIndex.push_back(i);
+        }else{
+            break;
+        }
+    }
+    gui->setWidth(this->width);
+
+    this->saveConfig(false,this->nId);
 
     // Compile the shader and load it to the GPU
     shader->unload();
@@ -396,6 +462,36 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
 }
 
 //--------------------------------------------------------------
+void ShaderObject::loadGUI(){
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    //gui->setWidth(this->width);
+    gui->onButtonEvent(this, &ShaderObject::onButtonEvent);
+    gui->onSliderEvent(this, &ShaderObject::onSliderEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+
+    shaderName = gui->addLabel("NONE");
+    ofFile tempFile(filepath);
+    shaderName->setLabel(tempFile.getFileName());
+    gui->addBreak();
+
+    loadButton = gui->addButton("OPEN");
+    loadButton->setUseCustomMouse(true);
+
+    editButton = gui->addButton("EDIT");
+    editButton->setUseCustomMouse(true);
+    gui->addBreak();
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
+}
+
+//--------------------------------------------------------------
 void ShaderObject::loadScript(string scriptFile){
 
     filepath = scriptFile;
@@ -407,15 +503,24 @@ void ShaderObject::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
         doFragmentShader();
-
-        ofFile tempFile(filepath);
-        shaderName->setLabel(tempFile.getFileName());
     }
 
-    if(!reloading){
-        reloading = true;
-    }
+}
 
+//--------------------------------------------------------------
+void ShaderObject::onSliderEvent(ofxDatGuiSliderEvent e){
+    for(size_t i=0;i<shaderSliders.size();i++){
+        if(e.target == shaderSliders.at(i)){
+            string sliderName = shaderSliders.at(i)->getLabel();
+            if(shaderSliders.at(i)->getPrecision() == 0){// INT
+                sliderName = "GUI_INT_"+sliderName;
+            }else{ // FLOAT
+                sliderName = "GUI_FLOAT_"+sliderName;
+            }
+            this->setCustomVar(static_cast<float>(shaderSliders.at(i)->getValue()),sliderName);
+            this->saveConfig(false,this->nId);
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -430,6 +535,7 @@ void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
                     if(fileExtension == "FS" || fileExtension == "FRAG") {
                         filepath = file.getAbsolutePath();
                         loadScript(filepath);
+                        reloading = true;
                     }
                 }
             }

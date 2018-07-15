@@ -47,11 +47,12 @@ LuaScript::LuaScript() : PatchObject(){
         this->inletsConnected.push_back(false);
     }
 
+    nameLabelLoaded     = false;
     scriptLoaded        = false;
     isNewObject         = false;
 
     isGUIObject         = true;
-    isOverGui           = true;
+    this->isOverGUI     = true;
 
     fbo = new ofFbo();
 
@@ -88,6 +89,7 @@ void LuaScript::threadedFunction(){
             needToLoadScript = false;
             loadScript(filepath);
             threadLoaded = true;
+            nameLabelLoaded = true;
         }
         condition.wait(lock);
     }
@@ -159,6 +161,10 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     ///////////////////////////////////////////
     // LUA UPDATE
     if(scriptLoaded && threadLoaded){
+        if(nameLabelLoaded){
+            nameLabelLoaded = false;
+            scriptName->setLabel(currentScriptFile.getFileName());
+        }
         // receive external data
         if(this->inletsConnected[0]){
             for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
@@ -235,12 +241,18 @@ void LuaScript::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    isOverGui = loadButton->hitTest(_m-this->getPos());
+
+    this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void LuaScript::dragGUIObject(ofVec3f _m){
-    if(!isOverGui){
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
         ofNotifyEvent(dragEvent, nId);
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
@@ -307,9 +319,7 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 void LuaScript::loadScript(string scriptFile){
 
     filepath = scriptFile;
-
-    ofFile tempfile (filepath);
-    scriptName->setLabel(tempfile.getFileName());
+    currentScriptFile.open(filepath);
 
     lua.scriptExit();
     lua.init(true);
@@ -349,48 +359,46 @@ void LuaScript::reloadScriptThreaded(){
 
 //--------------------------------------------------------------
 void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(e.target == loadButton){
-        ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a lua script");
-        if (openFileResult.bSuccess){
-            ofFile file (openFileResult.getPath());
-            if (file.exists()){
-                string fileExtension = ofToUpper(file.getExtension());
-                if(fileExtension == "LUA") {
-                    threadLoaded = false;
-                    filepath = file.getAbsolutePath();
-                    if(!isThreadRunning()){
-                        startThread();
-                    }else{
+    if(!header->getIsCollapsed()){
+        if(e.target == loadButton){
+            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a lua script");
+            if (openFileResult.bSuccess){
+                ofFile file (openFileResult.getPath());
+                if (file.exists()){
+                    string fileExtension = ofToUpper(file.getExtension());
+                    if(fileExtension == "LUA") {
+                        threadLoaded = false;
+                        filepath = file.getAbsolutePath();
                         reloadScriptThreaded();
                     }
                 }
             }
-        }
-    }else if(e.target == editButton){
-        if(filepath != "none" && scriptLoaded){
-            string cmd = "";
+        }else if(e.target == editButton){
+            if(filepath != "none" && scriptLoaded){
+                string cmd = "";
 #ifdef TARGET_LINUX
-            cmd = "atom "+filepath;
+                cmd = "atom "+filepath;
 #elif defined(TARGET_OSX)
-            cmd = "open -a /Applications/Atom.app "+filepath;
+                cmd = "open -a /Applications/Atom.app "+filepath;
 #elif defined(TARGET_WIN32)
-            cmd = "atom "+filepath;
-#endif
-            tempCommand.execCommand(cmd);
-
-            std::unique_lock<std::mutex> lock(mutex);
-            int commandRes = tempCommand.getSysStatus();
-
-            if(commandRes != 0){ // error
-                ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
-#ifdef TARGET_LINUX
-                cmd = "nano "+filepath;
-#elif defined(TARGET_OSX)
-                cmd = "open -a /Applications/TextEdit.app "+filepath;
-#elif defined(TARGET_WIN32)
-                cmd = "start "+filepath;
+                cmd = "atom "+filepath;
 #endif
                 tempCommand.execCommand(cmd);
+
+                std::unique_lock<std::mutex> lock(mutex);
+                int commandRes = tempCommand.getSysStatus();
+
+                if(commandRes != 0){ // error
+                    ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
+#ifdef TARGET_LINUX
+                    cmd = "nano "+filepath;
+#elif defined(TARGET_OSX)
+                    cmd = "open -a /Applications/TextEdit.app "+filepath;
+#elif defined(TARGET_WIN32)
+                    cmd = "start "+filepath;
+#endif
+                    tempCommand.execCommand(cmd);
+                }
             }
         }
     }
@@ -418,5 +426,5 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
 
 //--------------------------------------------------------------
 void LuaScript::errorReceived(std::string& msg) {
-    ofLog(OF_LOG_ERROR,"got a script error: %s",msg.c_str());
+    ofLog(OF_LOG_ERROR,"LUA script error: %s",msg.c_str());
 }

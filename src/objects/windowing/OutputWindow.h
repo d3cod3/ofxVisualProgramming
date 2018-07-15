@@ -91,6 +91,5 @@ public:
     ofxDatGuiTextInput*                     guiTexWidth;
     ofxDatGuiTextInput*                     guiTexHeight;
     ofxDatGuiButton*                        applyButton;
-    bool                                    isOverGui;
 
 };

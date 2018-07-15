@@ -96,9 +96,11 @@ public:
     void            initResolution();
     void            doFragmentShader();
 
+    void            loadGUI();
     void            loadScript(string scriptFile);
 
     void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
@@ -115,12 +117,14 @@ public:
     bool                isNewObject;
     bool                reloading;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     shaderName;
-    ofxDatGuiButton*    loadButton;
-    ofxDatGuiButton*    editButton;
-    bool                isOverGui;
+    ofxDatGui*                  gui;
+    ofxDatGuiHeader*            header;
+    ofxDatGuiLabel*             shaderName;
+    ofxDatGuiButton*            loadButton;
+    ofxDatGuiButton*            editButton;
+    vector<ofxDatGuiSlider*>    shaderSliders;
+    vector<int>                 shaderSlidersIndex;
+    vector<float>               objectCustomVars;
 
     ofFbo               *fbo;
     ofImage             *kuro;

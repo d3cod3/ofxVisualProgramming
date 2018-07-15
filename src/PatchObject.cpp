@@ -45,6 +45,7 @@ PatchObject::PatchObject(){
     bActive         = false;
     iconified       = false;
     isMouseOver     = false;
+    isOverGUI       = false;
     isRetina        = false;
     isGUIObject     = false;
     isBigGuiViewer  = false;
@@ -349,7 +350,7 @@ void PatchObject::move(int _x, int _y){
 
 //--------------------------------------------------------------
 bool PatchObject::isOver(ofPoint pos){
-    return box->inside(pos);
+    return box->inside(pos) || isOverGUI;
 }
 
 //--------------------------------------------------------------
@@ -401,8 +402,6 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, s
                 XML.popTag();
             }
 
-            setup(mainWindow);
-
             if(XML.pushTag("inlets")){
                 int totalInlets = XML.getNumTags("link");
                 for (int i=0;i<totalInlets;i++){
@@ -414,6 +413,8 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, s
                 }
                 XML.popTag();
             }
+
+            setup(mainWindow);
 
             if(XML.pushTag("outlets")){
                 int totalOutlets = XML.getNumTags("link");
@@ -527,20 +528,22 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                             XML.setValue("position:x",static_cast<double>(x));
                             XML.setValue("position:y",static_cast<double>(y));
 
-                            if(XML.pushTag("vars")){
-                                int tj = 0;
+                            // Dynamic reloading custom vars (reconfig capabilities objects, as ShaderObject, etc...)
+                            XML.removeTag("vars");
+                            int newCustomVars = XML.addTag("vars");
+                            if(XML.pushTag("vars",newCustomVars)){
                                 for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
-                                    if(XML.pushTag("var",tj)){
+                                    int newLink = XML.addTag("var");
+                                    if(XML.pushTag("var",newLink)){
                                         XML.setValue("name",it->first);
                                         XML.setValue("value",it->second);
                                         XML.popTag();
                                     }
-                                    tj++;
                                 }
                                 XML.popTag();
                             }
 
-
+                            // Dynamic reloading inlets (reconfig capabilities objects, as ShaderObject, etc...)
                             XML.removeTag("inlets");
                             int newInlets = XML.addTag("inlets");
                             if(XML.pushTag("inlets",newInlets)){
@@ -555,6 +558,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                                 XML.popTag();
                             }
 
+                            // Fixed static outlets
                             if(XML.pushTag("outlets")){
                                 for(int j=0;j<outlets.size();j++){
                                     if(XML.pushTag("link", j)){
@@ -626,6 +630,87 @@ bool PatchObject::removeLinkFromConfig(int outlet){
     return saved;
 }
 
+//--------------------------------------------------------------
+bool PatchObject::clearCustomVars(){
+    ofxXmlSettings XML;
+    bool saved = false;
+
+    if(patchFile != ""){
+        if(XML.loadFile(patchFile)){
+            int totalObjects = XML.getNumTags("object");
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) == nId){
+                        if(XML.pushTag("vars")){
+                            int numVars = XML.getNumTags("var");
+                            vector<bool> needErase;
+                            for(int v=0;v<numVars;v++){
+                                if(XML.pushTag("var",v)){
+                                    if(ofIsStringInString(XML.getValue("name",""),"GUI_")){
+                                        needErase.push_back(true);
+                                        customVars.erase(XML.getValue("name",""));
+                                        //ofLog(OF_LOG_NOTICE,"Removing var: %s",XML.getValue("name","").c_str());
+                                    }else{
+                                        needErase.push_back(false);
+                                    }
+                                    XML.popTag();
+                                }
+                            }
+                            for(size_t r=0;r<needErase.size();r++){
+                                if(needErase.at(r)){
+                                    XML.removeTag("var",static_cast<int>(r));
+
+                                }
+                            }
+
+                            XML.popTag();
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+        }
+
+        saved = XML.saveFile();
+
+    }
+
+    return saved;
+}
+
+//--------------------------------------------------------------
+map<string,float> PatchObject::loadCustomVars(){
+    map<string,float> tempVars;
+
+    ofxXmlSettings XML;
+
+    if(patchFile != ""){
+        if(XML.loadFile(patchFile)){
+            int totalObjects = XML.getNumTags("object");
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) == nId){
+                        if(XML.pushTag("vars")){
+                            int numVars = XML.getNumTags("var");
+                            for(int v=0;v<numVars;v++){
+                                if(XML.pushTag("var",v)){
+                                    tempVars[XML.getValue("name","")] = XML.getValue("value",0.0f);
+                                    XML.popTag();
+                                }
+                            }
+                            XML.popTag();
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+        }
+
+    }
+
+    return tempVars;
+}
+
 //---------------------------------------------------------------------------------- OBJECT HEADER
 //--------------------------------------------------------------
 void PatchObject::addButton(char letter, bool *variableToControl, int offset){
@@ -642,11 +727,20 @@ void PatchObject::mouseMoved(float mx, float my){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
         mouseMovedObjectContent(m);
-        if(isOver(m) && bActive){
-            isMouseOver = true;
+        if(!isGUIObject){
+            if(isOver(m) && bActive){
+                isMouseOver = true;
+            }else{
+                isMouseOver = false;
+            }
         }else{
-            isMouseOver = false;
+            if((isOver(m) || isOverGUI) && bActive){
+                isMouseOver = true;
+            }else{
+                isMouseOver = false;
+            }
         }
+
 
         for(int j=0;j<outPut.size();j++){
             for (int v=0;v<outPut[j]->linkVertices.size();v++) {

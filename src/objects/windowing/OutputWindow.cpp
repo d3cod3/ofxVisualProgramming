@@ -59,8 +59,8 @@ OutputWindow::OutputWindow() : PatchObject(){
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
 
-    isGUIObject     = true;
-    isOverGui       = true;
+    isGUIObject         = true;
+    this->isOverGUI     = true;
 
     needReset       = false;
 }
@@ -238,12 +238,12 @@ void OutputWindow::mouseMovedObjectContent(ofVec3f _m){
     guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    isOverGui = header->hitTest(_m-this->getPos());
+    this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void OutputWindow::dragGUIObject(ofVec3f _m){
-    if(isOverGui){
+    if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));

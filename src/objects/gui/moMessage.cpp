@@ -51,8 +51,8 @@ moMessage::moMessage() : PatchObject(){
         this->inletsConnected.push_back(false);
     }
 
-    isGUIObject     = true;
-    isOverGui       = true;
+    isGUIObject         = true;
+    this->isOverGUI     = true;
 
     actualMessage   = "";
 
@@ -111,13 +111,15 @@ void moMessage::mouseMovedObjectContent(ofVec3f _m){
     sendButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     message->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    isOverGui = sendButton->hitTest(_m-this->getPos()) || message->hitTest(_m-this->getPos());
+    this->isOverGUI = sendButton->hitTest(_m-this->getPos()) || message->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void moMessage::dragGUIObject(ofVec3f _m){
-    if(isOverGui){
-
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        sendButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        message->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 

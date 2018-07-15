@@ -120,6 +120,8 @@ public:
     void                    addOutlet(int type) { outlets.push_back(type); }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { return customVars[name]; }
+    bool                    clearCustomVars();
+    map<string,float>       loadCustomVars();
 
     // GETTERS
     int                     getId() const { return nId; }
@@ -189,6 +191,7 @@ protected:
     bool                    bActive;
     bool                    iconified;
     bool                    isMouseOver;
+    bool                    isOverGUI;
     bool                    isRetina;
     bool                    isGUIObject;
     bool                    isBigGuiViewer;
