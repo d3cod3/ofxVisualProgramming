@@ -63,6 +63,7 @@ ShaderObject::ShaderObject() : PatchObject(){
     internalFormat  = GL_RGBA;
 
     fragmentShader  = "";
+    vertexShader    = "";
 
 }
 
@@ -89,8 +90,8 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     watcher.start();
 
     if(filepath == "none"){
-        ofFile file (ofToDataPath("scripts/empty.fs"));
-        filepath = file.getAbsolutePath();
+        currentScriptFile.open(ofToDataPath("scripts/empty.frag"));
+        filepath = currentScriptFile.getAbsolutePath();
         isNewObject = true;
     }
     loadScript(filepath);
@@ -270,10 +271,8 @@ void ShaderObject::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void ShaderObject::doFragmentShader(){
-    ofBuffer content = ofBufferFromFile(filepath);
 
-    fragmentShader = content.getText();
-    // Looks how many textures it´s need on the injected fragment shader
+    // Looks how many textures we need to inject from fragment shader
     int num = 0;
     for (int i = 0; i < 16; i++){
         string searchFor = "tex" + ofToString(i);
@@ -398,11 +397,14 @@ void ShaderObject::doFragmentShader(){
 
     // Compile the shader and load it to the GPU
     shader->unload();
+    if(vertexShader != ""){
+        shader->setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+    }
     shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
     scriptLoaded = shader->linkProgram();
 
     if(scriptLoaded){
-        ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s loaded on GPU!",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
     }
 }
 
@@ -495,9 +497,26 @@ void ShaderObject::loadGUI(){
 void ShaderObject::loadScript(string scriptFile){
 
     filepath = scriptFile;
+    currentScriptFile.open(ofToDataPath(filepath,true));
+
+    ofBuffer fscontent = ofBufferFromFile(filepath);
+
+    fragmentShader = fscontent.getText();
+
+    // Check if we have VERTEX_SHADER too
+    string fsName = currentScriptFile.getFileName();
+    string vsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+    ofFile vertexShaderFile(ofToDataPath(vsName,true));
+    if(vertexShaderFile.exists()){
+        ofBuffer vscontent = ofBufferFromFile(vertexShaderFile.getAbsolutePath());
+        vertexShader = vscontent.getText();
+    }
 
     ofShader test;
-    test.setupShaderFromFile(GL_FRAGMENT_SHADER, filepath);
+    if(vertexShader != ""){
+        test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+    }
+    test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
 
     if(test.linkProgram()){
         watcher.removeAllPaths();
@@ -529,11 +548,17 @@ void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
         if(e.target == loadButton){
             ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a shader");
             if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "FS" || fileExtension == "FRAG") {
-                        filepath = file.getAbsolutePath();
+                currentScriptFile.open(ofToDataPath(openFileResult.getPath(),true));
+                if (currentScriptFile.exists()){
+                    string fileExtension = ofToUpper(currentScriptFile.getExtension());
+                    if(fileExtension == "FRAG") {
+                        filepath = currentScriptFile.getAbsolutePath();
+                        loadScript(filepath);
+                        reloading = true;
+                    }else if(fileExtension == "VERT"){
+                        string vsName = currentScriptFile.getFileName();
+                        string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                        filepath = fsName;
                         loadScript(filepath);
                         reloading = true;
                     }

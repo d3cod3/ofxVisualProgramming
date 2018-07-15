@@ -257,6 +257,7 @@ void ofxVisualProgramming::update(){
             patchObjects.at(eraseIndexes.at(x))->removeObjectContent();
             patchObjects.erase(eraseIndexes.at(x));
         }
+
     }
 
 }
@@ -472,7 +473,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
             }
         }
 
-        if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr){
+        if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0){
             vector<bool> tempEraseLinks;
             for(int j=0;j<patchObjects[selectedObjectID]->outPut.size();j++){
                 //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
@@ -491,7 +492,9 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
                     tempBuffer.push_back(patchObjects[selectedObjectID]->outPut[i]);
                 }else{
                     patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
-                    patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
+                    if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID] != nullptr){
+                        patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
+                    }
                     //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
                 }
             }
@@ -715,12 +718,16 @@ void ofxVisualProgramming::removeObject(int &id){
         }
 
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<PatchLink*> tempBuffer;
             for(int j=0;j<it->second->outPut.size();j++){
-                if(it->second->outPut[j]->toObjectID == id){
+                if(it->second->outPut[j]->toObjectID != id){
+                    tempBuffer.push_back(it->second->outPut[j]);
+                }else{
                     it->second->outPut[j]->isDisabled = true;
                     patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
                 }
             }
+            it->second->outPut = tempBuffer;
         }
 
     }

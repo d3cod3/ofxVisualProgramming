@@ -119,7 +119,7 @@ public:
     void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); }
     void                    addOutlet(int type) { outlets.push_back(type); }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
-    float                   getCustomVar(string name) { return customVars[name]; }
+    float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
     bool                    clearCustomVars();
     map<string,float>       loadCustomVars();
 

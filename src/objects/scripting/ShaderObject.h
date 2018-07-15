@@ -108,7 +108,9 @@ public:
     ofxPingPong         *pingPong;
     vector<ofFbo*>      textures;
     ofShader            *shader;
+    ofFile              currentScriptFile;
     string              fragmentShader;
+    string              vertexShader;
     int                 nTextures, internalFormat;
     bool                needReset;
     
