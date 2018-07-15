@@ -163,7 +163,11 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(scriptLoaded && threadLoaded){
         if(nameLabelLoaded){
             nameLabelLoaded = false;
-            scriptName->setLabel(currentScriptFile.getFileName());
+            if(currentScriptFile.getFileName().size() > 22){
+                scriptName->setLabel(currentScriptFile.getFileName().substr(0,21)+"...");
+            }else{
+                scriptName->setLabel(currentScriptFile.getFileName());
+            }
         }
         // receive external data
         if(this->inletsConnected[0]){
@@ -242,7 +246,12 @@ void LuaScript::mouseMovedObjectContent(ofVec3f _m){
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+
 }
 
 //--------------------------------------------------------------

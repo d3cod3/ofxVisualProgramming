@@ -588,7 +588,12 @@ void AudioAnalyzer::mouseMovedObjectContent(ofVec3f _m){
         }
     }
 
-    this->isOverGUI = header->hitTest(_m-this->getPos()) || smoothing->hitTest(_m-this->getPos()) || inputLevel->hitTest(_m-this->getPos()) || channelSelector->hitTest(_m-this->getPos()) || overChSelected>0;
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || smoothing->hitTest(_m-this->getPos()) || inputLevel->hitTest(_m-this->getPos()) || channelSelector->hitTest(_m-this->getPos()) || overChSelected>0;
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -665,11 +670,13 @@ void AudioAnalyzer::mouseScrolled(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(e.target == smoothing){
-        smoothingValue = static_cast<float>(smoothing->getValue());
-        this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
-    }else if(e.target == inputLevel){
-        audioInputLevel = static_cast<float>(inputLevel->getValue());
-        this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
+    if(!header->getIsCollapsed()){
+        if(e.target == smoothing){
+            smoothingValue = static_cast<float>(smoothing->getValue());
+            this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
+        }else if(e.target == inputLevel){
+            audioInputLevel = static_cast<float>(inputLevel->getValue());
+            this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
+        }
     }
 }

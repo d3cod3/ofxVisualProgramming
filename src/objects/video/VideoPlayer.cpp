@@ -184,7 +184,12 @@ void VideoPlayer::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -222,7 +227,11 @@ void VideoPlayer::loadVideoFile(string videofile){
         video->play();
 
         ofFile tempFile(filepath);
-        videoName->setLabel(tempFile.getFileName());
+        if(tempFile.getFileName().size() > 22){
+            videoName->setLabel(tempFile.getFileName().substr(0,21)+"...");
+        }else{
+            videoName->setLabel(tempFile.getFileName());
+        }
     }else{
         filepath = "none";
     }

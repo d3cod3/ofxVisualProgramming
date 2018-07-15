@@ -244,7 +244,12 @@ void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
         }
     }
 
-    this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || testingOver>0;
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || testingOver>0;
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -478,7 +483,11 @@ void ShaderObject::loadGUI(){
 
     shaderName = gui->addLabel("NONE");
     ofFile tempFile(filepath);
-    shaderName->setLabel(tempFile.getFileName());
+    if(tempFile.getFileName().size() > 22){
+        shaderName->setLabel(tempFile.getFileName().substr(0,21)+"...");
+    }else{
+        shaderName->setLabel(tempFile.getFileName());
+    }
     gui->addBreak();
 
     loadButton = gui->addButton("OPEN");
@@ -499,30 +508,36 @@ void ShaderObject::loadScript(string scriptFile){
     filepath = scriptFile;
     currentScriptFile.open(ofToDataPath(filepath,true));
 
-    ofBuffer fscontent = ofBufferFromFile(filepath);
+    if(currentScriptFile.exists()){
+        ofBuffer fscontent = ofBufferFromFile(filepath);
 
-    fragmentShader = fscontent.getText();
+        fragmentShader = fscontent.getText();
 
-    // Check if we have VERTEX_SHADER too
-    string fsName = currentScriptFile.getFileName();
-    string vsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
-    ofFile vertexShaderFile(ofToDataPath(vsName,true));
-    if(vertexShaderFile.exists()){
-        ofBuffer vscontent = ofBufferFromFile(vertexShaderFile.getAbsolutePath());
-        vertexShader = vscontent.getText();
+        // Check if we have VERTEX_SHADER too
+        string fsName = currentScriptFile.getFileName();
+        string vsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+        ofFile vertexShaderFile(ofToDataPath(vsName,true));
+        if(vertexShaderFile.exists()){
+            ofBuffer vscontent = ofBufferFromFile(vertexShaderFile.getAbsolutePath());
+            vertexShader = vscontent.getText();
+        }
+
+        ofShader test;
+        if(vertexShader != ""){
+            test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+        }
+        test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
+
+        if(test.linkProgram()){
+            watcher.removeAllPaths();
+            watcher.addPath(filepath);
+            doFragmentShader();
+        }
+    }else{
+        ofLog(OF_LOG_ERROR,"SHADER File %s do not exists",currentScriptFile.getFileName().c_str());
     }
 
-    ofShader test;
-    if(vertexShader != ""){
-        test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
-    }
-    test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
 
-    if(test.linkProgram()){
-        watcher.removeAllPaths();
-        watcher.addPath(filepath);
-        doFragmentShader();
-    }
 
 }
 
