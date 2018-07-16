@@ -18,7 +18,7 @@ meta:
 	ADDON_NAME = ofxVisualProgramming
 	ADDON_DESCRIPTION = A visual programming patching environment for OF
 	ADDON_AUTHOR = Emanuele Mazza
-	ADDON_TAGS = "visual programming" "patching"
+	ADDON_TAGS = "visual programming" "patching" "cyber-transmedia programming"
 	ADDON_URL = http://github.com/d3cod3/ofxVisualProgramming
 
 common:
