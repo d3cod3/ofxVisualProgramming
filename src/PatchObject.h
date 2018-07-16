@@ -86,8 +86,6 @@ public:
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
-    virtual void            mousePressedObjectContent(ofVec3f _m) {}
-    virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
     virtual void            dragGUIObject(ofVec3f _m) {}
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outBuffer) {}

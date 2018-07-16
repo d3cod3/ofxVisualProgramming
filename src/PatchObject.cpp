@@ -789,7 +789,6 @@ void PatchObject::mouseDragged(float mx, float my){
 void PatchObject::mousePressed(float mx, float my){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
-        mousePressedObjectContent(m);
         if(isMouseOver && headerBox->inside(m)){
             for (unsigned int i=0;i<headerButtons.size();i++){
                 if (m.x > (headerBox->getPosition().x + headerBox->getWidth() - headerButtons[i]->offset - i*letterWidth)  && m.x < (headerBox->getPosition().x + headerBox->getWidth() - i*letterWidth) ){
@@ -814,7 +813,6 @@ void PatchObject::mousePressed(float mx, float my){
 void PatchObject::mouseReleased(float mx, float my){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
-        mouseReleasedObjectContent(m);
         if (box->inside(m)){
 
             x = box->getPosition().x;
