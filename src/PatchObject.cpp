@@ -81,11 +81,11 @@ PatchObject::PatchObject(){
 PatchObject::~PatchObject(){
 
     // free memory and point lost pointer to null
-    for(int i=0;i<outPut.size();i++){
+    for(int i=0;i<static_cast<int>(outPut.size());i++){
         delete outPut.at(i);
         outPut.at(i) = nullptr;
     }
-    for(int i=0;i<headerButtons.size();i++){
+    for(int i=0;i<static_cast<int>(headerButtons.size());i++){
         delete headerButtons.at(i);
         headerButtons.at(i) = nullptr;
     }
@@ -151,7 +151,7 @@ void PatchObject::draw(ofxFontStash *font){
         if(!iconified){
             // Draw inlets
             ofNoFill();
-            for(int i=0;i<inlets.size();i++){
+            for(int i=0;i<static_cast<int>(inlets.size());i++){
                 int it = getInletType(i);
                 ofSetLineWidth(1);
                 font->draw("test",fontSize,getInletPosition(i).x+10, getInletPosition(i).y);
@@ -179,7 +179,7 @@ void PatchObject::draw(ofxFontStash *font){
 
             // Draw outlets
             ofNoFill();
-            for(int i=0;i<outlets.size();i++){
+            for(int i=0;i<static_cast<int>(outlets.size());i++){
                 int ot = getOutletType(i);
                 ofSetLineWidth(1);
                 switch(ot) {
@@ -205,7 +205,7 @@ void PatchObject::draw(ofxFontStash *font){
             }
             // Draw links
             ofFill();
-            for(int j=0;j<outPut.size();j++){
+            for(int j=0;j<static_cast<int>(outPut.size());j++){
                 if(!outPut[j]->isDisabled){
                     int ot = outPut[j]->type;
                     ofSetLineWidth(1);
@@ -225,9 +225,9 @@ void PatchObject::draw(ofxFontStash *font){
                     default: break;
                     }
 
-                    for (int v=0;v<outPut[j]->linkVertices.size()-1;v++) {
+                    for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
 
-                        if(v==0 || v==outPut[j]->linkVertices.size()-2){
+                        if(v==0 || v==static_cast<int>(outPut[j]->linkVertices.size())-2){
                             ofDrawLine(outPut[j]->linkVertices.at(v), outPut[j]->linkVertices.at(v+1));
                         }else{
                             bezierLink(outPut[j]->linkVertices.at(v), outPut[j]->linkVertices.at(v+1),ofGetStyle().lineWidth);
@@ -249,7 +249,7 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     default: break;
                     }
-                    for (int v=0;v<outPut[j]->linkVertices.size()-1;v++) {
+                    for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
                         outPut[j]->linkVertices.at(v).draw(outPut[j]->linkVertices.at(v).x,outPut[j]->linkVertices.at(v).y);
                     }
                     ofPushMatrix();
@@ -288,11 +288,11 @@ void PatchObject::draw(ofxFontStash *font){
             }
 
             // Draw inlets names
-            if(inletsNames.size() > 0 && !isBigGuiViewer){
+            if(static_cast<int>(inletsNames.size()) > 0 && !isBigGuiViewer){
                 ofSetColor(0,0,0,180);
                 ofDrawRectangle(box->x,box->y,box->width/3 + (3*retinaScale),box->height);
                 ofSetColor(245);
-                for(int i=0;i<inletsNames.size();i++){
+                for(int i=0;i<static_cast<int>(inletsNames.size());i++){
                     font->draw(inletsNames.at(i),fontSize,getInletPosition(i).x + (6*retinaScale), getInletPosition(i).y + (4*retinaScale));
                 }
             }
@@ -492,7 +492,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                         // Save inlets
                         int newInlets = XML.addTag("inlets");
                         if(XML.pushTag("inlets",newInlets)){
-                            for(int i=0;i<inlets.size();i++){
+                            for(int i=0;i<static_cast<int>(inlets.size());i++){
                                 int newLink = XML.addTag("link");
                                 if(XML.pushTag("link",newLink)){
                                     XML.setValue("type",inlets.at(i));
@@ -506,7 +506,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                         // Save oulets & links
                         int newOutlets = XML.addTag("outlets");
                         if(XML.pushTag("outlets",newOutlets)){
-                            for(int i=0;i<outlets.size();i++){
+                            for(int i=0;i<static_cast<int>(outlets.size());i++){
                                 int newLink = XML.addTag("link");
                                 if(XML.pushTag("link",newLink)){
                                     XML.setValue("type",outlets.at(i));
@@ -547,7 +547,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                             XML.removeTag("inlets");
                             int newInlets = XML.addTag("inlets");
                             if(XML.pushTag("inlets",newInlets)){
-                                for(int i=0;i<inlets.size();i++){
+                                for(int i=0;i<static_cast<int>(inlets.size());i++){
                                     int newLink = XML.addTag("link");
                                     if(XML.pushTag("link",newLink)){
                                         XML.setValue("type",inlets.at(i));
@@ -560,20 +560,20 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
 
                             // Fixed static outlets
                             if(XML.pushTag("outlets")){
-                                for(int j=0;j<outlets.size();j++){
+                                for(int j=0;j<static_cast<int>(outlets.size());j++){
                                     if(XML.pushTag("link", j)){
-                                        if(outPut.size() > 0 && newConnection){
+                                        if(static_cast<int>(outPut.size()) > 0 && newConnection){
                                             int totalTo = XML.getNumTags("to");
-                                            if(outPut.at(outPut.size()-1)->fromOutletID == j){
+                                            if(outPut.at(static_cast<int>(outPut.size())-1)->fromOutletID == j){
                                                 int newTo = XML.addTag("to");
                                                 if(XML.pushTag("to", newTo)){
-                                                    XML.setValue("id",outPut.at(outPut.size()-1)->toObjectID);
-                                                    XML.setValue("inlet",outPut.at(outPut.size()-1)->toInletID);
+                                                    XML.setValue("id",outPut.at(static_cast<int>(outPut.size())-1)->toObjectID);
+                                                    XML.setValue("inlet",outPut.at(static_cast<int>(outPut.size())-1)->toInletID);
                                                     XML.popTag();
                                                 }
                                             }
-                                            if(outPut.size()<totalTo){
-                                                for(int z=totalTo;z>outPut.size();z--){
+                                            if(static_cast<int>(outPut.size())<totalTo){
+                                                for(int z=totalTo;z>static_cast<int>(outPut.size());z--){
                                                     XML.removeTag("to",j-1);
                                                 }
                                             }
@@ -742,8 +742,8 @@ void PatchObject::mouseMoved(float mx, float my){
         }
 
 
-        for(int j=0;j<outPut.size();j++){
-            for (int v=0;v<outPut[j]->linkVertices.size();v++) {
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size());v++) {
                 outPut[j]->linkVertices[v].over(m.x,m.y);
             }
         }
@@ -763,7 +763,7 @@ void PatchObject::mouseDragged(float mx, float my){
             x = box->getPosition().x;
             y = box->getPosition().y;
 
-            for(int j=0;j<outPut.size();j++){
+            for(int j=0;j<static_cast<int>(outPut.size());j++){
                 outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
                 if(isRetina){
                     outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+40,outPut[j]->posFrom.y);
@@ -776,7 +776,7 @@ void PatchObject::mouseDragged(float mx, float my){
             dragGUIObject(m);
         }
 
-        /*for(int j=0;j<outPut.size();j++){
+        /*for(int j=0;j<static_cast<int>(outPut.size());j++){
             outPut[j]->linkVertices[1].drag(m.x,m.y);
             outPut[j]->linkVertices[2].drag(m.x,m.y);
         }*/
@@ -821,8 +821,8 @@ void PatchObject::mouseReleased(float mx, float my){
             saveConfig(false,nId);
         }
 
-        for(int j=0;j<outPut.size();j++){
-            for (int v=0;v<outPut[j]->linkVertices.size();v++) {
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size());v++) {
                 outPut[j]->linkVertices[v].bOver = false;
             }
         }

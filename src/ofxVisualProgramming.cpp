@@ -184,7 +184,7 @@ void ofxVisualProgramming::setupGUI(){
 
     for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
         ofxDatGuiFolder* tgf;
-        if(it->second.size() == 0){
+        if(static_cast<int>(it->second.size()) == 0){
             tgf = new ofxDatGuiFolder(it->first, ofColor::black);
         }else{
             tgf = new ofxDatGuiFolder(it->first);
@@ -195,10 +195,10 @@ void ofxVisualProgramming::setupGUI(){
 
         ofxDatGuiScrollView* tsw = new ofxDatGuiScrollView(it->first);
         objectNavigators.push_back(tsw);
-        for(int j=0;j<it->second.size();j++){
+        for(int j=0;j<static_cast<int>(it->second.size());j++){
             objectNavigators.back()->add(it->second.at(j));
         }
-        for(int z=0;z<it->second.size();z++){
+        for(int z=0;z<static_cast<int>(it->second.size());z++){
             objectNavigators.back()->children[z]->setUseCustomMouse(true);
         }
         objectNavigators.back()->onScrollViewEvent(this, &ofxVisualProgramming::onScrollViewEvent);
@@ -228,7 +228,7 @@ void ofxVisualProgramming::update(){
     }
 
     // GUI
-    for(int i=0;i<objectNavigators.size();i++){
+    for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
         objectNavigators.at(i)->update();
     }
 
@@ -250,8 +250,8 @@ void ofxVisualProgramming::update(){
 
             }
         }
-        for(int x=0;x<eraseIndexes.size();x++){
-            for(int p=0;p<patchObjects.at(eraseIndexes.at(x))->outPut.size();p++){
+        for(int x=0;x<static_cast<int>(eraseIndexes.size());x++){
+            for(int p=0;p<static_cast<int>(patchObjects.at(eraseIndexes.at(x))->outPut.size());p++){
                 patchObjects[patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toObjectID]->inletsConnected.at(patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toInletID) = false;
             }
             patchObjects.at(eraseIndexes.at(x))->removeObjectContent();
@@ -341,8 +341,8 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
     // GUI
     gui->setCustomMousePos(e.x,e.y);
     isOverGui = gui->hitTest(ofPoint(e.x,e.y));
-    for(int i=0;i<objectNavigators.size();i++){
-        for(int z=0;z<objectNavigators.at(i)->children.size();z++){
+    for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
+        for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
             objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
         }
     }
@@ -366,8 +366,8 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     // GUI
     gui->setCustomMousePos(e.x,e.y);
     isOverGui = gui->hitTest(ofPoint(e.x,e.y));
-    for(int i=0;i<objectNavigators.size();i++){
-        for(int z=0;z<objectNavigators.at(i)->children.size();z++){
+    for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
+        for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
             objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
         }
     }
@@ -378,7 +378,7 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
             it->second->mouseDragged(mouse.x,mouse.y);
             draggingObject = true;
         }
-        for(int p=0;p<it->second->outPut.size();p++){
+        for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
             if(it->second->outPut[p]->toObjectID == selectedObjectID){
 
                 it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
@@ -475,7 +475,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
         if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0){
             vector<bool> tempEraseLinks;
-            for(int j=0;j<patchObjects[selectedObjectID]->outPut.size();j++){
+            for(int j=0;j<static_cast<int>(patchObjects[selectedObjectID]->outPut.size());j++){
                 //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
                 if(patchObjects[selectedObjectID]->outPut[j]->fromOutletID == selectedObjectLink){
                     tempEraseLinks.push_back(true);
@@ -605,7 +605,7 @@ void ofxVisualProgramming::resetObject(int &id){
 
             for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 vector<PatchLink*> tempBuffer;
-                for(int j=0;j<it->second->outPut.size();j++){
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                     if(it->second->outPut[j]->toObjectID == id){
                         if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
                             tempBuffer.push_back(it->second->outPut[j]);
@@ -719,7 +719,7 @@ void ofxVisualProgramming::removeObject(int &id){
 
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             vector<PatchLink*> tempBuffer;
-            for(int j=0;j<it->second->outPut.size();j++){
+            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
                 }else{
@@ -1080,7 +1080,7 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::onButtonEvent(ofxDatGuiButtonEvent e){
-    for(int i=0;i<objectFolders.size();i++){
+    for(int i=0;i<static_cast<int>(objectFolders.size());i++){
         if(e.target->getLabel() != objectFolders[i]->getLabel()){
             if(objectFolders[i]->isExpanded()){
                 objectFolders[i]->collapse();
@@ -1093,7 +1093,7 @@ void ofxVisualProgramming::onButtonEvent(ofxDatGuiButtonEvent e){
 void ofxVisualProgramming::onScrollViewEvent(ofxDatGuiScrollViewEvent e){
     int cc = 0;
     for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
-        for(int j=0;j<it->second.size();j++){
+        for(int j=0;j<static_cast<int>(it->second.size());j++){
             if(it->second.at(j) == e.target->getLabel()){
                 if(objectFolders.at(cc)->isExpanded()){
                     addObject(e.target->getLabel(),ofVec2f(canvas.getMovingPoint().x + 200*scaleFactor,canvas.getMovingPoint().y));
