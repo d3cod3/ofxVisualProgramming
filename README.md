@@ -202,10 +202,14 @@ public:
     void  updateObjectContent(map<int,PatchObject*> &patchObjects);
     void  drawObjectContent(ofxFontStash *font);
     void  removeObjectContent();
+
     //void  mouseMovedObjectContent(ofVec3f _m);
     //void  dragGUIObject(ofVec3f _m);
     //void  audioInObject(ofSoundBuffer &inputBuffer);
     //void  audioOutObject(ofSoundBuffer &outBuffer);
+
+    // This method is for advanced objects with inlets/internal vars changes on runtime
+    //void  resetResolution(int fromID, int newWidth, int newHeight);
 
     // my SuperAmazingObject public variables (if any)
     // .............
