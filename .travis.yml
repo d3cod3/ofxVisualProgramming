@@ -188,7 +188,7 @@ before_script:
   - cd ~/openFrameworks
 
 script:
-  - scripts/ci/addons/build.sh > /dev/null
+  - if [ "$TARGET" = "linux64" ]; then scripts/ci/addons/build.sh > /dev/null; else scripts/ci/addons/build.sh; fi
 
 git:
   depth: 10
