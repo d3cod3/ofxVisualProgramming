@@ -531,6 +531,9 @@ void ShaderObject::loadScript(string scriptFile){
         if(test.linkProgram()){
             watcher.removeAllPaths();
             watcher.addPath(filepath);
+            if(vertexShader != ""){
+                watcher.addPath(vertexShaderFile.getAbsolutePath());
+            }
             doFragmentShader();
         }
     }else{
@@ -618,8 +621,16 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
             break;
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
-            filepath = event.path;
-            loadScript(filepath);
+            currentScriptFile.open(ofToDataPath(event.path,true));
+            if(ofToUpper(currentScriptFile.getExtension()) == "FRAG") {
+                filepath = currentScriptFile.getAbsolutePath();
+                loadScript(filepath);
+            }else if(ofToUpper(currentScriptFile.getExtension()) == "VERT"){
+                string vsName = currentScriptFile.getFileName();
+                string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                filepath = fsName;
+                loadScript(filepath);
+            }
             break;
         case PathWatcher::DELETED:
             //ofLogVerbose(PACKAGE) << "path deleted " << event.path;
