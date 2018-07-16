@@ -9,7 +9,7 @@ environment:
       platform: x86
       BUILDER: MSYS2
 
-configuration: Debug
+configuration: Release
 shallow_clone: true
 clone_depth: 10
 
