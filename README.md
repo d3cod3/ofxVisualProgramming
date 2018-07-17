@@ -45,6 +45,8 @@ ofxVisualProgramming needs this addons:
 
 #### [ofxBTrack](https://github.com/d3cod3/ofxBTrack)
 
+#### [ofxCv](https://github.com/kylemcdonald/ofxCv)
+
 #### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
 
 #### [ofxFontStash](https://github.com/armadillu/ofxFontStash)
@@ -80,6 +82,7 @@ cd <your_openframeworks_release_folder>/addons
 
 git clone https://github.com/d3cod3/ofxAudioAnalyzer
 git clone https://github.com/d3cod3/ofxBTrack
+git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/d3cod3/ofxDatGui
 git clone https://github.com/armadillu/ofxFontStash
 git clone https://github.com/armadillu/ofxGLError

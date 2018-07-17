@@ -26,6 +26,7 @@ install:
 - git clone --depth=1 --branch=stable https://github.com/openframeworks/openFrameworks
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxAudioAnalyzer openframeworks/addons/ofxAudioAnalyzer
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxBTrack openframeworks/addons/ofxBTrack
+- git clone --depth=1 --branch=master https://github.com/kylemcdonald/ofxCv openframeworks/addons/ofxCv
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxDatGui openframeworks/addons/ofxDatGui
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxFontStash openframeworks/addons/ofxFontStash
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxGLError openframeworks/addons/ofxGLError

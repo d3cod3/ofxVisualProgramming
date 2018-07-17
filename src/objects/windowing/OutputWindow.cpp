@@ -275,17 +275,17 @@ glm::vec2 OutputWindow::reduceToAspectRatio(int _w, int _h){
     glm::vec2 _res;
     int temp = _w*_h;
     if(temp>0){
-        for(temp; temp>1; temp--){
-            if((_w%temp==0) && (_h%temp==0)){
-                _w/=temp;
-                _h/=temp;
+        for(int tt = temp; tt>1; tt--){
+            if((_w%tt==0) && (_h%tt==0)){
+                _w/=tt;
+                _h/=tt;
             }
         }
     }else if (temp<0){
-        for (temp; temp<-1; temp++){
-            if ((_w%temp==0) && (_h%temp==0)){
-                _w/=temp;
-                _h/=temp;
+        for (int tt = temp; tt<-1; tt++){
+            if ((_w%tt==0) && (_h%tt==0)){
+                _w/=tt;
+                _h/=tt;
             }
         }
     }

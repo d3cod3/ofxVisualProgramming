@@ -680,3 +680,10 @@ void AudioAnalyzer::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+//--------------------------------------------------------------
+void AudioAnalyzer::onDropdownEvent(ofxDatGuiDropdownEvent e){
+    if(!header->getIsCollapsed()){
+        // TODO
+    }
+}

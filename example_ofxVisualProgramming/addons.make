@@ -10,6 +10,7 @@ ofxVectorGraphics
 ofxXmlSettings
 ofxAudioAnalyzer
 ofxBTrack
+ofxCv
 ofxFontStash
 ofxGLError
 ofxDatGui

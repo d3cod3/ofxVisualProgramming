@@ -66,6 +66,7 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
 
     void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            onDropdownEvent(ofxDatGuiDropdownEvent e);
 
     // Window vars
     std::shared_ptr<ofAppGLFWWindow>        window;

@@ -243,7 +243,7 @@ void BashScript::loadScript(string scriptFile){
         ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
         ofLog(OF_LOG_NOTICE,"[verbose] bash script: %s RUNNING!",filepath.c_str());
         ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
 
         char buffer[128];
         while(!feof(execFile)){
@@ -254,7 +254,7 @@ void BashScript::loadScript(string scriptFile){
                 ofLog(OF_LOG_NOTICE,"%s",buffer);
             }
         }
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
         ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
         ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
         ofLog(OF_LOG_NOTICE,"[verbose]############################################################");

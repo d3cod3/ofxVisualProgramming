@@ -164,6 +164,7 @@ install:
   - cd openFrameworks
   - git clone --branch=master https://github.com/d3cod3/ofxAudioAnalyzer addons/ofxAudioAnalyzer
   - git clone --branch=master https://github.com/d3cod3/ofxBTrack addons/ofxBTrack
+  - git clone --branch=master https://github.com/kylemcdonald/ofxCv addons/ofxCv
   - git clone --branch=master https://github.com/d3cod3/ofxDatGui addons/ofxDatGui
   - git clone --branch=master https://github.com/armadillu/ofxFontStash addons/ofxFontStash
   - git clone --branch=master https://github.com/armadillu/ofxGLError addons/ofxGLError

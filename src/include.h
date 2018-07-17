@@ -70,6 +70,7 @@
 // typography objects
 
 // video objects
+#include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"
 
 // web objects

@@ -54,7 +54,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["machine learning"] = vecInit;
 
-    vecInit = {"simple random","simple noise"};
+    vecInit = {"simple noise","simple random"};
     objectsMatrix["math"] = vecInit;
 
     vecInit = {};
@@ -75,7 +75,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["typography"] = vecInit;
 
-    vecInit = {"video player"};
+    vecInit = {"video grabber","video player"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -807,6 +807,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new moSlider();
     }else if(objname == "video player"){
         tempObj = new VideoPlayer();
+    }else if(objname == "video grabber"){
+        tempObj = new VideoGrabber();
     }else if(objname == "video viewer"){
         tempObj = new moVideoViewer();
     }else if(objname == "signal viewer"){
@@ -872,13 +874,13 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 soundStreamOUT.close();
 
                 audioDevices = soundStreamIN.getDeviceList();
-                ofLog(OF_LOG_NOTICE,"");
+                ofLog(OF_LOG_NOTICE," ");
                 ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
                 for(size_t i=0;i<audioDevices.size();i++){
                     audioDevicesString.push_back("  "+audioDevices[i].name);
                     ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
                 }
-                ofLog(OF_LOG_NOTICE,"");
+                ofLog(OF_LOG_NOTICE," ");
 
                 soundStreamINSettings.setInDevice(audioDevices[audioINDev]);
                 soundStreamOUTSettings.setOutDevice(audioDevices[audioOUTDev]);
@@ -905,20 +907,20 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 bool startingSoundstreamIN = soundStreamIN.setup(soundStreamINSettings);
                 bool startingSoundstreamOUT = soundStreamOUT.setup(soundStreamOUTSettings);
 
-                soundStreamIN.start();
-                soundStreamOUT.start();
-
                 if(startingSoundstreamIN && startingSoundstreamOUT){
-                    ofLog(OF_LOG_NOTICE,"");
+                    soundStreamIN.start();
+                    soundStreamOUT.start();
+
+                    ofLog(OF_LOG_NOTICE," ");
                     ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
-                    ofLog(OF_LOG_NOTICE,"");
+                    ofLog(OF_LOG_NOTICE," ");
                     ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
-                    ofLog(OF_LOG_NOTICE,"");
+                    ofLog(OF_LOG_NOTICE," ");
                 }else{
                     ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
-                    ofLog(OF_LOG_NOTICE,"");
+                    ofLog(OF_LOG_NOTICE," ");
                 }
             }
 
@@ -1039,13 +1041,13 @@ void ofxVisualProgramming::setAudioInDevice(int index){
     soundStreamIN.start();
 
     if(startingSoundstreamIN){
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
         ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Selected Device");
         ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[index].name.c_str());
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
     }else{
         ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
     }
 }
 
@@ -1068,13 +1070,13 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
     soundStreamOUT.start();
 
     if(startingSoundstreamOUT){
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
         ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Selected Device");
         ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[index].name.c_str());
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
     }else{
         ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
-        ofLog(OF_LOG_NOTICE,"");
+        ofLog(OF_LOG_NOTICE," ");
     }
 }
 
