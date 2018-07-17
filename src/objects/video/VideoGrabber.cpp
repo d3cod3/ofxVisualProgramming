@@ -218,7 +218,7 @@ void VideoGrabber::dragGUIObject(ofVec3f _m){
         x = box->getPosition().x;
         y = box->getPosition().y;
 
-        for(int j=0;j<outPut.size();j++){
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
@@ -235,7 +235,7 @@ void VideoGrabber::loadCameraSettings(){
         temp_height     = camHeight;
     }
 
-    if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < devicesVector.size()){
+    if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(devicesVector.size())){
         deviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
     }else{
         deviceID = 0;

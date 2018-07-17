@@ -170,7 +170,7 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         if(updatePython){
             updateMosaicList = python.getObject("_updateMosaicData");
             if(this->inletsConnected[0] && updateMosaicList){
-                for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+                for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
                     updateMosaicList(ofxPythonObject::fromInt(static_cast<int>(i)),ofxPythonObject::fromFloat(static_cast<double>(static_cast<vector<float> *>(_inletParams[0])->at(i))));
                 }
             }
@@ -264,7 +264,7 @@ void PythonScript::dragGUIObject(ofVec3f _m){
         x = box->getPosition().x;
         y = box->getPosition().y;
 
-        for(int j=0;j<outPut.size();j++){
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
@@ -289,7 +289,7 @@ void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
     bool reset = false;
 
     // Check if we are connected to signaling object
-    for(int j=0;j<outPut.size();j++){
+    for(int j=0;j<static_cast<int>(outPut.size());j++){
         if(outPut[j]->toObjectID == fromID){
             reset = true;
         }

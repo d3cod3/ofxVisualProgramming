@@ -146,7 +146,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
         ofClear(0);
         shader->begin();
         shader->setUniformTexture("backbuffer", pingPong->src->getTexture(),0);
-        for(int i=0;i<textures.size();i++){
+        for(int i=0;i<static_cast<int>(textures.size());i++){
             string texName = "tex" + ofToString(i);
             shader->setUniformTexture(texName.c_str(),textures[i]->getTexture(),i+1);
         }
@@ -267,7 +267,7 @@ void ShaderObject::dragGUIObject(ofVec3f _m){
         x = box->getPosition().x;
         y = box->getPosition().y;
 
-        for(int j=0;j<outPut.size();j++){
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
@@ -281,7 +281,7 @@ void ShaderObject::doFragmentShader(){
     int num = 0;
     for (int i = 0; i < 16; i++){
         string searchFor = "tex" + ofToString(i);
-        if (fragmentShader.find(searchFor)!= -1)
+        if(static_cast<int>(fragmentShader.find(searchFor)) != -1)
             num++;
         else
             break;
@@ -326,7 +326,7 @@ void ShaderObject::doFragmentShader(){
 
     this->inletsConnected.clear();
     for(int i=0;i<this->numInlets;i++){
-        if(i<tempInletsConn.size()){
+        if(i<static_cast<int>(tempInletsConn.size())){
             if(tempInletsConn.at(i)){
                 this->inletsConnected.push_back(true);
             }else{
@@ -435,7 +435,7 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
     bool reset = false;
 
     // Check if we are connected to signaling object
-    for(int j=0;j<outPut.size();j++){
+    for(int j=0;j<static_cast<int>(outPut.size());j++){
         if(outPut[j]->toObjectID == fromID){
             reset = true;
         }

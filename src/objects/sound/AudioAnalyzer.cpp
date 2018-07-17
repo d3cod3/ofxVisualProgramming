@@ -201,7 +201,7 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     channelSelector = gui->addDropdown("CHANNEL",channelsVector);
     channelSelector->setUseCustomMouse(true);
     channelSelector->select(actualChannel);
-    for(size_t i=0;i<channelSelector->size();i++){
+    for(int i=0;i<channelSelector->size();i++){
         channelSelector->children[i]->setUseCustomMouse(true);
     }
 
@@ -218,7 +218,7 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     inputLevel->update();
     smoothing->update();
     channelSelector->update();
-    for(size_t i=0;i<channelSelector->size();i++){
+    for(int i=0;i<channelSelector->size();i++){
         channelSelector->children[i]->update();
     }
 
@@ -252,27 +252,27 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
         index += lastBuffer.getNumFrames();
         // SPECTRUM
-        for(int i=0;i<spectrum.size();i++){
+        for(int i=0;i<static_cast<int>(spectrum.size());i++){
             static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(spectrum[i],DB_MIN,DB_MAX,0.0,1.0,true);
         }
         index += spectrum.size();
         // MELBANDS
-        for(int i=0;i<melBands.size();i++){
+        for(int i=0;i<static_cast<int>(melBands.size());i++){
             static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);
         }
         index += melBands.size();
         // MFCC
-        for(int i=0;i<mfcc.size();i++){
+        for(int i=0;i<static_cast<int>(mfcc.size());i++){
             static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true);
         }
         index += mfcc.size();
         // HPCP
-        for(int i=0;i<hpcp.size();i++){
+        for(int i=0;i<static_cast<int>(hpcp.size());i++){
             static_cast<vector<float> *>(_outletParams[0])->at(i+index) = hpcp[i];
         }
         index += hpcp.size();
         // TRISTIMULUS
-        for(int i=0;i<tristimulus.size();i++){
+        for(int i=0;i<static_cast<int>(tristimulus.size());i++){
             static_cast<vector<float> *>(_outletParams[0])->at(i+index) = tristimulus[i];
         }
         index += tristimulus.size();
@@ -409,14 +409,14 @@ void AudioAnalyzer::drawInWindow(ofEventArgs &e){
     ofSetColor(255,220,110,20);
     ofNoFill();
     float bin_w = (float) mw / spectrum.size();
-    for (int i = 0; i < spectrum.size(); i++){
+    for (int i = 0; i < static_cast<int>(spectrum.size()); i++){
         float clampedBin = ofMap(spectrum[i],DB_MIN,DB_MAX,0.0,1.0,true);
         float bin_h = -1 * (clampedBin * graphH);
         ofDrawLine(i*bin_w, graphH+ypos, i*bin_w, bin_h + graphH+ypos);
     }
     ofSetColor(255,220,110,240);
     bin_w = (float) mw / melBands.size();
-    for (int i = 0; i < melBands.size(); i++){
+    for (int i = 0; i < static_cast<int>(melBands.size()); i++){
         float scaledValue = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);
         float bin_h = -1 * (scaledValue * graphH);
         ofDrawRectangle(i*bin_w, graphH+ypos, bin_w, bin_h);
@@ -431,7 +431,7 @@ void AudioAnalyzer::drawInWindow(ofEventArgs &e){
     ofNoFill();
     ofSetColor(255,220,110,240);
     bin_w = (float) mw / mfcc.size();
-    for (int i = 0; i < mfcc.size(); i++){
+    for (int i = 0; i < static_cast<int>(mfcc.size()); i++){
         ofDrawRectangle(i*bin_w, graphH + ypos, bin_w, -1 * (ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true) * graphH));
     }
 
@@ -444,7 +444,7 @@ void AudioAnalyzer::drawInWindow(ofEventArgs &e){
     ofNoFill();
     ofSetColor(255,220,110,240);
     bin_w = (float) mw / hpcp.size();
-    for (int i = 0; i < hpcp.size(); i++){
+    for (int i = 0; i < static_cast<int>(hpcp.size()); i++){
         ofDrawRectangle(i*bin_w, graphH+ypos, bin_w, -1 * (hpcp[i] * graphH));
     }
 
@@ -457,7 +457,7 @@ void AudioAnalyzer::drawInWindow(ofEventArgs &e){
     ofNoFill();
     ofSetColor(255,220,110,240);
     bin_w = (float) mw / tristimulus.size();
-    for (int i = 0; i < tristimulus.size(); i++){
+    for (int i = 0; i < static_cast<int>(tristimulus.size()); i++){
         ofDrawRectangle(i*bin_w, graphH+ypos, bin_w, -1 * (tristimulus[i] * graphH));
     }
 
@@ -581,7 +581,7 @@ void AudioAnalyzer::mouseMovedObjectContent(ofVec3f _m){
     inputLevel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     channelSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     int overChSelected = 0;
-    for(size_t i=0;i<channelSelector->size();i++){
+    for(int i=0;i<channelSelector->size();i++){
         channelSelector->children[i]->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         if(channelSelector->children[i]->hitTest(_m-this->getPos())){
             overChSelected++;
@@ -613,7 +613,7 @@ void AudioAnalyzer::dragGUIObject(ofVec3f _m){
         x = box->getPosition().x;
         y = box->getPosition().y;
 
-        for(int j=0;j<outPut.size();j++){
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }

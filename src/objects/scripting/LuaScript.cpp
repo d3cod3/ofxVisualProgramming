@@ -171,7 +171,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         }
         // receive external data
         if(this->inletsConnected[0]){
-            for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+            for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
                 lua_getglobal(lua, "_updateMosaicData");
                 lua_pushnumber(lua,i+1);
                 lua_pushnumber(lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
@@ -270,7 +270,7 @@ void LuaScript::dragGUIObject(ofVec3f _m){
         x = box->getPosition().x;
         y = box->getPosition().y;
 
-        for(int j=0;j<outPut.size();j++){
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
@@ -295,7 +295,7 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
     bool reset = false;
 
     // Check if we are connected to signaling object
-    for(int j=0;j<outPut.size();j++){
+    for(int j=0;j<static_cast<int>(outPut.size());j++){
         if(outPut[j]->toObjectID == fromID){
             reset = true;
         }
