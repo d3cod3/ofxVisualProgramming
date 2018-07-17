@@ -1,10 +1,10 @@
 
 # ofxVisualProgramming - A visual-programming patching addon for OF
 
-![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg)
-
 > A collection of visual interactive objects to create in a cyber-transmedia with-code/without-code real-time patching environment;
 > includes Lua, Python, GLSL version 120 and Bash scripting languages
+
+[![GitHub commits](https://img.shields.io/github/last-commit/google/skia.svg)](https://github.com/d3cod3/ofxVisualProgramming/commit/)
 
 Operating system | Status
 ---------------- | ----------
