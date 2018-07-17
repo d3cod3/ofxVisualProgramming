@@ -1,13 +1,15 @@
 
-[ofxVisualProgramming](https://github.com/d3cod3/ofxVisualProgramming)
-======================
+# ofxVisualProgramming - A visual-programming patching addon for OF
 
-Linux, OSX [![Build status](https://travis-ci.org/d3cod3/ofxVisualProgramming.svg?branch=master)](https://travis-ci.org/d3cod3/ofxVisualProgramming)
+![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg)
 
-Windows [![Build status](https://ci.appveyor.com/api/projects/status/65sk40q6y8bqfunw/branch/master?svg=true)](https://ci.appveyor.com/project/d3cod3/ofxvisualprogramming/branch/master)
+> A collection of visual interactive objects to create in a cyber-transmedia with-code/without-code real-time patching environment;
+> includes Lua, Python, GLSL version 120 and Bash scripting languages
 
-
-### A visual programming patching environment for OF
+Operating system | Status
+---------------- | ----------
+Ubuntu and macOS | [![TravisCI](https://travis-ci.org/d3cod3/ofxVisualProgramming.svg?branch=master)](https://travis-ci.org/d3cod3/ofxVisualProgramming)
+Windows          | [![AppVeyor](https://ci.appveyor.com/api/projects/status/65sk40q6y8bqfunw/branch/master?svg=true)](https://ci.appveyor.com/project/d3cod3/ofxvisualprogramming/branch/master)
 
 Table of Contents
 =================
@@ -19,27 +21,45 @@ Table of Contents
    * [COMPILING](#compiling)
    * [INSTALLING](#installing)
    * [USAGE](#usage)
-   * [EXAMPLE](#example)
    * [CONTRIBUTING](#contributing)
+   * [LICENSE](#license)
 
 
 # OF COMPATIBLE RELEASE
 
-#### 0.10.0
-Compiled/tested with QTCreator on osx/linux/windows
+## 0.10.0 STABLE (official download from [OF site](https://openframeworks.cc/))
+> Compiled/tested with QTCreator on osx/linux/windows
+
+If you want to build ofxVisualProgramming, just download OF0.10.0 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
 
 # REFERENCE
 
-ofxVisualProgramming came directly from the idea behind the ofxComposer addon by [patriciogonzalezvivo](https://github.com/patriciogonzalezvivo/ofxComposer), and obviously from the various commercial and no-commercial existing visual programming softwares, Pure Data, Max/Msp, TouchDesigner, etc...
-So special thanks to all the precursors of this ideas, and more thanks to the ofxComposer developer for their code, it has been a great reference to start working on this ofxaddon.
+ofxVisualProgramming came directly from the idea behind the ofxComposer addon by [patriciogonzalezvivo](https://github.com/patriciogonzalezvivo/ofxComposer) and [James George](http://www.jamesgeorge.org/), and obviously from the various commercial and no-commercial existing visual programming softwares, the open source option [Pure Data](http://puredata.info/), the commercial options [Max/Msp](https://cycling74.com/products/max) and [TouchDesigner](https://www.derivative.ca/), etc..., to talk of the latest ones, and without forgetting probably the first one from 1968,
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=QQhVQ1UG6aM" target="_blank"><img src="http://img.youtube.com/vi/QQhVQ1UG6aM/0.jpg"
+alt="GRAIL" width="240" height="180" border="0" /></a>
+
+GRAIL [RM-599-ARPA](https://www.rand.org/content/dam/rand/pubs/research_memoranda/2005/RM5999.pdf) from **the [RAND](https://www.rand.org) Corporation**.
+
+So special thanks to all the precursors of this ideas, and more thanks to the ofxComposer developers for their code, it has been a great reference for start working on this ofxaddon.
 
 # DESCRIPTION
 
-...Soon
+This [addon](https://github.com/d3cod3/ofxVisualProgramming) is the core code of the project [Mosaic](https://github.com/d3cod3/Mosaic)![Mosaic logo](https://github.com/d3cod3/Mosaic/raw/master/process/logo/logo_150.png), maintained isolated in order to obtain a better modularized code structure, encourage contributions, simplify bug fixing and enhance code quality.
+
+This project deals with the idea of integrate/amplify man-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, Python, GLSL and BASH).
+
+As this project is based on openFrameworks, one of the goals is to offer as more objects as possible, using the pre-defined OF classes for trans-media manipulation (audio, text, image, video, electronics, computer vision), plus all the gigantic ofxaddons ecosystem actually available (machine learning, protocols, web, hardware interface, among a lot more).
+
+While the described characteristics could potentially offer an extremely high complex result (OF and OFXADDONS ecosystem is really huge, and the possibility of multiple scripting languages could lead every unexperienced user to confusion), the idea behind the interface design aim at avoid the "high complex" situation, embodying a direct and natural drag&drop connect/disconnet interface (mouse/trackpad) on the most basic level of interaction, adding text editing (keyboard) on a intermediate level of interaction (script editing), following most advanced level of interaction for experienced users (external devices communication, automated interaction, etc...)
+
+
+#### KEYWORDS
+mosaic, ofxVisualProgramming, openframeworks, linux, macOS, windows, creative-coding, live-coding, cyber-coding, physical, visual, scripting, trans-media, programming, visual-programming, cyber-programming, cyber-trans-media programming
 
 # DEPENDENCIES
 
-ofxVisualProgramming needs this addons:
+In order to buil ofxVisualProgramming, you'll need this addons:
 
 #### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
@@ -65,13 +85,13 @@ ofxVisualProgramming needs this addons:
 
 #### ofxXmlSettings --> Core OF Addon
 
-Some addons are forks of the original, due to some mods, compatibility with OF0.10 and the intention of cross-platform compiling (osx,linux,win)
+>Some addons are forks of the original, due to some mods, compatibility with OF0.10.0 and the intention of cross-platform compiling (osx,linux,win)
 
 # COMPILING
 
 **OSX/LINUX Compiling with no problems.**
 
-**Windows is compiling with qtcreator 4.6.1 only, for now.**
+**Windows is compiling with qtcreator 4.6.1 only, No VS2017**
 
 # INSTALLING
 
@@ -146,10 +166,6 @@ void ofApp::draw(){
 }
 
 ```
-
-# EXAMPLE
-
-See the example_ofxVisualProgramming included
 
 # CONTRIBUTING
 
@@ -320,3 +336,9 @@ void SimpleRandom::removeObjectContent(){
 And thats it! This is all for now, for every question just open an issue here on github, or send me an email.
 
 More soon...
+
+# LICENSE
+
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
+
+All contributions are made under the [MIT License](https://opensource.org/licenses/MIT). See [LICENSE](https://github.com/d3cod3/ofxVisualProgramming/blob/master/LICENSE.md).
