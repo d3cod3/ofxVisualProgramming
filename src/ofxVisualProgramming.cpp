@@ -66,7 +66,12 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["physics"] = vecInit;
 
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
     vecInit = {"bash script","lua script","python script","shader object"};
+#elif defined(TARGET_WIN32)
+    vecInit = {"lua script","shader object"};
+#endif
+
     objectsMatrix["scripting"] = vecInit;
 
     vecInit = {"audio analyzer"};
@@ -787,12 +792,17 @@ void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int link
 //--------------------------------------------------------------
 PatchObject* ofxVisualProgramming::selectObject(string objname){
     PatchObject* tempObj;
+
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
     if(objname == "bash script"){
         tempObj = new BashScript();
-    }else if(objname == "lua script"){
-        tempObj = new LuaScript();
     }else if(objname == "python script"){
         tempObj = new PythonScript();
+    }else
+#endif
+
+    if(objname == "lua script"){
+        tempObj = new LuaScript();
     }else if(objname == "shader object"){
         tempObj = new ShaderObject();
     }else if(objname == "audio analyzer"){

@@ -17,20 +17,40 @@ Project{
             'src/ofApp.h',
         ]
 
-        of.addons: [
-            'ofxAssimpModelLoader','ofxGui','ofxKinect','ofxNetwork','ofxOpenCv','ofxOsc','ofxPoco','ofxSvg','ofxVectorGraphics','ofxXmlSettings',
-            'ofxAudioAnalyzer',
-            'ofxBTrack',
-            'ofxFontStash',
-            'ofxGLError',
-            'ofxDatGui',
-            'ofxHistoryPlot',
-            'ofxInfiniteCanvas',
-            'ofxLua',
-            'ofxPython',
-            'ofxTimeMeasurements',
-            'ofxVisualProgramming'
-        ]
+        of.addons: {
+            if(qbs.targetOS.indexOf("windows")>-1){
+                return ['ofxAssimpModelLoader','ofxGui','ofxKinect','ofxNetwork','ofxOpenCv','ofxOsc','ofxPoco','ofxSvg','ofxVectorGraphics','ofxXmlSettings',
+                        'ofxAudioAnalyzer',
+                        'ofxBTrack',
+                        'ofxCv',
+                        'ofxFontStash',
+                        'ofxGLError',
+                        'ofxDatGui',
+                        'ofxHistoryPlot',
+                        'ofxInfiniteCanvas',
+                        'ofxLua',
+                        'ofxLoggerChannel',
+                        'ofxTimeMeasurements',
+                        'ofxVisualProgramming'
+                        ]
+            }else{
+                return ['ofxAssimpModelLoader','ofxGui','ofxKinect','ofxNetwork','ofxOpenCv','ofxOsc','ofxPoco','ofxSvg','ofxVectorGraphics','ofxXmlSettings',
+                        'ofxAudioAnalyzer',
+                        'ofxBTrack',
+                        'ofxCv',
+                        'ofxFontStash',
+                        'ofxGLError',
+                        'ofxDatGui',
+                        'ofxHistoryPlot',
+                        'ofxInfiniteCanvas',
+                        'ofxLua',
+                        'ofxLoggerChannel',
+                        'ofxPython',
+                        'ofxTimeMeasurements',
+                        'ofxVisualProgramming'
+                        ]
+            }
+        }
 
         // additional flags for the project. the of module sets some
         // flags by default to add the core libraries, search paths...

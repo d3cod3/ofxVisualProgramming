@@ -34,7 +34,10 @@
 
 #include "PatchObject.h"
 #include "ofxLua.h"
+
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "ofxPython.h"
+#endif
 
 #define OUTPUT_TEX_MAX_WIDTH        4800
 #define OUTPUT_TEX_MAX_HEIGHT       4800

@@ -101,6 +101,19 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
+    if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
+        string cmd = "";
+        ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
+#ifdef TARGET_LINUX
+        cmd = "nano "+filepath;
+#elif defined(TARGET_OSX)
+        cmd = "open -a /Applications/TextEdit.app "+filepath;
+#elif defined(TARGET_WIN32)
+        cmd = "start "+filepath;
+#endif
+        tempCommand.execCommand(cmd);
+    }
+
     // Recursive reset for shader objects chain
     if(needReset){
         needReset = false;
@@ -594,20 +607,6 @@ void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
 #endif
                 tempCommand.execCommand(cmd);
 
-                std::unique_lock<std::mutex> lock(mutex);
-                int commandRes = tempCommand.getSysStatus();
-
-                if(commandRes != 0){ // error
-                    ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
-#ifdef TARGET_LINUX
-                    cmd = "nano "+filepath;
-#elif defined(TARGET_OSX)
-                    cmd = "open -a /Applications/TextEdit.app "+filepath;
-#elif defined(TARGET_WIN32)
-                    cmd = "start "+filepath;
-#endif
-                    tempCommand.execCommand(cmd);
-                }
             }
         }
     }

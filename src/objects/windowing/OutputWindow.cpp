@@ -183,11 +183,15 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects){
                             _inletParams[1] = new ofxLua();
                             inletScriptType         = 0;
                             //ofLog(OF_LOG_NOTICE,"Init inlet as ofxLua pointer");
-                        }else if(it->second->getName() == "python script"){
+                        }
+                        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+                        else if(it->second->getName() == "python script"){
                             _inletParams[1] = new ofxPythonObject();
                             inletScriptType         = 1;
                             //ofLog(OF_LOG_NOTICE,"Init inlet as ofxPython pointer");
-                        }else{
+                        }
+                        #endif
+                        else{
                             _inletParams[1] = nullptr;
                         }
                         break;
@@ -429,7 +433,9 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptKeyPressed(e.key);
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("keyPressed");
                 if(at){
@@ -437,6 +443,7 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
                 }
             }
         }
+        #endif
 
     }
 }
@@ -448,7 +455,9 @@ void OutputWindow::keyReleased(ofKeyEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptKeyReleased(e.key);
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("keyReleased");
                 if(at){
@@ -456,6 +465,7 @@ void OutputWindow::keyReleased(ofKeyEventArgs &e){
                 }
             }
         }
+        #endif
     }
 }
 
@@ -467,7 +477,9 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseMoved");
                 if(at){
@@ -475,6 +487,7 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
                 }
             }
         }
+        #endif
     }
 }
 
@@ -486,7 +499,9 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseDragged");
                 if(at){
@@ -494,6 +509,7 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
                 }
             }
         }
+        #endif
     }
 }
 
@@ -505,7 +521,9 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mousePressed");
                 if(at){
@@ -513,6 +531,7 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
                 }
             }
         }
+        #endif
     }
 }
 
@@ -524,7 +543,9 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseReleased");
                 if(at){
@@ -532,6 +553,7 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
                 }
             }
         }
+        #endif
     }
 }
 
@@ -543,7 +565,9 @@ void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
             if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
                 static_cast<ofxLua *>(_inletParams[1])->scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
             }
-        }else if(inletScriptType == 1){
+        }
+        #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+        else if(inletScriptType == 1){
             if(static_cast<ofxPythonObject *>(_inletParams[1])){
                 ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseScrolled");
                 if(at){
@@ -551,6 +575,7 @@ void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
                 }
             }
         }
+        #endif
     }
 }
 

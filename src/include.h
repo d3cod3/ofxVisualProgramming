@@ -59,9 +59,12 @@
 // physics objects
 
 // scripting
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "objects/scripting/BashScript.h"
-#include "objects/scripting/LuaScript.h"
 #include "objects/scripting/PythonScript.h"
+#endif
+
+#include "objects/scripting/LuaScript.h"
 #include "objects/scripting/ShaderObject.h"
 
 // sound objects

@@ -47,12 +47,15 @@ public:
 
     void setup(){
         executed = true;
+        commandExecuted = false;
+        sys_status = 0;
         startThread();
     }
 
     void execCommand(string cmd){
         command = cmd;
         executed = false;
+        commandExecuted = false;
     }
 
     void stop(){
@@ -67,6 +70,7 @@ public:
                 executed = true;
                 std::unique_lock<std::mutex> lck(mutex);
                 sys_status = system(command.c_str());
+                commandExecuted = true;
                 condition.notify_all();
 
             }
@@ -74,10 +78,12 @@ public:
     }
 
     int getSysStatus() { return sys_status; }
+    bool getCmdExec() { return commandExecuted; }
 
 protected:
     std::condition_variable condition;
     string                  command;
     int                     sys_status;
     bool                    executed;
+    bool                    commandExecuted;
 };
