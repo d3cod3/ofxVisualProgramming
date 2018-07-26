@@ -102,7 +102,6 @@ void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     irButton->setUseCustomMouse(true);
     irButton->setChecked(isIR);
 
-    gui->onButtonEvent(this, &KinectGrabber::onButtonEvent);
     gui->onToggleEvent(this, &KinectGrabber::onToggleEvent);
     gui->onMatrixEvent(this, &KinectGrabber::onMatrixEvent);
 
@@ -277,14 +276,6 @@ void KinectGrabber::resetKinectImage(bool ir){
             static_cast<ofxKinect *>(_outletParams[2])->init(ir,true,true);
             static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
         }
-    }
-
-}
-
-//--------------------------------------------------------------
-void KinectGrabber::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-
     }
 
 }

@@ -39,11 +39,8 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["3d"] = vecInit;
 
-    vecInit = {};
+    vecInit = {"background subtraction"};
     objectsMatrix["computer vision"] = vecInit;
-
-    vecInit = {};
-    objectsMatrix["conversion"] = vecInit;
 
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
@@ -853,9 +850,12 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new moSignalViewer();
     }else if(objname == "output window"){
         tempObj = new OutputWindow();
+    }else if(objname == "background subtraction"){
+        tempObj = new BackgroundSubtraction();
     }else{
         tempObj = nullptr;
     }
+
 
     return tempObj;
 }

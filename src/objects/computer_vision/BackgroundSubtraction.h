@@ -34,16 +34,13 @@
 
 #include "PatchObject.h"
 
-#include "ofxKinect.h"
+#include "ofxCv.h"
 
-#define CAM_MAX_WIDTH        1920
-#define CAM_MAX_HEIGHT       1080
-
-class KinectGrabber : public PatchObject {
+class BackgroundSubtraction : public PatchObject {
 
 public:
 
-    KinectGrabber();
+    BackgroundSubtraction();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -53,26 +50,22 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
-    void            loadKinectSettings();
-    void            resetKinectSettings(int devID);
-    void            resetKinectImage(bool ir);
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
-    vector<string>      devicesVector;
-    int                 kinectWidth, kinectHeight;
-    int                 deviceID;
-    bool                isIR;
-    bool                needReset;
+    ofxCv::RunningBackground    *background;
+    ofImage                     *thresholded;
+    ofPixels                    *pix;
 
-    float               posX, posY, drawW, drawH;
-    bool                isNewObject;
+    float                       posX, posY, drawW, drawH;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     deviceName;
-    ofxDatGuiMatrix*    deviceSelector;
-    ofxDatGuiToggle*    irButton;
+    ofxDatGui*                  gui;
+    ofxDatGuiHeader*            header;
+    ofxDatGuiButton*            resetButton;
+    ofxDatGuiSlider*            learningTime;
+    ofxDatGuiSlider*            thresholdValue;
+
+    
 
 };

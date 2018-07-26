@@ -35,8 +35,7 @@
 // 3d objects
 
 // computer_vision objects
-
-// conversion objects
+#include "objects/computer_vision/BackgroundSubtraction.h"
 
 // graphics objects
 
