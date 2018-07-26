@@ -43,6 +43,8 @@ PythonScript::PythonScript() : PatchObject(){
     _outletParams[0] = new ofTexture();         // output
     _outletParams[1] = new ofxPythonObject();   // python script reference (for keyboard and mouse events on external windows)
 
+    this->specialLinkTypeName = "ofxPythonObject";
+
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
     }

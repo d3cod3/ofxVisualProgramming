@@ -162,6 +162,9 @@ public:
     ofEvent<int>            dragEvent;
     ofEvent<int>            iconifyEvent;
 
+    string                  linkTypeName;
+    string                  specialLinkTypeName;
+
 protected:
 
     // Texture drawing object vars
@@ -183,6 +186,7 @@ protected:
     vector<int>             inlets;
     vector<int>             outlets;
     map<string,float>       customVars;
+
     int                     numInlets;
     int                     numOutlets;
     int                     nId;

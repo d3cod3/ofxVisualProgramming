@@ -42,6 +42,8 @@ KinectGrabber::KinectGrabber() : PatchObject(){
     _outletParams[1] = new ofTexture(); // depth
     _outletParams[2] = new ofxKinect(); // kinect reference
 
+    this->specialLinkTypeName = "ofxKinect";
+
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
     }

@@ -34,10 +34,13 @@
 
 //--------------------------------------------------------------
 PatchObject::PatchObject(){
-    nId         = -1;
-    name        = "none";
-    filepath    = "none";
-    patchFile   = "";
+    nId             = -1;
+    name            = "none";
+    filepath        = "none";
+    patchFile       = "";
+
+    linkTypeName        = "";
+    specialLinkTypeName = "";
 
     numInlets   = 0;
     numOutlets  = 0;
@@ -202,6 +205,7 @@ void PatchObject::draw(ofxFontStash *font){
                 ofRotateZDeg(30);
                 ofDrawCircle(0, 0, 5);
                 ofPopMatrix();
+
             }
             // Draw links
             ofFill();
@@ -826,6 +830,7 @@ void PatchObject::mouseReleased(float mx, float my){
                 outPut[j]->linkVertices[v].bOver = false;
             }
         }
+
     }
 
 }

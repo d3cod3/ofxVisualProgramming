@@ -43,6 +43,8 @@ LuaScript::LuaScript() : PatchObject(){
     _outletParams[0] = new ofTexture();         // output
     _outletParams[1] = new ofxLua();            // lua script reference (for keyboard and mouse events on external windows)
 
+    this->specialLinkTypeName = "ofxLua";
+
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
     }
@@ -248,7 +250,6 @@ void LuaScript::removeObjectContent(){
     ///////////////////////////////////////////
     // LUA EXIT
     lua.scriptExit();
-    lua.clear();
     ///////////////////////////////////////////
 }
 

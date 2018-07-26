@@ -37,7 +37,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vector<string> vecInit = {};
 
     vecInit = {};
+    objectsMatrix["3d"] = vecInit;
+
+    vecInit = {};
     objectsMatrix["computer vision"] = vecInit;
+
+    vecInit = {};
+    objectsMatrix["conversion"] = vecInit;
 
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
@@ -307,6 +313,27 @@ void ofxVisualProgramming::draw(){
             default: break;
         }
         ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
+
+        // Draw outlet type name
+        ofSetColor(245);
+        switch(lt) {
+            case 0: patchObjects[selectedObjectID]->linkTypeName = "float";
+            break;
+            case 1: patchObjects[selectedObjectID]->linkTypeName = "string";
+            break;
+            case 2: patchObjects[selectedObjectID]->linkTypeName = "vector<float>";
+            break;
+            case 3: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
+            break;
+            case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
+            break;
+            case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
+            break;
+            default: patchObjects[selectedObjectID]->linkTypeName = "";
+            break;
+        }
+
+        font->draw(patchObjects[selectedObjectID]->linkTypeName,fontSize,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
     }
     
     canvas.end();
@@ -385,7 +412,6 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
         }
         for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
             if(it->second->outPut[p]->toObjectID == selectedObjectID){
-
                 it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
                 it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
             }
