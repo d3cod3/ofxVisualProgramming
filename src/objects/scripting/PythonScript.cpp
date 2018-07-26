@@ -74,7 +74,7 @@ void PythonScript::newObject(){
     this->setName("python script");
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_SCRIPT);
+    this->addOutlet(VP_LINK_SPECIAL);
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");

@@ -81,8 +81,6 @@ In order to buil ofxVisualProgramming, you'll need this addons:
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
 
-#### ofxXmlSettings --> Core OF Addon
-
 >Some addons are forks of the original, due to some mods, compatibility with OF0.10.0 and the intention of cross-platform compiling (osx,linux,win)
 
 # COMPILING

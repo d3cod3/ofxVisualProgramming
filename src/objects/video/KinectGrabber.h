@@ -32,56 +32,49 @@
 
 #pragma once
 
-// 3d objects
+#include "PatchObject.h"
 
-// computer_vision objects
+#include "ofxKinect.h"
 
-// conversion objects
+#define CAM_MAX_WIDTH        1920
+#define CAM_MAX_HEIGHT       1080
 
-// graphics objects
+class KinectGrabber : public PatchObject {
 
-// gui objects
-#include "objects/gui/moMessage.h"
-#include "objects/gui/moSlider.h"
-#include "objects/gui/moSignalViewer.h"
-#include "objects/gui/moVideoViewer.h"
+public:
 
-// input_output objects
+    KinectGrabber();
 
-// logic objects
+    void            newObject();
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            drawObjectContent(ofxFontStash *font);
+    void            removeObjectContent();
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
-// machine_learning objects
+    void            loadKinectSettings();
+    void            resetKinectSettings(int devID);
+    void            resetKinectImage(bool ir);
 
-// math objects
-#include "objects/math/SimpleRandom.h"
-#include "objects/math/SimpleNoise.h"
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onToggleEvent(ofxDatGuiToggleEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
-// midi objects
+    vector<string>      devicesVector;
+    int                 kinectWidth, kinectHeight;
+    int                 deviceID;
+    bool                isIR;
+    bool                needReset;
 
-// osc objects
+    float               posX, posY, drawW, drawH;
+    bool                isNewObject;
 
-// physics objects
+    ofxDatGui*          gui;
+    ofxDatGuiHeader*    header;
+    ofxDatGuiLabel*     deviceName;
+    ofxDatGuiMatrix*    deviceSelector;
+    ofxDatGuiToggle*    irButton;
 
-// scripting
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "objects/scripting/BashScript.h"
-#include "objects/scripting/PythonScript.h"
-#endif
-
-#include "objects/scripting/LuaScript.h"
-#include "objects/scripting/ShaderObject.h"
-
-// sound objects
-#include "objects/sound/AudioAnalyzer.h"
-
-// typography objects
-
-// video objects
-#include "objects/video/KinectGrabber.h"
-#include "objects/video/VideoGrabber.h"
-#include "objects/video/VideoPlayer.h"
-
-// web objects
-
-// window objects
-#include "objects/windowing/OutputWindow.h"
+};

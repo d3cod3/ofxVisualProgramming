@@ -80,7 +80,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["typography"] = vecInit;
 
-    vecInit = {"video grabber","video player"};
+    vecInit = {"kinect grabber","video grabber","video player"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -815,6 +815,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new SimpleNoise();
     }else if(objname == "slider"){
         tempObj = new moSlider();
+    }else if(objname == "kinect grabber"){
+        tempObj = new KinectGrabber();
     }else if(objname == "video player"){
         tempObj = new VideoPlayer();
     }else if(objname == "video grabber"){

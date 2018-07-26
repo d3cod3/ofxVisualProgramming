@@ -48,7 +48,7 @@ enum LINK_TYPE {
     VP_LINK_ARRAY,
     VP_LINK_TEXTURE,
     VP_LINK_AUDIO,
-    VP_LINK_SCRIPT
+    VP_LINK_SPECIAL
 };
 
 struct PatchLink{

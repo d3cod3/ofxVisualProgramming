@@ -62,14 +62,14 @@ OutputWindow::OutputWindow() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    needReset       = false;
+    needReset           = false;
 }
 
 //--------------------------------------------------------------
 void OutputWindow::newObject(){
     this->setName("output window");
     this->addInlet(VP_LINK_TEXTURE,"projector");
-    this->addInlet(VP_LINK_SCRIPT,"script");
+    this->addInlet(VP_LINK_SPECIAL,"script");
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
