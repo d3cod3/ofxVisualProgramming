@@ -172,6 +172,7 @@ install:
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
   - git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua addons/ofxLua
   - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython addons/ofxPython
+  - git clone --branch=master https://github.com/armadillu/ofxParagraph addons/ofxParagraph
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
   - scripts/ci/addons/install.sh
   - cd ~

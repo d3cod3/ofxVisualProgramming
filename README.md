@@ -77,6 +77,8 @@ In order to buil ofxVisualProgramming, you'll need this addons:
 
 #### [ofxLua](https://github.com/d3cod3/ofxLua)
 
+#### [ofxParagraph](https://github.com/d3cod3/ofxParagraph)
+
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
@@ -106,6 +108,7 @@ git clone https://github.com/armadillu/ofxHistoryPlot
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
+git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
