@@ -86,6 +86,9 @@ public:
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
+    virtual void            mousePressedObjectContent(ofVec3f _m) {}
+    virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
+    virtual void            keyPressedObjectContent(int key) {}
     virtual void            dragGUIObject(ofVec3f _m) {}
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outBuffer) {}
@@ -97,6 +100,9 @@ public:
     void                    mouseDragged(float mx, float my);
     void                    mousePressed(float mx, float my);
     void                    mouseReleased(float mx, float my);
+
+    // Keyboard Events
+    void                    keyPressed(int key);
 
     // Sound
     void                    audioIn(ofSoundBuffer &inputBuffer);
@@ -197,6 +203,7 @@ protected:
     bool                    isRetina;
     bool                    isGUIObject;
     bool                    isBigGuiViewer;
+    bool                    isBigGuiComment;
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
     bool                    willErase;

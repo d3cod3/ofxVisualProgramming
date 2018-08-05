@@ -52,6 +52,7 @@ PatchObject::PatchObject(){
     isRetina        = false;
     isGUIObject     = false;
     isBigGuiViewer  = false;
+    isBigGuiComment = false;
     isAudioINObject = false;
     isAudioOUTObject= false;
     willErase       = false;
@@ -157,7 +158,6 @@ void PatchObject::draw(ofxFontStash *font){
             for(int i=0;i<static_cast<int>(inlets.size());i++){
                 int it = getInletType(i);
                 ofSetLineWidth(1);
-                font->draw("test",fontSize,getInletPosition(i).x+10, getInletPosition(i).y);
                 switch(it) {
                 case 0: ofSetColor(COLOR_NUMERIC);
                     break;
@@ -267,6 +267,8 @@ void PatchObject::draw(ofxFontStash *font){
             // Draw the object box
             if(isBigGuiViewer){
                 ofSetColor(0);
+            }else if(isBigGuiComment){
+                ofSetColor(0,0,0,30);
             }else{
                 ofSetColor(*color);
             }
@@ -285,6 +287,8 @@ void PatchObject::draw(ofxFontStash *font){
             if(bActive){
                 if(isBigGuiViewer){
                     ofSetColor(255,255,255,5);
+                }else if(isBigGuiComment){
+                    ofSetColor(255,255,255,15);
                 }else{
                     ofSetColor(255,255,255,40);
                 }
@@ -292,7 +296,7 @@ void PatchObject::draw(ofxFontStash *font){
             }
 
             // Draw inlets names
-            if(static_cast<int>(inletsNames.size()) > 0 && !isBigGuiViewer){
+            if(static_cast<int>(inletsNames.size()) > 0 && !isBigGuiViewer && !isBigGuiComment){
                 ofSetColor(0,0,0,180);
                 ofDrawRectangle(box->x,box->y,box->width/3 + (3*retinaScale),box->height);
                 ofSetColor(245);
@@ -304,14 +308,14 @@ void PatchObject::draw(ofxFontStash *font){
 
         // Draw the header
         ofFill();
-        if(isBigGuiViewer){
+        if(isBigGuiViewer || isBigGuiComment){
             ofSetColor(0,0,0,0);
         }else{
             ofSetColor(50);
         }
         ofDrawRectangle(*headerBox);
 
-        if(!isBigGuiViewer){
+        if(!isBigGuiViewer && !isBigGuiComment){
             ofSetColor(230);
             font->draw(name,fontSize,headerBox->x + 6, headerBox->y + letterHeight);
         }
@@ -333,7 +337,7 @@ void PatchObject::draw(ofxFontStash *font){
 //--------------------------------------------------------------
 void PatchObject::bezierLink(DraggableVertex from, DraggableVertex to, float _width){
     ofNoFill();
-    ofDrawBezier(from.x, from.y+(_width/2), ((to.x-from.x)*.5)+from.x,from.y+(_width/2), ((to.x-from.x)*.5)+from.x, to.y+(_width/2), to.x,to.y+(_width/2));
+    ofDrawBezier(from.x, from.y+(_width/2), ((to.x-from.x)*.5f)+from.x,from.y+(_width/2), ((to.x-from.x)*.5f)+from.x, to.y+(_width/2), to.x,to.y+(_width/2));
 }
 
 //--------------------------------------------------------------
@@ -793,6 +797,9 @@ void PatchObject::mouseDragged(float mx, float my){
 void PatchObject::mousePressed(float mx, float my){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
+        if(box->inside(m)){
+            mousePressedObjectContent(m);
+        }
         if(isMouseOver && headerBox->inside(m)){
             for (unsigned int i=0;i<headerButtons.size();i++){
                 if (m.x > (headerBox->getPosition().x + headerBox->getWidth() - headerButtons[i]->offset - i*letterWidth)  && m.x < (headerBox->getPosition().x + headerBox->getWidth() - i*letterWidth) ){
@@ -818,6 +825,7 @@ void PatchObject::mouseReleased(float mx, float my){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
         if (box->inside(m)){
+            mouseReleasedObjectContent(m);
 
             x = box->getPosition().x;
             y = box->getPosition().y;
@@ -833,6 +841,13 @@ void PatchObject::mouseReleased(float mx, float my){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void PatchObject::keyPressed(int key){
+    if(!willErase && isMouseOver){
+        keyPressedObjectContent(key);
+    }
 }
 
 //--------------------------------------------------------------

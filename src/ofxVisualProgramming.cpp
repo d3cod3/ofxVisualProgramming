@@ -39,13 +39,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["3d"] = vecInit;
 
-    vecInit = {"background subtraction"};
+    vecInit = {"background subtraction","contour tracking"};
     objectsMatrix["computer vision"] = vecInit;
 
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
 
-    vecInit = {"message","signal viewer","slider","video viewer"};
+    vecInit = {"bang","comment","message","signal viewer","slider","video viewer"};
     objectsMatrix["gui"] = vecInit;
 
     vecInit = {};
@@ -114,6 +114,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     ofAddListener(ofEvents().mousePressed, this, &ofxVisualProgramming::mousePressed);
     ofAddListener(ofEvents().mouseReleased, this, &ofxVisualProgramming::mouseReleased);
     ofAddListener(ofEvents().mouseScrolled, this, &ofxVisualProgramming::mouseScrolled);
+    ofAddListener(ofEvents().keyPressed, this, &ofxVisualProgramming::keyPressed);
 
     // System
     glVersion           = "OpenGL "+ofToString(glGetString(GL_VERSION));
@@ -548,6 +549,13 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->keyPressed(e.key);
+    }
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::audioIn(ofSoundBuffer &inputBuffer){
 
     TS_START("ofxVP audioIn");
@@ -836,6 +844,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new SimpleRandom();
     }else if(objname == "simple noise"){
         tempObj = new SimpleNoise();
+    }else if(objname == "bang"){
+        tempObj = new moBang();
+    }else if(objname == "comment"){
+        tempObj = new moComment();
     }else if(objname == "slider"){
         tempObj = new moSlider();
     }else if(objname == "kinect grabber"){
@@ -852,6 +864,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new OutputWindow();
     }else if(objname == "background subtraction"){
         tempObj = new BackgroundSubtraction();
+    }else if(objname == "contour tracking"){
+        tempObj = new ContourTracking();
     }else{
         tempObj = nullptr;
     }

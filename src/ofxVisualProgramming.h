@@ -64,6 +64,8 @@ public:
     void            mouseReleased(ofMouseEventArgs &e);
     void            mouseScrolled(ofMouseEventArgs &e);
 
+    void            keyPressed(ofKeyEventArgs &e);
+
     void            audioIn(ofSoundBuffer &inputBuffer);
     void            audioOut(ofSoundBuffer &outBuffer);
 

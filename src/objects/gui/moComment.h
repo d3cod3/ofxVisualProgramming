@@ -32,58 +32,29 @@
 
 #pragma once
 
-// 3d objects
+#include "PatchObject.h"
 
-// computer_vision objects
-#include "objects/computer_vision/BackgroundSubtraction.h"
-#include "objects/computer_vision/ContourTracking.h"
+#include "ofxParagraph.h"
+#include "moTextBuffer.h"
 
-// graphics objects
+class moComment : public PatchObject {
 
-// gui objects
-#include "objects/gui/moBang.h"
-#include "objects/gui/moComment.h"
-#include "objects/gui/moMessage.h"
-#include "objects/gui/moSlider.h"
-#include "objects/gui/moSignalViewer.h"
-#include "objects/gui/moVideoViewer.h"
+public:
 
-// input_output objects
+    moComment();
 
-// logic objects
+    void            newObject();
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            drawObjectContent(ofxFontStash *font);
+    void            removeObjectContent();
 
-// machine_learning objects
+    void            keyPressedObjectContent(int key);
 
-// math objects
-#include "objects/math/SimpleRandom.h"
-#include "objects/math/SimpleNoise.h"
+    string                      actualComment;
 
-// midi objects
+    shared_ptr<ofxSmartFont>    label;
+    ofxParagraph*               paragraph;
+    moTextBuffer*               textBuffer;
 
-// osc objects
-
-// physics objects
-
-// scripting
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "objects/scripting/BashScript.h"
-#include "objects/scripting/PythonScript.h"
-#endif
-
-#include "objects/scripting/LuaScript.h"
-#include "objects/scripting/ShaderObject.h"
-
-// sound objects
-#include "objects/sound/AudioAnalyzer.h"
-
-// typography objects
-
-// video objects
-#include "objects/video/KinectGrabber.h"
-#include "objects/video/VideoGrabber.h"
-#include "objects/video/VideoPlayer.h"
-
-// web objects
-
-// window objects
-#include "objects/windowing/OutputWindow.h"
+};
