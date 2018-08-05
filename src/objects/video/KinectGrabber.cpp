@@ -62,6 +62,8 @@ KinectGrabber::KinectGrabber() : PatchObject(){
     isIR                = false;
 
     needReset           = false;
+
+    weHaveKinect        = false;
 }
 
 //--------------------------------------------------------------
@@ -73,6 +75,8 @@ void KinectGrabber::newObject(){
 
     this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
     this->setCustomVar(static_cast<float>(isIR),"INFRARED");
+    this->setCustomVar(static_cast<float>(230.0),"NEAR_THRESH");
+    this->setCustomVar(static_cast<float>(70.0),"FAR_THRESH");
 }
 
 //--------------------------------------------------------------
@@ -87,22 +91,39 @@ void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header->setUseCustomMouse(true);
     header->setCollapsable(true);
 
-    loadKinectSettings();
+    int numKinects = ofxKinect::numAvailableDevices();
+    if(numKinects > 0){
+        ofLog(OF_LOG_NOTICE,"KINECT devices available: %i",numKinects);
+        for(int i=0;i<numKinects;i++){
+            devicesVector.push_back(ofToString(i));
+        }
+        weHaveKinect = true;
+    }
 
-    deviceName = gui->addLabel("Kinect Device "+ofToString(deviceID));
+    if(weHaveKinect){
+        deviceName = gui->addLabel("Kinect Device "+ofToString(deviceID));
+        deviceSelector = gui->addMatrix("DEVICE",devicesVector.size(),true);
+        deviceSelector->setUseCustomMouse(true);
+        deviceSelector->setRadioMode(true);
+        deviceSelector->getChildAt(deviceID)->setSelected(true);
+        deviceSelector->onMatrixEvent(this, &KinectGrabber::onMatrixEvent);
+        gui->addBreak();
 
-    deviceSelector = gui->addMatrix("DEVICE",devicesVector.size(),true);
-    deviceSelector->setUseCustomMouse(true);
-    deviceSelector->setRadioMode(true);
-    deviceSelector->getChildAt(deviceID)->setSelected(true);
-    deviceSelector->onMatrixEvent(this, &KinectGrabber::onMatrixEvent);
-    gui->addBreak();
+        irButton = gui->addToggle("INFRARED",false);
+        irButton->setUseCustomMouse(true);
+        irButton->setChecked(isIR);
 
-    irButton = gui->addToggle("INFRARED",false);
-    irButton->setUseCustomMouse(true);
-    irButton->setChecked(isIR);
+        nearThreshold = gui->addSlider("NEAR",0,255,0);
+        nearThreshold->setUseCustomMouse(true);
+        farThreshold = gui->addSlider("FAR",0,255,0);
+        farThreshold->setUseCustomMouse(true);
+
+        loadKinectSettings();
+
+    }
 
     gui->onToggleEvent(this, &KinectGrabber::onToggleEvent);
+    gui->onSliderEvent(this, &KinectGrabber::onSliderEvent);
     gui->onMatrixEvent(this, &KinectGrabber::onMatrixEvent);
 
     gui->setPosition(0,this->height - header->getHeight());
@@ -110,10 +131,17 @@ void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header->setIsCollapsed(true);
 
     // SETUP KINECT
-    static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-    static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
-    static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
-    static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
+    if(weHaveKinect){
+        static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
+        static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
+        static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
+        static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
+
+        colorCleanImage.allocate(kinectWidth, kinectHeight);
+        cleanImage.allocate(kinectWidth, kinectHeight);
+        grayThreshNear.allocate(kinectWidth, kinectHeight);
+        grayThreshFar.allocate(kinectWidth, kinectHeight);
+    }
     
 }
 
@@ -122,24 +150,45 @@ void KinectGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     gui->update();
     header->update();
-    if(!header->getIsCollapsed()){
+    if(!header->getIsCollapsed() && weHaveKinect){
         deviceSelector->update();
         irButton->update();
+        nearThreshold->update();
+        farThreshold->update();
     }
 
     if(needReset){
         needReset = false;
-        resetKinectSettings(deviceID);
+        if(weHaveKinect){
+            resetKinectSettings(deviceID);
+        }
     }
 
     // KINECT UPDATE
-    if(static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected()){
+    if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected()){
         static_cast<ofxKinect *>(_outletParams[2])->update();
-        if(static_cast<ofxKinect *>(_outletParams[2])->isFrameNewVideo()){
+        if(static_cast<ofxKinect *>(_outletParams[2])->isFrameNew()){
             *static_cast<ofTexture *>(_outletParams[0]) = static_cast<ofxKinect *>(_outletParams[2])->getTexture();
-        }
-        if(static_cast<ofxKinect *>(_outletParams[2])->isFrameNewDepth()){
-            *static_cast<ofTexture *>(_outletParams[1]) = static_cast<ofxKinect *>(_outletParams[2])->getDepthTexture();
+
+            cleanImage.setFromPixels(static_cast<ofxKinect *>(_outletParams[2])->getDepthPixels());
+            cleanImage.updateTexture();
+
+            grayThreshNear = cleanImage;
+            grayThreshFar = cleanImage;
+            grayThreshNear.threshold(nearThreshold->getValue(), true);
+            grayThreshFar.threshold(farThreshold->getValue());
+
+            grayThreshNear.updateTexture();
+            grayThreshFar.updateTexture();
+
+            cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), cleanImage.getCvImage(), nullptr);
+            cleanImage.flagImageChanged();
+            cleanImage.updateTexture();
+
+            colorCleanImage = cleanImage;
+            colorCleanImage.updateTexture();
+
+            *static_cast<ofTexture *>(_outletParams[1]) = colorCleanImage.getTexture();
         }
     }
 
@@ -149,7 +198,7 @@ void KinectGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void KinectGrabber::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+    if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
             drawW           = this->width;
             drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
@@ -177,11 +226,15 @@ void KinectGrabber::removeObjectContent(){
 void KinectGrabber::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    irButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    if(weHaveKinect){
+        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        irButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        nearThreshold->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        farThreshold->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos()) || irButton->hitTest(_m-this->getPos());
+    if(!header->getIsCollapsed() && weHaveKinect){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos()) || irButton->hitTest(_m-this->getPos()) || nearThreshold->hitTest(_m-this->getPos()) || farThreshold->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -193,8 +246,12 @@ void KinectGrabber::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        irButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        if(weHaveKinect){
+            deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            irButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            nearThreshold->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            farThreshold->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        }
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -227,10 +284,8 @@ void KinectGrabber::loadKinectSettings(){
         this->setCustomVar(static_cast<float>(isIR),"INFRARED");
     }
 
-    ofLog(OF_LOG_NOTICE,"KINECT devices available: %i",ofxKinect::numAvailableDevices());
-    for(int i=0;i<ofxKinect::numAvailableDevices();i++){
-        devicesVector.push_back(ofToString(i));
-    }
+    nearThreshold->setValue(static_cast<double>(this->getCustomVar("NEAR_THRESH")));
+    farThreshold->setValue(static_cast<double>(this->getCustomVar("FAR_THRESH")));
 
 }
 
@@ -285,6 +340,19 @@ void KinectGrabber::onToggleEvent(ofxDatGuiToggleEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == irButton){
             resetKinectImage(e.checked);
+        }
+    }
+
+}
+
+//--------------------------------------------------------------
+void KinectGrabber::onSliderEvent(ofxDatGuiSliderEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == nearThreshold){
+            this->setCustomVar(static_cast<float>(e.value),"NEAR_THRESH");
+
+        }else if(e.target == farThreshold){
+            this->setCustomVar(static_cast<float>(e.value),"FAR_THRESH");
         }
     }
 

@@ -35,6 +35,7 @@
 #include "PatchObject.h"
 
 #include "ofxKinect.h"
+#include "ofxOpenCv.h"
 
 #define CAM_MAX_WIDTH        1920
 #define CAM_MAX_HEIGHT       1080
@@ -58,6 +59,7 @@ public:
     void            resetKinectImage(bool ir);
 
     void            onToggleEvent(ofxDatGuiToggleEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
     void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
     vector<string>      devicesVector;
@@ -65,14 +67,23 @@ public:
     int                 deviceID;
     bool                isIR;
     bool                needReset;
+    bool                weHaveKinect;
+
 
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
+
+    ofxCvColorImage     colorCleanImage;
+    ofxCvGrayscaleImage	cleanImage;
+    ofxCvGrayscaleImage grayThreshNear;
+    ofxCvGrayscaleImage grayThreshFar;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
     ofxDatGuiLabel*     deviceName;
     ofxDatGuiMatrix*    deviceSelector;
     ofxDatGuiToggle*    irButton;
+    ofxDatGuiSlider*    nearThreshold;
+    ofxDatGuiSlider*    farThreshold;
 
 };
