@@ -89,6 +89,19 @@ void moMessage::updateObjectContent(map<int,PatchObject*> &patchObjects){
     gui->update();
     sendButton->update();
     message->update();
+
+    if(this->inletsConnected[0] && *(float *)&_inletParams[0] >= 1.0){
+        if(this->inletsConnected[1]){
+            *(string *)&_outletParams[0] = "";
+            *(string *)&_outletParams[0] = *(string *)&_inletParams[2];
+            actualMessage = ofToUpper(*(string *)&_inletParams[2]);
+        }else{
+            *(string *)&_outletParams[0] = "";
+            *(string *)&_outletParams[0] = message->getText();
+            actualMessage = ofToUpper(message->getText());
+        }
+
+    }
 }
 
 //--------------------------------------------------------------
