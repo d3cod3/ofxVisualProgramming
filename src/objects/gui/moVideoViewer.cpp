@@ -36,9 +36,11 @@
 moVideoViewer::moVideoViewer() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 0;
+    this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // texture
+
+    _outletParams[0] = new ofTexture();  // texture
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
@@ -55,6 +57,7 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 void moVideoViewer::newObject(){
     this->setName("video viewer");
     this->addInlet(VP_LINK_TEXTURE,"texture");
+    this->addOutlet(VP_LINK_TEXTURE);
 }
 
 //--------------------------------------------------------------
@@ -64,8 +67,9 @@ void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void moVideoViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
-
-
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+    }
 }
 
 //--------------------------------------------------------------
