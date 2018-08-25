@@ -1,7 +1,7 @@
 
 # ofxVisualProgramming - A visual-programming patching addon for OF
 
-> A collection of visual interactive objects to create in a cyber-transmedia with-code/without-code real-time patching environment;
+> A collection of visual interactive objects to create/develop in a cyber-transmedia with-code/without-code real-time patching environment;
 > includes Lua, GLSL version 120, Python and Bash(macOS & linux) scripting languages
 
 Operating system | Status
@@ -61,7 +61,11 @@ In order to buil ofxVisualProgramming, you'll need this addons:
 
 #### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
+#### [ofxAudioFile](https://github.com/npisanti/ofxAudioFile)
+
 #### [ofxBTrack](https://github.com/d3cod3/ofxBTrack)
+
+#### [ofxChromaKeyShader](https://github.com/d3cod3/ofxChromaKeyShader)
 
 #### [ofxCv](https://github.com/kylemcdonald/ofxCv)
 
@@ -77,9 +81,15 @@ In order to buil ofxVisualProgramming, you'll need this addons:
 
 #### [ofxLua](https://github.com/d3cod3/ofxLua)
 
+#### [ofxMidi](https://github.com/d3cod3/ofxMidi)
+
 #### [ofxParagraph](https://github.com/d3cod3/ofxParagraph)
 
+#### [ofxPDSP](https://github.com/npisanti/ofxPDSP)
+
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
+
+#### [ofxSIMDFloats](https://github.com/npisanti/ofxSIMDFloats)
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
 
@@ -99,7 +109,9 @@ Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) in
 cd <your_openframeworks_release_folder>/addons
 
 git clone https://github.com/d3cod3/ofxAudioAnalyzer
+git clone https://github.com/npisanti/ofxAudioFile
 git clone https://github.com/d3cod3/ofxBTrack
+git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/d3cod3/ofxDatGui
 git clone https://github.com/armadillu/ofxFontStash
@@ -107,8 +119,11 @@ git clone https://github.com/armadillu/ofxGLError
 git clone https://github.com/armadillu/ofxHistoryPlot
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
+git clone https://github.com/d3cod3/ofxMidi
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
 git clone https://github.com/d3cod3/ofxParagraph
+git clone https://github.com/npisanti/ofxPDSP
+git clone https://github.com/npisanti/ofxSIMDFloats
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```

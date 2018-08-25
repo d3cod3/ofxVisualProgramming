@@ -24,8 +24,9 @@ meta:
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
-	ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxBTrack ofxCv ofxFontStash ofxGLError ofxDatGui ofxHistoryPlot ofxInfiniteCanvas ofxLua ofxParagraph ofxTimeMeasurements
+        ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
+        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFontStash ofxGLError
+        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxInfiniteCanvas ofxLua ofxMidi ofxParagraph ofxPDSP ofxSIMDFloats ofxTimeMeasurements
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be

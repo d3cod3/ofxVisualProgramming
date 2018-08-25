@@ -28,7 +28,9 @@ install:
 - cd ..
 - git clone --depth=1 --branch=master https://github.com/openframeworks/openFrameworks
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxAudioAnalyzer openframeworks/addons/ofxAudioAnalyzer
+- git clone --depth=1 --branch=master https://github.com/npisanti/ofxAudioFile openframeworks/addons/ofxAudioFile
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxBTrack openframeworks/addons/ofxBTrack
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxChromaKeyShader openframeworks/addons/ofxChromaKeyShader
 - git clone --depth=1 --branch=master https://github.com/kylemcdonald/ofxCv openframeworks/addons/ofxCv
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxDatGui openframeworks/addons/ofxDatGui
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxFontStash openframeworks/addons/ofxFontStash
@@ -36,8 +38,11 @@ install:
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxHistoryPlot openframeworks/addons/ofxHistoryPlot
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxInfiniteCanvas openframeworks/addons/ofxInfiniteCanvas
 - git clone --depth=1 --branch=of-0.10.0 https://github.com/d3cod3/ofxLua openframeworks/addons/ofxLua
-- git clone --depth=1 --branch=OF0.9.8 https://github.com/d3cod3/ofxPython  openframeworks/addons/ofxPython
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxMidi openframeworks/addons/ofxMidi
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxParagraph openframeworks/addons/ofxParagraph
+- git clone --depth=1 --branch=master https://github.com/npisanti/ofxPDSP openframeworks/addons/ofxPDSP
+- git clone --depth=1 --branch=OF0.9.8 https://github.com/d3cod3/ofxPython  openframeworks/addons/ofxPython
+- git clone --depth=1 --branch=master https://github.com/npisanti/ofxSIMDFloats openframeworks/addons/ofxSIMDFloats
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxTimeMeasurements openframeworks/addons/ofxTimeMeasurements
 - call openFrameworks\scripts\ci\addons\install.cmd
 

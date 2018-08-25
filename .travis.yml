@@ -163,7 +163,9 @@ install:
   - git clone --depth=1 --branch=$OF_BRANCH https://github.com/openframeworks/openFrameworks
   - cd openFrameworks
   - git clone --branch=master https://github.com/d3cod3/ofxAudioAnalyzer addons/ofxAudioAnalyzer
+  - git clone --branch=master https://github.com/npisanti/ofxAudioFile addons/ofxAudioFile
   - git clone --branch=master https://github.com/d3cod3/ofxBTrack addons/ofxBTrack
+  - git clone --branch=master https://github.com/d3cod3/ofxChromaKeyShader addons/ofxChromaKeyShader
   - git clone --branch=master https://github.com/kylemcdonald/ofxCv addons/ofxCv
   - git clone --branch=master https://github.com/d3cod3/ofxDatGui addons/ofxDatGui
   - git clone --branch=master https://github.com/armadillu/ofxFontStash addons/ofxFontStash
@@ -171,8 +173,11 @@ install:
   - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot addons/ofxHistoryPlot
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
   - git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua addons/ofxLua
-  - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython addons/ofxPython
+  - git clone --branch=master https://github.com/d3cod3/ofxMidi addons/ofxMidi
   - git clone --branch=master https://github.com/armadillu/ofxParagraph addons/ofxParagraph
+  - git clone --branch=master https://github.com/npisanti/ofxPDSP addons/ofxPDSP
+  - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython addons/ofxPython
+  - git clone --branch=master https://github.com/npisanti/ofxSIMDFloats addons/ofxSIMDFloats
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
   - scripts/ci/addons/install.sh
   - cd ~
