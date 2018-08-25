@@ -33,6 +33,7 @@
 #pragma once
 
 #include <math.h>
+#include <string>
 
 static inline float hardClip(float x){
     float x1 = fabsf(x + 1.0f);
@@ -41,3 +42,11 @@ static inline float hardClip(float x){
     return 0.5f * (x1 - x2);
 }
 
+inline bool isInteger(const std::string & s){
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
+
+   char * p ;
+   strtol(s.c_str(), &p, 10) ;
+
+   return (*p == 0) ;
+}
