@@ -35,13 +35,12 @@
 #include "PatchObject.h"
 
 #include "ofxCv.h"
-#include "ofxOpenCv.h"
 
-class BackgroundSubtraction : public PatchObject {
+class ContourTracking : public PatchObject {
 
 public:
 
-    BackgroundSubtraction();
+    ContourTracking();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -51,38 +50,21 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
-    void            resetTextures(int w, int h);
-    void            loadBackgroundImage(int w, int h);
-    void            saveBackgroundImage();
-
     void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
     void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
 
+    ofxCv::ContourFinder        *contourFinder;
     ofPixels                    *pix;
-    ofxCvColorImage             *colorImg;
-    ofxCvGrayscaleImage         grayImg;
-    ofxCvGrayscaleImage         grayBg;
-    ofxCvGrayscaleImage         grayThresh;
-
-    int                         bgSubTech;
-
+    ofFbo                       *outputFBO;
+    bool                        isFBOAllocated;
 
     float                       posX, posY, drawW, drawH;
-    bool                        newConnection;
-    bool                        bLearnBackground;
 
     ofxDatGui*                  gui;
     ofxDatGuiHeader*            header;
-    ofxDatGuiButton*            resetButton;
-    ofxDatGuiMatrix*            bgSubTechSelector;
     ofxDatGuiSlider*            thresholdValue;
-    ofxDatGuiSlider*            blurValue;
-    ofxDatGuiToggle*            erodeButton;
-    ofxDatGuiToggle*            dilateButton;
-    ofxDatGuiSlider*            brightnessValue;
-    ofxDatGuiSlider*            contrastValue;
+
+    
 
 };

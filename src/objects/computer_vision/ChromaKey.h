@@ -34,14 +34,13 @@
 
 #include "PatchObject.h"
 
-#include "ofxCv.h"
-#include "ofxOpenCv.h"
+#include "ofxChromaKeyShader.h"
 
-class BackgroundSubtraction : public PatchObject {
+class ChromaKey : public PatchObject {
 
 public:
 
-    BackgroundSubtraction();
+    ChromaKey();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -51,38 +50,30 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
-    void            resetTextures(int w, int h);
-    void            loadBackgroundImage(int w, int h);
-    void            saveBackgroundImage();
+    void            updateBGColor();
+    void            updateChromaVars();
 
     void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
     void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
 
-    ofPixels                    *pix;
-    ofxCvColorImage             *colorImg;
-    ofxCvGrayscaleImage         grayImg;
-    ofxCvGrayscaleImage         grayBg;
-    ofxCvGrayscaleImage         grayThresh;
-
-    int                         bgSubTech;
-
+    ofxChromaKeyShader          *chromakey;
+    bool                        isInputConnected;
 
     float                       posX, posY, drawW, drawH;
-    bool                        newConnection;
-    bool                        bLearnBackground;
 
     ofxDatGui*                  gui;
     ofxDatGuiHeader*            header;
-    ofxDatGuiButton*            resetButton;
-    ofxDatGuiMatrix*            bgSubTechSelector;
+    ofxDatGuiTextInput*         bgColor;
+    ofxDatGuiSlider*            redValue;
+    ofxDatGuiSlider*            greenValue;
+    ofxDatGuiSlider*            blueValue;
     ofxDatGuiSlider*            thresholdValue;
+    ofxDatGuiSlider*            maskStrengthValue;
+    ofxDatGuiSlider*            spillStrengthValue;
     ofxDatGuiSlider*            blurValue;
-    ofxDatGuiToggle*            erodeButton;
-    ofxDatGuiToggle*            dilateButton;
-    ofxDatGuiSlider*            brightnessValue;
-    ofxDatGuiSlider*            contrastValue;
+    ofxDatGuiSlider*            offsetValue;
+
+    
 
 };
