@@ -70,6 +70,8 @@ LuaScript::LuaScript() : PatchObject(){
 
     threadLoaded    = false;
     needToLoadScript= true;
+
+    isError         = false;
 }
 
 //--------------------------------------------------------------
@@ -175,7 +177,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     ///////////////////////////////////////////
     // LUA UPDATE
-    if(scriptLoaded && threadLoaded){
+    if(scriptLoaded && threadLoaded && !isError){
         if(nameLabelLoaded){
             nameLabelLoaded = false;
             if(currentScriptFile.getFileName().size() > 22){
@@ -203,7 +205,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     ///////////////////////////////////////////
     // LUA DRAW
     fbo->begin();
-    if(scriptLoaded && threadLoaded){
+    if(scriptLoaded && threadLoaded && !isError){
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         ofPushView();
@@ -364,7 +366,7 @@ void LuaScript::loadScript(string scriptFile){
 
     ///////////////////////////////////////////
     // LUA SETUP
-    if(scriptLoaded){
+    if(scriptLoaded  && !isError){
         ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
@@ -378,6 +380,7 @@ void LuaScript::loadScript(string scriptFile){
 void LuaScript::reloadScriptThreaded(){
     scriptLoaded = false;
     needToLoadScript = true;
+    isError = false;
 }
 
 //--------------------------------------------------------------
@@ -435,5 +438,6 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
 
 //--------------------------------------------------------------
 void LuaScript::errorReceived(std::string& msg) {
+    isError = true;
     ofLog(OF_LOG_ERROR,"LUA script error: %s",msg.c_str());
 }

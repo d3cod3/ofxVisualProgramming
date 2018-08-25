@@ -76,6 +76,7 @@ public:
     bool                scriptLoaded;
     bool                nameLabelLoaded;
     bool                isNewObject;
+    bool                isError;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
