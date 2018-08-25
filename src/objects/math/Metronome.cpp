@@ -59,7 +59,7 @@ void Metronome::newObject(){
     this->setName("metronome");
     this->addOutlet(VP_LINK_NUMERIC);
 
-    this->setCustomVar(static_cast<float>(1000),"TIME");
+    this->setCustomVar(static_cast<float>(wait),"TIME");
 }
 
 //--------------------------------------------------------------
@@ -146,7 +146,12 @@ void Metronome::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
     if(e.target == timeSetting){
-        this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-        wait = ofToInt(e.text);
+        if(isInteger(e.text)){
+            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
+            wait = ofToInt(e.text);
+        }else{
+            timeSetting->setText(ofToString(wait));
+        }
+
     }
 }
