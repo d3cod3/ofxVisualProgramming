@@ -36,13 +36,16 @@
 moBang::moBang() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new float();  // bang
     *(float *)&_inletParams[0] = 0.0f;
 
-    _outletParams[0] = new float(); // output
+    _outletParams[0] = new float(); // output numeric
     *(float *)&_outletParams[0] = 0.0f;
+
+    _outletParams[1] = new string(); // output string
+    *static_cast<string *>(_outletParams[1]) = "";
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
@@ -57,6 +60,7 @@ void moBang::newObject(){
     this->setName("bang");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_STRING);
 }
 
 //--------------------------------------------------------------
@@ -75,6 +79,12 @@ void moBang::updateObjectContent(map<int,PatchObject*> &patchObjects){
         }
     }
     *(float *)&_outletParams[0] = static_cast<float>(bang);
+
+    if(bang){
+        *static_cast<string *>(_outletParams[1]) = "bang";
+    }else{
+        *static_cast<string *>(_outletParams[1]) = "";
+    }
 }
 
 //--------------------------------------------------------------
