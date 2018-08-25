@@ -49,6 +49,7 @@ public:
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
+
     void            audioInObject(ofSoundBuffer &inputBuffer);
 
     void            updateInWindow(ofEventArgs &e);
@@ -66,7 +67,6 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
 
     void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onDropdownEvent(ofxDatGuiDropdownEvent e);
 
     // Window vars
     std::shared_ptr<ofAppGLFWWindow>        window;
@@ -104,7 +104,6 @@ public:
     ofxDatGuiHeader*                        header;
     ofxDatGuiSlider*                        inputLevel;
     ofxDatGuiSlider*                        smoothing;
-    ofxDatGuiDropdown*                      channelSelector;
     float                                   smoothingValue;
     float                                   audioInputLevel;
 
@@ -136,9 +135,10 @@ public:
     bool                                    beat;
     bool                                    isOnset;
 
+    size_t                                  startTime;
+    bool                                    isConnected;
+
     // Object vars
-    int                                     numINChannels;
-    int                                     actualChannel;
     int                                     bufferSize;
     int                                     sampleRate;
 
