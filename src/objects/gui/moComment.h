@@ -51,6 +51,9 @@ public:
 
     void            keyPressedObjectContent(int key);
 
+    void            loadCommentSetting();
+    void            saveCommentSetting();
+
     string                      actualComment;
 
     shared_ptr<ofxSmartFont>    label;

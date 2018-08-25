@@ -39,6 +39,7 @@ moComment::moComment() : PatchObject(){
     this->numOutlets = 0;
 
     _inletParams[0] = new string();  // comment
+    *static_cast<string *>(_inletParams[0]) = "";
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
@@ -71,6 +72,8 @@ void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     paragraph->setLeading(this->fontSize*.5f);
     paragraph->setBorderPadding(10);
     paragraph->setPosition(10,this->headerHeight+20);
+
+    loadCommentSetting();
 }
 
 //--------------------------------------------------------------
@@ -78,14 +81,19 @@ void moComment::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     if(this->inletsConnected[0]){
         actualComment = "";
-        actualComment.append(*(string *)&_inletParams[0]);
+        actualComment.append(*static_cast<string *>(_inletParams[0]));
     }else{
         actualComment = textBuffer->getText();
     }
 
     paragraph->setText(actualComment);
 
-    this->box->height = paragraph->getHeight() + this->headerHeight+40;
+    if(this->isRetina){
+        this->box->height = paragraph->getHeight() + this->headerHeight+80;
+    }else{
+        this->box->height = paragraph->getHeight() + this->headerHeight+40;
+    }
+
 
 }
 
@@ -96,7 +104,11 @@ void moComment::drawObjectContent(ofxFontStash *font){
     paragraph->draw();
     if(this->isMouseOver && !this->inletsConnected[0]){
         ofSetColor(255,255,255,100);
-        ofDrawRectangle(paragraph->getLastLetterPosition().x,paragraph->getLastLetterPosition().y,this->fontSize*.5f,font->getLineHeight()*10);
+        if(this->isRetina){
+           ofDrawRectangle(paragraph->getLastLetterPosition().x,paragraph->getLastLetterPosition().y,this->fontSize*.5f,font->getLineHeight()*20);
+        }else{
+            ofDrawRectangle(paragraph->getLastLetterPosition().x,paragraph->getLastLetterPosition().y,this->fontSize*.5f,font->getLineHeight()*10);
+        }
     }
     ofDisableAlphaBlending();
 }
@@ -108,12 +120,48 @@ void moComment::removeObjectContent(){
 
 //--------------------------------------------------------------
 void moComment::keyPressedObjectContent(int key){
-    // Add printable ASCII characters to text buffer
+    //ofLog(OF_LOG_NOTICE,"%i",key);
     if(!this->inletsConnected[0]){
         if (key < 127 && key > 31) {
             textBuffer->insert(key);
         }else if (key == 8) {
             textBuffer->backspace();
         }
+        saveCommentSetting();
+    }
+}
+
+//--------------------------------------------------------------
+void moComment::loadCommentSetting(){
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        int totalObjects = XML.getNumTags("object");
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    textBuffer->setText(XML.getValue("filepath","none"));
+                }
+                XML.popTag();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void moComment::saveCommentSetting(){
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        int totalObjects = XML.getNumTags("object");
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    XML.setValue("filepath",textBuffer->getText());
+                }
+                XML.popTag();
+            }
+        }
+        XML.saveFile();
     }
 }
