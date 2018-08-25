@@ -45,6 +45,7 @@ PatchObject::PatchObject(){
     numInlets   = 0;
     numOutlets  = 0;
 
+    isSystemObject  = false;
     bActive         = false;
     iconified       = false;
     isMouseOver     = false;
@@ -154,7 +155,6 @@ void PatchObject::draw(ofxFontStash *font){
         ofPushStyle();
         if(!iconified){
             // Draw inlets
-            ofNoFill();
             for(int i=0;i<static_cast<int>(inlets.size());i++){
                 int it = getInletType(i);
                 ofSetLineWidth(1);
@@ -176,12 +176,18 @@ void PatchObject::draw(ofxFontStash *font){
                 ofPushMatrix();
                 ofTranslate(getInletPosition(i).x, getInletPosition(i).y);
                 ofRotateZDeg(30);
+                ofNoFill();
                 ofDrawCircle(0, 0, 5);
+                if(inletsConnected[i]){
+                    ofFill();
+                    ofDrawCircle(0, 0, 3);
+                }
                 ofPopMatrix();
+
+
             }
 
             // Draw outlets
-            ofNoFill();
             for(int i=0;i<static_cast<int>(outlets.size());i++){
                 int ot = getOutletType(i);
                 ofSetLineWidth(1);
@@ -203,7 +209,12 @@ void PatchObject::draw(ofxFontStash *font){
                 ofPushMatrix();
                 ofTranslate(getOutletPosition(i).x, getOutletPosition(i).y);
                 ofRotateZDeg(30);
+                ofNoFill();
                 ofDrawCircle(0, 0, 5);
+                if(getIsOutletConnected(i)){
+                    ofFill();
+                    ofDrawCircle(0, 0, 3);
+                }
                 ofPopMatrix();
 
             }
@@ -230,7 +241,6 @@ void PatchObject::draw(ofxFontStash *font){
                     }
 
                     for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
-
                         if(v==0 || v==static_cast<int>(outPut[j]->linkVertices.size())-2){
                             ofDrawLine(outPut[j]->linkVertices.at(v), outPut[j]->linkVertices.at(v+1));
                         }else{
@@ -253,14 +263,9 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     default: break;
                     }
-                    for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
+                    for (int v=1;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
                         outPut[j]->linkVertices.at(v).draw(outPut[j]->linkVertices.at(v).x,outPut[j]->linkVertices.at(v).y);
                     }
-                    ofPushMatrix();
-                    ofTranslate(outPut[j]->posTo.x, outPut[j]->posTo.y);
-                    ofRotateZDeg(30);
-                    ofDrawCircle(0, 0, 3);
-                    ofPopMatrix();
                 }
             }
 
@@ -320,14 +325,16 @@ void PatchObject::draw(ofxFontStash *font){
             font->draw(name,fontSize,headerBox->x + 6, headerBox->y + letterHeight);
         }
 
-        for (unsigned int i=0;i<headerButtons.size();i++){
-            ofSetColor(230);
-            if (headerButtons[i]->state != nullptr){
-                if ((*headerButtons[i]->state) == true)
-                    ofSetColor(220,20,60);
-            }
+        if(!isSystemObject){
+            for (unsigned int i=0;i<headerButtons.size();i++){
+                ofSetColor(230);
+                if (headerButtons[i]->state != nullptr){
+                    if ((*headerButtons[i]->state) == true)
+                        ofSetColor(220,20,60);
+                }
 
-            font->draw(ofToString(headerButtons[i]->letter) , fontSize,headerBox->getPosition().x + headerBox->getWidth() - headerButtons[i]->offset - i*letterWidth, headerBox->getPosition().y + letterHeight);
+                font->draw(ofToString(headerButtons[i]->letter) , fontSize,headerBox->getPosition().x + headerBox->getWidth() - headerButtons[i]->offset - i*letterWidth, headerBox->getPosition().y + letterHeight);
+            }
         }
 
         ofPopStyle();
@@ -379,6 +386,19 @@ ofVec2f PatchObject::getInletPosition(int iid){
 //--------------------------------------------------------------
 ofVec2f PatchObject::getOutletPosition(int oid){
     return ofVec2f(x + width + 3,y + (headerHeight*2) + ((height-(headerHeight*2))/outlets.size()*oid));
+}
+
+//--------------------------------------------------------------
+bool PatchObject::getIsOutletConnected(int oid){
+    for(int j=0;j<static_cast<int>(outPut.size());j++){
+        if(!outPut[j]->isDisabled){
+            if(outPut[j]->fromOutletID == oid){
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 //---------------------------------------------------------------------------------- LOAD/SAVE
@@ -800,7 +820,7 @@ void PatchObject::mousePressed(float mx, float my){
         if(box->inside(m)){
             mousePressedObjectContent(m);
         }
-        if(isMouseOver && headerBox->inside(m)){
+        if(isMouseOver && headerBox->inside(m) && !isSystemObject){
             for (unsigned int i=0;i<headerButtons.size();i++){
                 if (m.x > (headerBox->getPosition().x + headerBox->getWidth() - headerButtons[i]->offset - i*letterWidth)  && m.x < (headerBox->getPosition().x + headerBox->getWidth() - i*letterWidth) ){
                     if(i == 0){ // REMOVE

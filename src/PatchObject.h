@@ -92,6 +92,7 @@ public:
     virtual void            dragGUIObject(ofVec3f _m) {}
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outBuffer) {}
+    virtual void            resetSystemObject() {}
 
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
 
@@ -131,12 +132,14 @@ public:
     int                     getId() const { return nId; }
     ofPoint                 getPos() const { return ofPoint(x,y); }
     string                  getName() const { return name; }
+    bool                    getIsSystemObject() const { return isSystemObject; }
     bool                    getIsActive() const { return bActive; }
     bool                    getIsAudioINObject() const { return isAudioINObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
     int                     getOutletType(int oid) const { return outlets[oid]; }
     int                     getNumInlets() { return inlets.size(); }
     int                     getNumOutlets() { return outlets.size(); }
+    bool                    getIsOutletConnected(int oid);
     bool                    getWillErase() { return willErase; }
 
     int                     getOutputWidth() { return output_width; }
@@ -196,6 +199,7 @@ protected:
     int                     numInlets;
     int                     numOutlets;
     int                     nId;
+    bool                    isSystemObject;
     bool                    bActive;
     bool                    iconified;
     bool                    isMouseOver;
