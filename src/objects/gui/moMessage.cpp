@@ -42,10 +42,10 @@ moMessage::moMessage() : PatchObject(){
     *(float *)&_inletParams[0] = 0.0f;
 
     _inletParams[1] = new string();  // message
-    *(string *)&_inletParams[1] = "";
+    *static_cast<string *>(_inletParams[1]) = "";
 
     _outletParams[0] = new string(); // output
-    *(string *)&_outletParams[0] = "";
+    *static_cast<string *>(_outletParams[0]) = "";
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
@@ -92,12 +92,12 @@ void moMessage::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     if(this->inletsConnected[0] && *(float *)&_inletParams[0] >= 1.0){
         if(this->inletsConnected[1]){
-            *(string *)&_outletParams[0] = "";
-            *(string *)&_outletParams[0] = *(string *)&_inletParams[2];
-            actualMessage = ofToUpper(*(string *)&_inletParams[2]);
+            *static_cast<string *>(_outletParams[0]) = "";
+            *static_cast<string *>(_outletParams[0]) = *static_cast<string *>(_inletParams[1]);
+            actualMessage = ofToUpper(*static_cast<string *>(_inletParams[1]));
         }else{
-            *(string *)&_outletParams[0] = "";
-            *(string *)&_outletParams[0] = message->getText();
+            *static_cast<string *>(_outletParams[0]) = "";
+            *static_cast<string *>(_outletParams[0]) = message->getText();
             actualMessage = ofToUpper(message->getText());
         }
 
@@ -152,8 +152,8 @@ void moMessage::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void moMessage::onButtonEvent(ofxDatGuiButtonEvent e){
     if (e.target == sendButton){
-        *(string *)&_outletParams[0] = "";
-        *(string *)&_outletParams[0] = message->getText();
+        *static_cast<string *>(_outletParams[0]) = "";
+        *static_cast<string *>(_outletParams[0]) = message->getText();
         actualMessage = ofToUpper(message->getText());
     }
 }
