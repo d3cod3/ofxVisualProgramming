@@ -144,8 +144,8 @@ void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     // listen to message control (_inletParams[0])
     if(this->inletsConnected[0]){
-        if(lastMessage != *(string *)&_inletParams[0]){
-            lastMessage = *(string *)&_inletParams[0];
+        if(lastMessage != *static_cast<string *>(_inletParams[0])){
+            lastMessage = *static_cast<string *>(_inletParams[0]);
         }
 
         if(lastMessage == "bang"){
@@ -259,14 +259,18 @@ void BashScript::loadScript(string scriptFile){
         ofLog(OF_LOG_NOTICE," ");
 
         char buffer[128];
+        _outletParams[0] = new string();
+        *static_cast<string *>(_outletParams[0]) = "";
         while(!feof(execFile)){
             if(fgets(buffer, sizeof(buffer), execFile) != nullptr){
-                std::string tempstr(buffer);
-                *(string *)&_outletParams[0] = "";
-                *(string *)&_outletParams[0] = tempstr;
-                ofLog(OF_LOG_NOTICE,"%s",buffer);
+                char *s = buffer;
+                std::string tempstr(s);
+                static_cast<string *>(_outletParams[0])->append(tempstr);
+                static_cast<string *>(_outletParams[0])->append(" ");
             }
         }
+        ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
+
         ofLog(OF_LOG_NOTICE," ");
         ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
         ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
