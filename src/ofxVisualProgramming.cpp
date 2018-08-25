@@ -39,7 +39,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["3d"] = vecInit;
 
-    vecInit = {"background subtraction","contour tracking"};
+    vecInit = {"background subtraction","chroma key","contour tracking"};
     objectsMatrix["computer vision"] = vecInit;
 
     vecInit = {};
@@ -51,13 +51,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["input/output"] = vecInit;
 
-    vecInit = {};
+    vecInit = {"loadbang"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {};
     objectsMatrix["machine learning"] = vecInit;
 
-    vecInit = {"simple noise","simple random"};
+    vecInit = {"metronome","simple noise","simple random"};
     objectsMatrix["math"] = vecInit;
 
     vecInit = {};
@@ -77,7 +77,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"audio analyzer"};
+    vecInit = {"audio analyzer","fft extractor","soundfile player"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {};
@@ -284,6 +284,7 @@ void ofxVisualProgramming::draw(){
 
     ofEnableAlphaBlending();
     ofSetCircleResolution(6);
+    ofSetCurveResolution(50);
     ofSetColor(255);
     ofSetLineWidth(1);
 
@@ -313,7 +314,7 @@ void ofxVisualProgramming::draw(){
         ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
         // Draw outlet type name
-        ofSetColor(245);
+        //ofSetColor(245);
         switch(lt) {
             case 0: patchObjects[selectedObjectID]->linkTypeName = "float";
             break;
@@ -410,7 +411,11 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
         }
         for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
             if(it->second->outPut[p]->toObjectID == selectedObjectID){
-                it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
+                if(isRetina){
+                    it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
+                }else{
+                    it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
+                }
                 it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
             }
         }
@@ -821,6 +826,24 @@ void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int link
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::resetSystemObjects(){
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getIsSystemObject()){
+            it->second->resetSystemObject();
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::resetSpecificSystemObjects(string name){
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getIsSystemObject() && it->second->getName() == name){
+            it->second->resetSystemObject();
+        }
+    }
+}
+
+//--------------------------------------------------------------
 PatchObject* ofxVisualProgramming::selectObject(string objname){
     PatchObject* tempObj;
 
@@ -838,12 +861,22 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new ShaderObject();
     }else if(objname == "audio analyzer"){
         tempObj = new AudioAnalyzer();
+    }else if(objname == "audio device"){
+        tempObj = new AudioDevice();
+    }else if(objname == "fft extractor"){
+        tempObj = new FftExtractor();
+    }else if(objname == "soundfile player"){
+        tempObj = new SoundfilePlayer();
     }else if(objname == "message"){
         tempObj = new moMessage();
+    }else if(objname == "metronome"){
+        tempObj = new Metronome();
     }else if(objname == "simple random"){
         tempObj = new SimpleRandom();
     }else if(objname == "simple noise"){
         tempObj = new SimpleNoise();
+    }else if(objname == "loadbang"){
+        tempObj = new LoadBang();
     }else if(objname == "bang"){
         tempObj = new moBang();
     }else if(objname == "comment"){
@@ -864,6 +897,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new OutputWindow();
     }else if(objname == "background subtraction"){
         tempObj = new BackgroundSubtraction();
+    }else if(objname == "chroma key"){
+        tempObj = new ChromaKey();
     }else if(objname == "contour tracking"){
         tempObj = new ContourTracking();
     }else{
@@ -886,6 +921,10 @@ void ofxVisualProgramming::newPatch(){
     openPatch(currentPatchFile);
 
     tempPatchFile = currentPatchFile;
+
+    // Add System Blocks (Audio Device,...)
+    glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+    addObject("audio device",ofVec2f(temp.x,temp.y));
 }
 
 //--------------------------------------------------------------
@@ -1101,6 +1140,8 @@ void ofxVisualProgramming::setAudioInDevice(int index){
         ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
         ofLog(OF_LOG_NOTICE," ");
     }
+
+    resetSpecificSystemObjects("audio device");
 }
 
 //--------------------------------------------------------------
@@ -1130,6 +1171,8 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
         ofLog(OF_LOG_ERROR,"There was a problem starting the Soundstream on selected audio devices.");
         ofLog(OF_LOG_NOTICE," ");
     }
+
+    resetSpecificSystemObjects("audio device");
 }
 
 //--------------------------------------------------------------

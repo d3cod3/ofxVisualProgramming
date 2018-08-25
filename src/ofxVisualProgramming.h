@@ -83,6 +83,8 @@ public:
     void            iconifyObject(int &id);
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
+    void            resetSystemObjects();
+    void            resetSpecificSystemObjects(string name);
 
     void            newPatch();
     void            openPatch(string patchFile);
