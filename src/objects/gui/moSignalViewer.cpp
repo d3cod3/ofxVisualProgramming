@@ -36,9 +36,11 @@
 moSignalViewer::moSignalViewer() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 0;
+    this->numOutlets = 1;
 
     _inletParams[0] = new ofSoundBuffer();  // signal
+
+    _outletParams[0] = new ofSoundBuffer();  // signal
 
     for(int i=0;i<this->numInlets;i++){
         this->inletsConnected.push_back(false);
@@ -52,6 +54,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 void moSignalViewer::newObject(){
     this->setName("signal viewer");
     this->addInlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_AUDIO);
 }
 
 //--------------------------------------------------------------
@@ -69,6 +72,7 @@ void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
             float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
             waveform.addVertex(x, y);
         }
+        *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
     }
 
 }
