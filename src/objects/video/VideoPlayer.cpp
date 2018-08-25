@@ -195,8 +195,9 @@ void VideoPlayer::mouseMovedObjectContent(ofVec3f _m){
 //--------------------------------------------------------------
 void VideoPlayer::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
-        //gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        //loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 

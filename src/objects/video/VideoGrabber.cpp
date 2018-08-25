@@ -144,7 +144,6 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
     }
 
     if(needReset){
-        needReset = false;
         resetCameraSettings(deviceID);
     }
 
@@ -161,7 +160,7 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void VideoGrabber::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(vidGrabber->isInitialized() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+    if(vidGrabber->isInitialized() && static_cast<ofTexture *>(_outletParams[0])->isAllocated() && !needReset){
         if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
             drawW           = this->width;
             drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
@@ -280,6 +279,8 @@ void VideoGrabber::resetCameraSettings(int devID){
             vidGrabber->setup(camWidth, camHeight);
         }
     }
+
+    needReset = false;
 }
 
 //--------------------------------------------------------------
