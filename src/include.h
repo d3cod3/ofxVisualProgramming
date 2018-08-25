@@ -36,6 +36,7 @@
 
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
+#include "objects/computer_vision/ChromaKey.h"
 #include "objects/computer_vision/ContourTracking.h"
 
 // graphics objects
@@ -51,10 +52,12 @@
 // input_output objects
 
 // logic objects
+#include "objects/logic/LoadBang.h"
 
 // machine_learning objects
 
 // math objects
+#include "objects/math/Metronome.h"
 #include "objects/math/SimpleRandom.h"
 #include "objects/math/SimpleNoise.h"
 
@@ -75,6 +78,9 @@
 
 // sound objects
 #include "objects/sound/AudioAnalyzer.h"
+#include "objects/sound/AudioDevice.h"
+#include "objects/sound/FftExtractor.h"
+#include "objects/sound/SoundfilePlayer.h"
 
 // typography objects
 
