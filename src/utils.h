@@ -32,9 +32,12 @@
 
 #pragma once
 
+#include "ofConstants.h"
+
 #include <math.h>
 #include <string>
 
+//--------------------------------------------------------------
 static inline float hardClip(float x){
     float x1 = fabsf(x + 1.0f);
     float x2 = fabsf(x - 1.0f);
@@ -42,6 +45,7 @@ static inline float hardClip(float x){
     return 0.5f * (x1 - x2);
 }
 
+//--------------------------------------------------------------
 inline bool isInteger(const std::string & s){
    if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
 
@@ -49,4 +53,42 @@ inline bool isInteger(const std::string & s){
    strtol(s.c_str(), &p, 10) ;
 
    return (*p == 0) ;
+}
+
+//--------------------------------------------------------------
+inline std::string execCmd(const char* cmd){
+    char buffer[128];
+    std::string result = "";
+#ifdef TARGET_LINUX
+    FILE* pipe = popen(cmd, "r");
+#elif defined(TARGET_OSX)
+    FILE* pipe = popen(cmd, "r");
+#elif defined(TARGET_WIN32)
+    FILE* pipe = _popen(cmd, "r");
+#endif
+
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try {
+        while (!feof(pipe)) {
+            if (fgets(buffer, 128, pipe) != NULL)
+                result += buffer;
+        }
+    } catch (...) {
+#ifdef TARGET_LINUX
+        pclose(pipe);
+#elif defined(TARGET_OSX)
+        pclose(pipe);
+#elif defined(TARGET_WIN32)
+        _pclose(pipe);
+#endif
+        throw;
+    }
+#ifdef TARGET_LINUX
+    pclose(pipe);
+#elif defined(TARGET_OSX)
+    pclose(pipe);
+#elif defined(TARGET_WIN32)
+    _pclose(pipe);
+#endif
+    return result;
 }
