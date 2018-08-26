@@ -47,9 +47,7 @@ LoadBang::LoadBang() : PatchObject(){
     _outletParams[1] = new string(); // output string
     *static_cast<string *>(_outletParams[1]) = "";
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;

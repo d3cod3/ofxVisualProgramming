@@ -45,9 +45,7 @@ PythonScript::PythonScript() : PatchObject(){
 
     this->specialLinkTypeName = "ofxPythonObject";
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     nameLabelLoaded     = false;
     isNewObject         = false;

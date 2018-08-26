@@ -41,9 +41,7 @@ moComment::moComment() : PatchObject(){
     _inletParams[0] = new string();  // comment
     *static_cast<string *>(_inletParams[0]) = "";
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     paragraph = new ofxParagraph();
     textBuffer = new moTextBuffer();

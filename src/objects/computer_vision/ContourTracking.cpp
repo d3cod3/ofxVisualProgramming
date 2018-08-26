@@ -44,9 +44,7 @@ ContourTracking::ContourTracking() : PatchObject(){
     _inletParams[0] = new ofTexture();  // input
     _outletParams[0] = new ofTexture(); // output
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     contourFinder   = new ofxCv::ContourFinder();
     pix             = new ofPixels();

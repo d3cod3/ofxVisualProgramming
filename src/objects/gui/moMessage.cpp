@@ -47,9 +47,7 @@ moMessage::moMessage() : PatchObject(){
     _outletParams[0] = new string(); // output
     *static_cast<string *>(_outletParams[0]) = "";
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;

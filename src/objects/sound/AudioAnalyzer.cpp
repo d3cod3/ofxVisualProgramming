@@ -43,9 +43,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
     _outletParams[0] = new vector<float>();  // Analysis Data
     _outletParams[1] = new ofSoundBuffer();  // Audio Stream
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;

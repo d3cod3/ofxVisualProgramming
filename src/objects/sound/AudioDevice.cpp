@@ -157,9 +157,7 @@ void AudioDevice::resetSystemObject(){
         }
 
         this->inletsConnected.clear();
-        for(int i=0;i<this->numInlets;i++){
-            this->inletsConnected.push_back(false);
-        }
+        this->initInletsState();
 
         deviceLoaded      = true;
     }
@@ -223,9 +221,7 @@ void AudioDevice::loadDeviceInfo(){
         }
 
         this->inletsConnected.clear();
-        for(int i=0;i<this->numInlets;i++){
-            this->inletsConnected.push_back(false);
-        }
+        this->initInletsState();
 
         deviceLoaded      = true;
     }

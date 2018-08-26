@@ -41,9 +41,7 @@ OutputWindow::OutputWindow() : PatchObject(){
     _inletParams[0] = new ofTexture();  // projector
     _inletParams[1] = new ofxLua();     // script reference
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     isFullscreen                        = false;
     thposX = thposY = thdrawW = thdrawH = 0.0f;

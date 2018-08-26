@@ -47,9 +47,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     _outletParams[0] = new ofSoundBuffer();  // signal
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;

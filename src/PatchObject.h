@@ -123,6 +123,7 @@ public:
     void                    addButton(char letter, bool *variableToControl, int offset);
     void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); }
     void                    addOutlet(int type) { outlets.push_back(type); }
+    void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
     bool                    clearCustomVars();

@@ -237,15 +237,22 @@ public:
     void  removeObjectContent();
 
     //void  mouseMovedObjectContent(ofVec3f _m);
+    //void  mousePressedObjectContent(ofVec3f _m);
+    //void  mouseReleasedObjectContent(ofVec3f _m);
+    //void  keyPressedObjectContent(int key);
     //void  dragGUIObject(ofVec3f _m);
+
+    // This methods are for audio objects
     //void  audioInObject(ofSoundBuffer &inputBuffer);
     //void  audioOutObject(ofSoundBuffer &outBuffer);
 
-    // This method is for advanced objects with inlets/internal vars changes on runtime
+    // This methods are for advanced objects with inlets/internal vars changes on runtime
+    //void  resetSystemObject();
     //void  resetResolution(int fromID, int newWidth, int newHeight);
 
     // my SuperAmazingObject public variables (if any)
     // .............
+    int     testVar;
 
 };
 
@@ -254,6 +261,23 @@ public:
 And the source SuperAmazingObject.cpp :
 
 ```c
+
+/*==============================================================================
+
+    ofxVisualProgramming: A visual programming patching environment for OF
+
+    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+
+    See https://github.com/d3cod3/ofxVisualProgramming for documentation
+
+    SuperAmazingObject:
+    developed by _object author_
+    _author github_
+    _author www_
+
+==============================================================================*/
+
+#include "SuperAmazingObject.h"
 
 //--------------------------------------------------------------
 SuperAmazingObject::SuperAmazingObject() : PatchObject(){
@@ -264,7 +288,8 @@ SuperAmazingObject::SuperAmazingObject() : PatchObject(){
 
     // then init the pointers
     // i have used here void* pointers
-    // and established 5 fixed type of data to cast
+    // and established 5 fixed type of data plus a variable
+    // one (a special purpose cable for special cases) to cast
     // and create proper connections
 
     // VP_LINK_NUMERIC --> float
@@ -272,6 +297,7 @@ SuperAmazingObject::SuperAmazingObject() : PatchObject(){
     // VP_LINK_ARRAY   --> vector<float>
     // VP_LINK_TEXTURE --> ofTexture
     // VP_LINK_AUDIO   --> ofSoundBuffer
+    // VP_LINK_SPECIAL --> anything
 
     // These are the ONLY available connections
     // so we are creating here a random number generator
@@ -291,11 +317,7 @@ SuperAmazingObject::SuperAmazingObject() : PatchObject(){
     *(float *)&_outletParams[0] = 0.0f;
 
     // we call this to init some stuff
-    // soon this will be DEPRECATED, a function call will
-    // substitute this --- TODO
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
 }
 

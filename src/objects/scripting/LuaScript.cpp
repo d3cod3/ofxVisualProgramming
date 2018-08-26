@@ -45,9 +45,7 @@ LuaScript::LuaScript() : PatchObject(){
 
     this->specialLinkTypeName = "ofxLua";
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     nameLabelLoaded     = false;
     scriptLoaded        = false;

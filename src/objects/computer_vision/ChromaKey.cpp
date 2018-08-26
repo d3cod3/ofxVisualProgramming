@@ -45,9 +45,7 @@ ChromaKey::ChromaKey() : PatchObject(){
     _inletParams[1] = new ofTexture();  // mask
     _outletParams[0] = new ofTexture(); // output
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;

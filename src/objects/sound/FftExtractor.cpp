@@ -42,9 +42,7 @@ FftExtractor::FftExtractor() : PatchObject(){
 
     _outletParams[0] = new vector<float>();  // FFT Data
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
     
     bufferSize = 256;
     spectrumSize = (bufferSize/2) + 1;

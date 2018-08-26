@@ -44,9 +44,7 @@ SimpleNoise::SimpleNoise() : PatchObject(){
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     timePosition = ofRandom(10000);
 }

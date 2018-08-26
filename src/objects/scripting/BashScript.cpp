@@ -44,9 +44,7 @@ BashScript::BashScript() : PatchObject(){
     _outletParams[0] = new string();        // output
     *(string *)&_outletParams[0] = "";
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     bashIcon            = new ofImage();
 

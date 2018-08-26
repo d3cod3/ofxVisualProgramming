@@ -42,9 +42,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 
     _outletParams[0] = new ofSoundBuffer();  // signal
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     this->isBigGuiViewer    = true;
     this->width             *= 2;

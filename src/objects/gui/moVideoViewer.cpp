@@ -42,9 +42,7 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 
     _outletParams[0] = new ofTexture();  // texture
 
-    for(int i=0;i<this->numInlets;i++){
-        this->inletsConnected.push_back(false);
-    }
+    this->initInletsState();
 
     posX = posY = drawW = drawH = 0.0f;
 
