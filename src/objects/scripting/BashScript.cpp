@@ -251,9 +251,7 @@ void BashScript::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
 
-        ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
         ofLog(OF_LOG_NOTICE,"[verbose] bash script: %s RUNNING!",filepath.c_str());
-        ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
         ofLog(OF_LOG_NOTICE," ");
 
         char buffer[128];
@@ -267,12 +265,8 @@ void BashScript::loadScript(string scriptFile){
                 static_cast<string *>(_outletParams[0])->append(" ");
             }
         }
-        ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
-
-        ofLog(OF_LOG_NOTICE," ");
-        ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
+        //ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
         ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
-        ofLog(OF_LOG_NOTICE,"[verbose]############################################################");
 
 #ifdef TARGET_LINUX
         pclose(execFile);
