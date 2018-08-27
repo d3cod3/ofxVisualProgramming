@@ -611,6 +611,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                                 }
                                 XML.popTag();
                             }
+
                         }
 
                         XML.popTag();

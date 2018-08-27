@@ -77,7 +77,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"audio analyzer","fft extractor","soundfile player"};
+    vecInit = {"audio analyzer","beat extractor","fft extractor","mel bands extractor","soundfile player"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {};
@@ -660,7 +660,7 @@ void ofxVisualProgramming::resetObject(int &id){
 
             int totalObjects = XML.getNumTags("object");
 
-            // remove links to the removed object
+            // remove links to the resetted object
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
                     if(XML.getValue("id", -1) != id){
@@ -693,6 +693,24 @@ void ofxVisualProgramming::resetObject(int &id){
 
             XML.saveFile();
 
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::resetObject(int id){
+    if ((id != -1) && (patchObjects[id] != nullptr)){
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<PatchLink*> tempBuffer;
+            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                if(it->second->outPut[j]->toObjectID != id){
+                    tempBuffer.push_back(it->second->outPut[j]);
+                }else{
+                    it->second->outPut[j]->isDisabled = true;
+                    patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                }
+            }
+            it->second->outPut = tempBuffer;
         }
     }
 }
@@ -830,6 +848,7 @@ void ofxVisualProgramming::resetSystemObjects(){
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject()){
             it->second->resetSystemObject();
+            resetObject(it->second->getId());
         }
     }
 }
@@ -839,6 +858,7 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject() && it->second->getName() == name){
             it->second->resetSystemObject();
+            resetObject(it->second->getId());
         }
     }
 }
@@ -863,8 +883,12 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new AudioAnalyzer();
     }else if(objname == "audio device"){
         tempObj = new AudioDevice();
+    }else if(objname == "beat extractor"){
+        tempObj = new BeatExtractor();
     }else if(objname == "fft extractor"){
         tempObj = new FftExtractor();
+    }else if(objname == "mel bands extractor"){
+        tempObj = new MelBandsExtractor();
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
     }else if(objname == "message"){

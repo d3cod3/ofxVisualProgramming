@@ -79,6 +79,7 @@ public:
     void            addObject(string name, ofVec2f pos);
     void            dragObject(int &id);
     void            resetObject(int &id);
+    void            resetObject(int id);
     void            removeObject(int &id);
     void            iconifyObject(int &id);
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
