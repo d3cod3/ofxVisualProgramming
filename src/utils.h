@@ -32,10 +32,12 @@
 
 #pragma once
 
-#include "ofConstants.h"
+#include "ofMain.h"
 
 #include <math.h>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 //--------------------------------------------------------------
 static inline float hardClip(float x){
@@ -46,7 +48,41 @@ static inline float hardClip(float x){
 }
 
 //--------------------------------------------------------------
-inline bool isInteger(const std::string & s){
+static inline uint64_t devURandom(){
+    uint64_t r = 0;
+    size_t size = sizeof(r);
+    ifstream urandom("/dev/urandom",ios::in|ios::binary);
+    if(urandom){
+        urandom.read(reinterpret_cast<char*>(&r),size);
+        if(urandom){
+            return r;
+        }else{
+            return static_cast<uint64_t>(ofRandom(1000000));
+        }
+    }else{
+        return static_cast<uint64_t>(ofRandom(1000000));
+    }
+}
+
+//--------------------------------------------------------------
+static inline float gaussianRandom(){
+    float v1, v2, s;
+    do{
+        v1 = 2 * ofRandomf() - 1;
+        v2 = 2 * ofRandomf() - 1;
+        s = v1 * v1 + v2 * v2;
+    }while (s >= 1 || s == 0);
+
+    if(ofRandomf() < 0.0f){
+        return v1 * sqrt(-2 * log(s)/s);
+    }else{
+        return v2 * sqrt(-2 * log(s)/s);
+    }
+
+}
+
+//--------------------------------------------------------------
+inline bool isInteger(const string & s){
    if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
 
    char * p ;
@@ -56,9 +92,30 @@ inline bool isInteger(const std::string & s){
 }
 
 //--------------------------------------------------------------
+inline bool isFloat(const string & s){
+    string::const_iterator it = s.begin();
+    bool decimalPoint = false;
+    int minSize = 0;
+    if(s.size()>0 && (s[0] == '-' || s[0] == '+')){
+        it++;
+        minSize++;
+    }
+    while(it != s.end()){
+        if(*it == '.'){
+            if(!decimalPoint) decimalPoint = true;
+            else break;
+        }else if(!isdigit(*it) && ((*it!='f') || it+1 != s.end() || !decimalPoint)){
+            break;
+        }
+        ++it;
+    }
+    return s.size()>minSize && it == s.end() && decimalPoint;
+}
+
+//--------------------------------------------------------------
 inline std::string execCmd(const char* cmd){
     char buffer[128];
-    std::string result = "";
+    string result = "";
 #ifdef TARGET_LINUX
     FILE* pipe = popen(cmd, "r");
 #elif defined(TARGET_OSX)
@@ -67,7 +124,7 @@ inline std::string execCmd(const char* cmd){
     FILE* pipe = _popen(cmd, "r");
 #endif
 
-    if (!pipe) throw std::runtime_error("popen() failed!");
+    if (!pipe) throw runtime_error("popen() failed!");
     try {
         while (!feof(pipe)) {
             if (fgets(buffer, 128, pipe) != NULL)
