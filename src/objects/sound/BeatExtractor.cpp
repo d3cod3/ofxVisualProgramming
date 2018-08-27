@@ -30,69 +30,54 @@
 
 ==============================================================================*/
 
-#pragma once
+#include "BeatExtractor.h"
 
+//--------------------------------------------------------------
+BeatExtractor::BeatExtractor() : PatchObject(){
 
-// 3d objects
+    this->numInlets  = 1;
+    this->numOutlets = 1;
 
-// computer_vision objects
-#include "objects/computer_vision/BackgroundSubtraction.h"
-#include "objects/computer_vision/ChromaKey.h"
-#include "objects/computer_vision/ContourTracking.h"
+    _inletParams[0] = new vector<float>();  // RAW Data
 
-// graphics objects
+    _outletParams[0] = new float(); // beat
+    *(float *)&_outletParams[0] = 0.0f;
 
-// gui objects
-#include "objects/gui/moBang.h"
-#include "objects/gui/moComment.h"
-#include "objects/gui/moMessage.h"
-#include "objects/gui/moSlider.h"
-#include "objects/gui/moSignalViewer.h"
-#include "objects/gui/moVideoViewer.h"
+    this->initInletsState();
 
-// input_output objects
+}
 
-// logic objects
-#include "objects/logic/LoadBang.h"
+//--------------------------------------------------------------
+void BeatExtractor::newObject(){
+    this->setName("beat extractor");
+    this->addInlet(VP_LINK_ARRAY,"data");
+    this->addOutlet(VP_LINK_NUMERIC);
+}
 
-// machine_learning objects
+//--------------------------------------------------------------
+void BeatExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    
+}
 
-// math objects
-#include "objects/math/Metronome.h"
-#include "objects/math/SimpleRandom.h"
-#include "objects/math/SimpleNoise.h"
+//--------------------------------------------------------------
+void BeatExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    if(this->inletsConnected[0]){
+        *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->back();
+    }
+}
 
-// midi objects
+//--------------------------------------------------------------
+void BeatExtractor::drawObjectContent(ofxFontStash *font){
+    ofSetColor(255);
+    ofEnableAlphaBlending();
+    if(*(float *)&_outletParams[0] > 0){
+        ofSetColor(250,250,5);
+        ofDrawRectangle(0,0,this->width,this->height);
+    }
+    ofDisableAlphaBlending();
+}
 
-// osc objects
-
-// physics objects
-
-// scripting
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "objects/scripting/BashScript.h"
-#include "objects/scripting/PythonScript.h"
-#endif
-
-#include "objects/scripting/LuaScript.h"
-#include "objects/scripting/ShaderObject.h"
-
-// sound objects
-#include "objects/sound/AudioAnalyzer.h"
-#include "objects/sound/AudioDevice.h"
-#include "objects/sound/BeatExtractor.h"
-#include "objects/sound/FftExtractor.h"
-#include "objects/sound/MelBandsExtractor.h"
-#include "objects/sound/SoundfilePlayer.h"
-
-// typography objects
-
-// video objects
-#include "objects/video/KinectGrabber.h"
-#include "objects/video/VideoGrabber.h"
-#include "objects/video/VideoPlayer.h"
-
-// web objects
-
-// window objects
-#include "objects/windowing/OutputWindow.h"
+//--------------------------------------------------------------
+void BeatExtractor::removeObjectContent(){
+    
+}

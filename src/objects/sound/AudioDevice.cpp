@@ -118,6 +118,8 @@ void AudioDevice::resetSystemObject(){
     deviceLoaded      = false;
 
     if (XML.loadFile(patchFile)){
+        int totalObjects = XML.getNumTags("object");
+
         if (XML.pushTag("settings")){
             in_channels  = XML.getValue("input_channels",0);
             out_channels = XML.getValue("output_channels",0);
@@ -158,6 +160,58 @@ void AudioDevice::resetSystemObject(){
 
         this->inletsConnected.clear();
         this->initInletsState();
+
+        // Save new object config
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    // Dynamic reloading outlets
+                    XML.removeTag("outlets");
+                    int newOutlets = XML.addTag("outlets");
+                    if(XML.pushTag("outlets",newOutlets)){
+                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                            int newLink = XML.addTag("link");
+                            if(XML.pushTag("link",newLink)){
+                                XML.setValue("type",this->outlets.at(j));
+                                XML.popTag();
+                            }
+                        }
+                        XML.popTag();
+                    }
+                }else{
+                    // remove links to the this object
+                    if(XML.pushTag("outlets")){
+                        int totalLinks = XML.getNumTags("link");
+                        for(int l=0;l<totalLinks;l++){
+                            if(XML.pushTag("link",l)){
+                                int totalTo = XML.getNumTags("to");
+                                vector<bool> delLinks;
+                                for(int t=0;t<totalTo;t++){
+                                    if(XML.pushTag("to",t)){
+                                        if(XML.getValue("id", -1) == this->nId){
+                                            delLinks.push_back(true);
+                                        }else{
+                                            delLinks.push_back(false);
+                                        }
+                                        XML.popTag();
+                                    }
+                                }
+                                for(int d=delLinks.size()-1;d>=0;d--){
+                                    if(delLinks.at(d)){
+                                        XML.removeTag("to",d);
+                                    }
+                                }
+                                XML.popTag();
+                            }
+                        }
+                        XML.popTag();
+                    }
+                }
+                XML.popTag();
+            }
+        }
+
+        XML.saveFile();
 
         deviceLoaded      = true;
     }

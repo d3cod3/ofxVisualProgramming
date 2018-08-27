@@ -32,67 +32,24 @@
 
 #pragma once
 
+#include "PatchObject.h"
 
-// 3d objects
+#include "ofxAudioAnalyzer.h"
 
-// computer_vision objects
-#include "objects/computer_vision/BackgroundSubtraction.h"
-#include "objects/computer_vision/ChromaKey.h"
-#include "objects/computer_vision/ContourTracking.h"
+class MelBandsExtractor : public PatchObject {
 
-// graphics objects
+public:
 
-// gui objects
-#include "objects/gui/moBang.h"
-#include "objects/gui/moComment.h"
-#include "objects/gui/moMessage.h"
-#include "objects/gui/moSlider.h"
-#include "objects/gui/moSignalViewer.h"
-#include "objects/gui/moVideoViewer.h"
+    MelBandsExtractor();
 
-// input_output objects
+    void            newObject();
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            drawObjectContent(ofxFontStash *font);
+    void            removeObjectContent();
 
-// logic objects
-#include "objects/logic/LoadBang.h"
+    
+    int             bufferSize;
+    int             spectrumSize;
 
-// machine_learning objects
-
-// math objects
-#include "objects/math/Metronome.h"
-#include "objects/math/SimpleRandom.h"
-#include "objects/math/SimpleNoise.h"
-
-// midi objects
-
-// osc objects
-
-// physics objects
-
-// scripting
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "objects/scripting/BashScript.h"
-#include "objects/scripting/PythonScript.h"
-#endif
-
-#include "objects/scripting/LuaScript.h"
-#include "objects/scripting/ShaderObject.h"
-
-// sound objects
-#include "objects/sound/AudioAnalyzer.h"
-#include "objects/sound/AudioDevice.h"
-#include "objects/sound/BeatExtractor.h"
-#include "objects/sound/FftExtractor.h"
-#include "objects/sound/MelBandsExtractor.h"
-#include "objects/sound/SoundfilePlayer.h"
-
-// typography objects
-
-// video objects
-#include "objects/video/KinectGrabber.h"
-#include "objects/video/VideoGrabber.h"
-#include "objects/video/VideoPlayer.h"
-
-// web objects
-
-// window objects
-#include "objects/windowing/OutputWindow.h"
+};
