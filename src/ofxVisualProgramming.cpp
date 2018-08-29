@@ -1018,7 +1018,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
             ofLog(OF_LOG_NOTICE," ");
 
-            ofFmodSetBuffersize(static_cast<unsigned int>(audioBufferSize));
+            //ofFmodSetBuffersize(static_cast<unsigned int>(audioBufferSize));
 
             XML.popTag();
         }
@@ -1183,7 +1183,7 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
     ofLog(OF_LOG_NOTICE," ");
 
-    ofFmodSetBuffersize(static_cast<unsigned int>(audioBufferSize));
+    //ofFmodSetBuffersize(static_cast<unsigned int>(audioBufferSize));
 
     resetSpecificSystemObjects("audio device");
 
