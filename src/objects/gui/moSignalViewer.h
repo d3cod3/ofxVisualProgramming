@@ -46,6 +46,8 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            audioOutObject(ofSoundBuffer &outBuffer);
+
     ofPolyline      waveform;
 
 };

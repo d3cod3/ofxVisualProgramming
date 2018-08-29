@@ -128,6 +128,13 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void PatchObject::setupDSP(pdsp::Engine &engine){
+    if(isAudioOUTObject){
+        setupAudioOutObjectContent(engine);
+    }
+}
+
+//--------------------------------------------------------------
 void PatchObject::update(map<int,PatchObject*> &patchObjects){
 
     // update links positions
@@ -403,7 +410,7 @@ bool PatchObject::getIsOutletConnected(int oid){
 
 //---------------------------------------------------------------------------------- LOAD/SAVE
 //--------------------------------------------------------------
-bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, string &configFile){
+bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile){
     ofxXmlSettings XML;
     bool loaded = false;
 
@@ -443,6 +450,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, s
             }
 
             setup(mainWindow);
+            setupDSP(engine);
 
             if(XML.pushTag("outlets")){
                 int totalOutlets = XML.getNumTags("link");
@@ -879,9 +887,9 @@ void PatchObject::audioIn(ofSoundBuffer &inputBuffer){
 }
 
 //--------------------------------------------------------------
-void PatchObject::audioOut(ofSoundBuffer &outBuffer){
+void PatchObject::audioOut(ofSoundBuffer &outputBuffer){
     if(isAudioOUTObject && !willErase){
-        audioOutObject(outBuffer);
+        audioOutObject(outputBuffer);
     }
 }
 

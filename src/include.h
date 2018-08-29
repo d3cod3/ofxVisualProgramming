@@ -35,6 +35,12 @@
 
 // 3d objects
 
+// audio_analysis objects
+#include "objects/audio_analysis/AudioAnalyzer.h"
+#include "objects/audio_analysis/BeatExtractor.h"
+#include "objects/audio_analysis/FftExtractor.h"
+#include "objects/audio_analysis/MelBandsExtractor.h"
+
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
 #include "objects/computer_vision/ChromaKey.h"
@@ -78,11 +84,7 @@
 #include "objects/scripting/ShaderObject.h"
 
 // sound objects
-#include "objects/sound/AudioAnalyzer.h"
 #include "objects/sound/AudioDevice.h"
-#include "objects/sound/BeatExtractor.h"
-#include "objects/sound/FftExtractor.h"
-#include "objects/sound/MelBandsExtractor.h"
 #include "objects/sound/SoundfilePlayer.h"
 
 // typography objects

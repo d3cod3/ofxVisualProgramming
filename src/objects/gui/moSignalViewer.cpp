@@ -46,6 +46,8 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 
     this->isBigGuiViewer    = true;
     this->width             *= 2;
+
+    isAudioOUTObject        = true;
 }
 
 //--------------------------------------------------------------
@@ -70,7 +72,7 @@ void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
             float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
             waveform.addVertex(x, y);
         }
-        *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+
     }
 
 }
@@ -86,4 +88,11 @@ void moSignalViewer::drawObjectContent(ofxFontStash *font){
 //--------------------------------------------------------------
 void moSignalViewer::removeObjectContent(){
     
+}
+
+//--------------------------------------------------------------
+void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
+    if(this->inletsConnected[0]){
+        *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+    }
 }

@@ -57,6 +57,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     isFileLoaded        = false;
 
     sampleRate          = 44100;
+    bufferSize          = 256;
     
 }
 
@@ -92,6 +93,11 @@ void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
     if(filepath != "none"){
         loadAudioFile(filepath);
     }
+}
+
+//--------------------------------------------------------------
+void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
+
 }
 
 //--------------------------------------------------------------
@@ -176,29 +182,26 @@ void SoundfilePlayer::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::audioOutObject(ofSoundBuffer &outBuffer){
+void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
     if(isFileLoaded){
         if( playheadControl >= 0.0 ){
             playhead = playheadControl;
             playheadControl = -1.0;
         }
 
-        outBuffer.copyTo(monoBuffer, outBuffer.getNumFrames(), 1, 0);
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
-            int n = playhead;
+            int n = static_cast<int>(floor(playhead));
 
             if(n < audiofile.length()-1){
-                float fract = playhead - (double) n;
-                float s0 = audiofile.sample( n, 0 );
-                float s1 = audiofile.sample( n+1, 0 );
-                float isample = s0*(1.0-fract) + s1*fract; // linear interpolation
+                float fract = static_cast<float>(playhead - n);
+                float isample = audiofile.sample(n, 0)*(1.0f-fract) + audiofile.sample(n+1, 0)*fract; // linear interpolation
                 monoBuffer.getSample(i,0) = isample;
 
                 playhead += step;
 
             }else{
                 monoBuffer.getSample(i,0) = 0.0f;
-                playhead = std::numeric_limits<int>::max();
+                //playhead = std::numeric_limits<int>::max();
             }
         }
         lastBuffer = monoBuffer;
@@ -207,6 +210,7 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outBuffer){
     }
 
     *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastBuffer;
+
 }
 
 //--------------------------------------------------------------
@@ -214,12 +218,21 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
 
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
+    if(XML.loadFile(patchFile)){
+        if(XML.pushTag("settings")){
             sampleRate = XML.getValue("sample_rate_out",0);
+            bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
         }
     }
+
+    short *shortBuffer = new short[bufferSize];
+    for (int i = 0; i < bufferSize; i++){
+        shortBuffer[i] = 0;
+    }
+
+    ofSoundBuffer tmpBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    monoBuffer = tmpBuffer;
 
     filepath = audiofilepath;
 

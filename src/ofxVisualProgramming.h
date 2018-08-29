@@ -40,11 +40,12 @@
 #include "ofxGLError.h"
 #include "ofxInfiniteCanvas.h"
 #include "ofxTimeMeasurements.h"
+#include "ofxPDSP.h"
 
 #include "PatchObject.h"
 
 
-class ofxVisualProgramming {
+class ofxVisualProgramming : public pdsp::Wrapper {
     
 public:
 
@@ -65,9 +66,6 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
 
     void            keyPressed(ofKeyEventArgs &e);
-
-    void            audioIn(ofSoundBuffer &inputBuffer);
-    void            audioOut(ofSoundBuffer &outBuffer);
 
     // GUI
     void            onButtonEvent(ofxDatGuiButtonEvent e);
@@ -139,20 +137,18 @@ public:
     bool                            isOverGui;
 
     // Sound Stream
+    pdsp::Engine            engine;
+    ofSoundBuffer           inputBuffer;
+
     vector<ofSoundDevice>   audioDevices;
     vector<string>          audioDevicesString;
     ofSoundStream           soundStreamIN;
-    ofSoundStreamSettings   soundStreamINSettings;
-    ofSoundStream           soundStreamOUT;
-    ofSoundStreamSettings   soundStreamOUTSettings;
     std::mutex              inputAudioMutex;
-    std::mutex              outputAudioMutex;
     ofSoundBuffer           lastInputBuffer;
-    ofSoundBuffer           lastOutputBuffer;
     ofPolyline              inputBufferWaveform;
-    ofPolyline              outputBufferWaveform;
     int                     audioINDev;
     int                     audioOUTDev;
+    int                     audioSampleRate;
     int                     audioBufferSize;
 
     // MEMORY
@@ -160,6 +156,5 @@ public:
     uint64_t                wait;
     
 private:
-    
-    
+    void audioProcess(float *input, int bufferSize, int nChannels);
 };

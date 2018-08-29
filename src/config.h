@@ -60,8 +60,8 @@
 #define OBJECT_WIDTH            OBJECT_STANDARD_WIDTH
 #define OBJECT_HEIGHT           OBJECT_STANDARD_HEIGHT
 #define HEADER_HEIGHT           16
-#define MAX_INLETS              6
-#define MAX_OUTLETS             6
+#define MAX_INLETS              24
+#define MAX_OUTLETS             24
 
 #define COLOR_NUMERIC_LINK   ofColor(250,250,250,255)
 #define COLOR_STRING_LINK    ofColor(230,210,255,255)

@@ -42,23 +42,26 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
     void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outBuffer);
+    void            audioOutObject(ofSoundBuffer &outputBuffer);
     void            resetSystemObject();
 
     void            loadDeviceInfo();
 
     vector<ofSoundBuffer>   IN_CH;
-    vector<ofSoundBuffer>   OUT_CH;
-    ofSoundBuffer           monoBuffer;
+    vector<pdsp::ExternalInput> OUT_CH;
+
+    short *                 shortBuffer;
     std::mutex              audioMutex;
     int                     in_channels;
     int                     out_channels;
     int                     sampleRateIN;
     int                     sampleRateOUT;
+    int                     bufferSize;
     bool                    deviceLoaded;
 
 };

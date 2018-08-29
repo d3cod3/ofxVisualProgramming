@@ -39,6 +39,7 @@
 #include "ofxFontStash.h"
 #include "ofxDatGui.h"
 #include "ofxXmlSettings.h"
+#include "ofxPDSP.h"
 
 #include "DraggableVertex.h"
 
@@ -76,12 +77,14 @@ public:
     virtual ~PatchObject();
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void                    setupDSP(pdsp::Engine &engine);
     void                    update(map<int,PatchObject*> &patchObjects);
     void                    draw(ofxFontStash *font);
 
     // Virtual Methods
     virtual void            newObject() {}
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
+    virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
@@ -91,7 +94,7 @@ public:
     virtual void            keyPressedObjectContent(int key) {}
     virtual void            dragGUIObject(ofVec3f _m) {}
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
-    virtual void            audioOutObject(ofSoundBuffer &outBuffer) {}
+    virtual void            audioOutObject(ofSoundBuffer &outputBuffer) {}
     virtual void            resetSystemObject() {}
 
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
@@ -107,7 +110,7 @@ public:
 
     // Sound
     void                    audioIn(ofSoundBuffer &inputBuffer);
-    void                    audioOut(ofSoundBuffer &outBuffer);
+    void                    audioOut(ofSoundBuffer &outputBuffer);
 
     void                    move(int _x, int _y);
     bool                    isOver(ofPoint pos);
@@ -116,7 +119,7 @@ public:
     ofVec2f                 getOutletPosition(int oid);
 
     // LOAD/SAVE
-    bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,int oTag, string &configFile);
+    bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,pdsp::Engine &engine,int oTag, string &configFile);
     bool                    saveConfig(bool newConnection,int objID);
     bool                    removeLinkFromConfig(int outlet);
 
@@ -136,6 +139,7 @@ public:
     bool                    getIsSystemObject() const { return isSystemObject; }
     bool                    getIsActive() const { return bActive; }
     bool                    getIsAudioINObject() const { return isAudioINObject; }
+    bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
     int                     getOutletType(int oid) const { return outlets[oid]; }
     int                     getNumInlets() { return inlets.size(); }
@@ -152,6 +156,7 @@ public:
     void                    setPatchfile(string pf) { patchFile = pf; }
     void                    setIsRetina(bool ir) { isRetina = ir; }
     void                    setIsActive(bool ia) { bActive = ia; }
+    void                    setWillErase(bool e) { willErase = e; }
 
     // UTILS
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);

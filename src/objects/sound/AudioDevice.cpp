@@ -43,6 +43,7 @@ AudioDevice::AudioDevice() : PatchObject(){
 
     sampleRateIN        = 0;
     sampleRateOUT       = 0;
+    bufferSize          = 256;
 
     isSystemObject      = true;
 
@@ -64,6 +65,15 @@ void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
+    if(deviceLoaded && out_channels>0){
+        for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
+            OUT_CH[c].out_signal() >> engine.audio_out(c);
+        }
+    }
+}
+
+//--------------------------------------------------------------
 void AudioDevice::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
 }
@@ -73,7 +83,6 @@ void AudioDevice::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     //font->draw(ofToString(sampleRateIN),this->fontSize,this->width/2,this->headerHeight*2);
-    //font->draw(ofToString(sampleRateOUT),this->fontSize,this->width/2,this->headerHeight*4);
     ofDisableAlphaBlending();
 }
 
@@ -95,17 +104,16 @@ void AudioDevice::audioInObject(ofSoundBuffer &inputBuffer){
             }
         }
     }
+
+
 }
 
 //--------------------------------------------------------------
-void AudioDevice::audioOutObject(ofSoundBuffer &outBuffer){
+void AudioDevice::audioOutObject(ofSoundBuffer &outputBuffer){
     if(deviceLoaded && out_channels>0){
         for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
             if(this->inletsConnected[c]){
-                monoBuffer = outBuffer;
-                OUT_CH.at(c) = *static_cast<ofSoundBuffer *>(_inletParams[c]);
-                OUT_CH.at(c).copyTo(monoBuffer, OUT_CH.at(c).getNumFrames(), 1, 0);
-                outBuffer.setChannel(monoBuffer,c);
+                OUT_CH.at(c).copyInput(static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().data(),static_cast<ofSoundBuffer *>(_inletParams[c])->getNumFrames());
             }
         }
     }
@@ -125,6 +133,7 @@ void AudioDevice::resetSystemObject(){
             out_channels = XML.getValue("output_channels",0);
             sampleRateIN = XML.getValue("sample_rate_in",0);
             sampleRateOUT= XML.getValue("sample_rate_out",0);
+            bufferSize   = XML.getValue("buffer_size",0);
             XML.popTag();
         }
 
@@ -132,12 +141,15 @@ void AudioDevice::resetSystemObject(){
         this->numOutlets = in_channels;
 
         IN_CH.clear();
-        OUT_CH.clear();
+        OUT_CH.resize(out_channels);
+
+        shortBuffer = new short[bufferSize];
+        for (int i = 0; i < bufferSize; i++){
+            shortBuffer[i] = 0;
+        }
 
         for( int i = 0; i < out_channels; i++){
-            _inletParams[i] = new ofSoundBuffer();
-            ofSoundBuffer temp;
-            OUT_CH.push_back(temp);
+            _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
         for( int i = 0; i < in_channels; i++){
@@ -160,6 +172,21 @@ void AudioDevice::resetSystemObject(){
 
         this->inletsConnected.clear();
         this->initInletsState();
+
+        this->height      = OBJECT_HEIGHT;
+
+        if(this->isRetina){
+            this->height *= 2;
+        }
+
+        if(this->numInlets > 6 || this->numOutlets > 6){
+            this->height          *= 2;
+        }
+
+        if(this->numInlets > 12 || this->numOutlets > 12){
+            this->height          *= 2;
+        }
+        this->box->setHeight(this->height);
 
         // Save new object config
         for(int i=0;i<totalObjects;i++){
@@ -227,6 +254,7 @@ void AudioDevice::loadDeviceInfo(){
             out_channels = XML.getValue("output_channels",0);
             sampleRateIN = XML.getValue("sample_rate_in",0);
             sampleRateOUT= XML.getValue("sample_rate_out",0);
+            bufferSize   = XML.getValue("buffer_size",0);
             XML.popTag();
         }
 
@@ -246,12 +274,15 @@ void AudioDevice::loadDeviceInfo(){
         this->numOutlets = in_channels;
 
         IN_CH.clear();
-        OUT_CH.clear();
+        OUT_CH.resize(out_channels);
+
+        shortBuffer = new short[bufferSize];
+        for (int i = 0; i < bufferSize; i++){
+            shortBuffer[i] = 0;
+        }
 
         for( int i = 0; i < out_channels; i++){
-            _inletParams[i] = new ofSoundBuffer();
-            ofSoundBuffer temp;
-            OUT_CH.push_back(temp);
+            _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
         for( int i = 0; i < in_channels; i++){
@@ -276,6 +307,21 @@ void AudioDevice::loadDeviceInfo(){
 
         this->inletsConnected.clear();
         this->initInletsState();
+
+        this->height      = OBJECT_HEIGHT;
+
+        if(this->isRetina){
+            this->height *= 2;
+        }
+
+        if(this->numInlets > 6 || this->numOutlets > 6){
+            this->height          *= 2;
+        }
+
+        if(this->numInlets > 12 || this->numOutlets > 12){
+            this->height          *= 2;
+        }
+        this->box->setHeight(this->height);
 
         deviceLoaded      = true;
     }

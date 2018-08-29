@@ -34,8 +34,6 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioFile.h"
-
 class SoundfilePlayer : public PatchObject {
 
 public:
@@ -44,11 +42,12 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    void            audioOutObject(ofSoundBuffer &outBuffer);
+    void            audioOutObject(ofSoundBuffer &outputBuffer);
 
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
@@ -67,6 +66,7 @@ public:
     std::atomic<double> playheadControl;
     double              step;
     double              sampleRate;
+    int                 bufferSize;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
