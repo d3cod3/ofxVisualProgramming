@@ -1,8 +1,10 @@
 
 # ofxVisualProgramming - A visual-programming patching addon for OF
 
-> A collection of visual interactive objects to create/develop in a cyber-transmedia with-code/without-code real-time patching environment;
-> includes Lua, GLSL version 120, Python and Bash(macOS & linux) scripting languages
+> A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua and Python scripting interpreter, plus live compile of GLSL Shaders version 120 and live editing/execute Bash scripts(macOS & linux) capabilities.
+
+![Mosaic pre_alpha_0.1.0](https://github.com/d3cod3/Mosaic/raw/master/process/img/09_we_are_near_alpha_station.png)
+Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
 Operating system | Status
 ---------------- | ----------
@@ -20,7 +22,9 @@ Table of Contents
    * [INSTALLING](#installing)
    * [USAGE](#usage)
    * [CONTRIBUTING](#contributing)
+   * [OBJECTS LIST](#objects_list)
    * [LICENSE](#license)
+   * [CREDITS](#credits)
 
 
 # OF COMPATIBLE RELEASE
@@ -39,7 +43,7 @@ alt="GRAIL" width="240" height="180" border="0" /></a>
 
 GRAIL [RM-599-ARPA](https://www.rand.org/content/dam/rand/pubs/research_memoranda/2005/RM5999.pdf) from **the [RAND](https://www.rand.org) Corporation**.
 
-So special thanks to all the precursors of this ideas, and more thanks to the ofxComposer developers for their code, it has been a great reference for start working on this ofxaddon.
+So special thanks to all the precursors of this ideas, and more thanks to the [ofxComposer](https://github.com/patriciogonzalezvivo/ofxComposer) developers for their code, it has been a great reference for start working on this ofxaddon.
 
 # DESCRIPTION
 
@@ -53,7 +57,7 @@ While the described characteristics could potentially offer an extremely high co
 
 
 #### KEYWORDS
-mosaic, ofxVisualProgramming, openframeworks, linux, macOS, windows, creative-coding, live-coding, cyber-coding, physical, visual, scripting, trans-media, programming, visual-programming, cyber-programming, cyber-trans-media programming
+mosaic, ofxVisualProgramming, openframeworks, linux, macOS, windows, creative-coding, live-coding, cyber-coding, physical-computing, visual-computing, scripting, transmedia, programming, visual-programming, cyber-programming
 
 # DEPENDENCIES
 
@@ -97,9 +101,7 @@ In order to buil ofxVisualProgramming, you'll need this addons:
 
 # COMPILING
 
-**OSX/LINUX Compiling with no problems.**
-
-**Windows is compiling with qtcreator 4.6.1 only, No VS2017**
+**MACOS/LINUX/WINDOWS compiling with qtcreator 4.6.1**
 
 # INSTALLING
 
@@ -214,7 +216,7 @@ The header of your new object (_SuperAmazingObject_, for instance) will be Super
   This is a simplified version of the SimpleRandom object already included in
   the ofxVisualProgramming addon:
   src/objects/math/SimpleRandom.h
-  srcobjects/math/SimpleRandom.cpp
+  src/objects/math/SimpleRandom.cpp
 */
 
 
@@ -232,6 +234,7 @@ public:
     // the ones i don't need
     void  newObject();
     void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    //void setupAudioOutObjectContent(pdsp::Engine &engine);
     void  updateObjectContent(map<int,PatchObject*> &patchObjects);
     void  drawObjectContent(ofxFontStash *font);
     void  removeObjectContent();
@@ -252,7 +255,6 @@ public:
 
     // my SuperAmazingObject public variables (if any)
     // .............
-    int     testVar;
 
 };
 
@@ -322,7 +324,7 @@ SuperAmazingObject::SuperAmazingObject() : PatchObject(){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::newObject(){
+void SuperAmazingObject::newObject(){
 
     // first set the name of the object
     // (choose a cool one, no strange chars please)
@@ -335,14 +337,14 @@ void SimpleRandom::newObject(){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void SuperAmazingObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    // setup your object here, as any ofApp example
+    // setup your object here
     ofSeedRandom(ofGetElapsedTimeMillis());
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void SuperAmazingObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // update your object here, as any ofApp example
 
     // in this case we just need to update the outlet value
@@ -352,8 +354,9 @@ void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::drawObjectContent(ofxFontStash *font){
-    // draw your object content here, as any ofApp example
+void SuperAmazingObject::drawObjectContent(ofxFontStash *font){
+    // draw your object content here
+
     // and if you need to write some text, just use the font
     // available with the method,
     ofSetColor(255);
@@ -363,7 +366,7 @@ void SimpleRandom::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::removeObjectContent(){
+void SuperAmazingObject::removeObjectContent(){
   // anything you need to remove or stop when deleting the object
 }
 
@@ -373,8 +376,128 @@ And thats it! This is all for now, for every question just open an issue here on
 
 More soon...
 
+# OBJECTS LIST
+
+Audio Analysis | Ready | TODO
+---------- | ---------- | ----------
+amplitude extractor |  | X
+audio analyzer | X |
+beat extractor | X |
+bpm extractor |  | X
+centroid extractor |  | X
+dissonance extractor |  | X
+fft extractor | X |
+hfc extractor |  | X
+inharmonicity extractor |  | X
+mel bands extractor | X |
+mfcc extractor |  | X
+hpcp extractor |  | X
+onsets extractor |  | X
+pitch extractor |  | X
+roll-off extractor |  | X
+tristimulus extractor |  | X
+
+Computer Vision | Ready | TODO
+---------- | ---------- | ----------
+ar marker detection |  | ?
+background subtraction | X  |
+chroma key | X  |
+contour tracking | X  |
+face tracking | | X
+motion detection | | X
+optical flow | | X
+more to come ... | | X
+
+GUI | Ready | TODO
+---------- | ---------- | ----------
+bang | X |
+comment | X |
+message | X |
+slider | X |
+signal viewer | X |
+timeline | | X
+video viewer | X |
+more to come ... | | X
+
+Logic | Ready | TODO
+---------- | ---------- | ----------
+loadbang | X |
+more to come ... | | X
+
+Math | Ready | TODO
+---------- | ---------- | ----------
+metronome | X |
+simple noise | X |
+simple random | X |
+more to come ... | | X
+
+Scripting | Ready | TODO
+---------- | ---------- | ----------
+bash script | X |
+lua script | X |
+python script | X |
+shader object | X |
+
+Sound | Ready | TODO
+---------- | ---------- | ----------
+ADSR envelope | | X
+AHR envelope | | X
+bitcruncher | | X
+bit noise | | X
+chorus | | X
+comb filter | | X
+decimator | | X
+delay | | X
+ducker | | X
+FMoperator | | X
+lfo | | X
+oscillator | | X
+phase filter | | X
+resonant 2 pole filter | | X
+resonant 4 pole filter | | X
+reverb | | X
+saturator | | X
+sequencer | | X
+soundfile player | X |
+wavetable oscillator | | X
+white noise | | X
+more to come ... | | X
+
+Video | Ready | TODO
+---------- | ---------- | ----------
+kinect grabber | X |
+video grabber | X |
+video player | X |
+more to come ... | | X
+
+Windowing | Ready | TODO
+---------- | ---------- | ----------
+output window | X |
+
 # LICENSE
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
 All contributions are made under the [MIT License](https://opensource.org/licenses/MIT). See [LICENSE](https://github.com/d3cod3/ofxVisualProgramming/blob/master/LICENSE.md).
+
+# CREDITS
+
+ofxAudioAnalyzer original addon by [Leonardo Zimmerman](https://github.com/leozimmerman)
+
+ofxAudioFile, ofxPDSP, ofxSIMDFloats original addons by [Nicola Pisanti](https://github.com/npisanti)
+
+ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
+
+ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
+
+ofxCv original addon by [Kyle McDonald](https://github.com/kylemcdonald)
+
+ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
+
+ofxFontStash, ofxGLError, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
+
+ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdonald)
+
+ofxLua, ofxMidi original addons by [Dan Wilcox](https://github.com/danomatika)
+
+ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
