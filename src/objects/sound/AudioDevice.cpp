@@ -175,10 +175,6 @@ void AudioDevice::resetSystemObject(){
 
         this->height      = OBJECT_HEIGHT;
 
-        if(this->isRetina){
-            this->height *= 2;
-        }
-
         if(this->numInlets > 6 || this->numOutlets > 6){
             this->height          *= 2;
         }
@@ -309,10 +305,6 @@ void AudioDevice::loadDeviceInfo(){
         this->initInletsState();
 
         this->height      = OBJECT_HEIGHT;
-
-        if(this->isRetina){
-            this->height *= 2;
-        }
 
         if(this->numInlets > 6 || this->numOutlets > 6){
             this->height          *= 2;

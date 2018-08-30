@@ -191,7 +191,9 @@ void ofxVisualProgramming::setupGUI(){
     initObjectMatrix();
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
-    //gui->setAutoDraw(false);
+    if(isRetina){
+       gui->setForceRetina(true);
+    }
     gui->setUseCustomMouse(true);
     gui->setWidth(160*scaleFactor);
     guiHeader = gui->addHeader("OBJECTS");
@@ -335,7 +337,12 @@ void ofxVisualProgramming::draw(){
             break;
         }
 
-        font->draw(patchObjects[selectedObjectID]->linkTypeName,fontSize,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
+        if(isRetina){
+            font->draw(patchObjects[selectedObjectID]->linkTypeName,fontSize/2,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
+        }else{
+            font->draw(patchObjects[selectedObjectID]->linkTypeName,fontSize,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
+        }
+
     }
     
     canvas.end();

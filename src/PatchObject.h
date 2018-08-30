@@ -83,20 +83,24 @@ public:
 
     // Virtual Methods
     virtual void            newObject() {}
+
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
+
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
     virtual void            mousePressedObjectContent(ofVec3f _m) {}
     virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
     virtual void            keyPressedObjectContent(int key) {}
+
     virtual void            dragGUIObject(ofVec3f _m) {}
+
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outputBuffer) {}
-    virtual void            resetSystemObject() {}
 
+    virtual void            resetSystemObject() {}
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
 
     // Mouse Events
