@@ -118,6 +118,9 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     scriptName = gui->addLabel("NONE");
     gui->addBreak();
 
+    newButton = gui->addButton("NEW");
+    newButton->setUseCustomMouse(true);
+
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
@@ -166,6 +169,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // GUI
     gui->update();
     header->update();
+    newButton->update();
     loadButton->update();
     editButton->update();
 
@@ -257,11 +261,12 @@ void LuaScript::removeObjectContent(){
 void LuaScript::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -273,6 +278,7 @@ void LuaScript::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
@@ -384,7 +390,18 @@ void LuaScript::reloadScriptThreaded(){
 //--------------------------------------------------------------
 void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == loadButton){
+        if(e.target == newButton){
+            string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
+            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new Lua script as");
+            if (saveFileResult.bSuccess){
+                ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
+                ofFile newLuaFile (saveFileResult.getPath());
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newLuaFile.getAbsolutePath(),true,true);
+                threadLoaded = false;
+                filepath = newLuaFile.getAbsolutePath();
+                reloadScriptThreaded();
+            }
+        }else if(e.target == loadButton){
             ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a lua script");
             if (openFileResult.bSuccess){
                 ofFile file (openFileResult.getPath());

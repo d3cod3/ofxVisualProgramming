@@ -122,6 +122,7 @@ public:
     ofxDatGui*                  gui;
     ofxDatGuiHeader*            header;
     ofxDatGuiLabel*             shaderName;
+    ofxDatGuiButton*            newButton;
     ofxDatGuiButton*            loadButton;
     ofxDatGuiButton*            editButton;
     vector<ofxDatGuiSlider*>    shaderSliders;

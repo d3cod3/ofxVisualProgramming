@@ -133,6 +133,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // GUI
     gui->update();
     header->update();
+    newButton->update();
     loadButton->update();
     editButton->update();
     for(size_t i=0;i<shaderSliders.size();i++){
@@ -248,6 +249,7 @@ void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
     int testingOver = 0;
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     for(size_t i=0;i<shaderSliders.size();i++){
@@ -258,7 +260,7 @@ void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
     }
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || testingOver>0;
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || testingOver>0;
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -503,6 +505,9 @@ void ShaderObject::loadGUI(){
     }
     gui->addBreak();
 
+    newButton = gui->addButton("NEW");
+    newButton->setUseCustomMouse(true);
+
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
@@ -576,7 +581,30 @@ void ShaderObject::onSliderEvent(ofxDatGuiSliderEvent e){
 //--------------------------------------------------------------
 void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == loadButton){
+        if(e.target == newButton){
+            string newFileName = "shader_"+ofGetTimestampString("%y%m%d")+".frag";
+            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new GLSL shader as");
+            if (saveFileResult.bSuccess){
+                ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
+                ofFile newGLSLFile (saveFileResult.getPath());
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newGLSLFile.getAbsolutePath(),true,true);
+                currentScriptFile = newGLSLFile;
+                if (currentScriptFile.exists()){
+                    string fileExtension = ofToUpper(currentScriptFile.getExtension());
+                    if(fileExtension == "FRAG") {
+                        filepath = currentScriptFile.getAbsolutePath();
+                        loadScript(filepath);
+                        reloading = true;
+                    }else if(fileExtension == "VERT"){
+                        string vsName = currentScriptFile.getFileName();
+                        string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                        filepath = fsName;
+                        loadScript(filepath);
+                        reloading = true;
+                    }
+                }
+            }
+        }else if(e.target == loadButton){
             ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a shader");
             if (openFileResult.bSuccess){
                 currentScriptFile.open(ofToDataPath(openFileResult.getPath(),true));

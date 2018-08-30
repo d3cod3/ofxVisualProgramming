@@ -101,6 +101,9 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     scriptName = gui->addLabel("NONE");
     gui->addBreak();
 
+    newButton = gui->addButton("NEW");
+    newButton->setUseCustomMouse(true);
+
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
@@ -154,6 +157,7 @@ void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     // GUI
     gui->update();
     header->update();
+    newButton->update();
     loadButton->update();
     editButton->update();
 
@@ -193,11 +197,12 @@ void BashScript::removeObjectContent(){
 void BashScript::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -209,6 +214,7 @@ void BashScript::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
@@ -289,7 +295,18 @@ void BashScript::reloadScriptThreaded(){
 //--------------------------------------------------------------
 void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == loadButton){
+        if(e.target == newButton){
+            string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
+            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new Bash script as");
+            if (saveFileResult.bSuccess){
+                ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
+                ofFile newBashFile (saveFileResult.getPath());
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newBashFile.getAbsolutePath(),true,true);
+                threadLoaded = false;
+                filepath = newBashFile.getAbsolutePath();
+                reloadScriptThreaded();
+            }
+        }else if(e.target == loadButton){
             ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a bash script");
             if (openFileResult.bSuccess){
                 ofFile file (openFileResult.getPath());

@@ -133,6 +133,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     selectedObjectLink      = -1;
     selectedObjectID        = -1;
     draggingObject          = false;
+    bLoadingNewObject       = false;
 
     currentPatchFile        = "empty_patch.xml";
 
@@ -584,16 +585,18 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
         TS_START("ofxVP audioProcess");
 
-        inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
+        if(!bLoadingNewObject){
+            inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
 
-        // compute audio input
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            it->second->audioIn(inputBuffer);
-            it->second->audioOut(inputBuffer);
+            // compute audio input
+            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                it->second->audioIn(inputBuffer);
+                it->second->audioOut(inputBuffer);
+            }
+
+            unique_lock<std::mutex> lock(inputAudioMutex);
+            lastInputBuffer = inputBuffer;
         }
-
-        unique_lock<std::mutex> lock(inputAudioMutex);
-        lastInputBuffer = inputBuffer;
 
         TS_STOP("ofxVP audioProcess");
 
@@ -618,6 +621,9 @@ void ofxVisualProgramming::activeObject(int oid){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::addObject(string name,ofVec2f pos){
+
+    bLoadingNewObject       = true;
+
     PatchObject* tempObj = selectObject(name);
 
     tempObj->newObject();
@@ -638,6 +644,8 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     if(saved){
         patchObjects[tempObj->getId()] = tempObj;
     }
+
+    bLoadingNewObject       = false;
 
 }
 

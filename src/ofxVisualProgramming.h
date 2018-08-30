@@ -112,6 +112,7 @@ public:
     int                     selectedObjectID;
     bool                    draggingObject;
     int                     actualObjectID;
+    bool                    bLoadingNewObject;
 
     // LOAD/SAVE
     string                  currentPatchFile;

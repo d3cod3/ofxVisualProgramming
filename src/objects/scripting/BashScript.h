@@ -72,6 +72,7 @@ public:
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
     ofxDatGuiLabel*     scriptName;
+    ofxDatGuiButton*    newButton;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
     ofImage             *bashIcon;
