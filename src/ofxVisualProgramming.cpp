@@ -1010,6 +1010,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
             audioSampleRate = audioDevices[audioOUTDev].sampleRates[0];
 
+            if(audioSampleRate < 44100){
+                audioSampleRate = 44100;
+            }
+
             XML.setValue("sample_rate_in",audioSampleRate);
             XML.setValue("sample_rate_out",audioSampleRate);
             XML.setValue("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
@@ -1181,6 +1185,10 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
     audioOUTDev = index;
 
     audioSampleRate = audioDevices[audioOUTDev].sampleRates[0];
+    if(audioSampleRate < 44100){
+        audioSampleRate = 44100;
+    }
+
     setPatchVariable("sample_rate_out",audioSampleRate);
     setPatchVariable("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
 
