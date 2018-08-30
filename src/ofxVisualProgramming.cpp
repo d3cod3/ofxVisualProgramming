@@ -190,10 +190,8 @@ void ofxVisualProgramming::setupGUI(){
 
     initObjectMatrix();
 
+    guiThemeRetina = new ofxDatGuiThemeRetina();
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
-    if(isRetina){
-       gui->setForceRetina(true);
-    }
     gui->setUseCustomMouse(true);
     gui->setWidth(160*scaleFactor);
     guiHeader = gui->addHeader("OBJECTS");
@@ -211,15 +209,20 @@ void ofxVisualProgramming::setupGUI(){
 
         ofxDatGuiScrollView* tsw = new ofxDatGuiScrollView(it->first);
         objectNavigators.push_back(tsw);
+        if(isRetina){
+           objectNavigators.back()->setItemSpacing(27);
+        }
         for(int j=0;j<static_cast<int>(it->second.size());j++){
             objectNavigators.back()->add(it->second.at(j));
         }
+
         for(int z=0;z<static_cast<int>(it->second.size());z++){
             objectNavigators.back()->children[z]->setUseCustomMouse(true);
         }
-        objectNavigators.back()->onScrollViewEvent(this, &ofxVisualProgramming::onScrollViewEvent);
-        objectFolders.back()->attachItem(objectNavigators.back());
 
+        objectNavigators.back()->onScrollViewEvent(this, &ofxVisualProgramming::onScrollViewEvent);
+
+        objectFolders.back()->attachItem(objectNavigators.back());
         gui->addFolder(objectFolders.back());
 
     }
@@ -227,6 +230,10 @@ void ofxVisualProgramming::setupGUI(){
     ofxDatGuiFooter* footer = gui->addFooter();
     footer->setLabelWhenExpanded("collapse");
     footer->setLabelWhenCollapsed("objects");
+
+    if(isRetina){
+       gui->setTheme(guiThemeRetina);
+    }
 
     gui->onButtonEvent(this, &ofxVisualProgramming::onButtonEvent);
 

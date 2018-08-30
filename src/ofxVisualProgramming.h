@@ -129,6 +129,7 @@ public:
     bool                            profilerActive;
 
     // GUI
+    ofxDatGuiThemeRetina            *guiThemeRetina;
     ofxDatGui                       *gui;
     ofxDatGuiHeader                 *guiHeader;
     map<string,vector<string>>      objectsMatrix;
