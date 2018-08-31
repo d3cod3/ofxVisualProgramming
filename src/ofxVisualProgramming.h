@@ -141,6 +141,7 @@ public:
     // Sound Stream
     pdsp::Engine            engine;
     ofSoundBuffer           inputBuffer;
+    ofSoundBuffer           emptyBuffer;
 
     vector<ofSoundDevice>   audioDevices;
     vector<string>          audioDevicesString;

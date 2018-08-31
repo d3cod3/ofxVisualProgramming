@@ -586,16 +586,24 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
         TS_START("ofxVP audioProcess");
 
         if(!bLoadingNewObject){
-            inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
+            if(audioDevices[audioINDev].inputChannels > 0){
+                inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
 
-            // compute audio input
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                it->second->audioIn(inputBuffer);
-                it->second->audioOut(inputBuffer);
+                // compute audio input
+                for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    it->second->audioIn(inputBuffer);
+                }
+
+                unique_lock<std::mutex> lock(inputAudioMutex);
+                lastInputBuffer = inputBuffer;
+            }
+            if(audioDevices[audioOUTDev].outputChannels > 0){
+                // compute audio output
+                for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    it->second->audioOut(emptyBuffer);
+                }
             }
 
-            unique_lock<std::mutex> lock(inputAudioMutex);
-            lastInputBuffer = inputBuffer;
         }
 
         TS_STOP("ofxVP audioProcess");
