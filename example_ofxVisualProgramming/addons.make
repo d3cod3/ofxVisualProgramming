@@ -15,6 +15,7 @@ ofxChromaKeyShader
 ofxCv
 ofxDatGui
 ofxFontStash
+ofxGLEditor
 ofxGLError
 ofxHistoryPlot
 ofxInfiniteCanvas

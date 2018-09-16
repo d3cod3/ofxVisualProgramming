@@ -34,10 +34,26 @@
 
 #include "ofMain.h"
 
+#include "ofxLua.h"
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#include "ofxPython.h"
+#endif
+#include "ofxEditor.h"
+
 #include <math.h>
 #include <string>
 #include <iostream>
 #include <fstream>
+
+struct LiveCoding{
+    ofxLua          lua;
+    #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+    ofxPythonObject python;
+    #endif
+    ofxEditor       liveEditor;
+    string          filepath;
+    bool            hide;
+};
 
 //--------------------------------------------------------------
 static inline float hardClip(float x){

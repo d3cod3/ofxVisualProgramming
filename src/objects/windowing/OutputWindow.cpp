@@ -39,17 +39,17 @@ OutputWindow::OutputWindow() : PatchObject(){
     this->numOutlets = 0;
 
     _inletParams[0] = new ofTexture();  // projector
-    _inletParams[1] = new ofxLua();     // script reference
+    _inletParams[1] = new LiveCoding(); // script reference
 
     this->initInletsState();
 
     isFullscreen                        = false;
     thposX = thposY = thdrawW = thdrawH = 0.0f;
     isNewScriptConnected                = false;
-    inletScriptType                     = 0;        // 0 -> ofxLua, 1 -> ofxPythonObject, .....
+    inletScriptType                     = 0;        // 0 -> LUA, 1 -> PYTHON, .....
 
-    output_width            = 320;
-    output_height           = 240;
+    output_width            = 800;
+    output_height           = 600;
 
     temp_width              = output_width;
     temp_height             = output_height;
@@ -178,15 +178,13 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects){
                 for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                     if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
                         if(it->second->getName() == "lua script"){
-                            _inletParams[1] = new ofxLua();
                             inletScriptType         = 0;
-                            //ofLog(OF_LOG_NOTICE,"Init inlet as ofxLua pointer");
+                            _inletParams[1] = new LiveCoding();
                         }
                         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
                         else if(it->second->getName() == "python script"){
-                            _inletParams[1] = new ofxPythonObject();
                             inletScriptType         = 1;
-                            //ofLog(OF_LOG_NOTICE,"Init inlet as ofxPython pointer");
+                            _inletParams[1] = new LiveCoding();
                         }
                         #endif
                         else{
@@ -421,23 +419,54 @@ void OutputWindow::resetResolution(){
 
 //--------------------------------------------------------------
 void OutputWindow::keyPressed(ofKeyEventArgs &e){
-    // OSX: CMD-F, WIN/LINUX: CTRL-F
+    // OSX: CMD-F, WIN/LINUX: CTRL-F    (FULLSCREEN)
     if(e.hasModifier(MOD_KEY) && e.keycode == 70){
         toggleWindowFullscreen();
+    // OSX: CMD-E, WIN/LINUX: CTRL-E    (EXECUTE SCRIPT)
+    }else if(e.hasModifier(MOD_KEY) && e.keycode == 69){
+        if(inletScriptType == 0){
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
+            }
+        }else if(inletScriptType == 1){
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
+            }
+        }
+    // OSX: CMD-T, WIN/LINUX: CTRL-T    (HIDE LIVECODING EDITOR)
+    }else if(e.hasModifier(MOD_KEY) && e.keycode == 84){
+        static_cast<LiveCoding *>(_inletParams[1])->hide = !static_cast<LiveCoding *>(_inletParams[1])->hide;
+    // OSX: CMD-K, WIN/LINUX: CTRL-K    (TOGGLE AUTO FOCUS)
+    }else if(e.hasModifier(MOD_KEY) && e.keycode == 75){
+        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setAutoFocus(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getAutoFocus());
+    // OSX: CMD-L, WIN/LINUX: CTRL-L    (TOGGLE LINE WRAPPING)
+    }else if(e.hasModifier(MOD_KEY) && e.keycode == 76){
+        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setLineWrapping(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getLineWrapping());
+    // OSX: CMD-N, WIN/LINUX: CTRL-N    (TOGGLE LINE NUMBERS)
+    }else if(e.hasModifier(MOD_KEY) && e.keycode == 78){
+        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setLineNumbers(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getLineNumbers());
     }
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptKeyPressed(e.key);
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                if(static_cast<LiveCoding *>(_inletParams[1])->hide){
+                    static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
+                }else{
+                    static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
+                }
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("keyPressed");
-                if(at){
-                    at(ofxPythonObject::fromInt(e.key));
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                if(static_cast<LiveCoding *>(_inletParams[1])->hide){
+                    ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("keyPressed");
+                    if(at){
+                        at(ofxPythonObject::fromInt(e.key));
+                    }
+                }else{
+                    static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
                 }
             }
         }
@@ -450,14 +479,14 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
 void OutputWindow::keyReleased(ofKeyEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptKeyReleased(e.key);
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyReleased(e.key);
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("keyReleased");
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("keyReleased");
                 if(at){
                     at(ofxPythonObject::fromInt(e.key));
                 }
@@ -472,14 +501,14 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseMoved");
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("mouseMoved");
                 if(at){
                     at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)));
                 }
@@ -494,14 +523,14 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseDragged");
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("mouseDragged");
                 if(at){
                     at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(e.button));
                 }
@@ -516,14 +545,14 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mousePressed");
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("mousePressed");
                 if(at){
                     at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(e.button));
                 }
@@ -538,14 +567,14 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseReleased");
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("mouseReleased");
                 if(at){
                     at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(e.button));
                 }
@@ -560,14 +589,14 @@ void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
         if(inletScriptType == 0){
-            if(static_cast<ofxLua *>(_inletParams[1])->isValid()){
-                static_cast<ofxLua *>(_inletParams[1])->scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
+            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<ofxPythonObject *>(_inletParams[1])){
-                ofxPythonObject at = static_cast<ofxPythonObject *>(_inletParams[1])->attr("mouseScrolled");
+            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+                ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("mouseScrolled");
                 if(at){
                     at(ofxPythonObject::fromInt(static_cast<int>(tm.x)),ofxPythonObject::fromInt(static_cast<int>(tm.y)),ofxPythonObject::fromInt(static_cast<int>(e.scrollX)),ofxPythonObject::fromInt(static_cast<int>(e.scrollY)));
                 }
@@ -580,6 +609,9 @@ void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void OutputWindow::windowResized(ofResizeEventArgs &e){
     scaleTextureToWindow(window->getWidth(),window->getHeight());
+    if(this->inletsConnected[2]){
+        static_cast<ofxEditor *>(_inletParams[2])->resize(window->getWidth(),window->getHeight());
+    }
 }
 
 //--------------------------------------------------------------

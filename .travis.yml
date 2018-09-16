@@ -168,7 +168,8 @@ install:
   - git clone --branch=master https://github.com/d3cod3/ofxChromaKeyShader addons/ofxChromaKeyShader
   - git clone --branch=master https://github.com/kylemcdonald/ofxCv addons/ofxCv
   - git clone --branch=master https://github.com/d3cod3/ofxDatGui addons/ofxDatGui
-  - git clone --branch=master https://github.com/armadillu/ofxFontStash addons/ofxFontStash
+  - git clone --branch=master https://github.com/d3cod3/ofxFontStash addons/ofxFontStash
+  - git clone --branch=master https://github.com/d3cod3/ofxGLEditor addons/ofxGLEditor
   - git clone --branch=master https://github.com/armadillu/ofxGLError addons/ofxGLError
   - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot addons/ofxHistoryPlot
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas

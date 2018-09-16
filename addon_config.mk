@@ -25,7 +25,7 @@ common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFontStash ofxGLError
+        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFontStash ofxGLEditor ofxGLError
         ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxInfiniteCanvas ofxLua ofxMidi ofxParagraph ofxPDSP ofxSIMDFloats ofxTimeMeasurements
 
 	# include search paths, this will be usually parsed from the file system
@@ -64,7 +64,7 @@ common:
 
 	# when parsing the file system looking for sources exclude this for all or
 	# a specific platform
-	# ADDON_SOURCES_EXCLUDE =
+        # ADDON_SOURCES_EXCLUDE =
 
 	# when parsing the file system looking for include paths exclude this for all or
 	# a specific platform

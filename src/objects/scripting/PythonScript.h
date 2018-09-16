@@ -35,6 +35,8 @@
 #include "PatchObject.h"
 
 #include "ofxPython.h"
+#include "ofxEditor.h"
+
 #include "PathWatcher.h"
 #include "ThreadedCommand.h"
 
@@ -72,6 +74,9 @@ public:
     ofxPythonObject     updatePython;
     ofxPythonObject     updateMosaicList;
     ofxPythonObject     drawPython;
+
+    ofxEditorSyntax         liveEditorSyntax;
+    ofxEditorColorScheme    liveEditorColors;
 
     PathWatcher         watcher;
     ofFile              currentScriptFile;

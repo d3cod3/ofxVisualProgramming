@@ -56,8 +56,8 @@ ShaderObject::ShaderObject() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width    = 1280;
-    output_height   = 720;
+    output_width    = 800;
+    output_height   = 600;
 
     nTextures       = 0;
     internalFormat  = GL_RGBA;

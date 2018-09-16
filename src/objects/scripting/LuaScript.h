@@ -35,6 +35,7 @@
 #include "PatchObject.h"
 
 #include "ofxLua.h"
+#include "ofxEditor.h"
 #include "PathWatcher.h"
 #include "ThreadedCommand.h"
 
@@ -59,6 +60,7 @@ public:
 
     void            initResolution();
 
+    void            unloadScript();
     void            loadScript(string scriptFile);
     void            reloadScriptThreaded();
 
@@ -70,13 +72,16 @@ public:
     // ofxLua error callback
     void            errorReceived(std::string& msg);
 
-    ofxLua              lua;
+    ofxEditorSyntax         liveEditorSyntax;
+    ofxEditorColorScheme    liveEditorColors;
+
     PathWatcher         watcher;
     ofFile              currentScriptFile;
     bool                scriptLoaded;
     bool                nameLabelLoaded;
     bool                isNewObject;
     bool                isError;
+    bool                setupTrigger;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;

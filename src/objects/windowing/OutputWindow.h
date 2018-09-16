@@ -33,7 +33,6 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxLua.h"
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "ofxPython.h"

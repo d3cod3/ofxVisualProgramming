@@ -41,9 +41,9 @@ PythonScript::PythonScript() : PatchObject(){
     _inletParams[0] = new vector<float>();      // data
 
     _outletParams[0] = new ofTexture();         // output
-    _outletParams[1] = new ofxPythonObject();   // python script reference (for keyboard and mouse events on external windows)
+    _outletParams[1] = new LiveCoding();        // python script reference (for keyboard and mouse events on external windows)
 
-    this->specialLinkTypeName = "ofxPythonObject";
+    this->specialLinkTypeName = "LiveCoding";
 
     this->initInletsState();
 
@@ -59,14 +59,16 @@ PythonScript::PythonScript() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width    = 320;
-    output_height   = 240;
+    output_width    = 800;
+    output_height   = 600;
 
     mosaicTableName = "_mosaic_data_list";
     tempstring      = "";
 
     threadLoaded    = false;
     needToLoadScript= true;
+
+    static_cast<LiveCoding *>(_outletParams[1])->hide = true;
 }
 
 //--------------------------------------------------------------
@@ -130,6 +132,16 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // Setup ThreadedCommand var
     tempCommand.setup();
+
+    // init live coding editor
+    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 24);
+    liveEditorSyntax.loadFile(ofToDataPath(PYTHON_SYNTAX));
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
+    liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setColorScheme(&liveEditorColors);
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setLineNumbers(true);
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setAutoFocus(true);
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
 
     // init python
     python.init();
@@ -198,7 +210,7 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
             }
             updatePython();
             // send script reference (for events)
-            *static_cast<ofxPythonObject *>(_outletParams[1]) = script;
+            static_cast<LiveCoding *>(_outletParams[1])->python = script;
         }
     }
     ///////////////////////////////////////////
@@ -212,8 +224,14 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         ofPushView();
         ofPushStyle();
         ofPushMatrix();
+        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
+            ofBackground(0);
+        }
         drawPython = script.attr("draw");
         if (drawPython && !script.isPythonError() && !drawPython.isPythonError()) drawPython();
+        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
+            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
+        }
         ofPopMatrix();
         ofPopStyle();
         ofPopView();
@@ -306,6 +324,8 @@ void PythonScript::initResolution(){
     ofClear(255,255,255, 0);
     fbo->end();
 
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
+
 }
 
 //--------------------------------------------------------------
@@ -334,7 +354,10 @@ void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
         ofClear(255,255,255, 0);
         fbo->end();
 
-        tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\n";
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
+
+        ofFile tempFileScript(filepath);
+        tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\nSCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'\n";
         python.executeString(tempstring);
     }
 
@@ -345,6 +368,8 @@ void PythonScript::loadScript(string scriptFile){
 
     filepath = scriptFile;
     currentScriptFile.open(filepath);
+
+    static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
 
     python.reset();
     python.addPath(currentScriptFile.getEnclosingDirectory());
@@ -358,7 +383,8 @@ void PythonScript::loadScript(string scriptFile){
     python.executeString(tempstring);
 
     // set Mosaic scripting vars
-    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\n";
+    ofFile tempFileScript(filepath);
+    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\nSCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'\n";
     python.executeString(tempstring);
 
     ///////////////////////////////////////////
@@ -366,6 +392,7 @@ void PythonScript::loadScript(string scriptFile){
     klass = python.getObject("mosaicApp");
     if(klass){
         script = klass();
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] python script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);

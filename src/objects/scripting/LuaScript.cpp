@@ -41,9 +41,9 @@ LuaScript::LuaScript() : PatchObject(){
     _inletParams[0] = new vector<float>();      // data
 
     _outletParams[0] = new ofTexture();         // output
-    _outletParams[1] = new ofxLua();            // lua script reference (for keyboard and mouse events on external windows)
+    _outletParams[1] = new LiveCoding();        // lua script reference (for keyboard and mouse events on external windows)
 
-    this->specialLinkTypeName = "ofxLua";
+    this->specialLinkTypeName = "LiveCoding";
 
     this->initInletsState();
 
@@ -60,8 +60,8 @@ LuaScript::LuaScript() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width        = 320;
-    output_height       = 240;
+    output_width        = 800;
+    output_height       = 600;
 
     mosaicTableName = "_mosaic_data_table";
     tempstring      = "";
@@ -70,6 +70,9 @@ LuaScript::LuaScript() : PatchObject(){
     needToLoadScript= true;
 
     isError         = false;
+    setupTrigger    = false;
+
+    static_cast<LiveCoding *>(_outletParams[1])->hide = true;
 }
 
 //--------------------------------------------------------------
@@ -92,6 +95,7 @@ void LuaScript::threadedFunction(){
             loadScript(filepath);
             threadLoaded = true;
             nameLabelLoaded = true;
+            setupTrigger = false;
         }
         condition.wait(lock);
     }
@@ -134,9 +138,19 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // Setup ThreadedCommand var
     tempCommand.setup();
 
+    // init live coding editor
+    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 24);
+    liveEditorSyntax.loadFile(ofToDataPath(LUA_SYNTAX));
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
+    liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setColorScheme(&liveEditorColors);
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setLineNumbers(true);
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setAutoFocus(true);
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
+
     // init lua
-    lua.init(true);
-    lua.addListener(this);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.addListener(this);
     watcher.start();
 
     if(filepath == "none"){
@@ -145,7 +159,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         filepath = file.getAbsolutePath();
     }
     if(!isThreadRunning()){
-        startThread();
+        startThread(true);
     }
 
 }
@@ -188,19 +202,22 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
                 scriptName->setLabel(currentScriptFile.getFileName());
             }
         }
+        if(!setupTrigger){
+            setupTrigger = true;
+            static_cast<LiveCoding *>(_outletParams[1])->lua.scriptSetup();
+        }
+
         // receive external data
         if(this->inletsConnected[0]){
             for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
-                lua_getglobal(lua, "_updateMosaicData");
-                lua_pushnumber(lua,i+1);
-                lua_pushnumber(lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
-                lua_pcall(lua,2,0,0);
+                lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_updateMosaicData");
+                lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,i+1);
+                lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
+                lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,2,0,0);
             }
         }
         // update lua state
-        lua.scriptUpdate();
-        // send script reference (for events)
-        *static_cast<ofxLua *>(_outletParams[1]) = lua;
+        static_cast<LiveCoding *>(_outletParams[1])->lua.scriptUpdate();
     }
     ///////////////////////////////////////////
 
@@ -213,7 +230,13 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         ofPushView();
         ofPushStyle();
         ofPushMatrix();
-        lua.scriptDraw();
+        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
+            ofBackground(0);
+        }
+        static_cast<LiveCoding *>(_outletParams[1])->lua.scriptDraw();
+        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
+            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
+        }
         ofPopMatrix();
         ofPopStyle();
         ofPopView();
@@ -253,7 +276,7 @@ void LuaScript::removeObjectContent(){
     tempCommand.stop();
     ///////////////////////////////////////////
     // LUA EXIT
-    lua.scriptExit();
+    static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
     ///////////////////////////////////////////
 }
 
@@ -308,6 +331,8 @@ void LuaScript::initResolution(){
     ofClear(255,255,255, 0);
     fbo->end();
 
+    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
+
 }
 
 //--------------------------------------------------------------
@@ -336,12 +361,24 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
         ofClear(255,255,255, 0);
         fbo->end();
 
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
+
         tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
-        lua.doString(tempstring);
+        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
         tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
-        lua.doString(tempstring);
+        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        ofFile tempFileScript(filepath);
+        tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
+        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
     }
 
+}
+
+//--------------------------------------------------------------
+void LuaScript::unloadScript(){
+    static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
+    static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
 }
 
 //--------------------------------------------------------------
@@ -350,31 +387,33 @@ void LuaScript::loadScript(string scriptFile){
     filepath = scriptFile;
     currentScriptFile.open(filepath);
 
-    lua.scriptExit();
-    lua.init(true);
-    lua.doScript(filepath, true);
+    static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doScript(filepath, true);
 
     // inject incoming data vector to lua
     string tempstring = mosaicTableName+" = {}";
-    lua.doString(tempstring);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _updateMosaicData(i,data) "+mosaicTableName+"[i] = data  end";
-    lua.doString(tempstring);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
     // set Mosaic scripting vars
     tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
-    lua.doString(tempstring);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
-    lua.doString(tempstring);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofFile tempFileScript(filepath);
+    tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
-    scriptLoaded = lua.isValid();
+    scriptLoaded = static_cast<LiveCoding *>(_outletParams[1])->lua.isValid();
 
     ///////////////////////////////////////////
     // LUA SETUP
     if(scriptLoaded  && !isError){
-        ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
-        lua.scriptSetup();
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+        ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
     }
     ///////////////////////////////////////////
 
@@ -382,6 +421,8 @@ void LuaScript::loadScript(string scriptFile){
 
 //--------------------------------------------------------------
 void LuaScript::reloadScriptThreaded(){
+    unloadScript();
+
     scriptLoaded = false;
     needToLoadScript = true;
     isError = false;
