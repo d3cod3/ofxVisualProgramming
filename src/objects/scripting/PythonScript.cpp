@@ -134,7 +134,7 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     tempCommand.setup();
 
     // init live coding editor
-    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 24);
+    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 32);
     liveEditorSyntax.loadFile(ofToDataPath(PYTHON_SYNTAX));
     static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
     liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
@@ -392,12 +392,15 @@ void PythonScript::loadScript(string scriptFile){
     klass = python.getObject("mosaicApp");
     if(klass){
         script = klass();
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] python script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
     }else{
         script = ofxPythonObject::_None();
+    }
+    if(static_cast<LiveCoding *>(_outletParams[1])->hide){
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     }
     ///////////////////////////////////////////
 
@@ -421,6 +424,8 @@ void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
                 ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPyFile.getAbsolutePath(),true,true);
                 threadLoaded = false;
                 filepath = newPyFile.getAbsolutePath();
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
                 reloadScriptThreaded();
             }
         }else if(e.target == loadButton){
@@ -432,6 +437,8 @@ void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
                     if(fileExtension == "PY") {
                         threadLoaded = false;
                         filepath = file.getAbsolutePath();
+                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
                         reloadScriptThreaded();
                     }
                 }

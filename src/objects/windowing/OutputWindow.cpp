@@ -425,13 +425,11 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
     // OSX: CMD-E, WIN/LINUX: CTRL-E    (EXECUTE SCRIPT)
     }else if(e.hasModifier(MOD_KEY) && e.keycode == 69){
         if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
-            }
+            static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
         }else if(inletScriptType == 1){
-            if(static_cast<LiveCoding *>(_inletParams[1])->python){
+            //if(static_cast<LiveCoding *>(_inletParams[1])->python){
                 static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
-            }
+            //}
         }
     // OSX: CMD-T, WIN/LINUX: CTRL-T    (HIDE LIVECODING EDITOR)
     }else if(e.hasModifier(MOD_KEY) && e.keycode == 84){
@@ -449,25 +447,23 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                if(static_cast<LiveCoding *>(_inletParams[1])->hide){
-                    static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
-                }else{
-                    static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
-                }
+            if(static_cast<LiveCoding *>(_inletParams[1])->hide){
+                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
+            }else{
+                static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
             }
         }
         #if defined(TARGET_LINUX) || defined(TARGET_OSX)
         else if(inletScriptType == 1){
-            if(static_cast<LiveCoding *>(_inletParams[1])->python){
-                if(static_cast<LiveCoding *>(_inletParams[1])->hide){
+            if(static_cast<LiveCoding *>(_inletParams[1])->hide){
+                if(static_cast<LiveCoding *>(_inletParams[1])->python){
                     ofxPythonObject at = static_cast<LiveCoding *>(_inletParams[1])->python.attr("keyPressed");
                     if(at){
                         at(ofxPythonObject::fromInt(e.key));
                     }
-                }else{
-                    static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
                 }
+            }else{
+                static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
             }
         }
         #endif

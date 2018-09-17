@@ -139,7 +139,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     tempCommand.setup();
 
     // init live coding editor
-    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 24);
+    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 32);
     liveEditorSyntax.loadFile(ofToDataPath(LUA_SYNTAX));
     static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
     liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
@@ -224,26 +224,26 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     ///////////////////////////////////////////
     // LUA DRAW
     fbo->begin();
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+    ofPushView();
+    ofPushStyle();
+    ofPushMatrix();
+    if(!static_cast<LiveCoding *>(_outletParams[1])->hide){
+        ofBackground(0);
+    }
     if(scriptLoaded && threadLoaded && !isError){
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        ofPushView();
-        ofPushStyle();
-        ofPushMatrix();
-        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
-            ofBackground(0);
-        }
         static_cast<LiveCoding *>(_outletParams[1])->lua.scriptDraw();
-        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
-            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
-        }
-        ofPopMatrix();
-        ofPopStyle();
-        ofPopView();
-        glPopAttrib();
     }else{
         kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
     }
+    if(!static_cast<LiveCoding *>(_outletParams[1])->hide){
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
+    }
+    ofPopMatrix();
+    ofPopStyle();
+    ofPopView();
+    glPopAttrib();
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
@@ -412,8 +412,11 @@ void LuaScript::loadScript(string scriptFile){
     if(scriptLoaded  && !isError){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
+    }
+    if(static_cast<LiveCoding *>(_outletParams[1])->hide){
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     }
     ///////////////////////////////////////////
 
@@ -440,6 +443,8 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
                 ofFile::copyFromTo(fileToRead.getAbsolutePath(),newLuaFile.getAbsolutePath(),true,true);
                 threadLoaded = false;
                 filepath = newLuaFile.getAbsolutePath();
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
                 reloadScriptThreaded();
             }
         }else if(e.target == loadButton){
@@ -451,6 +456,8 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
                     if(fileExtension == "LUA") {
                         threadLoaded = false;
                         filepath = file.getAbsolutePath();
+                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
                         reloadScriptThreaded();
                     }
                 }
@@ -495,5 +502,6 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
 //--------------------------------------------------------------
 void LuaScript::errorReceived(std::string& msg) {
     isError = true;
-    ofLog(OF_LOG_ERROR,"LUA script error: %s",msg.c_str());
+    string temp = msg.substr(0,256)+"...";
+    ofLog(OF_LOG_ERROR,"LUA script error: %s",temp.c_str());
 }
