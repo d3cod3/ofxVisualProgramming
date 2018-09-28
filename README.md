@@ -61,7 +61,7 @@ mosaic, ofxVisualProgramming, openframeworks, linux, macOS, windows, creative-co
 
 # DEPENDENCIES
 
-In order to buil ofxVisualProgramming, you'll need this addons:
+In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
