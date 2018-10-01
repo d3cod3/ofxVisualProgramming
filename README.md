@@ -499,6 +499,8 @@ ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com
 
 ofxFontStash, ofxGLError, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
+ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
+
 ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdonald)
 
 ofxLua, ofxMidi original addons by [Dan Wilcox](https://github.com/danomatika)
