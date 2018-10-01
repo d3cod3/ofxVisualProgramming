@@ -967,8 +967,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
 //--------------------------------------------------------------
 void ofxVisualProgramming::newPatch(){
     string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
-    ofFile fileToRead(ofToDataPath("empty_patch.xml"));
-    ofFile newPatchFile(ofToDataPath("temp/"+newFileName));
+    ofFile fileToRead(ofToDataPath("empty_patch.xml",true));
+    ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
     newFileCounter++;
 
