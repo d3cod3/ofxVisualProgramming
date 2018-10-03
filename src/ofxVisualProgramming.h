@@ -92,8 +92,8 @@ public:
     void            savePatchAs(string patchFile);
     void            setPatchVariable(string var, int value);
 
-    void            setAudioInDevice(int index);
-    void            setAudioOutDevice(int index);
+    void            setAudioInDevice(int ind);
+    void            setAudioOutDevice(int ind);
     void            activateDSP();
     void            deactivateDSP();
 
@@ -147,7 +147,10 @@ public:
     ofSoundBuffer           emptyBuffer;
 
     vector<ofSoundDevice>   audioDevices;
-    vector<string>          audioDevicesString;
+    vector<string>          audioDevicesStringIN;
+    vector<string>          audioDevicesStringOUT;
+    vector<int>             audioDevicesID_IN;
+    vector<int>             audioDevicesID_OUT;
     ofSoundStream           soundStreamIN;
     std::mutex              inputAudioMutex;
     ofSoundBuffer           lastInputBuffer;

@@ -1100,7 +1100,14 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             ofLog(OF_LOG_NOTICE," ");
             ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
             for(size_t i=0;i<audioDevices.size();i++){
-                audioDevicesString.push_back("  "+audioDevices[i].name);
+                if(audioDevices[i].inputChannels > 0){
+                    audioDevicesStringIN.push_back("  "+audioDevices[i].name);
+                    audioDevicesID_IN.push_back(i);
+                }
+                if(audioDevices[i].outputChannels > 0){
+                    audioDevicesStringOUT.push_back("  "+audioDevices[i].name);
+                    audioDevicesID_OUT.push_back(i);
+                }
                 ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
             }
             ofLog(OF_LOG_NOTICE," ");
@@ -1235,9 +1242,10 @@ void ofxVisualProgramming::setPatchVariable(string var, int value){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setAudioInDevice(int index){
+void ofxVisualProgramming::setAudioInDevice(int ind){
 
     bool found = false;
+    int index = audioDevicesID_IN.at(ind);
     for(int i=0;i<audioDevices[index].sampleRates.size();i++){
         if(audioDevices[index].sampleRates[i] == audioSampleRate){
             found = true;
@@ -1281,7 +1289,10 @@ void ofxVisualProgramming::setAudioInDevice(int index){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setAudioOutDevice(int index){
+void ofxVisualProgramming::setAudioOutDevice(int ind){
+
+    int index = audioDevicesID_OUT.at(ind);
+
     setPatchVariable("audio_out_device",index);
     audioOUTDev = index;
 
