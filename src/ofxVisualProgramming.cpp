@@ -144,6 +144,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     newFileCounter          = 0;
 
     audioSampleRate         = 0;
+    dspON                   = false;
 
 }
 
@@ -581,7 +582,7 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChannels){
 
-    if(audioSampleRate != 0){
+    if(audioSampleRate != 0 && dspON){
 
         TS_START("ofxVP audioProcess");
 
@@ -737,6 +738,83 @@ void ofxVisualProgramming::resetObject(int id){
             }
             it->second->outPut = tempBuffer;
         }
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::deleteObject(int id){
+    resetTime = ofGetElapsedTimeMillis();
+
+    if ((id != -1) && (patchObjects[id] != nullptr)){
+
+        int targetID = id;
+        bool found = false;
+        ofxXmlSettings XML;
+        if (XML.loadFile(currentPatchFile)){
+            int totalObjects = XML.getNumTags("object");
+
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) == id){
+                        targetID = i;
+                        found = true;
+                    }
+                    XML.popTag();
+                }
+            }
+
+            // remove links to the removed object
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) != id){
+                        //ofLogNotice("id",ofToString(XML.getValue("id", -1)));
+                        if(XML.pushTag("outlets")){
+                            int totalLinks = XML.getNumTags("link");
+                            for(int l=0;l<totalLinks;l++){
+                                if(XML.pushTag("link",l)){
+                                    int totalTo = XML.getNumTags("to");
+                                    for(int t=0;t<totalTo;t++){
+                                        if(XML.pushTag("to",t)){
+                                            bool delLink = false;
+                                            if(XML.getValue("id", -1) == id){
+                                                //ofLogNotice("remove link id",ofToString(XML.getValue("id", -1)));
+                                                delLink = true;
+                                            }
+                                            XML.popTag();
+                                            if(delLink){
+                                                XML.removeTag("to",t);
+                                            }
+                                        }
+                                    }
+                                    XML.popTag();
+                                }
+                            }
+                            XML.popTag();
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+            // remove object
+            if(found){
+                XML.removeTag("object", targetID);
+                XML.saveFile();
+            }
+        }
+
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<PatchLink*> tempBuffer;
+            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                if(it->second->outPut[j]->toObjectID != id){
+                    tempBuffer.push_back(it->second->outPut[j]);
+                }else{
+                    it->second->outPut[j]->isDisabled = true;
+                    patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                }
+            }
+            it->second->outPut = tempBuffer;
+        }
+
     }
 }
 
@@ -978,8 +1056,11 @@ void ofxVisualProgramming::newPatch(){
     tempPatchFile = currentPatchFile;
 
     // Add System Blocks (Audio Device,...)
-    glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-    addObject("audio device",ofVec2f(temp.x,temp.y));
+    if(dspON){
+        glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+        addObject("audio device",ofVec2f(temp.x,temp.y));
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -1036,23 +1117,23 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.setValue("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
             XML.saveFile();
 
-            engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
-            this->setChannels(audioDevices[audioINDev].inputChannels,0);
+            if(dspON){
+                engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+                this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
-            for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-                engine.audio_in(in) >> this->in(in);
+                for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+                    engine.audio_in(in) >> this->in(in);
+                }
+                this->out_silent() >> engine.blackhole();
+
+                ofLog(OF_LOG_NOTICE," ");
+                ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
+                ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
+                ofLog(OF_LOG_NOTICE," ");
+                ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
+                ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+                ofLog(OF_LOG_NOTICE," ");
             }
-            this->out_silent() >> engine.blackhole();
-
-            ofLog(OF_LOG_NOTICE," ");
-            ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
-            ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
-            ofLog(OF_LOG_NOTICE," ");
-            ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
-            ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
-            ofLog(OF_LOG_NOTICE," ");
-
-            //ofFmodSetBuffersize(static_cast<unsigned int>(audioBufferSize));
 
             XML.popTag();
         }
@@ -1114,9 +1195,11 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             }
         }
 
-        engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-        engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-        engine.setup(audioSampleRate, audioBufferSize, 3);
+        if(dspON){
+            engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+            engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
+            engine.setup(audioSampleRate, audioBufferSize, 3);
+        }
 
     }
 
@@ -1173,24 +1256,26 @@ void ofxVisualProgramming::setAudioInDevice(int index){
         setPatchVariable("sample_rate_in",audioSampleRate);
         setPatchVariable("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
 
-        engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
-        this->setChannels(audioDevices[audioINDev].inputChannels,0);
+        if(dspON){
+            engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+            this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
-        for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-            engine.audio_in(in) >> this->in(in);
+            for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+                engine.audio_in(in) >> this->in(in);
+            }
+            this->out_silent() >> engine.blackhole();
+
+            ofLog(OF_LOG_NOTICE," ");
+            ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Selected Device");
+            ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
+            ofLog(OF_LOG_NOTICE," ");
+
+            resetSpecificSystemObjects("audio device");
+
+            engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+            engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
+            engine.setup(audioSampleRate, audioBufferSize, 3);
         }
-        this->out_silent() >> engine.blackhole();
-
-        ofLog(OF_LOG_NOTICE," ");
-        ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Selected Device");
-        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
-        ofLog(OF_LOG_NOTICE," ");
-
-        resetSpecificSystemObjects("audio device");
-
-        engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-        engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-        engine.setup(audioSampleRate, audioBufferSize, 3);
     }
     
 }
@@ -1208,6 +1293,45 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
     setPatchVariable("sample_rate_out",audioSampleRate);
     setPatchVariable("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
 
+    if(dspON){
+        engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+        this->setChannels(audioDevices[audioINDev].inputChannels,0);
+
+        for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+            engine.audio_in(in) >> this->in(in);
+        }
+        this->out_silent() >> engine.blackhole();
+
+        ofLog(OF_LOG_NOTICE," ");
+        ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Selected Device");
+        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+        ofLog(OF_LOG_NOTICE," ");
+
+        resetSpecificSystemObjects("audio device");
+
+        engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+        engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
+        engine.setup(audioSampleRate, audioBufferSize, 3);
+
+        bool found = false;
+        for(int i=0;i<audioDevices[audioINDev].sampleRates.size();i++){
+            if(audioDevices[audioINDev].sampleRates[i] == audioSampleRate){
+                found = true;
+            }
+        }
+
+        if(!found){
+            ofLog(OF_LOG_NOTICE," ");
+            ofLog(OF_LOG_NOTICE,"------------------- INCOMPATIBLE INPUT DEVICE Sample Rate: %i", audioDevices[audioINDev].sampleRates[0]);
+            ofLog(OF_LOG_NOTICE,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
+        }
+    }
+    
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::activateDSP(){
+
     engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
     this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
@@ -1217,31 +1341,34 @@ void ofxVisualProgramming::setAudioOutDevice(int index){
     this->out_silent() >> engine.blackhole();
 
     ofLog(OF_LOG_NOTICE," ");
-    ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Selected Device");
+    ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
+    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
+    ofLog(OF_LOG_NOTICE," ");
+    ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
     ofLog(OF_LOG_NOTICE," ");
-
-    //ofFmodSetBuffersize(static_cast<unsigned int>(audioBufferSize));
-
-    resetSpecificSystemObjects("audio device");
 
     engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
     engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
     engine.setup(audioSampleRate, audioBufferSize, 3);
 
-    bool found = false;
-    for(int i=0;i<audioDevices[audioINDev].sampleRates.size();i++){
-        if(audioDevices[audioINDev].sampleRates[i] == audioSampleRate){
-            found = true;
+    glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+    addObject("audio device",ofVec2f(temp.x,temp.y));
+
+    dspON = true;
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::deactivateDSP(){
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getName() == "audio device"){
+            it->second->setWillErase(true);
+            deleteObject(it->first);
         }
     }
 
-    if(!found){
-        ofLog(OF_LOG_NOTICE," ");
-        ofLog(OF_LOG_NOTICE,"------------------- INCOMPATIBLE INPUT DEVICE Sample Rate: %i", audioDevices[audioINDev].sampleRates[0]);
-        ofLog(OF_LOG_NOTICE,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
-    }
-    
+    dspON = false;
 }
 
 //--------------------------------------------------------------

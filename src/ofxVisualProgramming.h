@@ -84,6 +84,7 @@ public:
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);
+    void            deleteObject(int id);
 
     void            newPatch();
     void            openPatch(string patchFile);
@@ -93,6 +94,8 @@ public:
 
     void            setAudioInDevice(int index);
     void            setAudioOutDevice(int index);
+    void            activateDSP();
+    void            deactivateDSP();
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
@@ -153,6 +156,7 @@ public:
     int                     audioOUTDev;
     int                     audioSampleRate;
     int                     audioBufferSize;
+    bool                    dspON;
 
     // MEMORY
     uint64_t                resetTime;
