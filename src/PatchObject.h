@@ -107,7 +107,7 @@ public:
     void                    mouseMoved(float mx, float my);
     void                    mouseDragged(float mx, float my);
     void                    mousePressed(float mx, float my);
-    void                    mouseReleased(float mx, float my);
+    void                    mouseReleased(float mx, float my,map<int,PatchObject*> &patchObjects);
 
     // Keyboard Events
     void                    keyPressed(int key);
@@ -118,6 +118,7 @@ public:
 
     void                    move(int _x, int _y);
     bool                    isOver(ofPoint pos);
+    void                    fixCollisions(map<int,PatchObject*> &patchObjects);
     void                    iconify();
     ofVec2f                 getInletPosition(int iid);
     ofVec2f                 getOutletPosition(int oid);
@@ -151,6 +152,8 @@ public:
     bool                    getIsOutletConnected(int oid);
     bool                    getWillErase() { return willErase; }
 
+    float                   getObjectWidth() { return width; }
+    float                   getObjectHeight() { return height; }
     int                     getOutputWidth() { return output_width; }
     int                     getOutputHeight() { return output_height; }
 

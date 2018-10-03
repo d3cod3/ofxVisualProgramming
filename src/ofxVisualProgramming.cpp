@@ -505,7 +505,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
         bool isLinked = false;
 
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            it->second->mouseReleased(mouse.x,mouse.y);
+            it->second->mouseReleased(mouse.x,mouse.y,patchObjects);
         }
 
         if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty()){

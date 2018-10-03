@@ -376,6 +376,29 @@ bool PatchObject::isOver(ofPoint pos){
 }
 
 //--------------------------------------------------------------
+void PatchObject::fixCollisions(map<int,PatchObject*> &patchObjects){
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->first != getId()){
+            if(getPos().x >= it->second->getPos().x && getPos().x < it->second->getPos().x + it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
+                if(isRetina){
+                    move(it->second->getPos().x+it->second->getObjectWidth()+20,getPos().y);
+                }else{
+                    move(it->second->getPos().x+it->second->getObjectWidth()+10,getPos().y);
+                }
+                break;
+            }else if(getPos().x+getObjectWidth() >= it->second->getPos().x && getPos().x+getObjectWidth() < it->second->getPos().x+it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
+                if(isRetina){
+                    move(it->second->getPos().x-getObjectWidth()-20,getPos().y);
+                }else{
+                    move(it->second->getPos().x-getObjectWidth()-10,getPos().y);
+                }
+                break;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------
 void PatchObject::iconify(){
     iconified = !iconified;
     if(iconified){
@@ -850,9 +873,12 @@ void PatchObject::mousePressed(float mx, float my){
 }
 
 //--------------------------------------------------------------
-void PatchObject::mouseReleased(float mx, float my){
+void PatchObject::mouseReleased(float mx, float my,map<int,PatchObject*> &patchObjects){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
+
+        fixCollisions(patchObjects);
+
         if (box->inside(m)){
             mouseReleasedObjectContent(m);
 
