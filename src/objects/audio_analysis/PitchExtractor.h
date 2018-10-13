@@ -34,28 +34,26 @@
 
 #include "PatchObject.h"
 
-class Metronome : public PatchObject {
+#include "ofxAudioAnalyzer.h"
+
+class PitchExtractor : public PatchObject {
 
 public:
 
-    Metronome();
+    PitchExtractor();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
     ofxDatGui*              gui;
     ofxDatGuiValuePlotter*  rPlotter;
-    ofxDatGuiTextInput*     timeSetting;
 
-    size_t                  wait;
-    size_t                  resetTime;
-    size_t                  metroTime;
+    int             bufferSize;
+    int             spectrumSize;
+
+    int             arrayPosition;
 
 };

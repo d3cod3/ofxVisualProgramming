@@ -30,13 +30,22 @@
 
 ==============================================================================*/
 
-#include "Metronome.h"
+#include "Counter.h"
 
 //--------------------------------------------------------------
-Metronome::Metronome() : PatchObject(){
+Counter::Counter() : PatchObject(){
 
-    this->numInlets  = 0;
+    this->numInlets  = 3;
     this->numOutlets = 1;
+
+    _inletParams[0] = new float();  // bang
+    *(float *)&_inletParams[0] = 0.0f;
+
+    _inletParams[1] = new float();  // start
+    *(float *)&_inletParams[1] = 0.0f;
+
+    _inletParams[2] = new float();  // end
+    *(float *)&_inletParams[2] = 1.0f;
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
@@ -46,85 +55,122 @@ Metronome::Metronome() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    wait = 1000;
-    resetTime = ofGetElapsedTimeMillis();
-    metroTime = ofGetElapsedTimeMillis();
-
+    bang                = false;
+    _st                 = 0;
+    _en                 = 1;
+    startConnect        = false;
 }
 
 //--------------------------------------------------------------
-void Metronome::newObject(){
-    this->setName("metronome");
+void Counter::newObject(){
+    this->setName("counter");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
+    this->addInlet(VP_LINK_NUMERIC,"start");
+    this->addInlet(VP_LINK_NUMERIC,"end");
     this->addOutlet(VP_LINK_NUMERIC);
 
-    this->setCustomVar(static_cast<float>(wait),"TIME");
+    this->setCustomVar(*(float *)&_inletParams[1],"START");
+    this->setCustomVar(*(float *)&_inletParams[2],"END");
 }
 
 //--------------------------------------------------------------
-void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void Counter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setWidth(this->width);
     gui->addBreak();
-    gui->onTextInputEvent(this, &Metronome::onTextInputEvent);
-
-    timeSetting = gui->addTextInput("TIME MS.","1000");
-    timeSetting->setUseCustomMouse(true);
-    timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
     gui->addBreak();
-    rPlotter = gui->addValuePlotter("",0.0,1.0);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
+    gui->onTextInputEvent(this, &Counter::onTextInputEvent);
 
-    gui->setPosition(0,this->headerHeight);
+    start = gui->addTextInput("","0");
+    start->setUseCustomMouse(true);
+    start->setText(ofToString(static_cast<int>(floor(this->getCustomVar("START")))));
+    gui->addBreak();
+    end = gui->addTextInput("","1");
+    end->setUseCustomMouse(true);
+    end->setText(ofToString(static_cast<int>(floor(this->getCustomVar("END")))));
 
-    wait = ofToInt(timeSetting->getText());
+    gui->setPosition(0,this->headerHeight + start->getHeight());
+
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects){
-
-    metroTime = ofGetElapsedTimeMillis();
+void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     gui->update();
-    timeSetting->update();
+    start->update();
+    end->update();
 
-    if(metroTime-resetTime > wait){
-        resetTime = ofGetElapsedTimeMillis();
-        *(float *)&_outletParams[0] = 1.0f;
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
     }
 
-    rPlotter->setValue(*(float *)&_outletParams[0]);
+    if(bang){
+        int tempEnd = 1;
+        if(this->inletsConnected[2]){
+            tempEnd = static_cast<int>(*(float *)&_inletParams[2]);
+        }else{
+            tempEnd = _en;
+        }
+        if(*(float *)&_outletParams[0] < tempEnd){
+            *(float *)&_outletParams[0] += 1;
+        }else{
+            if(this->inletsConnected[1]){
+                *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+            }else{
+                *(float *)&_outletParams[0] = _st;
+            }
+        }
+    }
+
+    if(this->inletsConnected[1]){
+        start->setText(ofToString(*(float *)&_inletParams[1]));
+        if(!startConnect){
+            startConnect = true;
+            *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+        }
+    }else{
+        startConnect = false;
+    }
+    if(this->inletsConnected[2]){
+        end->setText(ofToString(*(float *)&_inletParams[2]));
+    }
+
 }
 
 //--------------------------------------------------------------
-void Metronome::drawObjectContent(ofxFontStash *font){
+void Counter::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
+    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void Metronome::removeObjectContent(){
-    
+void Counter::removeObjectContent(){
+
 }
 
 //--------------------------------------------------------------
-void Metronome::mouseMovedObjectContent(ofVec3f _m){
+void Counter::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    start->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    end->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    this->isOverGUI = timeSetting->hitTest(_m-this->getPos());
+    this->isOverGUI = start->hitTest(_m-this->getPos()) || end->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
-void Metronome::dragGUIObject(ofVec3f _m){
+void Counter::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        start->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        end->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -142,14 +188,16 @@ void Metronome::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == timeSetting){
+void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(e.target == start){
         if(isInteger(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-            wait = ofToInt(e.text);
-        }else{
-            timeSetting->setText(ofToString(wait));
+            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"START");
+            _st = ofToInt(e.text);
         }
-
+    }else if(e.target == end){
+      if(isInteger(e.text)){
+          this->setCustomVar(static_cast<float>(ofToInt(e.text)),"END");
+          _en = ofToInt(e.text);
+      }
     }
 }

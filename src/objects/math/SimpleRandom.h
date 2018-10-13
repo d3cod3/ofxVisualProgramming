@@ -49,6 +49,7 @@ public:
     ofxDatGui*              gui;
     ofxDatGuiValuePlotter*  rPlotter;
 
+    bool                    bang;
     bool                    changeRange;
     float                   lastMinRange, lastMaxRange;
 

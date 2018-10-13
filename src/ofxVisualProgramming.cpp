@@ -39,11 +39,14 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["3d"] = vecInit;
 
-    vecInit = {"audio analyzer","beat extractor","fft extractor","mel bands extractor"};
+    vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
     vecInit = {"background subtraction","chroma key","contour tracking"};
     objectsMatrix["computer vision"] = vecInit;
+
+    vecInit = {"floats to vector","vector concat"};
+    objectsMatrix["data"] = vecInit;
 
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
@@ -54,13 +57,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["input/output"] = vecInit;
 
-    vecInit = {"loadbang"};
+    vecInit = {"counter","loadbang"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {};
     objectsMatrix["machine learning"] = vecInit;
 
-    vecInit = {"metronome","simple noise","simple random"};
+    vecInit = {"add","clamp","constant","divide","metronome","multiply","simple noise","simple random","smooth","subtract"};
     objectsMatrix["math"] = vecInit;
 
     vecInit = {};
@@ -82,9 +85,6 @@ void ofxVisualProgramming::initObjectMatrix(){
 
     vecInit = {"soundfile player"};
     objectsMatrix["sound"] = vecInit;
-
-    vecInit = {};
-    objectsMatrix["typography"] = vecInit;
 
     vecInit = {"kinect grabber","video grabber","video player"};
     objectsMatrix["video"] = vecInit;
@@ -212,7 +212,7 @@ void ofxVisualProgramming::setupGUI(){
         ofxDatGuiScrollView* tsw = new ofxDatGuiScrollView(it->first);
         objectNavigators.push_back(tsw);
         if(isRetina){
-           objectNavigators.back()->setItemSpacing(27);
+            objectNavigators.back()->setItemSpacing(27);
         }
         for(int j=0;j<static_cast<int>(it->second.size());j++){
             objectNavigators.back()->add(it->second.at(j));
@@ -234,7 +234,7 @@ void ofxVisualProgramming::setupGUI(){
     footer->setLabelWhenCollapsed("objects");
 
     if(isRetina){
-       gui->setTheme(guiThemeRetina);
+        gui->setTheme(guiThemeRetina);
     }
 
     gui->onButtonEvent(this, &ofxVisualProgramming::onButtonEvent);
@@ -311,38 +311,38 @@ void ofxVisualProgramming::draw(){
     if(selectedObjectLink >= 0){
         int lt = patchObjects[selectedObjectID]->getOutletType(selectedObjectLink);
         switch(lt) {
-            case 0: ofSetColor(210,210,210);
+        case 0: ofSetColor(210,210,210);
             break;
-            case 1: ofSetColor(230,210,255);
+        case 1: ofSetColor(230,210,255);
             break;
-            case 2: ofSetColor(255,255,200);
+        case 2: ofSetColor(255,255,200);
             break;
-            case 3: ofSetColor(200,255,255); ofSetLineWidth(2);
+        case 3: ofSetColor(200,255,255); ofSetLineWidth(2);
             break;
-            case 4: ofSetColor(255,255,120); ofSetLineWidth(2);
+        case 4: ofSetColor(255,255,120); ofSetLineWidth(2);
             break;
-            case 5: ofSetColor(255,128,128); ofSetLineWidth(1);
+        case 5: ofSetColor(255,128,128); ofSetLineWidth(1);
             break;
-            default: break;
+        default: break;
         }
         ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
         // Draw outlet type name
         //ofSetColor(245);
         switch(lt) {
-            case 0: patchObjects[selectedObjectID]->linkTypeName = "float";
+        case 0: patchObjects[selectedObjectID]->linkTypeName = "float";
             break;
-            case 1: patchObjects[selectedObjectID]->linkTypeName = "string";
+        case 1: patchObjects[selectedObjectID]->linkTypeName = "string";
             break;
-            case 2: patchObjects[selectedObjectID]->linkTypeName = "vector<float>";
+        case 2: patchObjects[selectedObjectID]->linkTypeName = "vector<float>";
             break;
-            case 3: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
+        case 3: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
             break;
-            case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
+        case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
             break;
-            case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
+        case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
             break;
-            default: patchObjects[selectedObjectID]->linkTypeName = "";
+        default: patchObjects[selectedObjectID]->linkTypeName = "";
             break;
         }
 
@@ -988,32 +988,84 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new LuaScript();
     }else if(objname == "shader object"){
         tempObj = new ShaderObject();
+    // -------------------------------------- Audio Analysis
     }else if(objname == "audio analyzer"){
         tempObj = new AudioAnalyzer();
     }else if(objname == "audio device"){
         tempObj = new AudioDevice();
     }else if(objname == "beat extractor"){
         tempObj = new BeatExtractor();
+    }else if(objname == "bpm extractor"){
+        tempObj = new BPMExtractor();
+    }else if(objname == "centroid extractor"){
+        tempObj = new CentroidExtractor();
+    }else if(objname == "dissonance extractor"){
+        tempObj = new DissonanceExtractor();
     }else if(objname == "fft extractor"){
         tempObj = new FftExtractor();
+    }else if(objname == "hfc extractor"){
+        tempObj = new HFCExtractor();
+    }else if(objname == "hpcp extractor"){
+        tempObj = new HPCPExtractor();
+    }else if(objname == "inharmonicity extractor"){
+        tempObj = new InharmonicityExtractor();
     }else if(objname == "mel bands extractor"){
         tempObj = new MelBandsExtractor();
+    }else if(objname == "mfcc extractor"){
+        tempObj = new MFCCExtractor();
+    }else if(objname == "onset extractor"){
+        tempObj = new OnsetExtractor();
+    }else if(objname == "pitch extractor"){
+        tempObj = new PitchExtractor();
+    }else if(objname == "power extractor"){
+        tempObj = new PowerExtractor();
+    }else if(objname == "rms extractor"){
+        tempObj = new RMSExtractor();
+    }else if(objname == "rolloff extractor"){
+        tempObj = new RollOffExtractor();
+    }else if(objname == "tristimulus extractor"){
+        tempObj = new TristimulusExtractor();
+    // -------------------------------------- Data
+    }else if(objname == "vector concat"){
+        tempObj = new VectorConcat();
+    }else if(objname == "floats to vector"){
+        tempObj = new FloatsToVector();
+    // -------------------------------------- Sound
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
-    }else if(objname == "message"){
-        tempObj = new moMessage();
+    // -------------------------------------- Math
+    }else if(objname == "add"){
+        tempObj = new Add();
+    }else if(objname == "clamp"){
+        tempObj = new Clamp();
+    }else if(objname == "constant"){
+        tempObj = new Constant();
+    }else if(objname == "divide"){
+        tempObj = new Divide();
     }else if(objname == "metronome"){
         tempObj = new Metronome();
+    }else if(objname == "multiply"){
+        tempObj = new Multiply();
     }else if(objname == "simple random"){
         tempObj = new SimpleRandom();
     }else if(objname == "simple noise"){
         tempObj = new SimpleNoise();
+    }else if(objname == "smooth"){
+        tempObj = new Smooth();
+    }else if(objname == "subtract"){
+        tempObj = new Subtract();
+    // -------------------------------------- Logic
+    }else if(objname == "counter"){
+        tempObj = new Counter();
     }else if(objname == "loadbang"){
         tempObj = new LoadBang();
+    // -------------------------------------- GUI
     }else if(objname == "bang"){
         tempObj = new moBang();
     }else if(objname == "comment"){
         tempObj = new moComment();
+    }else if(objname == "message"){
+        tempObj = new moMessage();
     }else if(objname == "slider"){
         tempObj = new moSlider();
     }else if(objname == "kinect grabber"){

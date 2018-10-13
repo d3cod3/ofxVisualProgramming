@@ -30,33 +30,36 @@
 
 ==============================================================================*/
 
-#include "MelBandsExtractor.h"
+#include "RMSExtractor.h"
 
 //--------------------------------------------------------------
-MelBandsExtractor::MelBandsExtractor() : PatchObject(){
+RMSExtractor::RMSExtractor() : PatchObject(){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
-    _outletParams[0] = new vector<float>();  // FFT Data
+    _outletParams[0] = new float(); // RMS
+    *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
-    
+
     bufferSize = 256;
     spectrumSize = (bufferSize/2) + 1;
+
+    arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::newObject(){
-    this->setName("mel bands extractor");
+void RMSExtractor::newObject(){
+    this->setName("rms extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_NUMERIC);
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -67,40 +70,38 @@ void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
         }
     }
 
-    // INIT FFT BUFFER
-    for(int i=0;i<MELBANDS_BANDS_NUM;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-    }
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setWidth(this->width);
+
+    rPlotter = gui->addValuePlotter("",0.0f,1.0f);
+    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
+    rPlotter->setSpeed(1);
+
+    gui->setPosition(0,this->height-rPlotter->getHeight());
 
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    if(this->inletsConnected[0]){
-        int index = 0;
-        for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MELBANDS_BANDS_NUM;i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
-            index++;
-        }
-    }
+void RMSExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    gui->update();
+    rPlotter->setValue(*(float *)&_outletParams[0]);
+
+  if(this->inletsConnected[0]){
+      *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
+  }
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
+void RMSExtractor::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
-
-    float bin_w = (float) this->width / MELBANDS_BANDS_NUM;
-    for (int i = 0; i < MELBANDS_BANDS_NUM; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
-    }
+    gui->draw();
+    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::removeObjectContent(){
-    
+void RMSExtractor::removeObjectContent(){
+
 }

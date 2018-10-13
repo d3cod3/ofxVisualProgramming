@@ -30,32 +30,58 @@
 
 ==============================================================================*/
 
-#pragma once
+#include "Subtract.h"
 
-#include "PatchObject.h"
+//--------------------------------------------------------------
+Subtract::Subtract() : PatchObject(){
 
-class Metronome : public PatchObject {
+    this->numInlets  = 2;
+    this->numOutlets = 1;
 
-public:
+    _inletParams[0] = new float();  // input number 1
+    *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new float();  // input number 2
+    *(float *)&_inletParams[1] = 0.0f;
 
-    Metronome();
+    _outletParams[0] = new float(); // output
+    *(float *)&_outletParams[0] = 0.0f;
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font);
-    void            removeObjectContent();
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    this->initInletsState();
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+}
 
-    ofxDatGui*              gui;
-    ofxDatGuiValuePlotter*  rPlotter;
-    ofxDatGuiTextInput*     timeSetting;
+//--------------------------------------------------------------
+void Subtract::newObject(){
+    this->setName("subtract");
+    this->addInlet(VP_LINK_NUMERIC,"number");
+    this->addInlet(VP_LINK_NUMERIC,"number");
+    this->addOutlet(VP_LINK_NUMERIC);
 
-    size_t                  wait;
-    size_t                  resetTime;
-    size_t                  metroTime;
+}
 
-};
+//--------------------------------------------------------------
+void Subtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+}
+
+//--------------------------------------------------------------
+void Subtract::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    if(this->inletsConnected[0] && this->inletsConnected[1]){
+      *(float *)&_outletParams[0] = *(float *)&_inletParams[0] - *(float *)&_inletParams[1];
+    }else{
+      *(float *)&_outletParams[0] = 0.0f;
+    }
+}
+
+//--------------------------------------------------------------
+void Subtract::drawObjectContent(ofxFontStash *font){
+    ofSetColor(255);
+    ofEnableAlphaBlending();
+    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
+    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void Subtract::removeObjectContent(){
+
+}

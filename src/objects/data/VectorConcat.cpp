@@ -30,77 +30,72 @@
 
 ==============================================================================*/
 
-#include "MelBandsExtractor.h"
+#include "VectorConcat.h"
 
 //--------------------------------------------------------------
-MelBandsExtractor::MelBandsExtractor() : PatchObject(){
+VectorConcat::VectorConcat() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 6;
     this->numOutlets = 1;
 
-    _inletParams[0] = new vector<float>();  // RAW Data
+    _inletParams[0] = new vector<float>(); // vector1
+    _inletParams[1] = new vector<float>(); // vector2
+    _inletParams[2] = new vector<float>(); // vector3
+    _inletParams[3] = new vector<float>(); // vector4
+    _inletParams[4] = new vector<float>(); // vector5
+    _inletParams[5] = new vector<float>(); // vector6
 
-    _outletParams[0] = new vector<float>();  // FFT Data
+    _outletParams[0] = new vector<float>();  // final vector
 
     this->initInletsState();
-    
-    bufferSize = 256;
-    spectrumSize = (bufferSize/2) + 1;
+
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::newObject(){
-    this->setName("mel bands extractor");
-    this->addInlet(VP_LINK_ARRAY,"data");
+void VectorConcat::newObject(){
+    this->setName("vector concat");
+    this->addInlet(VP_LINK_ARRAY,"v1");
+    this->addInlet(VP_LINK_ARRAY,"v2");
+    this->addInlet(VP_LINK_ARRAY,"v3");
+    this->addInlet(VP_LINK_ARRAY,"v4");
+    this->addInlet(VP_LINK_ARRAY,"v5");
+    this->addInlet(VP_LINK_ARRAY,"v6");
     this->addOutlet(VP_LINK_ARRAY);
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    ofxXmlSettings XML;
-
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            spectrumSize = (bufferSize/2) + 1;
-            XML.popTag();
-        }
-    }
-
-    // INIT FFT BUFFER
-    for(int i=0;i<MELBANDS_BANDS_NUM;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-    }
-
+void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    newConnection.assign(this->numInlets,false);
+    vectorSizes.assign(this->numInlets,0);
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    if(this->inletsConnected[0]){
-        int index = 0;
-        for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MELBANDS_BANDS_NUM;i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
-            index++;
+void VectorConcat::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    static_cast<vector<float> *>(_outletParams[0])->clear();
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            if(!newConnection.at(i)){
+                newConnection.at(i) = true;
+                vectorSizes.at(i) = static_cast<vector<float> *>(_inletParams[i])->size();
+            }
+            for(size_t s=0;s<vectorSizes.at(i);s++){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[i])->at(s));
+            }
+        }else{
+            newConnection.at(i) = false;
         }
     }
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
+void VectorConcat::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
 
-    float bin_w = (float) this->width / MELBANDS_BANDS_NUM;
-    for (int i = 0; i < MELBANDS_BANDS_NUM; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
-    }
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::removeObjectContent(){
-    
+void VectorConcat::removeObjectContent(){
+
 }

@@ -30,33 +30,36 @@
 
 ==============================================================================*/
 
-#include "MelBandsExtractor.h"
+#include "MFCCExtractor.h"
 
 //--------------------------------------------------------------
-MelBandsExtractor::MelBandsExtractor() : PatchObject(){
+MFCCExtractor::MFCCExtractor() : PatchObject(){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
-    _outletParams[0] = new vector<float>();  // FFT Data
+    _outletParams[0] = new vector<float>();  // MFCC Data
 
     this->initInletsState();
-    
+
     bufferSize = 256;
     spectrumSize = (bufferSize/2) + 1;
+
+    startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM;
+    endPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM;
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::newObject(){
-    this->setName("mel bands extractor");
+void MFCCExtractor::newObject(){
+    this->setName("mfcc extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY);
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void MFCCExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -68,17 +71,17 @@ void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     }
 
     // INIT FFT BUFFER
-    for(int i=0;i<MELBANDS_BANDS_NUM;i++){
+    for(int i=0;i<DCT_COEFF_NUM;i++){
         static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
     }
 
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void MFCCExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(this->inletsConnected[0]){
         int index = 0;
-        for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MELBANDS_BANDS_NUM;i++){
+        for(int i=startPosition;i<endPosition;i++){
             static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
             index++;
         }
@@ -86,14 +89,14 @@ void MelBandsExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects)
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
+void MFCCExtractor::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);
     ofNoFill();
 
-    float bin_w = (float) this->width / MELBANDS_BANDS_NUM;
-    for (int i = 0; i < MELBANDS_BANDS_NUM; i++){
+    float bin_w = (float) this->width / DCT_COEFF_NUM;
+    for (int i = 0; i < DCT_COEFF_NUM; i++){
         float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
         ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
     }
@@ -101,6 +104,6 @@ void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::removeObjectContent(){
-    
+void MFCCExtractor::removeObjectContent(){
+
 }

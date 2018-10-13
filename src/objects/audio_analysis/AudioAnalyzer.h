@@ -49,55 +49,14 @@ public:
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
-
     void            audioInObject(ofSoundBuffer &inputBuffer);
-
-    void            updateInWindow(ofEventArgs &e);
-    void            drawInWindow(ofEventArgs &e);
-    void            drawWindowHeader();
 
     void            loadAudioSettings();
 
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
-    void            mouseMoved(ofMouseEventArgs &e);
-    void            mouseDragged(ofMouseEventArgs &e);
-    void            mousePressed(ofMouseEventArgs &e);
-    void            mouseReleased(ofMouseEventArgs &e);
-    void            mouseScrolled(ofMouseEventArgs &e);
 
     void            onSliderEvent(ofxDatGuiSliderEvent e);
-
-    // Window vars
-    std::shared_ptr<ofAppGLFWWindow>        window;
-    int                                     window_actual_width, window_actual_height;
-    int                                     start_dragging_mouseX, start_dragging_mouseY;
-    int                                     start_dragging_mouseXinScreen, start_dragging_mouseYinScreen;
-    bool                                    shouldResetDrag;
-    ofRectangle                             *windowHeader;
-    int                                     windowHeaderHeight;
-    ofxFontStash                            *windowFont;
-    ofImage                                 *windowHeaderIcon;
-    ofxDatGui*                              windowGui;
-    ofxDatGuiThemeRetina*                   windowGuiThemeRetina;
-    ofxDatGuiValuePlotter*                  rmsPlotter;
-    ofxDatGuiLabel*                         rmsLabel;
-    ofxDatGuiValuePlotter*                  powerPlotter;
-    ofxDatGuiLabel*                         powerLabel;
-    ofxDatGuiValuePlotter*                  pitchFreqPlotter;
-    ofxDatGuiLabel*                         pitchFreqLabel;
-    ofxDatGuiValuePlotter*                  hfcPlotter;
-    ofxDatGuiLabel*                         hfcLabel;
-    ofxDatGuiValuePlotter*                  centroidPlotter;
-    ofxDatGuiLabel*                         centroidLabel;
-    ofxDatGuiValuePlotter*                  inharmonicityPlotter;
-    ofxDatGuiLabel*                         inharmonicityLabel;
-    ofxDatGuiValuePlotter*                  dissonancePlotter;
-    ofxDatGuiLabel*                         dissonanceLabel;
-    ofxDatGuiValuePlotter*                  rollOffPlotter;
-    ofxDatGuiLabel*                         rollOffLabel;
-    ofImage                                 *freqDomainBG;
-    ofxHistoryPlot                          *bpmPlot;
 
     // GUI vars
     ofxDatGui*                              gui;

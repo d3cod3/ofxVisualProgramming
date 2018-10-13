@@ -30,13 +30,18 @@
 
 ==============================================================================*/
 
-#include "Metronome.h"
+#include "Smooth.h"
 
 //--------------------------------------------------------------
-Metronome::Metronome() : PatchObject(){
+Smooth::Smooth() : PatchObject(){
 
-    this->numInlets  = 0;
+    this->numInlets  = 2;
     this->numOutlets = 1;
+
+    _inletParams[0] = new float();  // input
+    _inletParams[1] = new float();  // smoothing
+    *(float *)&_inletParams[0] = 0.0f;
+    *(float *)&_inletParams[1] = 1.0f;
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
@@ -46,61 +51,58 @@ Metronome::Metronome() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    wait = 1000;
-    resetTime = ofGetElapsedTimeMillis();
-    metroTime = ofGetElapsedTimeMillis();
-
 }
 
 //--------------------------------------------------------------
-void Metronome::newObject(){
-    this->setName("metronome");
+void Smooth::newObject(){
+    this->setName("smooth");
+    this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC);
 
-    this->setCustomVar(static_cast<float>(wait),"TIME");
+    this->setCustomVar(1.0f,"SMOOTHING");
 }
 
 //--------------------------------------------------------------
-void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setWidth(this->width);
     gui->addBreak();
-    gui->onTextInputEvent(this, &Metronome::onTextInputEvent);
-
-    timeSetting = gui->addTextInput("TIME MS.","1000");
-    timeSetting->setUseCustomMouse(true);
-    timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
+    slider = gui->addSlider("", 0.0f, 1.0f,this->getCustomVar("SMOOTHING"));
+    slider->setUseCustomMouse(true);
     gui->addBreak();
     rPlotter = gui->addValuePlotter("",0.0,1.0);
     rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
     rPlotter->setSpeed(1);
 
-    gui->setPosition(0,this->headerHeight);
 
-    wait = ofToInt(timeSetting->getText());
+    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects){
-
-    metroTime = ofGetElapsedTimeMillis();
-
-    gui->update();
-    timeSetting->update();
-
-    if(metroTime-resetTime > wait){
-        resetTime = ofGetElapsedTimeMillis();
-        *(float *)&_outletParams[0] = 1.0f;
+void Smooth::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    if(this->inletsConnected[0]){
+        *(float *)&_outletParams[0] = *(float *)&_outletParams[0]*(1-slider->getValue()) + *(float *)&_inletParams[0]*slider->getValue();
+        if(*(float *)&_inletParams[0] > rPlotter->getMax()){
+            rPlotter->setRange(0.0,*(float *)&_inletParams[0]);
+        }else if(*(float *)&_inletParams[0] < rPlotter->getMin()){
+            rPlotter->setRange(*(float *)&_inletParams[0],0.0);
+        }
     }else{
         *(float *)&_outletParams[0] = 0.0f;
+        rPlotter->setRange(0.0,1.0);
     }
 
+    gui->update();
+    slider->update();
+
     rPlotter->setValue(*(float *)&_outletParams[0]);
+
 }
 
 //--------------------------------------------------------------
-void Metronome::drawObjectContent(ofxFontStash *font){
+void Smooth::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -108,23 +110,23 @@ void Metronome::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Metronome::removeObjectContent(){
-    
+void Smooth::removeObjectContent(){
+
 }
 
 //--------------------------------------------------------------
-void Metronome::mouseMovedObjectContent(ofVec3f _m){
+void Smooth::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    this->isOverGUI = timeSetting->hitTest(_m-this->getPos());
+    this->isOverGUI = slider->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
-void Metronome::dragGUIObject(ofVec3f _m){
+void Smooth::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -142,14 +144,6 @@ void Metronome::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == timeSetting){
-        if(isInteger(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-            wait = ofToInt(e.text);
-        }else{
-            timeSetting->setText(ofToString(wait));
-        }
-
-    }
+void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
+    this->setCustomVar(static_cast<float>(e.value),"SMOOTHING");
 }

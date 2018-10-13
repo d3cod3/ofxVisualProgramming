@@ -34,11 +34,11 @@
 
 #include "PatchObject.h"
 
-class Metronome : public PatchObject {
+class Counter : public PatchObject {
 
 public:
 
-    Metronome();
+    Counter();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -51,11 +51,12 @@ public:
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
     ofxDatGui*              gui;
-    ofxDatGuiValuePlotter*  rPlotter;
-    ofxDatGuiTextInput*     timeSetting;
+    ofxDatGuiTextInput*     start;
+    ofxDatGuiTextInput*     end;
 
-    size_t                  wait;
-    size_t                  resetTime;
-    size_t                  metroTime;
+    bool                    bang;
+    int                     _st;
+    int                     _en;
+    bool                    startConnect;
 
 };

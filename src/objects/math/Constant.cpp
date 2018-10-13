@@ -30,13 +30,16 @@
 
 ==============================================================================*/
 
-#include "Metronome.h"
+#include "Constant.h"
 
 //--------------------------------------------------------------
-Metronome::Metronome() : PatchObject(){
+Constant::Constant() : PatchObject(){
 
-    this->numInlets  = 0;
+    this->numInlets  = 1;
     this->numOutlets = 1;
+
+    _inletParams[0] = new float();  // input number
+    *(float *)&_inletParams[0] = 0.0f;
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
@@ -46,61 +49,50 @@ Metronome::Metronome() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    wait = 1000;
-    resetTime = ofGetElapsedTimeMillis();
-    metroTime = ofGetElapsedTimeMillis();
-
+    inputValue = *(float *)&_inletParams[0];
 }
 
 //--------------------------------------------------------------
-void Metronome::newObject(){
-    this->setName("metronome");
+void Constant::newObject(){
+    this->setName("constant");
+    this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC);
 
-    this->setCustomVar(static_cast<float>(wait),"TIME");
+    this->setCustomVar(static_cast<float>(inputValue),"NUMBER");
 }
 
 //--------------------------------------------------------------
-void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setWidth(this->width);
     gui->addBreak();
-    gui->onTextInputEvent(this, &Metronome::onTextInputEvent);
+    gui->onTextInputEvent(this, &Constant::onTextInputEvent);
 
-    timeSetting = gui->addTextInput("TIME MS.","1000");
-    timeSetting->setUseCustomMouse(true);
-    timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
-    gui->addBreak();
-    rPlotter = gui->addValuePlotter("",0.0,1.0);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
+    inputNumber = gui->addTextInput("","0");
+    inputNumber->setUseCustomMouse(true);
+    inputNumber->setText(ofToString(this->getCustomVar("NUMBER")));
 
     gui->setPosition(0,this->headerHeight);
-
-    wait = ofToInt(timeSetting->getText());
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects){
-
-    metroTime = ofGetElapsedTimeMillis();
-
-    gui->update();
-    timeSetting->update();
-
-    if(metroTime-resetTime > wait){
-        resetTime = ofGetElapsedTimeMillis();
-        *(float *)&_outletParams[0] = 1.0f;
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
+void Constant::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    if(this->inletsConnected[0]){
+      inputValue = *(float *)&_inletParams[0];
+      inputNumber->setText(ofToString(inputValue));
     }
 
-    rPlotter->setValue(*(float *)&_outletParams[0]);
+    gui->update();
+    inputNumber->update();
+
+    *(float *)&_outletParams[0] = inputValue;
+
 }
 
 //--------------------------------------------------------------
-void Metronome::drawObjectContent(ofxFontStash *font){
+void Constant::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -108,23 +100,23 @@ void Metronome::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Metronome::removeObjectContent(){
-    
+void Constant::removeObjectContent(){
+
 }
 
 //--------------------------------------------------------------
-void Metronome::mouseMovedObjectContent(ofVec3f _m){
+void Constant::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    this->isOverGUI = timeSetting->hitTest(_m-this->getPos());
+    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
-void Metronome::dragGUIObject(ofVec3f _m){
+void Constant::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -142,13 +134,11 @@ void Metronome::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == timeSetting){
-        if(isInteger(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-            wait = ofToInt(e.text);
-        }else{
-            timeSetting->setText(ofToString(wait));
+void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(e.target == inputNumber){
+        if(isInteger(e.text) || isFloat(e.text)){
+            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"NUMBER");
+            inputValue = ofToFloat(e.text);
         }
 
     }

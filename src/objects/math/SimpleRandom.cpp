@@ -35,27 +35,32 @@
 //--------------------------------------------------------------
 SimpleRandom::SimpleRandom() : PatchObject(){
 
-    this->numInlets  = 2;
+    this->numInlets  = 3;
     this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // min
-    _inletParams[1] = new float();  // max
+    _inletParams[0] = new float();  // bang
+    _inletParams[1] = new float();  // min
+    _inletParams[2] = new float();  // max
     *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 1.0f;
+    *(float *)&_inletParams[1] = 0.0f;
+    *(float *)&_inletParams[2] = 1.0f;
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
-    changeRange = false;
-    lastMinRange = *(float *)&_inletParams[0];
-    lastMaxRange = *(float *)&_inletParams[1];
+    changeRange     = false;
+    bang            = false;
+
+    lastMinRange    = *(float *)&_inletParams[1];
+    lastMaxRange    = *(float *)&_inletParams[2];
 }
 
 //--------------------------------------------------------------
 void SimpleRandom::newObject(){
     this->setName("simple random");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addOutlet(VP_LINK_NUMERIC);
@@ -69,7 +74,7 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setAutoDraw(false);
     gui->setWidth(this->width);
 
-    rPlotter = gui->addValuePlotter("",*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
+    rPlotter = gui->addValuePlotter("",*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
     rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
     rPlotter->setSpeed(1);
 
@@ -78,17 +83,26 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
+    }
+    if(bang){
+        *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
+    }
 
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
-    if(this->inletsConnected[0] || this->inletsConnected[1]){
-        if(lastMinRange != *(float *)&_inletParams[0] || lastMaxRange != *(float *)&_inletParams[1]){
+    if(this->inletsConnected[1] || this->inletsConnected[2]){
+        if(lastMinRange != *(float *)&_inletParams[1] || lastMaxRange != *(float *)&_inletParams[2]){
             changeRange = true;
         }
         if(changeRange){
             changeRange = false;
-            rPlotter->setRange(*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
+            rPlotter->setRange(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
         }
     }
 }

@@ -30,77 +30,68 @@
 
 ==============================================================================*/
 
-#include "MelBandsExtractor.h"
+#include "Clamp.h"
 
 //--------------------------------------------------------------
-MelBandsExtractor::MelBandsExtractor() : PatchObject(){
+Clamp::Clamp() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 3;
     this->numOutlets = 1;
 
-    _inletParams[0] = new vector<float>();  // RAW Data
+    _inletParams[0] = new float();  // min
+    *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new float();  // max
+    *(float *)&_inletParams[1] = 0.0f;
+    _inletParams[2] = new float();  // value
+    *(float *)&_inletParams[2] = 0.0f;
 
-    _outletParams[0] = new vector<float>();  // FFT Data
+    _outletParams[0] = new float(); // output
+    *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
-    
-    bufferSize = 256;
-    spectrumSize = (bufferSize/2) + 1;
-}
-
-//--------------------------------------------------------------
-void MelBandsExtractor::newObject(){
-    this->setName("mel bands extractor");
-    this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
-}
-
-//--------------------------------------------------------------
-void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    ofxXmlSettings XML;
-
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            spectrumSize = (bufferSize/2) + 1;
-            XML.popTag();
-        }
-    }
-
-    // INIT FFT BUFFER
-    for(int i=0;i<MELBANDS_BANDS_NUM;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-    }
 
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    if(this->inletsConnected[0]){
-        int index = 0;
-        for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MELBANDS_BANDS_NUM;i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
-            index++;
-        }
+void Clamp::newObject(){
+    this->setName("clamp");
+    this->addInlet(VP_LINK_NUMERIC,"min");
+    this->addInlet(VP_LINK_NUMERIC,"max");
+    this->addInlet(VP_LINK_NUMERIC,"value");
+    this->addOutlet(VP_LINK_NUMERIC);
+
+}
+
+//--------------------------------------------------------------
+void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+}
+
+//--------------------------------------------------------------
+void Clamp::updateObjectContent(map<int,PatchObject*> &patchObjects){
+    if(this->inletsConnected[2]){
+      float _min = 0.0f, _max = 1000000000.0f;
+      if(this->inletsConnected[0]){
+        _min = *(float *)&_inletParams[0];
+      }
+      if(this->inletsConnected[0]){
+        _max = *(float *)&_inletParams[1];
+      }
+      *(float *)&_outletParams[0] = ofClamp(*(float *)&_inletParams[2],_min,_max);
+    }else{
+      *(float *)&_outletParams[0] = 0.0f;
     }
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
+void Clamp::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
-
-    float bin_w = (float) this->width / MELBANDS_BANDS_NUM;
-    for (int i = 0; i < MELBANDS_BANDS_NUM; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
-    }
+    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::removeObjectContent(){
-    
+void Clamp::removeObjectContent(){
+
 }

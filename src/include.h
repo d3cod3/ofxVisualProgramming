@@ -38,13 +38,30 @@
 // audio_analysis objects
 #include "objects/audio_analysis/AudioAnalyzer.h"
 #include "objects/audio_analysis/BeatExtractor.h"
+#include "objects/audio_analysis/BPMExtractor.h"
+#include "objects/audio_analysis/CentroidExtractor.h"
+#include "objects/audio_analysis/DissonanceExtractor.h"
 #include "objects/audio_analysis/FftExtractor.h"
+#include "objects/audio_analysis/HFCExtractor.h"
+#include "objects/audio_analysis/HPCPExtractor.h"
+#include "objects/audio_analysis/InharmonicityExtractor.h"
 #include "objects/audio_analysis/MelBandsExtractor.h"
+#include "objects/audio_analysis/MFCCExtractor.h"
+#include "objects/audio_analysis/OnsetExtractor.h"
+#include "objects/audio_analysis/PitchExtractor.h"
+#include "objects/audio_analysis/PowerExtractor.h"
+#include "objects/audio_analysis/RMSExtractor.h"
+#include "objects/audio_analysis/RollOffExtractor.h"
+#include "objects/audio_analysis/TristimulusExtractor.h"
 
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
 #include "objects/computer_vision/ChromaKey.h"
 #include "objects/computer_vision/ContourTracking.h"
+
+// data objects
+#include "objects/data/FloatsToVector.h"
+#include "objects/data/VectorConcat.h"
 
 // graphics objects
 
@@ -59,14 +76,22 @@
 // input_output objects
 
 // logic objects
+#include "objects/logic/Counter.h"
 #include "objects/logic/LoadBang.h"
 
 // machine_learning objects
 
 // math objects
+#include "objects/math/Add.h"
+#include "objects/math/Clamp.h"
+#include "objects/math/Constant.h"
+#include "objects/math/Divide.h"
 #include "objects/math/Metronome.h"
+#include "objects/math/Multiply.h"
 #include "objects/math/SimpleRandom.h"
 #include "objects/math/SimpleNoise.h"
+#include "objects/math/Smooth.h"
+#include "objects/math/Subtract.h"
 
 // midi objects
 
@@ -86,8 +111,6 @@
 // sound objects
 #include "objects/sound/AudioDevice.h"
 #include "objects/sound/SoundfilePlayer.h"
-
-// typography objects
 
 // video objects
 #include "objects/video/KinectGrabber.h"

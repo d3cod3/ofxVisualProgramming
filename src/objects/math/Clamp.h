@@ -34,28 +34,16 @@
 
 #include "PatchObject.h"
 
-class Metronome : public PatchObject {
+class Clamp : public PatchObject {
 
 public:
 
-    Metronome();
+    Clamp();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-
-    ofxDatGui*              gui;
-    ofxDatGuiValuePlotter*  rPlotter;
-    ofxDatGuiTextInput*     timeSetting;
-
-    size_t                  wait;
-    size_t                  resetTime;
-    size_t                  metroTime;
 
 };
