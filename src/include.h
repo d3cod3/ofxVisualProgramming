@@ -58,6 +58,7 @@
 #include "objects/computer_vision/BackgroundSubtraction.h"
 #include "objects/computer_vision/ChromaKey.h"
 #include "objects/computer_vision/ContourTracking.h"
+#include "objects/computer_vision/MotionDetection.h"
 
 // data objects
 #include "objects/data/FloatsToVector.h"
@@ -69,14 +70,18 @@
 #include "objects/gui/moBang.h"
 #include "objects/gui/moComment.h"
 #include "objects/gui/moMessage.h"
+#include "objects/gui/moPlayerControls.h"
 #include "objects/gui/moSlider.h"
 #include "objects/gui/moSignalViewer.h"
+#include "objects/gui/moTrigger.h"
 #include "objects/gui/moVideoViewer.h"
 
 // input_output objects
 
 // logic objects
 #include "objects/logic/Counter.h"
+#include "objects/logic/DelayBang.h"
+#include "objects/logic/Gate.h"
 #include "objects/logic/LoadBang.h"
 
 // machine_learning objects
