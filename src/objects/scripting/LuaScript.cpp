@@ -212,7 +212,6 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         }
         if(!setupTrigger){
             setupTrigger = true;
-            ofFmodSetBuffersize(256);
             static_cast<LiveCoding *>(_outletParams[1])->lua.scriptSetup();
         }
 
