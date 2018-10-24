@@ -75,11 +75,14 @@ public:
 
     PatchObject*    selectObject(string objname);
     void            addObject(string name, ofVec2f pos);
+
     void            dragObject(int &id);
     void            resetObject(int &id);
     void            resetObject(int id);
     void            removeObject(int &id);
     void            iconifyObject(int &id);
+    void            duplicateObject(int &id);
+
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
@@ -106,6 +109,7 @@ public:
     int                     fontSize;
     bool                    isRetina;
     int                     scaleFactor;
+    int                     linkActivateDistance;
 
     // PATCH OBJECTS
     map<int,PatchObject*>   patchObjects;
@@ -113,7 +117,9 @@ public:
     int                     selectedObjectLinkType;
     int                     selectedObjectLink;
     int                     selectedObjectID;
+    ofVec2f                 actualMouse;
     bool                    draggingObject;
+    int                     draggingObjectID;
     int                     actualObjectID;
     bool                    bLoadingNewObject;
 

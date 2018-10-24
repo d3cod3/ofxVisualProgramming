@@ -42,7 +42,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {"background subtraction","chroma key","contour tracking"};
+    vecInit = {"background subtraction","chroma key","contour tracking","motion detection"};
     objectsMatrix["computer vision"] = vecInit;
 
     vecInit = {"floats to vector","vector concat"};
@@ -51,13 +51,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
 
-    vecInit = {"bang","comment","message","signal viewer","slider","video viewer"};
+    vecInit = {"bang","comment","message","player controls","signal viewer","slider","trigger","video viewer"};
     objectsMatrix["gui"] = vecInit;
 
     vecInit = {};
     objectsMatrix["input/output"] = vecInit;
 
-    vecInit = {"counter","loadbang"};
+    vecInit = {"counter","delay bang","gate","loadbang"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {};
@@ -128,10 +128,12 @@ ofxVisualProgramming::ofxVisualProgramming(){
     isRetina    = false;
     scaleFactor = 1;
     isOverGui   = false;
+    linkActivateDistance    = 5;
 
     selectedObjectLinkType  = -1;
     selectedObjectLink      = -1;
     selectedObjectID        = -1;
+    draggingObjectID        = -1;
     draggingObject          = false;
     bLoadingNewObject       = false;
 
@@ -165,6 +167,7 @@ void ofxVisualProgramming::setup(){
         isRetina = true;
         scaleFactor = 2;
         fontSize    = 26;
+        linkActivateDistance *= scaleFactor;
         TIME_SAMPLE_GET_INSTANCE()->setUiScale(scaleFactor);
     }
 
@@ -194,6 +197,7 @@ void ofxVisualProgramming::setupGUI(){
 
     guiThemeRetina = new ofxDatGuiThemeRetina();
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
+    gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);
     gui->setWidth(160*scaleFactor);
     guiHeader = gui->addHeader("OBJECTS");
@@ -251,8 +255,11 @@ void ofxVisualProgramming::update(){
     }
 
     // GUI
-    for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
-        objectNavigators.at(i)->update();
+    if(!draggingObject){
+        gui->update();
+        for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
+            objectNavigators.at(i)->update();
+        }
     }
 
     // Graphical Context
@@ -261,6 +268,9 @@ void ofxVisualProgramming::update(){
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
         it->second->update(patchObjects);
+        if(draggingObject && draggingObjectID == it->first){
+            it->second->mouseDragged(actualMouse.x,actualMouse.y);
+        }
         TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
     }
     // Clear map from deleted objects
@@ -370,6 +380,8 @@ void ofxVisualProgramming::draw(){
     ofPopStyle();
     ofPopView();
 
+    gui->draw();
+
     TSGL_STOP("draw");
 
 }
@@ -386,22 +398,24 @@ void ofxVisualProgramming::exit(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
-    ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
+    actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     // GUI
-    gui->setCustomMousePos(e.x,e.y);
-    isOverGui = gui->hitTest(ofPoint(e.x,e.y));
-    for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
-        for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
-            objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
+    if(!draggingObject){
+        gui->setCustomMousePos(e.x,e.y);
+        isOverGui = gui->hitTest(ofPoint(e.x,e.y));
+        for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
+            for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
+                objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
+            }
         }
     }
 
     // CANVAS
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->mouseMoved(mouse.x,mouse.y);
+        it->second->mouseMoved(actualMouse.x,actualMouse.y);
         it->second->setIsActive(false);
-        if (it->second->isOver(mouse)){
+        if (it->second->isOver(actualMouse)){
             activeObject(it->first);
         }
     }
@@ -411,22 +425,13 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 
-    ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-    // GUI
-    gui->setCustomMousePos(e.x,e.y);
-    isOverGui = gui->hitTest(ofPoint(e.x,e.y));
-    for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
-        for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
-            objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
-        }
-    }
+    actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     // CANVAS
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->isOver(ofPoint(mouse.x,mouse.y,0))){
-            it->second->mouseDragged(mouse.x,mouse.y);
+        if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
             draggingObject = true;
+            draggingObjectID = it->first;
         }
         for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
             if(it->second->outPut[p]->toObjectID == selectedObjectID){
@@ -436,6 +441,28 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
                     it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
                 }
                 it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
+            }
+        }
+        if(selectedObjectID != it->first){
+            for (int j=0;j<it->second->getNumInlets();j++){
+                if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
+                    if(it->second->getInletType(j) == selectedObjectLinkType){
+                        it->second->setInletMouseNear(j,true);
+                    }
+                }else{
+                    it->second->setInletMouseNear(j,false);
+                }
+            }
+        }
+    }
+
+    // GUI
+    if(!draggingObject){
+        gui->setCustomMousePos(e.x,e.y);
+        isOverGui = gui->hitTest(ofPoint(e.x,e.y));
+        for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
+            for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
+                objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
             }
         }
     }
@@ -449,10 +476,12 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
-    ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
+    actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     if(isOverGui){
-        gui->setCustomMousePos(e.x,e.y);
+        if(!draggingObject){
+            gui->setCustomMousePos(e.x,e.y);
+        }
     }else{
         canvas.mousePressed(e);
 
@@ -462,7 +491,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
                 for(int p=0;p<it->second->getNumOutlets();p++){
-                    if(it->second->getOutletPosition(p).distance(mouse) < 5 && !it->second->headerBox->inside(ofVec3f(mouse.x,mouse.y,0))){
+                    if(it->second->getOutletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
                         selectedObjectID = it->first;
                         selectedObjectLink = p;
                         selectedObjectLinkType = it->second->getOutletType(p);
@@ -470,7 +499,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
                         break;
                     }
                 }
-                it->second->mousePressed(mouse.x,mouse.y);
+                it->second->mousePressed(actualMouse.x,actualMouse.y);
             }
         }
 
@@ -492,12 +521,14 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
-    ofVec2f  mouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
+    actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     if(isOverGui){
-        gui->setCustomMousePos(e.x,e.y);
-        if(!gui->getFocused()){
-            gui->focus();
+        if(!draggingObject){
+            gui->setCustomMousePos(e.x,e.y);
+            if(!gui->getFocused()){
+                gui->focus();
+            }
         }
     }else{
         canvas.mouseReleased(e);
@@ -505,14 +536,14 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
         bool isLinked = false;
 
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            it->second->mouseReleased(mouse.x,mouse.y,patchObjects);
+            it->second->mouseReleased(actualMouse.x,actualMouse.y,patchObjects);
         }
 
         if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty()){
             for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(selectedObjectID != it->first){
                     for (int j=0;j<it->second->getNumInlets();j++){
-                        if(it->second->getInletPosition(j).distance(mouse) < 5){
+                        if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
                             if(it->second->getInletType(j) == selectedObjectLinkType){
                                 connect(selectedObjectID,selectedObjectLink,it->first,j,selectedObjectLinkType);
                                 patchObjects[selectedObjectID]->saveConfig(true,selectedObjectID);
@@ -560,6 +591,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
         selectedObjectLink      = -1;
 
         draggingObject          = false;
+        draggingObjectID        = -1;
 
     }
 
@@ -645,6 +677,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
     ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
     ofAddListener(tempObj->iconifyEvent ,this,&ofxVisualProgramming::iconifyObject);
+    ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
 
     actualObjectID++;
 
@@ -901,6 +934,15 @@ void ofxVisualProgramming::iconifyObject(int &id){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::duplicateObject(int &id){
+    // disable duplicate for hardware related objects
+    if(patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber"){
+        ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
+        addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
+    }
+}
+
+//--------------------------------------------------------------
 bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType){
     bool connected = false;
 
@@ -1057,6 +1099,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     // -------------------------------------- Logic
     }else if(objname == "counter"){
         tempObj = new Counter();
+    }else if(objname == "delay bang"){
+        tempObj = new DelayBang();
+    }else if(objname == "gate"){
+        tempObj = new Gate();
     }else if(objname == "loadbang"){
         tempObj = new LoadBang();
     // -------------------------------------- GUI
@@ -1066,26 +1112,35 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new moComment();
     }else if(objname == "message"){
         tempObj = new moMessage();
+    }else if(objname == "player controls"){
+        tempObj = new moPlayerControls();
     }else if(objname == "slider"){
         tempObj = new moSlider();
+    }else if(objname == "trigger"){
+        tempObj = new moTrigger();
+    }else if(objname == "video viewer"){
+        tempObj = new moVideoViewer();
+    }else if(objname == "signal viewer"){
+        tempObj = new moSignalViewer();
+    // -------------------------------------- VIDEO
     }else if(objname == "kinect grabber"){
         tempObj = new KinectGrabber();
     }else if(objname == "video player"){
         tempObj = new VideoPlayer();
     }else if(objname == "video grabber"){
         tempObj = new VideoGrabber();
-    }else if(objname == "video viewer"){
-        tempObj = new moVideoViewer();
-    }else if(objname == "signal viewer"){
-        tempObj = new moSignalViewer();
+    // -------------------------------------- WINDOWING
     }else if(objname == "output window"){
         tempObj = new OutputWindow();
+    // -------------------------------------- COMPUTER VISION
     }else if(objname == "background subtraction"){
         tempObj = new BackgroundSubtraction();
     }else if(objname == "chroma key"){
         tempObj = new ChromaKey();
     }else if(objname == "contour tracking"){
         tempObj = new ContourTracking();
+    }else if(objname == "motion detection"){
+        tempObj = new MotionDetection();
     }else{
         tempObj = nullptr;
     }
@@ -1144,6 +1199,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             output_height = XML.getValue("output_height",0);
 
             // setup audio
+            dspON = XML.getValue("dsp",0);
             audioINDev = XML.getValue("audio_in_device",0);
             audioOUTDev = XML.getValue("audio_out_device",0);
             audioBufferSize = XML.getValue("buffer_size",0);
@@ -1213,6 +1269,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                         ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
                         ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
                         ofAddListener(tempObj->iconifyEvent ,this,&ofxVisualProgramming::iconifyObject);
+                        ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
                         // Insert the new patch into the map
                         patchObjects[tempObj->getId()] = tempObj;
                         actualObjectID = tempObj->getId();
@@ -1415,22 +1472,28 @@ void ofxVisualProgramming::activateDSP(){
     engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
     engine.setup(audioSampleRate, audioBufferSize, 3);
 
-    glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-    addObject("audio device",ofVec2f(temp.x,temp.y));
+    bool found = false;
 
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getName() == "audio device"){
+            found = true;
+            break;
+        }
+    }
+
+    if(!found){
+        glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+        addObject("audio device",ofVec2f(temp.x,temp.y));
+    }
+
+    setPatchVariable("dsp",1);
     dspON = true;
+
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::deactivateDSP(){
-
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getName() == "audio device"){
-            it->second->setWillErase(true);
-            deleteObject(it->first);
-        }
-    }
-
+    setPatchVariable("dsp",0);
     dspON = false;
 }
 
