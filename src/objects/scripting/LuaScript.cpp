@@ -131,6 +131,12 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     editButton = gui->addButton("EDIT");
     editButton->setUseCustomMouse(true);
 
+    gui->addBreak();
+    clearButton = gui->addButton("CLEAR SCRIPT");
+    clearButton->setUseCustomMouse(true);
+    reloadButton = gui->addButton("RELOAD SCRIPT");
+    reloadButton->setUseCustomMouse(true);
+
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
     header->setIsCollapsed(true);
@@ -186,6 +192,8 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     newButton->update();
     loadButton->update();
     editButton->update();
+    clearButton->update();
+    reloadButton->update();
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -204,6 +212,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         }
         if(!setupTrigger){
             setupTrigger = true;
+            ofFmodSetBuffersize(256);
             static_cast<LiveCoding *>(_outletParams[1])->lua.scriptSetup();
         }
 
@@ -217,6 +226,7 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
             }
         }
         // update lua state
+        ofSoundUpdate();
         static_cast<LiveCoding *>(_outletParams[1])->lua.scriptUpdate();
     }
     ///////////////////////////////////////////
@@ -287,9 +297,11 @@ void LuaScript::mouseMovedObjectContent(ofVec3f _m){
     newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || clearButton->hitTest(_m-this->getPos()) || reloadButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -304,6 +316,8 @@ void LuaScript::dragGUIObject(ofVec3f _m){
         newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -423,6 +437,12 @@ void LuaScript::loadScript(string scriptFile){
 }
 
 //--------------------------------------------------------------
+void LuaScript::clearScript(){
+    unloadScript();
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString("function draw() of.background(0) end");
+}
+
+//--------------------------------------------------------------
 void LuaScript::reloadScriptThreaded(){
     unloadScript();
 
@@ -475,6 +495,10 @@ void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
                 tempCommand.execCommand(cmd);
 
             }
+        }else if(e.target == clearButton){
+            clearScript();
+        }else if(e.target == reloadButton){
+            reloadScriptThreaded();
         }
     }
 }
@@ -502,6 +526,11 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
 //--------------------------------------------------------------
 void LuaScript::errorReceived(std::string& msg) {
     isError = true;
-    string temp = msg.substr(0,256)+"...";
-    ofLog(OF_LOG_ERROR,"LUA script error: %s",temp.c_str());
+
+    if(!msg.empty()){
+        size_t found = msg.find_first_of("\n");
+        if(found == string::npos){
+            ofLog(OF_LOG_ERROR,"LUA SCRIPT error: %s",msg.c_str());
+        }
+    }
 }

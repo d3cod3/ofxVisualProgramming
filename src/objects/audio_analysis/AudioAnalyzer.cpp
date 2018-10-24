@@ -41,7 +41,6 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
     _inletParams[0] = new ofSoundBuffer();  // Audio stream
 
     _outletParams[0] = new vector<float>();  // Analysis Data
-    _outletParams[1] = new ofSoundBuffer();  // Audio Stream
 
     this->initInletsState();
 
@@ -54,7 +53,10 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
     audioInputLevel                 = 1.0f;
 
     startTime                       = ofGetElapsedTimeMillis();
+    waitTime                        = 500;
     isConnected                     = false;
+
+    newConnection                   = false;
 }
 
 //--------------------------------------------------------------
@@ -62,7 +64,6 @@ void AudioAnalyzer::newObject(){
     this->setName("audio analyzer");
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_AUDIO);
 
     this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
     this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
@@ -70,7 +71,6 @@ void AudioAnalyzer::newObject(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    loadAudioSettings();
 
     // GUI
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
@@ -104,99 +104,102 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     inputLevel->update();
     smoothing->update();
 
-    if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > 1000){
-        // Get analysis data
-        rms = audioAnalyzer.getValue(RMS, 0, smoothingValue);
-        power   = audioAnalyzer.getValue(POWER, 0, smoothingValue);
-        pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothingValue);
-        if(pitchFreq > 4186){
-            pitchFreq = 0;
-        }
-        hfc = audioAnalyzer.getValue(HFC, 0, smoothingValue);
-        centroid = audioAnalyzer.getValue(CENTROID, 0, smoothingValue);
-        centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothingValue, TRUE);
-        inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, smoothingValue);
-        dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothingValue);
-        rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, smoothingValue);
-        rollOffNorm  = audioAnalyzer.getValue(ROLL_OFF, 0, smoothingValue, TRUE);
-
-        spectrum = audioAnalyzer.getValues(SPECTRUM, 0, smoothingValue);
-        melBands = audioAnalyzer.getValues(MEL_BANDS, 0, smoothingValue);
-        mfcc = audioAnalyzer.getValues(MFCC, 0, smoothingValue);
-        hpcp = audioAnalyzer.getValues(HPCP, 0, smoothingValue);
-        tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, smoothingValue);
-
-        isOnset = audioAnalyzer.getOnsetValue(0);
-
-        bpm     = beatTrack->getEstimatedBPM();
-        beat    = beatTrack->hasBeat();
-
-    }
-
     if(this->inletsConnected[0]){
         if(!isConnected){
             isConnected = true;
             startTime   = ofGetElapsedTimeMillis();
         }
 
-        unique_lock<mutex> lock(audioMutex);
-
-        int index = 0;
-
-        waveform.clear();
-        for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
-            float sample = lastBuffer.getSample(i,0);
-            float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, this->width);
-            float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-            waveform.addVertex(x, y);
-
-            // SIGNAL BUFFER
-            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = sample;
+        if(!newConnection){
+            newConnection = true;
+            loadAudioSettings();
         }
 
-        index += lastBuffer.getNumFrames();
-        // SPECTRUM
-        for(int i=0;i<static_cast<int>(spectrum.size());i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(spectrum[i],DB_MIN,DB_MAX,0.0,1.0,true);
-        }
-        index += spectrum.size();
-        // MELBANDS
-        for(int i=0;i<static_cast<int>(melBands.size());i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);
-        }
-        index += melBands.size();
-        // MFCC
-        for(int i=0;i<static_cast<int>(mfcc.size());i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true);
-        }
-        index += mfcc.size();
-        // HPCP
-        for(int i=0;i<static_cast<int>(hpcp.size());i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = hpcp[i];
-        }
-        index += hpcp.size();
-        // TRISTIMULUS
-        for(int i=0;i<static_cast<int>(tristimulus.size());i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(i+index) = tristimulus[i];
-        }
-        index += tristimulus.size();
-        // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
-        static_cast<vector<float> *>(_outletParams[0])->at(index) = rms;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+1) = power;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+2) = pitchFreq;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+3) = hfc;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+4) = centroidNorm;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+5) = inharmonicity;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+6) = dissonance;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+7) = rollOffNorm;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+8) = static_cast<float>(isOnset);
-        static_cast<vector<float> *>(_outletParams[0])->at(index+9) = bpm;
-        static_cast<vector<float> *>(_outletParams[0])->at(index+10) = static_cast<float>(beat);
+        if(isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
+            // Get analysis data
+            rms = audioAnalyzer.getValue(RMS, 0, smoothingValue);
+            power   = audioAnalyzer.getValue(POWER, 0, smoothingValue);
+            pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothingValue);
+            if(pitchFreq > 4186){
+                pitchFreq = 0;
+            }
+            hfc = audioAnalyzer.getValue(HFC, 0, smoothingValue);
+            centroid = audioAnalyzer.getValue(CENTROID, 0, smoothingValue);
+            centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothingValue, TRUE);
+            inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, smoothingValue);
+            dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothingValue);
+            rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, smoothingValue);
+            rollOffNorm  = audioAnalyzer.getValue(ROLL_OFF, 0, smoothingValue, TRUE);
 
-        // Outlet with audio stream
-        *static_cast<ofSoundBuffer *>(_outletParams[1]) = lastBuffer;
+            spectrum = audioAnalyzer.getValues(SPECTRUM, 0, smoothingValue);
+            melBands = audioAnalyzer.getValues(MEL_BANDS, 0, smoothingValue);
+            mfcc = audioAnalyzer.getValues(MFCC, 0, smoothingValue);
+            hpcp = audioAnalyzer.getValues(HPCP, 0, smoothingValue);
+            tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, smoothingValue);
+
+            isOnset = audioAnalyzer.getOnsetValue(0);
+
+            bpm     = beatTrack->getEstimatedBPM();
+            beat    = beatTrack->hasBeat();
+
+
+            unique_lock<mutex> lock(audioMutex);
+
+            int index = 0;
+
+            waveform.clear();
+            for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
+                float sample = lastBuffer.getSample(i,0);
+                float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, this->width);
+                float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
+                waveform.addVertex(x, y);
+
+                // SIGNAL BUFFER
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = sample;
+            }
+
+            index += lastBuffer.getNumFrames();
+            // SPECTRUM
+            for(int i=0;i<static_cast<int>(spectrum.size());i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(spectrum[i],DB_MIN,DB_MAX,0.0,1.0,true);
+            }
+            index += spectrum.size();
+            // MELBANDS
+            for(int i=0;i<static_cast<int>(melBands.size());i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);
+            }
+            index += melBands.size();
+            // MFCC
+            for(int i=0;i<static_cast<int>(mfcc.size());i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true);
+            }
+            index += mfcc.size();
+            // HPCP
+            for(int i=0;i<static_cast<int>(hpcp.size());i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = hpcp[i];
+            }
+            index += hpcp.size();
+            // TRISTIMULUS
+            for(int i=0;i<static_cast<int>(tristimulus.size());i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = tristimulus[i];
+            }
+            index += tristimulus.size();
+            // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
+            static_cast<vector<float> *>(_outletParams[0])->at(index) = rms;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+1) = power;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+2) = pitchFreq;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+3) = hfc;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+4) = centroidNorm;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+5) = inharmonicity;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+6) = dissonance;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+7) = rollOffNorm;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+8) = static_cast<float>(isOnset);
+            static_cast<vector<float> *>(_outletParams[0])->at(index+9) = bpm;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+10) = static_cast<float>(beat);
+
+        }
     }else{
-        isConnected = false;
+        isConnected     = false;
     }
 
 }
@@ -217,7 +220,7 @@ void AudioAnalyzer::removeObjectContent(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
-    if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > 1000){
+    if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
 
         lastBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
 

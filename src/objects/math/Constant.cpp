@@ -74,6 +74,8 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     inputNumber->setUseCustomMouse(true);
     inputNumber->setText(ofToString(this->getCustomVar("NUMBER")));
 
+    inputValue = this->getCustomVar("NUMBER");
+
     gui->setPosition(0,this->headerHeight);
 }
 

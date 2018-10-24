@@ -98,6 +98,8 @@ void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects){
     rPlotter->setValue(*(float *)&_outletParams[0]);
     if(this->inletsConnected[1] || this->inletsConnected[2]){
         if(lastMinRange != *(float *)&_inletParams[1] || lastMaxRange != *(float *)&_inletParams[2]){
+            lastMinRange    = *(float *)&_inletParams[1];
+            lastMaxRange    = *(float *)&_inletParams[2];
             changeRange = true;
         }
         if(changeRange){

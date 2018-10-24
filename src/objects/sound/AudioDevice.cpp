@@ -51,6 +51,8 @@ AudioDevice::AudioDevice() : PatchObject(){
     isAudioOUTObject    = true;
 
     deviceLoaded        = false;
+
+    bg                  = new ofImage();
     
 }
 
@@ -62,6 +64,8 @@ void AudioDevice::newObject(){
 //--------------------------------------------------------------
 void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadDeviceInfo();
+
+    bg->load("images/audioDevice_bg.png");
 }
 
 //--------------------------------------------------------------
@@ -83,6 +87,7 @@ void AudioDevice::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     //font->draw(ofToString(sampleRateIN),this->fontSize,this->width/2,this->headerHeight*2);
+    bg->draw(0,0,this->width,120 * this->retinaScale);
     ofDisableAlphaBlending();
 }
 

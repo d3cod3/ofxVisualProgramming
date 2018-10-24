@@ -64,4 +64,6 @@ public:
     int                     bufferSize;
     bool                    deviceLoaded;
 
+    ofImage                 *bg;
+
 };

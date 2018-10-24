@@ -49,12 +49,16 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            mousePressedObjectContent(ofVec3f _m);
+    void            mouseReleasedObjectContent(ofVec3f _m);
     void            keyPressedObjectContent(int key);
+    void            keyReleasedObjectContent(int key);
 
     void            loadCommentSetting();
     void            saveCommentSetting();
 
     string                      actualComment;
+    bool                        bang;
 
     shared_ptr<ofxSmartFont>    label;
     ofxParagraph*               paragraph;

@@ -52,18 +52,25 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
+    void            loadSettings();
     void            loadAudioFile(string audiofilepath);
 
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     ofSoundBuffer       lastBuffer;
     ofSoundBuffer       monoBuffer;
+    short               *shortBuffer;
     float               posX, posY, drawW, drawH;
+    float               volume;
+    double              speed;
+    bool                loop;
+    bool                isNewObject;
     bool                isFileLoaded;
+    bool                isPlaying;
+    string              lastMessage;
 
     ofxAudioFile        audiofile;
     double              playhead;
-    std::atomic<double> playheadControl;
     double              step;
     double              sampleRate;
     int                 bufferSize;
@@ -72,5 +79,8 @@ public:
     ofxDatGuiHeader*    header;
     ofxDatGuiLabel*     soundfileName;
     ofxDatGuiButton*    loadButton;
+
+    size_t              startTime;
+    bool                loading;
 
 };

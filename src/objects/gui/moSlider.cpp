@@ -62,6 +62,8 @@ void moSlider::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC);
+
+    this->setCustomVar(static_cast<float>(0),"VALUE");
 }
 
 //--------------------------------------------------------------
@@ -72,7 +74,7 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setWidth(this->width);
     gui->onSliderEvent(this, &moSlider::onSliderEvent);
 
-    slider = gui->addSlider("", *(float *)&_inletParams[0], *(float *)&_inletParams[1], *(float *)&_inletParams[2]);
+    slider = gui->addSlider("", *(float *)&_inletParams[0], *(float *)&_inletParams[1], this->getCustomVar("VALUE"));
     slider->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height/3 + slider->getHeight()/2);
@@ -139,4 +141,5 @@ void moSlider::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
     *(float *)&_outletParams[0] = static_cast<float>(e.value);
+    this->setCustomVar(static_cast<float>(e.value),"VALUE");
 }

@@ -46,7 +46,5 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    vector<bool>    newConnection;
-    vector<size_t>  vectorSizes;
 
 };

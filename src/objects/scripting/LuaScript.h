@@ -62,6 +62,7 @@ public:
 
     void            unloadScript();
     void            loadScript(string scriptFile);
+    void            clearScript();
     void            reloadScriptThreaded();
 
     void            onButtonEvent(ofxDatGuiButtonEvent e);
@@ -89,6 +90,8 @@ public:
     ofxDatGuiButton*    newButton;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
+    ofxDatGuiButton*    clearButton;
+    ofxDatGuiButton*    reloadButton;
 
     ofFbo               *fbo;
     ofImage             *kuro;

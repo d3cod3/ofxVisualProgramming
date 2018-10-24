@@ -89,7 +89,9 @@ void FloatsToVector::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void FloatsToVector::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-
+    for(int i=0;i<this->numInlets;i++){
+        font->draw(ofToString(*(float *)&_inletParams[i]),this->fontSize,this->width/2,this->headerHeight*2.3 + (i*this->fontSize*1.15));
+    }
     ofDisableAlphaBlending();
 }
 

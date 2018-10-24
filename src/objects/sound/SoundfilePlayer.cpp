@@ -35,15 +35,17 @@
 //--------------------------------------------------------------
 SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
-    this->numInlets  = 3;
+    this->numInlets  = 4;
     this->numOutlets = 1;
 
     _inletParams[0] = new string();  // control
-    *(string *)&_inletParams[0] = "";
+    *static_cast<string *>(_inletParams[0]) = "";
     _inletParams[1] = new float();  // playhead
     *(float *)&_inletParams[1] = 0.0f;
     _inletParams[2] = new float();  // speed
     *(float *)&_inletParams[2] = 0.0f;
+    _inletParams[3] = new float();  // volume
+    *(float *)&_inletParams[3] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
 
@@ -54,8 +56,14 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     isAudioOUTObject    = true;
 
+    isNewObject         = false;
     isFileLoaded        = false;
+    isPlaying           = false;
+    lastMessage         = "";
 
+    loop                = false;
+    volume              = 1.0f;
+    speed               = 1.0;
     sampleRate          = 44100;
     bufferSize          = 256;
     
@@ -67,11 +75,15 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
+    this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addOutlet(VP_LINK_AUDIO);
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    loadSettings();
+
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);
@@ -90,14 +102,12 @@ void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
     gui->collapse();
     header->setIsCollapsed(true);
 
-    if(filepath != "none"){
-        loadAudioFile(filepath);
-    }
+    loading = true;
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
-
+    startTime   = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
@@ -106,13 +116,68 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     header->update();
     loadButton->update();
 
+    if(loading && ofGetElapsedTimeMillis()-startTime > 100){
+        loading = false;
+        if(filepath != "none"){
+            loadAudioFile(filepath);
+        }else{
+            isNewObject = true;
+        }
+    }
+
+    if(!isFileLoaded && audiofile.loaded()){
+        isFileLoaded = true;
+        ofLog(OF_LOG_NOTICE,"[verbose] sound file loaded: %s, Sample Rate: %s, Audiofile length: %s",filepath.c_str(), ofToString(audiofile.samplerate()).c_str(), ofToString(audiofile.length()).c_str());
+    }
+
+    if(isFileLoaded && audiofile.loaded()){
+        // listen to message control (_inletParams[0])
+        if(this->inletsConnected[0]){
+            if(lastMessage != *static_cast<string *>(_inletParams[0])){
+                lastMessage = *static_cast<string *>(_inletParams[0]);
+
+                if(lastMessage == "play"){
+                    isPlaying = true;
+                    playhead = 0.0;
+                }else if(lastMessage == "pause"){
+                    isPlaying = false;
+                }else if(lastMessage == "unpause"){
+                    isPlaying = true;
+                }else if(lastMessage == "stop"){
+                    isPlaying = false;
+                    playhead = 0.0;
+                }else if(lastMessage == "loop_normal"){
+                    loop = true;
+                }else if(lastMessage == "loop_none"){
+                    loop = false;
+                }
+            }
+        }
+        // playhead
+        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f){
+            playhead = static_cast<double>(*(float *)&_inletParams[1]) * audiofile.length();
+        }
+        // speed
+        if(this->inletsConnected[2]){
+            speed = static_cast<double>(ofClamp(*(float *)&_inletParams[2],-10.0f,10.0f));
+        }else{
+            speed = 1.0;
+        }
+        // volume
+        if(this->inletsConnected[3]){
+            volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        }else{
+            volume = 1.0f;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(isFileLoaded){
+    if(isFileLoaded && audiofile.loaded()){
         posX = 0;
         posY = this->headerHeight;
         drawW = this->width;
@@ -132,9 +197,14 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
         }
 
         ofSetColor(255);
-        ofSetLineWidth(1.5);
+        ofSetLineWidth(2);
         float phx = ofMap( playhead, 0, audiofile.length(), 0, drawW );
-        ofDrawLine( phx, posY, phx, drawH+posY);
+        ofDrawLine( phx, posY+2, phx, drawH+posY);
+    }else if(!isNewObject && !loading){
+        ofSetColor(255,0,0);
+        ofDrawRectangle(0,0,this->width,this->height);
+        ofSetColor(255);
+        font->draw("FILE NOT FOUND!",this->fontSize,this->width/3 + 4,this->headerHeight*2.3);
     }
     gui->draw();
     ofDisableAlphaBlending();
@@ -183,30 +253,33 @@ void SoundfilePlayer::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
-    if(isFileLoaded){
-        if( playheadControl >= 0.0 ){
-            playhead = playheadControl;
-            playheadControl = -1.0;
-        }
-
+    if(isFileLoaded && audiofile.loaded() && isPlaying){
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
             int n = static_cast<int>(floor(playhead));
 
             if(n < audiofile.length()-1){
                 float fract = static_cast<float>(playhead - n);
                 float isample = audiofile.sample(n, 0)*(1.0f-fract) + audiofile.sample(n+1, 0)*fract; // linear interpolation
-                monoBuffer.getSample(i,0) = isample;
+                monoBuffer.getSample(i,0) = isample * volume;
 
-                playhead += step;
+                playhead += (step*speed);
 
             }else{
                 monoBuffer.getSample(i,0) = 0.0f;
-                //playhead = std::numeric_limits<int>::max();
+                if(loop){
+                    // backword
+                    if(speed < 0.0){
+                        playhead = audiofile.length()-2;
+                    }else if(speed > 0.0){
+                        playhead = 0.0;
+                    }
+
+                }
             }
         }
         lastBuffer = monoBuffer;
     }else{
-        lastBuffer *= 0.0f;
+        lastBuffer = monoBuffer * 0.0f;
     }
 
     *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastBuffer;
@@ -214,8 +287,7 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::loadAudioFile(string audiofilepath){
-
+void SoundfilePlayer::loadSettings(){
     ofxXmlSettings XML;
 
     if(XML.loadFile(patchFile)){
@@ -226,21 +298,28 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
         }
     }
 
-    short *shortBuffer = new short[bufferSize];
+    shortBuffer = new short[bufferSize];
     for (int i = 0; i < bufferSize; i++){
         shortBuffer[i] = 0;
     }
 
     ofSoundBuffer tmpBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
     monoBuffer = tmpBuffer;
+}
+
+//--------------------------------------------------------------
+void SoundfilePlayer::loadAudioFile(string audiofilepath){
 
     filepath = audiofilepath;
 
-    // TESTING
+    audiofile.free();
     audiofile.load(filepath);
     playhead = std::numeric_limits<int>::max();
-    playheadControl = 0.0;
     step = audiofile.samplerate() / sampleRate;
+
+    ofSoundBuffer tmpBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    monoBuffer.clear();
+    monoBuffer = tmpBuffer;
 
     ofFile tempFile(filepath);
     if(tempFile.getFileName().size() > 22){
@@ -248,10 +327,6 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     }else{
         soundfileName->setLabel(tempFile.getFileName());
     }
-
-    ofLog(OF_LOG_NOTICE,"[verbose] sound file loaded: %s, Sample Rate: %s",filepath.c_str(), ofToString(audiofile.samplerate()).c_str());
-
-    isFileLoaded = true;
 
 }
 

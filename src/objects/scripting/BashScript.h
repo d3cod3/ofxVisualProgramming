@@ -75,6 +75,7 @@ public:
     ofxDatGuiButton*    newButton;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
+
     ofImage             *bashIcon;
 
     string              lastMessage;

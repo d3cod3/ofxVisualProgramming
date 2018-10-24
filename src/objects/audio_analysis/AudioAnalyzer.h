@@ -100,5 +100,7 @@ public:
     // Object vars
     int                                     bufferSize;
     int                                     sampleRate;
+    bool                                    newConnection;
+    size_t                                  waitTime;
 
 };

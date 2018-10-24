@@ -34,11 +34,13 @@
 
 #include "PatchObject.h"
 
-class VideoPlayer : public PatchObject {
+class VideoPlayer : public ofThread, public PatchObject {
 
 public:
 
     VideoPlayer();
+
+    void            threadedFunction();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -48,12 +50,16 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
-    void            loadVideoFile(string videofile);
+    void            loadVideoFile();
+    void            reloadVideoThreaded();
+
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     ofVideoPlayer*      video;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
+    bool                isFileLoaded;
+    bool                nameLabelLoaded;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
@@ -61,5 +67,10 @@ public:
     ofxDatGuiButton*    loadButton;
 
     string              lastMessage;
+
+protected:
+    std::condition_variable condition;
+    bool                    needToLoadVideo;
+    bool                    threadLoaded;
 
 };

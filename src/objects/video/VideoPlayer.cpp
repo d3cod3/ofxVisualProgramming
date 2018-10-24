@@ -39,7 +39,7 @@ VideoPlayer::VideoPlayer() : PatchObject(){
     this->numOutlets = 1;
 
     _inletParams[0] = new string();  // control
-    *(string *)&_inletParams[0] = "";
+    *static_cast<string *>(_inletParams[0]) = "";
     _inletParams[1] = new float();  // playhead
     *(float *)&_inletParams[1] = 0.0f;
     _inletParams[2] = new float();  // speed
@@ -59,8 +59,14 @@ VideoPlayer::VideoPlayer() : PatchObject(){
     lastMessage         = "";
 
     isNewObject         = false;
+    isFileLoaded        = false;
+    nameLabelLoaded     = false;
 
     posX = posY = drawW = drawH = 0.0f;
+
+    threadLoaded    = false;
+    needToLoadVideo = true;
+
 }
 
 //--------------------------------------------------------------
@@ -71,6 +77,20 @@ void VideoPlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addOutlet(VP_LINK_TEXTURE);
+}
+
+//--------------------------------------------------------------
+void VideoPlayer::threadedFunction(){
+    while(isThreadRunning()){
+        std::unique_lock<std::mutex> lock(mutex);
+        if(needToLoadVideo){
+            needToLoadVideo = false;
+            loadVideoFile();
+            threadLoaded = true;
+            nameLabelLoaded = true;
+        }
+        condition.wait(lock);
+    }
 }
 
 //--------------------------------------------------------------
@@ -93,23 +113,55 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->collapse();
     header->setIsCollapsed(true);
 
-    if(filepath != "none"){
-        loadVideoFile(filepath);
-    }else{
+    if(filepath == "none"){
         isNewObject = true;
+    }
+
+    if(!isThreadRunning()){
+        startThread(true);
     }
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    if(video->isLoaded()){
-        video->update();
-        *static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
+
+    if(!isFileLoaded && video->isLoaded() && video->isInitialized() && threadLoaded){
+        isFileLoaded = true;
+        if(video->isInitialized()){
+            //video->setUseTexture(true);
+            video->setLoopState(OF_LOOP_NONE);
+            video->play();
+
+            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getPixels());
+
+            ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
+        }else{
+            if(!isNewObject){
+                ofLog(OF_LOG_ERROR,"video file: %s NOT FOUND!",filepath.c_str());
+            }
+            filepath = "none";
+        }
+    }
+
+    if(nameLabelLoaded && threadLoaded){
+        nameLabelLoaded = false;
+        ofFile tempFile(filepath);
+        if(tempFile.getFileName().size() > 22){
+            videoName->setLabel(tempFile.getFileName().substr(0,21)+"...");
+        }else{
+            videoName->setLabel(tempFile.getFileName());
+        }
+    }
+
+    if(isFileLoaded && video->isLoaded() && threadLoaded){
+
+        //*static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
+        static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
 
         // listen to message control (_inletParams[0])
         if(this->inletsConnected[0]){
-            if(lastMessage != *(string *)&_inletParams[0]){
-                lastMessage = *(string *)&_inletParams[0];
+            if(lastMessage != *static_cast<string *>(_inletParams[0])){
+                lastMessage = *static_cast<string *>(_inletParams[0]);
 
                 if(lastMessage == "play"){
                     video->play();
@@ -118,12 +170,19 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
                 }else if(lastMessage == "unpause"){
                     video->setPaused(false);
                 }else if(lastMessage == "stop"){
+                    video->firstFrame();
                     video->stop();
+                }else if(lastMessage == "loop_normal"){
+                    video->setLoopState(OF_LOOP_NORMAL);
+                }else if(lastMessage == "loop_none"){
+                    video->setLoopState(OF_LOOP_NONE);
                 }
+
+                //ofLog(OF_LOG_NOTICE,"%s",lastMessage.c_str());
             }
         }
         // playhead
-        if(this->inletsConnected[1]){
+        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f){
             video->setPosition(*(float *)&_inletParams[1]);
         }
         // speed
@@ -139,13 +198,19 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     gui->update();
     header->update();
     loadButton->update();
+
+    ///////////////////////////////////////////
+    condition.notify_one();
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(video->isLoaded()){
+    if(isFileLoaded && video->isLoaded() && threadLoaded){
+        if(video->isPlaying()){
+           video->update();
+        }
         //scaleH = (this->width/video->getWidth())*video->getHeight();
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
@@ -160,6 +225,11 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
                 posY            = 0;
             }
             static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+
+            ofSetColor(255);
+            ofSetLineWidth(2);
+            float phx = ofMap( video->getPosition(), 0, 1, 0, drawW );
+            ofDrawLine( phx, posY+2, phx, drawH+posY);
         }
     }else if(!isNewObject){
         ofSetColor(255,0,0);
@@ -213,28 +283,18 @@ void VideoPlayer::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::loadVideoFile(string videofile){
-    filepath = videofile;
-
-    video->load(filepath);
-
-    if(video->isLoaded()){
-        static_cast<ofTexture *>(_outletParams[0])->allocate(video->getPixels());
-
-        // TESTING
-        video->setLoopState(OF_LOOP_NORMAL);
-        video->play();
-
-        ofFile tempFile(filepath);
-        if(tempFile.getFileName().size() > 22){
-            videoName->setLabel(tempFile.getFileName().substr(0,21)+"...");
-        }else{
-            videoName->setLabel(tempFile.getFileName());
-        }
-    }else{
-        filepath = "none";
+void VideoPlayer::loadVideoFile(){
+    if(filepath != "none"){
+        isNewObject = false;
+        video->setUseTexture(false);
+        video->load(filepath);
     }
+}
 
+//--------------------------------------------------------------
+void VideoPlayer::reloadVideoThreaded(){
+    isFileLoaded = false;
+    needToLoadVideo = true;
 }
 
 //--------------------------------------------------------------
@@ -247,7 +307,8 @@ void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
                 if (file.exists()){
                     string fileExtension = ofToUpper(file.getExtension());
                     if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
-                        loadVideoFile(file.getAbsolutePath());
+                        filepath = file.getAbsolutePath();
+                        reloadVideoThreaded();
                     }
                 }
             }

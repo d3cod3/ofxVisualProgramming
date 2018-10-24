@@ -62,7 +62,9 @@ public:
     void            initResolution();
 
     void            loadScript(string scriptFile);
+    void            clearScript();
     void            reloadScriptThreaded();
+
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     // Filepath watcher callback
@@ -89,6 +91,8 @@ public:
     ofxDatGuiButton*    newButton;
     ofxDatGuiButton*    loadButton;
     ofxDatGuiButton*    editButton;
+    ofxDatGuiButton*    clearButton;
+    ofxDatGuiButton*    reloadButton;
 
     ofFbo               *fbo;
     ofImage             *kuro;

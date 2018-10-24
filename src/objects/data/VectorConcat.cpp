@@ -65,8 +65,7 @@ void VectorConcat::newObject(){
 
 //--------------------------------------------------------------
 void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    newConnection.assign(this->numInlets,false);
-    vectorSizes.assign(this->numInlets,0);
+
 }
 
 //--------------------------------------------------------------
@@ -74,15 +73,9 @@ void VectorConcat::updateObjectContent(map<int,PatchObject*> &patchObjects){
     static_cast<vector<float> *>(_outletParams[0])->clear();
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
-            if(!newConnection.at(i)){
-                newConnection.at(i) = true;
-                vectorSizes.at(i) = static_cast<vector<float> *>(_inletParams[i])->size();
-            }
-            for(size_t s=0;s<vectorSizes.at(i);s++){
+            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
                 static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[i])->at(s));
             }
-        }else{
-            newConnection.at(i) = false;
         }
     }
 }
@@ -91,7 +84,7 @@ void VectorConcat::updateObjectContent(map<int,PatchObject*> &patchObjects){
 void VectorConcat::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-
+    font->draw("Size: "+ofToString(static_cast<size_t>(static_cast<vector<float> *>(_outletParams[0])->size())),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }
 

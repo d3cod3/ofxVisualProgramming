@@ -36,11 +36,12 @@
 moSignalViewer::moSignalViewer() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new ofSoundBuffer();  // signal
 
     _outletParams[0] = new ofSoundBuffer();  // signal
+    _outletParams[1] = new ofSoundBuffer();  // signal
 
     this->initInletsState();
 
@@ -54,6 +55,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 void moSignalViewer::newObject(){
     this->setName("signal viewer");
     this->addInlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_AUDIO);
     this->addOutlet(VP_LINK_AUDIO);
 }
 
@@ -94,5 +96,6 @@ void moSignalViewer::removeObjectContent(){
 void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
     if(this->inletsConnected[0]){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
     }
 }

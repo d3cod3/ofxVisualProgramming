@@ -126,6 +126,12 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     editButton = gui->addButton("EDIT");
     editButton->setUseCustomMouse(true);
 
+    gui->addBreak();
+    clearButton = gui->addButton("CLEAR SCRIPT");
+    clearButton->setUseCustomMouse(true);
+    reloadButton = gui->addButton("RELOAD SCRIPT");
+    reloadButton->setUseCustomMouse(true);
+
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
     header->setIsCollapsed(true);
@@ -180,6 +186,8 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     newButton->update();
     loadButton->update();
     editButton->update();
+    clearButton->update();
+    reloadButton->update();
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -280,9 +288,11 @@ void PythonScript::mouseMovedObjectContent(ofVec3f _m){
     newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || clearButton->hitTest(_m-this->getPos()) || reloadButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -297,6 +307,8 @@ void PythonScript::dragGUIObject(ofVec3f _m){
         newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -407,6 +419,12 @@ void PythonScript::loadScript(string scriptFile){
 }
 
 //--------------------------------------------------------------
+void PythonScript::clearScript(){
+    python.reset();
+    script = ofxPythonObject::_None();
+}
+
+//--------------------------------------------------------------
 void PythonScript::reloadScriptThreaded(){
     script = ofxPythonObject::_None();
     needToLoadScript = true;
@@ -457,6 +475,10 @@ void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
                 tempCommand.execCommand(cmd);
 
             }
+        }else if(e.target == clearButton){
+            clearScript();
+        }else if(e.target == reloadButton){
+            reloadScriptThreaded();
         }
     }
 }
