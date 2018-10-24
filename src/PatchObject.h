@@ -69,6 +69,7 @@ struct PushButton{
     int  offset;
 };
 
+
 class PatchObject {
 
 public:
@@ -120,6 +121,7 @@ public:
     bool                    isOver(ofPoint pos);
     void                    fixCollisions(map<int,PatchObject*> &patchObjects);
     void                    iconify();
+    void                    duplicate();
     ofVec2f                 getInletPosition(int iid);
     ofVec2f                 getOutletPosition(int oid);
 
@@ -164,6 +166,7 @@ public:
     void                    setIsRetina(bool ir) { isRetina = ir; }
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
+    void                    setInletMouseNear(int oid,bool active) { inletsMouseNear.at(oid) = active; }
 
     // UTILS
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
@@ -183,6 +186,7 @@ public:
     ofEvent<int>            removeEvent;
     ofEvent<int>            dragEvent;
     ofEvent<int>            iconifyEvent;
+    ofEvent<int>            duplicateEvent;
 
     string                  linkTypeName;
     string                  specialLinkTypeName;
@@ -207,6 +211,7 @@ protected:
     vector<string>          inletsNames;
     vector<int>             inlets;
     vector<int>             outlets;
+    vector<bool>            inletsMouseNear;
     map<string,float>       customVars;
 
     int                     numInlets;

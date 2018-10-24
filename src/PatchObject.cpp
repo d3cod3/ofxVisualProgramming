@@ -121,7 +121,9 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
     box->set(x,y,width,height);
     headerBox->set(x,y,width,headerHeight);
     addButton('x', nullptr,buttonOffset);
-    addButton('-', nullptr,buttonOffset);
+    addButton('d', nullptr,buttonOffset);
+
+    inletsMouseNear.assign(MAX_OUTLETS,false);
 
     setupObjectContent(mainWindow);
 
@@ -184,7 +186,17 @@ void PatchObject::draw(ofxFontStash *font){
                 ofTranslate(getInletPosition(i).x, getInletPosition(i).y);
                 ofRotateZDeg(30);
                 ofNoFill();
-                ofDrawCircle(0, 0, 5);
+                if(inletsMouseNear.at(i)){
+                    ofSetLineWidth(3);
+                    ofDrawCircle(0, 0, 10);
+                }else{
+                    if(it == 3 || it == 4){
+                        ofSetLineWidth(2);
+                    }else{
+                        ofSetLineWidth(1);
+                    }
+                    ofDrawCircle(0, 0, 5);
+                }
                 if(inletsConnected[i]){
                     ofFill();
                     ofDrawCircle(0, 0, 3);
@@ -381,19 +393,33 @@ void PatchObject::fixCollisions(map<int,PatchObject*> &patchObjects){
         if(it->first != getId()){
             if(getPos().x >= it->second->getPos().x && getPos().x < it->second->getPos().x + it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
                 if(isRetina){
-                    move(it->second->getPos().x+it->second->getObjectWidth()+20,getPos().y);
+                    move(it->second->getPos().x+it->second->getObjectWidth()/4,getPos().y);
                 }else{
                     move(it->second->getPos().x+it->second->getObjectWidth()+10,getPos().y);
                 }
                 break;
             }else if(getPos().x+getObjectWidth() >= it->second->getPos().x && getPos().x+getObjectWidth() < it->second->getPos().x+it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
                 if(isRetina){
-                    move(it->second->getPos().x-getObjectWidth()-20,getPos().y);
+                    move(it->second->getPos().x-getObjectWidth()/4,getPos().y);
                 }else{
                     move(it->second->getPos().x-getObjectWidth()-10,getPos().y);
                 }
                 break;
             }
+        }
+    }
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+            it->second->outPut[j]->linkVertices[0].move(it->second->outPut[j]->posFrom.x,it->second->outPut[j]->posFrom.y);
+            if(isRetina){
+                it->second->outPut[j]->linkVertices[1].move(it->second->outPut[j]->posFrom.x+40,it->second->outPut[j]->posFrom.y);
+                it->second->outPut[j]->linkVertices[2].move(it->second->outPut[j]->posTo.x-40,it->second->outPut[j]->posTo.y);
+            }else{
+                it->second->outPut[j]->linkVertices[1].move(it->second->outPut[j]->posFrom.x+20,it->second->outPut[j]->posFrom.y);
+                it->second->outPut[j]->linkVertices[2].move(it->second->outPut[j]->posTo.x-20,it->second->outPut[j]->posTo.y);
+            }
+            it->second->outPut[j]->linkVertices[3].move(it->second->outPut[j]->posTo.x,it->second->outPut[j]->posTo.y);
         }
     }
 }
@@ -406,6 +432,11 @@ void PatchObject::iconify(){
     }else{
         box->setHeight(height);
     }
+}
+
+//--------------------------------------------------------------
+void PatchObject::duplicate(){
+
 }
 
 //--------------------------------------------------------------
@@ -858,11 +889,11 @@ void PatchObject::mousePressed(float mx, float my){
                     if(i == 0){ // REMOVE
                         ofNotifyEvent(removeEvent, nId);
                         willErase = true;
-                    }else if(i == 1){ // ICONIFY
-                        ofNotifyEvent(iconifyEvent, nId);
-                        iconify();
+                    }else if(i == 1){ // DUPLICATE
+                        ofNotifyEvent(duplicateEvent, nId);
+                        duplicate();
                     }else{
-                        if (headerButtons[i]->state != nullptr){
+                        if(headerButtons[i]->state != nullptr){
                             (*headerButtons[i]->state) = !(*headerButtons[i]->state);
                         }
                     }
@@ -877,13 +908,13 @@ void PatchObject::mouseReleased(float mx, float my,map<int,PatchObject*> &patchO
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
 
-        fixCollisions(patchObjects);
-
         if (box->inside(m)){
             mouseReleasedObjectContent(m);
 
             x = box->getPosition().x;
             y = box->getPosition().y;
+
+            fixCollisions(patchObjects);
 
             saveConfig(false,nId);
         }
@@ -892,6 +923,10 @@ void PatchObject::mouseReleased(float mx, float my,map<int,PatchObject*> &patchO
             for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size());v++) {
                 outPut[j]->linkVertices[v].bOver = false;
             }
+        }
+
+        for(size_t m=0;m<inletsMouseNear.size();m++){
+            inletsMouseNear.at(m) = false;
         }
 
     }
