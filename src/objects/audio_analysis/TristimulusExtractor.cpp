@@ -79,7 +79,7 @@ void TristimulusExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainW
 
 //--------------------------------------------------------------
 void TristimulusExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         int index = 0;
         for(int i=startPosition;i<endPosition;i++){
             static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);

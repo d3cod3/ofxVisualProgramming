@@ -76,7 +76,7 @@ void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 
 //--------------------------------------------------------------
 void MelBandsExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         int index = 0;
         for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MELBANDS_BANDS_NUM;i++){
             static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);

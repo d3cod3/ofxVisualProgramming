@@ -87,7 +87,7 @@ void PowerExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 
-  if(this->inletsConnected[0]){
+  if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
       *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
   }
 }
