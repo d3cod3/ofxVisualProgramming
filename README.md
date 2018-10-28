@@ -95,7 +95,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
-#### [ofxSIMDFloats](https://github.com/npisanti/ofxSIMDFloats)
+#### [ofxSIMDFloats](https://github.com/d3cod3/ofxSIMDFloats)
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
 
@@ -128,7 +128,7 @@ git clone https://github.com/d3cod3/ofxMidi
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
 git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/npisanti/ofxPDSP
-git clone https://github.com/npisanti/ofxSIMDFloats
+git clone https://github.com/d3cod3/ofxSIMDFloats
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
@@ -383,22 +383,23 @@ More soon...
 
 Audio Analysis | Ready | TODO
 ---------- | ---------- | ----------
-amplitude extractor |  | X
 audio analyzer | X |
 beat extractor | X |
-bpm extractor |  | X
-centroid extractor |  | X
-dissonance extractor |  | X
+bpm extractor | X |
+centroid extractor | X |
+dissonance extractor | X |
 fft extractor | X |
-hfc extractor |  | X
-inharmonicity extractor |  | X
+hfc extractor | X |
+inharmonicity extractor | X |
 mel bands extractor | X |
-mfcc extractor |  | X
-hpcp extractor |  | X
-onsets extractor |  | X
-pitch extractor |  | X
-roll-off extractor |  | X
-tristimulus extractor |  | X
+mfcc extractor | X |
+hpcp extractor | X |
+onset extractor | X |
+pitch extractor | X |
+power extractor | X |
+rms extractor | X |
+roll-off extractor | X |
+tristimulus extractor | X |
 
 Computer Vision | Ready | TODO
 ---------- | ---------- | ----------
@@ -407,31 +408,48 @@ background subtraction | X  |
 chroma key | X  |
 contour tracking | X  |
 face tracking | | X
-motion detection | | X
+motion detection | X |
 optical flow | | X
 more to come ... | | X
+
+Data | Ready | TODO
+---------- | ---------- | ----------
+floats to vector | X  |
+vector concat | X  |
 
 GUI | Ready | TODO
 ---------- | ---------- | ----------
 bang | X |
 comment | X |
 message | X |
+player controls | X |
 slider | X |
 signal viewer | X |
 timeline | | X
+trigger | X |
 video viewer | X |
 more to come ... | | X
 
 Logic | Ready | TODO
 ---------- | ---------- | ----------
+counter | X |
+delay bang | X |
+gate | X |
 loadbang | X |
 more to come ... | | X
 
 Math | Ready | TODO
 ---------- | ---------- | ----------
+add | X |
+clamp | X |
+constant | X |
+divide | X |
 metronome | X |
+multiply | X |
 simple noise | X |
 simple random | X |
+smooth | X |
+subtract | X |
 more to come ... | | X
 
 Scripting | Ready | TODO
