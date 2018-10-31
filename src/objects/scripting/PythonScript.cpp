@@ -396,7 +396,14 @@ void PythonScript::loadScript(string scriptFile){
 
     // set Mosaic scripting vars
     ofFile tempFileScript(filepath);
-    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\nSCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'\n";
+
+    string temppath = tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1);
+
+    #ifdef TARGET_WIN32
+        std::replace(temppath.begin(),temppath.end(),'\\','/');
+    #endif
+
+    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\nSCRIPT_PATH = '"+temppath+"'\n";
     python.executeString(tempstring);
 
     ///////////////////////////////////////////

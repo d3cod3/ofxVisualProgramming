@@ -416,6 +416,11 @@ void LuaScript::loadScript(string scriptFile){
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     ofFile tempFileScript(filepath);
     tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
+
+    #ifdef TARGET_WIN32
+        std::replace(tempstring.begin(),tempstring.end(),'\\','/');
+    #endif
+
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
     scriptLoaded = static_cast<LiveCoding *>(_outletParams[1])->lua.isValid();
