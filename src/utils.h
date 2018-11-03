@@ -165,3 +165,24 @@ inline std::string execCmd(const char* cmd){
 #endif
     return result;
 }
+
+//--------------------------------------------------------------
+inline vector<string> recursiveScanDirectory(ofDirectory dir){
+    size_t size;
+    size = dir.listDir();
+    dir.sort();
+
+    vector<string> tempFileList;
+
+    for (size_t i = 0; i < size; i++){
+        if (dir.getFile(i).isDirectory()==1){
+            ofDirectory newDir;
+            newDir.listDir(dir.getFile(i).getAbsolutePath());
+            recursiveScanDirectory( newDir );
+        }else{
+            tempFileList.push_back(dir.getPath(i));
+        }
+    }
+
+    return tempFileList;
+}
