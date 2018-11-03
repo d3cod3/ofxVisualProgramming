@@ -1452,42 +1452,47 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 //--------------------------------------------------------------
 void ofxVisualProgramming::activateDSP(){
 
-    engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
-    this->setChannels(audioDevices[audioINDev].inputChannels,0);
+    if(audioDevices[audioINDev].inputChannels > 0 && audioDevices[audioOUTDev].outputChannels > 0){
+        engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+        this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
-    for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-        engine.audio_in(in) >> this->in(in);
-    }
-    this->out_silent() >> engine.blackhole();
-
-    ofLog(OF_LOG_NOTICE," ");
-    ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
-    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
-    ofLog(OF_LOG_NOTICE," ");
-    ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
-    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
-    ofLog(OF_LOG_NOTICE," ");
-
-    engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-    engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-    engine.setup(audioSampleRate, audioBufferSize, 3);
-
-    bool found = false;
-
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getName() == "audio device"){
-            found = true;
-            break;
+        for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+            engine.audio_in(in) >> this->in(in);
         }
-    }
+        this->out_silent() >> engine.blackhole();
 
-    if(!found){
-        glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-        addObject("audio device",ofVec2f(temp.x,temp.y));
-    }
+        ofLog(OF_LOG_NOTICE," ");
+        ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
+        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
+        ofLog(OF_LOG_NOTICE," ");
+        ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Started on");
+        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+        ofLog(OF_LOG_NOTICE," ");
 
-    setPatchVariable("dsp",1);
-    dspON = true;
+        engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+        engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
+        engine.setup(audioSampleRate, audioBufferSize, 3);
+        engine.start();
+
+        bool found = false;
+
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(it->second->getName() == "audio device"){
+                found = true;
+                break;
+            }
+        }
+
+        if(!found){
+            glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+            addObject("audio device",ofVec2f(temp.x,temp.y));
+        }
+
+        setPatchVariable("dsp",1);
+        dspON = true;
+    }else{
+        ofLog(OF_LOG_ERROR,"The selected audio devices couldn't be compatible or couldn't be properly installed in your system!");
+    }
 
 }
 
