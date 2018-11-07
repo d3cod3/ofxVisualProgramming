@@ -39,10 +39,11 @@ using namespace cv;
 ContourTracking::ContourTracking() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new ofTexture();  // input
     _outletParams[0] = new ofTexture(); // output
+    _outletParams[1] = new vector<float>();  // data vector
 
     this->initInletsState();
 
@@ -64,6 +65,12 @@ void ContourTracking::newObject(){
     this->setName("contour tracking");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_ARRAY);
+
+    this->setCustomVar(static_cast<float>(0.0),"INVERT_BW");
+    this->setCustomVar(static_cast<float>(128.0),"THRESHOLD");
+    this->setCustomVar(static_cast<float>(10.0),"MIN_AREA_RADIUS");
+    this->setCustomVar(static_cast<float>(200.0),"MAX_AREA_RADIUS");
 }
 
 //--------------------------------------------------------------
@@ -78,19 +85,27 @@ void ContourTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
     header->setUseCustomMouse(true);
     header->setCollapsable(true);
 
+    invertBW = gui->addToggle("INVERT",static_cast<int>(floor(this->getCustomVar("INVERT_BW"))));
+    invertBW->setUseCustomMouse(true);
     thresholdValue = gui->addSlider("THRESH",0,255);
     thresholdValue->setUseCustomMouse(true);
-    thresholdValue->setValue(128);
+    thresholdValue->setValue(static_cast<double>(this->getCustomVar("THRESHOLD")));
+    minAreaRadius = gui->addSlider("MIN.AREA",4,100);
+    minAreaRadius->setUseCustomMouse(true);
+    minAreaRadius->setValue(static_cast<double>(this->getCustomVar("MIN_AREA_RADIUS")));
+    maxAreaRadius = gui->addSlider("MAX.AREA",101,500);
+    maxAreaRadius->setUseCustomMouse(true);
+    maxAreaRadius->setValue(static_cast<double>(this->getCustomVar("MAX_AREA_RADIUS")));
 
-    gui->onButtonEvent(this, &ContourTracking::onButtonEvent);
+    gui->onToggleEvent(this, &ContourTracking::onToggleEvent);
     gui->onSliderEvent(this, &ContourTracking::onSliderEvent);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
     header->setIsCollapsed(true);
 
-    contourFinder->setMinAreaRadius(10);
-    contourFinder->setMaxAreaRadius(200);
+    contourFinder->setMinAreaRadius(minAreaRadius->getValue());
+    contourFinder->setMaxAreaRadius(maxAreaRadius->getValue());
     contourFinder->setThreshold(thresholdValue->getValue());
     contourFinder->setFindHoles(false);
     // wait for half a second before forgetting something
@@ -105,10 +120,23 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
+        invertBW->update();
         thresholdValue->update();
+        minAreaRadius->update();
+        maxAreaRadius->update();
     }
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+
+        if(!invertBW->getChecked()){
+            contourFinder->setInvert(false);
+        }else{
+            contourFinder->setInvert(true);
+        }
+
+        contourFinder->setMinAreaRadius(minAreaRadius->getValue());
+        contourFinder->setMaxAreaRadius(maxAreaRadius->getValue());
+        contourFinder->setThreshold(thresholdValue->getValue());
 
         if(!isFBOAllocated){
             isFBOAllocated = true;
@@ -122,6 +150,81 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
         if(outputFBO->isAllocated()){
             *static_cast<ofTexture *>(_outletParams[0]) = outputFBO->getTexture();
+
+            static_cast<vector<float> *>(_outletParams[1])->clear();
+
+            static_cast<vector<float> *>(_outletParams[1])->push_back(contourFinder->size());
+
+            for(int i = 0; i < contourFinder->size(); i++) {
+
+                // blob id
+                int label = contourFinder->getLabel(i);
+
+                // some different styles of contour centers
+                ofVec2f centroid = toOf(contourFinder->getCentroid(i));
+                ofVec2f average = toOf(contourFinder->getAverage(i));
+                ofVec2f center = toOf(contourFinder->getCenter(i));
+
+                // velocity
+                ofVec2f velocity = toOf(contourFinder->getVelocity(i));
+
+                // area and perimeter
+                double area = contourFinder->getContourArea(i);
+                double perimeter = contourFinder->getArcLength(i);
+
+                // bounding rect
+                cv::Rect boundingRect = contourFinder->getBoundingRect(i);
+
+                // contour
+                ofPolyline contour = toOf(contourFinder->getContour(i));
+                ofPolyline convexHull = toOf(contourFinder->getConvexHull(i));
+
+                // 2
+                static_cast<vector<float> *>(_outletParams[1])->push_back(static_cast<float>(label));
+                static_cast<vector<float> *>(_outletParams[1])->push_back(contourFinder->getTracker().getAge(label));
+
+                // 6
+                static_cast<vector<float> *>(_outletParams[1])->push_back(centroid.x);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(centroid.y);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(average.x);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(average.y);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(center.x);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(center.y);
+
+                // 2
+                static_cast<vector<float> *>(_outletParams[1])->push_back(velocity.x);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(velocity.y);
+
+                // 2
+                static_cast<vector<float> *>(_outletParams[1])->push_back(area);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(perimeter);
+
+                // 4
+                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.x);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.y);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.width);
+                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.height);
+
+                // 1
+                static_cast<vector<float> *>(_outletParams[1])->push_back(contour.getVertices().size());
+
+                // contour.getVertices().size() * 2
+                for(int c=0;c<contour.getVertices().size();c++){
+                    static_cast<vector<float> *>(_outletParams[1])->push_back(contour.getVertices().at(c).x);
+                    static_cast<vector<float> *>(_outletParams[1])->push_back(contour.getVertices().at(c).y);
+                }
+
+                // 1
+                static_cast<vector<float> *>(_outletParams[1])->push_back(convexHull.getVertices().size());
+
+                // convexHull.getVertices().size() * 2
+                for(int c=0;c<convexHull.getVertices().size();c++){
+                    static_cast<vector<float> *>(_outletParams[1])->push_back(convexHull.getVertices().at(c).x);
+                    static_cast<vector<float> *>(_outletParams[1])->push_back(convexHull.getVertices().at(c).y);
+                }
+
+            }
+
         }
 
     }
@@ -140,14 +243,33 @@ void ContourTracking::drawObjectContent(ofxFontStash *font){
 
         ofSetColor(255);
         static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+
+        ofSetLineWidth(2);
         contourFinder->draw();
+
         for(int i = 0; i < contourFinder->size(); i++) {
+            ofNoFill();
+
+            // convex hull of the contour
+            ofSetColor(yellowPrint);
+            ofPolyline convexHull = toOf(contourFinder->getConvexHull(i));
+            convexHull.draw();
+
+            // blobs labels
+            ofSetLineWidth(1);
+            ofFill();
             ofPoint center = toOf(contourFinder->getCenter(i));
             ofPushMatrix();
             ofTranslate(center.x, center.y);
             int label = contourFinder->getLabel(i);
             string msg = ofToString(label) + ":" + ofToString(contourFinder->getTracker().getAge(label));
+            if(!invertBW->getChecked()){
+                ofSetColor(0,0,0);
+            }else{
+                ofSetColor(255,255,255);
+            }
             font->draw(msg,fontSize,0,0);
+            ofPopMatrix();
         }
 
         outputFBO->end();
@@ -179,9 +301,12 @@ void ContourTracking::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    invertBW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    minAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    maxAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || invertBW->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos()) || minAreaRadius->hitTest(_m-this->getPos()) || maxAreaRadius->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -194,6 +319,9 @@ void ContourTracking::dragGUIObject(ofVec3f _m){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        invertBW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        minAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        maxAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -211,17 +339,24 @@ void ContourTracking::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void ContourTracking::onButtonEvent(ofxDatGuiButtonEvent e){
+void ContourTracking::onToggleEvent(ofxDatGuiToggleEvent e){
     if(!header->getIsCollapsed()){
-
+        if(e.target == invertBW){
+            this->setCustomVar(static_cast<float>(e.checked),"INVERT_BW");
+        }
     }
-
 }
 
 //--------------------------------------------------------------
 void ContourTracking::onSliderEvent(ofxDatGuiSliderEvent e){
     if(!header->getIsCollapsed()){
-
+        if(e.target == thresholdValue){
+            this->setCustomVar(static_cast<float>(e.value),"THRESHOLD");
+        }else if(e.target == minAreaRadius){
+            this->setCustomVar(static_cast<float>(e.value),"MIN_AREA_RADIUS");
+        }else if(e.target == maxAreaRadius){
+            this->setCustomVar(static_cast<float>(e.value),"MAX_AREA_RADIUS");
+        }
     }
 
 }

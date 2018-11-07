@@ -50,7 +50,7 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onToggleEvent(ofxDatGuiToggleEvent e);
     void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
@@ -63,8 +63,9 @@ public:
 
     ofxDatGui*                  gui;
     ofxDatGuiHeader*            header;
+    ofxDatGuiToggle*            invertBW; // find black instead of white
     ofxDatGuiSlider*            thresholdValue;
-
-    
+    ofxDatGuiSlider*            minAreaRadius;
+    ofxDatGuiSlider*            maxAreaRadius;
 
 };
