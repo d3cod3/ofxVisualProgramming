@@ -42,7 +42,8 @@ VideoGrabber::VideoGrabber() : PatchObject(){
 
     this->initInletsState();
 
-    vidGrabber = new ofVideoGrabber();
+    vidGrabber  = new ofVideoGrabber();
+    colorImage  = new ofxCvColorImage();
 
     isGUIObject         = true;
     this->isOverGUI     = true;
@@ -69,6 +70,8 @@ void VideoGrabber::newObject(){
     this->setCustomVar(static_cast<float>(camWidth),"CAM_WIDTH");
     this->setCustomVar(static_cast<float>(camHeight),"CAM_HEIGHT");
     this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
+    this->setCustomVar(static_cast<float>(0.0),"MIRROR_H");
+    this->setCustomVar(static_cast<float>(0.0),"MIRROR_V");
 }
 
 //--------------------------------------------------------------
@@ -106,6 +109,12 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     deviceSelector->onMatrixEvent(this, &VideoGrabber::onMatrixEvent);
     gui->addBreak();
 
+    mirrorH = gui->addToggle("MIRR.H",static_cast<int>(floor(this->getCustomVar("MIRROR_H"))));
+    mirrorH->setUseCustomMouse(true);
+    mirrorV = gui->addToggle("MIRR.V",static_cast<int>(floor(this->getCustomVar("MIRROR_V"))));
+    mirrorV->setUseCustomMouse(true);
+
+    gui->addBreak();
     guiTexWidth = gui->addTextInput("WIDTH",ofToString(camWidth));
     guiTexWidth->setUseCustomMouse(true);
     guiTexHeight = gui->addTextInput("HEIGHT",ofToString(camHeight));
@@ -114,6 +123,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     applyButton->setUseCustomMouse(true);
     applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 
+    gui->onToggleEvent(this, &VideoGrabber::onToggleEvent);
     gui->onButtonEvent(this, &VideoGrabber::onButtonEvent);
     gui->onTextInputEvent(this, &VideoGrabber::onTextInputEvent);
     gui->onMatrixEvent(this, &VideoGrabber::onMatrixEvent);
@@ -139,6 +149,8 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
         guiTexHeight->update();
         applyButton->update();
         deviceSelector->update();
+        mirrorH->update();
+        mirrorV->update();
     }
 
     if(needReset){
@@ -148,7 +160,11 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(vidGrabber->isInitialized()){
         vidGrabber->update();
         if(vidGrabber->isFrameNew()){
-            *static_cast<ofTexture *>(_outletParams[0]) = vidGrabber->getTexture();
+            colorImage->setFromPixels(vidGrabber->getPixels());
+            colorImage->mirror(mirrorV->getChecked(),mirrorH->getChecked());
+            colorImage->updateTexture();
+
+            *static_cast<ofTexture *>(_outletParams[0]) = colorImage->getTexture();
         }
     }
 
@@ -189,9 +205,11 @@ void VideoGrabber::mouseMovedObjectContent(ofVec3f _m){
     guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos()) || mirrorH->hitTest(_m-this->getPos()) || mirrorV->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -206,6 +224,8 @@ void VideoGrabber::dragGUIObject(ofVec3f _m){
         guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -230,6 +250,9 @@ void VideoGrabber::loadCameraSettings(){
 
         temp_width      = camWidth;
         temp_height     = camHeight;
+
+        colorImage    = new ofxCvColorImage();
+        colorImage->allocate(camWidth,camHeight);
     }
 
     if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(devicesVector.size())){
@@ -267,6 +290,9 @@ void VideoGrabber::resetCameraSettings(int devID){
 
             this->setCustomVar(static_cast<float>(camWidth),"CAM_WIDTH");
             this->setCustomVar(static_cast<float>(camHeight),"CAM_HEIGHT");
+
+            colorImage    = new ofxCvColorImage();
+            colorImage->allocate(camWidth,camHeight);
         }
 
         if(vidGrabber->isInitialized()){
@@ -279,6 +305,18 @@ void VideoGrabber::resetCameraSettings(int devID){
     }
 
     needReset = false;
+}
+
+//--------------------------------------------------------------
+void VideoGrabber::onToggleEvent(ofxDatGuiToggleEvent e){
+    if(!header->getIsCollapsed()){
+        if (e.target == mirrorH){
+            this->setCustomVar(static_cast<float>(e.checked),"MIRROR_H");
+        }else if (e.target == mirrorH){
+            this->setCustomVar(static_cast<float>(e.checked),"MIRROR_V");
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
