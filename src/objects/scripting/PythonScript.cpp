@@ -168,16 +168,7 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
-        string cmd = "";
-        ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system. Opening script with default text editor!");
-#ifdef TARGET_LINUX
-        cmd = "nano "+filepath;
-#elif defined(TARGET_OSX)
-        cmd = "open -a /Applications/TextEdit.app "+filepath;
-#elif defined(TARGET_WIN32)
-        cmd = "start "+filepath;
-#endif
-        tempCommand.execCommand(cmd);
+        ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
     }
 
     // GUI
