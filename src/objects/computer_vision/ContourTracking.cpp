@@ -39,11 +39,13 @@ using namespace cv;
 ContourTracking::ContourTracking() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 2;
+    this->numOutlets = 4;
 
-    _inletParams[0] = new ofTexture();  // input
-    _outletParams[0] = new ofTexture(); // output
-    _outletParams[1] = new vector<float>();  // data vector
+    _inletParams[0] = new ofTexture();  // input texture
+    _outletParams[0] = new ofTexture(); // output texture (for visualization)
+    _outletParams[1] = new vector<float>();  // blobs vector
+    _outletParams[2] = new vector<float>();  // contour vector
+    _outletParams[3] = new vector<float>();  // convex hull vector
 
     this->initInletsState();
 
@@ -65,6 +67,8 @@ void ContourTracking::newObject(){
     this->setName("contour tracking");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY);
     this->addOutlet(VP_LINK_ARRAY);
 
     this->setCustomVar(static_cast<float>(0.0),"INVERT_BW");
@@ -152,11 +156,14 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
             *static_cast<ofTexture *>(_outletParams[0]) = outputFBO->getTexture();
 
             static_cast<vector<float> *>(_outletParams[1])->clear();
+            static_cast<vector<float> *>(_outletParams[2])->clear();
+            static_cast<vector<float> *>(_outletParams[3])->clear();
 
             static_cast<vector<float> *>(_outletParams[1])->push_back(contourFinder->size());
+            static_cast<vector<float> *>(_outletParams[2])->push_back(contourFinder->size());
+            static_cast<vector<float> *>(_outletParams[3])->push_back(contourFinder->size());
 
             for(int i = 0; i < contourFinder->size(); i++) {
-
                 // blob id
                 int label = contourFinder->getLabel(i);
 
@@ -206,21 +213,21 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
                 static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.height);
 
                 // 1
-                static_cast<vector<float> *>(_outletParams[1])->push_back(contour.getVertices().size());
+                static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().size());
 
                 // contour.getVertices().size() * 2
                 for(int c=0;c<contour.getVertices().size();c++){
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(contour.getVertices().at(c).x);
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(contour.getVertices().at(c).y);
+                    static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().at(c).x);
+                    static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().at(c).y);
                 }
 
                 // 1
-                static_cast<vector<float> *>(_outletParams[1])->push_back(convexHull.getVertices().size());
+                static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().size());
 
                 // convexHull.getVertices().size() * 2
                 for(int c=0;c<convexHull.getVertices().size();c++){
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(convexHull.getVertices().at(c).x);
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(convexHull.getVertices().at(c).y);
+                    static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().at(c).x);
+                    static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().at(c).y);
                 }
 
             }
