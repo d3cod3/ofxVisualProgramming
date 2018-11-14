@@ -403,14 +403,13 @@ tristimulus extractor | X |
 
 Computer Vision | Ready | TODO
 ---------- | ---------- | ----------
-ar marker detection |  | ?
 background subtraction | X  |
 chroma key | X  |
+color tracking | X  |
 contour tracking | X  |
-face tracking | | X
+haar tracking | X |
 motion detection | X |
-optical flow | | X
-more to come ... | | X
+optical flow | X |
 
 Data | Ready | TODO
 ---------- | ---------- | ----------
