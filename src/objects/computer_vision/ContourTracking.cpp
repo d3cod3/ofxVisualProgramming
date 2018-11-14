@@ -144,6 +144,7 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
         if(!isFBOAllocated){
             isFBOAllocated = true;
+            pix             = new ofPixels();
             outputFBO->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),GL_RGB,1);
         }
 
@@ -215,6 +216,10 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
                 // 1
                 static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().size());
 
+                // 2
+                static_cast<vector<float> *>(_outletParams[2])->push_back(static_cast<float>(label));
+                static_cast<vector<float> *>(_outletParams[2])->push_back(contourFinder->getTracker().getAge(label));
+
                 // contour.getVertices().size() * 2
                 for(int c=0;c<contour.getVertices().size();c++){
                     static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().at(c).x);
@@ -223,6 +228,10 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
                 // 1
                 static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().size());
+
+                // 2
+                static_cast<vector<float> *>(_outletParams[3])->push_back(static_cast<float>(label));
+                static_cast<vector<float> *>(_outletParams[3])->push_back(contourFinder->getTracker().getAge(label));
 
                 // convexHull.getVertices().size() * 2
                 for(int c=0;c<convexHull.getVertices().size();c++){
@@ -234,6 +243,8 @@ void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
         }
 
+    }else{
+        isFBOAllocated = false;
     }
     
 }

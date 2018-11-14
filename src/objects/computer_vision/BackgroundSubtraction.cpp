@@ -98,6 +98,8 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
     thresholdValue->setUseCustomMouse(true);
     thresholdValue->setValue(static_cast<double>(this->getCustomVar("THRESHOLD")));
     vector<int> techs = {0,1,2};
+    bgTechLabel = gui->addLabel("B&W ABS");
+    bgTechLabel->setUseCustomMouse(true);
     bgSubTechSelector = gui->addMatrix("TECHNIQUE",techs.size(),true);
     bgSubTechSelector->setUseCustomMouse(true);
     bgSubTechSelector->setRadioMode(true);
@@ -135,6 +137,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
     if(!header->getIsCollapsed()){
         resetButton->update();
         thresholdValue->update();
+        bgTechLabel->update();
         bgSubTechSelector->update();
         brightnessValue->update();
         contrastValue->update();
@@ -146,7 +149,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!newConnection){
             newConnection = true;
-            resetTextures(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            resetTextures(static_cast<int>(floor(static_cast<ofTexture *>(_inletParams[0])->getWidth())),static_cast<int>(floor(static_cast<ofTexture *>(_inletParams[0])->getHeight())));
         }
 
         static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
@@ -154,38 +157,38 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
         colorImg->setFromPixels(*pix);
         colorImg->updateTexture();
 
-        grayImg = *colorImg;
-        grayImg.updateTexture();
-        grayImg.brightnessContrast(brightnessValue->getValue(),contrastValue->getValue());
+        *grayImg = *colorImg;
+        grayImg->updateTexture();
+        grayImg->brightnessContrast(brightnessValue->getValue(),contrastValue->getValue());
 
-        if(bgSubTech == 0){
-            grayThresh.absDiff(grayBg, grayImg);
-        }else if(bgSubTech == 1){
-            grayThresh = grayImg;
-            grayThresh -= grayBg;
-        }else if(bgSubTech == 2){
-            grayThresh = grayBg;
-            grayThresh -= grayImg;
+        if(bgSubTech == 0){ // B&W ABS
+            grayThresh->absDiff(*grayBg, *grayImg);
+        }else if(bgSubTech == 1){ // LIGHTER THAN
+            *grayThresh = *grayImg;
+            *grayThresh -= *grayBg;
+        }else if(bgSubTech == 2){ // DARKER THAN
+            *grayThresh = *grayBg;
+            *grayThresh -= *grayImg;
         }
 
 
-        grayThresh.threshold(thresholdValue->getValue());
+        grayThresh->threshold(thresholdValue->getValue());
         if(erodeButton->getChecked()){
-            grayThresh.erode();
+            grayThresh->erode();
         }
         if(dilateButton->getChecked()){
-            grayThresh.dilate();
+            grayThresh->dilate();
         }
         if(static_cast<int>(floor(blurValue->getValue()))%2 == 0){
-            grayThresh.blur(static_cast<int>(floor(blurValue->getValue()))+1);
+            grayThresh->blur(static_cast<int>(floor(blurValue->getValue()))+1);
         }else{
-            grayThresh.blur(static_cast<int>(floor(blurValue->getValue())));
+            grayThresh->blur(static_cast<int>(floor(blurValue->getValue())));
         }
-        grayThresh.updateTexture();
+        grayThresh->updateTexture();
 
-        *static_cast<ofTexture *>(_outletParams[0]) = grayThresh.getTexture();
+        *static_cast<ofTexture *>(_outletParams[0]) = grayThresh->getTexture();
 
-    }else{
+    }else if(!this->inletsConnected[0]){
         newConnection = false;
     }
 
@@ -198,8 +201,8 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
     // background learning
     if(bLearnBackground == true){
         bLearnBackground = false;
-        grayBg = grayImg;
-        grayBg.updateTexture();
+        *grayBg = *grayImg;
+        grayBg->updateTexture();
     }
     //////////////////////////////////////////////
 }
@@ -237,6 +240,7 @@ void BackgroundSubtraction::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     resetButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    bgTechLabel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     bgSubTechSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     brightnessValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     contrastValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -245,7 +249,7 @@ void BackgroundSubtraction::mouseMovedObjectContent(ofVec3f _m){
     dilateButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || resetButton->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos()) || bgSubTechSelector->hitTest(_m-this->getPos()) || brightnessValue->hitTest(_m-this->getPos()) || contrastValue->hitTest(_m-this->getPos()) || blurValue->hitTest(_m-this->getPos()) || erodeButton->hitTest(_m-this->getPos()) || dilateButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || bgTechLabel->hitTest(_m-this->getPos()) || resetButton->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos()) || bgSubTechSelector->hitTest(_m-this->getPos()) || brightnessValue->hitTest(_m-this->getPos()) || contrastValue->hitTest(_m-this->getPos()) || blurValue->hitTest(_m-this->getPos()) || erodeButton->hitTest(_m-this->getPos()) || dilateButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -259,6 +263,7 @@ void BackgroundSubtraction::dragGUIObject(ofVec3f _m){
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         resetButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        bgTechLabel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         bgSubTechSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         brightnessValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         contrastValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -286,12 +291,15 @@ void BackgroundSubtraction::resetTextures(int w, int h){
 
     pix         = new ofPixels();
     colorImg    = new ofxCvColorImage();
+    grayImg     = new ofxCvGrayscaleImage();
+    grayBg      = new ofxCvGrayscaleImage();
+    grayThresh  = new ofxCvGrayscaleImage();
 
     pix->allocate(static_cast<size_t>(w),static_cast<size_t>(h),1);
     colorImg->allocate(w,h);
-    grayImg.allocate(w,h);
-    grayBg.allocate(w,h);
-    grayThresh.allocate(w,h);
+    grayImg->allocate(w,h);
+    grayBg->allocate(w,h);
+    grayThresh->allocate(w,h);
 }
 
 //--------------------------------------------------------------
@@ -336,6 +344,13 @@ void BackgroundSubtraction::onMatrixEvent(ofxDatGuiMatrixEvent e){
         if(e.target == bgSubTechSelector){
             bgSubTech = e.child;
             this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");
+            if(bgSubTech == 0){
+                bgTechLabel->setLabel("B&W ABS");
+            }else if(bgSubTech == 1){
+                bgTechLabel->setLabel("LIGHTER THAN");
+            }else if(bgSubTech == 2){
+                bgTechLabel->setLabel("DARKER THAN");
+            }
         }
     }
 }

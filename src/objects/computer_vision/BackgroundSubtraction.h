@@ -63,9 +63,9 @@ public:
 
     ofPixels                    *pix;
     ofxCvColorImage             *colorImg;
-    ofxCvGrayscaleImage         grayImg;
-    ofxCvGrayscaleImage         grayBg;
-    ofxCvGrayscaleImage         grayThresh;
+    ofxCvGrayscaleImage         *grayImg;
+    ofxCvGrayscaleImage         *grayBg;
+    ofxCvGrayscaleImage         *grayThresh;
 
     int                         bgSubTech;
 
@@ -77,6 +77,7 @@ public:
     ofxDatGui*                  gui;
     ofxDatGuiHeader*            header;
     ofxDatGuiButton*            resetButton;
+    ofxDatGuiLabel*             bgTechLabel;
     ofxDatGuiMatrix*            bgSubTechSelector;
     ofxDatGuiSlider*            thresholdValue;
     ofxDatGuiSlider*            blurValue;
