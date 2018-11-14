@@ -52,7 +52,7 @@ moComment::moComment() : PatchObject(){
     textBuffer = new moTextBuffer();
     label = ofxSmartFont::add(MAIN_FONT, this->fontSize,"verdana");
 
-    actualComment   = "This project deals with the idea of integrate/amplify man-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, Python, GLSL and BASH).";
+    actualComment   = "This project deals with the idea of integrate/amplify human-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, Python, GLSL and BASH).";
     bang            = false;
 
     this->isBigGuiComment   = true;
