@@ -57,8 +57,11 @@
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
 #include "objects/computer_vision/ChromaKey.h"
+#include "objects/computer_vision/ColorTracking.h"
 #include "objects/computer_vision/ContourTracking.h"
+#include "objects/computer_vision/HaarTracking.h"
 #include "objects/computer_vision/MotionDetection.h"
+#include "objects/computer_vision/OpticalFlow.h"
 
 // data objects
 #include "objects/data/FloatsToVector.h"
