@@ -36,6 +36,7 @@
 
 #include "ofxLua.h"
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#include <pwd.h>
 #include "ofxPython.h"
 #endif
 #include "ofxEditor.h"
@@ -75,6 +76,37 @@ static inline float hardClip(float x){
 }
 
 //--------------------------------------------------------------
+inline bool isInteger(const string & s){
+   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
+
+   char * p ;
+   strtol(s.c_str(), &p, 10) ;
+
+   return (*p == 0) ;
+}
+
+//--------------------------------------------------------------
+inline bool isFloat(const string & s){
+    string::const_iterator it = s.begin();
+    bool decimalPoint = false;
+    int minSize = 0;
+    if(s.size()>0 && (s[0] == '-' || s[0] == '+')){
+        it++;
+        minSize++;
+    }
+    while(it != s.end()){
+        if(*it == '.'){
+            if(!decimalPoint) decimalPoint = true;
+            else break;
+        }else if(!isdigit(*it) && ((*it!='f') || it+1 != s.end() || !decimalPoint)){
+            break;
+        }
+        ++it;
+    }
+    return s.size()>minSize && it == s.end() && decimalPoint;
+}
+
+//--------------------------------------------------------------
 static inline uint64_t devURandom(){
     uint64_t r = 0;
     size_t size = sizeof(r);
@@ -106,37 +138,6 @@ static inline float gaussianRandom(){
         return v2 * sqrt(-2 * log(s)/s);
     }
 
-}
-
-//--------------------------------------------------------------
-inline bool isInteger(const string & s){
-   if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
-
-   char * p ;
-   strtol(s.c_str(), &p, 10) ;
-
-   return (*p == 0) ;
-}
-
-//--------------------------------------------------------------
-inline bool isFloat(const string & s){
-    string::const_iterator it = s.begin();
-    bool decimalPoint = false;
-    int minSize = 0;
-    if(s.size()>0 && (s[0] == '-' || s[0] == '+')){
-        it++;
-        minSize++;
-    }
-    while(it != s.end()){
-        if(*it == '.'){
-            if(!decimalPoint) decimalPoint = true;
-            else break;
-        }else if(!isdigit(*it) && ((*it!='f') || it+1 != s.end() || !decimalPoint)){
-            break;
-        }
-        ++it;
-    }
-    return s.size()>minSize && it == s.end() && decimalPoint;
 }
 
 //--------------------------------------------------------------
@@ -228,6 +229,54 @@ inline vector<string> recursiveScanDirectory(ofDirectory dir){
     }
 
     return tempFileList;
+}
+
+//--------------------------------------------------------------
+inline string forceCheckMosaicDataPath(string filepath){
+    ofFile file (filepath);
+
+    if(file.exists()){
+        return filepath;
+    }else{
+        if(filepath.find("Mosaic/data/") != string::npos || filepath.find("Mosaic/examples/") != string::npos) {
+            size_t start = filepath.find("Mosaic/");
+            string newPath = filepath.substr(start,filepath.size()-start);
+
+            const char *homeDir = getenv("HOME");
+
+            #if defined(TARGET_OSX)
+            if(!homeDir){
+                struct passwd* pwd;
+                pwd = getpwuid(getuid());
+                if (pwd){
+                    homeDir = pwd->pw_dir;
+                }
+            }
+            #endif
+
+            string finalPath(homeDir);
+
+            #if defined(TARGET_WIN32) || defined(TARGET_LINUX)
+                finalPath = ofToDataPath("",true);
+                finalPath = finalPath.substr(0,finalPath.size()-11); // cut "Mosaic/data/" at the end
+                finalPath += newPath;
+            #elif defined(TARGET_OSX)
+                finalPath += "/Documents/"+newPath;
+            #endif
+
+            //ofLog(OF_LOG_NOTICE,"%s",finalPath.c_str());
+
+            ofFile test(finalPath);
+
+            if(test.exists()){
+                return finalPath;
+            }else{
+                return filepath;
+            }
+        }else{
+            return filepath;
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -357,14 +406,15 @@ static int poly_simplify( float tol, ofVec3f* V, int n, ofVec3f* sV ){
 }
 
 //--------------------------------------------------------------
-static void smoothContour(vector <ofVec2f> &contourIn, vector <ofVec2f> &contourOut, float smoothPct){
-    int length = MIN(contourIn.size(), contourOut.size());
+static void smoothContour(ofPolyline &contourIn, vector <ofVec2f> &contourOut, float smoothPct){
+    int length = MIN(contourIn.getVertices().size(), contourOut.size());
 
     float invPct = 1.0 - smoothPct;
 
     //first copy the data
     for(int i = 0; i < length; i++){
-        contourOut[i] = contourIn[i];
+        contourOut[i].x = contourIn.getVertices().at(i).x;
+        contourOut[i].y = contourIn.getVertices().at(i).y;
     }
 
     //then smooth the contour
@@ -375,8 +425,8 @@ static void smoothContour(vector <ofVec2f> &contourIn, vector <ofVec2f> &contour
 }
 
 //--------------------------------------------------------------
-static void simplifyContour(vector <ofVec2f> &contourIn, vector <ofVec2f> &contourOut, float tolerance){
-    int length = contourIn.size();
+static void simplifyContour(ofPolyline &contourIn, vector <ofVec2f> &contourOut, float tolerance){
+    int length = contourIn.getVertices().size();
 
     //the polyLine simplify class needs data as a vector of ofVec3fs
     ofVec3f		*polyLineIn = new ofVec3f[length];
@@ -384,8 +434,8 @@ static void simplifyContour(vector <ofVec2f> &contourIn, vector <ofVec2f> &conto
 
     //first we copy over the data to a 3d point array
     for(int i = 0; i < length; i++){
-        polyLineIn[i].x = contourIn[i].x;
-        polyLineIn[i].y = contourIn[i].y;
+        polyLineIn[i].x = contourIn.getVertices().at(i).x;
+        polyLineIn[i].y = contourIn.getVertices().at(i).y;
         polyLineIn[i].z = 0.0f;
         polyLineOut[i].x = 0.0f;
         polyLineOut[i].y = 0.0f;

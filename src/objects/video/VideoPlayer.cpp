@@ -105,6 +105,7 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header->setUseCustomMouse(true);
     header->setCollapsable(true);
     videoName = gui->addLabel("NONE");
+    videoRes = gui->addLabel("0x0");
     gui->addBreak();
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
@@ -213,6 +214,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
         }
         //scaleH = (this->width/video->getWidth())*video->getHeight();
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            videoRes->setLabel(ofToString(static_cast<ofTexture *>(_outletParams[0])->getWidth())+"x"+ofToString(static_cast<ofTexture *>(_outletParams[0])->getHeight()));
             if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
                 drawW           = this->width;
                 drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
@@ -225,6 +227,21 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
                 posY            = 0;
             }
             static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+
+            // draw player state
+            ofSetColor(255,60);
+            if(video->isPlaying()){ // play
+                ofBeginShape();
+                ofVertex(this->width - 30,this->height - 50);
+                ofVertex(this->width - 30,this->height - 30);
+                ofVertex(this->width - 10,this->height - 40);
+                ofEndShape();
+            }else if(video->isPaused() && video->getCurrentFrame() > 1){ // pause
+                ofDrawRectangle(this->width - 30, this->height - 50,8,20);
+                ofDrawRectangle(this->width - 18, this->height - 50,8,20);
+            }else if(video->getCurrentFrame() <= 1){ // stop
+                ofDrawRectangle(this->width - 30, this->height - 50,20,20);
+            }
 
             ofSetColor(255);
             ofSetLineWidth(2);
@@ -250,10 +267,12 @@ void VideoPlayer::removeObjectContent(){
 void VideoPlayer::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    videoName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    videoRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || videoName->hitTest(_m-this->getPos()) || videoRes->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -265,6 +284,8 @@ void VideoPlayer::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        videoName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        videoRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
@@ -285,6 +306,7 @@ void VideoPlayer::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void VideoPlayer::loadVideoFile(){
     if(filepath != "none"){
+        filepath = forceCheckMosaicDataPath(filepath);
         isNewObject = false;
         video->setUseTexture(false);
         video->load(filepath);

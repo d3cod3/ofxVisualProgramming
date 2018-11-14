@@ -64,6 +64,7 @@ public:
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
     ofxDatGuiLabel*     videoName;
+    ofxDatGuiLabel*     videoRes;
     ofxDatGuiButton*    loadButton;
 
     string              lastMessage;

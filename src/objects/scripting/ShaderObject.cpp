@@ -514,7 +514,7 @@ void ShaderObject::loadGUI(){
 //--------------------------------------------------------------
 void ShaderObject::loadScript(string scriptFile){
 
-    filepath = scriptFile;
+    filepath = forceCheckMosaicDataPath(scriptFile);
     currentScriptFile.open(ofToDataPath(filepath,true));
 
     if(currentScriptFile.exists()){

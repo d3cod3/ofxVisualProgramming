@@ -42,7 +42,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {"background subtraction","chroma key","contour tracking","motion detection"};
+    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
     objectsMatrix["computer vision"] = vecInit;
 
     vecInit = {"floats to vector","vector concat"};
@@ -268,10 +268,11 @@ void ofxVisualProgramming::update(){
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
         it->second->update(patchObjects);
+        TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
+
         if(draggingObject && draggingObjectID == it->first){
             it->second->mouseDragged(actualMouse.x,actualMouse.y);
         }
-        TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
     }
     // Clear map from deleted objects
     if(ofGetElapsedTimeMillis()-resetTime > wait){
@@ -966,6 +967,12 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         patchObjects[toID]->inletsConnected[toInlet] = true;
 
+        if(tempLink->type == VP_LINK_TEXTURE){
+            patchObjects[toID]->_inletParams[toInlet] = new ofTexture();
+        }else if(tempLink->type == VP_LINK_AUDIO){
+            patchObjects[toID]->_inletParams[toInlet] = new ofSoundBuffer();
+        }
+
         checkSpecialConnection(fromID,toID,linkType);
 
         connected = true;
@@ -1137,10 +1144,16 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new BackgroundSubtraction();
     }else if(objname == "chroma key"){
         tempObj = new ChromaKey();
+    }else if(objname == "color tracking"){
+        tempObj = new ColorTracking();
     }else if(objname == "contour tracking"){
         tempObj = new ContourTracking();
+    }else if(objname == "haar tracking"){
+        tempObj = new HaarTracking();
     }else if(objname == "motion detection"){
         tempObj = new MotionDetection();
+    }else if(objname == "optical flow"){
+        tempObj = new OpticalFlow();
     }else{
         tempObj = nullptr;
     }

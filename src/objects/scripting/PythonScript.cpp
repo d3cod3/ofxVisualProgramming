@@ -369,7 +369,7 @@ void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
 //--------------------------------------------------------------
 void PythonScript::loadScript(string scriptFile){
 
-    filepath = scriptFile;
+    filepath = forceCheckMosaicDataPath(scriptFile);
     currentScriptFile.open(filepath);
 
     static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;

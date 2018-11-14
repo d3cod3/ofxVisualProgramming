@@ -227,7 +227,7 @@ void BashScript::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void BashScript::loadScript(string scriptFile){
 
-    filepath = scriptFile;
+    filepath = forceCheckMosaicDataPath(scriptFile);
     currentScriptFile.open(filepath);
 
     string cmd = "";

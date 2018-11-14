@@ -196,6 +196,21 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
             ofDrawLine(x+posX, (drawH*0.5)+posY - (val*(drawH*0.5)),x+posX, ((drawH*0.5)+posY) + (val*(drawH*0.5)));
         }
 
+        // draw player state
+        ofSetColor(255,60);
+        if(isPlaying){ // play
+            ofBeginShape();
+            ofVertex(this->width - 30,this->height - 50);
+            ofVertex(this->width - 30,this->height - 30);
+            ofVertex(this->width - 10,this->height - 40);
+            ofEndShape();
+        }else if(!isPlaying && playhead > 0.0){ // pause
+            ofDrawRectangle(this->width - 30, this->height - 50,8,20);
+            ofDrawRectangle(this->width - 18, this->height - 50,8,20);
+        }else if(!isPlaying && playhead == 0.0){ // stop
+            ofDrawRectangle(this->width - 30, this->height - 50,20,20);
+        }
+
         ofSetColor(255);
         ofSetLineWidth(2);
         float phx = ofMap( playhead, 0, audiofile.length(), 0, drawW );
@@ -310,7 +325,7 @@ void SoundfilePlayer::loadSettings(){
 //--------------------------------------------------------------
 void SoundfilePlayer::loadAudioFile(string audiofilepath){
 
-    filepath = audiofilepath;
+    filepath = forceCheckMosaicDataPath(audiofilepath);
 
     audiofile.free();
     audiofile.load(filepath);
