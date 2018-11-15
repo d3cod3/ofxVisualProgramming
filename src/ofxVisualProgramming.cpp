@@ -686,6 +686,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     if(saved){
         patchObjects[tempObj->getId()] = tempObj;
+        patchObjects[tempObj->getId()]->fixCollisions(patchObjects);
     }
 
     bLoadingNewObject       = false;
