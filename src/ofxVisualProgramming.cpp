@@ -92,7 +92,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["web"] = vecInit;
 
-    vecInit = {"output window"};
+    vecInit = {"live patching","output window"};
     objectsMatrix["windowing"] = vecInit;
 
 }
@@ -123,12 +123,13 @@ ofxVisualProgramming::ofxVisualProgramming(){
     glVersion           = "OpenGL "+ofToString(glGetString(GL_VERSION));
     glShadingVersion    = "Shading Language "+ofToString(glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    font        = new ofxFontStash();
-    fontSize    = 12;
-    isRetina    = false;
-    scaleFactor = 1;
-    isOverGui   = false;
+    font                    = new ofxFontStash();
+    fontSize                = 12;
+    isRetina                = false;
+    scaleFactor             = 1;
+    isOverGui               = false;
     linkActivateDistance    = 5;
+    isVPDragging            = false;
 
     selectedObjectLinkType  = -1;
     selectedObjectLink      = -1;
@@ -136,6 +137,8 @@ ofxVisualProgramming::ofxVisualProgramming(){
     draggingObjectID        = -1;
     draggingObject          = false;
     bLoadingNewObject       = false;
+
+    livePatchingObiID       = -1;
 
     currentPatchFile        = "empty_patch.xml";
 
@@ -313,8 +316,13 @@ void ofxVisualProgramming::draw(){
     ofSetColor(255);
     ofSetLineWidth(1);
 
+    livePatchingObiID = -1;
+
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_draw");
+        if(it->second->getName() == "live patching"){
+           livePatchingObiID = it->second->getId();
+        }
         it->second->draw(font);
         TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_draw");
     }
@@ -383,8 +391,33 @@ void ofxVisualProgramming::draw(){
 
     gui->draw();
 
+    // LIVE PATCHING SESSION
+    drawLivePatchingSession();
+
     TSGL_STOP("draw");
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::drawLivePatchingSession(){
+    if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1){
+        if(patchObjects[livePatchingObiID]->inletsConnected[0] && static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->isAllocated()){
+            float lpDrawW, lpDrawH, lpPosX, lpPosY;
+            if(static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth() >= static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight()){   // horizontal texture
+                lpDrawW           = ofGetWidth();
+                lpDrawH           = (ofGetWidth()/static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth())*static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight();
+                lpPosX            = 0;
+                lpPosY            = (ofGetHeight()-lpDrawH)/2.0f;
+            }else{ // vertical texture
+                lpDrawW           = (static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth()*ofGetHeight())/static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight();
+                lpDrawH           = ofGetHeight();
+                lpPosX            = (ofGetWidth()-lpDrawW)/2.0f;
+                lpPosY            = 0;
+            }
+            ofSetColor(255,127);
+            static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->draw(lpPosX,lpPosY,lpDrawW,lpDrawH);
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -425,6 +458,8 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
+
+    isVPDragging = true;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -521,6 +556,8 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
+
+    isVPDragging = false;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -663,6 +700,12 @@ void ofxVisualProgramming::activeObject(int oid){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::addObject(string name,ofVec2f pos){
+
+    // discard special unique objects
+    if(name == "live patching" && weAlreadyHaveObject(name)){
+        ofLog(OF_LOG_WARNING,"%s object is a single instance type of object, a Mosaic  can't contain more than one.",name.c_str());
+        return;
+    }
 
     bLoadingNewObject       = true;
 
@@ -937,8 +980,8 @@ void ofxVisualProgramming::iconifyObject(int &id){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::duplicateObject(int &id){
-    // disable duplicate for hardware related objects
-    if(patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber"){
+    // disable duplicate for hardware&system related objects
+    if(patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching"){
         ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
         addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
     }
@@ -1020,6 +1063,20 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
             }
         }
     }
+}
+
+//--------------------------------------------------------------
+bool ofxVisualProgramming::weAlreadyHaveObject(string name){
+    bool found = false;
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getName() == name){
+            found = true;
+            break;
+        }
+    }
+
+    return found;
 }
 
 //--------------------------------------------------------------
@@ -1138,6 +1195,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "video grabber"){
         tempObj = new VideoGrabber();
     // -------------------------------------- WINDOWING
+    }else if(objname == "live patching"){
+        tempObj = new LivePatching();
     }else if(objname == "output window"){
         tempObj = new OutputWindow();
     // -------------------------------------- COMPUTER VISION
@@ -1488,14 +1547,7 @@ void ofxVisualProgramming::activateDSP(){
         engine.setup(audioSampleRate, audioBufferSize, 3);
         engine.start();
 
-        bool found = false;
-
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(it->second->getName() == "audio device"){
-                found = true;
-                break;
-            }
-        }
+        bool found = weAlreadyHaveObject("audio device");
 
         if(!found){
             glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));

@@ -128,4 +128,5 @@
 // web objects
 
 // window objects
+#include "objects/windowing/LivePatching.h"
 #include "objects/windowing/OutputWindow.h"

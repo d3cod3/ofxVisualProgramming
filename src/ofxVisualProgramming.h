@@ -57,6 +57,7 @@ public:
     void            setupGUI();
     void            update();
     void            draw();
+    void            drawLivePatchingSession();
     void            exit();
 
     void            mouseMoved(ofMouseEventArgs &e);
@@ -87,6 +88,7 @@ public:
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);
+    bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
 
     void            newPatch();
@@ -146,6 +148,10 @@ public:
     vector<ofxDatGuiScrollView*>    objectNavigators;
     vector<ofxDatGuiFolder*>        objectFolders;
     bool                            isOverGui;
+    bool                            isVPDragging;
+
+    // LIVE PATCHING
+    int                             livePatchingObiID;
 
     // Sound Stream
     pdsp::Engine            engine;
