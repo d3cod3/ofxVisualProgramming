@@ -369,11 +369,11 @@ void ofxVisualProgramming::draw(){
 
     // Draw Bottom Bar
     ofSetColor(0,0,0,60);
-    ofDrawRectangle(0,ofGetHeight() - (18*scaleFactor) - (240*scaleFactor),ofGetWidth(),(18*scaleFactor));
+    ofDrawRectangle(0,ofGetHeight() - (18*scaleFactor),ofGetWidth(),(18*scaleFactor));
     ofSetColor(0,200,0);
-    font->draw(glVersion,fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor) - (240*scaleFactor));
+    font->draw(glVersion,fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
     ofSetColor(200);
-    font->draw(glError.getError(),fontSize,glVersion.length()*fontSize*0.5f + 10*scaleFactor,ofGetHeight() - (6*scaleFactor) - (240*scaleFactor));
+    font->draw(glError.getError(),fontSize,glVersion.length()*fontSize*0.5f + 10*scaleFactor,ofGetHeight() - (6*scaleFactor));
 
     ofDisableBlendMode();
 
