@@ -199,7 +199,7 @@ void ofxVisualProgramming::setupGUI(){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
     gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);
-    gui->setWidth(160*scaleFactor);
+    gui->setWidth(160);
     guiHeader = gui->addHeader("OBJECTS");
 
     for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
