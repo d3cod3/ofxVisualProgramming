@@ -76,6 +76,7 @@
 #include "objects/gui/moPlayerControls.h"
 #include "objects/gui/moSlider.h"
 #include "objects/gui/moSignalViewer.h"
+#include "objects/gui/moTimeline.h"
 #include "objects/gui/moTrigger.h"
 #include "objects/gui/moVideoViewer.h"
 

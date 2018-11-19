@@ -25,5 +25,6 @@ ofxParagraph
 ofxPDSP
 ofxPython
 ofxSIMDFloats
+ofxTimeline
 ofxTimeMeasurements
 ofxVisualProgramming
