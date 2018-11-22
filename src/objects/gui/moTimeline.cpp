@@ -36,26 +36,25 @@
 moTimeline::moTimeline() : PatchObject(){
 
     this->numInlets  = 2;
-    this->numOutlets = 1;
+    this->numOutlets = 0;
 
     _inletParams[0] = new string();  // control
     *static_cast<string *>(_inletParams[0]) = "";
     _inletParams[1] = new float();  // playhead
     *(float *)&_inletParams[1] = 0.0f;
-    
-
-    _outletParams[0] = new vector<float>();  // timeline tracks data vector
 
     this->initInletsState();
 
     timeline    = new ofxTimeline();
     localFont   = new ofxFontStash();
 
-    actualTrackName     = "track_name";
+    actualTrackName     = "trackName";
     sameNameAvoider     = 0;
     lastTrackID         = 0;
     durationInSeconds   = 60;
     timelineLoaded      = false;
+    resetTimelineOutlets= false;
+
     isFullscreen        = false;
 
 }
@@ -65,7 +64,6 @@ void moTimeline::newObject(){
     this->setName("timeline");
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
-    this->addOutlet(VP_LINK_ARRAY);
 
     this->setCustomVar(static_cast<float>(lastTrackID),"LAST_TRACK_ID");
     this->setCustomVar(static_cast<float>(durationInSeconds),"DURATION");
@@ -90,7 +88,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     }
 
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
-    window->setWindowTitle("Timeline "+ofToString(this->getId()));
+    window->setWindowTitle("Timeline"+ofToString(this->getId()));
     window->setVerticalSync(true);
 
     ofAddListener(window->events().draw,this,&moTimeline::drawInWindow);
@@ -141,7 +139,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadTimeline = gui->addButton("LOAD TIMELINE");
     loadTimeline->setUseCustomMouse(true);
     loadTimeline->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    saveTimeline = gui->addButton("SAVE TIMELINE");
+    saveTimeline = gui->addButton("SAVE TIMELINE AS");
     saveTimeline->setUseCustomMouse(true);
     saveTimeline->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 
@@ -168,6 +166,14 @@ void moTimeline::updateObjectContent(map<int,PatchObject*> &patchObjects){
     if(!timelineLoaded){
         timelineLoaded = true;
         timeline->setDurationInSeconds(static_cast<int>(floor(this->getCustomVar("DURATION"))));
+    }
+
+    if(resetTimelineOutlets){
+        resetTimelineOutlets = false;
+        for(int j=0;j<static_cast<int>(this->outPut.size());j++){
+            patchObjects[this->outPut[j]->toObjectID]->inletsConnected[this->outPut[j]->toInletID] = false;
+        }
+        resetOutlets();
     }
 }
 
@@ -250,6 +256,7 @@ void moTimeline::initTimeline(){
     timeline->setWorkingFolder(this->filepath);
 
     timeline->setup();
+    timeline->setName(getLoadingTimelineName(this->filepath));
     timeline->disableEvents();
     timeline->setFrameRate(30);
     timeline->setDurationInSeconds(static_cast<int>(floor(this->getCustomVar("DURATION"))));
@@ -262,6 +269,27 @@ void moTimeline::initTimeline(){
 }
 
 //--------------------------------------------------------------
+string moTimeline::getLoadingTimelineName(string path){
+    filesystem::path temppath = filesystem::path(path);
+    ofDirectory dir(temppath);
+    if(dir.isDirectory()){
+        dir.listDir();
+        for(int i = 0; i < dir.size(); i++){
+            size_t found = dir.getPath(i).find_last_of("/\\");
+            string fileStr = dir.getPath(i).substr(found+1);
+            size_t found2 = fileStr.find_first_of("_");
+            if(found != string::npos && found2 != string::npos && fileStr.find("timeline") != string::npos && dir.getFile(i).getExtension() == "xml"){
+                string timelineName = fileStr.substr(0,fileStr.length()-(fileStr.length()-found2));
+                //ofLog(OF_LOG_NOTICE,"%s",timelineName.c_str());
+                return timelineName;
+            }
+        }
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------
 void moTimeline::autoAddTracks(string path){
     filesystem::path temppath = filesystem::path(path);
     ofDirectory dir(temppath);
@@ -271,20 +299,74 @@ void moTimeline::autoAddTracks(string path){
             size_t found = dir.getPath(i).find_last_of("/\\");
             string fileStr = dir.getPath(i).substr(found+1);
             size_t found2 = fileStr.find_first_of("_");
-            string trackName = fileStr.substr(found2+1);
-            string tempName = trackName.erase(trackName.length()-4);
-            if(trackName.at(0) == '_'){
-                if(trackName.at(1) == 'F'){
+            if(found2 != string::npos && fileStr.find("timeline") != string::npos && dir.getFile(i).getExtension() == "xml"){
+                string trackName = fileStr.substr(found2+1);
+                string tempName = trackName.erase(trackName.length()-4);
+                if(trackName.at(3) == 'F'){
                     timeline->addCurves(tempName);
-                }else if(trackName.at(1) == 'B'){
+                    ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+                    sameNameAvoider++;
+                }else if(trackName.at(3) == 'B'){
                     timeline->addBangs(tempName);
-                }else if(trackName.at(1) == 'C'){
+                    ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+                    sameNameAvoider++;
+                }else if(trackName.at(3) == 'C'){
                     timeline->addColors(tempName);
-                }else if(trackName.at(1) == 'L'){
+                    ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+                    sameNameAvoider++;
+                }else if(trackName.at(3) == 'L'){
                     timeline->addLFO(tempName);
+                    ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+                    sameNameAvoider++;
                 }
             }
         }
+
+        updateOutletsConfig();
+        this->setCustomVar(static_cast<float>(sameNameAvoider),"LAST_TRACK_ID");
+        timeline->setWidth(window->getWidth());
+    }
+}
+
+//--------------------------------------------------------------
+void moTimeline::addTrack(int type){
+
+    if(timeline->getPage("Page One")->getTracks().size() < (MAX_OUTLETS/2)){
+        string preCode  = "";
+        string tempName = "";
+        sameNameAvoider<10 ? preCode = "0"+ofToString(sameNameAvoider) : preCode = ofToString(sameNameAvoider);
+
+        switch (type) {
+        case TIMELINE_CURVE_TRACK:
+            tempName = "_"+preCode+"F-"+actualTrackName;
+            timeline->addCurves(tempName,ofToDataPath(this->filepath + timeline->getName() + "_" + tempName + ".xml"));
+            ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+            break;
+        case TIMELINE_BANG_TRACK:
+            tempName = "_"+preCode+"B-"+actualTrackName;
+            timeline->addBangs(tempName,ofToDataPath(this->filepath + timeline->getName() + "_" + tempName + ".xml"));
+            ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+            break;
+        case TIMELINE_COLOR_TRACK:
+            tempName = "_"+preCode+"C-"+actualTrackName;
+            timeline->addColors(tempName,ofToDataPath(this->filepath + timeline->getName() + "_" + tempName + ".xml"));
+            ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+            break;
+        case TIMELINE_LFO_TRACK:
+            tempName = "_"+preCode+"L-"+actualTrackName;
+            timeline->addLFO(tempName,ofToDataPath(this->filepath + timeline->getName() + "_" + tempName + ".xml"));
+            ofAddListener(timeline->getTrackHeader(timeline->getTrack(tempName))->removeTrackEvent ,this,&moTimeline::removeTrack);
+            break;
+        default:
+            break;
+        }
+
+        updateOutletsConfig();
+        sameNameAvoider++;
+        this->setCustomVar(static_cast<float>(sameNameAvoider),"LAST_TRACK_ID");
+
+        timeline->setWidth(window->getWidth());
+
     }
 }
 
@@ -293,11 +375,14 @@ void moTimeline::loadTimelineData(string folder){
     this->filepath = forceCheckMosaicDataPath(folder);
 
     timeline->clear();
+    timeline->setName(getLoadingTimelineName(this->filepath));
     timeline->setWorkingFolder(this->filepath);
 
     autoAddTracks(this->filepath);
 
     timeline->loadTracksFromFolder(this->filepath);
+
+    timeline->setWidth(window->getWidth());
 
     timelineLoaded = false;
 }
@@ -307,8 +392,98 @@ void moTimeline::saveTimelineData(string folder){
     this->filepath = forceCheckMosaicDataPath(folder);
 
     timeline->setWorkingFolder(this->filepath);
-    timeline->save();
+    timeline->setName("timeline"+ofToString(this->nId));
     timeline->saveTracksToFolder(this->filepath);
+}
+
+//--------------------------------------------------------------
+void moTimeline::updateOutletsConfig(){
+
+    if(timeline->getPage("Page One")->getTracks().empty()){
+        return;
+    }
+
+    resetTimelineOutlets = true;
+
+}
+
+//--------------------------------------------------------------
+void moTimeline::resetOutlets(){
+    vector<ofxTLTrack*> tempTracks = timeline->getPage("Page One")->getTracks();
+
+    this->outPut.clear();
+    this->outlets.clear();
+
+    this->numOutlets = tempTracks.size();
+
+    for( int i = 0; i < tempTracks.size(); i++){
+        if(tempTracks.at(i)->getTrackType() == "Colors"){
+            _outletParams[i] = new vector<float>();
+            this->addOutlet(VP_LINK_ARRAY);
+        }else{
+            _outletParams[i] = new float();
+            *(float *)&_outletParams[i] = 0.0f;
+            this->addOutlet(VP_LINK_NUMERIC);
+        }
+    }
+
+    this->height      = OBJECT_HEIGHT;
+
+    if(this->numOutlets > 6){
+        this->height          *= 2;
+    }
+
+    if(this->numOutlets > 12){
+        this->height          *= 2;
+    }
+    this->box->setHeight(this->height);
+    gui->setPosition(0,this->height - header->getHeight());
+
+    ofxXmlSettings XML;
+    if(XML.loadFile(this->patchFile)){
+        int totalObjects = XML.getNumTags("object");
+
+        // Save new object outlet config
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    // Dynamic reloading outlets
+                    XML.removeTag("outlets");
+                    int newOutlets = XML.addTag("outlets");
+                    if(XML.pushTag("outlets",newOutlets)){
+                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                            int newLink = XML.addTag("link");
+                            if(XML.pushTag("link",newLink)){
+                                XML.setValue("type",this->outlets.at(j));
+                                XML.popTag();
+                            }
+                        }
+                        XML.popTag();
+                    }
+                }
+                XML.popTag();
+            }
+        }
+
+        XML.saveFile();
+    }
+}
+
+//--------------------------------------------------------------
+void moTimeline::removeTrack(string &trackName){
+
+    ofLog(OF_LOG_NOTICE,"Removing Track %s",trackName.c_str());
+
+    ofRemoveListener(timeline->getTrackHeader(timeline->getTrack(trackName))->removeTrackEvent,this,&moTimeline::removeTrack);
+    ofFile temp(timeline->getWorkingFolder()+timeline->getName()+"_"+timeline->getTrack(trackName)->getName()+".xml");
+    if(temp.exists()){
+        ofFile::removeFile(temp.getAbsolutePath());
+    }
+    timeline->removeTrack(trackName);
+
+    updateOutletsConfig();
+
+    timeline->setWidth(window->getWidth());
 }
 
 //--------------------------------------------------------------
@@ -379,31 +554,20 @@ void moTimeline::mouseReleased(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void moTimeline::windowResized(ofResizeEventArgs &e){
     timeline->windowResized(e);
+    timeline->setWidth(window->getWidth());
 }
 
 //--------------------------------------------------------------
 void moTimeline::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == addCurveTrack){
-            string tempName = "_F_"+actualTrackName+"_"+ofToString(sameNameAvoider);
-            timeline->addCurves(tempName,ofToDataPath(this->filepath + tempName + ".xml"));
-            sameNameAvoider++;
-            this->setCustomVar(static_cast<float>(sameNameAvoider),"LAST_TRACK_ID");
+            addTrack(TIMELINE_CURVE_TRACK);
         }else if(e.target == addBangTrack){
-            string tempName = "_B_"+actualTrackName+"_"+ofToString(sameNameAvoider);
-            timeline->addBangs(tempName,ofToDataPath(this->filepath + tempName + ".xml"));
-            sameNameAvoider++;
-            this->setCustomVar(static_cast<float>(sameNameAvoider),"LAST_TRACK_ID");
+            addTrack(TIMELINE_BANG_TRACK);
         }else if(e.target == addColorTrack){
-            string tempName = "_C_"+actualTrackName+"_"+ofToString(sameNameAvoider);
-            timeline->addColors(tempName,ofToDataPath(this->filepath + tempName + ".xml"));
-            sameNameAvoider++;
-            this->setCustomVar(static_cast<float>(sameNameAvoider),"LAST_TRACK_ID");
+            addTrack(TIMELINE_COLOR_TRACK);
         }else if(e.target == addLFOTrack){
-            string tempName = "_L_"+actualTrackName+"_"+ofToString(sameNameAvoider);
-            timeline->addLFO(tempName,ofToDataPath(this->filepath + tempName + ".xml"));
-            sameNameAvoider++;
-            this->setCustomVar(static_cast<float>(sameNameAvoider),"LAST_TRACK_ID");
+            addTrack(TIMELINE_LFO_TRACK);
         }else if(e.target == setDuration){
             timeline->setDurationInSeconds(durationInSeconds);
         }else if(e.target == loadTimeline){

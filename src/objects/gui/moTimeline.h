@@ -36,6 +36,11 @@
 
 #include "ofxTimeline.h"
 
+#define TIMELINE_CURVE_TRACK    0
+#define TIMELINE_BANG_TRACK     1
+#define TIMELINE_COLOR_TRACK    2
+#define TIMELINE_LFO_TRACK      3
+
 class moTimeline : public PatchObject {
 
 public:
@@ -51,9 +56,15 @@ public:
     void            dragGUIObject(ofVec3f _m);
 
     void            initTimeline();
+    string          getLoadingTimelineName(string path);
     void            autoAddTracks(string path);
+    void            addTrack(int type);
     void            loadTimelineData(string folder);
     void            saveTimelineData(string folder);
+    void            updateOutletsConfig();
+    void            resetOutlets();
+    void            removeTrack(string &trackName);
+
     void            drawInWindow(ofEventArgs &e);
     void            toggleWindowFullscreen();
 
@@ -79,6 +90,7 @@ public:
     int                                     durationInSeconds;
     int                                     lastTrackID;
     bool                                    timelineLoaded;
+    bool                                    resetTimelineOutlets;
 
 
     ofxDatGui*                              gui;
