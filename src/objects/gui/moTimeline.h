@@ -74,29 +74,40 @@ public:
     void            mouseDragged(ofMouseEventArgs &e);
     void            mousePressed(ofMouseEventArgs &e);
     void            mouseReleased(ofMouseEventArgs &e);
+    void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
 
     void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onToggleEvent(ofxDatGuiToggleEvent e);
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
 
     std::shared_ptr<ofAppGLFWWindow>        window;
     bool                                    isFullscreen;
+    float                                   scrolledDisplacement;
 
     ofxTimeline                             *timeline;
+    vector<string>                          *actualTracks;
     ofxFontStash                            *localFont;
     string                                  actualTrackName;
     int                                     sameNameAvoider;
     int                                     durationInSeconds;
+    int                                     fps;
     int                                     lastTrackID;
     bool                                    timelineLoaded;
     bool                                    resetTimelineOutlets;
 
+    string                                  lastMessage;
+    float                                   lastPlayheadPos;
+
 
     ofxDatGui*                              gui;
     ofxDatGuiHeader*                        header;
+    ofxDatGuiToggle*                        setRetina;
     ofxDatGuiTextInput*                     guiDuration;
     ofxDatGuiButton*                        setDuration;
+    ofxDatGuiTextInput*                     guiFPS;
+    ofxDatGuiButton*                        setFPS;
     ofxDatGuiTextInput*                     guiTrackName;
     ofxDatGuiButton*                        addCurveTrack;
     ofxDatGuiButton*                        addBangTrack;
