@@ -53,7 +53,7 @@ moTimeline::moTimeline() : PatchObject(){
     sameNameAvoider     = 0;
     lastTrackID         = 0;
     durationInSeconds   = 60;
-    fps                 = 25;
+    fps                 = static_cast<int>(ofGetFrameRate());
     timelineLoaded      = false;
     resetTimelineOutlets= false;
 
@@ -135,7 +135,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     setDuration->setUseCustomMouse(true);
     setDuration->setLabelAlignment(ofxDatGuiAlignment::CENTER);
     gui->addBreak();
-    guiFPS = gui->addTextInput("FPS","25"); // fps
+    guiFPS = gui->addTextInput("FPS",ofToString(fps)); // fps
     guiFPS->setText(ofToString(static_cast<int>(floor(this->getCustomVar("FPS")))));
     guiFPS->setUseCustomMouse(true);
     setFPS = gui->addButton("SET FPS");
