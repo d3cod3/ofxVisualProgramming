@@ -91,11 +91,15 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxParagraph](https://github.com/d3cod3/ofxParagraph)
 
+#### [ofxPd](https://github.com/danomatika/ofxPd)
+
 #### [ofxPDSP](https://github.com/npisanti/ofxPDSP)
 
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
 #### [ofxSIMDFloats](https://github.com/d3cod3/ofxSIMDFloats)
+
+#### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
 
@@ -127,8 +131,10 @@ git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
 git clone https://github.com/d3cod3/ofxMidi
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
 git clone https://github.com/d3cod3/ofxParagraph
+git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/npisanti/ofxPDSP
 git clone https://github.com/d3cod3/ofxSIMDFloats
+git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
@@ -415,6 +421,7 @@ Data | Ready | TODO
 ---------- | ---------- | ----------
 floats to vector | X  |
 vector concat | X  |
+more to come ... | | X
 
 GUI | Ready | TODO
 ---------- | ---------- | ----------
@@ -424,7 +431,7 @@ message | X |
 player controls | X |
 slider | X |
 signal viewer | X |
-timeline | | X
+timeline | X |
 trigger | X |
 video viewer | X |
 more to come ... | | X
@@ -457,6 +464,7 @@ bash script | X |
 lua script | X |
 python script | X |
 shader object | X |
+pd patch | | X
 
 Sound | Ready | TODO
 ---------- | ---------- | ----------
@@ -492,6 +500,7 @@ more to come ... | | X
 
 Windowing | Ready | TODO
 ---------- | ---------- | ----------
+live patching | X |
 output window | X |
 
 # LICENSE
@@ -523,3 +532,5 @@ ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdon
 ofxLua, ofxMidi original addons by [Dan Wilcox](https://github.com/danomatika)
 
 ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
+
+ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
