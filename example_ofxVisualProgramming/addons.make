@@ -22,6 +22,7 @@ ofxInfiniteCanvas
 ofxLua
 ofxMidi
 ofxParagraph
+ofxPd
 ofxPDSP
 ofxPython
 ofxSIMDFloats

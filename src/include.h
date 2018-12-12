@@ -119,6 +119,7 @@
 
 // sound objects
 #include "objects/sound/AudioDevice.h"
+#include "objects/sound/PDPatch.h"
 #include "objects/sound/SoundfilePlayer.h"
 
 // video objects

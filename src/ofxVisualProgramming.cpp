@@ -83,7 +83,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"soundfile player"};
+    vecInit = {"soundfile player"}; // "pd patch",
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video grabber","video player"};
@@ -1138,6 +1138,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
     // -------------------------------------- Sound
+    }else if(objname == "pd patch"){
+        tempObj = new PDPatch();
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
     // -------------------------------------- Math
