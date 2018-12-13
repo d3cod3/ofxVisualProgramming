@@ -311,7 +311,11 @@ void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
                 }
             }
         }else if(e.target == editButton){
-            if(filepath != "none" && scriptLoaded){
+            bool nameError = false;
+            if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){
+               nameError = true;
+            }
+            if(filepath != "none" && !nameError && scriptLoaded){
                 string cmd = "";
 #ifdef TARGET_LINUX
                 cmd = "atom "+filepath;
@@ -322,6 +326,10 @@ void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
 #endif
                 tempCommand.execCommand(cmd);
 
+            }
+            if(nameError){
+                ofLog(OF_LOG_ERROR,"BASH SCRIPT NAME ERROR: your script filename: %s contains irregular characters,",filepath.c_str());
+                ofLog(OF_LOG_ERROR,"please use alphanumerical and underscore (_) characters only!");
             }
         }
     }
