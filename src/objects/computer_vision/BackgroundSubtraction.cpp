@@ -104,6 +104,15 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
     bgSubTechSelector->setUseCustomMouse(true);
     bgSubTechSelector->setRadioMode(true);
     bgSubTech = static_cast<int>(floor(this->getCustomVar("SUBTRACTION_TECHNIQUE")));
+
+    if(bgSubTech == 0){
+        bgTechLabel->setLabel("B&W ABS");
+    }else if(bgSubTech == 1){
+        bgTechLabel->setLabel("LIGHTER THAN");
+    }else if(bgSubTech == 2){
+        bgTechLabel->setLabel("DARKER THAN");
+    }
+
     bgSubTechSelector->getChildAt(bgSubTech)->setSelected(true);
     gui->addBreak();
     brightnessValue = gui->addSlider("BRIGTH",-1.0,3.0);
