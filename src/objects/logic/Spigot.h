@@ -34,11 +34,11 @@
 
 #include "PatchObject.h"
 
-class Gate : public PatchObject {
+class Spigot : public PatchObject {
 
 public:
 
-    Gate();
+    Spigot();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -46,7 +46,11 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            mouseReleasedObjectContent(ofVec3f _m);
+
     bool            isOpen;
-    int             openInlet;
+
+    vector<float>   *empty;
+    ofImage         *kuro;
 
 };

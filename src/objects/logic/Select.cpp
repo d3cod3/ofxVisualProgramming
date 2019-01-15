@@ -30,85 +30,78 @@
 
 ==============================================================================*/
 
-#include "Gate.h"
+#include "Select.h"
 
 //--------------------------------------------------------------
-Gate::Gate() : PatchObject(){
+Select::Select() : PatchObject(){
 
-    this->numInlets  = 6;
-    this->numOutlets = 1;
+    this->numInlets  = 1;
+    this->numOutlets = 13;
 
-    _inletParams[0] = new float();  // open
+    _inletParams[0] = new float();  // state
     *(float *)&_inletParams[0] = 0.0f;
 
-    _inletParams[1] = new float();  // float1
-    _inletParams[2] = new float();  // float2
-    _inletParams[3] = new float();  // float3
-    _inletParams[4] = new float();  // float4
-    _inletParams[5] = new float();  // float5
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 0.0f;
-    *(float *)&_inletParams[3] = 0.0f;
-    *(float *)&_inletParams[4] = 0.0f;
-    *(float *)&_inletParams[5] = 0.0f;
+    for(int i=0;i<this->numOutlets;i++){
+        _outletParams[i] = new float(); // output numeric
+        *(float *)&_outletParams[i] = 0.0f;
+    }
 
-    _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    this->height          *= 2;
 
     this->initInletsState();
 
-    isOpen      = false;
-    openInlet   = 0;
-
+    selector    = 0;
+    lastValue   = 0;
 }
 
 //--------------------------------------------------------------
-void Gate::newObject(){
-    this->setName("gate");
-    this->addInlet(VP_LINK_NUMERIC,"open");
-    this->addInlet(VP_LINK_NUMERIC,"f1");
-    this->addInlet(VP_LINK_NUMERIC,"f2");
-    this->addInlet(VP_LINK_NUMERIC,"f3");
-    this->addInlet(VP_LINK_NUMERIC,"f4");
-    this->addInlet(VP_LINK_NUMERIC,"f5");
-    this->addOutlet(VP_LINK_NUMERIC);
+void Select::newObject(){
+    this->setName("select");
+    this->addInlet(VP_LINK_NUMERIC,"sel");
+    for(int i=0;i<this->numOutlets;i++){
+        this->addOutlet(VP_LINK_NUMERIC);
+    }
 }
 
 //--------------------------------------------------------------
-void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+void Select::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    for(int i=0;i<this->numOutlets;i++){
+        bangs.push_back(false);
+    }
 }
 
 //--------------------------------------------------------------
-void Gate::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Select::updateObjectContent(map<int,PatchObject*> &patchObjects){
     
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            isOpen = false;
+        if(static_cast<int>(floor(*(float *)&_inletParams[0])) != lastValue && static_cast<int>(floor(*(float *)&_inletParams[0])) < bangs.size()){
+            lastValue = static_cast<int>(floor(*(float *)&_inletParams[0]));
+            bangs.at(lastValue) = true;
+        }else if(static_cast<int>(floor(*(float *)&_inletParams[0])) != lastValue && static_cast<int>(floor(*(float *)&_inletParams[0])) >= bangs.size()){
+            lastValue = static_cast<int>(floor(*(float *)&_inletParams[0]));
+            bangs.at(bangs.size()-1) = true;
         }else{
-            isOpen = true;
+            for(int i=0;i<bangs.size();i++){
+                bangs.at(i) = false;
+            }
         }
-    }
 
-    if(isOpen){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        if(openInlet >= 1 && openInlet <= this->numInlets){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
+        for(int i=0;i<bangs.size();i++){
+            *(float *)&_outletParams[i] = static_cast<float>(bangs.at(i));
         }
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
     }
     
 }
 
 //--------------------------------------------------------------
-void Gate::drawObjectContent(ofxFontStash *font){
+void Select::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
+    
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void Gate::removeObjectContent(){
+void Select::removeObjectContent(){
     
 }

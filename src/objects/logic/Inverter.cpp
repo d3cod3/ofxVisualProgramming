@@ -30,85 +30,72 @@
 
 ==============================================================================*/
 
-#include "Gate.h"
+#include "Inverter.h"
 
 //--------------------------------------------------------------
-Gate::Gate() : PatchObject(){
+Inverter::Inverter() : PatchObject(){
 
-    this->numInlets  = 6;
+    this->numInlets  = 1;
     this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // open
+    _inletParams[0] = new float();  // bang
     *(float *)&_inletParams[0] = 0.0f;
-
-    _inletParams[1] = new float();  // float1
-    _inletParams[2] = new float();  // float2
-    _inletParams[3] = new float();  // float3
-    _inletParams[4] = new float();  // float4
-    _inletParams[5] = new float();  // float5
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 0.0f;
-    *(float *)&_inletParams[3] = 0.0f;
-    *(float *)&_inletParams[4] = 0.0f;
-    *(float *)&_inletParams[5] = 0.0f;
 
     _outletParams[0] = new float(); // output numeric
     *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
-    isOpen      = false;
-    openInlet   = 0;
+    trigger = true;
 
 }
 
 //--------------------------------------------------------------
-void Gate::newObject(){
-    this->setName("gate");
-    this->addInlet(VP_LINK_NUMERIC,"open");
-    this->addInlet(VP_LINK_NUMERIC,"f1");
-    this->addInlet(VP_LINK_NUMERIC,"f2");
-    this->addInlet(VP_LINK_NUMERIC,"f3");
-    this->addInlet(VP_LINK_NUMERIC,"f4");
-    this->addInlet(VP_LINK_NUMERIC,"f5");
+void Inverter::newObject(){
+    this->setName("inverter");
+    this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC);
 }
 
 //--------------------------------------------------------------
-void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+void Inverter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    
 }
 
 //--------------------------------------------------------------
-void Gate::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Inverter::updateObjectContent(map<int,PatchObject*> &patchObjects){
     
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            isOpen = false;
+        if(*(float *)&_inletParams[0] < 1.0f){
+            trigger = true;
         }else{
-            isOpen = true;
+            trigger = false;
         }
     }
-
-    if(isOpen){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        if(openInlet >= 1 && openInlet <= this->numInlets){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
-        }
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
-    }
-    
+    *(float *)&_outletParams[0] = static_cast<float>(trigger);
 }
 
 //--------------------------------------------------------------
-void Gate::drawObjectContent(ofxFontStash *font){
+void Inverter::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
+    if(trigger){
+        ofSetLineWidth(6);
+        ofSetColor(250,250,5);
+        if(this->isRetina){
+            ofDrawLine(0,this->headerHeight,this->width,this->height-12);
+            ofDrawLine(this->width,this->headerHeight,0,this->height-12);
+        }else{
+            ofDrawLine(0,this->headerHeight,this->width,this->height-6);
+            ofDrawLine(this->width,this->headerHeight,0,this->height-6);
+        }
+
+        ofSetLineWidth(1);
+    }
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void Gate::removeObjectContent(){
+void Inverter::removeObjectContent(){
     
 }

@@ -34,11 +34,11 @@
 
 #include "PatchObject.h"
 
-class Gate : public PatchObject {
+class Inverter : public PatchObject {
 
 public:
 
-    Gate();
+    Inverter();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -46,7 +46,6 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    bool            isOpen;
-    int             openInlet;
+    bool            trigger;
 
 };

@@ -34,11 +34,11 @@
 
 #include "PatchObject.h"
 
-class Gate : public PatchObject {
+class Select : public PatchObject {
 
 public:
 
-    Gate();
+    Select();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -46,7 +46,8 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    bool            isOpen;
-    int             openInlet;
+    int             selector;
+    int             lastValue;
+    vector<bool>    bangs;
 
 };
