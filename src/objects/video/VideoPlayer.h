@@ -68,6 +68,7 @@ public:
     ofxDatGuiButton*    loadButton;
 
     string              lastMessage;
+    float               lastPlayhead;
 
 protected:
     std::condition_variable condition;

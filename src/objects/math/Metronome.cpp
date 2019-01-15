@@ -35,8 +35,11 @@
 //--------------------------------------------------------------
 Metronome::Metronome() : PatchObject(){
 
-    this->numInlets  = 0;
+    this->numInlets  = 1;
     this->numOutlets = 1;
+
+    _inletParams[0] = new float(); // time
+    *(float *)&_inletParams[0] = 0.0f;
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
@@ -55,6 +58,7 @@ Metronome::Metronome() : PatchObject(){
 //--------------------------------------------------------------
 void Metronome::newObject(){
     this->setName("metronome");
+    this->addInlet(VP_LINK_NUMERIC,"time");
     this->addOutlet(VP_LINK_NUMERIC);
 
     this->setCustomVar(static_cast<float>(wait),"TIME");
@@ -68,7 +72,7 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->addBreak();
     gui->onTextInputEvent(this, &Metronome::onTextInputEvent);
 
-    timeSetting = gui->addTextInput("TIME MS.","1000");
+    timeSetting = gui->addTextInput(" ","1000");
     timeSetting->setUseCustomMouse(true);
     timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
     gui->addBreak();
@@ -88,6 +92,12 @@ void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
     gui->update();
     timeSetting->update();
+
+    if(this->inletsConnected[0] && static_cast<size_t>(floor(*(float *)&_inletParams[0])) != wait){
+        wait = static_cast<size_t>(floor(*(float *)&_inletParams[0]));
+        timeSetting->setText(ofToString(wait));
+        this->setCustomVar(static_cast<float>(wait),"TIME");
+    }
 
     if(metroTime-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();

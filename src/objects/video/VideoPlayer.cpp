@@ -67,6 +67,8 @@ VideoPlayer::VideoPlayer() : PatchObject(){
     threadLoaded    = false;
     needToLoadVideo = true;
 
+    lastPlayhead    = 0.0f;
+
 }
 
 //--------------------------------------------------------------
@@ -183,8 +185,9 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
             }
         }
         // playhead
-        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f){
+        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f && *(float *)&_inletParams[1] != lastPlayhead){
             video->setPosition(*(float *)&_inletParams[1]);
+            lastPlayhead = *(float *)&_inletParams[1];
         }
         // speed
         if(this->inletsConnected[2]){
@@ -246,7 +249,12 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
             ofSetColor(255);
             ofSetLineWidth(2);
             float phx = ofMap( video->getPosition(), 0, 1, 0, drawW );
-            ofDrawLine( phx, posY+2, phx, drawH+posY);
+            if(phx >= 0.0f){
+                ofDrawLine( phx, posY+2, phx, drawH+posY);
+            }else{
+                ofDrawLine( 0, posY+2, 0, drawH+posY);
+            }
+
         }
     }else if(!isNewObject){
         ofSetColor(255,0,0);
