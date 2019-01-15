@@ -18,6 +18,7 @@ ofxFontStash
 ofxGLEditor
 ofxGLError
 ofxHistoryPlot
+ofxJSON
 ofxInfiniteCanvas
 ofxLua
 ofxMidi
@@ -26,6 +27,7 @@ ofxPd
 ofxPDSP
 ofxPython
 ofxSIMDFloats
+ofxThreadedYouTubeVideo
 ofxTimeline
 ofxTimeMeasurements
 ofxVisualProgramming

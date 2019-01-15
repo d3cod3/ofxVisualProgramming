@@ -172,6 +172,7 @@ install:
   - git clone --branch=master https://github.com/d3cod3/ofxGLEditor addons/ofxGLEditor
   - git clone --branch=master https://github.com/armadillu/ofxGLError addons/ofxGLError
   - git clone --branch=master https://github.com/armadillu/ofxHistoryPlot addons/ofxHistoryPlot
+  - git clone --branch=master https://github.com/jeffcrouse/ofxJSON addons/ofxJSON
   - git clone --branch=master https://github.com/d3cod3/ofxInfiniteCanvas addons/ofxInfiniteCanvas
   - git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua addons/ofxLua
   - git clone --branch=master https://github.com/d3cod3/ofxMidi addons/ofxMidi
@@ -180,6 +181,7 @@ install:
   - git clone --branch=master https://github.com/npisanti/ofxPDSP addons/ofxPDSP
   - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython addons/ofxPython
   - git clone --branch=master https://github.com/d3cod3/ofxSIMDFloats addons/ofxSIMDFloats
+  - git clone --branch=master https://github.com/pierrep/ofxThreadedYouTubeVideo addons/ofxThreadedYouTubeVideo
   - git clone --branch=master https://github.com/d3cod3/ofxTimeline addons/ofxTimeline
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
   - scripts/ci/addons/install.sh

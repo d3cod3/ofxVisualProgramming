@@ -83,6 +83,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
 
+#### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
+
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
 
 #### [ofxLua](https://github.com/d3cod3/ofxLua)
@@ -98,6 +100,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
 #### [ofxSIMDFloats](https://github.com/d3cod3/ofxSIMDFloats)
+
+#### [ofxThreadedYouTubeVideo](http://github.com/pierrep/ofxThreadedYouTubeVideo)
 
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
 
@@ -126,6 +130,7 @@ git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
 git clone https://github.com/armadillu/ofxGLError
 git clone https://github.com/armadillu/ofxHistoryPlot
+git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
 git clone https://github.com/d3cod3/ofxMidi
@@ -134,6 +139,7 @@ git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/npisanti/ofxPDSP
 git clone https://github.com/d3cod3/ofxSIMDFloats
+git clone http://github.com/pierrep/ofxThreadedYouTubeVideo
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxVisualProgramming
@@ -527,10 +533,14 @@ ofxFontStash, ofxGLError, ofxHistoryPlot, ofxTimeMeasurements original addons by
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
+ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
+
 ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdonald)
 
-ofxLua, ofxMidi original addons by [Dan Wilcox](https://github.com/danomatika)
+ofxLua, ofxMidi, ofxPd original addons by [Dan Wilcox](https://github.com/danomatika)
 
 ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
+
+ofxThreadedYouTubeVideo original addon by [Pierre Proske](https://github.com/pierrep)
 
 ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
