@@ -54,7 +54,6 @@ public:
 
     void            setup();
     void            initObjectMatrix();
-    void            setupGUI();
     void            update();
     void            draw();
     void            drawLivePatchingSession();
@@ -67,10 +66,6 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
 
     void            keyPressed(ofKeyEventArgs &e);
-
-    // GUI
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onScrollViewEvent(ofxDatGuiScrollViewEvent e);
 
     void            activeObject(int oid);
 
@@ -105,6 +100,7 @@ public:
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
     ofEasyCam               easyCam;
+    ofRectangle             canvasViewport;
 
     // PATCH DRAWING RESOURCES
     ofxFontStash            *font;
@@ -141,20 +137,14 @@ public:
     bool                            profilerActive;
 
     // GUI
-    ofxDatGuiThemeRetina            *guiThemeRetina;
-    ofxDatGui                       *gui;
-    ofxDatGuiHeader                 *guiHeader;
     map<string,vector<string>>      objectsMatrix;
-    vector<ofxDatGuiScrollView*>    objectNavigators;
-    vector<ofxDatGuiFolder*>        objectFolders;
-    bool                            isOverGui;
     bool                            isVPDragging;
 
     // LIVE PATCHING
     int                             livePatchingObiID;
 
     // Sound Stream
-    pdsp::Engine            engine;
+    pdsp::Engine            *engine;
     ofSoundBuffer           inputBuffer;
     ofSoundBuffer           emptyBuffer;
 

@@ -86,7 +86,10 @@
 #include "objects/logic/Counter.h"
 #include "objects/logic/DelayBang.h"
 #include "objects/logic/Gate.h"
+#include "objects/logic/Inverter.h"
 #include "objects/logic/LoadBang.h"
+#include "objects/logic/Select.h"
+#include "objects/logic/Spigot.h"
 
 // machine_learning objects
 
@@ -119,11 +122,13 @@
 
 // sound objects
 #include "objects/sound/AudioDevice.h"
+#include "objects/sound/AudioGate.h"
 #include "objects/sound/PDPatch.h"
 #include "objects/sound/SoundfilePlayer.h"
 
 // video objects
 #include "objects/video/KinectGrabber.h"
+#include "objects/video/VideoGate.h"
 #include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"
 

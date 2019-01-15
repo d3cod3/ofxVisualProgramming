@@ -57,7 +57,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["input/output"] = vecInit;
 
-    vecInit = {"counter","delay bang","gate","loadbang"};
+    vecInit = {"counter","delay bang","gate","inverter","loadbang","select","spigot"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {};
@@ -83,10 +83,15 @@ void ofxVisualProgramming::initObjectMatrix(){
 
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"soundfile player"}; // "pd patch",
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+    vecInit = {"audio gate","pd patch","soundfile player"};
+#elif defined(TARGET_WIN32)
+    vecInit = {"audio gate","soundfile player"};
+#endif
+
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video grabber","video player"};
+    vecInit = {"kinect grabber","video gate","video grabber","video player"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -123,11 +128,12 @@ ofxVisualProgramming::ofxVisualProgramming(){
     glVersion           = "OpenGL "+ofToString(glGetString(GL_VERSION));
     glShadingVersion    = "Shading Language "+ofToString(glGetString(GL_SHADING_LANGUAGE_VERSION));
 
+    engine                  = new pdsp::Engine();
+
     font                    = new ofxFontStash();
     fontSize                = 12;
     isRetina                = false;
     scaleFactor             = 1;
-    isOverGui               = false;
     linkActivateDistance    = 5;
     isVPDragging            = false;
 
@@ -180,71 +186,18 @@ void ofxVisualProgramming::setup(){
     canvas.toggleOfCam();
     easyCam.enableOrtho();
 
+    canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
+
     // RETINA FIX
     if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
         canvas.setScale(2);
     }
 
-    // GUI
-    setupGUI();
+    // INIT OBJECTS
+    initObjectMatrix();
 
     // Create new empty file patch
     newPatch();
-
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::setupGUI(){
-
-    initObjectMatrix();
-
-    guiThemeRetina = new ofxDatGuiThemeRetina();
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(160);
-    guiHeader = gui->addHeader("OBJECTS");
-
-    for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
-        ofxDatGuiFolder* tgf;
-        if(static_cast<int>(it->second.size()) == 0){
-            tgf = new ofxDatGuiFolder(it->first, ofColor::black);
-        }else{
-            tgf = new ofxDatGuiFolder(it->first);
-        }
-        tgf->setLabelAlignment(ofxDatGuiAlignment::RIGHT);
-        tgf->onButtonEvent(this, &ofxVisualProgramming::onButtonEvent);
-        objectFolders.push_back(tgf);
-
-        ofxDatGuiScrollView* tsw = new ofxDatGuiScrollView(it->first);
-        objectNavigators.push_back(tsw);
-        if(isRetina){
-            objectNavigators.back()->setItemSpacing(27);
-        }
-        for(int j=0;j<static_cast<int>(it->second.size());j++){
-            objectNavigators.back()->add(it->second.at(j));
-        }
-
-        for(int z=0;z<static_cast<int>(it->second.size());z++){
-            objectNavigators.back()->children[z]->setUseCustomMouse(true);
-        }
-
-        objectNavigators.back()->onScrollViewEvent(this, &ofxVisualProgramming::onScrollViewEvent);
-
-        objectFolders.back()->attachItem(objectNavigators.back());
-        gui->addFolder(objectFolders.back());
-
-    }
-
-    ofxDatGuiFooter* footer = gui->addFooter();
-    footer->setLabelWhenExpanded("collapse");
-    footer->setLabelWhenCollapsed("objects");
-
-    if(isRetina){
-        gui->setTheme(guiThemeRetina);
-    }
-
-    gui->onButtonEvent(this, &ofxVisualProgramming::onButtonEvent);
 
 }
 
@@ -255,14 +208,6 @@ void ofxVisualProgramming::update(){
     unique_lock<std::mutex> lock(inputAudioMutex);
     {
 
-    }
-
-    // GUI
-    if(!draggingObject){
-        gui->update();
-        for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
-            objectNavigators.at(i)->update();
-        }
     }
 
     // Graphical Context
@@ -308,7 +253,7 @@ void ofxVisualProgramming::draw(){
     ofPushStyle();
     ofPushMatrix();
 
-    canvas.begin();
+    canvas.begin(canvasViewport);
 
     ofEnableAlphaBlending();
     ofSetCircleResolution(6);
@@ -383,13 +328,21 @@ void ofxVisualProgramming::draw(){
     ofSetColor(200);
     font->draw(glError.getError(),fontSize,glVersion.length()*fontSize*0.5f + 10*scaleFactor,ofGetHeight() - (6*scaleFactor));
 
+    // DSP flag
+    if(dspON){
+        ofSetColor(ofColor::fromHex(0xFFD00B));
+        font->draw("DSP ON",fontSize,glVersion.length()*fontSize*0.5f + glError.getError().length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
+    }else{
+        ofSetColor(ofColor::fromHex(0x777777));
+        font->draw("DSP OFF",fontSize,glVersion.length()*fontSize*0.5f + glError.getError().length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
+    }
+
+
     ofDisableBlendMode();
 
     ofPopMatrix();
     ofPopStyle();
     ofPopView();
-
-    gui->draw();
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
@@ -422,6 +375,10 @@ void ofxVisualProgramming::drawLivePatchingSession(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
+
+    deactivateDSP();
+    engine->setChannels(0,0);
+
     ofDirectory dir;
     dir.listDir(ofToDataPath("temp/"));
     for(size_t i = 0; i < dir.size(); i++){
@@ -433,17 +390,6 @@ void ofxVisualProgramming::exit(){
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-    // GUI
-    if(!draggingObject){
-        gui->setCustomMousePos(e.x,e.y);
-        isOverGui = gui->hitTest(ofPoint(e.x,e.y));
-        for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
-            for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
-                objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
-            }
-        }
-    }
 
     // CANVAS
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
@@ -492,18 +438,7 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
         }
     }
 
-    // GUI
-    if(!draggingObject){
-        gui->setCustomMousePos(e.x,e.y);
-        isOverGui = gui->hitTest(ofPoint(e.x,e.y));
-        for(int i=0;i<static_cast<int>(objectNavigators.size());i++){
-            for(int z=0;z<static_cast<int>(objectNavigators.at(i)->children.size());z++){
-                objectNavigators.at(i)->children[z]->setCustomMousePos(e.x-objectNavigators.at(i)->getX(),e.y-objectNavigators.at(i)->getY());
-            }
-        }
-    }
-
-    if(selectedObjectLink == -1 && !draggingObject && !isOverGui){
+    if(selectedObjectLink == -1 && !draggingObject){
         canvas.mouseDragged(e);
     }
 
@@ -514,39 +449,33 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
-    if(isOverGui){
-        if(!draggingObject){
-            gui->setCustomMousePos(e.x,e.y);
+    canvas.mousePressed(e);
+
+    selectedObjectLink = -1;
+    selectedObjectLinkType = -1;
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(patchObjects[it->first] != nullptr){
+            for(int p=0;p<it->second->getNumOutlets();p++){
+                if(it->second->getOutletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
+                    selectedObjectID = it->first;
+                    selectedObjectLink = p;
+                    selectedObjectLinkType = it->second->getOutletType(p);
+                    it->second->setIsActive(false);
+                    break;
+                }
+            }
+            it->second->mousePressed(actualMouse.x,actualMouse.y);
         }
-    }else{
-        canvas.mousePressed(e);
+    }
 
-        selectedObjectLink = -1;
-        selectedObjectLinkType = -1;
-
+    if(selectedObjectLink == -1 && !patchObjects.empty()){
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
-                for(int p=0;p<it->second->getNumOutlets();p++){
-                    if(it->second->getOutletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
-                        selectedObjectID = it->first;
-                        selectedObjectLink = p;
-                        selectedObjectLinkType = it->second->getOutletType(p);
-                        it->second->setIsActive(false);
-                        break;
-                    }
-                }
-                it->second->mousePressed(actualMouse.x,actualMouse.y);
-            }
-        }
-
-        if(selectedObjectLink == -1 && !patchObjects.empty()){
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                if(patchObjects[it->first] != nullptr){
-                    if(it->second->getIsActive()){
-                        selectedObjectID = it->first;
-                        selectedObjectLinkType = -1;
-                        break;
-                    }
+                if(it->second->getIsActive()){
+                    selectedObjectID = it->first;
+                    selectedObjectLinkType = -1;
+                    break;
                 }
             }
         }
@@ -561,83 +490,73 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
-    if(isOverGui){
-        if(!draggingObject){
-            gui->setCustomMousePos(e.x,e.y);
-            if(!gui->getFocused()){
-                gui->focus();
-            }
-        }
-    }else{
-        canvas.mouseReleased(e);
+    canvas.mouseReleased(e);
 
-        bool isLinked = false;
+    bool isLinked = false;
 
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->mouseReleased(actualMouse.x,actualMouse.y,patchObjects);
+    }
+
+    if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty()){
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            it->second->mouseReleased(actualMouse.x,actualMouse.y,patchObjects);
-        }
-
-        if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty()){
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                if(selectedObjectID != it->first){
-                    for (int j=0;j<it->second->getNumInlets();j++){
-                        if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
-                            if(it->second->getInletType(j) == selectedObjectLinkType){
-                                connect(selectedObjectID,selectedObjectLink,it->first,j,selectedObjectLinkType);
-                                patchObjects[selectedObjectID]->saveConfig(true,selectedObjectID);
-                                isLinked = true;
-                                break;
-                            }
-
+            if(selectedObjectID != it->first){
+                for (int j=0;j<it->second->getNumInlets();j++){
+                    if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
+                        if(it->second->getInletType(j) == selectedObjectLinkType){
+                            connect(selectedObjectID,selectedObjectLink,it->first,j,selectedObjectLinkType);
+                            patchObjects[selectedObjectID]->saveConfig(true,selectedObjectID);
+                            isLinked = true;
+                            break;
                         }
+
                     }
                 }
             }
         }
+    }
 
-        if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0){
-            vector<bool> tempEraseLinks;
-            for(int j=0;j<static_cast<int>(patchObjects[selectedObjectID]->outPut.size());j++){
-                //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
-                if(patchObjects[selectedObjectID]->outPut[j]->fromOutletID == selectedObjectLink){
-                    tempEraseLinks.push_back(true);
-                }else{
-                    tempEraseLinks.push_back(false);
-                }
+    if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0){
+        vector<bool> tempEraseLinks;
+        for(int j=0;j<static_cast<int>(patchObjects[selectedObjectID]->outPut.size());j++){
+            //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
+            if(patchObjects[selectedObjectID]->outPut[j]->fromOutletID == selectedObjectLink){
+                tempEraseLinks.push_back(true);
+            }else{
+                tempEraseLinks.push_back(false);
             }
-
-            vector<PatchLink*> tempBuffer;
-            tempBuffer.reserve(patchObjects[selectedObjectID]->outPut.size()-tempEraseLinks.size());
-
-            for (size_t i=0; i<patchObjects[selectedObjectID]->outPut.size(); i++){
-                if(!tempEraseLinks[i]){
-                    tempBuffer.push_back(patchObjects[selectedObjectID]->outPut[i]);
-                }else{
-                    patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
-                    if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID] != nullptr){
-                        patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
-                    }
-                    //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
-                }
-            }
-
-            patchObjects[selectedObjectID]->outPut = tempBuffer;
-
         }
 
-        selectedObjectLinkType  = -1;
-        selectedObjectLink      = -1;
+        vector<PatchLink*> tempBuffer;
+        tempBuffer.reserve(patchObjects[selectedObjectID]->outPut.size()-tempEraseLinks.size());
 
-        draggingObject          = false;
-        draggingObjectID        = -1;
+        for (size_t i=0; i<patchObjects[selectedObjectID]->outPut.size(); i++){
+            if(!tempEraseLinks[i]){
+                tempBuffer.push_back(patchObjects[selectedObjectID]->outPut[i]);
+            }else{
+                patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
+                if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID] != nullptr){
+                    patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
+                }
+                //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
+            }
+        }
+
+        patchObjects[selectedObjectID]->outPut = tempBuffer;
 
     }
+
+    selectedObjectLinkType  = -1;
+    selectedObjectLink      = -1;
+
+    draggingObject          = false;
+    draggingObjectID        = -1;
 
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
-    if(!isOverGui && e.y < (ofGetWindowHeight()-(240*scaleFactor))){
+    if(e.y < (ofGetWindowHeight()-(240*scaleFactor))){
         canvas.mouseScrolled(e);
     }
 }
@@ -714,7 +633,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     tempObj->newObject();
     tempObj->setPatchfile(currentPatchFile);
     tempObj->setup(mainWindow);
-    tempObj->setupDSP(engine);
+    tempObj->setupDSP(*engine);
     tempObj->move(static_cast<int>(pos.x-(OBJECT_STANDARD_WIDTH/2*scaleFactor)),static_cast<int>(pos.y-(OBJECT_STANDARD_HEIGHT/2*scaleFactor)));
     tempObj->setIsRetina(isRetina);
     ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
@@ -1046,7 +965,7 @@ void ofxVisualProgramming::resetSystemObjects(){
             it->second->resetSystemObject();
             resetObject(it->second->getId());
             if(it->second->getIsAudioOUTObject()){
-                it->second->setupAudioOutObjectContent(engine);
+                it->second->setupAudioOutObjectContent(*engine);
             }
         }
     }
@@ -1059,7 +978,7 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
             it->second->resetSystemObject();
             resetObject(it->second->getId());
             if(it->second->getIsAudioOUTObject()){
-                it->second->setupAudioOutObjectContent(engine);
+                it->second->setupAudioOutObjectContent(*engine);
             }
         }
     }
@@ -1088,6 +1007,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new BashScript();
     }else if(objname == "python script"){
         tempObj = new PythonScript();
+    }else if(objname == "pd patch"){
+        tempObj = new PDPatch();
     }else
 #endif
 
@@ -1138,8 +1059,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
     // -------------------------------------- Sound
-    }else if(objname == "pd patch"){
-        tempObj = new PDPatch();
+    }else if(objname == "audio gate"){
+        tempObj = new AudioGate();
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
     // -------------------------------------- Math
@@ -1170,8 +1091,14 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new DelayBang();
     }else if(objname == "gate"){
         tempObj = new Gate();
+    }else if(objname == "inverter"){
+        tempObj = new Inverter();
     }else if(objname == "loadbang"){
         tempObj = new LoadBang();
+    }else if(objname == "select"){
+        tempObj = new Select();
+    }else if(objname == "spigot"){
+        tempObj = new Spigot();
     // -------------------------------------- GUI
     }else if(objname == "bang"){
         tempObj = new moBang();
@@ -1198,6 +1125,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoPlayer();
     }else if(objname == "video grabber"){
         tempObj = new VideoGrabber();
+    }else if(objname == "video gate"){
+        tempObj = new VideoGate();
     // -------------------------------------- WINDOWING
     }else if(objname == "live patching"){
         tempObj = new LivePatching();
@@ -1282,6 +1211,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioBufferSize = XML.getValue("buffer_size",0);
 
             audioDevices = soundStreamIN.getDeviceList();
+            audioDevicesStringIN.clear();
+            audioDevicesID_IN.clear();
+            audioDevicesStringOUT.clear();
+            audioDevicesID_OUT.clear();
             ofLog(OF_LOG_NOTICE," ");
             ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
             for(size_t i=0;i<audioDevices.size();i++){
@@ -1310,13 +1243,14 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.saveFile();
 
             if(dspON){
-                engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+                engine = new pdsp::Engine();
+                engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
                 this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
                 for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-                    engine.audio_in(in) >> this->in(in);
+                    engine->audio_in(in) >> this->in(in);
                 }
-                this->out_silent() >> engine.blackhole();
+                this->out_silent() >> engine->blackhole();
 
                 ofLog(OF_LOG_NOTICE," ");
                 ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
@@ -1339,7 +1273,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 bool loaded = false;
                 PatchObject* tempObj = selectObject(objname);
                 if(tempObj != nullptr){
-                    loaded = tempObj->loadConfig(mainWindow,engine,i,patchFile);
+                    loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
                     if(loaded){
                         tempObj->setIsRetina(isRetina);
                         ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
@@ -1389,9 +1323,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
         }
 
         if(dspON){
-            engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-            engine.setup(audioSampleRate, audioBufferSize, 3);
+            engine                  = new pdsp::Engine();
+            engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+            engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+            engine->setup(audioSampleRate, audioBufferSize, 3);
         }
 
     }
@@ -1451,13 +1386,14 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
         setPatchVariable("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
 
         if(dspON){
-            engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+            engine                  = new pdsp::Engine();
+            engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
             this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
             for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-                engine.audio_in(in) >> this->in(in);
+                engine->audio_in(in) >> this->in(in);
             }
-            this->out_silent() >> engine.blackhole();
+            this->out_silent() >> engine->blackhole();
 
             ofLog(OF_LOG_NOTICE," ");
             ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Selected Device");
@@ -1466,9 +1402,9 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
 
             resetSpecificSystemObjects("audio device");
 
-            engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-            engine.setup(audioSampleRate, audioBufferSize, 3);
+            engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+            engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+            engine->setup(audioSampleRate, audioBufferSize, 3);
         }
     }
     
@@ -1491,13 +1427,14 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
     setPatchVariable("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
 
     if(dspON){
-        engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+        engine                  = new pdsp::Engine();
+        engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
         this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
         for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-            engine.audio_in(in) >> this->in(in);
+            engine->audio_in(in) >> this->in(in);
         }
-        this->out_silent() >> engine.blackhole();
+        this->out_silent() >> engine->blackhole();
 
         ofLog(OF_LOG_NOTICE," ");
         ofLog(OF_LOG_NOTICE,"------------------- Soundstream OUTPUT Selected Device");
@@ -1506,9 +1443,9 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 
         resetSpecificSystemObjects("audio device");
 
-        engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-        engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-        engine.setup(audioSampleRate, audioBufferSize, 3);
+        engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+        engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+        engine->setup(audioSampleRate, audioBufferSize, 3);
 
         bool found = false;
         for(int i=0;i<audioDevices[audioINDev].sampleRates.size();i++){
@@ -1530,13 +1467,14 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 void ofxVisualProgramming::activateDSP(){
 
     if(audioDevices[audioINDev].inputChannels > 0 && audioDevices[audioOUTDev].outputChannels > 0){
-        engine.setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+        engine                  = new pdsp::Engine();
+        engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
         this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
         for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-            engine.audio_in(in) >> this->in(in);
+            engine->audio_in(in) >> this->in(in);
         }
-        this->out_silent() >> engine.blackhole();
+        this->out_silent() >> engine->blackhole();
 
         ofLog(OF_LOG_NOTICE," ");
         ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
@@ -1546,10 +1484,10 @@ void ofxVisualProgramming::activateDSP(){
         ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
         ofLog(OF_LOG_NOTICE," ");
 
-        engine.setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-        engine.setInputDeviceID(audioDevices[audioINDev].deviceID);
-        engine.setup(audioSampleRate, audioBufferSize, 3);
-        engine.start();
+        engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+        engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+        engine->setup(audioSampleRate, audioBufferSize, 3);
+        engine->start();
 
         bool found = weAlreadyHaveObject("audio device");
 
@@ -1570,31 +1508,4 @@ void ofxVisualProgramming::activateDSP(){
 void ofxVisualProgramming::deactivateDSP(){
     setPatchVariable("dsp",0);
     dspON = false;
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::onButtonEvent(ofxDatGuiButtonEvent e){
-    for(int i=0;i<static_cast<int>(objectFolders.size());i++){
-        if(e.target->getLabel() != objectFolders[i]->getLabel()){
-            if(objectFolders[i]->isExpanded()){
-                objectFolders[i]->collapse();
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::onScrollViewEvent(ofxDatGuiScrollViewEvent e){
-    int cc = 0;
-    for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second.size());j++){
-            if(it->second.at(j) == e.target->getLabel()){
-                if(objectFolders.at(cc)->isExpanded()){
-                    addObject(e.target->getLabel(),ofVec2f(canvas.getMovingPoint().x + 200*scaleFactor,canvas.getMovingPoint().y));
-                    break;
-                }
-            }
-        }
-        cc++;
-    }
 }
