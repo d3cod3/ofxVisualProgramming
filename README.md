@@ -107,6 +107,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
 
+#### [ofxWarp](https://github.com/d3cod3/ofxWarp)
+
 >Some addons are forks of the original, due to some mods, compatibility with OF0.10.0 and the intention of cross-platform compiling (osx,linux,win)
 
 # COMPILING
@@ -142,6 +144,7 @@ git clone https://github.com/d3cod3/ofxSIMDFloats
 git clone http://github.com/pierrep/ofxThreadedYouTubeVideo
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/armadillu/ofxTimeMeasurements
+git clone https://github.com/d3cod3/ofxWarp
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
 
@@ -544,3 +547,5 @@ ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
 ofxThreadedYouTubeVideo original addon by [Pierre Proske](https://github.com/pierrep)
 
 ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
+
+ofxWarp original addon by [Elie Zananiri](https://github.com/prisonerjohn/ofxWarp)

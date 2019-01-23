@@ -38,6 +38,8 @@
 #include "ofxPython.h"
 #endif
 
+#include "ofxWarp.h"
+
 #define OUTPUT_TEX_MAX_WIDTH        4800
 #define OUTPUT_TEX_MAX_HEIGHT       4800
 
@@ -72,11 +74,12 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
 
+    void            onToggleEvent(ofxDatGuiToggleEvent e);
     void            onButtonEvent(ofxDatGuiButtonEvent e);
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
 
-    std::shared_ptr<ofAppGLFWWindow>        window;
+    shared_ptr<ofAppGLFWWindow>             window;
     bool                                    isFullscreen;
     bool                                    isNewScriptConnected;
     int                                     inletScriptType;
@@ -88,10 +91,16 @@ public:
     float                                   thposX, thposY, thdrawW, thdrawH;
     bool                                    needReset;
 
+    ofxWarpController                       *warpController;
+    bool                                    isWarpingLoaded;
+
     ofxDatGui*                              gui;
     ofxDatGuiHeader*                        header;
     ofxDatGuiTextInput*                     guiTexWidth;
     ofxDatGuiTextInput*                     guiTexHeight;
     ofxDatGuiButton*                        applyButton;
+    ofxDatGuiToggle*                        useMapping;
+    ofxDatGuiButton*                        loadWarping;
+    ofxDatGuiButton*                        saveWarping;
 
 };

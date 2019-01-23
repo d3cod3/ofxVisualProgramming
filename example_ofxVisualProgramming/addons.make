@@ -31,3 +31,4 @@ ofxThreadedYouTubeVideo
 ofxTimeline
 ofxTimeMeasurements
 ofxVisualProgramming
+ofxWarp

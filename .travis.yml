@@ -184,6 +184,7 @@ install:
   - git clone --branch=master https://github.com/pierrep/ofxThreadedYouTubeVideo addons/ofxThreadedYouTubeVideo
   - git clone --branch=master https://github.com/d3cod3/ofxTimeline addons/ofxTimeline
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
+  - git clone --branch=master https://github.com/d3cod3/ofxWarp addons/ofxWarp
   - scripts/ci/addons/install.sh
   - cd ~
   - curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/scripts/ci/addons/install.sh
