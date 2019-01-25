@@ -159,6 +159,8 @@ public:
     ofPolyline              inputBufferWaveform;
     int                     audioINDev;
     int                     audioOUTDev;
+    int                     audioGUIINIndex;
+    int                     audioGUIOUTIndex;
     int                     audioSampleRate;
     int                     audioBufferSize;
     bool                    dspON;

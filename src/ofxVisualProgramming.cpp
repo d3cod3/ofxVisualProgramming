@@ -376,7 +376,8 @@ void ofxVisualProgramming::drawLivePatchingSession(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
 
-    deactivateDSP();
+    //deactivateDSP();
+    dspON = false;
     engine->setChannels(0,0);
 
     ofDirectory dir;
@@ -1221,12 +1222,27 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(audioDevices[i].inputChannels > 0){
                     audioDevicesStringIN.push_back("  "+audioDevices[i].name);
                     audioDevicesID_IN.push_back(i);
+
                 }
                 if(audioDevices[i].outputChannels > 0){
                     audioDevicesStringOUT.push_back("  "+audioDevices[i].name);
                     audioDevicesID_OUT.push_back(i);
                 }
-                ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
+                if(audioINDev == i){
+                   audioGUIINIndex = audioDevicesID_IN.size()-1;
+                }
+                if(audioOUTDev == i){
+                   audioGUIOUTIndex = audioDevicesID_OUT.size()-1;
+                }
+                string tempSR = "";
+                for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
+                    if(sr < audioDevices[i].sampleRates.size()-1){
+                        tempSR += ofToString(audioDevices[i].sampleRates.at(sr))+", ";
+                    }else{
+                        tempSR += ofToString(audioDevices[i].sampleRates.at(sr));
+                    }
+                }
+                ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
             }
             ofLog(OF_LOG_NOTICE," ");
 
@@ -1251,6 +1267,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     engine->audio_in(in) >> this->in(in);
                 }
                 this->out_silent() >> engine->blackhole();
+
+                engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+                engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+                engine->setup(audioSampleRate, audioBufferSize, 3);
 
                 ofLog(OF_LOG_NOTICE," ");
                 ofLog(OF_LOG_NOTICE,"------------------- Soundstream INPUT Started on");
@@ -1320,13 +1340,6 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
                 XML.popTag();
             }
-        }
-
-        if(dspON){
-            engine                  = new pdsp::Engine();
-            engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-            engine->setup(audioSampleRate, audioBufferSize, 3);
         }
 
     }
