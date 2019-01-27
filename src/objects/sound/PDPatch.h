@@ -66,9 +66,9 @@ public:
     void            pathChanged(const PathWatcher::Event &event);
 
     // pd message receiver callbacks
-    /*void print(const std::string& message);
+    void            print(const std::string& message);
 
-    void receiveBang(const std::string& dest);
+    /*void receiveBang(const std::string& dest);
     void receiveFloat(const std::string& dest, float value);
     void receiveSymbol(const std::string& dest, const std::string& symbol);
     void receiveList(const std::string& dest, const List& list);

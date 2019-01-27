@@ -95,9 +95,9 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.pd"));
         filepath = file.getAbsolutePath();
-        loadPatch(filepath);
     }
 
+    loadPatch(filepath);
 }
 
 //--------------------------------------------------------------
@@ -189,7 +189,7 @@ void PDPatch::dragGUIObject(ofVec3f _m){
 void PDPatch::loadAudioSettings(){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.loadFile(this->patchFile)){
         if (XML.pushTag("settings")){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
@@ -200,6 +200,8 @@ void PDPatch::loadAudioSettings(){
     lastOutputBuffer.allocate(bufferSize,1);
 
     pd.init(1,1,sampleRate,4,false);
+    pd.addReceiver(*this);
+    pd.addMidiReceiver(*this);
 
     short *shortBuffer = new short[bufferSize];
     for (int i = 0; i < bufferSize; i++){
@@ -214,19 +216,17 @@ void PDPatch::loadAudioSettings(){
 void PDPatch::loadPatch(string scriptFile){
 
     if(currentPatchFile.exists()){
-        currentPatch.clear();
-        pd.closePatch(currentPatchFile.getAbsolutePath());
+        pd.closePatch(currentPatch);
         pd.clearSearchPath();
+        pd.stop();
     }
 
     filepath = forceCheckMosaicDataPath(scriptFile);
     currentPatchFile.open(filepath);
+    currentPatch = pd.openPatch(currentPatchFile.getAbsolutePath());
 
     pd.addToSearchPath(currentPatchFile.getEnclosingDirectory());
 
-    currentPatch = pd.openPatch(filepath);
-
-    // audio processing on
     pd.start();
 
     if(currentPatch.isValid()){
@@ -237,6 +237,7 @@ void PDPatch::loadPatch(string scriptFile){
         }
         watcher.removeAllPaths();
         watcher.addPath(filepath);
+
         ofLog(OF_LOG_NOTICE,"[verbose] PD patch: %s loaded & running!",filepath.c_str());
     }
 
@@ -279,4 +280,9 @@ void PDPatch::pathChanged(const PathWatcher::Event &event) {
             return;
     }
 
+}
+
+//--------------------------------------------------------------
+void PDPatch::print(const std::string& message) {
+    ofLog(OF_LOG_NOTICE,"PD print: %s", message.c_str());
 }
