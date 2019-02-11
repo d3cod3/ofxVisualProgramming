@@ -86,7 +86,7 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     metroTime = ofGetElapsedTimeMillis();
 

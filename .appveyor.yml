@@ -46,6 +46,7 @@ install:
 - git clone --depth=1 --branch=master https://github.com/npisanti/ofxPDSP openframeworks/addons/ofxPDSP
 - git clone --depth=1 --branch=OF0.9.8 https://github.com/d3cod3/ofxPython  openframeworks/addons/ofxPython
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxSIMDFloats openframeworks/addons/ofxSIMDFloats
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxThreadedFileDialog openframeworks/addons/ofxThreadedFileDialog
 - git clone --depth=1 --branch=master https://github.com/pierrep/ofxThreadedYouTubeVideo openframeworks/addons/ofxThreadedYouTubeVideo
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxTimeline openframeworks/addons/ofxTimeline
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxTimeMeasurements openframeworks/addons/ofxTimeMeasurements

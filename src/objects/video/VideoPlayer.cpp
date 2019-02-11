@@ -69,6 +69,8 @@ VideoPlayer::VideoPlayer() : PatchObject(){
 
     lastPlayhead    = 0.0f;
 
+    loadVideoFlag   = false;
+
 }
 
 //--------------------------------------------------------------
@@ -92,6 +94,7 @@ void VideoPlayer::threadedFunction(){
             nameLabelLoaded = true;
         }
         condition.wait(lock);
+        sleep(10);
     }
 }
 
@@ -126,7 +129,7 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(!isFileLoaded && video->isLoaded() && video->isInitialized() && threadLoaded){
         isFileLoaded = true;
@@ -203,6 +206,11 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
     header->update();
     loadButton->update();
 
+    if(loadVideoFlag){
+        loadVideoFlag = false;
+        fd.openFile("load videofile","Select a video file");
+    }
+
     ///////////////////////////////////////////
     condition.notify_one();
 }
@@ -268,7 +276,9 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void VideoPlayer::removeObjectContent(){
-
+    if(isThreadRunning()){
+        stopThread();
+    }
 }
 
 //--------------------------------------------------------------
@@ -312,6 +322,20 @@ void VideoPlayer::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
+void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load videofile"){
+        ofFile file (response.filepath);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
+                filepath = file.getAbsolutePath();
+                reloadVideoThreaded();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------
 void VideoPlayer::loadVideoFile(){
     if(filepath != "none"){
         filepath = forceCheckMosaicDataPath(filepath);
@@ -331,17 +355,7 @@ void VideoPlayer::reloadVideoThreaded(){
 void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if (e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a video file");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
-                        filepath = file.getAbsolutePath();
-                        reloadVideoThreaded();
-                    }
-                }
-            }
+            loadVideoFlag = true;
         }
     }
 }

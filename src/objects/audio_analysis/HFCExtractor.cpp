@@ -83,7 +83,7 @@ void HFCExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void HFCExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void HFCExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

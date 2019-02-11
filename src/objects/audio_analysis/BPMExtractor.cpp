@@ -82,7 +82,7 @@ void BPMExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BPMExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void BPMExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
   if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
       *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
       bpmPlot->update(*(float *)&_outletParams[0]);

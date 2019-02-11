@@ -72,6 +72,12 @@ LuaScript::LuaScript() : PatchObject(){
     isError         = false;
     setupTrigger    = false;
 
+    lastLuaScript       = "";
+    loadLuaScriptFlag   = false;
+    saveLuaScriptFlag   = false;
+    luaScriptLoaded     = false;
+    luaScriptSaved      = false;
+
     static_cast<LiveCoding *>(_outletParams[1])->hide = true;
 }
 
@@ -98,6 +104,7 @@ void LuaScript::threadedFunction(){
             setupTrigger = false;
         }
         condition.wait(lock);
+        sleep(10);
     }
 
 }
@@ -171,7 +178,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
         ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
@@ -185,6 +192,44 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     editButton->update();
     clearButton->update();
     reloadButton->update();
+
+    if(loadLuaScriptFlag){
+        loadLuaScriptFlag = false;
+        fd.openFile("load lua script","Select a lua script");
+    }
+
+    if(saveLuaScriptFlag){
+        saveLuaScriptFlag = false;
+        string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
+        fd.saveFile("save lua script","Save new Lua script as",newFileName);
+    }
+
+    if(luaScriptLoaded){
+        luaScriptLoaded = false;
+        ofFile file (lastLuaScript);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "LUA") {
+                threadLoaded = false;
+                filepath = file.getAbsolutePath();
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
+                reloadScriptThreaded();
+            }
+        }
+    }
+
+    if(luaScriptSaved){
+        luaScriptSaved = false;
+        ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
+        ofFile newLuaFile (lastLuaScript);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newLuaFile.getAbsolutePath(),true,true);
+        threadLoaded = false;
+        filepath = newLuaFile.getAbsolutePath();
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
+        reloadScriptThreaded();
+    }
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -278,6 +323,9 @@ void LuaScript::removeObjectContent(){
     // LUA EXIT
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
     ///////////////////////////////////////////
+    if(isThreadRunning()){
+        stopThread();
+    }
 }
 
 //--------------------------------------------------------------
@@ -380,6 +428,17 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 }
 
 //--------------------------------------------------------------
+void LuaScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load lua script"){
+        lastLuaScript = response.filepath;
+        luaScriptLoaded = true;
+    }else if(response.id == "save lua script"){
+        lastLuaScript = response.filepath;
+        luaScriptSaved = true;
+    }
+}
+
+//--------------------------------------------------------------
 void LuaScript::unloadScript(){
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
     static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
@@ -450,33 +509,9 @@ void LuaScript::reloadScriptThreaded(){
 void LuaScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == newButton){
-            string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
-            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new Lua script as");
-            if (saveFileResult.bSuccess){
-                ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
-                ofFile newLuaFile (saveFileResult.getPath());
-                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newLuaFile.getAbsolutePath(),true,true);
-                threadLoaded = false;
-                filepath = newLuaFile.getAbsolutePath();
-                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
-                reloadScriptThreaded();
-            }
+            saveLuaScriptFlag = true;
         }else if(e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a lua script");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "LUA") {
-                        threadLoaded = false;
-                        filepath = file.getAbsolutePath();
-                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
-                        reloadScriptThreaded();
-                    }
-                }
-            }
+            loadLuaScriptFlag = true;
         }else if(e.target == editButton){
             bool nameError = false;
             if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){

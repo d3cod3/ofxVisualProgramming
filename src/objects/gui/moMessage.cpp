@@ -83,7 +83,7 @@ void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moMessage::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void moMessage::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     sendButton->update();
     message->update();

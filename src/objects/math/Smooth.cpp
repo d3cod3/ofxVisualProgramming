@@ -81,7 +81,7 @@ void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Smooth::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Smooth::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         *(float *)&_outletParams[0] = *(float *)&_outletParams[0]*(1-slider->getValue()) + *(float *)&_inletParams[0]*slider->getValue();
         if(*(float *)&_inletParams[0] > rPlotter->getMax()){

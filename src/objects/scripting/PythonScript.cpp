@@ -68,6 +68,12 @@ PythonScript::PythonScript() : PatchObject(){
     threadLoaded    = false;
     needToLoadScript= true;
 
+    lastPythonScript       = "";
+    loadPythonScriptFlag   = false;
+    savePythonScriptFlag   = false;
+    pythonScriptLoaded     = false;
+    pythonScriptSaved      = false;
+
     static_cast<LiveCoding *>(_outletParams[1])->hide = true;
 }
 
@@ -93,6 +99,7 @@ void PythonScript::threadedFunction(){
             nameLabelLoaded = true;
         }
         condition.wait(lock);
+        sleep(10);
     }
 
 }
@@ -165,7 +172,7 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
         ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
@@ -179,6 +186,44 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
     editButton->update();
     clearButton->update();
     reloadButton->update();
+
+    if(loadPythonScriptFlag){
+        loadPythonScriptFlag = false;
+        fd.openFile("load python script","Select a python script");
+    }
+
+    if(savePythonScriptFlag){
+        savePythonScriptFlag = false;
+        string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
+        fd.saveFile("save python script","Save new Python script as",newFileName);
+    }
+
+    if(pythonScriptLoaded){
+        pythonScriptLoaded = false;
+        ofFile file (lastPythonScript);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "PY") {
+                threadLoaded = false;
+                filepath = file.getAbsolutePath();
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
+                reloadScriptThreaded();
+            }
+        }
+    }
+
+    if(pythonScriptSaved){
+        pythonScriptSaved = false;
+        ofFile fileToRead(ofToDataPath("scripts/empty.py"));
+        ofFile newPyFile (lastPythonScript);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPyFile.getAbsolutePath(),true,true);
+        threadLoaded = false;
+        filepath = newPyFile.getAbsolutePath();
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
+        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
+        reloadScriptThreaded();
+    }
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -270,6 +315,9 @@ void PythonScript::drawObjectContent(ofxFontStash *font){
 void PythonScript::removeObjectContent(){
     tempCommand.stop();
     script = ofxPythonObject::_None();
+    if(isThreadRunning()){
+        stopThread();
+    }
 }
 
 //--------------------------------------------------------------
@@ -367,6 +415,17 @@ void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
 }
 
 //--------------------------------------------------------------
+void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load python script"){
+        lastPythonScript = response.filepath;
+        pythonScriptLoaded = true;
+    }else if(response.id == "save python script"){
+        lastPythonScript = response.filepath;
+        pythonScriptSaved = true;
+    }
+}
+
+//--------------------------------------------------------------
 void PythonScript::loadScript(string scriptFile){
 
     filepath = forceCheckMosaicDataPath(scriptFile);
@@ -432,33 +491,9 @@ void PythonScript::reloadScriptThreaded(){
 void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == newButton){
-            string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
-            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new Python script as");
-            if (saveFileResult.bSuccess){
-                ofFile fileToRead(ofToDataPath("scripts/empty.py"));
-                ofFile newPyFile (saveFileResult.getPath());
-                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPyFile.getAbsolutePath(),true,true);
-                threadLoaded = false;
-                filepath = newPyFile.getAbsolutePath();
-                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
-                reloadScriptThreaded();
-            }
+            savePythonScriptFlag = true;
         }else if(e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a python script");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "PY") {
-                        threadLoaded = false;
-                        filepath = file.getAbsolutePath();
-                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-                        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
-                        reloadScriptThreaded();
-                    }
-                }
-            }
+            loadPythonScriptFlag = true;
         }else if(e.target == editButton){
             bool nameError = false;
             if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){

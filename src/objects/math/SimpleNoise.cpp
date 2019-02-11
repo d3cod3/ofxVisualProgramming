@@ -70,7 +70,7 @@ void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void SimpleNoise::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     *(float *)&_outletParams[0] = ofNoise(timePosition);
 
     gui->update();

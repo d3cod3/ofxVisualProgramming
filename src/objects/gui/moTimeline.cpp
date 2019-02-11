@@ -66,6 +66,12 @@ moTimeline::moTimeline() : PatchObject(){
     lastMessage         = "";
     lastPlayheadPos     = 0;
 
+    lastTimelineFolder      = "";
+    loadTimelineConfigFlag  = false;
+    saveTimelineConfigFlag  = false;
+    loadedTimelineConfig    = false;
+    savedTimelineConfig     = false;
+
 }
 
 //--------------------------------------------------------------
@@ -172,7 +178,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moTimeline::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void moTimeline::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     setRetina->update();
@@ -192,6 +198,36 @@ void moTimeline::updateObjectContent(map<int,PatchObject*> &patchObjects){
         timelineLoaded = true;
         timeline->setDurationInSeconds(static_cast<int>(floor(this->getCustomVar("DURATION"))));
         timeline->setFrameRate(static_cast<float>(floor(this->getCustomVar("FPS"))));
+    }
+
+    if(loadTimelineConfigFlag){
+        loadTimelineConfigFlag = false;
+        fd.openFolder("load timeline config","Select folder for loading timeline data");
+    }
+
+    if(saveTimelineConfigFlag){
+        saveTimelineConfigFlag = false;
+        fd.openFolder("save timeline config","Select folder for saving timeline data");
+    }
+
+    if(loadedTimelineConfig){
+        loadedTimelineConfig = false;
+        if(lastTimelineFolder != ""){
+            ofFile tempfile (lastTimelineFolder);
+            if(tempfile.exists() && tempfile.isDirectory()){
+                loadTimelineData(tempfile.getAbsolutePath()+"/");
+            }
+        }
+    }
+
+    if(savedTimelineConfig){
+        savedTimelineConfig = false;
+        if(lastTimelineFolder != ""){
+            ofFile tempfile (lastTimelineFolder);
+            if(tempfile.exists() && tempfile.isDirectory()){
+                 saveTimelineData(tempfile.getAbsolutePath()+"/");
+            }
+        }
     }
 
     if(resetTimelineOutlets){
@@ -350,6 +386,17 @@ void moTimeline::dragGUIObject(ofVec3f _m){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
+    }
+}
+
+//--------------------------------------------------------------
+void moTimeline::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load timeline config"){
+        lastTimelineFolder = response.filepath;
+        loadedTimelineConfig = true;
+    }else if(response.id == "save timeline config"){
+        lastTimelineFolder = response.filepath;
+        savedTimelineConfig = true;
     }
 }
 
@@ -730,21 +777,9 @@ void moTimeline::onButtonEvent(ofxDatGuiButtonEvent e){
         }else if(e.target == setFPS){
             timeline->setFrameRate(fps);
         }else if(e.target == loadTimeline){
-            ofFileDialogResult folderSelectResult = ofSystemLoadDialog("Select folder for loading timeline data",true);
-            if(folderSelectResult.bSuccess){
-                ofFile tempfile (folderSelectResult.getPath());
-                if(tempfile.exists() && tempfile.isDirectory()){
-                    loadTimelineData(tempfile.getAbsolutePath()+"/");
-                }
-            }
+            loadTimelineConfigFlag = true;
         }else if(e.target == saveTimeline){
-            ofFileDialogResult folderSelectResult = ofSystemLoadDialog("Select folder for saving timeline data",true);
-            if(folderSelectResult.bSuccess){
-                ofFile tempfile (folderSelectResult.getPath());
-                if(tempfile.exists() && tempfile.isDirectory()){
-                     saveTimelineData(tempfile.getAbsolutePath()+"/");
-                }
-            }
+            saveTimelineConfigFlag = true;
         }
     }
 }

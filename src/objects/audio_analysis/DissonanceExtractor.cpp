@@ -83,7 +83,7 @@ void DissonanceExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWi
 }
 
 //--------------------------------------------------------------
-void DissonanceExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void DissonanceExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

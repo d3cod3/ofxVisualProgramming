@@ -83,7 +83,7 @@ void RollOffExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void RollOffExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void RollOffExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

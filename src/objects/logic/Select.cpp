@@ -71,7 +71,7 @@ void Select::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Select::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Select::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(static_cast<int>(floor(*(float *)&_inletParams[0])) != lastValue && static_cast<int>(floor(*(float *)&_inletParams[0])) < bangs.size()){

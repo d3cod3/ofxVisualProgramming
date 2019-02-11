@@ -78,7 +78,7 @@ void HPCPExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void HPCPExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void HPCPExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         int index = 0;
         for(int i=startPosition;i<endPosition;i++){

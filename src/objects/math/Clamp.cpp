@@ -68,7 +68,7 @@ void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Clamp::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Clamp::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[2]){
       float _min = 0.0f, _max = 1000000000.0f;
       if(this->inletsConnected[0]){

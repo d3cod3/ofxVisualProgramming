@@ -73,7 +73,7 @@ void OnsetExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void OnsetExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void OnsetExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
   if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
       *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
   }

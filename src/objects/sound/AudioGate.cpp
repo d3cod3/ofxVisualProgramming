@@ -81,7 +81,7 @@ void AudioGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioGate::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void AudioGate::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){

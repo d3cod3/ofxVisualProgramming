@@ -47,9 +47,10 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
+    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            audioInObject(ofSoundBuffer &inputBuffer);
     void            audioOutObject(ofSoundBuffer &outputBuffer);
@@ -68,21 +69,20 @@ public:
     // pd message receiver callbacks
     void            print(const std::string& message);
 
-    /*void receiveBang(const std::string& dest);
-    void receiveFloat(const std::string& dest, float value);
-    void receiveSymbol(const std::string& dest, const std::string& symbol);
-    void receiveList(const std::string& dest, const List& list);
-    void receiveMessage(const std::string& dest, const std::string& msg, const List& list);
+    void            receiveBang(const std::string& dest);
+    void            receiveFloat(const std::string& dest, float value);
+    void            receiveSymbol(const std::string& dest, const std::string& symbol);
+    void            receiveList(const std::string& dest, const List& list);
+    void            receiveMessage(const std::string& dest, const std::string& msg, const List& list);
 
     // pd midi receiver callbacks
-    void receiveNoteOn(const int channel, const int pitch, const int velocity);
-    void receiveControlChange(const int channel, const int controller, const int value);
-    void receiveProgramChange(const int channel, const int value);
-    void receivePitchBend(const int channel, const int value);
-    void receiveAftertouch(const int channel, const int value);
-    void receivePolyAftertouch(const int channel, const int pitch, const int value);
-
-    void receiveMidiByte(const int port, const int byte);*/
+    void            receiveNoteOn(const int channel, const int pitch, const int velocity);
+    void            receiveControlChange(const int channel, const int controller, const int value);
+    void            receiveProgramChange(const int channel, const int value);
+    void            receivePitchBend(const int channel, const int value);
+    void            receiveAftertouch(const int channel, const int value);
+    void            receivePolyAftertouch(const int channel, const int pitch, const int value);
+    void            receiveMidiByte(const int port, const int byte);
 
 
     ofxPd               pd;
@@ -93,6 +93,10 @@ public:
 
     ofSoundBuffer       lastInputBuffer;
     ofSoundBuffer       lastOutputBuffer;
+    ofSoundBuffer       lastOutputBuffer1;
+    ofSoundBuffer       lastOutputBuffer2;
+    ofSoundBuffer       lastOutputBuffer3;
+    ofSoundBuffer       lastOutputBuffer4;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
@@ -103,6 +107,10 @@ public:
 
     int                 bufferSize;
     int                 sampleRate;
+
+    string              lastLoadedPatch;
+    bool                loadPatchFlag;
+    bool                patchLoaded;
 
 protected:
 

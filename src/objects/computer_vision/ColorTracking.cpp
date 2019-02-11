@@ -139,7 +139,7 @@ void ColorTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ColorTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void ColorTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

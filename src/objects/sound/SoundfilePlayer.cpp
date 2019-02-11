@@ -66,6 +66,10 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     speed               = 1.0;
     sampleRate          = 44100;
     bufferSize          = 256;
+
+    lastSoundfile       = "";
+    loadSoundfileFlag   = false;
+    soundfileLoaded     = false;
     
 }
 
@@ -111,10 +115,27 @@ void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     loadButton->update();
+
+    if(loadSoundfileFlag){
+        loadSoundfileFlag = false;
+        fd.openFile("load soundfile","Select an audio file");
+    }
+
+    if(soundfileLoaded){
+        soundfileLoaded = false;
+        ofFile file (lastSoundfile);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "WAV" || fileExtension == "OGG" || fileExtension == "MP3" || fileExtension == "FLAC") {
+                isFileLoaded = false;
+                loadAudioFile(file.getAbsolutePath());
+            }
+        }
+    }
 
     if(loading && ofGetElapsedTimeMillis()-startTime > 100){
         loading = false;
@@ -228,6 +249,14 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
 //--------------------------------------------------------------
 void SoundfilePlayer::removeObjectContent(){
     
+}
+
+//--------------------------------------------------------------
+void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load soundfile"){
+        lastSoundfile = response.filepath;
+        soundfileLoaded = true;
+    }
 }
 
 //--------------------------------------------------------------
@@ -349,17 +378,7 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
 void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if (e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select an audio file");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "WAV" || fileExtension == "OGG" || fileExtension == "MP3" || fileExtension == "FLAC") {
-                        isFileLoaded = false;
-                        loadAudioFile(file.getAbsolutePath());
-                    }
-                }
-            }
+            loadSoundfileFlag = true;
         }
     }
 }

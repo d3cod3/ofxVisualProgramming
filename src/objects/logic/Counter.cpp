@@ -95,7 +95,7 @@ void Counter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     start->update();

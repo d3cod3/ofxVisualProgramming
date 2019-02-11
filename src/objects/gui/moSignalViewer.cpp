@@ -65,7 +65,7 @@ void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         waveform.clear();
         for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
@@ -97,5 +97,8 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
     if(this->inletsConnected[0]){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+    }else{
+        *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
+        *static_cast<ofSoundBuffer *>(_outletParams[1]) *= 0.0f;
     }
 }

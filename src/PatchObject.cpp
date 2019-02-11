@@ -137,7 +137,7 @@ void PatchObject::setupDSP(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PatchObject::update(map<int,PatchObject*> &patchObjects){
+void PatchObject::update(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     // update links positions
     if(!willErase){
@@ -152,7 +152,7 @@ void PatchObject::update(map<int,PatchObject*> &patchObjects){
 
             }
         }
-        updateObjectContent(patchObjects);
+        updateObjectContent(patchObjects,fd);
     }
 
 }

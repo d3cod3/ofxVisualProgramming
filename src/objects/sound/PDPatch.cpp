@@ -35,10 +35,17 @@
 //--------------------------------------------------------------
 PDPatch::PDPatch() : PatchObject(){
 
-    this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numInlets  = 2;
+    this->numOutlets = 5;
 
-    _inletParams[0] = new ofSoundBuffer();  // Audio stream
+    _inletParams[0] = new ofSoundBuffer(); // Audio stream IN
+    _inletParams[1] = new vector<float>(); // Data to PD
+
+    _outletParams[0] = new ofSoundBuffer();  // Audio stream 1
+    _outletParams[1] = new ofSoundBuffer();  // Audio stream 2
+    _outletParams[2] = new ofSoundBuffer();  // Audio stream 3
+    _outletParams[3] = new ofSoundBuffer();  // Audio stream 4
+    _outletParams[4] = new vector<float>();  // Data to Mosaic
 
     this->initInletsState();
 
@@ -52,13 +59,22 @@ PDPatch::PDPatch() : PatchObject(){
     isAudioINObject     = true;
     isAudioOUTObject    = true;
 
+    lastLoadedPatch     = "";
+    loadPatchFlag       = false;
+    patchLoaded         = false;
+
 }
 
 //--------------------------------------------------------------
 void PDPatch::newObject(){
     this->setName("pd patch");
     this->addInlet(VP_LINK_AUDIO,"audio in");
+    this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_ARRAY);
 }
 
 //--------------------------------------------------------------
@@ -101,12 +117,29 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     // GUI
     gui->update();
     header->update();
     loadButton->update();
+
+    if(loadPatchFlag){
+        loadPatchFlag = false;
+        fd.openFile("load pd patch","Select a PD patch");
+    }
+
+    if(patchLoaded){
+        patchLoaded = false;
+        ofFile file (lastLoadedPatch);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "PD") {
+                filepath = file.getAbsolutePath();
+                loadPatch(filepath);
+            }
+        }
+    }
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -116,8 +149,9 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects){
 
 //--------------------------------------------------------------
 void PDPatch::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255,150);
+    ofSetColor(255);
     ofEnableAlphaBlending();
+    ofSetColor(255,150);
     pdIcon->draw(this->width/2,this->headerHeight,((this->height/2.2f)/pdIcon->getHeight())*pdIcon->getWidth(),this->height/2.2f);
     // GUI
     ofSetColor(255);
@@ -131,6 +165,14 @@ void PDPatch::removeObjectContent(){
 }
 
 //--------------------------------------------------------------
+void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load pd patch"){
+        lastLoadedPatch = response.filepath;
+        patchLoaded = true;
+    }
+}
+
+//--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
     if(this->inletsConnected[0] && pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         lastInputBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
@@ -141,12 +183,21 @@ void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
 //--------------------------------------------------------------
 void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        pd.audioOut(lastOutputBuffer.getBuffer().data(), lastOutputBuffer.getNumFrames(), 1);
+        pd.audioOut(lastOutputBuffer.getBuffer().data(), lastOutputBuffer.getNumFrames(), 4);
     }else{
         lastOutputBuffer *= 0.0f;
     }
 
-    *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastOutputBuffer;
+    // separate global sound buffer to Left & Right
+    lastOutputBuffer.getChannel(lastOutputBuffer1,0);
+    lastOutputBuffer.getChannel(lastOutputBuffer2,1);
+    lastOutputBuffer.getChannel(lastOutputBuffer3,2);
+    lastOutputBuffer.getChannel(lastOutputBuffer4,3);
+
+    *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastOutputBuffer1;
+    *static_cast<ofSoundBuffer *>(_outletParams[1]) = lastOutputBuffer2;
+    *static_cast<ofSoundBuffer *>(_outletParams[2]) = lastOutputBuffer3;
+    *static_cast<ofSoundBuffer *>(_outletParams[3]) = lastOutputBuffer4;
 }
 
 //--------------------------------------------------------------
@@ -197,9 +248,16 @@ void PDPatch::loadAudioSettings(){
         }
     }
 
-    lastOutputBuffer.allocate(bufferSize,1);
+    lastOutputBuffer.allocate(bufferSize,4);
+    lastOutputBuffer1.allocate(bufferSize,1);
+    lastOutputBuffer2.allocate(bufferSize,1);
+    lastOutputBuffer3.allocate(bufferSize,1);
+    lastOutputBuffer4.allocate(bufferSize,1);
 
-    pd.init(1,1,sampleRate,4,false);
+    pd.init(4,1,sampleRate,4,false);
+
+    pd.subscribe("toMosaic");
+
     pd.addReceiver(*this);
     pd.addMidiReceiver(*this);
 
@@ -209,6 +267,9 @@ void PDPatch::loadAudioSettings(){
     }
 
     _outletParams[0] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    _outletParams[1] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    _outletParams[2] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    _outletParams[3] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
 
 }
 
@@ -247,17 +308,7 @@ void PDPatch::loadPatch(string scriptFile){
 void PDPatch::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a PD patch");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "PD") {
-                        filepath = file.getAbsolutePath();
-                        loadPatch(filepath);
-                    }
-                }
-            }
+            loadPatchFlag = true;
         }
     }
 }
@@ -284,5 +335,78 @@ void PDPatch::pathChanged(const PathWatcher::Event &event) {
 
 //--------------------------------------------------------------
 void PDPatch::print(const std::string& message) {
-    ofLog(OF_LOG_NOTICE,"PD print: %s", message.c_str());
+    ofLog(OF_LOG_NOTICE,"PD: print %s", message.c_str());
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveBang(const std::string& dest) {
+    ofLog(OF_LOG_NOTICE,"Mosaic: bang %s", dest.c_str());
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveFloat(const std::string& dest, float value) {
+    ofLog(OF_LOG_NOTICE,"Mosaic: float %s: %f", dest.c_str(), value);
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveSymbol(const std::string& dest, const std::string& symbol) {
+    ofLog(OF_LOG_NOTICE,"Mosaic: symbol %s: %s", dest.c_str(), symbol.c_str());
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveList(const std::string& dest, const List& list) {
+    ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", dest.c_str());
+
+    // step through the list
+    for(int i = 0; i < list.len(); ++i) {
+        if(list.isFloat(i))
+            ofLog(OF_LOG_NOTICE,"%f", list.getFloat(i));
+        else if(list.isSymbol(i))
+            ofLog(OF_LOG_NOTICE,"%s", list.getSymbol(i).c_str());
+    }
+
+    // print an OSC-style type string
+    ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", list.types().c_str());
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveMessage(const std::string& dest, const std::string& msg, const List& list) {
+    ofLog(OF_LOG_NOTICE,"Mosaic: message %s: %s %s %s", dest.c_str(), msg.c_str(), list.toString().c_str(), list.types().c_str());
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveNoteOn(const int channel, const int pitch, const int velocity) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: note on: %i %i %i", channel, pitch, velocity);
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveControlChange(const int channel, const int controller, const int value) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: control change: %i %i %i", channel, controller, value);
+}
+
+//--------------------------------------------------------------
+// note: pgm nums are 1-128 to match pd
+void PDPatch::receiveProgramChange(const int channel, const int value) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: program change: %i %i", channel, value);
+}
+
+//--------------------------------------------------------------
+void PDPatch::receivePitchBend(const int channel, const int value) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: pitch bend: %i %i", channel, value);
+}
+
+//--------------------------------------------------------------
+void PDPatch::receiveAftertouch(const int channel, const int value) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: aftertouch: %i %i", channel, value);
+}
+
+//--------------------------------------------------------------
+void PDPatch::receivePolyAftertouch(const int channel, const int pitch, const int value) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: poly aftertouch: %i %i %i", channel, pitch, value);
+}
+
+//--------------------------------------------------------------
+// note: pd adds +2 to the port num, so sending to port 3 in pd to [midiout], shows up at port 1 in ofxPd
+void PDPatch::receiveMidiByte(const int port, const int byte) {
+    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }

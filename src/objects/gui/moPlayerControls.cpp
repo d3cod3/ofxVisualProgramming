@@ -86,7 +86,7 @@ void moPlayerControls::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void moPlayerControls::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void moPlayerControls::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     playButton->update();
     stopButton->update();

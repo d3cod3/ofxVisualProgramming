@@ -75,7 +75,7 @@ void FftExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FftExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void FftExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         int index = 0;
         for(int i=bufferSize;i<bufferSize + spectrumSize;i++){

@@ -40,6 +40,7 @@
 #include "ofxDatGui.h"
 #include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
+#include "ofxThreadedFileDialog.h"
 
 #include "DraggableVertex.h"
 
@@ -79,7 +80,7 @@ public:
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
-    void                    update(map<int,PatchObject*> &patchObjects);
+    void                    update(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void                    draw(ofxFontStash *font);
 
     // Virtual Methods
@@ -87,7 +88,7 @@ public:
 
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
-    virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects) {}
+    virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent() {}
 
@@ -95,6 +96,8 @@ public:
     virtual void            mousePressedObjectContent(ofVec3f _m) {}
     virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
     virtual void            keyPressedObjectContent(int key) {}
+
+    virtual void            fileDialogResponse(ofxThreadedFileDialogResponse &response) {}
 
     virtual void            dragGUIObject(ofVec3f _m) {}
 

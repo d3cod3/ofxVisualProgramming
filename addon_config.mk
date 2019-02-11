@@ -27,7 +27,7 @@ common:
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFontStash ofxGLEditor ofxGLError
         ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxParagraph ofxPDSP ofxSIMDFloats
-        ADDON_DEPENDENCIES += ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
+        ADDON_DEPENDENCIES += ofxThreadedFileDialog ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be

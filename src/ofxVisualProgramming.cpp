@@ -193,6 +193,10 @@ void ofxVisualProgramming::setup(){
         canvas.setScale(2);
     }
 
+    // Threaded File Dialogs
+    fileDialog.setup();
+    ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
+
     // INIT OBJECTS
     initObjectMatrix();
 
@@ -215,7 +219,7 @@ void ofxVisualProgramming::update(){
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
-        it->second->update(patchObjects);
+        it->second->update(patchObjects,fileDialog);
         TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
 
         if(draggingObject && draggingObjectID == it->first){
@@ -375,8 +379,7 @@ void ofxVisualProgramming::drawLivePatchingSession(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
-
-    //deactivateDSP();
+    fileDialog.stop();
     dspON = false;
     engine->setChannels(0,0);
 
@@ -570,6 +573,13 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::onFileDialogResponse(ofxThreadedFileDialogResponse &response){
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->fileDialogResponse(response);
+    }
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChannels){
 
     if(audioSampleRate != 0 && dspON){
@@ -623,7 +633,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     // discard special unique objects
     if(name == "live patching" && weAlreadyHaveObject(name)){
-        ofLog(OF_LOG_WARNING,"%s object is a single instance type of object, a Mosaic  can't contain more than one.",name.c_str());
+        ofLog(OF_LOG_WARNING,"%s object is a single instance type of object, a Mosaic patch can't contain more than one.",name.c_str());
         return;
     }
 

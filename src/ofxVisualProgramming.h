@@ -40,6 +40,7 @@
 #include "ofxGLError.h"
 #include "ofxInfiniteCanvas.h"
 #include "ofxTimeMeasurements.h"
+#include "ofxThreadedFileDialog.h"
 #include "ofxPDSP.h"
 
 #include "PatchObject.h"
@@ -66,6 +67,8 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
 
     void            keyPressed(ofKeyEventArgs &e);
+
+    void            onFileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            activeObject(int oid);
 
@@ -122,6 +125,7 @@ public:
     bool                    bLoadingNewObject;
 
     // LOAD/SAVE
+    ofxThreadedFileDialog   fileDialog;
     string                  currentPatchFile;
     string                  tempPatchFile;
     int                     output_width;

@@ -140,7 +140,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();

@@ -65,7 +65,7 @@ void Subtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Subtract::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Subtract::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && this->inletsConnected[1]){
       *(float *)&_outletParams[0] = *(float *)&_inletParams[0] - *(float *)&_inletParams[1];
     }else{

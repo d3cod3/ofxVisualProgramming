@@ -57,8 +57,11 @@ BashScript::BashScript() : PatchObject(){
 
     lastMessage         = "";
 
-    threadLoaded    = false;
-    needToLoadScript= true;
+    threadLoaded        = false;
+    needToLoadScript    = true;
+
+    loadScriptFlag      = false;
+    saveScriptFlag      = false;
 }
 
 //--------------------------------------------------------------
@@ -79,6 +82,7 @@ void BashScript::threadedFunction(){
             nameLabelLoaded = true;
         }
         condition.wait(lock);
+        sleep(10);
     }
 
 }
@@ -128,10 +132,10 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
-        ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
+        tinyfd_notifyPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor\nand it seems you do not have it installed on your system.","info");
     }
 
     // listen to message control (_inletParams[0])
@@ -161,6 +165,19 @@ void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects){
         }
     }
 
+    // file dialogs
+    if(loadScriptFlag){
+        loadScriptFlag = false;
+        fd.openFile("load bash","Select a bash script");
+    }
+
+    if(saveScriptFlag){
+        saveScriptFlag = false;
+        string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
+        fd.saveFile("save bash","Save new Bash script as",newFileName);
+    }
+
+    // path watcher
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
     }
@@ -182,6 +199,9 @@ void BashScript::drawObjectContent(ofxFontStash *font){
 //--------------------------------------------------------------
 void BashScript::removeObjectContent(){
     tempCommand.stop();
+    if(isThreadRunning()){
+        stopThread();
+    }
 }
 
 //--------------------------------------------------------------
@@ -221,6 +241,28 @@ void BashScript::dragGUIObject(ofVec3f _m){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
+    }
+}
+
+//--------------------------------------------------------------
+void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load bash"){
+        ofFile file (response.filepath);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "SH" || fileExtension == "CMD") {
+                threadLoaded = false;
+                filepath = file.getAbsolutePath();
+                reloadScriptThreaded();
+            }
+        }
+    }else if(response.id == "save bash"){
+        ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
+        ofFile newBashFile (response.filepath);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newBashFile.getAbsolutePath(),true,true);
+        threadLoaded = false;
+        filepath = newBashFile.getAbsolutePath();
+        reloadScriptThreaded();
     }
 }
 
@@ -287,29 +329,9 @@ void BashScript::reloadScriptThreaded(){
 void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == newButton){
-            string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
-            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new Bash script as");
-            if (saveFileResult.bSuccess){
-                ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
-                ofFile newBashFile (saveFileResult.getPath());
-                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newBashFile.getAbsolutePath(),true,true);
-                threadLoaded = false;
-                filepath = newBashFile.getAbsolutePath();
-                reloadScriptThreaded();
-            }
+            saveScriptFlag = true;
         }else if(e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a bash script");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "SH" || fileExtension == "CMD") {
-                        threadLoaded = false;
-                        filepath = file.getAbsolutePath();
-                        reloadScriptThreaded();
-                    }
-                }
-            }
+            loadScriptFlag = true;
         }else if(e.target == editButton){
             bool nameError = false;
             if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){

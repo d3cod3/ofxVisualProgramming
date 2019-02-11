@@ -86,12 +86,13 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
     void            resetResolution(int fromID, int newWidth, int newHeight);
+    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            initResolution();
     void            doFragmentShader();
@@ -128,6 +129,12 @@ public:
     vector<ofxDatGuiSlider*>    shaderSliders;
     vector<int>                 shaderSlidersIndex;
     vector<float>               objectCustomVars;
+
+    string              lastShaderScript;
+    bool                loadShaderScriptFlag;
+    bool                saveShaderScriptFlag;
+    bool                shaderScriptLoaded;
+    bool                shaderScriptSaved;
 
     ofFbo               *fbo;
     ofImage             *kuro;

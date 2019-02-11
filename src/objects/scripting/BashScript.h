@@ -49,11 +49,12 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
+    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            loadScript(string scriptFile);
     void            reloadScriptThreaded();
@@ -85,5 +86,7 @@ protected:
     std::condition_variable condition;
     bool                    needToLoadScript;
     bool                    threadLoaded;
+    bool                    loadScriptFlag;
+    bool                    saveScriptFlag;
 
 };

@@ -78,7 +78,7 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void AudioDevice::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void AudioDevice::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
 }
 

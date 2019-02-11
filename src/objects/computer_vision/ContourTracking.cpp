@@ -120,7 +120,7 @@ void ContourTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void ContourTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

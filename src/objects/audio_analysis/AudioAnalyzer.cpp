@@ -98,7 +98,7 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     inputLevel->update();

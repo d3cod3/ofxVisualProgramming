@@ -58,7 +58,7 @@ void LivePatching::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LivePatching::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void LivePatching::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
     }

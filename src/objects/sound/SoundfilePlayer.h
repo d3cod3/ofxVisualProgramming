@@ -43,9 +43,10 @@ public:
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
+    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            audioOutObject(ofSoundBuffer &outputBuffer);
 
@@ -82,5 +83,9 @@ public:
 
     size_t              startTime;
     bool                loading;
+
+    string              lastSoundfile;
+    bool                loadSoundfileFlag;
+    bool                soundfileLoaded;
 
 };

@@ -29,7 +29,7 @@ Table of Contents
 
 # OF COMPATIBLE RELEASE
 
-## 0.10.0 STABLE (official download from [OF site](https://openframeworks.cc/))
+## 0.10.1 STABLE (official download from [OF site](https://openframeworks.cc/))
 > Compiled/tested with QTCreator on osx/linux/windows
 
 If you want to build ofxVisualProgramming, just download OF0.10.0 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
@@ -101,6 +101,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxSIMDFloats](https://github.com/d3cod3/ofxSIMDFloats)
 
+#### [ofxThreadedFileDialog](https://github.com/d3cod3/ofxThreadedFileDialog)
+
 #### [ofxThreadedYouTubeVideo](http://github.com/pierrep/ofxThreadedYouTubeVideo)
 
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
@@ -141,6 +143,7 @@ git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/npisanti/ofxPDSP
 git clone https://github.com/d3cod3/ofxSIMDFloats
+git clone https://github.com/d3cod3/ofxThreadedFileDialog
 git clone http://github.com/pierrep/ofxThreadedYouTubeVideo
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/armadillu/ofxTimeMeasurements
@@ -253,7 +256,7 @@ public:
     void  newObject();
     void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     //void setupAudioOutObjectContent(pdsp::Engine &engine);
-    void  updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void  updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void  drawObjectContent(ofxFontStash *font);
     void  removeObjectContent();
 
@@ -261,6 +264,7 @@ public:
     //void  mousePressedObjectContent(ofVec3f _m);
     //void  mouseReleasedObjectContent(ofVec3f _m);
     //void  keyPressedObjectContent(int key);
+    //void  fileDialogResponse(ofxThreadedFileDialogResponse &response);
     //void  dragGUIObject(ofVec3f _m);
 
     // This methods are for audio objects
@@ -362,7 +366,7 @@ void SuperAmazingObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWin
 }
 
 //--------------------------------------------------------------
-void SuperAmazingObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void SuperAmazingObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     // update your object here, as any ofApp example
 
     // in this case we just need to update the outlet value
@@ -489,6 +493,7 @@ ducker | | X
 FMoperator | | X
 lfo | | X
 oscillator | | X
+pd patch | X |
 phase filter | | X
 resonant 2 pole filter | | X
 resonant 4 pole filter | | X

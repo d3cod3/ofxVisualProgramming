@@ -83,7 +83,7 @@ void PowerExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void PowerExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void PowerExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

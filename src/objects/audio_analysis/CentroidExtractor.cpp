@@ -83,7 +83,7 @@ void CentroidExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 }
 
 //--------------------------------------------------------------
-void CentroidExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void CentroidExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

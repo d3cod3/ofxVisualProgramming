@@ -109,7 +109,7 @@ void MotionDetection::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void MotionDetection::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void MotionDetection::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

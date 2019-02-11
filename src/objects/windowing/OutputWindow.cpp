@@ -62,6 +62,11 @@ OutputWindow::OutputWindow() : PatchObject(){
 
     needReset           = false;
     isWarpingLoaded     = false;
+
+    lastWarpingConfig   = "";
+    loadWarpingFlag     = false;
+    saveWarpingFlag     = false;
+    warpingConfigLoaded = false;
 }
 
 //--------------------------------------------------------------
@@ -155,7 +160,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -165,6 +170,28 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects){
     useMapping->update();
     loadWarping->update();
     saveWarping->update();
+
+    if(loadWarpingFlag){
+        loadWarpingFlag = false;
+        fd.openFile("open warp config","Select a warping config file");
+    }
+
+    if(warpingConfigLoaded){
+        warpingConfigLoaded = false;
+        ofFile file (lastWarpingConfig);
+        if (file.exists()){
+            string fileExtension = ofToUpper(file.getExtension());
+            if(fileExtension == "JSON") {
+                filepath = file.getAbsolutePath();
+                warpController->loadSettings(filepath);
+            }
+        }
+    }
+
+    if(saveWarpingFlag){
+        saveWarpingFlag = false;
+        fd.saveFile("save warp config","Save warping settings as","warpSettings.json");
+    }
 
     if(needReset){
         needReset = false;
@@ -287,6 +314,18 @@ void OutputWindow::dragGUIObject(ofVec3f _m){
             outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
         }
+    }
+}
+
+//--------------------------------------------------------------
+void OutputWindow::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "open warp config"){
+        warpingConfigLoaded = true;
+        lastWarpingConfig = response.filepath;
+    }else if(response.id == "save warp config"){
+        ofFile newFile (response.filepath);
+        filepath = newFile.getAbsolutePath();
+        warpController->saveSettings(filepath);
     }
 }
 
@@ -693,27 +732,11 @@ void OutputWindow::onButtonEvent(ofxDatGuiButtonEvent e){
         if (e.target == applyButton){
             needReset = true;
         }else if(e.target == loadWarping){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a warping config file");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "JSON") {
-                        filepath = file.getAbsolutePath();
-                        warpController->loadSettings(filepath);
-                    }
-                }
-            }
+            loadWarpingFlag = true;
         }else if(e.target == saveWarping){
-            ofFileDialogResult saveFileResult = ofSystemSaveDialog("warpSettings.json","Save warping settings as");
-            if (saveFileResult.bSuccess){
-                ofFile newLuaFile (saveFileResult.getPath());
-                filepath = newLuaFile.getAbsolutePath();
-                warpController->saveSettings(filepath);
-            }
+            saveWarpingFlag = true;
         }
     }
-
 }
 
 //--------------------------------------------------------------

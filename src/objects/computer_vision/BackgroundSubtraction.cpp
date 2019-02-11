@@ -140,7 +140,7 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

@@ -81,7 +81,7 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moSlider::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void moSlider::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     slider->update();
 

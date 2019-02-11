@@ -51,12 +51,13 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects);
+    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
     void            resetResolution(int fromID, int newWidth, int newHeight);
+    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            initResolution();
 
@@ -99,6 +100,12 @@ public:
 
     string              mosaicTableName;
     string              tempstring;
+
+    string              lastLuaScript;
+    bool                loadLuaScriptFlag;
+    bool                saveLuaScriptFlag;
+    bool                luaScriptLoaded;
+    bool                luaScriptSaved;
 
 protected:
     ThreadedCommand         tempCommand;

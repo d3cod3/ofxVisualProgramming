@@ -65,6 +65,12 @@ ShaderObject::ShaderObject() : PatchObject(){
     fragmentShader  = "";
     vertexShader    = "";
 
+    lastShaderScript       = "";
+    loadShaderScriptFlag   = false;
+    saveShaderScriptFlag   = false;
+    shaderScriptLoaded     = false;
+    shaderScriptSaved      = false;
+
 }
 
 //--------------------------------------------------------------
@@ -99,7 +105,7 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
         ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
@@ -129,6 +135,58 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects){
     editButton->update();
     for(size_t i=0;i<shaderSliders.size();i++){
         shaderSliders.at(i)->update();
+    }
+
+    if(loadShaderScriptFlag){
+        loadShaderScriptFlag = false;
+        fd.openFile("load shader","Select a shader");
+    }
+
+    if(saveShaderScriptFlag){
+        saveShaderScriptFlag = false;
+        string newFileName = "shader_"+ofGetTimestampString("%y%m%d")+".frag";
+        fd.saveFile("save shader","Save new GLSL shader as",newFileName);
+    }
+
+    if(shaderScriptLoaded){
+        shaderScriptLoaded = false;
+        currentScriptFile.open(ofToDataPath(lastShaderScript,true));
+        if (currentScriptFile.exists()){
+            string fileExtension = ofToUpper(currentScriptFile.getExtension());
+            if(fileExtension == "FRAG") {
+                filepath = currentScriptFile.getAbsolutePath();
+                loadScript(filepath);
+                reloading = true;
+            }else if(fileExtension == "VERT"){
+                string vsName = currentScriptFile.getFileName();
+                string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                filepath = fsName;
+                loadScript(filepath);
+                reloading = true;
+            }
+        }
+    }
+
+    if(shaderScriptSaved){
+        shaderScriptSaved = false;
+        ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
+        ofFile newGLSLFile (lastShaderScript);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newGLSLFile.getAbsolutePath(),true,true);
+        currentScriptFile = newGLSLFile;
+        if (currentScriptFile.exists()){
+            string fileExtension = ofToUpper(currentScriptFile.getExtension());
+            if(fileExtension == "FRAG") {
+                filepath = currentScriptFile.getAbsolutePath();
+                loadScript(filepath);
+                reloading = true;
+            }else if(fileExtension == "VERT"){
+                string vsName = currentScriptFile.getFileName();
+                string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                filepath = fsName;
+                loadScript(filepath);
+                reloading = true;
+            }
+        }
     }
 
     while(watcher.waitingEvents()) {
@@ -475,6 +533,17 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
 }
 
 //--------------------------------------------------------------
+void ShaderObject::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load shader"){
+        lastShaderScript = response.filepath;
+        shaderScriptLoaded = true;
+    }else if(response.id == "save shader"){
+        lastShaderScript = response.filepath;
+        shaderScriptSaved = true;
+    }
+}
+
+//--------------------------------------------------------------
 void ShaderObject::loadGUI(){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
@@ -573,47 +642,9 @@ void ShaderObject::onSliderEvent(ofxDatGuiSliderEvent e){
 void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == newButton){
-            string newFileName = "shader_"+ofGetTimestampString("%y%m%d")+".frag";
-            ofFileDialogResult saveFileResult = ofSystemSaveDialog(newFileName,"Save new GLSL shader as");
-            if (saveFileResult.bSuccess){
-                ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
-                ofFile newGLSLFile (saveFileResult.getPath());
-                ofFile::copyFromTo(fileToRead.getAbsolutePath(),newGLSLFile.getAbsolutePath(),true,true);
-                currentScriptFile = newGLSLFile;
-                if (currentScriptFile.exists()){
-                    string fileExtension = ofToUpper(currentScriptFile.getExtension());
-                    if(fileExtension == "FRAG") {
-                        filepath = currentScriptFile.getAbsolutePath();
-                        loadScript(filepath);
-                        reloading = true;
-                    }else if(fileExtension == "VERT"){
-                        string vsName = currentScriptFile.getFileName();
-                        string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                        filepath = fsName;
-                        loadScript(filepath);
-                        reloading = true;
-                    }
-                }
-            }
+            saveShaderScriptFlag = true;
         }else if(e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a shader");
-            if (openFileResult.bSuccess){
-                currentScriptFile.open(ofToDataPath(openFileResult.getPath(),true));
-                if (currentScriptFile.exists()){
-                    string fileExtension = ofToUpper(currentScriptFile.getExtension());
-                    if(fileExtension == "FRAG") {
-                        filepath = currentScriptFile.getAbsolutePath();
-                        loadScript(filepath);
-                        reloading = true;
-                    }else if(fileExtension == "VERT"){
-                        string vsName = currentScriptFile.getFileName();
-                        string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                        filepath = fsName;
-                        loadScript(filepath);
-                        reloading = true;
-                    }
-                }
-            }
+            loadShaderScriptFlag = true;
         }else if(e.target == editButton){
             bool nameError = false;
             if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){

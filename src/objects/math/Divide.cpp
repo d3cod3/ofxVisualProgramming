@@ -65,7 +65,7 @@ void Divide::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Divide::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void Divide::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && this->inletsConnected[1]){
       if(*(float *)&_inletParams[1] == 0.0f){
         *(float *)&_outletParams[0] = 0.0f;

@@ -58,6 +58,10 @@ HaarTracking::HaarTracking() : PatchObject(){
 
     isFBOAllocated      = false;
 
+    haarToLoad          = "";
+    loadHaarConfigFlag  = false;
+    haarConfigLoaded    = false;
+
 }
 
 //--------------------------------------------------------------
@@ -103,7 +107,8 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void HaarTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void HaarTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+    // Object GUI
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -111,6 +116,32 @@ void HaarTracking::updateObjectContent(map<int,PatchObject*> &patchObjects){
         loadButton->update();
     }
 
+    // file dialogs
+    if(loadHaarConfigFlag){
+        loadHaarConfigFlag = false;
+        fd.openFile("load haar","Select a haarcascade xml file");
+    }
+
+    if(haarConfigLoaded){
+        haarConfigLoaded = false;
+        if(haarToLoad != ""){
+            ofFile file(haarToLoad);
+            if (file.exists()){
+                string fileExtension = ofToUpper(file.getExtension());
+                if(fileExtension == "XML") {
+                    filepath = file.getAbsolutePath();
+                    haarFinder->setup(filepath);
+
+                    size_t start = file.getFileName().find_first_of("_");
+                    string tempName = file.getFileName().substr(start+1,file.getFileName().size()-start-5);
+
+                    haarFileName->setLabel(tempName);
+                }
+            }
+        }
+    }
+
+    // HAAR Tracking
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         if(!isFBOAllocated){
@@ -256,25 +287,18 @@ void HaarTracking::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
+void HaarTracking::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+    if(response.id == "load haar"){
+        haarToLoad = response.filepath;
+        haarConfigLoaded = true;
+    }
+}
+
+//--------------------------------------------------------------
 void HaarTracking::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if (e.target == loadButton){
-            ofFileDialogResult openFileResult= ofSystemLoadDialog("Select a haarcascade xml file");
-            if (openFileResult.bSuccess){
-                ofFile file (openFileResult.getPath());
-                if (file.exists()){
-                    string fileExtension = ofToUpper(file.getExtension());
-                    if(fileExtension == "XML") {
-                        filepath = file.getAbsolutePath();
-                        haarFinder->setup(filepath);
-
-                        size_t start = file.getFileName().find_first_of("_");
-                        string tempName = file.getFileName().substr(start+1,file.getFileName().size()-start-5);
-
-                        haarFileName->setLabel(tempName);
-                    }
-                }
-            }
+            loadHaarConfigFlag = true;
         }
     }
 }

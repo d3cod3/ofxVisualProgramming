@@ -83,7 +83,7 @@ void PitchExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void PitchExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

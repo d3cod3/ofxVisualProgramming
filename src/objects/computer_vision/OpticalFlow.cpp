@@ -121,7 +121,7 @@ void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OpticalFlow::updateObjectContent(map<int,PatchObject*> &patchObjects){
+void OpticalFlow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

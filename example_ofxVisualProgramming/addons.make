@@ -27,6 +27,7 @@ ofxPd
 ofxPDSP
 ofxPython
 ofxSIMDFloats
+ofxThreadedFileDialog
 ofxThreadedYouTubeVideo
 ofxTimeline
 ofxTimeMeasurements
