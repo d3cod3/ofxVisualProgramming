@@ -125,9 +125,12 @@
 #include "objects/scripting/ShaderObject.h"
 
 // sound objects
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#include "objects/sound/PDPatch.h"
+#endif
+
 #include "objects/sound/AudioDevice.h"
 #include "objects/sound/AudioGate.h"
-#include "objects/sound/PDPatch.h"
 #include "objects/sound/SoundfilePlayer.h"
 
 // video objects
