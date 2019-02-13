@@ -113,6 +113,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     TIME_SAMPLE_SET_AVERAGE_RATE(0.3);
     TIME_SAMPLE_SET_REMOVE_EXPIRED_THREADS(true);
     TIME_SAMPLE_GET_INSTANCE()->drawUiWithFontStash(MAIN_FONT);
+    TIME_SAMPLE_GET_INSTANCE()->setAutoDraw(false);
     TIME_SAMPLE_GET_INSTANCE()->setSavesSettingsOnExit(false);
     TIME_SAMPLE_SET_ENABLED(profilerActive);
 
@@ -350,6 +351,9 @@ void ofxVisualProgramming::draw(){
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
+
+    // Profiler
+    TIME_SAMPLE_GET_INSTANCE()->draw(ofGetWidth() / TIME_SAMPLE_GET_INSTANCE()->getUiScale() - TIME_SAMPLE_GET_INSTANCE()->getWidth() - (TIME_SAMPLE_GET_INSTANCE()->getUiScale()*5),ofGetHeight() / TIME_SAMPLE_GET_INSTANCE()->getUiScale() - TIME_SAMPLE_GET_INSTANCE()->getHeight() - (TIME_SAMPLE_GET_INSTANCE()->getUiScale()*5) - TIME_SAMPLE_GET_INSTANCE()->getPlotsHeight());
 
     TSGL_STOP("draw");
 
