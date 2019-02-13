@@ -83,12 +83,16 @@
 // input_output objects
 
 // logic objects
+#include "objects/logic/BiggerThan.h"
 #include "objects/logic/Counter.h"
 #include "objects/logic/DelayBang.h"
+#include "objects/logic/Equality.h"
 #include "objects/logic/Gate.h"
+#include "objects/logic/Inequality.h"
 #include "objects/logic/Inverter.h"
 #include "objects/logic/LoadBang.h"
 #include "objects/logic/Select.h"
+#include "objects/logic/SmallerThan.h"
 #include "objects/logic/Spigot.h"
 
 // machine_learning objects

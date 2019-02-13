@@ -57,7 +57,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["input/output"] = vecInit;
 
-    vecInit = {"counter","delay bang","gate","inverter","loadbang","select","spigot"};
+    vecInit = {"==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {};
@@ -1096,6 +1096,14 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "subtract"){
         tempObj = new Subtract();
     // -------------------------------------- Logic
+    }else if(objname == "=="){
+        tempObj = new Equality();
+    }else if(objname == "!="){
+        tempObj = new Inequality();
+    }else if(objname == ">"){
+        tempObj = new BiggerThan();
+    }else if(objname == "<"){
+        tempObj = new SmallerThan();
     }else if(objname == "counter"){
         tempObj = new Counter();
     }else if(objname == "delay bang"){
