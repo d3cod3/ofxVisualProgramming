@@ -35,16 +35,19 @@
 //--------------------------------------------------------------
 PDPatch::PDPatch() : PatchObject(){
 
-    this->numInlets  = 2;
+    this->numInlets  = 5;
     this->numOutlets = 5;
 
-    _inletParams[0] = new ofSoundBuffer(); // Audio stream IN
-    _inletParams[1] = new vector<float>(); // Data to PD
+    _inletParams[0] = new ofSoundBuffer(); // Audio stream IN 1
+    _inletParams[1] = new ofSoundBuffer(); // Audio stream IN 2
+    _inletParams[2] = new ofSoundBuffer(); // Audio stream IN 3
+    _inletParams[3] = new ofSoundBuffer(); // Audio stream IN 4
+    _inletParams[4] = new vector<float>(); // Data to PD
 
-    _outletParams[0] = new ofSoundBuffer();  // Audio stream 1
-    _outletParams[1] = new ofSoundBuffer();  // Audio stream 2
-    _outletParams[2] = new ofSoundBuffer();  // Audio stream 3
-    _outletParams[3] = new ofSoundBuffer();  // Audio stream 4
+    _outletParams[0] = new ofSoundBuffer();  // Audio stream OUT 1
+    _outletParams[1] = new ofSoundBuffer();  // Audio stream OUT 2
+    _outletParams[2] = new ofSoundBuffer();  // Audio stream OUT 3
+    _outletParams[3] = new ofSoundBuffer();  // Audio stream OUT 4
     _outletParams[4] = new vector<float>();  // Data to Mosaic
 
     this->initInletsState();
@@ -61,14 +64,19 @@ PDPatch::PDPatch() : PatchObject(){
 
     lastLoadedPatch     = "";
     loadPatchFlag       = false;
+    savePatchFlag       = false;
     patchLoaded         = false;
+    patchSaved          = false;
 
 }
 
 //--------------------------------------------------------------
 void PDPatch::newObject(){
     this->setName("pd patch");
-    this->addInlet(VP_LINK_AUDIO,"audio in");
+    this->addInlet(VP_LINK_AUDIO,"audio in 1");
+    this->addInlet(VP_LINK_AUDIO,"audio in 2");
+    this->addInlet(VP_LINK_AUDIO,"audio in 3");
+    this->addInlet(VP_LINK_AUDIO,"audio in 4");
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_AUDIO);
     this->addOutlet(VP_LINK_AUDIO);
@@ -98,6 +106,9 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     patchName = gui->addLabel("NONE");
     gui->addBreak();
 
+    newButton = gui->addButton("NEW");
+    newButton->setUseCustomMouse(true);
+
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
@@ -122,11 +133,18 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
     // GUI
     gui->update();
     header->update();
+    newButton->update();
     loadButton->update();
 
     if(loadPatchFlag){
         loadPatchFlag = false;
         fd.openFile("load pd patch","Select a PD patch");
+    }
+
+    if(savePatchFlag){
+        savePatchFlag = false;
+        string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
+        fd.saveFile("save pd patch","Save new PD patch as",newFileName);
     }
 
     if(patchLoaded){
@@ -139,6 +157,23 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
                 loadPatch(filepath);
             }
         }
+    }
+
+    if(patchSaved){
+        patchSaved = false;
+        ofFile fileToRead(ofToDataPath("scripts/empty.pd"));
+        ofFile newPDFile (lastLoadedPatch);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPDFile.getAbsolutePath(),true,true);
+        filepath = newPDFile.getAbsolutePath();
+        loadPatch(filepath);
+    }
+
+    if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
+        pd.startMessage();
+        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
+            pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+        }
+        pd.finishList("fromMosaic");
     }
 
     while(watcher.waitingEvents()) {
@@ -169,13 +204,25 @@ void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load pd patch"){
         lastLoadedPatch = response.filepath;
         patchLoaded = true;
+    }else if(response.id == "save pd patch"){
+        lastLoadedPatch = response.filepath;
+        patchSaved = true;
     }
 }
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
-    if(this->inletsConnected[0] && pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        lastInputBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+    if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
+        lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        lastInputBuffer2 = *static_cast<ofSoundBuffer *>(_inletParams[1]);
+        lastInputBuffer3 = *static_cast<ofSoundBuffer *>(_inletParams[2]);
+        lastInputBuffer4 = *static_cast<ofSoundBuffer *>(_inletParams[3]);
+
+        lastInputBuffer.setChannel(lastInputBuffer1,0);
+        lastInputBuffer.setChannel(lastInputBuffer2,1);
+        lastInputBuffer.setChannel(lastInputBuffer3,2);
+        lastInputBuffer.setChannel(lastInputBuffer4,3);
+
         pd.audioIn(lastInputBuffer.getBuffer().data(), lastInputBuffer.getNumFrames(), lastInputBuffer.getNumChannels());
     }
 }
@@ -204,10 +251,11 @@ void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
 void PDPatch::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -219,6 +267,7 @@ void PDPatch::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
@@ -248,6 +297,12 @@ void PDPatch::loadAudioSettings(){
         }
     }
 
+    lastInputBuffer.allocate(bufferSize,4);
+    lastInputBuffer1.allocate(bufferSize,1);
+    lastInputBuffer2.allocate(bufferSize,1);
+    lastInputBuffer3.allocate(bufferSize,1);
+    lastInputBuffer4.allocate(bufferSize,1);
+
     lastOutputBuffer.allocate(bufferSize,4);
     lastOutputBuffer1.allocate(bufferSize,1);
     lastOutputBuffer2.allocate(bufferSize,1);
@@ -265,6 +320,11 @@ void PDPatch::loadAudioSettings(){
     for (int i = 0; i < bufferSize; i++){
         shortBuffer[i] = 0;
     }
+
+    _inletParams[0] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    _inletParams[1] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    _inletParams[2] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
+    _inletParams[3] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
 
     _outletParams[0] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
     _outletParams[1] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
@@ -307,7 +367,9 @@ void PDPatch::loadPatch(string scriptFile){
 //--------------------------------------------------------------
 void PDPatch::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == loadButton){
+        if(e.target == newButton){
+            savePatchFlag = true;
+        }else if(e.target == loadButton){
             loadPatchFlag = true;
         }
     }
@@ -340,73 +402,71 @@ void PDPatch::print(const std::string& message) {
 
 //--------------------------------------------------------------
 void PDPatch::receiveBang(const std::string& dest) {
-    ofLog(OF_LOG_NOTICE,"Mosaic: bang %s", dest.c_str());
+    //ofLog(OF_LOG_NOTICE,"Mosaic: bang %s", dest.c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveFloat(const std::string& dest, float value) {
-    ofLog(OF_LOG_NOTICE,"Mosaic: float %s: %f", dest.c_str(), value);
+    //ofLog(OF_LOG_NOTICE,"Mosaic: float %s: %f", dest.c_str(), value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveSymbol(const std::string& dest, const std::string& symbol) {
-    ofLog(OF_LOG_NOTICE,"Mosaic: symbol %s: %s", dest.c_str(), symbol.c_str());
+    //ofLog(OF_LOG_NOTICE,"Mosaic: symbol %s: %s", dest.c_str(), symbol.c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveList(const std::string& dest, const List& list) {
-    ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", dest.c_str());
+    //ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", dest.c_str());
 
-    // step through the list
+    static_cast<vector<float> *>(_outletParams[4])->clear();
+    static_cast<vector<float> *>(_outletParams[4])->assign(list.len(),0.0f);
+
     for(int i = 0; i < list.len(); ++i) {
-        if(list.isFloat(i))
-            ofLog(OF_LOG_NOTICE,"%f", list.getFloat(i));
-        else if(list.isSymbol(i))
-            ofLog(OF_LOG_NOTICE,"%s", list.getSymbol(i).c_str());
+        if(list.isFloat(i)){
+            static_cast<vector<float> *>(_outletParams[4])->at(i) = list.getFloat(i);
+        }
     }
-
-    // print an OSC-style type string
-    ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", list.types().c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveMessage(const std::string& dest, const std::string& msg, const List& list) {
-    ofLog(OF_LOG_NOTICE,"Mosaic: message %s: %s %s %s", dest.c_str(), msg.c_str(), list.toString().c_str(), list.types().c_str());
+    //ofLog(OF_LOG_NOTICE,"Mosaic: message %s: %s %s %s", dest.c_str(), msg.c_str(), list.toString().c_str(), list.types().c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveNoteOn(const int channel, const int pitch, const int velocity) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: note on: %i %i %i", channel, pitch, velocity);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: note on: %i %i %i", channel, pitch, velocity);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveControlChange(const int channel, const int controller, const int value) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: control change: %i %i %i", channel, controller, value);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: control change: %i %i %i", channel, controller, value);
 }
 
 //--------------------------------------------------------------
 // note: pgm nums are 1-128 to match pd
 void PDPatch::receiveProgramChange(const int channel, const int value) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: program change: %i %i", channel, value);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: program change: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receivePitchBend(const int channel, const int value) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: pitch bend: %i %i", channel, value);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: pitch bend: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveAftertouch(const int channel, const int value) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: aftertouch: %i %i", channel, value);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: aftertouch: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receivePolyAftertouch(const int channel, const int pitch, const int value) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: poly aftertouch: %i %i %i", channel, pitch, value);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: poly aftertouch: %i %i %i", channel, pitch, value);
 }
 
 //--------------------------------------------------------------
 // note: pd adds +2 to the port num, so sending to port 3 in pd to [midiout], shows up at port 1 in ofxPd
 void PDPatch::receiveMidiByte(const int port, const int byte) {
-    ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
+    //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }

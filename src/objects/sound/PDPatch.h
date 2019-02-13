@@ -92,6 +92,10 @@ public:
     bool                isNewObject;
 
     ofSoundBuffer       lastInputBuffer;
+    ofSoundBuffer       lastInputBuffer1;
+    ofSoundBuffer       lastInputBuffer2;
+    ofSoundBuffer       lastInputBuffer3;
+    ofSoundBuffer       lastInputBuffer4;
     ofSoundBuffer       lastOutputBuffer;
     ofSoundBuffer       lastOutputBuffer1;
     ofSoundBuffer       lastOutputBuffer2;
@@ -101,6 +105,7 @@ public:
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
     ofxDatGuiLabel*     patchName;
+    ofxDatGuiButton*    newButton;
     ofxDatGuiButton*    loadButton;
 
     ofImage             *pdIcon;
@@ -110,7 +115,9 @@ public:
 
     string              lastLoadedPatch;
     bool                loadPatchFlag;
+    bool                savePatchFlag;
     bool                patchLoaded;
+    bool                patchSaved;
 
 protected:
 
