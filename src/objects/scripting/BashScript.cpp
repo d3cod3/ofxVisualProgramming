@@ -135,7 +135,7 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
-        tinyfd_notifyPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor\nand it seems you do not have it installed on your system.","info");
+        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor\nand it seems you do not have it installed on your system.");
     }
 
     // listen to message control (_inletParams[0])

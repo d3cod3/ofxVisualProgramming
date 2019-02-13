@@ -108,7 +108,7 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
-        ofSystemAlertDialog("Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
+        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
     }
 
     // Recursive reset for shader objects chain
