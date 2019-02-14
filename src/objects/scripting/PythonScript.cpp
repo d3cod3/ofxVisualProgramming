@@ -496,7 +496,7 @@ void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
             loadPythonScriptFlag = true;
         }else if(e.target == editButton){
             bool nameError = false;
-            if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){
+            if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_.\/") != string::npos){
                nameError = true;
             }
             if(filepath != "none" && !nameError && script){
