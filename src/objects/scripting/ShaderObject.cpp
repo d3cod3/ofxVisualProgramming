@@ -646,10 +646,7 @@ void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
         }else if(e.target == loadButton){
             loadShaderScriptFlag = true;
         }else if(e.target == editButton){
-            bool nameError = false;
-            if(filepath.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_.\/") != string::npos){
-               nameError = true;
-            }
+            bool nameError = checkFilenameError(filepath);
             if(filepath != "none" && !nameError && scriptLoaded){
                 string cmd = "";
 #ifdef TARGET_LINUX
