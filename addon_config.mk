@@ -26,7 +26,7 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFontStash ofxGLEditor ofxGLError
-        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxParagraph ofxPDSP ofxSIMDFloats
+        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxParagraph ofxPd ofxPDSP ofxSIMDFloats
         ADDON_DEPENDENCIES += ofxThreadedFileDialog ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
 
 	# include search paths, this will be usually parsed from the file system
@@ -72,10 +72,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPython ofxPd
+        ADDON_DEPENDENCIES += ofxPython
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/PythonScript% src/objects/sound/PDPatch%
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/PythonScript%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPython ofxPd
+        ADDON_DEPENDENCIES += ofxPython
