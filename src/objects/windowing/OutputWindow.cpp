@@ -57,6 +57,8 @@ OutputWindow::OutputWindow() : PatchObject(){
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
 
+    finalTexture        = new ofFbo();
+
     isGUIObject         = true;
     this->isOverGUI     = true;
 
@@ -115,6 +117,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofAddListener(window->events().windowResized ,this,&OutputWindow::windowResized);
 
     static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
+    finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,2);
 
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
@@ -439,24 +442,31 @@ void OutputWindow::toggleWindowFullscreen(){
 
 //--------------------------------------------------------------
 void OutputWindow::drawInWindow(ofEventArgs &e){
+    finalTexture->begin();
+    ofClear(0,0,0,255);
+    static_cast<ofTexture *>(_inletParams[0])->draw(0,0,output_width,output_height);
+    finalTexture->end();
+
     ofBackground(0);
+
     ofPushStyle();
     ofSetColor(255);
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(isFullscreen){
             if(useMapping->getChecked()){
-                warpController->getWarp(0)->draw(*static_cast<ofTexture *>(_inletParams[0]));
+                warpController->getWarp(0)->draw(finalTexture->getTexture());
             }else{
-                static_cast<ofTexture *>(_inletParams[0])->draw(posX, posY, drawW, drawH);
+                finalTexture->draw(posX, posY, drawW, drawH);
             }
         }else{
-            static_cast<ofTexture *>(_inletParams[0])->draw(posX, posY, drawW, drawH);
+            finalTexture->draw(posX, posY, drawW, drawH);
         }
     }else{
         ofSetColor(0);
         ofDrawRectangle(posX, posY, drawW, drawH);
     }
     ofPopStyle();
+
 }
 
 //--------------------------------------------------------------
@@ -477,6 +487,13 @@ void OutputWindow::resetResolution(){
 
         _inletParams[0] = new ofTexture();
         static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
+
+        finalTexture = new ofFbo();
+        finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,2);
+
+        finalTexture->begin();
+        ofClear(0,0,0,255);
+        finalTexture->end();
 
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");

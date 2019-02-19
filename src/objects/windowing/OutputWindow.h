@@ -93,6 +93,7 @@ public:
     bool                                    needReset;
 
     ofxWarpController                       *warpController;
+    ofFbo                                   *finalTexture;
     bool                                    isWarpingLoaded;
 
     ofxDatGui*                              gui;

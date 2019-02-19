@@ -368,7 +368,7 @@ void ShaderObject::doFragmentShader(){
         _inletParams[i] = new ofTexture();
 
         ofFbo* tempFBO = new ofFbo();
-        tempFBO->allocate(output_width,output_height,internalFormat);
+        tempFBO->allocate(output_width,output_height,internalFormat,4);
         tempFBO->begin();
         ofClear(0,0,0,255);
         tempFBO->end();
@@ -483,9 +483,9 @@ void ShaderObject::initResolution(){
     output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 
     fbo = new ofFbo();
-    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
     fbo->begin();
-    ofClear(255,255,255, 0);
+    ofClear(0,0,0,255);
     fbo->end();
 
     // init shader
@@ -514,9 +514,9 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
         this->saveConfig(false,this->nId);
 
         fbo = new ofFbo();
-        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
         fbo->begin();
-        ofClear(255,255,255, 0);
+        ofClear(0,0,0,255);
         fbo->end();
 
         // init shader

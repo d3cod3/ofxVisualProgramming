@@ -370,9 +370,9 @@ void PythonScript::initResolution(){
     output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 
     fbo = new ofFbo();
-    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
     fbo->begin();
-    ofClear(255,255,255, 0);
+    ofClear(0,0,0,255);
     fbo->end();
 
     static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
@@ -400,9 +400,9 @@ void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
         this->saveConfig(false,this->nId);
 
         fbo = new ofFbo();
-        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB);
+        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
         fbo->begin();
-        ofClear(255,255,255, 0);
+        ofClear(0,0,0,255);
         fbo->end();
 
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
