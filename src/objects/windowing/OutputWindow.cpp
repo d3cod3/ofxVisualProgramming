@@ -117,7 +117,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofAddListener(window->events().windowResized ,this,&OutputWindow::windowResized);
 
     static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
-    finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,2);
+    finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
 
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
@@ -489,7 +489,7 @@ void OutputWindow::resetResolution(){
         static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
 
         finalTexture = new ofFbo();
-        finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,2);
+        finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
 
         finalTexture->begin();
         ofClear(0,0,0,255);
