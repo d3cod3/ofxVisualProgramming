@@ -53,6 +53,8 @@ mo2DPad::mo2DPad() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -95,6 +97,11 @@ void mo2DPad::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[1]*pad->getBounds().height,pad->getPoint().z));
     }
 
+    if(!loaded){
+        loaded = true;
+        pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
+    }
+
     *(float *)&_outletParams[0] = static_cast<float>(pad->getPoint().x/pad->getBounds().width);
     *(float *)&_outletParams[1] = static_cast<float>(pad->getPoint().y/pad->getBounds().height);
 
@@ -115,17 +122,15 @@ void mo2DPad::removeObjectContent(){
 
 //--------------------------------------------------------------
 void mo2DPad::mouseMovedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[2]){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     this->isOverGUI = pad->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void mo2DPad::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI && !this->inletsConnected[2]){
+    if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{

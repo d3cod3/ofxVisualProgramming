@@ -54,4 +54,6 @@ public:
     ofxDatGui*          gui;
     ofxDatGui2dPad*     pad;
 
+    bool                loaded;
+
 };
