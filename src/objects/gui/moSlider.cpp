@@ -53,6 +53,8 @@ moSlider::moSlider() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -63,6 +65,8 @@ void moSlider::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC);
 
+    this->setCustomVar(static_cast<float>(0),"MIN");
+    this->setCustomVar(static_cast<float>(1),"MAX");
     this->setCustomVar(static_cast<float>(0),"VALUE");
 }
 
@@ -74,7 +78,7 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setWidth(this->width);
     gui->onSliderEvent(this, &moSlider::onSliderEvent);
 
-    slider = gui->addSlider("", *(float *)&_inletParams[0], *(float *)&_inletParams[1], this->getCustomVar("VALUE"));
+    slider = gui->addSlider("", 0,1,0);
     slider->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height/3 + slider->getHeight()/2);
@@ -85,13 +89,25 @@ void moSlider::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     gui->update();
     slider->update();
 
-    slider->setMin(*(float *)&_inletParams[0]);
-    slider->setMax(*(float *)&_inletParams[1]);
+    if(this->inletsConnected[0]){
+        slider->setMin(*(float *)&_inletParams[0]);
+    }
+    if(this->inletsConnected[1]){
+        slider->setMax(*(float *)&_inletParams[1]);
+    }
+
     if(this->inletsConnected[2]){
         slider->setValue(*(float *)&_inletParams[2]);
     }
 
     *(float *)&_outletParams[0] = static_cast<float>(slider->getValue());
+
+    if(!loaded){
+        loaded = true;
+        slider->setMin(this->getCustomVar("MIN"));
+        slider->setMax(this->getCustomVar("MAX"));
+        slider->setValue(this->getCustomVar("VALUE"));
+    }
 }
 
 //--------------------------------------------------------------
@@ -142,4 +158,10 @@ void moSlider::dragGUIObject(ofVec3f _m){
 void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
     *(float *)&_outletParams[0] = static_cast<float>(e.value);
     this->setCustomVar(static_cast<float>(e.value),"VALUE");
+    if(this->inletsConnected[0]){
+        this->setCustomVar(static_cast<float>(*(float *)&_inletParams[0]),"MIN");
+    }
+    if(this->inletsConnected[1]){
+        this->setCustomVar(static_cast<float>(*(float *)&_inletParams[1]),"MAX");
+    }
 }
