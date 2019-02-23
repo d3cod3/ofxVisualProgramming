@@ -48,6 +48,6 @@ public:
 
     void            audioOutObject(ofSoundBuffer &outBuffer);
 
-    ofPolyline      waveform;
+    ofPolyline          waveform;
 
 };

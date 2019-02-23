@@ -49,6 +49,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
     this->width             *= 2;
 
     isAudioOUTObject        = true;
+    isPDSPPatchableObject   = true;
 }
 
 //--------------------------------------------------------------
@@ -61,7 +62,8 @@ void moSignalViewer::newObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    this->pdspIn[0] >> this->pdspOut[0];
+    this->pdspIn[0] >> this->pdspOut[1];
 }
 
 //--------------------------------------------------------------
@@ -81,8 +83,10 @@ void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, of
 
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255);
     ofEnableAlphaBlending();
+    ofSetColor(255,255,120,10);
+    ofDrawRectangle(0,this->height,this->width,-this->height * ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0));
+    ofSetColor(255,255,120);
     waveform.draw();
     ofDisableAlphaBlending();
 }
