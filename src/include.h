@@ -70,6 +70,7 @@
 // graphics objects
 
 // gui objects
+#include "objects/gui/mo2DPad.h"
 #include "objects/gui/moBang.h"
 #include "objects/gui/moComment.h"
 #include "objects/gui/moMessage.h"
@@ -104,6 +105,7 @@
 #include "objects/math/Divide.h"
 #include "objects/math/Metronome.h"
 #include "objects/math/Multiply.h"
+#include "objects/math/Range.h"
 #include "objects/math/SimpleRandom.h"
 #include "objects/math/SimpleNoise.h"
 #include "objects/math/Smooth.h"
@@ -125,12 +127,17 @@
 #include "objects/scripting/ShaderObject.h"
 
 // sound objects
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "objects/sound/PDPatch.h"
-#endif
-
 #include "objects/sound/AudioDevice.h"
 #include "objects/sound/AudioGate.h"
+#include "objects/sound/Mixer.h"
+#include "objects/sound/Oscillator.h"
+#include "objects/sound/OscTriangle.h"
+#include "objects/sound/OscSaw.h"
+#include "objects/sound/OscPulse.h"
+#include "objects/sound/Panner.h"
+#include "objects/sound/PDPatch.h"
+#include "objects/sound/QuadPanner.h"
+#include "objects/sound/SigMult.h"
 #include "objects/sound/SoundfilePlayer.h"
 
 // video objects

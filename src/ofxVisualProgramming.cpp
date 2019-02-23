@@ -51,7 +51,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
 
-    vecInit = {"bang","comment","message","player controls","signal viewer","slider","timeline","trigger","video viewer"};
+    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","timeline","trigger","video viewer"};
     objectsMatrix["gui"] = vecInit;
 
     vecInit = {};
@@ -63,7 +63,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["machine learning"] = vecInit;
 
-    vecInit = {"add","clamp","constant","divide","metronome","multiply","simple noise","simple random","smooth","subtract"};
+    vecInit = {"add","clamp","constant","divide","metronome","multiply","range","simple noise","simple random","smooth","subtract"};
     objectsMatrix["math"] = vecInit;
 
     vecInit = {};
@@ -80,15 +80,9 @@ void ofxVisualProgramming::initObjectMatrix(){
 #elif defined(TARGET_WIN32)
     vecInit = {"lua script","shader object"};
 #endif
-
     objectsMatrix["scripting"] = vecInit;
 
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"audio gate","pd patch","soundfile player"};
-#elif defined(TARGET_WIN32)
-    vecInit = {"audio gate","soundfile player"};
-#endif
-
+    vecInit = {"amp","audio gate","mixer","panner","pd patch","quad panner","pulse","saw","sine","soundfile player","triangle"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video gate","video grabber","video player"};
@@ -545,6 +539,12 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
                 patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
                 if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID] != nullptr){
                     patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
+                    if(patchObjects[selectedObjectID]->getIsPDSPPatchableObject() || patchObjects[selectedObjectID]->getName() == "audio device"){
+                        patchObjects[selectedObjectID]->pdspOut[i].disconnectOut();
+                    }
+                    //if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
+                        //patchObjects[selectedObjectID]->pdspIn[patchObjects[selectedObjectID]->outPut[i]->toInletID].disconnectIn();
+                    //}
                 }
                 //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
             }
@@ -949,6 +949,11 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
             patchObjects[toID]->_inletParams[toInlet] = new ofTexture();
         }else if(tempLink->type == VP_LINK_AUDIO){
             patchObjects[toID]->_inletParams[toInlet] = new ofSoundBuffer();
+            if(patchObjects[fromID]->getIsPDSPPatchableObject() && patchObjects[toID]->getIsPDSPPatchableObject()){
+                patchObjects[fromID]->pdspOut[fromOutlet] >> patchObjects[toID]->pdspIn[toInlet];
+            }else if(patchObjects[fromID]->getName() == "audio device" && patchObjects[toID]->getIsPDSPPatchableObject()){
+                patchObjects[fromID]->pdspOut[fromOutlet] >> patchObjects[toID]->pdspIn[toInlet];
+            }
         }
 
         checkSpecialConnection(fromID,toID,linkType);
@@ -1022,8 +1027,6 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new BashScript();
     }else if(objname == "python script"){
         tempObj = new PythonScript();
-    }else if(objname == "pd patch"){
-        tempObj = new PDPatch();
     }else
 #endif
 
@@ -1074,8 +1077,26 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
     // -------------------------------------- Sound
+    }else if(objname == "amp"){
+        tempObj = new SigMult();
     }else if(objname == "audio gate"){
         tempObj = new AudioGate();
+    }else if(objname == "mixer"){
+        tempObj = new Mixer();
+    }else if(objname == "panner"){
+        tempObj = new Panner();
+    }else if(objname == "pd patch"){
+        tempObj = new PDPatch();
+    }else if(objname == "quad panner"){
+        tempObj = new QuadPanner();
+    }else if(objname == "pulse"){
+        tempObj = new OscPulse();
+    }else if(objname == "saw"){
+        tempObj = new OscSaw();
+    }else if(objname == "sine"){
+        tempObj = new Oscillator();
+    }else if(objname == "triangle"){
+        tempObj = new OscTriangle();
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
     // -------------------------------------- Math
@@ -1091,6 +1112,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new Metronome();
     }else if(objname == "multiply"){
         tempObj = new Multiply();
+    }else if(objname == "range"){
+        tempObj = new Range();
     }else if(objname == "simple random"){
         tempObj = new SimpleRandom();
     }else if(objname == "simple noise"){
@@ -1123,6 +1146,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "spigot"){
         tempObj = new Spigot();
     // -------------------------------------- GUI
+    }else if(objname == "2d pad"){
+        tempObj = new mo2DPad();
     }else if(objname == "bang"){
         tempObj = new moBang();
     }else if(objname == "comment"){

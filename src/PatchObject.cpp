@@ -45,18 +45,19 @@ PatchObject::PatchObject(){
     numInlets   = 0;
     numOutlets  = 0;
 
-    isSystemObject  = false;
-    bActive         = false;
-    iconified       = false;
-    isMouseOver     = false;
-    isOverGUI       = false;
-    isRetina        = false;
-    isGUIObject     = false;
-    isBigGuiViewer  = false;
-    isBigGuiComment = false;
-    isAudioINObject = false;
-    isAudioOUTObject= false;
-    willErase       = false;
+    isSystemObject          = false;
+    bActive                 = false;
+    iconified               = false;
+    isMouseOver             = false;
+    isOverGUI               = false;
+    isRetina                = false;
+    isGUIObject             = false;
+    isBigGuiViewer          = false;
+    isBigGuiComment         = false;
+    isAudioINObject         = false;
+    isAudioOUTObject        = false;
+    isPDSPPatchableObject   = false;
+    willErase               = false;
 
     width       = OBJECT_WIDTH;
     height      = OBJECT_HEIGHT;
@@ -131,6 +132,22 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void PatchObject::setupDSP(pdsp::Engine &engine){
+    if(this->isPDSPPatchableObject){
+        for(int i=0;i<static_cast<int>(inlets.size());i++){
+            int it = getInletType(i);
+            if(it == 4){ // VP_LINK_AUDIO
+                pdsp::PatchNode temp;
+                this->pdspIn[i] = temp;
+            }
+        }
+        for(int i=0;i<static_cast<int>(outlets.size());i++){
+            int ot = getOutletType(i);
+            if(ot == 4){ // VP_LINK_AUDIO
+                pdsp::PatchNode temp;
+                this->pdspOut[i] = temp;
+            }
+        }
+    }
     if(isAudioOUTObject){
         setupAudioOutObjectContent(engine);
     }

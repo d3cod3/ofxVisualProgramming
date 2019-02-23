@@ -49,12 +49,14 @@ AudioGate::AudioGate() : PatchObject(){
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
-    isAudioOUTObject    = true;
+    isAudioOUTObject        = true;
+    isPDSPPatchableObject   = true;
 
     this->initInletsState();
 
-    isOpen      = false;
-    openInlet   = 0;
+    isOpen              = false;
+    openInlet           = 0;
+    changedOpenInlet    = false;
 
 }
 
@@ -92,6 +94,9 @@ void AudioGate::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     }
 
     if(isOpen){
+        if(static_cast<int>(floor(*(float *)&_inletParams[0])) != openInlet){
+            changedOpenInlet = true;
+        }
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
         waveform.clear();
         for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_outletParams[0])->getNumFrames(); i++) {
@@ -99,6 +104,20 @@ void AudioGate::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
             float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_outletParams[0])->getNumFrames(), 0, this->width);
             float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
             waveform.addVertex(x, y);
+        }
+        if(changedOpenInlet){
+            changedOpenInlet = false;
+            this->pdspOut[0].disconnectIn();
+            this->pdspIn[openInlet] >> this->pdspOut[0];
+        }
+    }else{
+        if(static_cast<int>(floor(*(float *)&_inletParams[0])) != openInlet){
+            changedOpenInlet = true;
+        }
+        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        if(changedOpenInlet){
+            changedOpenInlet = false;
+            this->pdspOut[0].disconnectIn();
         }
     }
     

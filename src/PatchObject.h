@@ -150,6 +150,7 @@ public:
     bool                    getIsActive() const { return bActive; }
     bool                    getIsAudioINObject() const { return isAudioINObject; }
     bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
+    bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
     int                     getOutletType(int oid) const { return outlets[oid]; }
     int                     getNumInlets() { return inlets.size(); }
@@ -180,6 +181,9 @@ public:
 
     void                    *_inletParams[MAX_INLETS];
     void                    *_outletParams[MAX_OUTLETS];
+
+    map<int,pdsp::PatchNode> pdspIn;
+    map<int,pdsp::PatchNode> pdspOut;
 
     // heaader buttons
     vector<PushButton*>     headerButtons;
@@ -217,6 +221,8 @@ protected:
     vector<bool>            inletsMouseNear;
     map<string,float>       customVars;
 
+
+
     int                     numInlets;
     int                     numOutlets;
     int                     nId;
@@ -231,6 +237,7 @@ protected:
     bool                    isBigGuiComment;
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
+    bool                    isPDSPPatchableObject;
     bool                    willErase;
     float                   retinaScale;
 

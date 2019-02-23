@@ -53,6 +53,7 @@ public:
     void            loadDeviceInfo();
 
     vector<ofSoundBuffer>   IN_CH;
+    vector<pdsp::ExternalInput> PN_IN_CH;
     vector<pdsp::ExternalInput> OUT_CH;
 
     short *                 shortBuffer;

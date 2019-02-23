@@ -34,11 +34,11 @@
 
 #include "PatchObject.h"
 
-class AudioGate : public PatchObject {
+class Range : public PatchObject {
 
 public:
 
-    AudioGate();
+    Range();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -46,13 +46,15 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
-    ofPolyline      waveform;
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
-    bool            isOpen;
-    int             openInlet;
-    bool            changedOpenInlet;
+    ofxDatGui*              gui;
+    ofxDatGuiTextInput*     inputNumber1;
+    ofxDatGuiTextInput*     inputNumber2;
 
+    float                   inputValue1,inputValue2;
 
 };

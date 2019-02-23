@@ -75,6 +75,11 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
             OUT_CH[c].out_signal() >> engine.audio_out(c);
         }
     }
+    if(deviceLoaded && in_channels>0){
+        for(size_t c=0;c<static_cast<size_t>(in_channels);c++){
+            PN_IN_CH[c].out_signal() >> this->pdspOut[c];
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -101,10 +106,12 @@ void AudioDevice::audioInObject(ofSoundBuffer &inputBuffer){
     if(deviceLoaded && in_channels>0){
         if(in_channels == 1){
             inputBuffer.copyTo(IN_CH.at(0), inputBuffer.getNumFrames(), 1, 0);
+            PN_IN_CH.at(0).copyInput(IN_CH.at(0).getBuffer().data(),IN_CH.at(0).getNumFrames());
             *static_cast<ofSoundBuffer *>(_outletParams[0]) = IN_CH.at(0);
         }else{
             for(size_t c=0;c<static_cast<size_t>(in_channels);c++){
                 inputBuffer.getChannel(IN_CH.at(c),c);
+                PN_IN_CH.at(c).copyInput(IN_CH.at(c).getBuffer().data(),IN_CH.at(c).getNumFrames());
                 *static_cast<ofSoundBuffer *>(_outletParams[c]) = IN_CH.at(c);
             }
         }
@@ -146,6 +153,7 @@ void AudioDevice::resetSystemObject(){
         this->numOutlets = in_channels;
 
         IN_CH.clear();
+        PN_IN_CH.resize(in_channels);
         OUT_CH.resize(out_channels);
 
         shortBuffer = new short[bufferSize];
@@ -157,10 +165,18 @@ void AudioDevice::resetSystemObject(){
             _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
+        for( int i = 0; i < this->pdspOut.size(); i++){
+            this->pdspOut[i].disconnectOut();
+        }
+        this->pdspOut.clear();
+
         for( int i = 0; i < in_channels; i++){
             _outletParams[i] = new ofSoundBuffer();
             ofSoundBuffer temp;
             IN_CH.push_back(temp);
+
+            pdsp::PatchNode tempPN;
+            this->pdspOut[i] = tempPN;
         }
 
         this->inlets.clear();
@@ -275,6 +291,7 @@ void AudioDevice::loadDeviceInfo(){
         this->numOutlets = in_channels;
 
         IN_CH.clear();
+        PN_IN_CH.resize(in_channels);
         OUT_CH.resize(out_channels);
 
         shortBuffer = new short[bufferSize];
@@ -286,10 +303,18 @@ void AudioDevice::loadDeviceInfo(){
             _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
+        for( int i = 0; i < this->pdspOut.size(); i++){
+            this->pdspOut[i].disconnectOut();
+        }
+        this->pdspOut.clear();
+
         for( int i = 0; i < in_channels; i++){
             _outletParams[i] = new ofSoundBuffer();
             ofSoundBuffer temp;
             IN_CH.push_back(temp);
+
+            pdsp::PatchNode tempPN;
+            this->pdspOut[i] = tempPN;
         }
 
         this->inlets.clear();

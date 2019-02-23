@@ -34,25 +34,40 @@
 
 #include "PatchObject.h"
 
-class AudioGate : public PatchObject {
+class QuadPanner : public PatchObject{
 
 public:
 
-    AudioGate();
+    QuadPanner();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            loadAudioSettings();
+
+    void            audioInObject(ofSoundBuffer &outputBuffer);
     void            audioOutObject(ofSoundBuffer &outputBuffer);
 
-    ofPolyline      waveform;
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
-    bool            isOpen;
-    int             openInlet;
-    bool            changedOpenInlet;
+    void            on2dPadEvent(ofxDatGui2dPadEvent e);
 
+
+    pdsp::Amp               gain1, gain2, gain3, gain4;
+    pdsp::Scope             scope1, scope2, scope3, scope4;
+    pdsp::ValueControl      gain_ctrl1, gain_ctrl2, gain_ctrl3, gain_ctrl4;
+
+    ofxDatGui*              gui;
+    ofxDatGui2dPad*         pad;
+
+    int                     bufferSize;
+    int                     sampleRate;
+
+    bool                    loaded;
 
 };

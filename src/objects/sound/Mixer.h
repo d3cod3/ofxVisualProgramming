@@ -34,25 +34,30 @@
 
 #include "PatchObject.h"
 
-class AudioGate : public PatchObject {
+class Mixer : public PatchObject{
 
 public:
 
-    AudioGate();
+    Mixer();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            loadAudioSettings();
+
+    void            audioInObject(ofSoundBuffer &outputBuffer);
     void            audioOutObject(ofSoundBuffer &outputBuffer);
 
-    ofPolyline      waveform;
 
-    bool            isOpen;
-    int             openInlet;
-    bool            changedOpenInlet;
+    pdsp::PatchNode         mix;
+    pdsp::Scope             scope;
+    ofPolyline              waveform;
 
+    int                     bufferSize;
+    int                     sampleRate;
 
 };
