@@ -36,7 +36,7 @@
 SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     this->numInlets  = 4;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new string();  // control
     *static_cast<string *>(_inletParams[0]) = "";
@@ -48,6 +48,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     *(float *)&_inletParams[3] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
+    _outletParams[1] = new vector<float>(); // audio buffer
 
     this->initInletsState();
 
@@ -70,6 +71,8 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     lastSoundfile       = "";
     loadSoundfileFlag   = false;
     soundfileLoaded     = false;
+
+    isPDSPPatchableObject   = true;
     
 }
 
@@ -81,6 +84,7 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_ARRAY);
 }
 
 //--------------------------------------------------------------
@@ -111,6 +115,10 @@ void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 
 //--------------------------------------------------------------
 void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
+
+    fileOUT.out_signal() >> this->pdspOut[0];
+    fileOUT.out_signal() >> scope >> engine.blackhole();
+
     startTime   = ofGetElapsedTimeMillis();
 }
 
@@ -122,7 +130,7 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
 
     if(loadSoundfileFlag){
         loadSoundfileFlag = false;
-        fd.openFile("load soundfile","Select an audio file");
+        fd.openFile("load soundfile"+this->getId(),"Select an audio file");
     }
 
     if(soundfileLoaded){
@@ -248,12 +256,14 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::removeObjectContent(){
-    
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
+        it->second.disconnectAll();
+    }
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load soundfile"){
+    if(response.id == "load soundfile"+this->getId()){
         lastSoundfile = response.filepath;
         soundfileLoaded = true;
     }
@@ -326,7 +336,9 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
         lastBuffer = monoBuffer * 0.0f;
     }
 
+    fileOUT.copyInput(lastBuffer.getBuffer().data(),lastBuffer.getNumFrames());
     *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastBuffer;
+    *static_cast<vector<float> *>(_outletParams[1]) = scope.getBuffer();
 
 }
 
@@ -340,6 +352,10 @@ void SoundfilePlayer::loadSettings(){
             bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
         }
+    }
+
+    for(int i=0;i<bufferSize;i++){
+        static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
     }
 
     shortBuffer = new short[bufferSize];
@@ -371,6 +387,8 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     }else{
         soundfileName->setLabel(tempFile.getFileName());
     }
+
+    playhead = 0.0;
 
 }
 

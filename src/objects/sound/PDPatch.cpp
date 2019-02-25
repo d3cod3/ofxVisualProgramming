@@ -138,13 +138,13 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
 
     if(loadPatchFlag){
         loadPatchFlag = false;
-        fd.openFile("load pd patch","Select a PD patch");
+        fd.openFile("load pd patch"+this->getId(),"Select a PD patch");
     }
 
     if(savePatchFlag){
         savePatchFlag = false;
         string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
-        fd.saveFile("save pd patch","Save new PD patch as",newFileName);
+        fd.saveFile("save pd patch"+this->getId(),"Save new PD patch as",newFileName);
     }
 
     if(patchLoaded){
@@ -201,10 +201,10 @@ void PDPatch::removeObjectContent(){
 
 //--------------------------------------------------------------
 void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load pd patch"){
+    if(response.id == "load pd patch"+this->getId()){
         lastLoadedPatch = response.filepath;
         patchLoaded = true;
-    }else if(response.id == "save pd patch"){
+    }else if(response.id == "save pd patch"+this->getId()){
         lastLoadedPatch = response.filepath;
         patchSaved = true;
     }

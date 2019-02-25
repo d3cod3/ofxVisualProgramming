@@ -71,6 +71,8 @@ public:
     string              lastMessage;
 
     ofxAudioFile        audiofile;
+    pdsp::ExternalInput fileOUT;
+    pdsp::Scope         scope;
     double              playhead;
     double              step;
     double              sampleRate;

@@ -98,7 +98,15 @@ void AudioDevice::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void AudioDevice::removeObjectContent(){
-    
+    for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
+        OUT_CH[c].disconnectOut();
+    }
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
+        it->second.disconnectAll();
+    }
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
+        it->second.disconnectAll();
+    }
 }
 
 //--------------------------------------------------------------

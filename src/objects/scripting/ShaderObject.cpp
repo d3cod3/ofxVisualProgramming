@@ -139,13 +139,13 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     if(loadShaderScriptFlag){
         loadShaderScriptFlag = false;
-        fd.openFile("load shader","Select a shader");
+        fd.openFile("load shader"+ofToString(this->getId()),"Select a shader");
     }
 
     if(saveShaderScriptFlag){
         saveShaderScriptFlag = false;
         string newFileName = "shader_"+ofGetTimestampString("%y%m%d")+".frag";
-        fd.saveFile("save shader","Save new GLSL shader as",newFileName);
+        fd.saveFile("save shader"+ofToString(this->getId()),"Save new GLSL shader as",newFileName);
     }
 
     if(shaderScriptLoaded){
@@ -534,10 +534,10 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
 
 //--------------------------------------------------------------
 void ShaderObject::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load shader"){
+    if(response.id == "load shader"+ofToString(this->getId())){
         lastShaderScript = response.filepath;
         shaderScriptLoaded = true;
-    }else if(response.id == "save shader"){
+    }else if(response.id == "save shader"+ofToString(this->getId())){
         lastShaderScript = response.filepath;
         shaderScriptSaved = true;
     }

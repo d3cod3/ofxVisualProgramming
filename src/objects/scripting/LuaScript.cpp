@@ -195,13 +195,13 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
 
     if(loadLuaScriptFlag){
         loadLuaScriptFlag = false;
-        fd.openFile("load lua script","Select a lua script");
+        fd.openFile("load lua script"+this->getId(),"Select a lua script");
     }
 
     if(saveLuaScriptFlag){
         saveLuaScriptFlag = false;
         string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
-        fd.saveFile("save lua script","Save new Lua script as",newFileName);
+        fd.saveFile("save lua script"+this->getId(),"Save new Lua script as",newFileName);
     }
 
     if(luaScriptLoaded){
@@ -429,10 +429,10 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 
 //--------------------------------------------------------------
 void LuaScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load lua script"){
+    if(response.id == "load lua script"+this->getId()){
         lastLuaScript = response.filepath;
         luaScriptLoaded = true;
-    }else if(response.id == "save lua script"){
+    }else if(response.id == "save lua script"+this->getId()){
         lastLuaScript = response.filepath;
         luaScriptSaved = true;
     }

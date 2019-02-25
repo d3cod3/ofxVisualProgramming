@@ -189,13 +189,13 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     if(loadPythonScriptFlag){
         loadPythonScriptFlag = false;
-        fd.openFile("load python script","Select a python script");
+        fd.openFile("load python script"+this->getId(),"Select a python script");
     }
 
     if(savePythonScriptFlag){
         savePythonScriptFlag = false;
         string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
-        fd.saveFile("save python script","Save new Python script as",newFileName);
+        fd.saveFile("save python script"+this->getId(),"Save new Python script as",newFileName);
     }
 
     if(pythonScriptLoaded){
@@ -416,10 +416,10 @@ void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
 
 //--------------------------------------------------------------
 void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load python script"){
+    if(response.id == "load python script"+this->getId()){
         lastPythonScript = response.filepath;
         pythonScriptLoaded = true;
-    }else if(response.id == "save python script"){
+    }else if(response.id == "save python script"+this->getId()){
         lastPythonScript = response.filepath;
         pythonScriptSaved = true;
     }

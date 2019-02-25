@@ -138,6 +138,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     draggingObjectID        = -1;
     draggingObject          = false;
     bLoadingNewObject       = false;
+    bLoadingNewPatch        = false;
 
     livePatchingObiID       = -1;
 
@@ -380,6 +381,8 @@ void ofxVisualProgramming::exit(){
     fileDialog.stop();
     dspON = false;
     engine->setChannels(0,0);
+    delete engine;
+    engine = nullptr;
 
     ofDirectory dir;
     dir.listDir(ofToDataPath("temp/"));
@@ -595,17 +598,22 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
                 inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
 
                 // compute audio input
-                for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                    it->second->audioIn(inputBuffer);
+                if(!bLoadingNewPatch){
+                    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                        it->second->audioIn(inputBuffer);
+                    }
                 }
+
 
                 unique_lock<std::mutex> lock(inputAudioMutex);
                 lastInputBuffer = inputBuffer;
             }
             if(audioDevices[audioOUTDev].outputChannels > 0){
                 // compute audio output
-                for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                    it->second->audioOut(emptyBuffer);
+                if(!bLoadingNewPatch){
+                    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                        it->second->audioOut(emptyBuffer);
+                    }
                 }
             }
 
@@ -1216,21 +1224,20 @@ void ofxVisualProgramming::newPatch(){
 
     tempPatchFile = currentPatchFile;
 
-    // Add System Blocks (Audio Device,...)
-    if(dspON){
-        glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-        addObject("audio device",ofVec2f(temp.x,temp.y));
-    }
-
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::openPatch(string patchFile){
+    bLoadingNewPatch = true;
+
     currentPatchFile = patchFile;
 
     // clear previous patch
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
+    }
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        delete it->second;
     }
     patchObjects.clear();
 
@@ -1305,8 +1312,11 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.setValue("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
             XML.saveFile();
 
+            delete engine;
+            engine = nullptr;
+            engine = new pdsp::Engine();
+
             if(dspON){
-                engine = new pdsp::Engine();
                 engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
                 this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
@@ -1391,6 +1401,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
     }
 
+    bLoadingNewPatch = false;
+
 }
 
 //--------------------------------------------------------------
@@ -1439,6 +1451,10 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
         ofLog(OF_LOG_NOTICE,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
         return;
     }else{
+        delete engine;
+        engine = nullptr;
+        engine = new pdsp::Engine();
+
         setPatchVariable("audio_in_device",index);
         audioINDev = index;
 
@@ -1446,7 +1462,6 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
         setPatchVariable("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
 
         if(dspON){
-            engine                  = new pdsp::Engine();
             engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
             this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
@@ -1483,11 +1498,14 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
         audioSampleRate = 44100;
     }
 
+    delete engine;
+    engine = nullptr;
+    engine = new pdsp::Engine();
+
     setPatchVariable("sample_rate_out",audioSampleRate);
     setPatchVariable("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
 
     if(dspON){
-        engine                  = new pdsp::Engine();
         engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
         this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
@@ -1526,8 +1544,9 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 //--------------------------------------------------------------
 void ofxVisualProgramming::activateDSP(){
 
+    engine->setChannels(0,0);
+
     if(audioDevices[audioINDev].inputChannels > 0 && audioDevices[audioOUTDev].outputChannels > 0){
-        engine                  = new pdsp::Engine();
         engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
         this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
@@ -1547,7 +1566,6 @@ void ofxVisualProgramming::activateDSP(){
         engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
         engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
         engine->setup(audioSampleRate, audioBufferSize, 3);
-        engine->start();
 
         bool found = weAlreadyHaveObject("audio device");
 

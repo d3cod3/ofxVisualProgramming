@@ -68,24 +68,24 @@ void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+    waveform.clear();
     if(this->inletsConnected[0]){
-        waveform.clear();
         for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
             float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
             float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
             float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
             waveform.addVertex(x, y);
         }
-
     }
-
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofxFontStash *font){
     ofEnableAlphaBlending();
-    ofSetColor(255,255,120,10);
-    ofDrawRectangle(0,this->height,this->width,-this->height * ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0));
+    if(this->inletsConnected[0]){
+        ofSetColor(255,255,120,10);
+        ofDrawRectangle(0,this->height,this->width,-this->height * ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0));
+    }
     ofSetColor(255,255,120);
     waveform.draw();
     ofDisableAlphaBlending();

@@ -123,6 +123,7 @@ public:
     int                     draggingObjectID;
     int                     actualObjectID;
     bool                    bLoadingNewObject;
+    bool                    bLoadingNewPatch;
 
     // LOAD/SAVE
     ofxThreadedFileDialog   fileDialog;
