@@ -133,7 +133,7 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
         fd.openFile("load soundfile"+this->getId(),"Select an audio file");
     }
 
-    if(soundfileLoaded){
+    if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
         soundfileLoaded = false;
         ofFile file (lastSoundfile);
         if (file.exists()){
@@ -154,7 +154,7 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
         }
     }
 
-    if(!isFileLoaded && audiofile.loaded()){
+    if(!isFileLoaded && audiofile.loaded() && audiofile.samplerate() > 100){
         isFileLoaded = true;
         ofLog(OF_LOG_NOTICE,"[verbose] sound file loaded: %s, Sample Rate: %s, Audiofile length: %s",filepath.c_str(), ofToString(audiofile.samplerate()).c_str(), ofToString(audiofile.length()).c_str());
     }
@@ -266,6 +266,7 @@ void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response
     if(response.id == "load soundfile"+this->getId()){
         lastSoundfile = response.filepath;
         soundfileLoaded = true;
+        startTime = ofGetElapsedTimeMillis();
     }
 }
 
