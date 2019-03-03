@@ -379,10 +379,12 @@ void ofxVisualProgramming::drawLivePatchingSession(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
     fileDialog.stop();
+
+    if(dspON){
+        delete engine;
+    }
+
     dspON = false;
-    engine->setChannels(0,0);
-    delete engine;
-    engine = nullptr;
 
     ofDirectory dir;
     dir.listDir(ofToDataPath("temp/"));
