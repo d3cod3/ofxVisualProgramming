@@ -186,10 +186,11 @@ install:
   - git clone --branch=master https://github.com/d3cod3/ofxTimeline addons/ofxTimeline
   - git clone --branch=master https://github.com/armadillu/ofxTimeMeasurements addons/ofxTimeMeasurements
   - git clone --branch=master https://github.com/d3cod3/ofxWarp addons/ofxWarp
+  - git clone --branch=master https://github.com/d3cod3/ofxVisualProgramming addons/ofxVisualProgramming
   - scripts/ci/addons/install.sh
-  - cd ~
-  - curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/scripts/ci/addons/install.sh
-  - chmod +x install.sh
+  #- cd ~
+  #- curl -SLsO https://raw.githubusercontent.com/d3cod3/ofxVisualProgramming/scripts/ci/addons/install.sh
+  #- chmod +x install.sh
 
 before_script:
   - cd ~
@@ -202,7 +203,10 @@ before_script:
   - cd ~/openFrameworks
 
 script:
-  - if [ "$TARGET" = "linux64" ]; then scripts/ci/addons/build.sh > /dev/null; else scripts/ci/addons/build.sh; fi
+  #- if [ "$TARGET" = "linux64" ]; then scripts/ci/addons/build.sh > /dev/null; else scripts/ci/addons/build.sh; fi
+  - cd ~/openFrameworks/addons/ofxVisualProgramming/example_ofxVisualProgramming
+  - export CXXFLAGS="${CXXFLAGS} -Wno-macro-redefined -Wno-inconsistent-missing-override -Wno-undefined-var-template -Wno-unsequenced";
+  - make DebugNoOF
 
 git:
   depth: 10
