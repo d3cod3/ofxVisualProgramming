@@ -47,6 +47,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
@@ -109,6 +110,12 @@ public:
     ofxDatGuiButton*    loadButton;
 
     ofImage             *pdIcon;
+
+    pdsp::ExternalInput ch1IN, ch2IN, ch3IN, ch4IN;
+    pdsp::ExternalInput ch1OUT, ch2OUT, ch3OUT, ch4OUT;
+    pdsp::PatchNode     mixIN, mixOUT;
+    pdsp::Scope         scopeIN, scopeOUT;
+    ofPolyline          waveformIN, waveformOUT;
 
     int                 bufferSize;
     int                 sampleRate;

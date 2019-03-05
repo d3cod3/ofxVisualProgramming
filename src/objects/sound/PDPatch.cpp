@@ -68,6 +68,8 @@ PDPatch::PDPatch() : PatchObject(){
     patchLoaded         = false;
     patchSaved          = false;
 
+    isPDSPPatchableObject   = true;
+
 }
 
 //--------------------------------------------------------------
@@ -128,6 +130,23 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
+
+    ch1IN.out_signal() >> this->pdspIn[0] >> mixIN;
+    ch2IN.out_signal() >> this->pdspIn[1] >> mixIN;
+    ch3IN.out_signal() >> this->pdspIn[2] >> mixIN;
+    ch4IN.out_signal() >> this->pdspIn[3] >> mixIN;
+
+    ch1OUT.out_signal() >> this->pdspOut[0] >> mixOUT;
+    ch2OUT.out_signal() >> this->pdspOut[1] >> mixOUT;
+    ch3OUT.out_signal() >> this->pdspOut[2] >> mixOUT;
+    ch4OUT.out_signal() >> this->pdspOut[3] >> mixOUT;
+
+    mixIN >> scopeIN >> engine.blackhole();
+    mixOUT >> scopeOUT >> engine.blackhole();
+}
+
+//--------------------------------------------------------------
 void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     // GUI
@@ -180,14 +199,35 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         pathChanged(watcher.nextEvent());
     }
 
+    // update waveforms
+    waveformIN.clear();
+    for(size_t i = 0; i < scopeIN.getBuffer().size(); i++) {
+        float sample = scopeIN.getBuffer().at(i);
+        float x = ofMap(i, 0, scopeIN.getBuffer().size(), 0, this->width);
+        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height/2);
+        waveformIN.addVertex(x, y);
+    }
+
+    waveformOUT.clear();
+    for(size_t i = 0; i < scopeOUT.getBuffer().size(); i++) {
+        float sample = scopeOUT.getBuffer().at(i);
+        float x = ofMap(i, 0, scopeOUT.getBuffer().size(), 0, this->width);
+        float y = ofMap(hardClip(sample), -1, 1, this->height/2, this->height);
+        waveformOUT.addVertex(x, y);
+    }
+
 }
 
 //--------------------------------------------------------------
 void PDPatch::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    ofSetColor(255,150);
+    ofSetColor(255,100);
     pdIcon->draw(this->width/2,this->headerHeight,((this->height/2.2f)/pdIcon->getHeight())*pdIcon->getWidth(),this->height/2.2f);
+    // Scopes
+    ofSetColor(255);
+    waveformIN.draw();
+    waveformOUT.draw();
     // GUI
     ofSetColor(255);
     gui->draw();
@@ -196,6 +236,13 @@ void PDPatch::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void PDPatch::removeObjectContent(){
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
+        it->second.disconnectAll();
+    }
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
+        it->second.disconnectAll();
+    }
+
     pd.clear();
 }
 
@@ -223,6 +270,11 @@ void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
         lastInputBuffer.setChannel(lastInputBuffer3,2);
         lastInputBuffer.setChannel(lastInputBuffer4,3);
 
+        ch1IN.copyInput(lastInputBuffer1.getBuffer().data(),lastInputBuffer1.getNumFrames());
+        ch2IN.copyInput(lastInputBuffer2.getBuffer().data(),lastInputBuffer2.getNumFrames());
+        ch3IN.copyInput(lastInputBuffer3.getBuffer().data(),lastInputBuffer3.getNumFrames());
+        ch4IN.copyInput(lastInputBuffer4.getBuffer().data(),lastInputBuffer4.getNumFrames());
+
         pd.audioIn(lastInputBuffer.getBuffer().data(), lastInputBuffer.getNumFrames(), lastInputBuffer.getNumChannels());
     }
 }
@@ -240,6 +292,11 @@ void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
     lastOutputBuffer.getChannel(lastOutputBuffer2,1);
     lastOutputBuffer.getChannel(lastOutputBuffer3,2);
     lastOutputBuffer.getChannel(lastOutputBuffer4,3);
+
+    ch1OUT.copyInput(lastOutputBuffer1.getBuffer().data(),lastOutputBuffer1.getNumFrames());
+    ch2OUT.copyInput(lastOutputBuffer2.getBuffer().data(),lastOutputBuffer2.getNumFrames());
+    ch3OUT.copyInput(lastOutputBuffer3.getBuffer().data(),lastOutputBuffer3.getNumFrames());
+    ch4OUT.copyInput(lastOutputBuffer4.getBuffer().data(),lastOutputBuffer4.getNumFrames());
 
     *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastOutputBuffer1;
     *static_cast<ofSoundBuffer *>(_outletParams[1]) = lastOutputBuffer2;
