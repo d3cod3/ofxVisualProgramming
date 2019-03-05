@@ -80,6 +80,7 @@
 #include "objects/gui/moTimeline.h"
 #include "objects/gui/moTrigger.h"
 #include "objects/gui/moVideoViewer.h"
+#include "objects/gui/moVUMeter.h"
 
 // input_output objects
 

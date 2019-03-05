@@ -51,7 +51,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["graphics"] = vecInit;
 
-    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","timeline","trigger","video viewer"};
+    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","timeline","trigger","video viewer","vu meter"};
     objectsMatrix["gui"] = vecInit;
 
     vecInit = {};
@@ -1176,6 +1176,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new moVideoViewer();
     }else if(objname == "signal viewer"){
         tempObj = new moSignalViewer();
+    }else if(objname == "vu meter"){
+        tempObj = new moVUMeter();
     // -------------------------------------- VIDEO
     }else if(objname == "kinect grabber"){
         tempObj = new KinectGrabber();
