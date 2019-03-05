@@ -205,7 +205,7 @@ script:
   #- if [ "$TARGET" = "linux64" ]; then scripts/ci/addons/build.sh > /dev/null; else scripts/ci/addons/build.sh; fi
   - cd ~/openFrameworks/addons/ofxVisualProgramming/example_ofxVisualProgramming
   - export CXXFLAGS="${CXXFLAGS} -Wno-macro-redefined -Wno-inconsistent-missing-override -Wno-undefined-var-template -Wno-unsequenced";
-  - make DebugNoOF
+  - make DebugNoOF > /dev/null
 
 git:
   depth: 10
