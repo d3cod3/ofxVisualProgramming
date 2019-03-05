@@ -172,7 +172,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         filepath = file.getAbsolutePath();
     }
     if(!isThreadRunning()){
-        startThread(true);
+        startThread();
     }
 
 }
