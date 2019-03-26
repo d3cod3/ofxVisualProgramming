@@ -141,6 +141,8 @@
 #include "objects/sound/SigMult.h"
 #include "objects/sound/SoundfilePlayer.h"
 
+#include "objects/sound/pdspDelay.h"
+
 // video objects
 #include "objects/video/KinectGrabber.h"
 #include "objects/video/VideoGate.h"

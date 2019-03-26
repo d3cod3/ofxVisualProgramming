@@ -82,7 +82,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"amp","audio gate","mixer","panner","pd patch","quad panner","pulse","saw","sine","soundfile player","triangle"};
+    vecInit = {"amp","audio gate","delay","mixer","panner","pd patch","quad panner","pulse","saw","sine","soundfile player","triangle"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video gate","video grabber","video player"};
@@ -1109,6 +1109,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new OscTriangle();
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
+    }else if(objname == "delay"){
+        tempObj = new pdspDelay();
     // -------------------------------------- Math
     }else if(objname == "add"){
         tempObj = new Add();
