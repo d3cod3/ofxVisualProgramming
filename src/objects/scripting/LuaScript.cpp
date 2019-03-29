@@ -36,12 +36,13 @@
 LuaScript::LuaScript() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 2;
+    this->numOutlets = 3;
 
     _inletParams[0] = new vector<float>();      // data
 
     _outletParams[0] = new ofTexture();         // output
     _outletParams[1] = new LiveCoding();        // lua script reference (for keyboard and mouse events on external windows)
+    _outletParams[2] = new vector<float>();     // outlet vector from lua
 
     this->specialLinkTypeName = "LiveCoding";
 
@@ -64,6 +65,7 @@ LuaScript::LuaScript() : PatchObject(){
     output_height       = 600;
 
     mosaicTableName = "_mosaic_data_table";
+    luaTablename    = "_mosaic_data_outlet";
     tempstring      = "";
 
     threadLoaded    = false;
@@ -87,6 +89,7 @@ void LuaScript::newObject(){
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE);
     this->addOutlet(VP_LINK_SPECIAL);
+    this->addOutlet(VP_LINK_ARRAY);
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
@@ -257,9 +260,20 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
                 lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_updateMosaicData");
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,i+1);
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
-                lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,2,0,0);
+
             }
         }
+
+        // send internal data
+        size_t len = static_cast<LiveCoding *>(_outletParams[1])->lua.tableSize(luaTablename);
+        static_cast<vector<float> *>(_outletParams[2])->clear();
+        for(size_t s=0;s<len;s++){
+            lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_getLUAOutletTableAt");
+            lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,s+1);
+            lua_Number tn = lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,1,0,0);
+            static_cast<vector<float> *>(_outletParams[2])->push_back(static_cast<float>(tn));
+        }
+
         // update lua state
         ofSoundUpdate();
         static_cast<LiveCoding *>(_outletParams[1])->lua.scriptUpdate();
@@ -457,6 +471,12 @@ void LuaScript::loadScript(string scriptFile){
     string tempstring = mosaicTableName+" = {}";
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _updateMosaicData(i,data) "+mosaicTableName+"[i] = data  end";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    // inject outgoing data vector
+    tempstring = luaTablename+" = {}";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    tempstring = "function _getLUAOutletTableAt(i) return "+luaTablename+"[i] end";
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
     // set Mosaic scripting vars

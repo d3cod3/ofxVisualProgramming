@@ -99,6 +99,7 @@ public:
     float               posX, posY, drawW, drawH;
 
     string              mosaicTableName;
+    string              luaTablename;
     string              tempstring;
 
     string              lastLuaScript;
