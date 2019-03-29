@@ -142,6 +142,7 @@
 #include "objects/sound/SoundfilePlayer.h"
 
 #include "objects/sound/pdspDelay.h"
+#include "objects/sound/pdspWhiteNoise.h"
 
 // video objects
 #include "objects/video/KinectGrabber.h"

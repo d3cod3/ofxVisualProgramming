@@ -42,6 +42,9 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
+    vecInit = {};
+    objectsMatrix["communications"] = vecInit;
+
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
     objectsMatrix["computer vision"] = vecInit;
 
@@ -67,12 +70,6 @@ void ofxVisualProgramming::initObjectMatrix(){
     objectsMatrix["math"] = vecInit;
 
     vecInit = {};
-    objectsMatrix["midi"] = vecInit;
-
-    vecInit = {};
-    objectsMatrix["osc"] = vecInit;
-
-    vecInit = {};
     objectsMatrix["physics"] = vecInit;
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
@@ -82,7 +79,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"amp","audio gate","delay","mixer","panner","pd patch","quad panner","pulse","saw","sine","soundfile player","triangle"};
+    vecInit = {"amp","audio gate","delay","mixer","panner","pd patch","quad panner","pulse","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video gate","video grabber","video player"};
@@ -1111,6 +1108,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new SoundfilePlayer();
     }else if(objname == "delay"){
         tempObj = new pdspDelay();
+    }else if(objname == "white noise"){
+        tempObj = new pdspWhiteNoise();
     // -------------------------------------- Math
     }else if(objname == "add"){
         tempObj = new Add();
