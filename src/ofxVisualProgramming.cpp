@@ -48,7 +48,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"floats to vector","vector concat"};
+    vecInit = {"floats to vector","vector at","vector concat"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {};
@@ -1079,6 +1079,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "tristimulus extractor"){
         tempObj = new TristimulusExtractor();
     // -------------------------------------- Data
+    }else if(objname == "vector at"){
+        tempObj = new VectorAt();
     }else if(objname == "vector concat"){
         tempObj = new VectorConcat();
     }else if(objname == "floats to vector"){

@@ -54,6 +54,8 @@
 #include "objects/audio_analysis/RollOffExtractor.h"
 #include "objects/audio_analysis/TristimulusExtractor.h"
 
+// communications objects
+
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
 #include "objects/computer_vision/ChromaKey.h"
@@ -65,6 +67,7 @@
 
 // data objects
 #include "objects/data/FloatsToVector.h"
+#include "objects/data/VectorAt.h"
 #include "objects/data/VectorConcat.h"
 
 // graphics objects
@@ -111,10 +114,6 @@
 #include "objects/math/SimpleNoise.h"
 #include "objects/math/Smooth.h"
 #include "objects/math/Subtract.h"
-
-// midi objects
-
-// osc objects
 
 // physics objects
 
