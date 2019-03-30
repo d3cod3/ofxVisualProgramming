@@ -442,7 +442,7 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
         }
     }
 
-    if(selectedObjectLink == -1 && !draggingObject){
+    if(selectedObjectLink == -1 && !draggingObject && !isHoverMenu){
         canvas.mouseDragged(e);
     }
 

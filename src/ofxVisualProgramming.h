@@ -100,6 +100,8 @@ public:
     void            activateDSP();
     void            deactivateDSP();
 
+    void            setIsHoverMenu(bool ish){ isHoverMenu = ish; }
+
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
     ofEasyCam               easyCam;
@@ -144,6 +146,7 @@ public:
     // GUI
     map<string,vector<string>>      objectsMatrix;
     bool                            isVPDragging;
+    bool                            isHoverMenu;
 
     // LIVE PATCHING
     int                             livePatchingObiID;
