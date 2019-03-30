@@ -64,7 +64,7 @@ LuaScript::LuaScript() : PatchObject(){
     output_width        = 800;
     output_height       = 600;
 
-    mosaicTableName = "_mosaic_data_table";
+    mosaicTableName = "_mosaic_data_inlet";
     luaTablename    = "_mosaic_data_outlet";
     tempstring      = "";
 
@@ -260,19 +260,24 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
                 lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_updateMosaicData");
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,i+1);
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
-
+                lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,2,0,0);
             }
         }
 
         // send internal data
         size_t len = static_cast<LiveCoding *>(_outletParams[1])->lua.tableSize(luaTablename);
-        static_cast<vector<float> *>(_outletParams[2])->clear();
-        for(size_t s=0;s<len;s++){
-            lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_getLUAOutletTableAt");
-            lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,s+1);
-            lua_Number tn = lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,1,0,0);
-            static_cast<vector<float> *>(_outletParams[2])->push_back(static_cast<float>(tn));
+        if(len > 0){
+            static_cast<vector<float> *>(_outletParams[2])->clear();
+            for(size_t s=0;s<len;s++){
+                lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_getLUAOutletTableAt");
+                lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,s+1);
+                lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,1,1,0);
+                lua_Number tn = lua_tonumber(static_cast<LiveCoding *>(_outletParams[1])->lua, -2);
+                static_cast<vector<float> *>(_outletParams[2])->push_back(static_cast<float>(tn));
+            }
+            std::rotate(static_cast<vector<float> *>(_outletParams[2])->begin(),static_cast<vector<float> *>(_outletParams[2])->begin()+1,static_cast<vector<float> *>(_outletParams[2])->end());
         }
+
 
         // update lua state
         ofSoundUpdate();
