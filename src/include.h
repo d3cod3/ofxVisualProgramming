@@ -141,6 +141,7 @@
 #include "objects/sound/SoundfilePlayer.h"
 
 #include "objects/sound/pdspDelay.h"
+#include "objects/sound/pdspBitNoise.h"
 #include "objects/sound/pdspWhiteNoise.h"
 
 // video objects
