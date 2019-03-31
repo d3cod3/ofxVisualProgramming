@@ -35,7 +35,6 @@
 #include "PatchObject.h"
 
 #include "ofxPython.h"
-#include "ofxEditor.h"
 
 #include "PathWatcher.h"
 #include "ThreadedCommand.h"
@@ -57,10 +56,7 @@ public:
     void            removeObjectContent();
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
-    void            resetResolution(int fromID, int newWidth, int newHeight);
     void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
-
-    void            initResolution();
 
     void            loadScript(string scriptFile);
     void            clearScript();
@@ -76,10 +72,8 @@ public:
     ofxPythonObject     script;
     ofxPythonObject     updatePython;
     ofxPythonObject     updateMosaicList;
-    ofxPythonObject     drawPython;
-
-    ofxEditorSyntax         liveEditorSyntax;
-    ofxEditorColorScheme    liveEditorColors;
+    ofxPythonObject     updatePythonList;
+    ofxPythonObject     getPythonListSize;
 
     PathWatcher         watcher;
     ofFile              currentScriptFile;
@@ -95,11 +89,10 @@ public:
     ofxDatGuiButton*    clearButton;
     ofxDatGuiButton*    reloadButton;
 
-    ofFbo               *fbo;
-    ofImage             *kuro;
-    float               posX, posY, drawW, drawH;
+    ofImage             *pythonIcon;
 
     string              mosaicTableName;
+    string              pythonTableName;
     string              tempstring;
 
     string              lastPythonScript;

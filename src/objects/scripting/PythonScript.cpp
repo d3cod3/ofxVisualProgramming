@@ -36,33 +36,24 @@
 PythonScript::PythonScript() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 2;
+    this->numOutlets = 1;
 
-    _inletParams[0] = new vector<float>();      // data
+    _inletParams[0] = new vector<float>();      // data input
 
-    _outletParams[0] = new ofTexture();         // output
-    _outletParams[1] = new LiveCoding();        // python script reference (for keyboard and mouse events on external windows)
-
-    this->specialLinkTypeName = "LiveCoding";
+    _outletParams[0] = new vector<float>();         // data output
 
     this->initInletsState();
 
     nameLabelLoaded     = false;
     isNewObject         = false;
 
+    pythonIcon          = new ofImage();
+
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    fbo = new ofFbo();
-
-    kuro = new ofImage();
-
-    posX = posY = drawW = drawH = 0.0f;
-
-    output_width    = 800;
-    output_height   = 600;
-
-    mosaicTableName = "_mosaic_data_list";
+    mosaicTableName = "_mosaic_data_inlet";
+    pythonTableName = "_mosaic_data_outlet";
     tempstring      = "";
 
     threadLoaded    = false;
@@ -74,18 +65,13 @@ PythonScript::PythonScript() : PatchObject(){
     pythonScriptLoaded     = false;
     pythonScriptSaved      = false;
 
-    static_cast<LiveCoding *>(_outletParams[1])->hide = true;
 }
 
 //--------------------------------------------------------------
 void PythonScript::newObject(){
     this->setName("python script");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_SPECIAL);
-
-    this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
-    this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+    this->addOutlet(VP_LINK_ARRAY);
 }
 
 //--------------------------------------------------------------
@@ -106,10 +92,8 @@ void PythonScript::threadedFunction(){
 
 //--------------------------------------------------------------
 void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    initResolution();
 
-    // load kuro
-    kuro->load("images/kuro.jpg");
+    pythonIcon->load("images/python.png");
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
@@ -145,16 +129,6 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // Setup ThreadedCommand var
     tempCommand.setup();
-
-    // init live coding editor
-    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 32);
-    liveEditorSyntax.loadFile(ofToDataPath(PYTHON_SYNTAX));
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
-    liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setColorScheme(&liveEditorColors);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setLineNumbers(true);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setAutoFocus(true);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
 
     // init python
     python.init();
@@ -206,8 +180,6 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
             if(fileExtension == "PY") {
                 threadLoaded = false;
                 filepath = file.getAbsolutePath();
-                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-                static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
                 reloadScriptThreaded();
             }
         }
@@ -220,8 +192,6 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPyFile.getAbsolutePath(),true,true);
         threadLoaded = false;
         filepath = newPyFile.getAbsolutePath();
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
         reloadScriptThreaded();
     }
 
@@ -252,39 +222,18 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
                     updateMosaicList(ofxPythonObject::fromInt(static_cast<int>(i)),ofxPythonObject::fromFloat(static_cast<double>(0.0)));
                 }
             }
-            updatePython();
-            // send script reference (for events)
-            static_cast<LiveCoding *>(_outletParams[1])->python = script;
-        }
-    }
-    ///////////////////////////////////////////
+            updatePythonList = python.getObject("_getPYOutletTableAt");
+            getPythonListSize = python.getObject("_getPYOutletSize");
+            if(updatePythonList && !updatePythonList.isPythonError() && getPythonListSize && !getPythonListSize.isPythonError()){
+                static_cast<vector<float> *>(_outletParams[0])->clear();
+                for(int i=0;i<static_cast<int>(getPythonListSize(ofxPythonObject::fromInt(static_cast<int>(0))).asInt());i++){
+                    static_cast<vector<float> *>(_outletParams[0])->push_back(updatePythonList(ofxPythonObject::fromInt(static_cast<int>(i))).asFloat());
+                }
+            }
 
-    ///////////////////////////////////////////
-    // PYTHON DRAW
-    fbo->begin();
-    if(script && threadLoaded){
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        ofPushView();
-        ofPushStyle();
-        ofPushMatrix();
-        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
-            ofBackground(0);
+            updatePython();
         }
-        drawPython = script.attr("draw");
-        if (drawPython && !script.isPythonError() && !drawPython.isPythonError()) drawPython();
-        if(!static_cast<LiveCoding *>(_outletParams[1])->hide) {
-            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
-        }
-        ofPopMatrix();
-        ofPopStyle();
-        ofPopView();
-        glPopAttrib();
-    }else{
-        kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
     }
-    fbo->end();
-    *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
     condition.notify_one();
 
@@ -294,18 +243,7 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 void PythonScript::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-        drawW           = this->width;
-        drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-        posX            = 0;
-        posY            = (this->height-drawH)/2.0f;
-    }else{ // vertical texture
-        drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-        drawH           = this->height;
-        posX            = (this->width-drawW)/2.0f;
-        posY            = 0;
-    }
-    static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    pythonIcon->draw(this->width/2,this->headerHeight*1.8f,((this->height/2.2f)/pythonIcon->getHeight())*pythonIcon->getWidth(),this->height/2.2f);
     // GUI
     gui->draw();
     ofDisableAlphaBlending();
@@ -365,56 +303,6 @@ void PythonScript::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void PythonScript::initResolution(){
-    output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
-    output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
-
-    fbo = new ofFbo();
-    fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
-    fbo->begin();
-    ofClear(0,0,0,255);
-    fbo->end();
-
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
-
-}
-
-//--------------------------------------------------------------
-void PythonScript::resetResolution(int fromID, int newWidth, int newHeight){
-    bool reset = false;
-
-    // Check if we are connected to signaling object
-    for(int j=0;j<static_cast<int>(outPut.size());j++){
-        if(outPut[j]->toObjectID == fromID){
-            reset = true;
-        }
-    }
-
-
-    if(reset && fromID != -1 && newWidth != -1 && newHeight != -1 && (output_width!=newWidth || output_height!=newHeight)){
-        output_width    = newWidth;
-        output_height   = newHeight;
-
-        this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
-        this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
-        this->saveConfig(false,this->nId);
-
-        fbo = new ofFbo();
-        fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
-        fbo->begin();
-        ofClear(0,0,0,255);
-        fbo->end();
-
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
-
-        ofFile tempFileScript(filepath);
-        tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\nSCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'\n";
-        python.executeString(tempstring);
-    }
-
-}
-
-//--------------------------------------------------------------
 void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load python script"+this->getId()){
         lastPythonScript = response.filepath;
@@ -431,8 +319,6 @@ void PythonScript::loadScript(string scriptFile){
     filepath = forceCheckMosaicDataPath(scriptFile);
     currentScriptFile.open(filepath);
 
-    static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
-
     python.reset();
     python.addPath(currentScriptFile.getEnclosingDirectory());
     python.executeScript(filepath);
@@ -444,6 +330,14 @@ void PythonScript::loadScript(string scriptFile){
     tempstring = "def _updateMosaicData( i,data ):\n\t if len("+mosaicTableName+") < i:\n\t\t"+mosaicTableName+".append(0)\n\t elif 0 <= i < len("+mosaicTableName+"):\n\t\t"+mosaicTableName+"[i] = data\n";
     python.executeString(tempstring);
 
+    // inject outgoing data list to mosaic as vector<float>
+    tempstring = pythonTableName+" = [];\n"+pythonTableName+".append(0)";
+    python.executeString(tempstring);
+    tempstring = "def _getPYOutletTableAt( i ):\n\t return "+pythonTableName+"[i]\n";
+    python.executeString(tempstring);
+    tempstring = "def _getPYOutletSize( i ):\n\t return len("+pythonTableName+")\n";
+    python.executeString(tempstring);
+
     // set Mosaic scripting vars
     ofFile tempFileScript(filepath);
 
@@ -453,7 +347,7 @@ void PythonScript::loadScript(string scriptFile){
         std::replace(temppath.begin(),temppath.end(),'\\','/');
     #endif
 
-    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width)+"\nOUTPUT_HEIGHT = "+ofToString(output_height)+"\nSCRIPT_PATH = '"+temppath+"'\n";
+    tempstring = "SCRIPT_PATH = '"+temppath+"'\n";
     python.executeString(tempstring);
 
     ///////////////////////////////////////////
@@ -466,10 +360,6 @@ void PythonScript::loadScript(string scriptFile){
         watcher.addPath(filepath);
     }else{
         script = ofxPythonObject::_None();
-    }
-    if(static_cast<LiveCoding *>(_outletParams[1])->hide){
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     }
     ///////////////////////////////////////////
 
