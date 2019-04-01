@@ -123,4 +123,6 @@ public:
     bool                                    loadedTimelineConfig;
     bool                                    savedTimelineConfig;
 
+    bool                                    autoRemove;
+
 };

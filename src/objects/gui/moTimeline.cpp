@@ -32,6 +32,8 @@
 
 #include "moTimeline.h"
 
+#include "GLFW/glfw3.h"
+
 //--------------------------------------------------------------
 moTimeline::moTimeline() : PatchObject(){
 
@@ -72,6 +74,8 @@ moTimeline::moTimeline() : PatchObject(){
     loadedTimelineConfig    = false;
     savedTimelineConfig     = false;
 
+    autoRemove              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -106,6 +110,8 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
     window->setWindowTitle("Timeline"+ofToString(this->getId()));
     window->setVerticalSync(true);
+
+    glfwSetWindowCloseCallback(window->getGLFWWindow(),GL_FALSE);
 
     ofAddListener(window->events().draw,this,&moTimeline::drawInWindow);
     ofAddListener(window->events().keyPressed,this,&moTimeline::keyPressed);
@@ -280,6 +286,12 @@ void moTimeline::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
         }
     }
 
+    // auto remove
+    if(window->getGLFWWindow() == nullptr && !autoRemove){
+        autoRemove = true;
+        ofNotifyEvent(this->removeEvent, this->nId);
+        this->willErase = true;
+    }
 
 }
 
@@ -325,7 +337,9 @@ void moTimeline::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void moTimeline::removeObjectContent(){
-    window->setWindowShouldClose();
+    if(window->getGLFWWindow() != nullptr){
+        window->setWindowShouldClose();
+    }
 }
 
 //--------------------------------------------------------------
