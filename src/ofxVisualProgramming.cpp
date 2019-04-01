@@ -42,7 +42,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {};
+    vecInit = {"osc receiver"};
     objectsMatrix["communications"] = vecInit;
 
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
@@ -79,7 +79,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"amp","audio gate","bit noise","delay","mixer","panner","pd patch","quad panner","pulse","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"amp","audio gate","bit noise","delay","mixer","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video gate","video grabber","video player"};
@@ -1078,6 +1078,9 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new RollOffExtractor();
     }else if(objname == "tristimulus extractor"){
         tempObj = new TristimulusExtractor();
+    // -------------------------------------- Communications
+    }else if(objname == "osc receiver"){
+        tempObj = new OscReceiver();
     // -------------------------------------- Data
     }else if(objname == "vector at"){
         tempObj = new VectorAt();
@@ -1102,6 +1105,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new QuadPanner();
     }else if(objname == "pulse"){
         tempObj = new OscPulse();
+    }else if(objname == "reverb"){
+        tempObj = new pdspReverb();
     }else if(objname == "saw"){
         tempObj = new OscSaw();
     }else if(objname == "sine"){

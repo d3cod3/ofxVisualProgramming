@@ -56,6 +56,7 @@
 
 // communications objects
 
+
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
 #include "objects/computer_vision/ChromaKey.h"
@@ -142,6 +143,7 @@
 
 #include "objects/sound/pdspDelay.h"
 #include "objects/sound/pdspBitNoise.h"
+#include "objects/sound/pdspReverb.h"
 #include "objects/sound/pdspWhiteNoise.h"
 
 // video objects
