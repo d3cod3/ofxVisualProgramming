@@ -32,6 +32,8 @@
 
 #include "OutputWindow.h"
 
+#include "GLFW/glfw3.h"
+
 //--------------------------------------------------------------
 OutputWindow::OutputWindow() : PatchObject(){
 
@@ -69,6 +71,8 @@ OutputWindow::OutputWindow() : PatchObject(){
     loadWarpingFlag     = false;
     saveWarpingFlag     = false;
     warpingConfigLoaded = false;
+
+    autoRemove          = false;
 }
 
 //--------------------------------------------------------------
@@ -105,6 +109,8 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
     window->setWindowTitle("Projector"+ofToString(this->getId()));
     window->setVerticalSync(true);
+
+    glfwSetWindowCloseCallback(window->getGLFWWindow(),GL_FALSE);
 
     ofAddListener(window->events().draw,this,&OutputWindow::drawInWindow);
     ofAddListener(window->events().keyPressed,this,&OutputWindow::keyPressed);
@@ -242,6 +248,14 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     }
 
     isNewScriptConnected = this->inletsConnected[1];
+
+    // auto remove
+    if(window->getGLFWWindow() == nullptr && !autoRemove){
+        autoRemove = true;
+        ofNotifyEvent(this->removeEvent, this->nId);
+        this->willErase = true;
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -271,7 +285,9 @@ void OutputWindow::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void OutputWindow::removeObjectContent(){
-    window->setWindowShouldClose();
+    if(window->getGLFWWindow() != nullptr){
+        window->setWindowShouldClose();
+    }
 }
 
 //--------------------------------------------------------------

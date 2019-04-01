@@ -110,4 +110,6 @@ public:
     bool                                    saveWarpingFlag;
     bool                                    warpingConfigLoaded;
 
+    bool                                    autoRemove;
+
 };
