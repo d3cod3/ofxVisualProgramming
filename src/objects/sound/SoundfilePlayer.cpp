@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
-    this->numInlets  = 4;
+    this->numInlets  = 5;
     this->numOutlets = 2;
 
     _inletParams[0] = new string();  // control
@@ -46,6 +46,8 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     *(float *)&_inletParams[2] = 0.0f;
     _inletParams[3] = new float();  // volume
     *(float *)&_inletParams[3] = 0.0f;
+    _inletParams[4] = new float();  // trigger
+    *(float *)&_inletParams[4] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new vector<float>(); // audio buffer
@@ -83,6 +85,7 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_AUDIO);
     this->addOutlet(VP_LINK_ARRAY);
 }
@@ -197,6 +200,14 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
             volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
         }else{
             volume = 1.0f;
+        }
+
+        // trigger
+        if(this->inletsConnected[4]){
+            if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f){
+                playhead = 0.0;
+                isPlaying = true;
+            }
         }
     }
 
