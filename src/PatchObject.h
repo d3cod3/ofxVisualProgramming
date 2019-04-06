@@ -139,6 +139,7 @@ public:
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
+    void                    substituteCustomVar(string oldName, string newName) { if ( customVars.find(oldName) != customVars.end() ) { customVars[newName] = customVars[oldName]; customVars.erase(oldName); } }
     bool                    clearCustomVars();
     map<string,float>       loadCustomVars();
 
@@ -220,7 +221,6 @@ protected:
     vector<int>             outlets;
     vector<bool>            inletsMouseNear;
     map<string,float>       customVars;
-
 
 
     int                     numInlets;
