@@ -36,12 +36,14 @@
 BPMExtractor::BPMExtractor() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
     _outletParams[0] = new float(); // BPM
     *(float *)&_outletParams[0] = 0.0f;
+    _outletParams[1] = new float(); // MS
+    *(float *)&_outletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -55,6 +57,7 @@ BPMExtractor::BPMExtractor() : PatchObject(){
 void BPMExtractor::newObject(){
     this->setName("bpm extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
+    this->addOutlet(VP_LINK_NUMERIC);
     this->addOutlet(VP_LINK_NUMERIC);
 }
 
@@ -86,6 +89,7 @@ void BPMExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
   if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
       *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
       bpmPlot->update(*(float *)&_outletParams[0]);
+      *(float *)&_outletParams[1] = 60000.0f / *(float *)&_outletParams[0];
   }
 
 
