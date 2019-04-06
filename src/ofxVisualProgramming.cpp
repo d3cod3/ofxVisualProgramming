@@ -42,13 +42,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {"osc receiver"};
+    vecInit = {"osc receiver","osc sender"};
     objectsMatrix["communications"] = vecInit;
 
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"floats to vector","vector at","vector concat"};
+    vecInit = {"bang multiplexer","floats to vector","vector at","vector concat"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {};
@@ -1081,7 +1081,11 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     // -------------------------------------- Communications
     }else if(objname == "osc receiver"){
         tempObj = new OscReceiver();
+    }else if(objname == "osc sender"){
+        tempObj = new OscSender();
     // -------------------------------------- Data
+    }else if(objname == "bang multiplexer"){
+        tempObj = new BangMultiplexer();
     }else if(objname == "vector at"){
         tempObj = new VectorAt();
     }else if(objname == "vector concat"){

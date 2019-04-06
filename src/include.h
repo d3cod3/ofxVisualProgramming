@@ -55,7 +55,8 @@
 #include "objects/audio_analysis/TristimulusExtractor.h"
 
 // communications objects
-
+#include "objects/communications/OscReceiver.h"
+#include "objects/communications/OscSender.h"
 
 // computer_vision objects
 #include "objects/computer_vision/BackgroundSubtraction.h"
@@ -67,6 +68,7 @@
 #include "objects/computer_vision/OpticalFlow.h"
 
 // data objects
+#include "objects/data/BangMultiplexer.h"
 #include "objects/data/FloatsToVector.h"
 #include "objects/data/VectorAt.h"
 #include "objects/data/VectorConcat.h"
