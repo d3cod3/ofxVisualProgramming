@@ -59,6 +59,8 @@ Counter::Counter() : PatchObject(){
     _st                 = 0;
     _en                 = 1;
     startConnect        = false;
+
+    loaded              = false;
 }
 
 //--------------------------------------------------------------
@@ -138,6 +140,12 @@ void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
     }
     if(this->inletsConnected[2]){
         end->setText(ofToString(*(float *)&_inletParams[2]));
+    }
+
+    if(!loaded){
+        loaded = true;
+        _st = static_cast<int>(floor(this->getCustomVar("START")));
+        _en = static_cast<int>(floor(this->getCustomVar("END")));
     }
 
 }

@@ -59,4 +59,6 @@ public:
     int                     _en;
     bool                    startConnect;
 
+    bool                    loaded;
+
 };
