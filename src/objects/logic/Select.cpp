@@ -36,7 +36,7 @@
 Select::Select() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 13;
+    this->numOutlets = 17;
 
     _inletParams[0] = new float();  // state
     *(float *)&_inletParams[0] = 0.0f;
@@ -46,7 +46,7 @@ Select::Select() : PatchObject(){
         *(float *)&_outletParams[i] = 0.0f;
     }
 
-    this->height          *= 2;
+    this->height          *= 3;
 
     this->initInletsState();
 
