@@ -63,10 +63,14 @@ PDPatch::PDPatch() : PatchObject(){
     isAudioOUTObject    = true;
 
     lastLoadedPatch     = "";
+    prevExternalsFolder = "/path_to_pd_externals";
+    lastExternalsFolder = "";
     loadPatchFlag       = false;
     savePatchFlag       = false;
+    setExternalFlag     = false;
     patchLoaded         = false;
     patchSaved          = false;
+    externalPathSaved   = false;
 
     isPDSPPatchableObject   = true;
 
@@ -85,6 +89,8 @@ void PDPatch::newObject(){
     this->addOutlet(VP_LINK_AUDIO);
     this->addOutlet(VP_LINK_AUDIO);
     this->addOutlet(VP_LINK_ARRAY);
+
+    this->setCustomVar(0.0f,"/path_to_pd_externals");
 }
 
 //--------------------------------------------------------------
@@ -113,6 +119,10 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
+
+    gui->addBreak();
+    setExternalPath = gui->addButton("SET EXTERNALS PATH");
+    setExternalPath->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -154,6 +164,7 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
     header->update();
     newButton->update();
     loadButton->update();
+    setExternalPath->update();
 
     if(loadPatchFlag){
         loadPatchFlag = false;
@@ -185,6 +196,26 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPDFile.getAbsolutePath(),true,true);
         filepath = newPDFile.getAbsolutePath();
         loadPatch(filepath);
+    }
+
+    if(setExternalFlag){
+        setExternalFlag = false;
+        fd.openFolder("load pd external folder"+this->getId(),"Select your PD external folder");
+    }
+
+    if(externalPathSaved){
+        externalPathSaved = false;
+        if(lastExternalsFolder != ""){
+            ofFile tempfile (lastExternalsFolder);
+            if(tempfile.exists() && tempfile.isDirectory()){
+                string temp = tempfile.getAbsolutePath().substr(0, tempfile.getAbsolutePath().size()-1);
+                pd.addToSearchPath(temp);
+                this->substituteCustomVar(prevExternalsFolder,temp.c_str());
+                prevExternalsFolder = lastExternalsFolder;
+                ofLog(OF_LOG_NOTICE,"PD External set to: %s",temp.c_str());
+                this->saveConfig(false,this->nId);
+            }
+        }
     }
 
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
@@ -254,16 +285,35 @@ void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     }else if(response.id == "save pd patch"+this->getId()){
         lastLoadedPatch = response.filepath;
         patchSaved = true;
+    }else if(response.id == "load pd external folder"+this->getId()){
+        lastExternalsFolder = response.filepath;
+        externalPathSaved = true;
     }
 }
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
-        lastInputBuffer2 = *static_cast<ofSoundBuffer *>(_inletParams[1]);
-        lastInputBuffer3 = *static_cast<ofSoundBuffer *>(_inletParams[2]);
-        lastInputBuffer4 = *static_cast<ofSoundBuffer *>(_inletParams[3]);
+        if(this->inletsConnected[0]){
+            lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        }else{
+            lastInputBuffer1 *= 0.0f;
+        }
+        if(this->inletsConnected[1]){
+            lastInputBuffer2 = *static_cast<ofSoundBuffer *>(_inletParams[1]);
+        }else{
+            lastInputBuffer2 *= 0.0f;
+        }
+        if(this->inletsConnected[2]){
+            lastInputBuffer3 = *static_cast<ofSoundBuffer *>(_inletParams[2]);
+        }else{
+            lastInputBuffer3 *= 0.0f;
+        }
+        if(this->inletsConnected[3]){
+            lastInputBuffer4 = *static_cast<ofSoundBuffer *>(_inletParams[3]);
+        }else{
+            lastInputBuffer4 *= 0.0f;
+        }
 
         lastInputBuffer.setChannel(lastInputBuffer1,0);
         lastInputBuffer.setChannel(lastInputBuffer2,1);
@@ -310,9 +360,10 @@ void PDPatch::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    setExternalPath->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || setExternalPath->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -326,6 +377,7 @@ void PDPatch::dragGUIObject(ofVec3f _m){
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        setExternalPath->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -352,6 +404,29 @@ void PDPatch::loadAudioSettings(){
             bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
         }
+        int totalObjects = XML.getNumTags("object");
+
+        // Load object outlet config
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    if (XML.pushTag("vars")){
+                        int totalVars = XML.getNumTags("var");
+
+                        for (int t=0;t<totalVars;t++){
+                            if(XML.pushTag("var",t)){
+                                prevExternalsFolder = XML.getValue("name","");
+                                //ofLog(OF_LOG_NOTICE,"%s",prevExternalsFolder.c_str());
+                                XML.popTag();
+                            }
+                        }
+
+                        XML.popTag();
+                    }
+                }
+                XML.popTag();
+            }
+        }
     }
 
     lastInputBuffer.allocate(bufferSize,4);
@@ -366,7 +441,10 @@ void PDPatch::loadAudioSettings(){
     lastOutputBuffer3.allocate(bufferSize,1);
     lastOutputBuffer4.allocate(bufferSize,1);
 
-    pd.init(4,1,sampleRate,4,false);
+    pd.init(4,4,sampleRate,4,false);
+    // load externals
+    cyclone_setup();
+    zexy_setup();
 
     pd.subscribe("toMosaic");
 
@@ -401,6 +479,14 @@ void PDPatch::loadPatch(string scriptFile){
 
     filepath = forceCheckMosaicDataPath(scriptFile);
     currentPatchFile.open(filepath);
+
+    if(prevExternalsFolder != "" && prevExternalsFolder != "/path_to_pd_externals"){
+        ofFile tempfile (prevExternalsFolder);
+        if(tempfile.exists() && tempfile.isDirectory()){
+            pd.addToSearchPath(tempfile.getAbsolutePath());
+        }
+    }
+
     currentPatch = pd.openPatch(currentPatchFile.getAbsolutePath());
 
     pd.addToSearchPath(currentPatchFile.getEnclosingDirectory());
@@ -428,6 +514,8 @@ void PDPatch::onButtonEvent(ofxDatGuiButtonEvent e){
             savePatchFlag = true;
         }else if(e.target == loadButton){
             loadPatchFlag = true;
+        }else if(e.target == setExternalPath){
+            setExternalFlag = true;
         }
     }
 }

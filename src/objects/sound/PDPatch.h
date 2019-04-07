@@ -35,7 +35,9 @@
 #include "PatchObject.h"
 
 #include "PathWatcher.h"
+
 #include "ofxPd.h"
+#include "ofxPdExternals.h"
 
 using namespace pd;
 
@@ -108,6 +110,7 @@ public:
     ofxDatGuiLabel*     patchName;
     ofxDatGuiButton*    newButton;
     ofxDatGuiButton*    loadButton;
+    ofxDatGuiButton*    setExternalPath;
 
     ofImage             *pdIcon;
 
@@ -121,10 +124,14 @@ public:
     int                 sampleRate;
 
     string              lastLoadedPatch;
+    string              prevExternalsFolder;
+    string              lastExternalsFolder;
     bool                loadPatchFlag;
     bool                savePatchFlag;
+    bool                setExternalFlag;
     bool                patchLoaded;
     bool                patchSaved;
+    bool                externalPathSaved;
 
 protected:
 

@@ -178,6 +178,7 @@ install:
   - git clone --branch=master https://github.com/d3cod3/ofxMidi addons/ofxMidi
   - git clone --branch=master https://github.com/d3cod3/ofxParagraph addons/ofxParagraph
   - git clone --branch=master https://github.com/danomatika/ofxPd addons/ofxPd
+  - git clone --branch=master https://github.com/d3cod3/ofxPdExternals addons/ofxPdExternals
   - git clone --branch=master https://github.com/npisanti/ofxPDSP addons/ofxPDSP
   - git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython addons/ofxPython
   - git clone --branch=master https://github.com/d3cod3/ofxSIMDFloats addons/ofxSIMDFloats
