@@ -82,7 +82,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"amp","audio gate","bit noise","delay","mixer","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video gate","video grabber","video player"};
+    vecInit = {"kinect grabber","video delay","video gate","video grabber","video player"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -1212,6 +1212,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoPlayer();
     }else if(objname == "video grabber"){
         tempObj = new VideoGrabber();
+    }else if(objname == "video delay"){
+        tempObj = new VideoDelay();
     }else if(objname == "video gate"){
         tempObj = new VideoGate();
     // -------------------------------------- WINDOWING

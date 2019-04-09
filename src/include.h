@@ -156,6 +156,7 @@
 
 // video objects
 #include "objects/video/KinectGrabber.h"
+#include "objects/video/VideoDelay.h"
 #include "objects/video/VideoGate.h"
 #include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"

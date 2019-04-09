@@ -35,14 +35,34 @@
 //--------------------------------------------------------------
 VideoDelay::VideoDelay() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 3;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // input
+    _inletParams[1] = new float();      // scale
+    *(float *)&_inletParams[1] = 0.0f;
+    _inletParams[2] = new float();      // alpha
+    *(float *)&_inletParams[2] = 0.0f;
 
     _outletParams[0] = new ofTexture(); // output
 
     this->initInletsState();
+
+    isGUIObject             = true;
+    this->isOverGUI         = true;
+
+    backBufferTex   = new ofTexture();
+    delayFbo        = new ofFbo();
+
+    srcFunc         = GL_SRC_ALPHA;
+    destFunc        = GL_ONE_MINUS_SRC_ALPHA;
+    alpha           = 0.0f;
+    scale           = 1;
+    scaleTo         = 1;
+    needToGrab      = false;
+    bOn             = true;
+    fCounter        = 0;
+    alphaTo         = 0.0;
 
 }
 
@@ -50,19 +70,87 @@ VideoDelay::VideoDelay() : PatchObject(){
 void VideoDelay::newObject(){
     this->setName("video delay");
     this->addInlet(VP_LINK_TEXTURE,"input");
+    this->addInlet(VP_LINK_NUMERIC,"scale");
+    this->addInlet(VP_LINK_NUMERIC,"alpha");
     this->addOutlet(VP_LINK_TEXTURE);
+
+    this->setCustomVar(static_cast<float>(scaleTo),"SCALE");
+    this->setCustomVar(static_cast<float>(alphaTo),"ALPHA");
 }
 
 //--------------------------------------------------------------
 void VideoDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onSliderEvent(this, &VideoDelay::onSliderEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+    slider = gui->addSlider("Scale", 0.0,1.0,1.0);
+    slider->setUseCustomMouse(true);
+    sliderA = gui->addSlider("Alpha", 0.0,1.0,1.0);
+    sliderA->setUseCustomMouse(true);
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void VideoDelay::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+
+    alpha       = .995 * alpha + .005 * alphaTo;
+    scale       = .95 * scale + .05 * scaleTo;
+    halfscale   = (1.000000f - scale) / 2.000000f;
     
     if(this->inletsConnected[0]){
-        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+        if(!needToGrab){
+            needToGrab = true;
+            backBufferTex->allocate( static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB );
+            delayFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA );
+            backBufferTex = static_cast<ofTexture *>(_inletParams[0]);
+        }
+
+        delayFbo->begin();
+        ofEnableAlphaBlending();
+        glBlendFunc(srcFunc,destFunc);
+        glColor4f(1.0f,1.0f,1.0f,alpha);
+        glPushMatrix();
+
+        backBufferTex->draw( static_cast<ofTexture *>(_inletParams[0])->getWidth() * halfscale, static_cast<ofTexture *>(_inletParams[0])->getHeight() * halfscale, static_cast<ofTexture *>(_inletParams[0])->getWidth() * scale, static_cast<ofTexture *>(_inletParams[0])->getHeight() * scale );
+        backBufferTex = static_cast<ofTexture *>(_inletParams[0]);
+
+        glPopMatrix();
+        ofDisableAlphaBlending();
+        delayFbo->end();
+
+        *static_cast<ofTexture *>(_outletParams[0]) = delayFbo->getTexture();
+    }else{
+        needToGrab = false;
+    }
+
+    gui->update();
+    header->update();
+    slider->update();
+    sliderA->update();
+
+    if(!loaded){
+        loaded = true;
+        slider->setValue(this->getCustomVar("SCALE"));
+        sliderA->setValue(this->getCustomVar("ALPHA"));
+    }
+
+    if(this->inletsConnected[1]){
+        scaleTo = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        slider->setValue(scaleTo);
+    }
+
+    if(this->inletsConnected[2]){
+        alphaTo = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        sliderA->setValue(alphaTo);
     }
     
 }
@@ -85,10 +173,63 @@ void VideoDelay::drawObjectContent(ofxFontStash *font){
         }
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
+    gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void VideoDelay::removeObjectContent(){
     
+}
+
+//--------------------------------------------------------------
+void VideoDelay::mouseMovedObjectContent(ofVec3f _m){
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    sliderA->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos()) || sliderA->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+
+}
+
+//--------------------------------------------------------------
+void VideoDelay::dragGUIObject(ofVec3f _m){
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        sliderA->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void VideoDelay::onSliderEvent(ofxDatGuiSliderEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == slider){
+            this->setCustomVar(static_cast<float>(e.value),"SCALE");
+            scaleTo = ofClamp(static_cast<float>(e.value),0.0f,1.0f);
+        }else if(e.target == sliderA){
+            this->setCustomVar(static_cast<float>(e.value),"ALPHA");
+            alphaTo = ofClamp(static_cast<float>(e.value),0.0f,1.0f);
+        }
+    }
+
 }

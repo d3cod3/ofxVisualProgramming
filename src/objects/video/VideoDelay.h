@@ -46,7 +46,31 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
+
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
     float           posX, posY, drawW, drawH;
+
+    float           alphaTo;
+    float           scaleTo;
+    bool            bOn;
+    float           scale;
+    float           alpha;
+
+    ofFbo           *delayFbo;
+    ofTexture       *backBufferTex;
+    int             srcFunc, destFunc;
+    float           halfscale;
+    float           fCounter;
+    bool            needToGrab;
+
+    ofxDatGui*              gui;
+    ofxDatGuiHeader*        header;
+    ofxDatGuiSlider*        slider;
+    ofxDatGuiSlider*        sliderA;
+
+    bool                    loaded;
 
 };
