@@ -54,15 +54,11 @@ VideoDelay::VideoDelay() : PatchObject(){
     backBufferTex   = new ofTexture();
     delayFbo        = new ofFbo();
 
-    srcFunc         = GL_SRC_ALPHA;
-    destFunc        = GL_ONE_MINUS_SRC_ALPHA;
     alpha           = 0.0f;
+    alphaTo         = 0.0;
     scale           = 1;
     scaleTo         = 1;
     needToGrab      = false;
-    bOn             = true;
-    fCounter        = 0;
-    alphaTo         = 0.0;
 
 }
 
@@ -116,7 +112,7 @@ void VideoDelay::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
 
         delayFbo->begin();
         ofEnableAlphaBlending();
-        glBlendFunc(srcFunc,destFunc);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glColor4f(1.0f,1.0f,1.0f,alpha);
         glPushMatrix();
 

@@ -55,15 +55,12 @@ public:
 
     float           alphaTo;
     float           scaleTo;
-    bool            bOn;
     float           scale;
     float           alpha;
 
     ofFbo           *delayFbo;
     ofTexture       *backBufferTex;
-    int             srcFunc, destFunc;
     float           halfscale;
-    float           fCounter;
     bool            needToGrab;
 
     ofxDatGui*              gui;
