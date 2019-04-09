@@ -55,6 +55,11 @@
 #include "objects/audio_analysis/TristimulusExtractor.h"
 
 // communications objects
+#include "objects/communications/KeyPressed.h"
+#include "objects/communications/KeyReleased.h"
+#include "objects/communications/MidiKnob.h"
+#include "objects/communications/MidiPad.h"
+#include "objects/communications/MidiReceiver.h"
 #include "objects/communications/OscReceiver.h"
 #include "objects/communications/OscSender.h"
 
@@ -74,6 +79,7 @@
 #include "objects/data/VectorConcat.h"
 
 // graphics objects
+#include "objects/graphics/ImageLoader.h"
 
 // gui objects
 #include "objects/gui/mo2DPad.h"

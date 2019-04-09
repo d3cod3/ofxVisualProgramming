@@ -42,7 +42,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {"osc receiver","osc sender"};
+    vecInit = {"key pressed","key released","midi knob","midi pad","midi receiver","osc receiver","osc sender"};
     objectsMatrix["communications"] = vecInit;
 
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
@@ -51,7 +51,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"bang multiplexer","floats to vector","vector at","vector concat"};
     objectsMatrix["data"] = vecInit;
 
-    vecInit = {};
+    vecInit = {"image loader"};
     objectsMatrix["graphics"] = vecInit;
 
     vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","timeline","trigger","video viewer","vu meter"};
@@ -1079,6 +1079,16 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "tristimulus extractor"){
         tempObj = new TristimulusExtractor();
     // -------------------------------------- Communications
+    }else if(objname == "key pressed"){
+        tempObj = new KeyPressed();
+    }else if(objname == "key released"){
+        tempObj = new KeyReleased();
+    }else if(objname == "midi knob"){
+        tempObj = new MidiKnob();
+    }else if(objname == "midi pad"){
+        tempObj = new MidiPad();
+    }else if(objname == "midi receiver"){
+        tempObj = new MidiReceiver();
     }else if(objname == "osc receiver"){
         tempObj = new OscReceiver();
     }else if(objname == "osc sender"){
@@ -1092,6 +1102,9 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VectorConcat();
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
+    // -------------------------------------- Graphics
+    }else if(objname == "image loader"){
+        tempObj = new ImageLoader();
     // -------------------------------------- Sound
     }else if(objname == "amp"){
         tempObj = new SigMult();
