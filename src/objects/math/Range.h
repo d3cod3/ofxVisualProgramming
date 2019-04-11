@@ -57,4 +57,6 @@ public:
 
     float                   inputValue1,inputValue2;
 
+    bool                    loaded;
+
 };

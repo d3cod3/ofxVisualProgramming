@@ -168,13 +168,13 @@ void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     // file dialogs
     if(loadScriptFlag){
         loadScriptFlag = false;
-        fd.openFile("load bash"+this->getId(),"Select a bash script");
+        fd.openFile("load bash"+ofToString(this->getId()),"Select a bash script");
     }
 
     if(saveScriptFlag){
         saveScriptFlag = false;
         string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
-        fd.saveFile("save bash"+this->getId(),"Save new Bash script as",newFileName);
+        fd.saveFile("save bash"+ofToString(this->getId()),"Save new Bash script as",newFileName);
     }
 
     // path watcher
@@ -246,7 +246,7 @@ void BashScript::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load bash"+this->getId()){
+    if(response.id == "load bash"+ofToString(this->getId())){
         ofFile file (response.filepath);
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
@@ -256,7 +256,7 @@ void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
                 reloadScriptThreaded();
             }
         }
-    }else if(response.id == "save bash"+this->getId()){
+    }else if(response.id == "save bash"+ofToString(this->getId())){
         ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
         ofFile newBashFile (response.filepath);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newBashFile.getAbsolutePath(),true,true);

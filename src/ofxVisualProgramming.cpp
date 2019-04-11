@@ -1269,9 +1269,9 @@ void ofxVisualProgramming::openPatch(string patchFile){
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    /*for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         delete it->second;
-    }
+    }*/
     patchObjects.clear();
 
     // load new patch

@@ -119,7 +119,7 @@ void HaarTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     // file dialogs
     if(loadHaarConfigFlag){
         loadHaarConfigFlag = false;
-        fd.openFile("load haar","Select a haarcascade xml file");
+        fd.openFile("load haar"+ofToString(this->getId()),"Select a haarcascade xml file");
     }
 
     if(haarConfigLoaded){
@@ -288,7 +288,7 @@ void HaarTracking::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void HaarTracking::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load haar"){
+    if(response.id == "load haar"+ofToString(this->getId())){
         haarToLoad = response.filepath;
         haarConfigLoaded = true;
     }

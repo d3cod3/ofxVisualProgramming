@@ -52,7 +52,8 @@ moPlayerControls::moPlayerControls() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    bang            = false;
+    bang                = false;
+    loaded              = false;
 
 }
 
@@ -62,6 +63,9 @@ void moPlayerControls::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"select");
     this->addOutlet(VP_LINK_STRING);
+
+    this->setCustomVar(static_cast<float>(0),"PAUSE");
+    this->setCustomVar(static_cast<float>(0),"LOOP");
 }
 
 //--------------------------------------------------------------
@@ -124,6 +128,22 @@ void moPlayerControls::updateObjectContent(map<int,PatchObject*> &patchObjects, 
                 break;
             default:
                 break;
+        }
+    }
+
+    if(!loaded){
+        loaded = true;
+        pauseButton->setChecked(static_cast<int>(floor(this->getCustomVar("PAUSE"))));
+        loopButton->setChecked(static_cast<int>(floor(this->getCustomVar("LOOP"))));
+        if(pauseButton->getChecked()){
+            *static_cast<string *>(_outletParams[0]) = "pause";
+        }else{
+            *static_cast<string *>(_outletParams[0]) = "unpause";
+        }
+        if(loopButton->getChecked()){
+            *static_cast<string *>(_outletParams[0]) = "loop_normal";
+        }else{
+            *static_cast<string *>(_outletParams[0]) = "loop_none";
         }
     }
     
@@ -194,12 +214,14 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
         }else{
             *static_cast<string *>(_outletParams[0]) = "unpause";
         }
+        this->setCustomVar(static_cast<float>(e.checked),"PAUSE");
     }else if(e.target == loopButton){
         if(e.checked){
             *static_cast<string *>(_outletParams[0]) = "loop_normal";
         }else{
             *static_cast<string *>(_outletParams[0]) = "loop_none";
         }
+        this->setCustomVar(static_cast<float>(e.checked),"LOOP");
     }
 
 }

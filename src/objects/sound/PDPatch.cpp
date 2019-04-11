@@ -168,13 +168,13 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
 
     if(loadPatchFlag){
         loadPatchFlag = false;
-        fd.openFile("load pd patch"+this->getId(),"Select a PD patch");
+        fd.openFile("load pd patch"+ofToString(this->getId()),"Select a PD patch");
     }
 
     if(savePatchFlag){
         savePatchFlag = false;
         string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
-        fd.saveFile("save pd patch"+this->getId(),"Save new PD patch as",newFileName);
+        fd.saveFile("save pd patch"+ofToString(this->getId()),"Save new PD patch as",newFileName);
     }
 
     if(patchLoaded){
@@ -200,7 +200,7 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
 
     if(setExternalFlag){
         setExternalFlag = false;
-        fd.openFolder("load pd external folder"+this->getId(),"Select your PD external folder");
+        fd.openFolder("load pd external folder"+ofToString(this->getId()),"Select your PD external folder");
     }
 
     if(externalPathSaved){
@@ -279,13 +279,13 @@ void PDPatch::removeObjectContent(){
 
 //--------------------------------------------------------------
 void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load pd patch"+this->getId()){
+    if(response.id == "load pd patch"+ofToString(this->getId())){
         lastLoadedPatch = response.filepath;
         patchLoaded = true;
-    }else if(response.id == "save pd patch"+this->getId()){
+    }else if(response.id == "save pd patch"+ofToString(this->getId())){
         lastLoadedPatch = response.filepath;
         patchSaved = true;
-    }else if(response.id == "load pd external folder"+this->getId()){
+    }else if(response.id == "load pd external folder"+ofToString(this->getId())){
         lastExternalsFolder = response.filepath;
         externalPathSaved = true;
     }

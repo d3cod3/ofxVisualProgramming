@@ -146,6 +146,8 @@ void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         loaded = true;
         _st = static_cast<int>(floor(this->getCustomVar("START")));
         _en = static_cast<int>(floor(this->getCustomVar("END")));
+        start->setText(ofToString(static_cast<int>(floor(this->getCustomVar("START")))));
+        end->setText(ofToString(static_cast<int>(floor(this->getCustomVar("END")))));
     }
 
 }

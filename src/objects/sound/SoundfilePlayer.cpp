@@ -133,7 +133,7 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
 
     if(loadSoundfileFlag){
         loadSoundfileFlag = false;
-        fd.openFile("load soundfile"+this->getId(),"Select an audio file");
+        fd.openFile("load soundfile"+ofToString(this->getId()),"Select an audio file");
     }
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
@@ -274,7 +274,7 @@ void SoundfilePlayer::removeObjectContent(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load soundfile"+this->getId()){
+    if(response.id == "load soundfile"+ofToString(this->getId())){
         lastSoundfile = response.filepath;
         soundfileLoaded = true;
         startTime = ofGetElapsedTimeMillis();

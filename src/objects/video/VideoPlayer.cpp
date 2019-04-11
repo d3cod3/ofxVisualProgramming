@@ -208,7 +208,7 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
 
     if(loadVideoFlag){
         loadVideoFlag = false;
-        fd.openFile("load videofile"+this->getId(),"Select a video file");
+        fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
     }
 
     ///////////////////////////////////////////
@@ -323,7 +323,7 @@ void VideoPlayer::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load videofile"+this->getId()){
+    if(response.id == "load videofile"+ofToString(this->getId())){
         ofFile file (response.filepath);
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());

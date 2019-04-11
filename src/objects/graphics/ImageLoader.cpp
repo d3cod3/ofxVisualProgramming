@@ -86,6 +86,8 @@ void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     if(filepath == "none"){
         isNewObject = true;
+    }else{
+        loadImageFile();
     }
 
 }
@@ -118,12 +120,7 @@ void ImageLoader::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
 
     if(loadImgFlag){
         loadImgFlag = false;
-        fd.openFile("load imagefile"+this->getId(),"Select an image file");
-    }
-
-    if(isImageLoaded){
-        isImageLoaded = false;
-        loadImageFile();
+        fd.openFile("load imagefile"+ofToString(this->getId()),"Select an image file");
     }
     
 }
@@ -205,7 +202,7 @@ void ImageLoader::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void ImageLoader::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load imagefile"+this->getId()){
+    if(response.id == "load imagefile"+ofToString(this->getId())){
         ofFile file (response.filepath);
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());

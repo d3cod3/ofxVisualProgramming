@@ -41,7 +41,7 @@
 
 #include <atomic>
 
-class LuaScript : public ofThread, public PatchObject, public ofxLuaListener{
+class LuaScript : public PatchObject, public ofThread, public ofxLuaListener{
 
 public:
 

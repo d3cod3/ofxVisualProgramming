@@ -55,6 +55,8 @@ Range::Range() : PatchObject(){
 
     inputValue1 = *(float *)&_inletParams[0];
     inputValue2 = *(float *)&_inletParams[1];
+
+    loaded              = false;
 }
 
 //--------------------------------------------------------------
@@ -108,6 +110,12 @@ void Range::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreaded
 
     *(float *)&_outletParams[0] = inputValue1;
     *(float *)&_outletParams[1] = inputValue2;
+
+    if(!loaded){
+        loaded = true;
+        inputNumber1->setText(ofToString(this->getCustomVar("NUMBER1")));
+        inputNumber2->setText(ofToString(this->getCustomVar("NUMBER2")));
+    }
 
 }
 

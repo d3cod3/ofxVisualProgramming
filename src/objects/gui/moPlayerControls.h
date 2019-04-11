@@ -59,5 +59,6 @@ public:
     ofxDatGuiToggle*    loopButton;
     
     bool                bang;
+    bool                loaded;
 
 };
