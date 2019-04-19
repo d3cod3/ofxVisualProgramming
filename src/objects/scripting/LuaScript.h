@@ -41,13 +41,11 @@
 
 #include <atomic>
 
-class LuaScript : public PatchObject, public ofThread, public ofxLuaListener{
+class LuaScript : public PatchObject, public ofxLuaListener{
 
 public:
 
     LuaScript();
-
-    void            threadedFunction();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -110,7 +108,6 @@ public:
 
 protected:
     ThreadedCommand         tempCommand;
-    std::condition_variable condition;
     bool                    needToLoadScript;
     bool                    threadLoaded;
 

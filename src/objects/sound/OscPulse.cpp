@@ -81,7 +81,7 @@ void OscPulse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header->setCollapsable(true);
     oscInfo = gui->addLabel("0 Hz");
     gui->addBreak();
-    slider = gui->addSlider("Pitch",16,136,30);
+    slider = gui->addSlider("Pitch",0,127,30);
     slider->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height - header->getHeight());
@@ -118,15 +118,15 @@ void OscPulse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     }
 
     if(this->inletsConnected[0]){
-        pitch_ctrl.set(ofClamp(*(float *)&_inletParams[0],16,136));
+        pitch_ctrl.set(ofClamp(*(float *)&_inletParams[0],0,127));
         slider->setValue(pitch_ctrl.get());
-        oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(*(float *)&_inletParams[0],16,136))) + " Hz");
+        oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(*(float *)&_inletParams[0],0,127))) + " Hz");
     }
 
     if(!loaded){
         loaded = true;
         slider->setValue(this->getCustomVar("PITCH"));
-        pitch_ctrl.set(ofClamp(slider->getValue(),16,136));
+        pitch_ctrl.set(ofClamp(slider->getValue(),0,127));
     }
 
 }
@@ -212,6 +212,6 @@ void OscPulse::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void OscPulse::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"PITCH");
-    pitch_ctrl.set(ofClamp(static_cast<float>(e.value),16,136));
-    oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),16,136))) + " Hz");
+    pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
+    oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }

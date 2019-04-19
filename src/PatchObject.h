@@ -192,6 +192,7 @@ public:
 
     ofEvent<int>            resetEvent;
     ofEvent<int>            removeEvent;
+    ofEvent<int>            reconnectOutletsEvent;
     ofEvent<int>            dragEvent;
     ofEvent<int>            iconifyEvent;
     ofEvent<int>            duplicateEvent;

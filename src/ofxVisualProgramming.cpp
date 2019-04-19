@@ -42,7 +42,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {"key pressed","key released","midi knob","midi pad","midi receiver","osc receiver","osc sender"};
+    vecInit = {"key pressed","key released","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
     objectsMatrix["communications"] = vecInit;
 
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
@@ -79,7 +79,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"amp","audio gate","bit noise","delay","mixer","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video delay","video gate","video grabber","video player"};
@@ -661,6 +661,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
     ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
+    ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
     ofAddListener(tempObj->iconifyEvent ,this,&ofxVisualProgramming::iconifyObject);
     ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
 
@@ -756,6 +757,53 @@ void ofxVisualProgramming::resetObject(int id){
                 }
             }
             it->second->outPut = tempBuffer;
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::reconnectObjectOutlets(int &id){
+    if ((id != -1) && (patchObjects[id] != nullptr)){
+
+        ofxXmlSettings XML;
+        if (XML.loadFile(currentPatchFile)){
+            int totalObjects = XML.getNumTags("object");
+
+            // relink object outlets from XML
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) == id){
+                        int fromID = XML.getValue("id", -1);
+                        if (XML.pushTag("outlets")){
+                            int totalOutlets = XML.getNumTags("link");
+                            for(int j=0;j<totalOutlets;j++){
+                                if (XML.pushTag("link",j)){
+                                    int linkType = XML.getValue("type", 0);
+                                    int totalLinks = XML.getNumTags("to");
+                                    for(int z=0;z<totalLinks;z++){
+                                        if(XML.pushTag("to",z)){
+                                            int toObjectID = XML.getValue("id", 0);
+                                            int toInletID = XML.getValue("inlet", 0);
+
+                                            if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                            }
+
+                                            XML.popTag();
+                                        }
+                                    }
+                                    XML.popTag();
+                                }
+                            }
+
+                            XML.popTag();
+                        }
+                        XML.popTag();
+                    }
+                    XML.popTag();
+                }
+            }
+
         }
     }
 }
@@ -952,7 +1000,13 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         patchObjects[toID]->inletsConnected[toInlet] = true;
 
-        if(tempLink->type == VP_LINK_TEXTURE){
+        if(tempLink->type == VP_LINK_NUMERIC){
+            patchObjects[toID]->_inletParams[toInlet] = new float();
+        }else if(tempLink->type == VP_LINK_STRING){
+            patchObjects[toID]->_inletParams[toInlet] = new string();
+        }else if(tempLink->type == VP_LINK_ARRAY){
+            patchObjects[toID]->_inletParams[toInlet] = new vector<float>();
+        }else if(tempLink->type == VP_LINK_TEXTURE){
             patchObjects[toID]->_inletParams[toInlet] = new ofTexture();
         }else if(tempLink->type == VP_LINK_AUDIO){
             patchObjects[toID]->_inletParams[toInlet] = new ofSoundBuffer();
@@ -1089,6 +1143,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new MidiPad();
     }else if(objname == "midi receiver"){
         tempObj = new MidiReceiver();
+    }else if(objname == "midi score"){
+        tempObj = new MidiScore();
+    }else if(objname == "midi sender"){
+        tempObj = new MidiSender();
     }else if(objname == "osc receiver"){
         tempObj = new OscReceiver();
     }else if(objname == "osc sender"){
@@ -1114,6 +1172,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new pdspBitNoise();
     }else if(objname == "mixer"){
         tempObj = new Mixer();
+    }else if(objname == "note to frequency"){
+        tempObj = new NoteToFrequency();
     }else if(objname == "panner"){
         tempObj = new Panner();
     }else if(objname == "pd patch"){
@@ -1389,6 +1449,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                         ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
                         ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
                         ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
+                        ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
                         ofAddListener(tempObj->iconifyEvent ,this,&ofxVisualProgramming::iconifyObject);
                         ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
                         // Insert the new patch into the map

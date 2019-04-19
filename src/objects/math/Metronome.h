@@ -58,4 +58,7 @@ public:
     size_t                  resetTime;
     size_t                  metroTime;
 
+    bool                    sync;
+    bool                    loaded;
+
 };

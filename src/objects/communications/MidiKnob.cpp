@@ -70,6 +70,7 @@ void MidiKnob::newObject(){
 void MidiKnob::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setTheme(new ofxDatGuiThemeCharcoal());
     gui->setAutoDraw(false);
     gui->setWidth(this->width);
     gui->addBreak();
@@ -103,6 +104,8 @@ void MidiKnob::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
 
 //--------------------------------------------------------------
 void MidiKnob::drawObjectContent(ofxFontStash *font){
+    ofSetColor(30,31,36);
+    ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);
     ofEnableAlphaBlending();
 

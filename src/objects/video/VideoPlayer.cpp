@@ -134,11 +134,11 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
     if(!isFileLoaded && video->isLoaded() && video->isInitialized() && threadLoaded){
         isFileLoaded = true;
         if(video->isInitialized()){
-            //video->setUseTexture(true);
             video->setLoopState(OF_LOOP_NONE);
-            video->play();
+            video->stop();
 
             static_cast<ofTexture *>(_outletParams[0])->allocate(video->getPixels());
+            static_cast<ofTexture *>(_outletParams[0])->clear();
 
             ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
         }else{
@@ -342,6 +342,7 @@ void VideoPlayer::loadVideoFile(){
         isNewObject = false;
         video->setUseTexture(false);
         video->load(filepath);
+        this->saveConfig(false,this->nId);
     }
 }
 

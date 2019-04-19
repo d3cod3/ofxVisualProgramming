@@ -78,6 +78,7 @@ public:
     void            dragObject(int &id);
     void            resetObject(int &id);
     void            resetObject(int id);
+    void            reconnectObjectOutlets(int &id);
     void            removeObject(int &id);
     void            iconifyObject(int &id);
     void            duplicateObject(int &id);

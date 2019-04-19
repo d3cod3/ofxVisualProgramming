@@ -45,6 +45,10 @@ OscSender::OscSender() : PatchObject(){
 
     osc_port            = 12345;
     osc_host            = "localhost";
+
+    _tempPixels         = new ofPixels();
+    _tempImage          = new ofImage();
+    _tempBuffer         = new ofBuffer();
 }
 
 //--------------------------------------------------------------
@@ -91,6 +95,9 @@ void OscSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     addOSCVector = gui->addButton("ADD OSC VECTOR");
     addOSCVector->setUseCustomMouse(true);
     addOSCVector->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+    addOSCTexture = gui->addButton("ADD OSC IMAGE");
+    addOSCTexture->setUseCustomMouse(true);
+    addOSCTexture->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 
     gui->addBreak();
 
@@ -116,6 +123,7 @@ void OscSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     addOSCNumber->update();
     addOSCText->update();
     addOSCVector->update();
+    addOSCTexture->update();
 
     for(size_t l=0;l<labels.size();l++){
         labels.at(l)->update();
@@ -124,17 +132,47 @@ void OscSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     for(int i=0;i<this->getNumInlets();i++){
         if(this->inletsConnected[i]){
             ofxOscMessage m;
+            bool messageOK = false;
             m.setAddress(osc_labels.at(i));
             if(this->getInletType(i) == VP_LINK_NUMERIC){
                 m.addFloatArg(*(float *)&_inletParams[i]);
+                messageOK = true;
             }else if(this->getInletType(i) == VP_LINK_STRING){
                 m.addStringArg(*static_cast<string *>(_inletParams[i]));
+                messageOK = true;
             }else if(this->getInletType(i) == VP_LINK_ARRAY){
                 for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
                     m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
                 }
+                messageOK = true;
+            }else if(this->getInletType(i) == VP_LINK_TEXTURE){
+                // note: the size of the image depends greatly on your network buffer sizes,
+                // if an image is too big the message won't come through
+                if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight() < 327680){
+                    static_cast<ofTexture *>(_inletParams[i])->readToPixels(*_tempPixels);
+                    m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getWidth());
+                    m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getHeight());
+                    if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
+                        _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_GRAYSCALE);
+                        m.addInt32Arg(OF_IMAGE_GRAYSCALE);
+                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
+                        _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR);
+                        m.addInt32Arg(OF_IMAGE_COLOR);
+                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
+                        _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR_ALPHA);
+                        m.addInt32Arg(OF_IMAGE_COLOR_ALPHA);
+                    }
+                    _tempImage->save(*_tempBuffer);
+                    m.addBlobArg(*_tempBuffer);
+                    _tempBuffer->clear();
+                    messageOK = true;
+                }else{
+                    ofLog(OF_LOG_ERROR,"The image you're trying to send via OSC is too big! Please choose an image below 640x480");
+                }
             }
-            osc_sender.sendMessage(m,false);
+            if(messageOK){
+                osc_sender.sendMessage(m,false);
+            }
         }
     }
 
@@ -149,6 +187,11 @@ void OscSender::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
+void OscSender::removeObjectContent(){
+
+}
+
+//--------------------------------------------------------------
 void OscSender::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -157,6 +200,7 @@ void OscSender::mouseMovedObjectContent(ofVec3f _m){
     addOSCNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     addOSCText->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     addOSCVector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    addOSCTexture->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     for(size_t l=0;l<labels.size();l++){
         labels.at(l)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -164,7 +208,7 @@ void OscSender::mouseMovedObjectContent(ofVec3f _m){
 
     if(!header->getIsCollapsed()){
         this->isOverGUI = header->hitTest(_m-this->getPos()) || host->hitTest(_m-this->getPos()) || port->hitTest(_m-this->getPos())
-                          || addOSCNumber->hitTest(_m-this->getPos()) || addOSCText->hitTest(_m-this->getPos()) || addOSCVector->hitTest(_m-this->getPos());
+                          || addOSCNumber->hitTest(_m-this->getPos()) || addOSCText->hitTest(_m-this->getPos()) || addOSCVector->hitTest(_m-this->getPos()) || addOSCTexture->hitTest(_m-this->getPos());
 
         for(size_t l=0;l<labels.size();l++){
             this->isOverGUI = labels.at(l)->hitTest(_m-this->getPos());
@@ -184,6 +228,7 @@ void OscSender::dragGUIObject(ofVec3f _m){
         addOSCNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         addOSCText->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         addOSCVector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        addOSCTexture->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
         for(size_t l=0;l<labels.size();l++){
             labels.at(l)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -233,7 +278,7 @@ void OscSender::initInlets(){
                         for (int t=0;t<totalOutlets;t++){
                             if(XML.pushTag("var",t)){
                                 if(XML.getValue("name","") != "PORT"){
-                                    if(tempTypes.at(tempCounter) == 0){
+                                    if(tempTypes.at(tempCounter) == 0){ // float
                                         _inletParams[tempCounter] = new float();
                                         *(float *)&_inletParams[tempCounter] = 0.0f;
                                         ofxDatGuiTextInput* temp;
@@ -243,7 +288,7 @@ void OscSender::initInlets(){
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
                                         tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 1){
+                                    }else if(tempTypes.at(tempCounter) == 1){ // string
                                         _inletParams[tempCounter] = new string();  // control
                                         *static_cast<string *>(_inletParams[tempCounter]) = "";
                                         ofxDatGuiTextInput* temp;
@@ -253,10 +298,19 @@ void OscSender::initInlets(){
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
                                         tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 2){
+                                    }else if(tempTypes.at(tempCounter) == 2){ // vector<float>
                                         _inletParams[tempCounter] = new vector<float>();
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("V",XML.getValue("name",""));
+                                        temp->setUseCustomMouse(true);
+                                        labels.push_back(temp);
+                                        osc_labels.push_back(XML.getValue("name",""));
+                                        gui->setWidth(this->width);
+                                        tempCounter++;
+                                    }else if(tempTypes.at(tempCounter) == 3){ // ofTexture
+                                        _inletParams[tempCounter] = new ofTexture();
+                                        ofxDatGuiTextInput* temp;
+                                        temp = gui->addTextInput("I",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
@@ -330,6 +384,23 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
             gui->setWidth(this->width);
 
             this->setCustomVar(0.0f,"/labelvector");
+
+            this->numInlets++;
+
+            this->saveConfig(false,this->nId);
+        }else if(e.target == addOSCTexture){
+            _inletParams[this->numInlets] = new ofTexture();
+            this->addInlet(VP_LINK_TEXTURE,"image");
+            this->inletsConnected.push_back(false);
+
+            ofxDatGuiTextInput* temp;
+            temp = gui->addTextInput("I","/labelimage");
+            temp->setUseCustomMouse(true);
+            labels.push_back(temp);
+            osc_labels.push_back("/labelimage");
+            gui->setWidth(this->width);
+
+            this->setCustomVar(0.0f,"/labelimage");
 
             this->numInlets++;
 

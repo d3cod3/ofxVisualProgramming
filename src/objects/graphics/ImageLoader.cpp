@@ -122,6 +122,11 @@ void ImageLoader::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
         loadImgFlag = false;
         fd.openFile("load imagefile"+ofToString(this->getId()),"Select an image file");
     }
+
+    if(isImageLoaded){
+        isImageLoaded = false;
+        loadImageFile();
+    }
     
 }
 
@@ -182,7 +187,7 @@ void ImageLoader::dragGUIObject(ofVec3f _m){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         imgName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    imgRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        imgRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
@@ -206,9 +211,10 @@ void ImageLoader::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         ofFile file (response.filepath);
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "GIF" || fileExtension == "JPG" || fileExtension == "JPEG" || fileExtension == "TIF" || fileExtension == "TIFF") {
+            if(fileExtension == "PNG" || fileExtension == "GIF" || fileExtension == "JPG" || fileExtension == "JPEG" || fileExtension == "TIF" || fileExtension == "TIFF") {
                 filepath = file.getAbsolutePath();
-                isImageLoaded = true;
+                isImageLoaded= true;
+                isFileLoaded = false;
             }
         }
     }

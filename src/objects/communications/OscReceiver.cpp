@@ -46,6 +46,8 @@ OscReceiver::OscReceiver() : PatchObject(){
     osc_port            = 12345;
     local_ip            = "0.0.0.0";
 
+    _tempImage          = new ofImage();
+
 }
 
 //--------------------------------------------------------------
@@ -87,6 +89,9 @@ void OscReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     addOSCVector = gui->addButton("ADD OSC VECTOR");
     addOSCVector->setUseCustomMouse(true);
     addOSCVector->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+    addOSCTexture = gui->addButton("ADD OSC IMAGE");
+    addOSCTexture->setUseCustomMouse(true);
+    addOSCTexture->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 
     gui->addBreak();
 
@@ -109,6 +114,7 @@ void OscReceiver::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
     addOSCNumber->update();
     addOSCText->update();
     addOSCVector->update();
+    addOSCTexture->update();
 
     for(size_t l=0;l<labels.size();l++){
         labels.at(l)->update();
@@ -138,6 +144,22 @@ void OscReceiver::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
                                 static_cast<vector<float> *>(_outletParams[i])->push_back(m.getArgAsFloat(a));
                             }
                         }
+                    }else if(this->getOutletType(i) == VP_LINK_TEXTURE){
+                        // note: the size of the image depends greatly on your network buffer sizes,
+                        // if an image is too big the message won't come through
+                        if(m.getNumArgs() == 4 && m.getArgType(2) == OFXOSC_TYPE_INT32 && m.getArgType(3) == OFXOSC_TYPE_BLOB){
+                            _tempImage->load(m.getArgAsBlob(3));
+                            if(m.getArgAsInt32(2) == OF_IMAGE_GRAYSCALE){
+                                static_cast<ofTexture *>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_LUMINANCE);
+                                static_cast<ofTexture *>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_LUMINANCE);
+                            }else if(m.getArgAsInt32(2) == OF_IMAGE_COLOR){
+                                static_cast<ofTexture *>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_RGB);
+                                static_cast<ofTexture *>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_RGB);
+                            }else if(m.getArgAsInt32(2) == OF_IMAGE_COLOR_ALPHA){
+                                static_cast<ofTexture *>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_RGBA);
+                                static_cast<ofTexture *>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_RGB);
+                            }
+                        }
                     }
                     break;
                 }
@@ -155,6 +177,13 @@ void OscReceiver::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
+void OscReceiver::removeObjectContent(){
+    if(osc_receiver.isListening()){
+        osc_receiver.stop();
+    }
+}
+
+//--------------------------------------------------------------
 void OscReceiver::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -162,6 +191,7 @@ void OscReceiver::mouseMovedObjectContent(ofVec3f _m){
     addOSCNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     addOSCText->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     addOSCVector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    addOSCTexture->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     for(size_t l=0;l<labels.size();l++){
         labels.at(l)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
@@ -169,7 +199,7 @@ void OscReceiver::mouseMovedObjectContent(ofVec3f _m){
 
     if(!header->getIsCollapsed()){
         this->isOverGUI = header->hitTest(_m-this->getPos()) || port->hitTest(_m-this->getPos())
-                          || addOSCNumber->hitTest(_m-this->getPos()) || addOSCText->hitTest(_m-this->getPos()) || addOSCVector->hitTest(_m-this->getPos());
+                          || addOSCNumber->hitTest(_m-this->getPos()) || addOSCText->hitTest(_m-this->getPos()) || addOSCVector->hitTest(_m-this->getPos()) || addOSCTexture->hitTest(_m-this->getPos());
 
         for(size_t l=0;l<labels.size();l++){
             this->isOverGUI = labels.at(l)->hitTest(_m-this->getPos());
@@ -188,6 +218,7 @@ void OscReceiver::dragGUIObject(ofVec3f _m){
         addOSCNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         addOSCText->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         addOSCVector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        addOSCTexture->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -253,6 +284,22 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             gui->setWidth(this->width);
 
             this->setCustomVar(0.0f,"/labelvector");
+
+            this->numOutlets++;
+
+            resetOutlets();
+        }else if(e.target == addOSCTexture){
+            _outletParams[this->numOutlets] = new ofTexture();
+            this->addOutlet(VP_LINK_TEXTURE);
+
+            ofxDatGuiTextInput* temp;
+            temp = gui->addTextInput("I","/labelimage");
+            temp->setUseCustomMouse(true);
+            labels.push_back(temp);
+            osc_labels.push_back("/labelimage");
+            gui->setWidth(this->width);
+
+            this->setCustomVar(0.0f,"/labelimage");
 
             this->numOutlets++;
 
@@ -338,6 +385,15 @@ void OscReceiver::initOutlets(){
                                         _outletParams[tempCounter] = new vector<float>();
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("V",XML.getValue("name",""));
+                                        temp->setUseCustomMouse(true);
+                                        labels.push_back(temp);
+                                        osc_labels.push_back(XML.getValue("name",""));
+                                        gui->setWidth(this->width);
+                                        tempCounter++;
+                                    }else if(tempTypes.at(tempCounter) == 3){
+                                        _outletParams[tempCounter] = new ofTexture();
+                                        ofxDatGuiTextInput* temp;
+                                        temp = gui->addTextInput("I",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));

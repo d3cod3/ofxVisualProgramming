@@ -38,8 +38,10 @@
 
 #define TIMELINE_CURVE_TRACK    0
 #define TIMELINE_BANG_TRACK     1
-#define TIMELINE_COLOR_TRACK    2
-#define TIMELINE_LFO_TRACK      3
+#define TIMELINE_SWITCH_TRACK   2
+#define TIMELINE_COLOR_TRACK    3
+#define TIMELINE_LFO_TRACK      4
+#define TIMELINE_MIDI_TRACK     5
 
 class moTimeline : public PatchObject {
 
@@ -63,6 +65,7 @@ public:
     void            loadTimelineData(string folder);
     void            saveTimelineData(string folder);
     void            updateOutletsConfig();
+    void            saveOutletConfig();
     void            resetOutlets();
     void            removeTrack(string &trackName);
 
@@ -94,6 +97,7 @@ public:
     int                                     sameNameAvoider;
     int                                     durationInSeconds;
     int                                     fps;
+    float                                   bpm;
     int                                     lastTrackID;
     bool                                    timelineLoaded;
     bool                                    resetTimelineOutlets;
@@ -109,11 +113,16 @@ public:
     ofxDatGuiButton*                        setDuration;
     ofxDatGuiTextInput*                     guiFPS;
     ofxDatGuiButton*                        setFPS;
+    ofxDatGuiTextInput*                     guiBPM;
+    ofxDatGuiButton*                        setBPM;
+    ofxDatGuiButton*                        showBPMGrid;
     ofxDatGuiTextInput*                     guiTrackName;
     ofxDatGuiButton*                        addCurveTrack;
     ofxDatGuiButton*                        addBangTrack;
+    ofxDatGuiButton*                        addSwitchTrack;
     ofxDatGuiButton*                        addColorTrack;
     ofxDatGuiButton*                        addLFOTrack;
+    ofxDatGuiButton*                        addMIDITrack;
     ofxDatGuiButton*                        loadTimeline;
     ofxDatGuiButton*                        saveTimeline;
 
@@ -123,6 +132,9 @@ public:
     bool                                    loadedTimelineConfig;
     bool                                    savedTimelineConfig;
 
+    bool                                    loadedObjectFromXML;
     bool                                    autoRemove;
+    size_t                                  startTime;
+    size_t                                  waitTime;
 
 };

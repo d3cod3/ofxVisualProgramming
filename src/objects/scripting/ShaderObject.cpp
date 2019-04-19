@@ -56,8 +56,8 @@ ShaderObject::ShaderObject() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width    = 800;
-    output_height   = 600;
+    output_width    = 1280;
+    output_height   = 720;
 
     nTextures       = 0;
     internalFormat  = GL_RGBA;
@@ -382,26 +382,12 @@ void ShaderObject::doFragmentShader(){
         this->inlets.clear();
         this->inletsNames.clear();
 
+        // add texture(s) inlets
         for( int i = 0; i < nTextures; i++){
             this->addInlet(VP_LINK_TEXTURE,"texture"+ofToString((i+1)));
         }
 
     }
-
-    this->inletsConnected.clear();
-    for(int i=0;i<this->numInlets;i++){
-        if(i<static_cast<int>(tempInletsConn.size())){
-            if(tempInletsConn.at(i)){
-                this->inletsConnected.push_back(true);
-            }else{
-                this->inletsConnected.push_back(false);
-            }
-        }else{
-            this->inletsConnected.push_back(false);
-        }
-    }
-
-    ofNotifyEvent(this->resetEvent, this->nId);
 
     loadGUI();
 
@@ -432,6 +418,12 @@ void ShaderObject::doFragmentShader(){
 
             shaderSliders.push_back(tempSlider);
             shaderSlidersIndex.push_back(i);
+
+            _inletParams[this->numInlets] = new float();
+            *(float *)&_inletParams[this->numInlets] = 0.0f;
+            this->numInlets++;
+            this->addInlet(VP_LINK_NUMERIC,varName);
+
         }else{
             break;
         }
@@ -456,11 +448,32 @@ void ShaderObject::doFragmentShader(){
             }
             shaderSliders.push_back(tempSlider);
             shaderSlidersIndex.push_back(i);
+
+            _inletParams[this->numInlets] = new float();
+            *(float *)&_inletParams[this->numInlets] = 0.0f;
+            this->numInlets++;
+            this->addInlet(VP_LINK_NUMERIC,varName);
+
         }else{
             break;
         }
     }
     gui->setWidth(this->width);
+
+    this->inletsConnected.clear();
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }else{
+            this->inletsConnected.push_back(false);
+        }
+    }
+
+    ofNotifyEvent(this->resetEvent, this->nId);
 
     this->saveConfig(false,this->nId);
 

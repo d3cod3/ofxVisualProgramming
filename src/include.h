@@ -59,7 +59,9 @@
 #include "objects/communications/KeyReleased.h"
 #include "objects/communications/MidiKnob.h"
 #include "objects/communications/MidiPad.h"
+#include "objects/communications/MidiScore.h"
 #include "objects/communications/MidiReceiver.h"
+#include "objects/communications/MidiSender.h"
 #include "objects/communications/OscReceiver.h"
 #include "objects/communications/OscSender.h"
 
@@ -139,6 +141,7 @@
 #include "objects/sound/AudioDevice.h"
 #include "objects/sound/AudioGate.h"
 #include "objects/sound/Mixer.h"
+#include "objects/sound/NoteToFrequency.h"
 #include "objects/sound/Oscillator.h"
 #include "objects/sound/OscTriangle.h"
 #include "objects/sound/OscSaw.h"

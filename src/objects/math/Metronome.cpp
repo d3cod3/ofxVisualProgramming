@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 Metronome::Metronome() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 1;
 
     _inletParams[0] = new float(); // time
@@ -53,12 +53,16 @@ Metronome::Metronome() : PatchObject(){
     resetTime = ofGetElapsedTimeMillis();
     metroTime = ofGetElapsedTimeMillis();
 
+    sync                = false;
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
 void Metronome::newObject(){
     this->setName("metronome");
     this->addInlet(VP_LINK_NUMERIC,"time");
+    this->addInlet(VP_LINK_NUMERIC,"sync");
     this->addOutlet(VP_LINK_NUMERIC);
 
     this->setCustomVar(static_cast<float>(wait),"TIME");
@@ -99,6 +103,14 @@ void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
         this->setCustomVar(static_cast<float>(wait),"TIME");
     }
 
+    if(this->inletsConnected[1]){
+        sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
+    }
+
+    if(sync){
+        resetTime = ofGetElapsedTimeMillis();
+    }
+
     if(metroTime-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
         *(float *)&_outletParams[0] = 1.0f;
@@ -107,6 +119,11 @@ void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     }
 
     rPlotter->setValue(*(float *)&_outletParams[0]);
+
+    if(!loaded){
+        loaded = true;
+        timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
+    }
 }
 
 //--------------------------------------------------------------

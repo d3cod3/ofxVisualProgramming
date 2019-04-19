@@ -74,6 +74,7 @@ void MidiReceiver::newObject(){
 void MidiReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setTheme(new ofxDatGuiThemeCharcoal());
     gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);
     gui->setWidth(this->width);
@@ -147,6 +148,8 @@ void MidiReceiver::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
 //--------------------------------------------------------------
 void MidiReceiver::drawObjectContent(ofxFontStash *font){
+    ofSetColor(30,31,36);
+    ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);
     ofEnableAlphaBlending();
     string temp = "";
@@ -170,7 +173,9 @@ void MidiReceiver::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void MidiReceiver::removeObjectContent(){
-    midiIn.closePort();
+    if(midiIn.isOpen()){
+        midiIn.closePort();
+    }
     midiIn.removeListener(this);
 }
 

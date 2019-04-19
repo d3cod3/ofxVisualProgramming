@@ -46,6 +46,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
+    void            removeObjectContent();
 
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
@@ -70,5 +71,8 @@ public:
     ofxDatGuiButton*                addOSCNumber;
     ofxDatGuiButton*                addOSCText;
     ofxDatGuiButton*                addOSCVector;
+    ofxDatGuiButton*                addOSCTexture;
+
+    ofImage                         *_tempImage;
 
 };

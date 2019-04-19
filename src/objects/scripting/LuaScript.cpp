@@ -61,8 +61,8 @@ LuaScript::LuaScript() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width        = 800;
-    output_height       = 600;
+    output_width        = 1280;
+    output_height       = 720;
 
     mosaicTableName = "_mosaic_data_inlet";
     luaTablename    = "_mosaic_data_outlet";
@@ -93,23 +93,6 @@ void LuaScript::newObject(){
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
-}
-
-//--------------------------------------------------------------
-void LuaScript::threadedFunction(){
-    while(isThreadRunning()){
-        std::unique_lock<std::mutex> lock(mutex);
-        if(needToLoadScript){
-            needToLoadScript = false;
-            loadScript(filepath);
-            threadLoaded = true;
-            nameLabelLoaded = true;
-            setupTrigger = false;
-        }
-        condition.wait(lock);
-        sleep(10);
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -174,9 +157,6 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         ofFile file (ofToDataPath("scripts/empty.lua"));
         filepath = file.getAbsolutePath();
     }
-    if(!isThreadRunning()){
-        startThread();
-    }
 
 }
 
@@ -195,6 +175,14 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     editButton->update();
     clearButton->update();
     reloadButton->update();
+
+    if(needToLoadScript){
+        needToLoadScript = false;
+        loadScript(filepath);
+        threadLoaded = true;
+        nameLabelLoaded = true;
+        setupTrigger = false;
+    }
 
     if(loadLuaScriptFlag){
         loadLuaScriptFlag = false;
@@ -313,7 +301,6 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
-    condition.notify_one();
 }
 
 //--------------------------------------------------------------
@@ -344,9 +331,6 @@ void LuaScript::removeObjectContent(){
     // LUA EXIT
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
     ///////////////////////////////////////////
-    if(isThreadRunning()){
-        stopThread();
-    }
 }
 
 //--------------------------------------------------------------

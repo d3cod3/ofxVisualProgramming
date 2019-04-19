@@ -215,6 +215,7 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
             *static_cast<string *>(_outletParams[0]) = "unpause";
         }
         this->setCustomVar(static_cast<float>(e.checked),"PAUSE");
+        this->saveConfig(false,this->nId);
     }else if(e.target == loopButton){
         if(e.checked){
             *static_cast<string *>(_outletParams[0]) = "loop_normal";
@@ -222,6 +223,7 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
             *static_cast<string *>(_outletParams[0]) = "loop_none";
         }
         this->setCustomVar(static_cast<float>(e.checked),"LOOP");
+        this->saveConfig(false,this->nId);
     }
 
 }
