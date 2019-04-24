@@ -60,6 +60,8 @@ VideoDelay::VideoDelay() : PatchObject(){
     scaleTo         = 1;
     needToGrab      = false;
 
+    loaded          = false;
+
 }
 
 //--------------------------------------------------------------

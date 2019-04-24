@@ -438,7 +438,7 @@ void ShaderObject::doFragmentShader(){
             string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
             ofxDatGuiSlider* tempSlider = gui->addSlider(varName,0,30,0);
             tempSlider->setUseCustomMouse(true);
-            tempSlider->setPrecision(0,true);
+            tempSlider->setPrecision(0);
             map<string,float>::const_iterator it = tempVars.find("GUI_INT_"+varName);
             if(it!=tempVars.end()){
                 this->setCustomVar(it->second,"GUI_INT_"+varName);
