@@ -41,6 +41,7 @@ install:
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxInfiniteCanvas openframeworks/addons/ofxInfiniteCanvas
 - git clone --depth=1 --branch=of-0.10.0 https://github.com/d3cod3/ofxLua openframeworks/addons/ofxLua
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxMidi openframeworks/addons/ofxMidi
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxMtlMapping2D openframeworks/addons/ofxMtlMapping2D
 - git clone --depth=1 --branch=master https://github.com/danomatika/ofxPd openframeworks/addons/ofxPd
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxPdExternals openframeworks/addons/ofxPdExternals
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxParagraph openframeworks/addons/ofxParagraph

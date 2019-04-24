@@ -3,7 +3,7 @@
 
 > A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua and Python scripting interpreter, plus live compile of GLSL Shaders version 120 and live editing/execute Bash scripts(macOS & linux) capabilities.
 
-![Mosaic pre_alpha_0.1.0](https://github.com/d3cod3/Mosaic/raw/master/process/img/09_we_are_near_alpha_station.png)
+![Mosaic 0.1.7](https://github.com/d3cod3/Mosaic/raw/master/process/img/20_jupiterBlues.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
 Operating system | Status
@@ -91,6 +91,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxMidi](https://github.com/d3cod3/ofxMidi)
 
+#### [ofxMtlMapping2D](https://github.com/d3cod3/ofxMtlMapping2D)
+
 #### [ofxParagraph](https://github.com/d3cod3/ofxParagraph)
 
 #### [ofxPd](https://github.com/danomatika/ofxPd)
@@ -140,6 +142,7 @@ git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
 git clone https://github.com/d3cod3/ofxMidi
+git clone https://github.com/d3cod3/ofxMtlMapping2D
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
 git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/danomatika/ofxPd

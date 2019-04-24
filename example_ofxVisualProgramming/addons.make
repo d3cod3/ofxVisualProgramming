@@ -22,6 +22,7 @@ ofxJSON
 ofxInfiniteCanvas
 ofxLua
 ofxMidi
+ofxMtlMapping2D
 ofxParagraph
 ofxPd
 ofxPdExternals

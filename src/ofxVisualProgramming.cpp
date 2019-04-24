@@ -82,13 +82,13 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video delay","video gate","video grabber","video player"};
+    vecInit = {"kinect grabber","video crop","video delay","video gate","video grabber","video player"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
     objectsMatrix["web"] = vecInit;
 
-    vecInit = {"live patching","output window"};
+    vecInit = {"live patching","output window","projection mapping"};
     objectsMatrix["windowing"] = vecInit;
 
 }
@@ -1274,6 +1274,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoGrabber();
     }else if(objname == "video delay"){
         tempObj = new VideoDelay();
+    }else if(objname == "video crop"){
+        tempObj = new VideoCrop();
     }else if(objname == "video gate"){
         tempObj = new VideoGate();
     // -------------------------------------- WINDOWING
@@ -1281,6 +1283,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new LivePatching();
     }else if(objname == "output window"){
         tempObj = new OutputWindow();
+    }else if(objname == "projection mapping"){
+        tempObj = new ProjectionMapping();
     // -------------------------------------- COMPUTER VISION
     }else if(objname == "background subtraction"){
         tempObj = new BackgroundSubtraction();

@@ -159,6 +159,7 @@
 
 // video objects
 #include "objects/video/KinectGrabber.h"
+#include "objects/video/VideoCrop.h"
 #include "objects/video/VideoDelay.h"
 #include "objects/video/VideoGate.h"
 #include "objects/video/VideoGrabber.h"
@@ -169,3 +170,4 @@
 // window objects
 #include "objects/windowing/LivePatching.h"
 #include "objects/windowing/OutputWindow.h"
+#include "objects/windowing/ProjectionMapping.h"
