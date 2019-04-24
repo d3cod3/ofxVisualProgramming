@@ -37,10 +37,12 @@
 //--------------------------------------------------------------
 ProjectionMapping::ProjectionMapping() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // source
+    _inletParams[1] = new ofTexture();  // background
+
     _outletParams[0] = new ofTexture();  // mapping
 
     this->initInletsState();
@@ -76,9 +78,8 @@ ProjectionMapping::ProjectionMapping() : PatchObject(){
 void ProjectionMapping::newObject(){
     this->setName("projection mapping");
     this->addInlet(VP_LINK_TEXTURE,"source");
+    this->addInlet(VP_LINK_TEXTURE,"background");
     this->addOutlet(VP_LINK_TEXTURE);
-
-
 }
 
 //--------------------------------------------------------------
@@ -120,7 +121,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     _mapping->init(output_width,output_height,ofToDataPath("mapping/default.xml"));
 
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
+        ofLog(OF_LOG_NOTICE,"%s: PROJECTION MAPPING CREATED WITH OUTPUT RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
     }
 
     // GUI
@@ -301,8 +302,24 @@ void ProjectionMapping::updateInWindow(ofEventArgs &e){
 void ProjectionMapping::drawInWindow(ofEventArgs &e){
     ofBackground(0);
 
+    _mapping->bindBackground();
+    if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
+        // mapping reference background
+        static_cast<ofTexture *>(_inletParams[1])->draw(0,0,output_width,output_height);
+    }else{
+        ofSetColor(0);
+        ofDrawRectangle(0,0,output_width,output_height);
+    }
+    _mapping->unbindBackground();
+
     _mapping->bind();
-    static_cast<ofTexture *>(_inletParams[0])->draw(0,0,output_width,output_height);
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        // base
+        static_cast<ofTexture *>(_inletParams[0])->draw(0,0,output_width,output_height);
+    }else{
+        ofSetColor(0);
+        ofDrawRectangle(0,0,output_width,output_height);
+    }
     _mapping->unbind();
 
     _mapping->draw();
