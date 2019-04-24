@@ -86,6 +86,8 @@ public:
     // Virtual Methods
     virtual void            newObject() {}
 
+    virtual void            autoloadFile(string _fp) {}
+
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd) {}

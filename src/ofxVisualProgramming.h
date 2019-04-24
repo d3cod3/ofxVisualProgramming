@@ -74,6 +74,7 @@ public:
 
     PatchObject*    selectObject(string objname);
     void            addObject(string name, ofVec2f pos);
+    PatchObject*    getLastAddedObject();
 
     void            dragObject(int &id);
     void            resetObject(int &id);
@@ -125,6 +126,7 @@ public:
     bool                    draggingObject;
     int                     draggingObjectID;
     int                     actualObjectID;
+    int                     lastAddedObjectID;
     bool                    bLoadingNewObject;
     bool                    bLoadingNewPatch;
 

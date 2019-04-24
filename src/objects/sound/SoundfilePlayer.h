@@ -40,6 +40,7 @@ public:
 
     SoundfilePlayer();
 
+    void            autoloadFile(string _fp);
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            setupAudioOutObjectContent(pdsp::Engine &engine);

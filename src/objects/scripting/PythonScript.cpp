@@ -75,6 +75,12 @@ void PythonScript::newObject(){
 }
 
 //--------------------------------------------------------------
+void PythonScript::autoloadFile(string _fp){
+    lastPythonScript = _fp;
+    pythonScriptLoaded = true;
+}
+
+//--------------------------------------------------------------
 void PythonScript::threadedFunction(){
     while(isThreadRunning()){
         std::unique_lock<std::mutex> lock(mutex);

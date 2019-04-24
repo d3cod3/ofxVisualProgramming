@@ -84,6 +84,12 @@ void VideoPlayer::newObject(){
 }
 
 //--------------------------------------------------------------
+void VideoPlayer::autoloadFile(string _fp){
+    this->filepath = _fp;
+    reloadVideoThreaded();
+}
+
+//--------------------------------------------------------------
 void VideoPlayer::threadedFunction(){
     while(isThreadRunning()){
         std::unique_lock<std::mutex> lock(mutex);

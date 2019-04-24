@@ -96,6 +96,12 @@ void LuaScript::newObject(){
 }
 
 //--------------------------------------------------------------
+void LuaScript::autoloadFile(string _fp){
+    lastLuaScript = _fp;
+    luaScriptLoaded = true;
+}
+
+//--------------------------------------------------------------
 void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     initResolution();
 

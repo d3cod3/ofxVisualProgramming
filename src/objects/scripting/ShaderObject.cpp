@@ -83,6 +83,12 @@ void ShaderObject::newObject(){
 }
 
 //--------------------------------------------------------------
+void ShaderObject::autoloadFile(string _fp){
+    lastShaderScript = _fp;
+    shaderScriptLoaded = true;
+}
+
+//--------------------------------------------------------------
 void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     initResolution();
 

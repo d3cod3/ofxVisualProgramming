@@ -133,6 +133,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     selectedObjectLink      = -1;
     selectedObjectID        = -1;
     draggingObjectID        = -1;
+    lastAddedObjectID       = -1;
     draggingObject          = false;
     bLoadingNewObject       = false;
     bLoadingNewPatch        = false;
@@ -672,9 +673,20 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     if(saved){
         patchObjects[tempObj->getId()] = tempObj;
         patchObjects[tempObj->getId()]->fixCollisions(patchObjects);
+        lastAddedObjectID = tempObj->getId();
     }
 
     bLoadingNewObject       = false;
+
+}
+
+//--------------------------------------------------------------
+PatchObject* ofxVisualProgramming::getLastAddedObject(){
+    if(lastAddedObjectID != -1){
+        return patchObjects[lastAddedObjectID];
+    }else{
+        return nullptr;
+    }
 
 }
 
@@ -1459,6 +1471,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                         // Insert the new patch into the map
                         patchObjects[tempObj->getId()] = tempObj;
                         actualObjectID = tempObj->getId();
+                        lastAddedObjectID = tempObj->getId();
                     }
                 }
                 XML.popTag();

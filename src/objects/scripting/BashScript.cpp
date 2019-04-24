@@ -72,6 +72,13 @@ void BashScript::newObject(){
 }
 
 //--------------------------------------------------------------
+void BashScript::autoloadFile(string _fp){
+    threadLoaded = false;
+    filepath = _fp;
+    reloadScriptThreaded();
+}
+
+//--------------------------------------------------------------
 void BashScript::threadedFunction(){
     while(isThreadRunning()){
         std::unique_lock<std::mutex> lock(mutex);
@@ -250,7 +257,7 @@ void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         ofFile file (response.filepath);
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "SH" || fileExtension == "CMD") {
+            if(fileExtension == "SH") {
                 threadLoaded = false;
                 filepath = file.getAbsolutePath();
                 reloadScriptThreaded();

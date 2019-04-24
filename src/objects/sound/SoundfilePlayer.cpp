@@ -91,6 +91,13 @@ void SoundfilePlayer::newObject(){
 }
 
 //--------------------------------------------------------------
+void SoundfilePlayer::autoloadFile(string _fp){
+    lastSoundfile = _fp;
+    soundfileLoaded = true;
+    startTime = ofGetElapsedTimeMillis();
+}
+
+//--------------------------------------------------------------
 void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     loadSettings();

@@ -94,6 +94,12 @@ void PDPatch::newObject(){
 }
 
 //--------------------------------------------------------------
+void PDPatch::autoloadFile(string _fp){
+    lastLoadedPatch = _fp;
+    patchLoaded = true;
+}
+
+//--------------------------------------------------------------
 void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // init PD engine
     loadAudioSettings();

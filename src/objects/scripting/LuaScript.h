@@ -47,6 +47,7 @@ public:
 
     LuaScript();
 
+    void            autoloadFile(string _fp);
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
