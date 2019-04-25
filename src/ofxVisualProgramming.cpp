@@ -82,7 +82,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video crop","video delay","video gate","video grabber","video player"};
+    vecInit = {"kinect grabber","video crop","video delay","video exporter","video gate","video grabber","video player"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -336,7 +336,7 @@ void ofxVisualProgramming::draw(){
     }
 
 
-    ofDisableBlendMode();
+    ofDisableAlphaBlending();
 
     ofPopMatrix();
     ofPopStyle();
@@ -982,9 +982,11 @@ void ofxVisualProgramming::iconifyObject(int &id){
 //--------------------------------------------------------------
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
-    if(patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching"){
+    if(patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching" && patchObjects[id]->getName() != "projection mapping"){
         ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
         addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
+    }else{
+        ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
     }
 }
 
@@ -1286,6 +1288,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoGrabber();
     }else if(objname == "video delay"){
         tempObj = new VideoDelay();
+    }else if(objname == "video exporter"){
+        tempObj = new VideoExporter();
     }else if(objname == "video crop"){
         tempObj = new VideoCrop();
     }else if(objname == "video gate"){

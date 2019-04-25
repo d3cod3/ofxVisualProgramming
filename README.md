@@ -75,6 +75,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
 
+#### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
+
 #### [ofxFontStash](https://github.com/d3cod3/ofxFontStash)
 
 #### [ofxGLEditor](https://github.com/d3cod3/ofxGLEditor)
@@ -134,6 +136,7 @@ git clone https://github.com/d3cod3/ofxBTrack
 git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/d3cod3/ofxDatGui
+git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
 git clone https://github.com/armadillu/ofxGLError
@@ -483,7 +486,6 @@ bash script | X |
 lua script | X |
 python script | X |
 shader object | X |
-pd patch | | X
 
 Sound | Ready | TODO
 ---------- | ---------- | ----------
@@ -522,6 +524,7 @@ Windowing | Ready | TODO
 ---------- | ---------- | ----------
 live patching | X |
 output window | X |
+projection mapping | X |
 
 # LICENSE
 
@@ -543,6 +546,8 @@ ofxCv original addon by [Kyle McDonald](https://github.com/kylemcdonald)
 
 ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
 
+ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
+
 ofxFontStash, ofxGLError, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
@@ -552,6 +557,8 @@ ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
 ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdonald)
 
 ofxLua, ofxMidi, ofxPd original addons by [Dan Wilcox](https://github.com/danomatika)
+
+ofxMtlMapping2D original addon by [morethanlogic](https://github.com/morethanlogic)
 
 ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
 

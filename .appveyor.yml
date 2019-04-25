@@ -33,6 +33,7 @@ install:
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxChromaKeyShader openframeworks/addons/ofxChromaKeyShader
 - git clone --depth=1 --branch=master https://github.com/kylemcdonald/ofxCv openframeworks/addons/ofxCv
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxDatGui openframeworks/addons/ofxDatGui
+- git clone --depth=1 --branch=master https://github.com/d3cod3/ofxFFmpegRecorder openframeworks/addons/ofxFFmpegRecorder
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxFontStash openframeworks/addons/ofxFontStash
 - git clone --depth=1 --branch=master https://github.com/d3cod3/ofxGLEditor openframeworks/addons/ofxGLEditor
 - git clone --depth=1 --branch=master https://github.com/armadillu/ofxGLError openframeworks/addons/ofxGLError
