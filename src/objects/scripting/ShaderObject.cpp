@@ -204,7 +204,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     if(scriptLoaded){
         // receive external data
         for(int i=0;i<this->numInlets;i++){
-            if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_TEXTURE && i < static_cast<int>(textures.size()) && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
                 textures[i]->begin();
                 static_cast<ofTexture *>(_inletParams[i])->draw(0,0,output_width, output_height);
                 textures[i]->end();
@@ -221,6 +221,12 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         }
         shader->setUniform2f("resolution",static_cast<float>(output_width),static_cast<float>(output_height));
         shader->setUniform1f("time",static_cast<float>(ofGetElapsedTimef()));
+
+        for(int i=0;i<this->numInlets;i++){
+            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_NUMERIC){
+                shaderSliders.at(i-static_cast<int>(textures.size()))->setValue(*(float *)&_inletParams[i]);
+            }
+        }
 
         // set custom shader vars
         string paramName, tempVarName;
