@@ -177,9 +177,16 @@ void ProjectionMapping::updateObjectContent(map<int,PatchObject*> &patchObjects,
         fd.saveFile("save mapping config"+ofToString(this->getId()),"Save mapping settings as","mappingSettings.xml");
     }
 
-    if(needReset){
+    // reset mapping textures resolution on inlet connection
+    if(this->inletsConnected[0]){
+        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            if(!needReset){
+                needReset = true;
+                resetResolution();
+            }
+        }
+    }else{
         needReset = false;
-        resetResolution();
     }
 
     // auto remove
@@ -329,7 +336,14 @@ void ProjectionMapping::drawInWindow(ofEventArgs &e){
 //--------------------------------------------------------------
 void ProjectionMapping::resetResolution(){
 
+    if(output_width != static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth()) || output_height != static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getHeight())){
+        output_width            = static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        output_height           = static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getHeight());
 
+        _mapping->reset(output_width,output_height);
+
+        ofLog(OF_LOG_NOTICE,"%s: PROJECTION MAPPING RESOLUTION CHANGED TO %ix%i",this->name.c_str(),output_width,output_height);
+    }
 
 }
 
