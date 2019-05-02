@@ -72,6 +72,8 @@ OutputWindow::OutputWindow() : PatchObject(){
     saveWarpingFlag     = false;
     warpingConfigLoaded = false;
 
+    loaded              = false;
+
     autoRemove          = false;
 }
 
@@ -84,6 +86,11 @@ void OutputWindow::newObject(){
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
     this->setCustomVar(static_cast<float>(0.0),"USE_MAPPING");
+    this->setCustomVar(1.0f,"EDGES_EXPONENT");
+    this->setCustomVar(0.5f,"EDGE_LEFT");
+    this->setCustomVar(0.5f,"EDGE_RIGHT");
+    this->setCustomVar(0.5f,"EDGE_TOP");
+    this->setCustomVar(0.5f,"EDGE_BOTTOM");
 }
 
 //--------------------------------------------------------------
@@ -141,6 +148,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->onToggleEvent(this, &OutputWindow::onToggleEvent);
     gui->onButtonEvent(this, &OutputWindow::onButtonEvent);
     gui->onTextInputEvent(this, &OutputWindow::onTextInputEvent);
+    gui->onSliderEvent(this, &OutputWindow::onSliderEvent);
 
     header = gui->addHeader("CONFIG",false);
     header->setUseCustomMouse(true);
@@ -155,6 +163,17 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->addBreak();
     useMapping = gui->addToggle("WARPING",static_cast<int>(floor(this->getCustomVar("USE_MAPPING"))));
     useMapping->setUseCustomMouse(true);
+    gui->addBreak();
+    edgesExponent = gui->addSlider("Exponent",0.8f,1.2f,this->getCustomVar("EDGES_EXPONENT"));
+    edgesExponent->setUseCustomMouse(true);
+    edgeL = gui->addSlider("Edge Left",0.0f,1.0f,this->getCustomVar("EDGE_LEFT"));
+    edgeL->setUseCustomMouse(true);
+    edgeR = gui->addSlider("Edge Right",0.0f,1.0f,this->getCustomVar("EDGE_RIGHT"));
+    edgeR->setUseCustomMouse(true);
+    edgeT = gui->addSlider("Edge Top",0.0f,1.0f,this->getCustomVar("EDGE_TOP"));
+    edgeT->setUseCustomMouse(true);
+    edgeB = gui->addSlider("Edge Bottom",0.0f,1.0f,this->getCustomVar("EDGE_BOTTOM"));
+    edgeB->setUseCustomMouse(true);
     gui->addBreak();
     loadWarping = gui->addButton("LOAD WARPING");
     loadWarping->setUseCustomMouse(true);
@@ -177,6 +196,11 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     guiTexHeight->update();
     applyButton->update();
     useMapping->update();
+    edgesExponent->update();
+    edgeL->update();
+    edgeR->update();
+    edgeT->update();
+    edgeB->update();
     loadWarping->update();
     saveWarping->update();
 
@@ -193,6 +217,11 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
             if(fileExtension == "JSON") {
                 filepath = file.getAbsolutePath();
                 warpController->loadSettings(filepath);
+                edgesExponent->setValue(this->getCustomVar("EDGES_EXPONENT"));
+                edgeL->setValue(this->getCustomVar("EDGE_LEFT"));
+                edgeR->setValue(this->getCustomVar("EDGE_RIGHT"));
+                edgeT->setValue(this->getCustomVar("EDGE_TOP"));
+                edgeB->setValue(this->getCustomVar("EDGE_BOTTOM"));
             }
         }
     }
@@ -241,6 +270,18 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     }
 
     isNewScriptConnected = this->inletsConnected[1];
+
+    if(!loaded){
+        loaded = true;
+        guiTexWidth->setText(ofToString(this->getCustomVar("OUTPUT_WIDTH")));
+        guiTexHeight->setText(ofToString(this->getCustomVar("OUTPUT_HEIGHT")));
+        useMapping->setChecked(static_cast<int>(floor(this->getCustomVar("USE_MAPPING"))));
+        edgesExponent->setValue(this->getCustomVar("EDGES_EXPONENT"));
+        edgeL->setValue(this->getCustomVar("EDGE_LEFT"));
+        edgeR->setValue(this->getCustomVar("EDGE_RIGHT"));
+        edgeT->setValue(this->getCustomVar("EDGE_TOP"));
+        edgeB->setValue(this->getCustomVar("EDGE_BOTTOM"));
+    }
 
     // auto remove
     if(window->getGLFWWindow() == nullptr && !autoRemove){
@@ -291,11 +332,18 @@ void OutputWindow::mouseMovedObjectContent(ofVec3f _m){
     guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     useMapping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    edgesExponent->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    edgeL->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    edgeR->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    edgeT->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    edgeB->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     saveWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos()) || useMapping->hitTest(_m-this->getPos()) || loadWarping->hitTest(_m-this->getPos()) || saveWarping->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos())
+                        || edgesExponent->hitTest(_m-this->getPos()) || edgeL->hitTest(_m-this->getPos()) || edgeR->hitTest(_m-this->getPos()) || edgeT->hitTest(_m-this->getPos()) || edgeB->hitTest(_m-this->getPos())
+                        || applyButton->hitTest(_m-this->getPos()) || useMapping->hitTest(_m-this->getPos()) || loadWarping->hitTest(_m-this->getPos()) || saveWarping->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -311,6 +359,11 @@ void OutputWindow::dragGUIObject(ofVec3f _m){
         guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         useMapping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        edgesExponent->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        edgeL->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        edgeR->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        edgeT->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        edgeB->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         saveWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
@@ -442,8 +495,8 @@ void OutputWindow::toggleWindowFullscreen(){
             }else{
                 shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
                 warp->setSize(window->getScreenSize().x,window->getScreenSize().y);
-                warp->setEdges(glm::vec4(0.2f, 0.2f, 0.2f, 0.2f));
-                warp->setExponent(1.2f);
+                warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+                warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
             }
         }
     }
@@ -531,8 +584,8 @@ void OutputWindow::resetResolution(){
             warpController = new ofxWarpController();
             shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
             warp->setSize(output_width,output_height);
-            warp->setEdges(glm::vec4(0.2f, 0.2f, 0.2f, 0.2f));
-            warp->setExponent(1.2f);
+            warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+            warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
 
             ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),output_width,output_height);
         }
@@ -713,5 +766,25 @@ void OutputWindow::onTextInputEvent(ofxDatGuiTextInputEvent e){
                 temp_height = output_height;
             }
         }
+    }
+}
+
+//--------------------------------------------------------------
+void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == edgesExponent){
+            this->setCustomVar(static_cast<float>(e.value),"EDGES_EXPONENT");
+        }else if(e.target == edgeL){
+            this->setCustomVar(static_cast<float>(e.value),"EDGE_LEFT");
+        }else if(e.target == edgeR){
+            this->setCustomVar(static_cast<float>(e.value),"EDGE_RIGHT");
+        }else if(e.target == edgeT){
+            this->setCustomVar(static_cast<float>(e.value),"EDGE_TOP");
+        }else if(e.target == edgeB){
+            this->setCustomVar(static_cast<float>(e.value),"EDGE_BOTTOM");
+        }
+
+        warpController->getWarp(0)->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+        warpController->getWarp(0)->setExponent(this->getCustomVar("EDGES_EXPONENT"));
     }
 }

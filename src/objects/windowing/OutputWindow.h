@@ -78,6 +78,7 @@ public:
     void            onToggleEvent(ofxDatGuiToggleEvent e);
     void            onButtonEvent(ofxDatGuiButtonEvent e);
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     shared_ptr<ofAppGLFWWindow>             window;
@@ -102,6 +103,11 @@ public:
     ofxDatGuiTextInput*                     guiTexHeight;
     ofxDatGuiButton*                        applyButton;
     ofxDatGuiToggle*                        useMapping;
+    ofxDatGuiSlider*                        edgesExponent;
+    ofxDatGuiSlider*                        edgeL;
+    ofxDatGuiSlider*                        edgeR;
+    ofxDatGuiSlider*                        edgeT;
+    ofxDatGuiSlider*                        edgeB;
     ofxDatGuiButton*                        loadWarping;
     ofxDatGuiButton*                        saveWarping;
 
@@ -110,6 +116,7 @@ public:
     bool                                    saveWarpingFlag;
     bool                                    warpingConfigLoaded;
 
+    bool                                    loaded;
     bool                                    autoRemove;
 
 };
