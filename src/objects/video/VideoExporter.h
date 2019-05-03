@@ -188,7 +188,7 @@ public:
     void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            onDropdownEvent(ofxDatGuiDropdownEvent e);
 
     ofxFFmpegRecorder   recorder;
     ofxFastFboReader    reader;
@@ -206,5 +206,8 @@ public:
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
     ofxDatGuiToggle*    recButton;
+    ofxDatGuiDropdown*  codecs;
+
+    vector<string>      codecsList;
 
 };

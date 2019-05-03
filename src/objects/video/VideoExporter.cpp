@@ -75,6 +75,15 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     recButton = gui->addToggle("REC");
     recButton->setUseCustomMouse(true);
     recButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+    gui->addBreak();
+    codecsList = {"hevc","libx264","jpeg2000","mjpeg","mpeg4"};
+    codecs = gui->addDropdown("Codec",codecsList);
+    codecs->onDropdownEvent(this,&VideoExporter::onDropdownEvent);
+    codecs->setUseCustomMouse(true);
+    codecs->select(4);
+    for(int i=0;i<codecs->children.size();i++){
+        codecs->getChildAt(i)->setUseCustomMouse(true);
+    }
 
     gui->onToggleEvent(this, &VideoExporter::onToggleEvent);
 
@@ -101,6 +110,10 @@ void VideoExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
     header->update();
     if(!header->getIsCollapsed()){
         recButton->update();
+        codecs->update();
+        for(int i=0;i<codecs->children.size();i++){
+            codecs->getChildAt(i)->update();
+        }
     }
 
     if(exportVideoFlag){
@@ -115,7 +128,6 @@ void VideoExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
     if(videoSaved){
         videoSaved = false;
         recorder.setOutputPath(filepath);
-        recorder.setVideoCodec("libx264");
         recorder.setBitRate(8000);
         recorder.startCustomRecord();
     }
@@ -195,9 +207,18 @@ void VideoExporter::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    codecs->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    for(int i=0;i<codecs->children.size();i++){
+        codecs->getChildAt(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || recButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || recButton->hitTest(_m-this->getPos()) || codecs->hitTest(_m-this->getPos());
+
+        for(int i=0;i<codecs->children.size();i++){
+            this->isOverGUI = codecs->getChildAt(i)->hitTest(_m-this->getPos());
+        }
+
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -210,6 +231,10 @@ void VideoExporter::dragGUIObject(ofVec3f _m){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        codecs->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        for(int i=0;i<codecs->children.size();i++){
+            codecs->getChildAt(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        }
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -251,5 +276,14 @@ void VideoExporter::onToggleEvent(ofxDatGuiToggleEvent e){
             }
         }
     }
+}
 
+//--------------------------------------------------------------
+void VideoExporter::onDropdownEvent(ofxDatGuiDropdownEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == codecs){
+            recorder.setVideoCodec(codecsList.at(e.child));
+            e.target->expand();
+        }
+    }
 }
