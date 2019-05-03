@@ -165,6 +165,8 @@
 #include "objects/video/VideoGate.h"
 #include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"
+#include "objects/video/VideoScale.h"
+#include "objects/video/VideoTimelapse.h"
 
 // web objects
 

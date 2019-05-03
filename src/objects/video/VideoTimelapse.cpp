@@ -35,14 +35,28 @@
 //--------------------------------------------------------------
 VideoTimelapse::VideoTimelapse() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // input
 
+    _inletParams[1] = new float();  // delay frames
+    *(float *)&_inletParams[1] = 25.0f;
+
     _outletParams[0] = new ofTexture(); // output
 
     this->initInletsState();
+
+    videoBuffer = new circularTextureBuffer();
+    pix         = new ofPixels();
+    kuro        = new ofImage();
+
+    nDelayFrames    = 25;
+    capturedFrame   = 0;
+    delayFrame      = 0;
+
+    resetTime       = ofGetElapsedTimeMillis();
+    wait            = 1000/static_cast<int>(ofGetFrameRate());
 
 }
 
@@ -50,19 +64,87 @@ VideoTimelapse::VideoTimelapse() : PatchObject(){
 void VideoTimelapse::newObject(){
     this->setName("video timelapse");
     this->addInlet(VP_LINK_TEXTURE,"input");
+    this->addInlet(VP_LINK_NUMERIC,"delay");
     this->addOutlet(VP_LINK_TEXTURE);
+
+    this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
 }
 
 //--------------------------------------------------------------
 void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setWidth(this->width);
+    gui->onTextInputEvent(this, &VideoTimelapse::onTextInputEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+    guiDelayMS = gui->addTextInput("Frames","25");
+    guiDelayMS->setUseCustomMouse(true);
+    guiDelayMS->setText(ofToString(this->getCustomVar("DELAY_FRAMES")));
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
+
+    nDelayFrames = this->getCustomVar("DELAY_FRAMES");
+    videoBuffer->setup(nDelayFrames);
+
+    // load kuro
+    kuro->load("images/kuro.jpg");
+
 }
 
 //--------------------------------------------------------------
 void VideoTimelapse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+
+    gui->update();
+    header->update();
+    guiDelayMS->update();
     
     if(this->inletsConnected[0]){
-        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+        if(ofGetElapsedTimeMillis()-resetTime > wait){
+            resetTime       = ofGetElapsedTimeMillis();
+
+            ofImage rgbaImage;
+            rgbaImage.allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR_ALPHA);
+            static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+            rgbaImage.setFromPixels(*pix);
+            videoBuffer->pushTexture(rgbaImage.getTexture());
+
+            if(capturedFrame >= nDelayFrames){
+                if(delayFrame < nDelayFrames-1){
+                    delayFrame++;
+                }else{
+                    delayFrame = 0;
+                }
+            }else{
+                capturedFrame++;
+            }
+        }
+        if(capturedFrame >= nDelayFrames){
+            *static_cast<ofTexture *>(_outletParams[0]) = videoBuffer->getDelayedtexture(delayFrame);
+        }else{
+            *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+        }
+    }else{
+        *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+    }
+
+    if(this->inletsConnected[1]){
+        if(nDelayFrames != static_cast<int>(floor(*(float *)&_inletParams[1]))){
+            nDelayFrames = static_cast<int>(floor(*(float *)&_inletParams[1]));
+            guiDelayMS->setText(ofToString(nDelayFrames));
+
+            capturedFrame   = 0;
+            delayFrame      = 0;
+
+            resetTime       = ofGetElapsedTimeMillis();
+            wait            = 1000/static_cast<int>(ofGetFrameRate());
+
+            videoBuffer->setup(nDelayFrames);
+        }
     }
     
 }
@@ -85,10 +167,68 @@ void VideoTimelapse::drawObjectContent(ofxFontStash *font){
         }
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
+    gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void VideoTimelapse::removeObjectContent(){
     
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::mouseMovedObjectContent(ofVec3f _m){
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    guiDelayMS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiDelayMS->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::dragGUIObject(ofVec3f _m){
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        guiDelayMS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == guiDelayMS){
+            if(isInteger(e.text) || isFloat(e.text)){
+                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"DELAY_FRAMES");
+                nDelayFrames    = ofToInt(e.text);
+                capturedFrame   = 0;
+                delayFrame      = 0;
+
+                resetTime       = ofGetElapsedTimeMillis();
+                wait            = 1000/static_cast<int>(ofGetFrameRate());
+
+                videoBuffer->setup(nDelayFrames);
+            }else{
+                guiDelayMS->setText(ofToString(nDelayFrames));
+            }
+
+        }
+    }
 }

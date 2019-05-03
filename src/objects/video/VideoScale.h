@@ -34,45 +34,11 @@
 
 #include "PatchObject.h"
 
-class circularTextureBuffer{
-
-public:
-    circularTextureBuffer(){
-        currentIndex = 0;
-    }
-    void setup(int numFrames){
-        currentIndex = 0;
-        frames.clear();
-        frames.resize(numFrames);
-    }
-    void pushTexture(ofTexture& tex){
-        frames[currentIndex] = tex;
-        if(currentIndex < frames.size()-1 ){
-            currentIndex++;
-        }else{
-            currentIndex = 0;
-        }
-
-    }
-
-    ofTexture& getDelayedtexture(size_t delay){
-        if(delay < frames.size()){
-            return frames[delay];
-        }
-        return frames[0];
-    }
-
-protected:
-    int currentIndex;
-    vector<ofTexture> frames;
-
-};
-
-class VideoTimelapse : public PatchObject {
+class VideoScale : public PatchObject {
 
 public:
 
-    VideoTimelapse();
+    VideoScale();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -83,22 +49,22 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            on2dPadEvent(ofxDatGui2dPadEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
+
+    ofFbo           *scaledFbo;
+    ofRectangle     bounds;
+    bool            needToGrab;
 
     float           posX, posY, drawW, drawH;
 
-    circularTextureBuffer   *videoBuffer;
-    ofPixels                *pix;
-    ofImage                 *kuro;
-    int                     nDelayFrames;
-    int                     capturedFrame;
-    int                     delayFrame;
-    size_t                  resetTime;
-    size_t                  wait;
-
     ofxDatGui*              gui;
     ofxDatGuiHeader*        header;
-    ofxDatGuiTextInput*     guiDelayMS;
+    ofxDatGui2dPad*         pad;
+    ofxDatGuiSlider*        sliderW;
+    ofxDatGuiSlider*        sliderH;
+
+    bool                    loaded;
 
 };
