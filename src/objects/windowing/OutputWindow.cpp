@@ -784,7 +784,10 @@ void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
             this->setCustomVar(static_cast<float>(e.value),"EDGE_BOTTOM");
         }
 
-        warpController->getWarp(0)->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
-        warpController->getWarp(0)->setExponent(this->getCustomVar("EDGES_EXPONENT"));
+        if(isFullscreen && warpController->getNumWarps() > 0){
+            warpController->getWarp(0)->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+            warpController->getWarp(0)->setExponent(this->getCustomVar("EDGES_EXPONENT"));
+        }
+
     }
 }
