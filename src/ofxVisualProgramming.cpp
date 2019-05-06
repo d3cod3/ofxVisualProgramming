@@ -54,7 +54,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"image loader"};
     objectsMatrix["graphics"] = vecInit;
 
-    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","timeline","trigger","video viewer","vu meter"};
+    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","sonogram","timeline","trigger","video viewer","vu meter"};
     objectsMatrix["gui"] = vecInit;
 
     vecInit = {};
@@ -379,7 +379,7 @@ void ofxVisualProgramming::exit(){
     fileDialog.stop();
 
     if(dspON){
-        delete engine;
+        //delete engine;
     }
 
     dspON = false;
@@ -1269,6 +1269,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new moPlayerControls();
     }else if(objname == "slider"){
         tempObj = new moSlider();
+    }else if(objname == "sonogram"){
+        tempObj = new moSonogram();
     }else if(objname == "timeline"){
         tempObj = new moTimeline();
     }else if(objname == "trigger"){
