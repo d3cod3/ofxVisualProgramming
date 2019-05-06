@@ -77,8 +77,18 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
     }
     if(deviceLoaded && in_channels>0){
         for(size_t c=0;c<static_cast<size_t>(in_channels);c++){
-            PN_IN_CH[c].out_signal() >> this->pdspOut[c];
+
+            LF_ctrl >> LC_IN_CH[c].in_freq();
+            HF_ctrl >> HC_IN_CH[c].in_freq();
+
+            PN_IN_CH[c].out_signal() >> HC_IN_CH[c].in_signal();
+            HC_IN_CH[c].out_signal() >> LC_IN_CH[c].in_signal();
+
+            LC_IN_CH[c].out_signal() >> this->pdspOut[c];
+            LC_IN_CH[c].out_signal() >> IN_SCOPE[c] >> engine.blackhole();
         }
+        LF_ctrl.set(5.0f);
+        HF_ctrl.set(20000.0f);
     }
 }
 
@@ -115,12 +125,12 @@ void AudioDevice::audioInObject(ofSoundBuffer &inputBuffer){
         if(in_channels == 1){
             inputBuffer.copyTo(IN_CH.at(0), inputBuffer.getNumFrames(), 1, 0);
             PN_IN_CH.at(0).copyInput(IN_CH.at(0).getBuffer().data(),IN_CH.at(0).getNumFrames());
-            *static_cast<ofSoundBuffer *>(_outletParams[0]) = IN_CH.at(0);
+            static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(IN_SCOPE[0].getBuffer(),1,inputBuffer.getNumFrames());
         }else{
             for(size_t c=0;c<static_cast<size_t>(in_channels);c++){
                 inputBuffer.getChannel(IN_CH.at(c),c);
                 PN_IN_CH.at(c).copyInput(IN_CH.at(c).getBuffer().data(),IN_CH.at(c).getNumFrames());
-                *static_cast<ofSoundBuffer *>(_outletParams[c]) = IN_CH.at(c);
+                static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(IN_SCOPE[c].getBuffer(),1,inputBuffer.getNumFrames());
             }
         }
     }
@@ -162,6 +172,9 @@ void AudioDevice::resetSystemObject(){
 
         IN_CH.clear();
         PN_IN_CH.resize(in_channels);
+        LC_IN_CH.resize(in_channels);
+        HC_IN_CH.resize(in_channels);
+        IN_SCOPE.resize(in_channels);
         OUT_CH.resize(out_channels);
 
         shortBuffer = new short[bufferSize];
@@ -300,6 +313,9 @@ void AudioDevice::loadDeviceInfo(){
 
         IN_CH.clear();
         PN_IN_CH.resize(in_channels);
+        LC_IN_CH.resize(in_channels);
+        HC_IN_CH.resize(in_channels);
+        IN_SCOPE.resize(in_channels);
         OUT_CH.resize(out_channels);
 
         shortBuffer = new short[bufferSize];

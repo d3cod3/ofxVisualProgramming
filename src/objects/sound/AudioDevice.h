@@ -52,9 +52,15 @@ public:
 
     void            loadDeviceInfo();
 
-    vector<ofSoundBuffer>   IN_CH;
+    vector<ofSoundBuffer>       IN_CH;
     vector<pdsp::ExternalInput> PN_IN_CH;
+    vector<pdsp::HighCut>       HC_IN_CH;
+    vector<pdsp::LowCut>        LC_IN_CH;
+    vector<pdsp::Scope>         IN_SCOPE;
     vector<pdsp::ExternalInput> OUT_CH;
+
+    pdsp::ValueControl          LF_ctrl;
+    pdsp::ValueControl          HF_ctrl;
 
     short *                 shortBuffer;
     std::mutex              audioMutex;
