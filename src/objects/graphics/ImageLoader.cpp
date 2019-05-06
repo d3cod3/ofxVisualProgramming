@@ -64,6 +64,13 @@ void ImageLoader::newObject(){
 }
 
 //--------------------------------------------------------------
+void ImageLoader::autoloadFile(string _fp){
+    filepath = _fp;
+    isImageLoaded= true;
+    isFileLoaded = false;
+}
+
+//--------------------------------------------------------------
 void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
