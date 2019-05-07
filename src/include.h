@@ -57,6 +57,7 @@
 // communications objects
 #include "objects/communications/KeyPressed.h"
 #include "objects/communications/KeyReleased.h"
+#include "objects/communications/MidiKey.h"
 #include "objects/communications/MidiKnob.h"
 #include "objects/communications/MidiPad.h"
 #include "objects/communications/MidiScore.h"
