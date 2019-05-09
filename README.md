@@ -70,7 +70,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
 
-#### [ofxFaceTracker](git clone https://github.com/kylemcdonald/ofxFaceTracker)
+#### [ofxFaceTracker](https://github.com/kylemcdonald/ofxFaceTracker)
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
