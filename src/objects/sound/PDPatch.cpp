@@ -447,7 +447,7 @@ void PDPatch::loadAudioSettings(){
     lastOutputBuffer3.allocate(bufferSize,1);
     lastOutputBuffer4.allocate(bufferSize,1);
 
-    pd.init(4,4,sampleRate,4,false);
+    pd.init(4,4,sampleRate,bufferSize/ofxPd::blockSize(),false);
     // load externals
     cyclone_setup();
     zexy_setup();
