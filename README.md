@@ -6,11 +6,6 @@
 ![Mosaic 0.1.7](https://github.com/d3cod3/Mosaic/raw/master/process/img/20_jupiterBlues.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
-Operating system | Status
----------------- | ----------
-Ubuntu and macOS | [![TravisCI](https://travis-ci.org/d3cod3/ofxVisualProgramming.svg?branch=master)](https://travis-ci.org/d3cod3/ofxVisualProgramming)
-Windows          | [![AppVeyor](https://ci.appveyor.com/api/projects/status/65sk40q6y8bqfunw/branch/master?svg=true)](https://ci.appveyor.com/project/d3cod3/ofxvisualprogramming/branch/master)
-
 Table of Contents
 =================
 
@@ -75,6 +70,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
 
+#### [ofxFaceTracker](git clone https://github.com/kylemcdonald/ofxFaceTracker)
+
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
 #### [ofxFontStash](https://github.com/d3cod3/ofxFontStash)
@@ -136,6 +133,7 @@ git clone https://github.com/d3cod3/ofxBTrack
 git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/d3cod3/ofxDatGui
+git clone https://github.com/kylemcdonald/ofxFaceTracker
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
@@ -542,7 +540,7 @@ ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 
 ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
 
-ofxCv original addon by [Kyle McDonald](https://github.com/kylemcdonald)
+ofxCv, ofxFaceTracker original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 
 ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
 

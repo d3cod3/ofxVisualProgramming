@@ -18,16 +18,16 @@ meta:
 	ADDON_NAME = ofxVisualProgramming
 	ADDON_DESCRIPTION = A visual programming patching environment for OF
 	ADDON_AUTHOR = Emanuele Mazza
-        ADDON_TAGS = "visual programming" "visual patching" "cyber-transmedia programming"
+    ADDON_TAGS = "visual programming" "visual patching" "cyber-transmedia programming"
 	ADDON_URL = http://github.com/d3cod3/ofxVisualProgramming
 
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFFmpegRecorder ofxFontStash ofxGLEditor ofxGLError
-        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph
-        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPDSP ofxSIMDFloats ofxThreadedFileDialog ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
+        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFaceTracker ofxFFmpegRecorder ofxFontStash ofxGLEditor ofxGLError
+        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
+        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxSIMDFloats ofxThreadedFileDialog ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
@@ -72,10 +72,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPython
+        ADDON_DEPENDENCIES += ofxPdExternals
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/PythonScript%
+        #ADDON_SOURCES_EXCLUDE = src/objects/scripting/PythonScript%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPython
+        ADDON_DEPENDENCIES += ofxPdExternals
