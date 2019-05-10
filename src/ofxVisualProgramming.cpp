@@ -45,7 +45,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"key pressed","key released","midi key","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
     objectsMatrix["communications"] = vecInit;
 
-    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
+    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","face tracker","haar tracking","motion detection","optical flow"};
     objectsMatrix["computer vision"] = vecInit;
 
     vecInit = {"bang multiplexer","floats to vector","vector at","vector concat"};
@@ -1318,6 +1318,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new ColorTracking();
     }else if(objname == "contour tracking"){
         tempObj = new ContourTracking();
+    }else if(objname == "face tracker"){
+        tempObj = new FaceTracker();
     }else if(objname == "haar tracking"){
         tempObj = new HaarTracking();
     }else if(objname == "motion detection"){

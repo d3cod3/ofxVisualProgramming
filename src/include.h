@@ -71,6 +71,7 @@
 #include "objects/computer_vision/ChromaKey.h"
 #include "objects/computer_vision/ColorTracking.h"
 #include "objects/computer_vision/ContourTracking.h"
+#include "objects/computer_vision/FaceTracker.h"
 #include "objects/computer_vision/HaarTracking.h"
 #include "objects/computer_vision/MotionDetection.h"
 #include "objects/computer_vision/OpticalFlow.h"
