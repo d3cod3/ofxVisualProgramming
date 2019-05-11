@@ -232,7 +232,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
         //scaleH = (this->width/video->getWidth())*video->getHeight();
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             videoRes->setLabel(ofToString(static_cast<ofTexture *>(_outletParams[0])->getWidth())+"x"+ofToString(static_cast<ofTexture *>(_outletParams[0])->getHeight()));
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
                 drawW           = this->width;
                 drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
                 posX            = 0;
