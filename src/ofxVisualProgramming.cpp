@@ -75,7 +75,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
     vecInit = {"bash script","lua script","python script","shader object"};
 #elif defined(TARGET_WIN32)
-    vecInit = {"lua script","shader object"};
+    vecInit = {"lua script","python script","shader object"};
 #endif
     objectsMatrix["scripting"] = vecInit;
 
@@ -1100,12 +1100,12 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
     if(objname == "bash script"){
         tempObj = new BashScript();
-    }else if(objname == "python script"){
-        tempObj = new PythonScript();
     }else
 #endif
 
-    if(objname == "lua script"){
+    if(objname == "python script"){
+        tempObj = new PythonScript();
+    }else if(objname == "lua script"){
         tempObj = new LuaScript();
     }else if(objname == "shader object"){
         tempObj = new ShaderObject();

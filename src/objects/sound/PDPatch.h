@@ -37,7 +37,10 @@
 #include "PathWatcher.h"
 
 #include "ofxPd.h"
-#include "ofxPdExternals.h"
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+    #include "ofxPdExternals.h"
+#endif
+
 
 using namespace pd;
 

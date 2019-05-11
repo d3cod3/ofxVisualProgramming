@@ -449,8 +449,11 @@ void PDPatch::loadAudioSettings(){
 
     pd.init(4,4,sampleRate,bufferSize/ofxPd::blockSize(),false);
     // load externals
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
     cyclone_setup();
     zexy_setup();
+#endif
+
 
     pd.subscribe("toMosaic");
 
