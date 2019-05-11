@@ -65,8 +65,12 @@ void VectorAt::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void VectorAt::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] < static_cast<vector<float> *>(_inletParams[0])->size()){
-            *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(static_cast<int>(floor(*(float *)&_inletParams[1])));
+        if(static_cast<vector<float> *>(_inletParams[0])->size() > 0){
+            if(static_cast<int>(floor(*(float *)&_inletParams[1])) < static_cast<vector<float> *>(_inletParams[0])->size()){
+                *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(static_cast<int>(floor(*(float *)&_inletParams[1])));
+            }else{
+                *(float *)&_outletParams[0] = 0.0f;
+            }
         }else{
             *(float *)&_outletParams[0] = 0.0f;
         }
