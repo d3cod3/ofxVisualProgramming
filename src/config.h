@@ -63,16 +63,16 @@
 #define MAX_INLETS              24
 #define MAX_OUTLETS             24
 
-#define COLOR_NUMERIC_LINK      ofColor(250,250,250,255)
-#define COLOR_STRING_LINK       ofColor(230,210,255,255)
-#define COLOR_ARRAY_LINK        ofColor(255,255,200,255)
-#define COLOR_TEXTURE_LINK      ofColor(200,255,255,255)
-#define COLOR_AUDIO_LINK        ofColor(255,255,200,255)
-#define COLOR_SCRIPT_LINK       ofColor(255,180,180,255)
+#define COLOR_NUMERIC_LINK      ofColor(210,210,210,255)
+#define COLOR_STRING_LINK       ofColor(200,180,255,255)
+#define COLOR_ARRAY_LINK        ofColor(120,255,120,255)
+#define COLOR_TEXTURE_LINK      ofColor(120,255,255,255)
+#define COLOR_AUDIO_LINK        ofColor(255,255,120,255)
+#define COLOR_SCRIPT_LINK       ofColor(255,128,128,255)
 
 #define COLOR_NUMERIC           ofColor(210,210,210,255)
 #define COLOR_STRING            ofColor(200,180,255,255)
-#define COLOR_ARRAY             ofColor(200,255,200,255)
+#define COLOR_ARRAY             ofColor(120,255,120,255)
 #define COLOR_TEXTURE           ofColor(120,255,255,255)
 #define COLOR_AUDIO             ofColor(255,255,120,255)
 #define COLOR_SCRIPT            ofColor(255,128,128,255)
