@@ -102,8 +102,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
-#### [ofxSIMDFloats](https://github.com/d3cod3/ofxSIMDFloats)
-
 #### [ofxThreadedFileDialog](https://github.com/d3cod3/ofxThreadedFileDialog)
 
 #### [ofxThreadedYouTubeVideo](http://github.com/pierrep/ofxThreadedYouTubeVideo)
@@ -149,7 +147,6 @@ git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPdExternals
 git clone https://github.com/npisanti/ofxPDSP
-git clone https://github.com/d3cod3/ofxSIMDFloats
 git clone https://github.com/d3cod3/ofxThreadedFileDialog
 git clone http://github.com/pierrep/ofxThreadedYouTubeVideo
 git clone https://github.com/d3cod3/ofxTimeline
@@ -534,7 +531,7 @@ All contributions are made under the [MIT License](https://opensource.org/licens
 
 ofxAudioAnalyzer original addon by [Leonardo Zimmerman](https://github.com/leozimmerman)
 
-ofxAudioFile, ofxPDSP, ofxSIMDFloats original addons by [Nicola Pisanti](https://github.com/npisanti)
+ofxAudioFile, ofxPDSP original addons by [Nicola Pisanti](https://github.com/npisanti)
 
 ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 
