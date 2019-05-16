@@ -83,6 +83,7 @@
 #include "objects/data/VectorConcat.h"
 
 // graphics objects
+#include "objects/graphics/ImageExporter.h"
 #include "objects/graphics/ImageLoader.h"
 
 // gui objects
@@ -155,6 +156,7 @@
 #include "objects/sound/SigMult.h"
 #include "objects/sound/SoundfilePlayer.h"
 
+#include "objects/sound/pdspAHR.h"
 #include "objects/sound/pdspDelay.h"
 #include "objects/sound/pdspBitNoise.h"
 #include "objects/sound/pdspReverb.h"
