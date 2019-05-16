@@ -93,8 +93,10 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     settings.stencilBits = 0;
     // RETINA FIX
     if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
-        window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH*2;
-        window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT*2;
+        if(ofGetScreenWidth() > 3360 && ofGetScreenHeight() > 2100){
+            window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH*2;
+            window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT*2;
+        }
         settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(window_actual_width+100),400));
     }else{
         settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(STANDARD_PROJECTOR_WINDOW_WIDTH+50),200));

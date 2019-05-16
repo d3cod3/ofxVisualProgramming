@@ -62,7 +62,7 @@ VideoTimelapse::VideoTimelapse() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoTimelapse::newObject(){
-    this->setName("video timelapse");
+    this->setName("video timedelay");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"delay");
     this->addOutlet(VP_LINK_TEXTURE);
@@ -154,12 +154,19 @@ void VideoTimelapse::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
+        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
+            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+                drawW           = this->width;
+                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                posX            = 0;
+                posY            = (this->height-drawH)/2.0f;
+            }else{ // vertical texture
+                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                drawH           = this->height;
+                posX            = (this->width-drawW)/2.0f;
+                posY            = 0;
+            }
+        }else{ // always considered vertical texture
             drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
             drawH           = this->height;
             posX            = (this->width-drawW)/2.0f;

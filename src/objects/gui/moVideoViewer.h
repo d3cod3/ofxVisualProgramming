@@ -46,6 +46,11 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
+
     float           posX, posY, drawW, drawH;
+
+    ofRectangle     resizeQuad;
 
 };

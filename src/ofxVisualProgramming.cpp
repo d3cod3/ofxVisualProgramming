@@ -51,7 +51,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"bang multiplexer","floats to vector","vector at","vector concat"};
     objectsMatrix["data"] = vecInit;
 
-    vecInit = {"image loader"};
+    vecInit = {"image exporter","image loader"};
     objectsMatrix["graphics"] = vecInit;
 
     vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","sonogram","timeline","trigger","video viewer","vu meter"};
@@ -82,7 +82,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video crop","video delay","video exporter","video gate","video grabber","video player","video scale","video timelapse"};
+    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video timedelay"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -682,7 +682,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
 //--------------------------------------------------------------
 PatchObject* ofxVisualProgramming::getLastAddedObject(){
-    if(lastAddedObjectID != -1){
+    if(lastAddedObjectID != -1 && patchObjects.count(lastAddedObjectID) > 0){
         return patchObjects[lastAddedObjectID];
     }else{
         return nullptr;
@@ -1177,6 +1177,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
     // -------------------------------------- Graphics
+    }else if(objname == "image exporter"){
+        tempObj = new ImageExporter();
     }else if(objname == "image loader"){
         tempObj = new ImageLoader();
     // -------------------------------------- Sound
@@ -1290,7 +1292,7 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoPlayer();
     }else if(objname == "video grabber"){
         tempObj = new VideoGrabber();
-    }else if(objname == "video delay"){
+    }else if(objname == "video feedback"){
         tempObj = new VideoDelay();
     }else if(objname == "video exporter"){
         tempObj = new VideoExporter();
@@ -1300,7 +1302,7 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoGate();
     }else if(objname == "video scale"){
         tempObj = new VideoScale();
-    }else if(objname == "video timelapse"){
+    }else if(objname == "video timedelay"){
         tempObj = new VideoTimelapse();
     // -------------------------------------- WINDOWING
     }else if(objname == "live patching"){

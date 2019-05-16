@@ -49,6 +49,7 @@ public:
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
 
+    void            on2dPadEvent(ofxDatGui2dPadEvent e);
     void            onSliderEvent(ofxDatGuiSliderEvent e);
 
     float           posX, posY, drawW, drawH;
@@ -60,11 +61,13 @@ public:
 
     ofFbo           *delayFbo;
     ofTexture       *backBufferTex;
+    ofRectangle     bounds;
     float           halfscale;
     bool            needToGrab;
 
     ofxDatGui*              gui;
     ofxDatGuiHeader*        header;
+    ofxDatGui2dPad*         pad;
     ofxDatGuiSlider*        slider;
     ofxDatGuiSlider*        sliderA;
 

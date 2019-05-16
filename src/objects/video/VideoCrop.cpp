@@ -137,12 +137,24 @@ void VideoCrop::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
         needToGrab = false;
     }
 
-    if(this->inletsConnected[1]){
-        pad->setPoint(ofPoint(*(float *)&_inletParams[1]*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
+    if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(*(float *)&_inletParams[1] == 0.0){
+            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
+        }else if(*(float *)&_inletParams[1] == static_cast<ofTexture *>(_inletParams[0])->getWidth()){
+            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
+        }else{
+            pad->setPoint(ofPoint(ofClamp(*(float *)&_inletParams[1],0,static_cast<ofTexture *>(_inletParams[0])->getWidth())/static_cast<ofTexture *>(_inletParams[0])->getWidth()*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
+        }
     }
 
-    if(this->inletsConnected[2]){
-        pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[2]*pad->getBounds().height,pad->getPoint().z));
+    if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(*(float *)&_inletParams[2] == 0.0){
+            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
+        }else if(*(float *)&_inletParams[2] == static_cast<ofTexture *>(_inletParams[0])->getHeight()){
+            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
+        }else{
+            pad->setPoint(ofPoint(pad->getPoint().x,ofClamp(*(float *)&_inletParams[2],0,static_cast<ofTexture *>(_inletParams[0])->getHeight())/static_cast<ofTexture *>(_inletParams[0])->getHeight()*pad->getBounds().height,pad->getPoint().z));
+        }
     }
 
     if(this->inletsConnected[3] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -167,12 +179,19 @@ void VideoCrop::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
+        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
+            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+                drawW           = this->width;
+                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                posX            = 0;
+                posY            = (this->height-drawH)/2.0f;
+            }else{ // vertical texture
+                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                drawH           = this->height;
+                posX            = (this->width-drawW)/2.0f;
+                posY            = 0;
+            }
+        }else{ // always considered vertical texture
             drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
             drawH           = this->height;
             posX            = (this->width-drawW)/2.0f;

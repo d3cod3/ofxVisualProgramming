@@ -143,7 +143,7 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
             video->setLoopState(OF_LOOP_NONE);
             video->stop();
 
-            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getPixels());
+            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
             static_cast<ofTexture *>(_outletParams[0])->clear();
 
             ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
@@ -163,6 +163,7 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
         }else{
             videoName->setLabel(tempFile.getFileName());
         }
+        videoRes->setLabel(ofToString(video->getWidth())+"x"+ofToString(video->getHeight()));
     }
 
     if(isFileLoaded && video->isLoaded() && threadLoaded){
@@ -170,19 +171,40 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
         //*static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
         static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
 
+    }
+
+    gui->update();
+    header->update();
+    loadButton->update();
+
+    if(loadVideoFlag){
+        loadVideoFlag = false;
+        fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
+    }
+
+    ///////////////////////////////////////////
+    condition.notify_one();
+}
+
+//--------------------------------------------------------------
+void VideoPlayer::drawObjectContent(ofxFontStash *font){
+    ofSetColor(255);
+    ofEnableAlphaBlending();
+    if(isFileLoaded && video->isLoaded() && threadLoaded){
+
         // listen to message control (_inletParams[0])
         if(this->inletsConnected[0]){
             if(lastMessage != *static_cast<string *>(_inletParams[0])){
                 lastMessage = *static_cast<string *>(_inletParams[0]);
 
                 if(lastMessage == "play"){
+                    video->firstFrame();
                     video->play();
                 }else if(lastMessage == "pause"){
                     video->setPaused(true);
                 }else if(lastMessage == "unpause"){
                     video->setPaused(false);
                 }else if(lastMessage == "stop"){
-                    video->firstFrame();
                     video->stop();
                 }else if(lastMessage == "loop_normal"){
                     video->setLoopState(OF_LOOP_NORMAL);
@@ -206,44 +228,57 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
         if(this->inletsConnected[3]){
             video->setVolume(*(float *)&_inletParams[3]);
         }
-    }
 
-    gui->update();
-    header->update();
-    loadButton->update();
-
-    if(loadVideoFlag){
-        loadVideoFlag = false;
-        fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
-    }
-
-    ///////////////////////////////////////////
-    condition.notify_one();
-}
-
-//--------------------------------------------------------------
-void VideoPlayer::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(isFileLoaded && video->isLoaded() && threadLoaded){
-        if(video->isPlaying()){
-           video->update();
-        }
         //scaleH = (this->width/video->getWidth())*video->getHeight();
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            videoRes->setLabel(ofToString(static_cast<ofTexture *>(_outletParams[0])->getWidth())+"x"+ofToString(static_cast<ofTexture *>(_outletParams[0])->getHeight()));
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
+            if(video->isPlaying()){ // play
+               video->update();
+
+               if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
+                   if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+                       drawW           = this->width;
+                       drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                       posX            = 0;
+                       posY            = (this->height-drawH)/2.0f;
+                   }else{ // vertical texture
+                       drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                       drawH           = this->height;
+                       posX            = (this->width-drawW)/2.0f;
+                       posY            = 0;
+                   }
+               }else{ // always considered vertical texture
+                   drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                   drawH           = this->height;
+                   posX            = (this->width-drawW)/2.0f;
+                   posY            = 0;
+               }
+
+               static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+            }else if(video->isPaused() && video->getCurrentFrame() > 1){ // pause
+                if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
+                    if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
+                        drawW           = this->width;
+                        drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                        posX            = 0;
+                        posY            = (this->height-drawH)/2.0f;
+                    }else{ // vertical texture
+                        drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                        drawH           = this->height;
+                        posX            = (this->width-drawW)/2.0f;
+                        posY            = 0;
+                    }
+                }else{ // always considered vertical texture
+                    drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
+                    drawH           = this->height;
+                    posX            = (this->width-drawW)/2.0f;
+                    posY            = 0;
+                }
+
+                static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+            }else{
+                ofSetColor(0);
+                ofDrawRectangle(0,0,this->width, this->height);
             }
-            static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
 
             // draw player state
             ofSetColor(255,60);

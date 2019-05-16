@@ -49,6 +49,11 @@ moVideoViewer::moVideoViewer() : PatchObject(){
     this->isBigGuiViewer    = true;
     this->width             *= 2;
     this->height            *= 2;
+
+    isGUIObject             = true;
+    this->isOverGUI         = false;
+
+    resizeQuad.set(this->width-20,this->height-20,20,20);
 }
 
 //--------------------------------------------------------------
@@ -75,12 +80,19 @@ void moVideoViewer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
+        if(static_cast<ofTexture *>(_inletParams[0])->getWidth()/static_cast<ofTexture *>(_inletParams[0])->getHeight() >= this->width/this->height){
+            if(static_cast<ofTexture *>(_inletParams[0])->getWidth() > static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
+                drawW           = this->width;
+                drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
+                posX            = 0;
+                posY            = (this->height-drawH)/2.0f;
+            }else{ // vertical texture
+                drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
+                drawH           = this->height;
+                posX            = (this->width-drawW)/2.0f;
+                posY            = 0;
+            }
+        }else{ // always considered vertical texture
             drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
             drawH           = this->height;
             posX            = (this->width-drawW)/2.0f;
@@ -88,10 +100,54 @@ void moVideoViewer::drawObjectContent(ofxFontStash *font){
         }
         static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
     }
+
+    ofSetColor(255,255,255,70);
+    if(this->isOverGUI){
+        ofFill();
+    }else{
+        ofNoFill();
+    }
+    ofDrawRectangle(resizeQuad);
+    ofFill();
+
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void moVideoViewer::removeObjectContent(){
     
+}
+
+//--------------------------------------------------------------
+void moVideoViewer::mouseMovedObjectContent(ofVec3f _m){
+    this->isOverGUI = resizeQuad.inside(_m-this->getPos());
+}
+
+//--------------------------------------------------------------
+void moVideoViewer::dragGUIObject(ofVec3f _m){
+    if(this->isOverGUI){
+        this->width =  _m.x - this->getPos().x;
+        this->height =  _m.y - this->getPos().y;
+
+        box->setWidth(_m.x - this->getPos().x);
+        box->setHeight(_m.y - this->getPos().y);
+
+        headerBox->setWidth(_m.x - this->getPos().x);
+
+        resizeQuad.set(this->width-20,this->height-20,20,20);
+
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
 }
