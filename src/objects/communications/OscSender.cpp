@@ -145,10 +145,18 @@ void OscSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
                     m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
                 }
                 messageOK = true;
-            }else if(this->getInletType(i) == VP_LINK_TEXTURE){
+            }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
                 // note: the size of the image depends greatly on your network buffer sizes,
                 // if an image is too big the message won't come through
-                if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight() < 327680){
+                int depth = 1;
+                if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
+                    depth = 1;
+                }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
+                    depth = 3;
+                }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
+                    depth = 4;
+                }
+                if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight()*depth < 327680){
                     static_cast<ofTexture *>(_inletParams[i])->readToPixels(*_tempPixels);
                     m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getWidth());
                     m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getHeight());
@@ -167,7 +175,7 @@ void OscSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
                     _tempBuffer->clear();
                     messageOK = true;
                 }else{
-                    ofLog(OF_LOG_ERROR,"The image you're trying to send via OSC is too big! Please choose an image below 640x480");
+                    ofLog(OF_LOG_ERROR,"The image you're trying to send via OSC is too big! Please choose an image below 640x480 GRAYSCALE, or 320x240 RGB, RGBA");
                 }
             }
             if(messageOK){
