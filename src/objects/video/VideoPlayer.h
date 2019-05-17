@@ -62,6 +62,7 @@ public:
     bool                isNewObject;
     bool                isFileLoaded;
     bool                nameLabelLoaded;
+    bool                videoWasPlaying;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;

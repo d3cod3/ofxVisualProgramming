@@ -71,6 +71,8 @@ VideoPlayer::VideoPlayer() : PatchObject(){
 
     loadVideoFlag   = false;
 
+    videoWasPlaying = false;
+
 }
 
 //--------------------------------------------------------------
@@ -137,23 +139,9 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
-    if(!isFileLoaded && video->isLoaded() && video->isInitialized() && threadLoaded){
-        isFileLoaded = true;
-        if(video->isInitialized()){
-            video->setLoopState(OF_LOOP_NONE);
-            video->stop();
-
-            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
-            static_cast<ofTexture *>(_outletParams[0])->clear();
-
-            ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
-        }else{
-            if(!isNewObject){
-                ofLog(OF_LOG_ERROR,"video file: %s NOT FOUND!",filepath.c_str());
-            }
-            filepath = "none";
-        }
-    }
+    gui->update();
+    header->update();
+    loadButton->update();
 
     if(nameLabelLoaded && threadLoaded){
         nameLabelLoaded = false;
@@ -166,31 +154,42 @@ void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
         videoRes->setLabel(ofToString(video->getWidth())+"x"+ofToString(video->getHeight()));
     }
 
-    if(isFileLoaded && video->isLoaded() && threadLoaded){
-
-        //*static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
-        static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
-
-    }
-
-    gui->update();
-    header->update();
-    loadButton->update();
-
     if(loadVideoFlag){
         loadVideoFlag = false;
         fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
     }
 
-    ///////////////////////////////////////////
-    condition.notify_one();
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
+
+    if(!isFileLoaded && video->isLoaded() && video->isInitialized() && threadLoaded){
+        if(video->isInitialized()){
+            video->setLoopState(OF_LOOP_NONE);
+            video->stop();
+
+            ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
+            isFileLoaded = true;
+        }else{
+            if(!isNewObject){
+                ofLog(OF_LOG_ERROR,"video file: %s NOT FOUND!",filepath.c_str());
+            }
+            filepath = "none";
+        }
+    }
+
     if(isFileLoaded && video->isLoaded() && threadLoaded){
+
+        if(video->getWidth() != static_cast<ofTexture *>(_outletParams[0])->getWidth() || video->getHeight() != static_cast<ofTexture *>(_outletParams[0])->getHeight()){
+            _outletParams[0] = new ofTexture();
+            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
+            static_cast<ofTexture *>(_outletParams[0])->clear();
+        }else{
+            static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+        }
 
         // listen to message control (_inletParams[0])
         if(this->inletsConnected[0]){
@@ -200,12 +199,17 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
                 if(lastMessage == "play"){
                     video->firstFrame();
                     video->play();
+                    videoWasPlaying = true;
                 }else if(lastMessage == "pause"){
                     video->setPaused(true);
                 }else if(lastMessage == "unpause"){
                     video->setPaused(false);
+                    if(!videoWasPlaying){
+                        video->stop();
+                    }
                 }else if(lastMessage == "stop"){
                     video->stop();
+                    videoWasPlaying = false;
                 }else if(lastMessage == "loop_normal"){
                     video->setLoopState(OF_LOOP_NORMAL);
                 }else if(lastMessage == "loop_none"){
@@ -313,6 +317,9 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
     }
     gui->draw();
     ofDisableAlphaBlending();
+
+    ///////////////////////////////////////////
+    condition.notify_one();
 }
 
 //--------------------------------------------------------------
