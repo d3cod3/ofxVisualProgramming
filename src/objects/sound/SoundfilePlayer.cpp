@@ -62,6 +62,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     isNewObject         = false;
     isFileLoaded        = false;
     isPlaying           = false;
+    audioWasPlaying     = false;
     lastMessage         = "";
 
     loop                = false;
@@ -75,6 +76,8 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     soundfileLoaded     = false;
 
     isPDSPPatchableObject   = true;
+
+    this->width         *= 2;
     
 }
 
@@ -149,7 +152,6 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "WAV" || fileExtension == "OGG" || fileExtension == "MP3" || fileExtension == "FLAC") {
-                isFileLoaded = false;
                 loadAudioFile(file.getAbsolutePath());
             }
         }
@@ -178,13 +180,17 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
                 if(lastMessage == "play"){
                     isPlaying = true;
                     playhead = 0.0;
+                    audioWasPlaying = true;
                 }else if(lastMessage == "pause"){
                     isPlaying = false;
                 }else if(lastMessage == "unpause"){
-                    isPlaying = true;
+                    if(audioWasPlaying){
+                        isPlaying = true;
+                    }
                 }else if(lastMessage == "stop"){
                     isPlaying = false;
                     playhead = 0.0;
+                    audioWasPlaying = false;
                 }else if(lastMessage == "loop_normal"){
                     loop = true;
                 }else if(lastMessage == "loop_none"){
@@ -401,13 +407,17 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     monoBuffer = tmpBuffer;
 
     ofFile tempFile(filepath);
-    if(tempFile.getFileName().size() > 22){
-        soundfileName->setLabel(tempFile.getFileName().substr(0,21)+"...");
+    if(tempFile.getFileName().size() > 44){
+        soundfileName->setLabel(tempFile.getFileName().substr(0,41)+"...");
     }else{
         soundfileName->setLabel(tempFile.getFileName());
     }
 
     playhead = 0.0;
+
+    this->saveConfig(false,this->nId);
+
+    isFileLoaded = false;
 
 }
 

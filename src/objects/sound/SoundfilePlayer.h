@@ -69,6 +69,7 @@ public:
     bool                isNewObject;
     bool                isFileLoaded;
     bool                isPlaying;
+    bool                audioWasPlaying;
     string              lastMessage;
 
     ofxAudioFile        audiofile;
