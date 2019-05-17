@@ -33,6 +33,7 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "DraggableVertex.h"
 
 class pdspAHR : public PatchObject{
 
@@ -51,11 +52,35 @@ public:
 
     void            audioOutObject(ofSoundBuffer &outputBuffer);
 
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
-    pdsp::WhiteNoise        noise;
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            onSliderEvent(ofxDatGuiSliderEvent e);
+
+
+    pdsp::AHR               env;
+    pdsp::Amp               amp;
+    pdsp::Scope             scope;
     pdsp::TriggerControl    gate_ctrl;
+
+    ofxDatGui*              gui;
+    ofxDatGuiHeader*        header;
+    ofxDatGuiTextInput*     duration;
+    ofxDatGuiSlider*        attackHardness;
+    ofxDatGuiSlider*        releaseHardness;
+
+    ofRectangle             rect;
+    vector<DraggableVertex> controlPoints;
+
+    int                     envelopeDuration;
+    float                   attackDuration;
+    float                   holdDuration;
+    float                   releaseDuration;
 
     int                     bufferSize;
     int                     sampleRate;
+
+    bool                    loaded;
 
 };
