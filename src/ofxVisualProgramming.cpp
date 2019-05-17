@@ -79,7 +79,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"AHR envelope","amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video timedelay"};
@@ -273,24 +273,23 @@ void ofxVisualProgramming::draw(){
     if(selectedObjectLink >= 0){
         int lt = patchObjects[selectedObjectID]->getOutletType(selectedObjectLink);
         switch(lt) {
-        case 0: ofSetColor(210,210,210);
+        case 0: ofSetColor(COLOR_NUMERIC_LINK);
             break;
-        case 1: ofSetColor(230,210,255);
+        case 1: ofSetColor(COLOR_STRING_LINK);
             break;
-        case 2: ofSetColor(255,255,200);
+        case 2: ofSetColor(COLOR_ARRAY_LINK);
             break;
-        case 3: ofSetColor(200,255,255); ofSetLineWidth(2);
+        case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
             break;
-        case 4: ofSetColor(255,255,120); ofSetLineWidth(2);
+        case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
             break;
-        case 5: ofSetColor(255,128,128); ofSetLineWidth(1);
+        case 5: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
             break;
         default: break;
         }
         ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
         // Draw outlet type name
-        //ofSetColor(245);
         switch(lt) {
         case 0: patchObjects[selectedObjectID]->linkTypeName = "float";
             break;
@@ -1182,6 +1181,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "image loader"){
         tempObj = new ImageLoader();
     // -------------------------------------- Sound
+    }else if(objname == "AHR envelope"){
+        tempObj = new pdspAHR();
     }else if(objname == "amp"){
         tempObj = new SigMult();
     }else if(objname == "audio gate"){
