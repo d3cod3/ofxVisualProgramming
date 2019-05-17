@@ -148,7 +148,7 @@ void NoteToFrequency::updateObjectContent(map<int,PatchObject*> &patchObjects, o
 void NoteToFrequency::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    font->draw("Frequency: "+ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/3 + 4,this->headerHeight*4);
+    font->draw("Frequency: "+ofToString(*(float *)&_outletParams[0],2),this->fontSize,this->width/3 + 4,this->headerHeight*4);
     font->draw("Pitch: "+ofToString(*(float *)&_outletParams[1]),this->fontSize,this->width/3 + 4,this->headerHeight*5);
     font->draw("Note: "+*static_cast<string *>(_outletParams[2]),this->fontSize,this->width/3 + 4,this->headerHeight*6);
     gui->draw();
