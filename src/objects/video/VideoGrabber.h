@@ -65,6 +65,7 @@ public:
     ofxCvColorImage*        colorImage;
     vector<ofVideoDevice>   wdevices;
     vector<string>          devicesVector;
+    vector<int>             devicesID;
     int                     camWidth, camHeight;
     int                     temp_width, temp_height;
     int                     deviceID;

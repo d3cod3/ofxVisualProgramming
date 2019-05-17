@@ -90,6 +90,11 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     for(int i=0;i<static_cast<int>(wdevices.size());i++){
         if(wdevices[i].bAvailable){
             devicesVector.push_back(wdevices[i].deviceName);
+            devicesID.push_back(i);
+
+            for(size_t f=0;f<wdevices[i].formats.size();f++){
+                ofLog(OF_LOG_NOTICE,"Capture Device format vailable: %ix%i",wdevices[i].formats.at(f).width,wdevices[i].formats.at(f).height);
+            }
         }
     }
 

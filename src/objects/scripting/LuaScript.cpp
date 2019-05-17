@@ -505,6 +505,7 @@ void LuaScript::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
+        this->saveConfig(false,this->nId);
     }
     if(static_cast<LiveCoding *>(_outletParams[1])->hide){
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);

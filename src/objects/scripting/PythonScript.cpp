@@ -364,6 +364,8 @@ void PythonScript::loadScript(string scriptFile){
         ofLog(OF_LOG_NOTICE,"[verbose] python script: %s loaded & running!",filepath.c_str());
         watcher.removeAllPaths();
         watcher.addPath(filepath);
+
+        this->saveConfig(false,this->nId);
     }else{
         script = ofxPythonObject::_None();
     }

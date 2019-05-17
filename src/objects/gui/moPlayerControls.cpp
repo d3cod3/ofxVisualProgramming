@@ -110,9 +110,11 @@ void moPlayerControls::updateObjectContent(map<int,PatchObject*> &patchObjects, 
         switch (temp) {
             case 1:
                 *static_cast<string *>(_outletParams[0]) = "play";
+                pauseButton->setChecked(false);
                 break;
             case 2:
                 *static_cast<string *>(_outletParams[0]) = "stop";
+                pauseButton->setChecked(false);
                 break;
             case 3:
                 *static_cast<string *>(_outletParams[0]) = "pause";
@@ -171,6 +173,11 @@ void moPlayerControls::mouseMovedObjectContent(ofVec3f _m){
     loopButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     this->isOverGUI = playButton->hitTest(_m-this->getPos()) || stopButton->hitTest(_m-this->getPos()) || pauseButton->hitTest(_m-this->getPos()) || loopButton->hitTest(_m-this->getPos());
+
+    if(this->isOverGUI){
+        // reset output message
+        *static_cast<string *>(_outletParams[0]) = "";
+    }
 }
 
 //--------------------------------------------------------------
@@ -180,7 +187,7 @@ void moPlayerControls::dragGUIObject(ofVec3f _m){
         playButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         stopButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         pauseButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loopButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        loopButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));        
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -201,8 +208,10 @@ void moPlayerControls::dragGUIObject(ofVec3f _m){
 void moPlayerControls::onButtonEvent(ofxDatGuiButtonEvent e){
     if (e.target == playButton){
         *static_cast<string *>(_outletParams[0]) = "play";
+        pauseButton->setChecked(false);
     }else if(e.target == stopButton){
         *static_cast<string *>(_outletParams[0]) = "stop";
+        pauseButton->setChecked(false);
     }
 }
 

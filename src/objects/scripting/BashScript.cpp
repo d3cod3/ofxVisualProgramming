@@ -314,6 +314,8 @@ void BashScript::loadScript(string scriptFile){
         //ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
         ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
 
+        this->saveConfig(false,this->nId);
+
 #ifdef TARGET_LINUX
         pclose(execFile);
 #elif defined(TARGET_OSX)

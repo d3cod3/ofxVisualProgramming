@@ -247,6 +247,8 @@ void ImageLoader::loadImageFile(){
         }else{
             imgName->setLabel(tempFile.getFileName());
         }
+
+        this->saveConfig(false,this->nId);
     }
 }
 
