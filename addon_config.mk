@@ -25,7 +25,7 @@ common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFaceTracker ofxFFmpegRecorder ofxFontStash ofxGLEditor ofxGLError
+        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFFmpegRecorder ofxFontStash ofxGLEditor ofxGLError
         ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
         ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxThreadedFileDialog ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
 
@@ -72,10 +72,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPdExternals
+        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker
 
 msys2:
-        #ADDON_SOURCES_EXCLUDE = src/objects/scripting/PythonScript%
+        ADDON_SOURCES_EXCLUDE = src/objects/computer_vision/FaceTracker%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPdExternals
+        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker
