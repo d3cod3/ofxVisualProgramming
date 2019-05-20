@@ -159,6 +159,7 @@
 #include "objects/sound/SoundfilePlayer.h"
 
 #include "objects/sound/pdspAHR.h"
+#include "objects/sound/pdspADSR.h"
 #include "objects/sound/pdspDelay.h"
 #include "objects/sound/pdspBitNoise.h"
 #include "objects/sound/pdspReverb.h"

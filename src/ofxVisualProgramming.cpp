@@ -83,7 +83,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"AHR envelope","amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"ADSR envelope","AHR envelope","amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video timedelay"};
@@ -1187,6 +1187,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "image loader"){
         tempObj = new ImageLoader();
     // -------------------------------------- Sound
+    }else if(objname == "ADSR envelope"){
+        tempObj = new pdspADSR();
     }else if(objname == "AHR envelope"){
         tempObj = new pdspAHR();
     }else if(objname == "amp"){
