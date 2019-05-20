@@ -59,7 +59,7 @@ VideoDelay::VideoDelay() : PatchObject(){
     delayFbo        = new ofFbo();
 
     alpha           = 0.0f;
-    alphaTo         = 0.0;
+    alphaTo         = 1.0f;
     scale           = 1;
     scaleTo         = 1;
     needToGrab      = false;
