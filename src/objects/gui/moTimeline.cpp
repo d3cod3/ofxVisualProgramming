@@ -755,15 +755,15 @@ void moTimeline::resetOutlets(){
         if(tempTracks.at(i)->getTrackType() == "Colors"){
             _outletParams[i] = new vector<float>();
             static_cast<vector<float> *>(_outletParams[i])->assign(3,0.0f);
-            this->addOutlet(VP_LINK_ARRAY);
+            this->addOutlet(VP_LINK_ARRAY,"colorTrackRGB");
         }else if(tempTracks.at(i)->getTrackType() == "Notes"){
             _outletParams[i] = new vector<float>();
             static_cast<vector<float> *>(_outletParams[i])->assign(128,0.0f);
-            this->addOutlet(VP_LINK_ARRAY);
+            this->addOutlet(VP_LINK_ARRAY,"midiTrackNotes");
         }else{
             _outletParams[i] = new float();
             *(float *)&_outletParams[i] = 0.0f;
-            this->addOutlet(VP_LINK_NUMERIC);
+            this->addOutlet(VP_LINK_NUMERIC,"trackData");
         }
     }
 

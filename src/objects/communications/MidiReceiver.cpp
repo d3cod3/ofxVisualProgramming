@@ -61,11 +61,11 @@ MidiReceiver::MidiReceiver() : PatchObject(){
 //--------------------------------------------------------------
 void MidiReceiver::newObject(){
     this->setName("midi receiver");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"channel");
+    this->addOutlet(VP_LINK_NUMERIC,"control");
+    this->addOutlet(VP_LINK_NUMERIC,"value");
+    this->addOutlet(VP_LINK_NUMERIC,"pitch");
+    this->addOutlet(VP_LINK_NUMERIC,"velocity");
 
     this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
 }

@@ -60,7 +60,7 @@ ImageLoader::ImageLoader() : PatchObject(){
 //--------------------------------------------------------------
 void ImageLoader::newObject(){
     this->setName("image loader");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"image");
 }
 
 //--------------------------------------------------------------

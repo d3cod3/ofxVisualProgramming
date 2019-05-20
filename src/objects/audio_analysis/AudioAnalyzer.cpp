@@ -63,7 +63,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 void AudioAnalyzer::newObject(){
     this->setName("audio analyzer");
     this->addInlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"analysisData");
 
     this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
     this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");

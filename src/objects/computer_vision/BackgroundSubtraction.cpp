@@ -68,7 +68,7 @@ void BackgroundSubtraction::newObject(){
     this->setName("background subtraction");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"reset");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
 
     this->setCustomVar(static_cast<float>(80.0),"THRESHOLD");
     this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");

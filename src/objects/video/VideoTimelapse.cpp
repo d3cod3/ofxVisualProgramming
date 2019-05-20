@@ -65,7 +65,7 @@ void VideoTimelapse::newObject(){
     this->setName("video timedelay");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"delay");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"timeDelayedOutput");
 
     this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
 }

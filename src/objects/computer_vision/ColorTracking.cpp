@@ -68,10 +68,10 @@ ColorTracking::ColorTracking() : PatchObject(){
 void ColorTracking::newObject(){
     this->setName("color tracking");
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
+    this->addOutlet(VP_LINK_ARRAY,"blobsData");
+    this->addOutlet(VP_LINK_ARRAY),"contourData";
+    this->addOutlet(VP_LINK_ARRAY,"convexHullData");
 
     this->setCustomVar(static_cast<float>(128.0),"THRESHOLD");
     this->setCustomVar(static_cast<float>(10.0),"MIN_AREA_RADIUS");

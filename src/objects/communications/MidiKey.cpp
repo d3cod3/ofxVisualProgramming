@@ -60,8 +60,8 @@ void MidiKey::newObject(){
     this->setName("midi key");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"velocity");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"pitch");
+    this->addOutlet(VP_LINK_NUMERIC,"velocity");
 
     this->setCustomVar(0.0f,"INDEX");
 }

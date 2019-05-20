@@ -58,14 +58,16 @@ LoadBang::LoadBang() : PatchObject(){
     wait                = static_cast<size_t>(floor(*(float *)&_inletParams[0]));
     startTime           = ofGetElapsedTimeMillis();
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
 void LoadBang::newObject(){
     this->setName("loadbang");
     this->addInlet(VP_LINK_NUMERIC,"delay");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
+    this->addOutlet(VP_LINK_STRING,"bang");
 
     this->setCustomVar(static_cast<float>(wait),"TIME");
 }
@@ -100,6 +102,12 @@ void LoadBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     header->update();
     timeSetting->update();
 
+    if(!loaded){
+        loaded = true;
+        timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
+        wait = ofToInt(timeSetting->getText());
+    }
+
     if(this->inletsConnected[0] && static_cast<size_t>(floor(*(float *)&_inletParams[0])) != wait){
         wait = static_cast<size_t>(floor(*(float *)&_inletParams[0]));
         timeSetting->setText(ofToString(wait));
@@ -121,6 +129,7 @@ void LoadBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     }else{
         *static_cast<string *>(_outletParams[1]) = "";
     }
+
 }
 
 //--------------------------------------------------------------

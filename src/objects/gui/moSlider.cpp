@@ -63,7 +63,7 @@ void moSlider::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"value");
 
     this->setCustomVar(static_cast<float>(0),"MIN");
     this->setCustomVar(static_cast<float>(1),"MAX");

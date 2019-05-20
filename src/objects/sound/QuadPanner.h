@@ -64,6 +64,7 @@ public:
 
     ofxDatGui*              gui;
     ofxDatGui2dPad*         pad;
+    float                   padX, padY;
 
     int                     bufferSize;
     int                     sampleRate;

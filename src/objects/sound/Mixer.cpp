@@ -64,7 +64,7 @@ void Mixer::newObject(){
     this->addInlet(VP_LINK_AUDIO,"s4");
     this->addInlet(VP_LINK_AUDIO,"s5");
     this->addInlet(VP_LINK_AUDIO,"s6");
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"mainOutput");
 }
 
 //--------------------------------------------------------------

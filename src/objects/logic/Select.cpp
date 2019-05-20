@@ -59,7 +59,7 @@ void Select::newObject(){
     this->setName("select");
     this->addInlet(VP_LINK_NUMERIC,"sel");
     for(int i=0;i<this->numOutlets;i++){
-        this->addOutlet(VP_LINK_NUMERIC);
+        this->addOutlet(VP_LINK_NUMERIC,"bang"+ofToString(i));
     }
 }
 

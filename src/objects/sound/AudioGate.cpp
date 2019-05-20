@@ -69,7 +69,7 @@ void AudioGate::newObject(){
     this->addInlet(VP_LINK_AUDIO,"s3");
     this->addInlet(VP_LINK_AUDIO,"s4");
     this->addInlet(VP_LINK_AUDIO,"s5");
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"output");
 }
 
 //--------------------------------------------------------------

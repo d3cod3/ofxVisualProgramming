@@ -62,7 +62,7 @@ void moPlayerControls::newObject(){
     this->setName("player controls");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"select");
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_STRING,"command");
 
     this->setCustomVar(static_cast<float>(0),"PAUSE");
     this->setCustomVar(static_cast<float>(0),"LOOP");

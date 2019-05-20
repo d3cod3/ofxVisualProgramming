@@ -44,7 +44,7 @@ FftExtractor::FftExtractor() : PatchObject(){
 
     this->initInletsState();
     
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 }
 
@@ -52,7 +52,7 @@ FftExtractor::FftExtractor() : PatchObject(){
 void FftExtractor::newObject(){
     this->setName("fft extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"fft");
 }
 
 //--------------------------------------------------------------

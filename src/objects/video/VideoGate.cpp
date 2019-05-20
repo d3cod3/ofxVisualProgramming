@@ -67,7 +67,7 @@ void VideoGate::newObject(){
     this->addInlet(VP_LINK_TEXTURE,"t3");
     this->addInlet(VP_LINK_TEXTURE,"t4");
     this->addInlet(VP_LINK_TEXTURE,"t5");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
 }
 
 //--------------------------------------------------------------

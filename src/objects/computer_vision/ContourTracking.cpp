@@ -66,10 +66,10 @@ ContourTracking::ContourTracking() : PatchObject(){
 void ContourTracking::newObject(){
     this->setName("contour tracking");
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
+    this->addOutlet(VP_LINK_ARRAY,"blobsData");
+    this->addOutlet(VP_LINK_ARRAY),"contourData";
+    this->addOutlet(VP_LINK_ARRAY,"convexHullData");
 
     this->setCustomVar(static_cast<float>(0.0),"INVERT_BW");
     this->setCustomVar(static_cast<float>(128.0),"THRESHOLD");

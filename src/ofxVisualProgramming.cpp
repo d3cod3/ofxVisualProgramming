@@ -45,7 +45,11 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"key pressed","key released","midi key","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
     objectsMatrix["communications"] = vecInit;
 
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
     vecInit = {"background subtraction","chroma key","color tracking","contour tracking","face tracker","haar tracking","motion detection","optical flow"};
+#elif defined(TARGET_WIN32)
+    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
+#endif
     objectsMatrix["computer vision"] = vecInit;
 
     vecInit = {"bang multiplexer","floats to vector","vector at","vector concat"};
@@ -308,9 +312,9 @@ void ofxVisualProgramming::draw(){
         }
 
         if(isRetina){
-            font->draw(patchObjects[selectedObjectID]->linkTypeName,fontSize/2,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
+            font->draw(patchObjects[selectedObjectID]->linkTypeName+" "+patchObjects[selectedObjectID]->getOutletName(selectedObjectLink),fontSize/2,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
         }else{
-            font->draw(patchObjects[selectedObjectID]->linkTypeName,fontSize,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
+            font->draw(patchObjects[selectedObjectID]->linkTypeName+" "+patchObjects[selectedObjectID]->getOutletName(selectedObjectLink),fontSize,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
         }
 
     }
@@ -544,9 +548,9 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
                     if(patchObjects[selectedObjectID]->getIsPDSPPatchableObject() || patchObjects[selectedObjectID]->getName() == "audio device"){
                         patchObjects[selectedObjectID]->pdspOut[i].disconnectOut();
                     }
-                    //if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
-                        //patchObjects[selectedObjectID]->pdspIn[patchObjects[selectedObjectID]->outPut[i]->toInletID].disconnectIn();
-                    //}
+                    if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
+                        patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->pdspIn[patchObjects[selectedObjectID]->outPut[i]->toInletID].disconnectIn();
+                    }
                 }
                 //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
             }
@@ -1099,6 +1103,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
     if(objname == "bash script"){
         tempObj = new BashScript();
+    }else if(objname == "face tracker"){
+        tempObj = new FaceTracker();
     }else
 #endif
 
@@ -1321,8 +1327,6 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new ColorTracking();
     }else if(objname == "contour tracking"){
         tempObj = new ContourTracking();
-    }else if(objname == "face tracker"){
-        tempObj = new FaceTracker();
     }else if(objname == "haar tracking"){
         tempObj = new HaarTracking();
     }else if(objname == "motion detection"){

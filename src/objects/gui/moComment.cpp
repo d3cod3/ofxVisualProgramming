@@ -64,7 +64,7 @@ void moComment::newObject(){
     this->setName("comment");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_STRING,"comment");
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_STRING,"text");
 }
 
 //--------------------------------------------------------------

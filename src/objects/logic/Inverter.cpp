@@ -54,7 +54,7 @@ Inverter::Inverter() : PatchObject(){
 void Inverter::newObject(){
     this->setName("inverter");
     this->addInlet(VP_LINK_NUMERIC,"trigger");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"invertedTrigger");
 }
 
 //--------------------------------------------------------------

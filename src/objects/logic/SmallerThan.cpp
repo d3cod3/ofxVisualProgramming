@@ -56,7 +56,7 @@ SmallerThan::SmallerThan() : PatchObject(){
 void SmallerThan::newObject(){
     this->setName("<");
     this->addInlet(VP_LINK_NUMERIC,"number");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"trigger");
 
     this->setCustomVar(static_cast<float>(inputValue),"NUMBER");
 }

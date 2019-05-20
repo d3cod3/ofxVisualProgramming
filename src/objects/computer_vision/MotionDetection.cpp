@@ -63,7 +63,7 @@ MotionDetection::MotionDetection() : PatchObject(){
 void MotionDetection::newObject(){
     this->setName("motion detection");
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"motionQuantity");
 
     this->setCustomVar(static_cast<float>(100.0),"THRESHOLD");
     this->setCustomVar(static_cast<float>(10.0),"NOISE_COMP");

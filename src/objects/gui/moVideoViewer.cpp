@@ -60,7 +60,7 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 void moVideoViewer::newObject(){
     this->setName("video viewer");
     this->addInlet(VP_LINK_TEXTURE,"texture");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"texture");
 }
 
 //--------------------------------------------------------------

@@ -61,7 +61,7 @@ void ChromaKey::newObject(){
     this->setName("chroma key");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_TEXTURE,"mask");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
 
     this->setCustomVar(static_cast<float>(0.0),"RED");
     this->setCustomVar(static_cast<float>(0.0),"GREEN");

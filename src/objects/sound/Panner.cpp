@@ -63,8 +63,8 @@ void Panner::newObject(){
     this->setName("panner");
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"left");
+    this->addOutlet(VP_LINK_AUDIO,"right");
 
     this->setCustomVar(static_cast<float>(0),"PAN");
 }

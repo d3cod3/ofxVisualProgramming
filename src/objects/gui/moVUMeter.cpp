@@ -56,7 +56,7 @@ moVUMeter::moVUMeter() : PatchObject(){
 void moVUMeter::newObject(){
     this->setName("vu meter");
     this->addInlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"RMS");
 }
 
 //--------------------------------------------------------------

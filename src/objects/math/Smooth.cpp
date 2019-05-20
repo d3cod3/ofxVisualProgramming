@@ -57,7 +57,7 @@ Smooth::Smooth() : PatchObject(){
 void Smooth::newObject(){
     this->setName("smooth");
     this->addInlet(VP_LINK_NUMERIC,"number");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"smoothedValue");
 
     this->setCustomVar(1.0f,"SMOOTHING");
 }

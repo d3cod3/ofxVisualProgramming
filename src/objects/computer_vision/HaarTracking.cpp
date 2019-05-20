@@ -68,8 +68,8 @@ HaarTracking::HaarTracking() : PatchObject(){
 void HaarTracking::newObject(){
     this->setName("haar tracking");
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
+    this->addOutlet(VP_LINK_ARRAY,"haarBlobsData");
 }
 
 //--------------------------------------------------------------

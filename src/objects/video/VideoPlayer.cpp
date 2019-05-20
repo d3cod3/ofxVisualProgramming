@@ -82,7 +82,7 @@ void VideoPlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
 }
 
 //--------------------------------------------------------------

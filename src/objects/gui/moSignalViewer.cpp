@@ -56,8 +56,8 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 void moSignalViewer::newObject(){
     this->setName("signal viewer");
     this->addInlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_AUDIO,"signal");
 }
 
 //--------------------------------------------------------------

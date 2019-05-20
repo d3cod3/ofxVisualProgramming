@@ -54,7 +54,7 @@ KeyPressed::KeyPressed() : PatchObject(){
 //--------------------------------------------------------------
 void KeyPressed::newObject(){
     this->setName("key pressed");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(lastKey),"KEY");
 }

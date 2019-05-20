@@ -40,11 +40,11 @@ HPCPExtractor::HPCPExtractor() : PatchObject(){
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
-    _outletParams[0] = new vector<float>();  // MFCC Data
+    _outletParams[0] = new vector<float>();  // HPCP Data
 
     this->initInletsState();
 
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 
     startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM;
@@ -55,7 +55,7 @@ HPCPExtractor::HPCPExtractor() : PatchObject(){
 void HPCPExtractor::newObject(){
     this->setName("hpcp extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"harmonicPitchClassProfile");
 }
 
 //--------------------------------------------------------------
@@ -66,6 +66,8 @@ void HPCPExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
+            startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM;
+            endPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE;
             XML.popTag();
         }
     }

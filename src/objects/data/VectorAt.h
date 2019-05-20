@@ -46,4 +46,15 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
+
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+
+    ofxDatGui*              gui;
+    ofxDatGuiHeader*        header;
+    ofxDatGuiTextInput*     atPosition;
+
+    int                     vectorAt;
+    bool                    loaded;
 };

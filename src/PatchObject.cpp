@@ -528,6 +528,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
                 for (int i=0;i<totalOutlets;i++){
                     if(XML.pushTag("link",i)){
                         outlets.push_back(XML.getValue("type", 0));
+                        outletsNames.push_back(XML.getValue("name", ""));
                         XML.popTag();
                     }
                 }
@@ -617,6 +618,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                                 int newLink = XML.addTag("link");
                                 if(XML.pushTag("link",newLink)){
                                     XML.setValue("type",outlets.at(i));
+                                    XML.setValue("name",outletsNames.at(i));
                                     XML.popTag();
                                 }
                             }

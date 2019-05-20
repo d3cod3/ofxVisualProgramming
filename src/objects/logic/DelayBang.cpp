@@ -70,8 +70,8 @@ void DelayBang::newObject(){
     this->setName("delay bang");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
+    this->addOutlet(VP_LINK_STRING,"bang");
 
     this->setCustomVar(static_cast<float>(wait),"MS");
 }

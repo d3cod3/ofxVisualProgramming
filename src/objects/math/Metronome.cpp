@@ -63,7 +63,7 @@ void Metronome::newObject(){
     this->setName("metronome");
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"sync");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(wait),"TIME");
 }

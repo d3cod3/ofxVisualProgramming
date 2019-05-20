@@ -64,8 +64,8 @@ void Range::newObject(){
     this->setName("range");
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"min");
+    this->addOutlet(VP_LINK_NUMERIC,"max");
 
     this->setCustomVar(static_cast<float>(inputValue1),"NUMBER1");
     this->setCustomVar(static_cast<float>(inputValue2),"NUMBER2");

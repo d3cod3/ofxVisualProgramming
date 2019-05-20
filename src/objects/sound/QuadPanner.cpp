@@ -51,6 +51,9 @@ QuadPanner::QuadPanner() : PatchObject(){
 
     this->initInletsState();
 
+    padX                    = 0.5f;
+    padY                    = 0.5f;
+
     isGUIObject             = true;
     this->isOverGUI         = true;
 
@@ -68,10 +71,10 @@ void QuadPanner::newObject(){
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan X");
     this->addInlet(VP_LINK_NUMERIC,"pan Y");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"channel1");
+    this->addOutlet(VP_LINK_AUDIO,"channel2");
+    this->addOutlet(VP_LINK_AUDIO,"channel3");
+    this->addOutlet(VP_LINK_AUDIO,"channel4");
 
     this->setCustomVar(static_cast<float>(0),"XPOS");
     this->setCustomVar(static_cast<float>(0),"YPOS");
@@ -130,17 +133,37 @@ void QuadPanner::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     gui->update();
     pad->update();
 
-    if(this->inletsConnected[1] && this->inletsConnected[2]){
-        pad->setPoint(ofPoint(*(float *)&_inletParams[1]*pad->getBounds().width,*(float *)&_inletParams[2]*pad->getBounds().height,pad->getPoint().z));
-        gain_ctrl1.set(ofClamp(ofMap(*(float *)&_inletParams[2],0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(*(float *)&_inletParams[1],0.0,1.0,1.0,0.0),0.0f,1.0f));
-        gain_ctrl2.set(ofClamp(ofMap(*(float *)&_inletParams[2],0.0,1.0,1.0,0.0),0.0f,1.0f) * *(float *)&_inletParams[1]);
-        gain_ctrl3.set(ofClamp(*(float *)&_inletParams[2],0.0f,1.0f) * ofClamp(ofMap(*(float *)&_inletParams[1],0.0,1.0,1.0,0.0),0.0f,1.0f));
-        gain_ctrl4.set(ofClamp(*(float *)&_inletParams[2],0.0f,1.0f) * *(float *)&_inletParams[1]);
+    if(this->inletsConnected[1]){
+        if(*(float *)&_inletParams[1] == 0.0){
+            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
+        }else if(*(float *)&_inletParams[1] == 1.0){
+            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
+        }else{
+            pad->setPoint(ofPoint(*(float *)&_inletParams[1]*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
+        }
+        padX    = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
     }
+    if(this->inletsConnected[2]){
+        if(*(float *)&_inletParams[2] == 0.0){
+            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
+        }else if(*(float *)&_inletParams[2] == 1.0){
+            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
+        }else{
+            pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[2]*pad->getBounds().height,pad->getPoint().z));
+        }
+        padY    = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+    }
+
+    gain_ctrl1.set(ofClamp(ofMap(padY,0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(padX,0.0,1.0,1.0,0.0),0.0f,1.0f));
+    gain_ctrl2.set(ofClamp(ofMap(padY,0.0,1.0,1.0,0.0),0.0f,1.0f) * padX);
+    gain_ctrl3.set(ofClamp(padY,0.0f,1.0f) * ofClamp(ofMap(padX,0.0,1.0,1.0,0.0),0.0f,1.0f));
+    gain_ctrl4.set(ofClamp(padY,0.0f,1.0f) * padX);
 
     if(!loaded){
         loaded = true;
         pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
+        padX                    = this->getCustomVar("XPOS")/pad->getBounds().width;
+        padY                    = this->getCustomVar("YPOS")/pad->getBounds().height;
         gain_ctrl1.set(ofClamp(ofMap(this->getCustomVar("YPOS")/pad->getBounds().height,0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(this->getCustomVar("XPOS")/pad->getBounds().width,0.0,1.0,1.0,0.0),0.0f,1.0f));
         gain_ctrl2.set(ofClamp(ofMap(this->getCustomVar("YPOS")/pad->getBounds().height,0.0,1.0,1.0,0.0),0.0f,1.0f) * this->getCustomVar("XPOS")/pad->getBounds().width);
         gain_ctrl3.set(ofClamp(this->getCustomVar("YPOS")/pad->getBounds().height,0.0f,1.0f) * ofClamp(ofMap(this->getCustomVar("XPOS")/pad->getBounds().width,0.0,1.0,1.0,0.0),0.0f,1.0f));
@@ -228,6 +251,10 @@ void QuadPanner::dragGUIObject(ofVec3f _m){
 void QuadPanner::on2dPadEvent(ofxDatGui2dPadEvent e){
     this->setCustomVar(static_cast<float>(e.x),"XPOS");
     this->setCustomVar(static_cast<float>(e.y),"YPOS");
+
+    padX                    = static_cast<float>(e.x/pad->getBounds().width);
+    padY                    = static_cast<float>(e.y/pad->getBounds().height);
+
     gain_ctrl1.set(ofClamp(ofMap(static_cast<float>(e.y/pad->getBounds().height),0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(static_cast<float>(e.x/pad->getBounds().width),0.0,1.0,1.0,0.0),0.0f,1.0f));
     gain_ctrl2.set(ofClamp(ofMap(static_cast<float>(e.y/pad->getBounds().height),0.0,1.0,1.0,0.0),0.0f,1.0f) * static_cast<float>(e.x/pad->getBounds().width));
     gain_ctrl3.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * ofClamp(ofMap(static_cast<float>(e.x/pad->getBounds().width),0.0,1.0,1.0,0.0),0.0f,1.0f));

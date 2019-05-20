@@ -51,7 +51,7 @@ BeatExtractor::BeatExtractor() : PatchObject(){
 void BeatExtractor::newObject(){
     this->setName("beat extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"beat");
 }
 
 //--------------------------------------------------------------

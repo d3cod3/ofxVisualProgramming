@@ -60,8 +60,8 @@ OscPulse::OscPulse() : PatchObject(){
 void OscPulse::newObject(){
     this->setName("pulse");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 
     this->setCustomVar(static_cast<float>(30),"PITCH");
 }

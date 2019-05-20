@@ -65,8 +65,8 @@ OpticalFlow::OpticalFlow() : PatchObject(){
 void OpticalFlow::newObject(){
     this->setName("optical flow");
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
+    this->addOutlet(VP_LINK_ARRAY,"opticalFlowData");
 
     this->setCustomVar(static_cast<float>(0.0),"FB_USE_GAUSSIAN");
     this->setCustomVar(static_cast<float>(0.25),"FB_PYR_SCALE");

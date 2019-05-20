@@ -107,9 +107,9 @@ NoteToFrequency::NoteToFrequency() : PatchObject(){
 void NoteToFrequency::newObject(){
     this->setName("note to frequency");
     this->addInlet(VP_LINK_NUMERIC,"midi note");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_NUMERIC,"frequency");
+    this->addOutlet(VP_LINK_NUMERIC,"midiPitch");
+    this->addOutlet(VP_LINK_STRING,"englishNotation");
 }
 
 //--------------------------------------------------------------

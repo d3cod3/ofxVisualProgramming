@@ -62,7 +62,7 @@ void SigMult::newObject(){
     this->setName("amp");
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"gain");
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"amplifiedSignal");
 
     this->setCustomVar(static_cast<float>(1),"GAIN");
 }

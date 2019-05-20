@@ -58,7 +58,7 @@ void Clamp::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"result");
 
 }
 

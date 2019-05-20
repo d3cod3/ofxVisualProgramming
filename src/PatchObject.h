@@ -137,7 +137,7 @@ public:
 
     void                    addButton(char letter, bool *variableToControl, int offset);
     void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); }
-    void                    addOutlet(int type) { outlets.push_back(type); }
+    void                    addOutlet(int type,string name = "") { outlets.push_back(type);outletsNames.push_back(name); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
@@ -156,6 +156,7 @@ public:
     bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
     int                     getOutletType(int oid) const { return outlets[oid]; }
+    string                  getOutletName(int oid) const { return outletsNames[oid]; }
     int                     getNumInlets() { return inlets.size(); }
     int                     getNumOutlets() { return outlets.size(); }
     bool                    getIsOutletConnected(int oid);
@@ -220,6 +221,7 @@ protected:
     string                  filepath;
     string                  patchFile;
     vector<string>          inletsNames;
+    vector<string>          outletsNames;
     vector<int>             inlets;
     vector<int>             outlets;
     vector<bool>            inletsMouseNear;

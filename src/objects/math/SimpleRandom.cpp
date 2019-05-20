@@ -63,7 +63,7 @@ void SimpleRandom::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"random");
 }
 
 //--------------------------------------------------------------

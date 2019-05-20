@@ -209,7 +209,7 @@ void AudioDevice::resetSystemObject(){
 
         this->outlets.clear();
         for( int i = 0; i < in_channels; i++){
-            this->addOutlet(VP_LINK_AUDIO);
+            this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
         }
 
         this->inletsConnected.clear();
@@ -351,7 +351,7 @@ void AudioDevice::loadDeviceInfo(){
         if(isNewObject){
             this->outlets.clear();
             for( int i = 0; i < in_channels; i++){
-                this->addOutlet(VP_LINK_AUDIO);
+                this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
             }
         }
 

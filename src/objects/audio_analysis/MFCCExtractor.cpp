@@ -44,7 +44,7 @@ MFCCExtractor::MFCCExtractor() : PatchObject(){
 
     this->initInletsState();
 
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 
     startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM;
@@ -55,7 +55,7 @@ MFCCExtractor::MFCCExtractor() : PatchObject(){
 void MFCCExtractor::newObject(){
     this->setName("mfcc extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"melFrequencyCepstrumCoefficents");
 }
 
 //--------------------------------------------------------------
@@ -66,6 +66,8 @@ void MFCCExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
+            startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM;
+            endPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM;
             XML.popTag();
         }
     }

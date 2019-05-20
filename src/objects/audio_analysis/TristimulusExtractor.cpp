@@ -44,7 +44,7 @@ TristimulusExtractor::TristimulusExtractor() : PatchObject(){
 
     this->initInletsState();
 
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 
     startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE;
@@ -55,7 +55,7 @@ TristimulusExtractor::TristimulusExtractor() : PatchObject(){
 void TristimulusExtractor::newObject(){
     this->setName("tristimulus extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"tristimulus");
 }
 
 //--------------------------------------------------------------
@@ -66,6 +66,8 @@ void TristimulusExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainW
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
+            startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE;
+            endPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
             XML.popTag();
         }
     }

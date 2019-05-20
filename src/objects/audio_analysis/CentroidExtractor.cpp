@@ -40,12 +40,12 @@ CentroidExtractor::CentroidExtractor() : PatchObject(){
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
-    _outletParams[0] = new float(); // Pitch
+    _outletParams[0] = new float(); // Centroid
     *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 
     arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 4;
@@ -55,7 +55,7 @@ CentroidExtractor::CentroidExtractor() : PatchObject(){
 void CentroidExtractor::newObject(){
     this->setName("centroid extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"centroid");
 }
 
 //--------------------------------------------------------------
@@ -66,6 +66,7 @@ void CentroidExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
+            arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 4;
             XML.popTag();
         }
     }

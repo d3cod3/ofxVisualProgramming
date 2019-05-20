@@ -48,26 +48,65 @@ Add::Add() : PatchObject(){
 
     this->initInletsState();
 
+    isGUIObject         = true;
+    this->isOverGUI     = true;
+
+    number              = 0.0f;
+    loaded              = false;
 }
 
 //--------------------------------------------------------------
 void Add::newObject(){
     this->setName("add");
-    this->addInlet(VP_LINK_NUMERIC,"number");
-    this->addInlet(VP_LINK_NUMERIC,"number");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addInlet(VP_LINK_NUMERIC,"n1");
+    this->addInlet(VP_LINK_NUMERIC,"n2");
+    this->addOutlet(VP_LINK_NUMERIC,"result");
+
+    this->setCustomVar(0,"NUMBER");
 
 }
 
 //--------------------------------------------------------------
 void Add::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onTextInputEvent(this, &Add::onTextInputEvent);
 
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+
+    numberBox = gui->addTextInput("N2","0");
+    numberBox->setUseCustomMouse(true);
+    numberBox->setText(ofToString(static_cast<int>(floor(this->getCustomVar("NUMBER")))));
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void Add::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
-    if(this->inletsConnected[0] && this->inletsConnected[1]){
-      *(float *)&_outletParams[0] = *(float *)&_inletParams[0] + *(float *)&_inletParams[1];
+
+    gui->update();
+    header->update();
+    numberBox->update();
+
+    if(!loaded){
+        loaded = true;
+        numberBox->setText(ofToString(this->getCustomVar("NUMBER")));
+        number = this->getCustomVar("NUMBER");
+    }
+
+    if(this->inletsConnected[1]){
+        numberBox->setText(ofToString(*(float *)&_inletParams[1]));
+        number = *(float *)&_inletParams[1];
+    }
+
+    if(this->inletsConnected[0]){
+      *(float *)&_outletParams[0] = *(float *)&_inletParams[0] + number;
     }else{
       *(float *)&_outletParams[0] = 0.0f;
     }
@@ -78,10 +117,63 @@ void Add::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
+    gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void Add::removeObjectContent(){
 
+}
+
+//--------------------------------------------------------------
+void Add::mouseMovedObjectContent(ofVec3f _m){
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    numberBox->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || numberBox->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+}
+
+//--------------------------------------------------------------
+void Add::dragGUIObject(ofVec3f _m){
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        numberBox->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void Add::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == numberBox){
+            if(isInteger(e.text)){
+                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"NUMBER");
+                number = ofToFloat(e.text);
+            }else if(isFloat(e.text)){
+                this->setCustomVar(ofToFloat(e.text),"NUMBER");
+                number = ofToFloat(e.text);
+            }else{
+                numberBox->setText(e.text);
+            }
+        }
+    }
 }

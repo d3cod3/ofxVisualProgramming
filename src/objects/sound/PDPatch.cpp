@@ -84,11 +84,11 @@ void PDPatch::newObject(){
     this->addInlet(VP_LINK_AUDIO,"audio in 3");
     this->addInlet(VP_LINK_AUDIO,"audio in 4");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_AUDIO,"audioOut1");
+    this->addOutlet(VP_LINK_AUDIO,"audioOut2");
+    this->addOutlet(VP_LINK_AUDIO,"audioOut3");
+    this->addOutlet(VP_LINK_AUDIO,"audioOut4");
+    this->addOutlet(VP_LINK_ARRAY,"data");
 
     this->setCustomVar(0.0f,"/path_to_pd_externals");
 }

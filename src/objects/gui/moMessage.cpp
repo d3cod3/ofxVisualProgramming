@@ -61,7 +61,7 @@ void moMessage::newObject(){
     this->setName("message");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_STRING,"message");
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_STRING,"message");
 }
 
 //--------------------------------------------------------------

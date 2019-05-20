@@ -71,7 +71,7 @@ PythonScript::PythonScript() : PatchObject(){
 void PythonScript::newObject(){
     this->setName("python script");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"_mosaic_data_outlet");
 }
 
 //--------------------------------------------------------------

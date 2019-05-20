@@ -45,7 +45,7 @@ RMSExtractor::RMSExtractor() : PatchObject(){
 
     this->initInletsState();
 
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 
     arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
@@ -55,7 +55,7 @@ RMSExtractor::RMSExtractor() : PatchObject(){
 void RMSExtractor::newObject(){
     this->setName("rms extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"RMS");
 }
 
 //--------------------------------------------------------------
@@ -66,6 +66,7 @@ void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
+            arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
             XML.popTag();
         }
     }

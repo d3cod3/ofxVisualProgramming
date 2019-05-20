@@ -56,7 +56,7 @@ Constant::Constant() : PatchObject(){
 void Constant::newObject(){
     this->setName("constant");
     this->addInlet(VP_LINK_NUMERIC,"number");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"number");
 
     this->setCustomVar(static_cast<float>(inputValue),"NUMBER");
 }

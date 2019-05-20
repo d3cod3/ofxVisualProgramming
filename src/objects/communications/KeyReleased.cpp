@@ -54,7 +54,7 @@ KeyReleased::KeyReleased() : PatchObject(){
 //--------------------------------------------------------------
 void KeyReleased::newObject(){
     this->setName("key released");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(lastKey),"KEY");
 }

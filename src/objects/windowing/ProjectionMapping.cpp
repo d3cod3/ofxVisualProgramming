@@ -79,7 +79,7 @@ void ProjectionMapping::newObject(){
     this->setName("projection mapping");
     this->addInlet(VP_LINK_TEXTURE,"source");
     this->addInlet(VP_LINK_TEXTURE,"background");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"mappingOutput");
 }
 
 //--------------------------------------------------------------

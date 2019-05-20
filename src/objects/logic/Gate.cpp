@@ -71,7 +71,7 @@ void Gate::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"f3");
     this->addInlet(VP_LINK_NUMERIC,"f4");
     this->addInlet(VP_LINK_NUMERIC,"f5");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"output");
 }
 
 //--------------------------------------------------------------

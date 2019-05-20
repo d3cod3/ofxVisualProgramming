@@ -87,9 +87,9 @@ LuaScript::LuaScript() : PatchObject(){
 void LuaScript::newObject(){
     this->setName("lua script");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_SPECIAL);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_TEXTURE,"generatedTexture");
+    this->addOutlet(VP_LINK_SPECIAL,"mouseKeyboardInteractivity");
+    this->addOutlet(VP_LINK_ARRAY,"_mosaic_data_outlet");
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");

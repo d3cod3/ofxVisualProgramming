@@ -76,7 +76,7 @@ void pdspAHR::newObject(){
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"duration");
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"envelopedSignal");
 
     this->setCustomVar(static_cast<float>(envelopeDuration),"DURATION");
     this->setCustomVar(1.0f,"ATTACK_CURVE");

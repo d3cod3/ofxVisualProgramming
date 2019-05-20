@@ -75,7 +75,7 @@ void pdspReverb::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"damping");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"amount");
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"reverbSignal");
 
     this->setCustomVar(static_cast<float>(0),"TIME");
     this->setCustomVar(static_cast<float>(0.5),"DENSITY");

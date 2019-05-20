@@ -61,7 +61,7 @@ void MidiKnob::newObject(){
     this->setName("midi knob");
     this->addInlet(VP_LINK_NUMERIC,"control");
     this->addInlet(VP_LINK_NUMERIC,"value");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"value");
 
     this->setCustomVar(0.0f,"INDEX");
 }

@@ -53,7 +53,7 @@ SimpleNoise::SimpleNoise() : PatchObject(){
 void SimpleNoise::newObject(){
     this->setName("simple noise");
     this->addInlet(VP_LINK_NUMERIC,"step");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"noise");
 }
 
 //--------------------------------------------------------------

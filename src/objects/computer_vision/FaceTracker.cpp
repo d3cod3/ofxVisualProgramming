@@ -44,7 +44,7 @@ FaceTracker::FaceTracker() : PatchObject(){
     _inletParams[0] = new ofTexture();  // input
 
     _outletParams[0] = new ofTexture(); // output texture
-    _outletParams[1] = new vector<float>(); // optical flow data
+    _outletParams[1] = new vector<float>(); // face tracker data
 
     this->initInletsState();
 
@@ -61,8 +61,8 @@ FaceTracker::FaceTracker() : PatchObject(){
 void FaceTracker::newObject(){
     this->setName("face tracker");
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
+    this->addOutlet(VP_LINK_ARRAY,"faceData");
 
 }
 

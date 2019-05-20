@@ -51,8 +51,8 @@ pdspWhiteNoise::pdspWhiteNoise() : PatchObject(){
 //--------------------------------------------------------------
 void pdspWhiteNoise::newObject(){
     this->setName("white noise");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 }
 
 //--------------------------------------------------------------

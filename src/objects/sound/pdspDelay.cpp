@@ -71,7 +71,7 @@ void pdspDelay::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"damping");
     this->addInlet(VP_LINK_NUMERIC,"feedback");
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_AUDIO,"delayedSignal");
 
     this->setCustomVar(static_cast<float>(0.1),"TIME");
     this->setCustomVar(static_cast<float>(0),"DAMPING");

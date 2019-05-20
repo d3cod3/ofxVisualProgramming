@@ -69,7 +69,7 @@ void Counter::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"start");
     this->addInlet(VP_LINK_NUMERIC,"end");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"count");
 
     this->setCustomVar(*(float *)&_inletParams[1],"START");
     this->setCustomVar(*(float *)&_inletParams[2],"END");

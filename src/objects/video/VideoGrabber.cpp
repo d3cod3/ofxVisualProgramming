@@ -65,7 +65,7 @@ VideoGrabber::VideoGrabber() : PatchObject(){
 //--------------------------------------------------------------
 void VideoGrabber::newObject(){
     this->setName("video grabber");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"deviceImage");
 
     this->setCustomVar(static_cast<float>(camWidth),"CAM_WIDTH");
     this->setCustomVar(static_cast<float>(camHeight),"CAM_HEIGHT");

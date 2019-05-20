@@ -62,8 +62,8 @@ void mo2DPad::newObject(){
     this->setName("2d pad");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"padX");
+    this->addOutlet(VP_LINK_NUMERIC,"padY");
 
     this->setCustomVar(static_cast<float>(0),"XPOS");
     this->setCustomVar(static_cast<float>(0),"YPOS");
@@ -90,11 +90,23 @@ void mo2DPad::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
     pad->update();
 
     if(this->inletsConnected[0]){
-        pad->setPoint(ofPoint(*(float *)&_inletParams[0]*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
+        if(*(float *)&_inletParams[0] == 0.0){
+            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
+        }else if(*(float *)&_inletParams[0] == 1.0){
+            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
+        }else{
+            pad->setPoint(ofPoint(*(float *)&_inletParams[0]*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
+        }
     }
 
     if(this->inletsConnected[1]){
-        pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[1]*pad->getBounds().height,pad->getPoint().z));
+        if(*(float *)&_inletParams[1] == 0.0){
+            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
+        }else if(*(float *)&_inletParams[1] == 1.0){
+            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
+        }else{
+            pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[1]*pad->getBounds().height,pad->getPoint().z));
+        }
     }
 
     if(!loaded){

@@ -63,8 +63,8 @@ void MidiPad::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"velocity");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"value");
+    this->addOutlet(VP_LINK_NUMERIC,"velocity");
 
     this->setCustomVar(0.0f,"INDEX");
 }

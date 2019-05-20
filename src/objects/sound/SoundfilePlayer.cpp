@@ -89,8 +89,8 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addInlet(VP_LINK_NUMERIC,"bang");
-    this->addOutlet(VP_LINK_AUDIO);
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
+    this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 }
 
 //--------------------------------------------------------------

@@ -70,7 +70,7 @@ void VideoCrop::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addInlet(VP_LINK_NUMERIC,"width");
     this->addInlet(VP_LINK_NUMERIC,"height");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"croppedOutput");
 
     this->setCustomVar(0.0f,"POSX");
     this->setCustomVar(0.0f,"POSY");

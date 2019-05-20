@@ -47,6 +47,12 @@ VectorAt::VectorAt() : PatchObject(){
 
     this->initInletsState();
 
+    isGUIObject         = true;
+    this->isOverGUI     = true;
+
+    vectorAt            = 0;
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -54,20 +60,54 @@ void VectorAt::newObject(){
     this->setName("vector at");
     this->addInlet(VP_LINK_ARRAY,"vector");
     this->addInlet(VP_LINK_NUMERIC,"at");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"value");
+
+    this->setCustomVar(0,"AT");
 }
 
 //--------------------------------------------------------------
 void VectorAt::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onTextInputEvent(this, &VectorAt::onTextInputEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+
+    atPosition = gui->addTextInput("AT","0");
+    atPosition->setUseCustomMouse(true);
+    atPosition->setText(ofToString(static_cast<int>(floor(this->getCustomVar("AT")))));
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void VectorAt::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
-    if(this->inletsConnected[0] && this->inletsConnected[1]){
+
+    gui->update();
+    header->update();
+    atPosition->update();
+
+    if(!loaded){
+        loaded = true;
+        atPosition->setText(ofToString(static_cast<int>(floor(this->getCustomVar("AT")))));
+        vectorAt = ofToInt(atPosition->getText());
+    }
+
+    if(this->inletsConnected[1]){
+        atPosition->setText(ofToString(static_cast<int>(floor(*(float *)&_inletParams[1]))));
+        vectorAt = static_cast<int>(floor(*(float *)&_inletParams[1]));
+    }
+
+    if(this->inletsConnected[0]){
         if(static_cast<vector<float> *>(_inletParams[0])->size() > 0){
-            if(static_cast<int>(floor(*(float *)&_inletParams[1])) < static_cast<vector<float> *>(_inletParams[0])->size()){
-                *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(static_cast<int>(floor(*(float *)&_inletParams[1])));
+            if(vectorAt < static_cast<vector<float> *>(_inletParams[0])->size()){
+                *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(vectorAt);
             }else{
                 *(float *)&_outletParams[0] = 0.0f;
             }
@@ -77,6 +117,8 @@ void VectorAt::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     }else{
         *(float *)&_outletParams[0] = 0.0f;
     }
+
+
 }
 
 //--------------------------------------------------------------
@@ -84,10 +126,60 @@ void VectorAt::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
+    gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void VectorAt::removeObjectContent(){
 
+}
+
+//--------------------------------------------------------------
+void VectorAt::mouseMovedObjectContent(ofVec3f _m){
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    atPosition->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || atPosition->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+}
+
+//--------------------------------------------------------------
+void VectorAt::dragGUIObject(ofVec3f _m){
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        atPosition->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void VectorAt::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(!header->getIsCollapsed()){
+        if(e.target == atPosition){
+            if(isInteger(e.text)){
+                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"AT");
+                vectorAt = ofToInt(e.text);
+            }else{
+                atPosition->setText(e.text);
+            }
+        }
+    }
 }

@@ -68,7 +68,7 @@ BashScript::BashScript() : PatchObject(){
 void BashScript::newObject(){
     this->setName("bash script");
     this->addInlet(VP_LINK_STRING,"control");
-    this->addOutlet(VP_LINK_STRING);
+    this->addOutlet(VP_LINK_STRING,"scriptSTDOutput");
 }
 
 //--------------------------------------------------------------

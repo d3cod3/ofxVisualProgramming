@@ -241,7 +241,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
         if(e.target == addOSCNumber){
             _outletParams[this->numOutlets] = new float();
             *(float *)&_outletParams[this->numOutlets] = 0.0f;
-            this->addOutlet(VP_LINK_NUMERIC);
+            this->addOutlet(VP_LINK_NUMERIC,"number");
 
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("N","/labelnumber");
@@ -258,7 +258,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
         }else if(e.target == addOSCText){
             _outletParams[this->numOutlets] = new string();  // control
             *static_cast<string *>(_outletParams[this->numOutlets]) = "";
-            this->addOutlet(VP_LINK_STRING);
+            this->addOutlet(VP_LINK_STRING,"text");
 
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("T","/labeltext");
@@ -274,7 +274,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             resetOutlets();
         }else if(e.target == addOSCVector){
             _outletParams[this->numOutlets] = new vector<float>();
-            this->addOutlet(VP_LINK_ARRAY);
+            this->addOutlet(VP_LINK_ARRAY,"numbersArray");
 
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("V","/labelvector");
@@ -290,7 +290,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             resetOutlets();
         }else if(e.target == addOSCTexture){
             _outletParams[this->numOutlets] = new ofTexture();
-            this->addOutlet(VP_LINK_TEXTURE);
+            this->addOutlet(VP_LINK_TEXTURE,"texture");
 
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("I","/labelimage");

@@ -53,8 +53,8 @@ MidiScore::MidiScore() : PatchObject(){
 void MidiScore::newObject(){
     this->setName("midi score");
     this->addInlet(VP_LINK_ARRAY,"score");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"trigger");
+    this->addOutlet(VP_LINK_NUMERIC,"midiNote");
 }
 
 //--------------------------------------------------------------

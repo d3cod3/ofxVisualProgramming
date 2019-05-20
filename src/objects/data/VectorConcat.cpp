@@ -60,7 +60,7 @@ void VectorConcat::newObject(){
     this->addInlet(VP_LINK_ARRAY,"v4");
     this->addInlet(VP_LINK_ARRAY,"v5");
     this->addInlet(VP_LINK_ARRAY,"v6");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"output");
 }
 
 //--------------------------------------------------------------

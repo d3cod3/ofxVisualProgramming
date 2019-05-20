@@ -54,7 +54,7 @@ moTrigger::moTrigger() : PatchObject(){
 void moTrigger::newObject(){
     this->setName("trigger");
     this->addInlet(VP_LINK_NUMERIC,"trigger");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"trigger");
 }
 
 //--------------------------------------------------------------

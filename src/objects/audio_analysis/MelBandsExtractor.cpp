@@ -40,11 +40,11 @@ MelBandsExtractor::MelBandsExtractor() : PatchObject(){
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
-    _outletParams[0] = new vector<float>();  // FFT Data
+    _outletParams[0] = new vector<float>();  // MEL bands Data
 
     this->initInletsState();
     
-    bufferSize = 256;
+    bufferSize = 1024;
     spectrumSize = (bufferSize/2) + 1;
 }
 
@@ -52,7 +52,7 @@ MelBandsExtractor::MelBandsExtractor() : PatchObject(){
 void MelBandsExtractor::newObject(){
     this->setName("mel bands extractor");
     this->addInlet(VP_LINK_ARRAY,"data");
-    this->addOutlet(VP_LINK_ARRAY);
+    this->addOutlet(VP_LINK_ARRAY,"melBandsSpectralEnergy");
 }
 
 //--------------------------------------------------------------

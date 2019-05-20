@@ -76,7 +76,7 @@ void VideoDelay::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addInlet(VP_LINK_NUMERIC,"scale");
     this->addInlet(VP_LINK_NUMERIC,"alpha");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"feedbackOutput");
 
     this->setCustomVar(0.0f,"POSX");
     this->setCustomVar(0.0f,"POSY");

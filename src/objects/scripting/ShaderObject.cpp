@@ -76,7 +76,7 @@ ShaderObject::ShaderObject() : PatchObject(){
 //--------------------------------------------------------------
 void ShaderObject::newObject(){
     this->setName("shader object");
-    this->addOutlet(VP_LINK_TEXTURE);
+    this->addOutlet(VP_LINK_TEXTURE,"output");
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
