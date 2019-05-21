@@ -129,6 +129,10 @@ void VideoDelay::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
             needToGrab = true;
             backBufferTex->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB);
             delayFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA);
+            delayFbo->begin();
+            glColor4f(0.0f,0.0f,0.0f,1.0f);
+            ofDrawRectangle(0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            delayFbo->end();
             backBufferTex = static_cast<ofTexture *>(_inletParams[0]);
         }
 
