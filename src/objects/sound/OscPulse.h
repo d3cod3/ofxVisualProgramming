@@ -60,6 +60,7 @@ public:
     pdsp::VAOscillator      osc;
     pdsp::Scope             scope;
     pdsp::ValueControl      pitch_ctrl;
+    pdsp::ValueControl      pw_ctrl;
 
     ofPolyline              waveform;
 
@@ -67,6 +68,7 @@ public:
     ofxDatGuiHeader*        header;
     ofxDatGuiLabel*         oscInfo;
     ofxDatGuiSlider*        slider;
+    ofxDatGuiSlider*        sliderPW;
 
     int                     bufferSize;
     int                     sampleRate;

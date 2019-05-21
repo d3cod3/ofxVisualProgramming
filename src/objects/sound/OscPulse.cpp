@@ -35,11 +35,13 @@
 //--------------------------------------------------------------
 OscPulse::OscPulse() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // pitch
     *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new float();  // pulse width
+    *(float *)&_inletParams[1] = 0.5f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
     _outletParams[1] = new vector<float>(); // audio buffer
@@ -60,10 +62,12 @@ OscPulse::OscPulse() : PatchObject(){
 void OscPulse::newObject(){
     this->setName("pulse");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
+    this->addInlet(VP_LINK_NUMERIC,"pulseWidth");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 
     this->setCustomVar(static_cast<float>(30),"PITCH");
+    this->setCustomVar(0.5f,"PW");
 }
 
 //--------------------------------------------------------------
@@ -83,6 +87,8 @@ void OscPulse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->addBreak();
     slider = gui->addSlider("Pitch",0,127,30);
     slider->setUseCustomMouse(true);
+    sliderPW = gui->addSlider("PW",0.0f,1.0f,this->getCustomVar("PW"));
+    sliderPW->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -95,6 +101,10 @@ void OscPulse::setupAudioOutObjectContent(pdsp::Engine &engine){
     pitch_ctrl.set(72.0f);
     pitch_ctrl.enableSmoothing(50.0f);
 
+    pw_ctrl >> osc.in_pw();
+    pw_ctrl.set(0.5f);
+    pw_ctrl.enableSmoothing(50.0f);
+
     osc.out_pulse() >> this->pdspOut[0];
     osc.out_pulse() >> scope >> engine.blackhole();
 }
@@ -105,6 +115,7 @@ void OscPulse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     gui->update();
     header->update();
     slider->update();
+    sliderPW->update();
 
     waveform.clear();
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {
@@ -123,10 +134,17 @@ void OscPulse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
         oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(*(float *)&_inletParams[0],0,127))) + " Hz");
     }
 
+    if(this->inletsConnected[1]){
+        pw_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0,1.0));
+        sliderPW->setValue(pw_ctrl.get());
+    }
+
     if(!loaded){
         loaded = true;
         slider->setValue(this->getCustomVar("PITCH"));
+        sliderPW->setValue(this->getCustomVar("PW"));
         pitch_ctrl.set(ofClamp(slider->getValue(),0,127));
+        pw_ctrl.set(ofClamp(sliderPW->getValue(),0.0,1.0));
     }
 
 }
@@ -177,9 +195,10 @@ void OscPulse::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     oscInfo->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    sliderPW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || oscInfo->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || oscInfo->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos()) || sliderPW->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -193,6 +212,7 @@ void OscPulse::dragGUIObject(ofVec3f _m){
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         oscInfo->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        sliderPW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -211,7 +231,15 @@ void OscPulse::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void OscPulse::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"PITCH");
-    pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
-    oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
+    if(!header->getIsCollapsed()){
+        if(e.target == slider){
+            this->setCustomVar(static_cast<float>(e.value),"PITCH");
+            pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
+            oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
+        }else if(e.target == sliderPW){
+            this->setCustomVar(static_cast<float>(e.value),"PW");
+            pw_ctrl.set(ofClamp(static_cast<float>(e.value),0.0,1.0));
+        }
+    }
+
 }
