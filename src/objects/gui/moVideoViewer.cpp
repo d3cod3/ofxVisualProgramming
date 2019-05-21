@@ -61,11 +61,22 @@ void moVideoViewer::newObject(){
     this->setName("video viewer");
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_TEXTURE,"texture");
+
+    this->setCustomVar(static_cast<float>(this->width),"WIDTH");
+    this->setCustomVar(static_cast<float>(this->height),"HEIGHT");
 }
 
 //--------------------------------------------------------------
 void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    this->width = static_cast<int>(floor(this->getCustomVar("WIDTH")));
+    this->height = static_cast<int>(floor(this->getCustomVar("HEIGHT")));
+
+    box->setWidth(this->width);
+    box->setHeight(this->height);
+
+    headerBox->setWidth(this->width);
+
+    resizeQuad.set(this->width-20,this->height-20,20,20);
 }
 
 //--------------------------------------------------------------
@@ -135,6 +146,9 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
         headerBox->setWidth(_m.x - this->getPos().x);
 
         resizeQuad.set(this->width-20,this->height-20,20,20);
+
+        this->setCustomVar(static_cast<float>(this->width),"WIDTH");
+        this->setCustomVar(static_cast<float>(this->height),"HEIGHT");
 
     }else{
         ofNotifyEvent(dragEvent, nId);
