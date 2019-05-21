@@ -133,6 +133,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     linkActivateDistance    = 5;
     isVPDragging            = false;
 
+    isOutletSelected        = false;
     selectedObjectLinkType  = -1;
     selectedObjectLink      = -1;
     selectedObjectID        = -1;
@@ -274,7 +275,8 @@ void ofxVisualProgramming::draw(){
         TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_draw");
     }
 
-    if(selectedObjectLink >= 0){
+    // draw outlet cables with var name
+    if(selectedObjectLink >= 0 && isOutletSelected){
         int lt = patchObjects[selectedObjectID]->getOutletType(selectedObjectLink);
         switch(lt) {
         case 0: ofSetColor(COLOR_NUMERIC_LINK);
@@ -459,13 +461,25 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     canvas.mousePressed(e);
 
+    isOutletSelected = false;
     selectedObjectLink = -1;
     selectedObjectLinkType = -1;
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(patchObjects[it->first] != nullptr){
+            for(int p=0;p<it->second->getNumInlets();p++){
+                if(it->second->getInletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
+                    isOutletSelected = false;
+                    selectedObjectID = it->first;
+                    selectedObjectLink = p;
+                    selectedObjectLinkType = it->second->getInletType(p);
+                    it->second->setIsActive(false);
+                    break;
+                }
+            }
             for(int p=0;p<it->second->getNumOutlets();p++){
                 if(it->second->getOutletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
+                    isOutletSelected = true;
                     selectedObjectID = it->first;
                     selectedObjectLink = p;
                     selectedObjectLinkType = it->second->getOutletType(p);
@@ -481,6 +495,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
                 if(it->second->getIsActive()){
+                    isOutletSelected = false;
                     selectedObjectID = it->first;
                     selectedObjectLinkType = -1;
                     break;
@@ -506,7 +521,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
         it->second->mouseReleased(actualMouse.x,actualMouse.y,patchObjects);
     }
 
-    if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty()){
+    if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && isOutletSelected){
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(selectedObjectID != it->first){
                 for (int j=0;j<it->second->getNumInlets();j++){
@@ -524,7 +539,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
         }
     }
 
-    if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0){
+    if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0 && isOutletSelected){
         vector<bool> tempEraseLinks;
         for(int j=0;j<static_cast<int>(patchObjects[selectedObjectID]->outPut.size());j++){
             //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
@@ -558,8 +573,54 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
         patchObjects[selectedObjectID]->outPut = tempBuffer;
 
+    }else if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && !isOutletSelected){
+        // Disconnect selected --> inlet link
+
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                if(it->second->outPut[j]->toObjectID == selectedObjectID && it->second->outPut[j]->toInletID == selectedObjectLink){
+                    // remove link
+                    vector<bool> tempEraseLinks;
+                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                        if(it->second->outPut[s]->toObjectID == selectedObjectID && it->second->outPut[s]->toInletID == selectedObjectLink){
+                            tempEraseLinks.push_back(true);
+                        }else{
+                            tempEraseLinks.push_back(false);
+                        }
+                    }
+
+                    vector<PatchLink*> tempBuffer;
+                    tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
+
+                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                        if(!tempEraseLinks[s]){
+                            tempBuffer.push_back(it->second->outPut[s]);
+                        }else{
+                            it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
+                            if(patchObjects[selectedObjectID] != nullptr){
+                                patchObjects[selectedObjectID]->inletsConnected[selectedObjectLink] = false;
+                                if(it->second->getIsPDSPPatchableObject() || it->second->getName() == "audio device"){
+                                    it->second->pdspOut[s].disconnectOut();
+                                }
+                                if(patchObjects[selectedObjectID]->getIsPDSPPatchableObject()){
+                                    patchObjects[selectedObjectID]->pdspIn[selectedObjectLink].disconnectIn();
+                                }
+                            }
+                        }
+                    }
+
+                    it->second->outPut = tempBuffer;
+
+                    break;
+                }
+
+            }
+
+        }
+
     }
 
+    isOutletSelected        = false;
     selectedObjectLinkType  = -1;
     selectedObjectLink      = -1;
 

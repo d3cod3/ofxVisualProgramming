@@ -119,6 +119,7 @@ public:
     // PATCH OBJECTS
     map<int,PatchObject*>   patchObjects;
     vector<int>             eraseIndexes;
+    bool                    isOutletSelected;
     int                     selectedObjectLinkType;
     int                     selectedObjectLink;
     int                     selectedObjectID;
