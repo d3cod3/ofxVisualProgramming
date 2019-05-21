@@ -599,9 +599,6 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
                             it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
                             if(patchObjects[selectedObjectID] != nullptr){
                                 patchObjects[selectedObjectID]->inletsConnected[selectedObjectLink] = false;
-                                if(it->second->getIsPDSPPatchableObject() || it->second->getName() == "audio device"){
-                                    it->second->pdspOut[s].disconnectOut();
-                                }
                                 if(patchObjects[selectedObjectID]->getIsPDSPPatchableObject()){
                                     patchObjects[selectedObjectID]->pdspIn[selectedObjectLink].disconnectIn();
                                 }
