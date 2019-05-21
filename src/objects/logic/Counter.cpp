@@ -59,6 +59,7 @@ Counter::Counter() : PatchObject(){
     _st                 = 0;
     _en                 = 1;
     startConnect        = false;
+    resetCounter        = false;
 
     loaded              = false;
 }
@@ -71,8 +72,8 @@ void Counter::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"end");
     this->addOutlet(VP_LINK_NUMERIC,"count");
 
-    this->setCustomVar(*(float *)&_inletParams[1],"START");
-    this->setCustomVar(*(float *)&_inletParams[2],"END");
+    this->setCustomVar(static_cast<float>(_st),"START");
+    this->setCustomVar(static_cast<float>(_en),"END");
 }
 
 //--------------------------------------------------------------
@@ -108,6 +109,13 @@ void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
             bang = false;
         }else{
             bang = true;
+        }
+    }
+
+    if(!this->inletsConnected[1]){
+        if(resetCounter){
+            resetCounter = false;
+            *(float *)&_outletParams[0] = _st;
         }
     }
 
@@ -203,11 +211,12 @@ void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
         if(isInteger(e.text)){
             this->setCustomVar(static_cast<float>(ofToInt(e.text)),"START");
             _st = ofToInt(e.text);
+            resetCounter        = true;
         }
     }else if(e.target == end){
-      if(isInteger(e.text)){
-          this->setCustomVar(static_cast<float>(ofToInt(e.text)),"END");
-          _en = ofToInt(e.text);
-      }
+        if(isInteger(e.text)){
+            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"END");
+            _en = ofToInt(e.text);
+        }
     }
 }

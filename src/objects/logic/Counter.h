@@ -58,6 +58,7 @@ public:
     int                     _st;
     int                     _en;
     bool                    startConnect;
+    bool                    resetCounter;
 
     bool                    loaded;
 
