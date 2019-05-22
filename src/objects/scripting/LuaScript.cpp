@@ -80,6 +80,8 @@ LuaScript::LuaScript() : PatchObject(){
     luaScriptLoaded     = false;
     luaScriptSaved      = false;
 
+    modalInfo           = false;
+
     static_cast<LiveCoding *>(_outletParams[1])->hide = true;
 }
 
@@ -169,7 +171,8 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
-    if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0){
+    if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
+        modalInfo = true;
         fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
     }
 

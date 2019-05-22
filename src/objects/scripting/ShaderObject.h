@@ -141,6 +141,8 @@ public:
     ofImage             *kuro;
     float               posX, posY, drawW, drawH;
 
+    bool                modalInfo;
+
 protected:
     ThreadedCommand     tempCommand;
 

@@ -82,6 +82,8 @@ public:
 
     string              lastMessage;
 
+    bool                modalInfo;
+
 protected:
     ThreadedCommand         tempCommand;
     std::condition_variable condition;

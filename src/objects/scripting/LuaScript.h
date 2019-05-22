@@ -107,6 +107,8 @@ public:
     bool                luaScriptLoaded;
     bool                luaScriptSaved;
 
+    bool                modalInfo;
+
 protected:
     ThreadedCommand         tempCommand;
     bool                    needToLoadScript;

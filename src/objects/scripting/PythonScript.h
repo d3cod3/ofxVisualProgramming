@@ -102,6 +102,8 @@ public:
     bool                pythonScriptLoaded;
     bool                pythonScriptSaved;
 
+    bool                modalInfo;
+
 
 protected:
     ThreadedCommand         tempCommand;
