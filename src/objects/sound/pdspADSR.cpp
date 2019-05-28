@@ -150,7 +150,7 @@ void pdspADSR::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     sustainDuration         = (((controlPoints.at(2).x-rect.x)/rect.width * 100)-((controlPoints.at(1).x-rect.x)/rect.width * 100))/100;
     releaseDuration         = (((controlPoints.at(3).x-rect.x)/rect.width * 100)-((controlPoints.at(2).x-rect.x)/rect.width * 100))/100;
 
-    env.set(attackDuration*this->getCustomVar("DURATION"),decayDuration*this->getCustomVar("DURATION"),sustainDuration*this->getCustomVar("DURATION"),releaseDuration*this->getCustomVar("DURATION"));
+    env.set(attackDuration*this->getCustomVar("DURATION"),decayDuration*this->getCustomVar("DURATION"),0.5f,releaseDuration*this->getCustomVar("DURATION"));
 
     // bang --> trigger envelope
     if(this->inletsConnected[1]){
