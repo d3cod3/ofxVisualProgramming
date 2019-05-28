@@ -123,29 +123,33 @@ void MidiSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
-        deviceSelector->update();
+        if(midiDevicesList.size() > 0){
+            deviceSelector->update();
+        }
     }
 
-    if(midiOut.isOpen()){
-        if(this->inletsConnected[0] && this->inletsConnected[1] && this->inletsConnected[2] && this->inletsConnected[3]){
-            if(lastNote != *(float *)&_inletParams[2] && trigger){
-                trigger = false;
-            }
-
-            if(*(float *)&_inletParams[0] != 0.0f && !trigger){
-                trigger = true;
-                midiOut.sendNoteOn(static_cast<int>(floor(*(float *)&_inletParams[1])),static_cast<int>(floor(*(float *)&_inletParams[2])),static_cast<int>(floor(*(float *)&_inletParams[3])));
-            }
-
-            if(*(float *)&_inletParams[0] == 0.0f && trigger){
-                trigger = false;
-                for(int i=0;i<128;i++){
-                    midiOut.sendNoteOff(static_cast<int>(floor(*(float *)&_inletParams[1])),i,0);
+    if(midiDevicesList.size() > 0){
+        if(midiOut.isOpen()){
+            if(this->inletsConnected[0] && this->inletsConnected[1] && this->inletsConnected[2] && this->inletsConnected[3]){
+                if(lastNote != *(float *)&_inletParams[2] && trigger){
+                    trigger = false;
                 }
 
-            }
+                if(*(float *)&_inletParams[0] != 0.0f && !trigger){
+                    trigger = true;
+                    midiOut.sendNoteOn(static_cast<int>(floor(*(float *)&_inletParams[1])),static_cast<int>(floor(*(float *)&_inletParams[2])),static_cast<int>(floor(*(float *)&_inletParams[3])));
+                }
 
-            lastNote = *(float *)&_inletParams[2];
+                if(*(float *)&_inletParams[0] == 0.0f && trigger){
+                    trigger = false;
+                    for(int i=0;i<128;i++){
+                        midiOut.sendNoteOff(static_cast<int>(floor(*(float *)&_inletParams[1])),i,0);
+                    }
+
+                }
+
+                lastNote = *(float *)&_inletParams[2];
+            }
         }
     }
 
@@ -174,8 +178,10 @@ void MidiSender::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void MidiSender::removeObjectContent(){
-    if(midiOut.isOpen()){
-        midiOut.closePort();
+    if(midiDevicesList.size() > 0){
+        if(midiOut.isOpen()){
+            midiOut.closePort();
+        }
     }
 }
 
@@ -183,10 +189,16 @@ void MidiSender::removeObjectContent(){
 void MidiSender::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    if(midiDevicesList.size() > 0){
+        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
+        if(midiDevicesList.size() > 0){
+            this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
+        }else{
+            this->isOverGUI = header->hitTest(_m-this->getPos());
+        }
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -197,7 +209,9 @@ void MidiSender::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        if(midiDevicesList.size() > 0){
+            deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        }
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -242,8 +256,10 @@ void MidiSender::resetMIDISettings(int devID){
 //--------------------------------------------------------------
 void MidiSender::onMatrixEvent(ofxDatGuiMatrixEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == deviceSelector){
-            resetMIDISettings(e.child);
+        if(midiDevicesList.size() > 0){
+            if(e.target == deviceSelector){
+                resetMIDISettings(e.child);
+            }
         }
     }
 }

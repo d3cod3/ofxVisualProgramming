@@ -127,21 +127,25 @@ void MidiReceiver::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
-        deviceSelector->update();
+        if(midiDevicesList.size() > 0){
+            deviceSelector->update();
+        }
     }
 
-    if(midiIn.isOpen()){
-        *(float *)&_outletParams[0] = lastMessage.channel;
-        *(float *)&_outletParams[1] = lastMessage.control;
-        *(float *)&_outletParams[2] = lastMessage.value;
-        *(float *)&_outletParams[3] = lastMessage.pitch;
-        *(float *)&_outletParams[4] = lastMessage.velocity;
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
-        *(float *)&_outletParams[1] = 0.0f;
-        *(float *)&_outletParams[2] = 0.0f;
-        *(float *)&_outletParams[3] = 0.0f;
-        *(float *)&_outletParams[4] = 0.0f;
+    if(midiDevicesList.size() > 0){
+        if(midiIn.isOpen()){
+            *(float *)&_outletParams[0] = lastMessage.channel;
+            *(float *)&_outletParams[1] = lastMessage.control;
+            *(float *)&_outletParams[2] = lastMessage.value;
+            *(float *)&_outletParams[3] = lastMessage.pitch;
+            *(float *)&_outletParams[4] = lastMessage.velocity;
+        }else{
+            *(float *)&_outletParams[0] = 0.0f;
+            *(float *)&_outletParams[1] = 0.0f;
+            *(float *)&_outletParams[2] = 0.0f;
+            *(float *)&_outletParams[3] = 0.0f;
+            *(float *)&_outletParams[4] = 0.0f;
+        }
     }
 
 }
@@ -173,20 +177,28 @@ void MidiReceiver::drawObjectContent(ofxFontStash *font){
 
 //--------------------------------------------------------------
 void MidiReceiver::removeObjectContent(){
-    if(midiIn.isOpen()){
-        midiIn.closePort();
+    if(midiDevicesList.size() > 0){
+        if(midiIn.isOpen()){
+            midiIn.closePort();
+        }
+        midiIn.removeListener(this);
     }
-    midiIn.removeListener(this);
 }
 
 //--------------------------------------------------------------
 void MidiReceiver::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    if(midiDevicesList.size() > 0){
+        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
+        if(midiDevicesList.size() > 0){
+            this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
+        }else{
+            this->isOverGUI = header->hitTest(_m-this->getPos());
+        }
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -197,7 +209,9 @@ void MidiReceiver::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        if(midiDevicesList.size() > 0){
+            deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        }
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -238,8 +252,10 @@ void MidiReceiver::resetMIDISettings(int devID){
 //--------------------------------------------------------------
 void MidiReceiver::onMatrixEvent(ofxDatGuiMatrixEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == deviceSelector){
-            resetMIDISettings(e.child);
+        if(midiDevicesList.size() > 0){
+            if(e.target == deviceSelector){
+                resetMIDISettings(e.child);
+            }
         }
     }
 }

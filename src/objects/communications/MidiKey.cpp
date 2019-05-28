@@ -94,8 +94,8 @@ void MidiKey::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         if(static_cast<int>(floor(*(float *)&_inletParams[0])) != 0){
             lastPitch = static_cast<int>(floor(*(float *)&_inletParams[0]));
             if(lastPitch == static_cast<int>(floor(this->getCustomVar("INDEX")))){
-                *(float *)&_outletParams[0] = *(float *)&_inletParams[0]/127.0f;
-                *(float *)&_outletParams[1] = *(float *)&_inletParams[1]/127.0f;
+                *(float *)&_outletParams[0] = *(float *)&_inletParams[0];
+                *(float *)&_outletParams[1] = *(float *)&_inletParams[1];
             }
         }else{
             *(float *)&_outletParams[0] = 0.0f;
