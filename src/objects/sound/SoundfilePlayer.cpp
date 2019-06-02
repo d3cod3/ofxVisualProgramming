@@ -68,7 +68,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     loop                = false;
     volume              = 1.0f;
     speed               = 1.0;
-    sampleRate          = 44100;
+    sampleRate          = 44100.0;
     bufferSize          = 256;
 
     lastSoundfile       = "";
@@ -373,7 +373,7 @@ void SoundfilePlayer::loadSettings(){
 
     if(XML.loadFile(patchFile)){
         if(XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_out",0);
+            sampleRate = static_cast<double>(XML.getValue("sample_rate_out",0));
             bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
         }
