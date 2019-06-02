@@ -92,7 +92,7 @@ void Gate::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedF
 
     if(isOpen){
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        if(openInlet >= 1 && openInlet <= this->numInlets){
+        if(openInlet >= 1 && openInlet <= this->numInlets && this->inletsConnected[openInlet]){
             *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
         }
     }else{
