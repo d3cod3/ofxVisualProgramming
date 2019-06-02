@@ -83,6 +83,7 @@
 #include "objects/data/FloatsToVector.h"
 #include "objects/data/VectorAt.h"
 #include "objects/data/VectorConcat.h"
+#include "objects/data/VectorGate.h"
 
 // graphics objects
 #include "objects/graphics/ImageExporter.h"

@@ -52,7 +52,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"bang multiplexer","floats to vector","vector at","vector concat"};
+    vecInit = {"bang multiplexer","floats to vector","vector at","vector concat","vector gate"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {"image exporter","image loader"};
@@ -66,9 +66,6 @@ void ofxVisualProgramming::initObjectMatrix(){
 
     vecInit = {"==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot"};
     objectsMatrix["logic"] = vecInit;
-
-    vecInit = {};
-    objectsMatrix["machine learning"] = vecInit;
 
     vecInit = {"add","clamp","constant","divide","metronome","multiply","range","simple noise","simple random","smooth","subtract"};
     objectsMatrix["math"] = vecInit;
@@ -1247,6 +1244,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VectorConcat();
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
+    }else if(objname == "vector gate"){
+        tempObj = new VectorGate();
     // -------------------------------------- Graphics
     }else if(objname == "image exporter"){
         tempObj = new ImageExporter();
