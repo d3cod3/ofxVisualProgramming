@@ -53,11 +53,12 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            setup();
     void            initObjectMatrix();
+    void            setup();
     void            update();
     void            draw();
     void            drawLivePatchingSession();
+    void            resetTempFolder();
     void            exit();
 
     void            mouseMoved(ofMouseEventArgs &e);

@@ -192,6 +192,9 @@ void ofxVisualProgramming::setup(){
         canvas.setScale(2);
     }
 
+    // RESET TEMP FOLDER
+    resetTempFolder();
+
     // Threaded File Dialogs
     fileDialog.setup();
     ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
@@ -380,6 +383,15 @@ void ofxVisualProgramming::drawLivePatchingSession(){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::resetTempFolder(){
+    ofDirectory dir;
+    dir.listDir(ofToDataPath("temp/"));
+    for(size_t i = 0; i < dir.size(); i++){
+        dir.getFile(i).remove();
+    }
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
     fileDialog.stop();
 
@@ -389,11 +401,7 @@ void ofxVisualProgramming::exit(){
 
     dspON = false;
 
-    ofDirectory dir;
-    dir.listDir(ofToDataPath("temp/"));
-    for(size_t i = 0; i < dir.size(); i++){
-        dir.getFile(i).remove();
-    }
+    resetTempFolder();
 }
 
 //--------------------------------------------------------------
