@@ -55,6 +55,7 @@
 #include "objects/audio_analysis/TristimulusExtractor.h"
 
 // communications objects
+#include "objects/communications/ArduinoSerial.h"
 #include "objects/communications/KeyPressed.h"
 #include "objects/communications/KeyReleased.h"
 #include "objects/communications/MidiKey.h"
