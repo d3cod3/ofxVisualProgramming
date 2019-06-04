@@ -52,7 +52,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"bang multiplexer","floats to vector","vector at","vector concat","vector gate"};
+    vecInit = {"bang multiplexer","floats to vector","vector at","vector concat","vector gate","vector multiply"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {"image exporter","image loader"};
@@ -1249,6 +1249,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new FloatsToVector();
     }else if(objname == "vector gate"){
         tempObj = new VectorGate();
+    }else if(objname == "vector multiply"){
+        tempObj = new VectorMultiply();
     // -------------------------------------- Graphics
     }else if(objname == "image exporter"){
         tempObj = new ImageExporter();
