@@ -85,4 +85,5 @@
 
 #define LIVECODING_COLORS       "livecoding/colorScheme.xml"
 
-#define	NOTES                   128
+#define	NOTES                           128
+#define MOSAIC_DEFAULT_BUFFER_SIZE     1024
