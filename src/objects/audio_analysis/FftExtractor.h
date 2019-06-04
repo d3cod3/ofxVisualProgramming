@@ -50,4 +50,7 @@ public:
     int             bufferSize;
     int             spectrumSize;
 
+    bool            isNewConnection;
+    bool            isConnectionRight;
+
 };

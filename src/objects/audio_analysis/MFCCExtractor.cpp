@@ -44,11 +44,14 @@ MFCCExtractor::MFCCExtractor() : PatchObject(){
 
     this->initInletsState();
 
-    bufferSize = 1024;
+    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
     spectrumSize = (bufferSize/2) + 1;
 
     startPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM;
     endPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM;
+
+    isNewConnection   = false;
+    isConnectionRight = false;
 }
 
 //--------------------------------------------------------------
@@ -81,13 +84,38 @@ void MFCCExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void MFCCExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+
+    if(this->inletsConnected[0]){
+        if(!isNewConnection){
+            isNewConnection = true;
+            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                    for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                        if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                            if(it->second->getName() == "audio analyzer"){
+                                isConnectionRight = true;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }else{
+        isNewConnection = false;
+        isConnectionRight = false;
+    }
+
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
         int index = 0;
         for(int i=startPosition;i<endPosition;i++){
             static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
             index++;
         }
+    }else if(this->inletsConnected[0] && !isConnectionRight){
+        ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer object ONLY! Just reconnect it right!",this->getName().c_str());
     }
+
 }
 
 //--------------------------------------------------------------

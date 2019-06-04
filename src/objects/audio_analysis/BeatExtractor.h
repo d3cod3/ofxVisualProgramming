@@ -48,4 +48,7 @@ public:
 
     bool            beat;
 
+    bool            isNewConnection;
+    bool            isConnectionRight;
+
 };

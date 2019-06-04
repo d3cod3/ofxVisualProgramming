@@ -55,4 +55,7 @@ public:
     int             startPosition;
     int             endPosition;
 
+    bool            isNewConnection;
+    bool            isConnectionRight;
+
 };

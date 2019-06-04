@@ -55,4 +55,7 @@ public:
 
     int             arrayPosition;
 
+    bool            isNewConnection;
+    bool            isConnectionRight;
+
 };
