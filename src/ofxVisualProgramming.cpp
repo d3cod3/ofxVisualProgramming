@@ -42,7 +42,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
-    vecInit = {"key pressed","key released","midi key","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
+    vecInit = {"arduino serial","key pressed","key released","midi key","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
     objectsMatrix["communications"] = vecInit;
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
@@ -393,10 +393,11 @@ void ofxVisualProgramming::exit(){
     fileDialog.stop();
 
     if(dspON){
-        //delete engine;
+        /*delete engine;
+        engine = nullptr;
+        dspON = false;*/
+        deactivateDSP();
     }
-
-    dspON = false;
 
     resetTempFolder();
 }
@@ -1215,6 +1216,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "tristimulus extractor"){
         tempObj = new TristimulusExtractor();
     // -------------------------------------- Communications
+    }else if(objname == "arduino serial"){
+        tempObj = new ArduinoSerial();
     }else if(objname == "key pressed"){
         tempObj = new KeyPressed();
     }else if(objname == "key released"){
@@ -1596,6 +1599,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
                 XML.popTag();
             }
+        }
+
+        if(dspON){
+            deactivateDSP();
         }
 
     }
