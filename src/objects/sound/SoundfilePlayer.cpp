@@ -157,7 +157,7 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
         }
     }
 
-    if(loading && ofGetElapsedTimeMillis()-startTime > 100){
+    if(loading && ofGetElapsedTimeMillis()-startTime > 500){
         loading = false;
         if(filepath != "none"){
             loadAudioFile(filepath);
