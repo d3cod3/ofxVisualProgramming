@@ -128,9 +128,17 @@ void VideoExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
     if(videoSaved){
         videoSaved = false;
         recorder.setOutputPath(filepath);
-        recorder.setBitRate(8000);
+        recorder.setBitRate(20000);
         recorder.startCustomRecord();
     }
+
+}
+
+//--------------------------------------------------------------
+void VideoExporter::drawObjectContent(ofxFontStash *font){
+    ofSetColor(255);
+    ofSetCircleResolution(50);
+    ofEnableAlphaBlending();
 
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -164,13 +172,6 @@ void VideoExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
         needToGrab = false;
     }
 
-}
-
-//--------------------------------------------------------------
-void VideoExporter::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255);
-    ofSetCircleResolution(50);
-    ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
             drawW           = this->width;
