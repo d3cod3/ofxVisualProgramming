@@ -68,15 +68,7 @@ void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
-    waveform.clear();
-    if(this->inletsConnected[0]){
-        for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
-            float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
-            float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
-            float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
-            waveform.addVertex(x, y);
-        }
-    }
+
 }
 
 //--------------------------------------------------------------
@@ -98,11 +90,20 @@ void moSignalViewer::removeObjectContent(){
 
 //--------------------------------------------------------------
 void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
+    waveform.clear();
     if(this->inletsConnected[0]){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+
+        for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
+            float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
+            float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
+            float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
+            waveform.addVertex(x, y);
+        }
     }else{
         *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
         *static_cast<ofSoundBuffer *>(_outletParams[1]) *= 0.0f;
     }
+
 }

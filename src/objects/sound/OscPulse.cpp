@@ -117,17 +117,6 @@ void OscPulse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     slider->update();
     sliderPW->update();
 
-    waveform.clear();
-    for(size_t i = 0; i < scope.getBuffer().size(); i++) {
-        float sample = scope.getBuffer().at(i);
-        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
-
-        // SIGNAL BUFFER
-        static_cast<vector<float> *>(_outletParams[1])->at(i) = sample;
-    }
-
     if(this->inletsConnected[0]){
         pitch_ctrl.set(ofClamp(*(float *)&_inletParams[0],0,127));
         slider->setValue(pitch_ctrl.get());
@@ -185,6 +174,16 @@ void OscPulse::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void OscPulse::audioOutObject(ofSoundBuffer &outputBuffer){
+    waveform.clear();
+    for(size_t i = 0; i < scope.getBuffer().size(); i++) {
+        float sample = scope.getBuffer().at(i);
+        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
+        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
+        waveform.addVertex(x, y);
+
+        // SIGNAL BUFFER DATA
+        static_cast<vector<float> *>(_outletParams[1])->at(i) = sample;
+    }
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
