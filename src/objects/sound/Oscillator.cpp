@@ -115,6 +115,7 @@ void Oscillator::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     if(!loaded){
         loaded = true;
         slider->setValue(this->getCustomVar("PITCH"));
+        oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(this->getCustomVar("PITCH"),0,127))) + " Hz");
         pitch_ctrl.set(ofClamp(slider->getValue(),0,127));
     }
 

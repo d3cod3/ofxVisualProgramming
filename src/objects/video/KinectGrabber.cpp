@@ -42,8 +42,6 @@ KinectGrabber::KinectGrabber() : PatchObject(){
     _outletParams[1] = new ofTexture(); // depth
     _outletParams[2] = new ofxKinect(); // kinect reference
 
-    this->specialLinkTypeName = "ofxKinect";
-
     this->initInletsState();
 
     isGUIObject         = true;
@@ -69,7 +67,6 @@ void KinectGrabber::newObject(){
     this->setName("kinect grabber");
     this->addOutlet(VP_LINK_TEXTURE,"kinectImage");
     this->addOutlet(VP_LINK_TEXTURE,"kinectDepth");
-    this->addOutlet(VP_LINK_SPECIAL);
 
     this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
     this->setCustomVar(static_cast<float>(isIR),"INFRARED");

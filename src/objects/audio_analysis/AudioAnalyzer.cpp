@@ -57,6 +57,8 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
     isConnected                     = false;
 
     newConnection                   = false;
+
+    isLoaded                        = false;
 }
 
 //--------------------------------------------------------------
@@ -86,10 +88,10 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     inputLevel = gui->addSlider("Level",0.0f,1.0f,1.0f);
     inputLevel->setUseCustomMouse(true);
-    inputLevel->setValue(audioInputLevel);
+    inputLevel->setValue(this->getCustomVar("INPUT_LEVEL"));
     smoothing = gui->addSlider("Smooth.",0.0f,0.8f,0.0f);
     smoothing->setUseCustomMouse(true);
-    smoothing->setValue(smoothingValue);
+    smoothing->setValue(this->getCustomVar("SMOOTHING"));
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -200,6 +202,12 @@ void AudioAnalyzer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
         }
     }else{
         isConnected     = false;
+    }
+
+    if(!isLoaded){
+        isLoaded = true;
+        smoothing->setValue(this->getCustomVar("SMOOTHING"));
+        inputLevel->setValue(this->getCustomVar("INPUT_LEVEL"));
     }
 
 }

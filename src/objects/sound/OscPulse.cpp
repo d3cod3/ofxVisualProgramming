@@ -131,6 +131,7 @@ void OscPulse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     if(!loaded){
         loaded = true;
         slider->setValue(this->getCustomVar("PITCH"));
+        oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(this->getCustomVar("PITCH"),0,127))) + " Hz");
         sliderPW->setValue(this->getCustomVar("PW"));
         pitch_ctrl.set(ofClamp(slider->getValue(),0,127));
         pw_ctrl.set(ofClamp(sliderPW->getValue(),0.0,1.0));

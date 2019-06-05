@@ -96,6 +96,7 @@ public:
 
     size_t                                  startTime;
     bool                                    isConnected;
+    bool                                    isLoaded;
 
     // Object vars
     int                                     bufferSize;
