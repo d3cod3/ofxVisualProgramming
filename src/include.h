@@ -81,7 +81,9 @@
 
 // data objects
 #include "objects/data/BangMultiplexer.h"
+#include "objects/data/DataToTexture.h"
 #include "objects/data/FloatsToVector.h"
+#include "objects/data/TextureToData.h"
 #include "objects/data/VectorAt.h"
 #include "objects/data/VectorConcat.h"
 #include "objects/data/VectorGate.h"
@@ -163,6 +165,7 @@
 
 #include "objects/sound/pdspAHR.h"
 #include "objects/sound/pdspADSR.h"
+#include "objects/sound/pdspDataOscillator.h"
 #include "objects/sound/pdspDelay.h"
 #include "objects/sound/pdspBitNoise.h"
 #include "objects/sound/pdspReverb.h"

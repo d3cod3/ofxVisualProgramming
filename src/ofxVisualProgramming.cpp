@@ -52,7 +52,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"bang multiplexer","floats to vector","vector at","vector concat","vector gate","vector multiply"};
+    vecInit = {"bang multiplexer","data to texture","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {"image exporter","image loader"};
@@ -80,7 +80,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"ADSR envelope","AHR envelope","amp","audio gate","bit noise","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"ADSR envelope","AHR envelope","amp","audio gate","bit noise","data oscillator","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video timedelay"};
@@ -1241,12 +1241,16 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     // -------------------------------------- Data
     }else if(objname == "bang multiplexer"){
         tempObj = new BangMultiplexer();
+    }else if(objname == "data to texture"){
+        tempObj = new DataToTexture();
     }else if(objname == "vector at"){
         tempObj = new VectorAt();
     }else if(objname == "vector concat"){
         tempObj = new VectorConcat();
     }else if(objname == "floats to vector"){
         tempObj = new FloatsToVector();
+    }else if(objname == "texture to data"){
+        tempObj = new TextureToData();
     }else if(objname == "vector gate"){
         tempObj = new VectorGate();
     }else if(objname == "vector multiply"){
@@ -1291,6 +1295,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new SoundfilePlayer();
     }else if(objname == "delay"){
         tempObj = new pdspDelay();
+    }else if(objname == "data oscillator"){
+        tempObj = new pdspDataOscillator();
     }else if(objname == "white noise"){
         tempObj = new pdspWhiteNoise();
     // -------------------------------------- Math
