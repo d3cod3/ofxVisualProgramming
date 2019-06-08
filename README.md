@@ -492,8 +492,6 @@ Logic | Ready | TODO
 ---------- | ---------- | ----------
 == | X |
 != | X |
-> | X |
-< | X |
 counter | X |
 delay bang | X |
 gate | X |
