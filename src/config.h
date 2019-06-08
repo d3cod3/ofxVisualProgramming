@@ -45,8 +45,11 @@
 #endif
 
 
-#define RETINA_MIN_WIDTH        2560
-#define RETINA_MIN_HEIGHT       1600
+#define RETINA_MIN_WIDTH                    2560
+#define RETINA_MIN_HEIGHT                   1600
+
+#define OUTPUT_TEX_MAX_WIDTH                4800
+#define OUTPUT_TEX_MAX_HEIGHT               4800
 
 #define STANDARD_PROJECTOR_WINDOW_WIDTH     854
 #define STANDARD_PROJECTOR_WINDOW_HEIGHT    480

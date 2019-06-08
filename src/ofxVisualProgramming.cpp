@@ -74,16 +74,16 @@ void ofxVisualProgramming::initObjectMatrix(){
     objectsMatrix["physics"] = vecInit;
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"bash script","lua script","python script","shader object"};
+    vecInit = {"bash script","lua script","processing script","python script","shader object"};
 #elif defined(TARGET_WIN32)
-    vecInit = {"lua script","python script","shader object"};
+    vecInit = {"lua script","processing script","python script","shader object"};
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"ADSR envelope","AHR envelope","amp","audio gate","bit noise","data oscillator","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit noise","data oscillator","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video timedelay"};
+    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video streaming","video timedelay"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {};
@@ -390,12 +390,14 @@ void ofxVisualProgramming::resetTempFolder(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->removeObjectContent();
+    }
+
     fileDialog.stop();
 
     if(dspON){
-        /*delete engine;
-        engine = nullptr;
-        dspON = false;*/
         deactivateDSP();
     }
 
@@ -1176,6 +1178,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new PythonScript();
     }else if(objname == "lua script"){
         tempObj = new LuaScript();
+    }else if(objname == "processing script"){
+        tempObj = new ProcessingScript();
     }else if(objname == "shader object"){
         tempObj = new ShaderObject();
     // -------------------------------------- Audio Analysis
@@ -1267,6 +1271,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new pdspAHR();
     }else if(objname == "amp"){
         tempObj = new SigMult();
+    }else if(objname == "audio exporter"){
+        tempObj = new AudioExporter();
     }else if(objname == "audio gate"){
         tempObj = new AudioGate();
     }else if(objname == "bit noise"){
@@ -1387,6 +1393,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoGate();
     }else if(objname == "video scale"){
         tempObj = new VideoScale();
+    }else if(objname == "video streaming"){
+        tempObj = new VideoStreaming();
     }else if(objname == "video timedelay"){
         tempObj = new VideoTimelapse();
     // -------------------------------------- WINDOWING
@@ -1432,6 +1440,20 @@ void ofxVisualProgramming::newPatch(){
 
     tempPatchFile = currentPatchFile;
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
+    string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
+    ofFile fileToRead(patchFile);
+    ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
+    newFileCounter++;
+
+    currentPatchFile = newPatchFile.getAbsolutePath();
+    openPatch(currentPatchFile);
+
+    tempPatchFile = currentPatchFile;
 }
 
 //--------------------------------------------------------------

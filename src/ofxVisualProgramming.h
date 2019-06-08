@@ -93,6 +93,7 @@ public:
     void            deleteObject(int id);
 
     void            newPatch();
+    void            newTempPatchFromFile(string patchFile);
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
     void            savePatchAs(string patchFile);

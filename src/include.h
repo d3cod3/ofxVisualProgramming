@@ -145,11 +145,13 @@
 #endif
 
 #include "objects/scripting/LuaScript.h"
+#include "objects/scripting/ProcessingScript.h"
 #include "objects/scripting/PythonScript.h"
 #include "objects/scripting/ShaderObject.h"
 
 // sound objects
 #include "objects/sound/AudioDevice.h"
+#include "objects/sound/AudioExporter.h"
 #include "objects/sound/AudioGate.h"
 #include "objects/sound/Mixer.h"
 #include "objects/sound/NoteToFrequency.h"
@@ -180,6 +182,7 @@
 #include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"
 #include "objects/video/VideoScale.h"
+#include "objects/video/VideoStreaming.h"
 #include "objects/video/VideoTimelapse.h"
 
 // web objects
