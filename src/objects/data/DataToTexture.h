@@ -46,9 +46,27 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
-    ofPixels        *pix;
-    ofPixels        *scaledPix;
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
 
-    float           posX, posY, drawW, drawH;
+    void            resetResolution();
+
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+
+    ofPixels                *pix;
+    ofPixels                *scaledPix;
+
+    ofxDatGui*              gui;
+    ofxDatGuiHeader*        header;
+    ofxDatGuiTextInput*     guiTexWidth;
+    ofxDatGuiTextInput*     guiTexHeight;
+    ofxDatGuiButton*        applyButton;
+
+    bool                    loaded;
+    bool                    needReset;
+
+    int                     temp_width, temp_height;
+    float                   posX, posY, drawW, drawH;
 
 };

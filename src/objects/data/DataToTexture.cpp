@@ -46,8 +46,23 @@ DataToTexture::DataToTexture() : PatchObject(){
 
     this->initInletsState();
 
-    pix             = new ofPixels();
-    scaledPix       = new ofPixels();
+    pix                 = new ofPixels();
+    scaledPix           = new ofPixels();
+
+    this->output_width  = 1280;
+    this->output_height = 720;
+
+    temp_width          = this->output_width;
+    temp_height         = this->output_height;
+
+    isGUIObject         = true;
+    this->isOverGUI     = true;
+
+    loaded              = false;
+    needReset           = false;
+
+    this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
+    this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
 
 }
 
@@ -62,13 +77,55 @@ void DataToTexture::newObject(){
 
 //--------------------------------------------------------------
 void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    this->output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+    this->output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
+
+    temp_width      = this->output_width;
+    temp_height     = this->output_height;
+
+    // GUI
+    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
+    gui->setAutoDraw(false);
+    gui->setUseCustomMouse(true);
+    gui->setWidth(this->width);
+    gui->onButtonEvent(this, &DataToTexture::onButtonEvent);
+    gui->onTextInputEvent(this, &DataToTexture::onTextInputEvent);
+
+    header = gui->addHeader("CONFIG",false);
+    header->setUseCustomMouse(true);
+    header->setCollapsable(true);
+    guiTexWidth = gui->addTextInput("WIDTH",ofToString(this->output_width));
+    guiTexWidth->setUseCustomMouse(true);
+    guiTexHeight = gui->addTextInput("HEIGHT",ofToString(this->output_height));
+    guiTexHeight->setUseCustomMouse(true);
+    applyButton = gui->addButton("APPLY");
+    applyButton->setUseCustomMouse(true);
+    applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
+
+    gui->setPosition(0,this->height - header->getHeight());
+    gui->collapse();
+    header->setIsCollapsed(true);
+
+
     pix->allocate(320,240,OF_PIXELS_RGB);
-    scaledPix->allocate(1920,1080,OF_PIXELS_RGB);
-    static_cast<ofTexture *>(_outletParams[0])->allocate(1920,1080,GL_RGB);
+    scaledPix->allocate(this->output_width,this->output_height,OF_PIXELS_RGB);
+    static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
 }
 
 //--------------------------------------------------------------
 void DataToTexture::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+
+    gui->update();
+    header->update();
+    guiTexWidth->update();
+    guiTexHeight->update();
+    applyButton->update();
+
+    if(needReset){
+        needReset = false;
+        resetResolution();
+    }
 
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         for(int s=0;s<pix->size();s++){
@@ -104,6 +161,12 @@ void DataToTexture::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
         static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
     }
 
+    if(!loaded){
+        loaded = true;
+        guiTexWidth->setText(ofToString(this->getCustomVar("OUTPUT_WIDTH")));
+        guiTexHeight->setText(ofToString(this->getCustomVar("OUTPUT_HEIGHT")));
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -134,10 +197,104 @@ void DataToTexture::drawObjectContent(ofxFontStash *font){
         }
 
     }
+    gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void DataToTexture::removeObjectContent(){
 
+}
+
+//--------------------------------------------------------------
+void DataToTexture::mouseMovedObjectContent(ofVec3f _m){
+    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+
+    if(!header->getIsCollapsed()){
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos());
+    }else{
+        this->isOverGUI = header->hitTest(_m-this->getPos());
+    }
+
+}
+
+//--------------------------------------------------------------
+void DataToTexture::dragGUIObject(ofVec3f _m){
+    if(this->isOverGUI){
+        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }else{
+        ofNotifyEvent(dragEvent, nId);
+
+        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+
+        x = box->getPosition().x;
+        y = box->getPosition().y;
+
+        for(int j=0;j<static_cast<int>(outPut.size());j++){
+            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void DataToTexture::resetResolution(){
+
+    if(this->output_width != temp_width || this->output_height != temp_height){
+        this->output_width = temp_width;
+        this->output_height = temp_height;
+
+        scaledPix = new ofPixels();
+        scaledPix->allocate(this->output_width,this->output_height,OF_PIXELS_RGB);
+        _outletParams[0] = new ofTexture();
+        static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
+
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
+            this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
+            this->saveConfig(false,this->nId);
+
+            ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),this->output_width,this->output_height);
+        }
+    }
+
+}
+
+//--------------------------------------------------------------
+void DataToTexture::onButtonEvent(ofxDatGuiButtonEvent e){
+    if(!header->getIsCollapsed()){
+        if (e.target == applyButton){
+            needReset = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void DataToTexture::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(!header->getIsCollapsed()){
+        int tempInValue = ofToInt(e.text);
+        if(e.target == guiTexWidth){
+            if(tempInValue <= OUTPUT_TEX_MAX_WIDTH){
+                temp_width = tempInValue;
+            }else{
+                temp_width = this->output_width;
+            }
+        }else if(e.target == guiTexHeight){
+            if(tempInValue <= OUTPUT_TEX_MAX_HEIGHT){
+                temp_height = tempInValue;
+            }else{
+                temp_height = this->output_height;
+            }
+        }
+    }
 }
