@@ -50,11 +50,11 @@ OutputWindow::OutputWindow() : PatchObject(){
     isNewScriptConnected                = false;
     inletScriptType                     = 0;        // 0 -> LUA, 1 -> PYTHON, .....
 
-    output_width            = 1280;
-    output_height           = 720;
+    this->output_width      = 1280;
+    this->output_height     = 720;
 
-    temp_width              = output_width;
-    temp_height             = output_height;
+    temp_width              = this->output_width;
+    temp_height             = this->output_height;
 
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
@@ -83,8 +83,8 @@ void OutputWindow::newObject(){
     this->addInlet(VP_LINK_TEXTURE,"projector");
     this->addInlet(VP_LINK_SPECIAL,"script");
 
-    this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
-    this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+    this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
+    this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
     this->setCustomVar(static_cast<float>(0.0),"USE_MAPPING");
     this->setCustomVar(1.0f,"EDGES_EXPONENT");
     this->setCustomVar(0.5f,"EDGE_LEFT");
@@ -131,15 +131,15 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofAddListener(window->events().mouseScrolled ,this,&OutputWindow::mouseScrolled);
     ofAddListener(window->events().windowResized ,this,&OutputWindow::windowResized);
 
-    static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
-    finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
+    static_cast<ofTexture *>(_inletParams[0])->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB);
+    finalTexture->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB,4);
 
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
+        ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),this->output_width,this->output_height);
     }
 
     // setup drawing  dimensions
-    asRatio = reduceToAspectRatio(output_width,output_height);
+    asRatio = reduceToAspectRatio(this->output_width,this->output_height);
     scaleTextureToWindow(window->getWidth(),window->getHeight());
 
     // GUI
@@ -155,9 +155,9 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header = gui->addHeader("CONFIG",false);
     header->setUseCustomMouse(true);
     header->setCollapsable(true);
-    guiTexWidth = gui->addTextInput("WIDTH",ofToString(output_width));
+    guiTexWidth = gui->addTextInput("WIDTH",ofToString(this->output_width));
     guiTexWidth->setUseCustomMouse(true);
-    guiTexHeight = gui->addTextInput("HEIGHT",ofToString(output_height));
+    guiTexHeight = gui->addTextInput("HEIGHT",ofToString(this->output_height));
     guiTexHeight->setUseCustomMouse(true);
     applyButton = gui->addButton("APPLY");
     applyButton->setUseCustomMouse(true);
@@ -242,7 +242,7 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
                             if(it->second->getName() == "lua script" || it->second->getName() == "shader object"){
-                                it->second->resetResolution(this->getId(),output_width,output_height);
+                                it->second->resetResolution(this->getId(),this->output_width,this->output_height);
                                 break;
                             }
                         }
@@ -421,7 +421,7 @@ glm::vec2 OutputWindow::reduceToAspectRatio(int _w, int _h){
 
 //--------------------------------------------------------------
 void OutputWindow::scaleTextureToWindow(int theScreenW, int theScreenH){
-    if(output_width >= output_height){   // horizontal texture
+    if(this->output_width >= this->output_height){   // horizontal texture
         if(isFullscreen){
             if(drawW >= theScreenW){
                 drawW           = theScreenW;
@@ -429,19 +429,19 @@ void OutputWindow::scaleTextureToWindow(int theScreenW, int theScreenH){
                 posX            = 0;
                 posY            = (theScreenH-drawH)/2.0f;
             }else{
-                drawW           = (output_width*theScreenH)/output_height;
+                drawW           = (this->output_width*theScreenH)/this->output_height;
                 drawH           = theScreenH;
                 posX            = (theScreenW-drawW)/2.0f;
                 posY            = 0;
             }
         }else{
-            if(output_width >= theScreenW){
+            if(this->output_width >= theScreenW){
                 drawW           = theScreenW;
                 drawH           = drawW*asRatio.y / asRatio.x;
                 posX            = 0;
                 posY            = (theScreenH-drawH)/2.0f;
             }else{
-                drawW           = (output_width*theScreenH)/output_height;
+                drawW           = (this->output_width*theScreenH)/this->output_height;
                 drawH           = theScreenH;
                 posX            = (theScreenW-drawW)/2.0f;
                 posY            = 0;
@@ -452,7 +452,7 @@ void OutputWindow::scaleTextureToWindow(int theScreenW, int theScreenH){
     }else{                              // vertical texture
         if(isFullscreen){
             if(drawH >= theScreenH){
-                drawW           = (output_width*theScreenH)/output_height;
+                drawW           = (this->output_width*theScreenH)/this->output_height;
                 drawH           = theScreenH;
                 posX            = (theScreenW-drawW)/2.0f;
                 posY            = 0;
@@ -464,7 +464,7 @@ void OutputWindow::scaleTextureToWindow(int theScreenW, int theScreenH){
             }
         }else{
             if(output_height >= theScreenH){
-                drawW           = (output_width*theScreenH)/output_height;
+                drawW           = (this->output_width*theScreenH)/this->output_height;
                 drawH           = theScreenH;
                 posX            = (theScreenW-drawW)/2.0f;
                 posY            = 0;
@@ -508,7 +508,7 @@ void OutputWindow::toggleWindowFullscreen(){
 void OutputWindow::drawInWindow(ofEventArgs &e){
     finalTexture->begin();
     ofClear(0,0,0,255);
-    static_cast<ofTexture *>(_inletParams[0])->draw(0,0,output_width,output_height);
+    static_cast<ofTexture *>(_inletParams[0])->draw(0,0,this->output_width,this->output_height);
     finalTexture->end();
 
     ofBackground(0);
@@ -547,36 +547,36 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
 
 //--------------------------------------------------------------
 void OutputWindow::loadWindowSettings(){
-    output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
-    output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
+    this->output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+    this->output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 
-    temp_width      = output_width;
-    temp_height     = output_height;
+    temp_width      = this->output_width;
+    temp_height     = this->output_height;
 }
 
 //--------------------------------------------------------------
 void OutputWindow::resetResolution(){
 
-    if(output_width != temp_width || output_height != temp_height){
-        output_width = temp_width;
-        output_height = temp_height;
+    if(this->output_width != temp_width || this->output_height != temp_height){
+        this->output_width = temp_width;
+        this->output_height = temp_height;
 
         _inletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA32F_ARB);
+        static_cast<ofTexture *>(_inletParams[0])->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB);
 
         finalTexture = new ofFbo();
-        finalTexture->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
+        finalTexture->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB,4);
 
         finalTexture->begin();
         ofClear(0,0,0,255);
         finalTexture->end();
 
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
-            this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+            this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
+            this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
             this->saveConfig(false,this->nId);
 
-            asRatio = reduceToAspectRatio(output_width,output_height);
+            asRatio = reduceToAspectRatio(this->output_width,this->output_height);
             if(!isFullscreen){
                 scaleTextureToWindow(window->getWidth(),window->getHeight());
             }else{
@@ -585,11 +585,11 @@ void OutputWindow::resetResolution(){
 
             warpController = new ofxWarpController();
             shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
-            warp->setSize(output_width,output_height);
+            warp->setSize(this->output_width,this->output_height);
             warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
             warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
 
-            ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),output_width,output_height);
+            ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),this->output_width,this->output_height);
         }
     }
 
@@ -654,7 +654,7 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
     }
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
         if(inletScriptType == 0){
             if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
                 static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
@@ -669,7 +669,7 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
         warpController->onMouseDragged(window->events().getMouseX(),window->events().getMouseY());
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
         if(inletScriptType == 0){
             if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
                 static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
@@ -684,7 +684,7 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
         warpController->onMousePressed(window->events().getMouseX(),window->events().getMouseY());
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
         if(inletScriptType == 0){
             if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
                 static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
@@ -699,7 +699,7 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
         warpController->onMouseReleased(window->events().getMouseX(),window->events().getMouseY());
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
         if(inletScriptType == 0){
             if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
                 static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
@@ -711,7 +711,7 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * output_width),((window->events().getMouseY()-posY)/drawH * output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
         if(inletScriptType == 0){
             if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
                 static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
@@ -759,13 +759,13 @@ void OutputWindow::onTextInputEvent(ofxDatGuiTextInputEvent e){
             if(tempInValue <= OUTPUT_TEX_MAX_WIDTH){
                 temp_width = tempInValue;
             }else{
-                temp_width = output_width;
+                temp_width = this->output_width;
             }
         }else if(e.target == guiTexHeight){
             if(tempInValue <= OUTPUT_TEX_MAX_HEIGHT){
                 temp_height = tempInValue;
             }else{
-                temp_height = output_height;
+                temp_height = this->output_height;
             }
         }
     }

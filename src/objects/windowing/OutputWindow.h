@@ -40,9 +40,6 @@
 
 #include "ofxWarp.h"
 
-#define OUTPUT_TEX_MAX_WIDTH        4800
-#define OUTPUT_TEX_MAX_HEIGHT       4800
-
 class OutputWindow : public PatchObject {
 
 public:
