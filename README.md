@@ -82,6 +82,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
 
+#### [ofxJava](https://github.com/d3cod3/ofxJava)
+
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
@@ -137,6 +139,7 @@ git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
 git clone https://github.com/armadillu/ofxGLError
 git clone https://github.com/armadillu/ofxHistoryPlot
+git clone https://github.com/d3cod3/ofxJava
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
@@ -257,9 +260,13 @@ public:
     // or just the one you need.
     // for this simple object i'm going to leave commented
     // the ones i don't need
+
     void  newObject();
+    // This method is for object with file loading capabilities (video file, audio file, script file, etc)
+    // void autoloadFile(string _fp);
+
     void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    //void setupAudioOutObjectContent(pdsp::Engine &engine);
+    // void setupAudioOutObjectContent(pdsp::Engine &engine);
     void  updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void  drawObjectContent(ofxFontStash *font);
     void  removeObjectContent();
@@ -268,6 +275,7 @@ public:
     //void  mousePressedObjectContent(ofVec3f _m);
     //void  mouseReleasedObjectContent(ofVec3f _m);
     //void  keyPressedObjectContent(int key);
+
     //void  fileDialogResponse(ofxThreadedFileDialogResponse &response);
     //void  dragGUIObject(ofVec3f _m);
 
@@ -424,42 +432,75 @@ rms extractor | X |
 roll-off extractor | X |
 tristimulus extractor | X |
 
+Communications | Ready | TODO
+---------- | ---------- | ----------
+arduino serial | X  |
+key pressed | X  |
+key released | X  |
+midi key | X  |
+midi knob | X  |
+midi pad | X  |
+midi receive | X  |
+midi score | X  |
+midi sender | X  |
+osc receiver | X  |
+osc sender | X  |
+
 Computer Vision | Ready | TODO
 ---------- | ---------- | ----------
 background subtraction | X  |
 chroma key | X  |
 color tracking | X  |
 contour tracking | X  |
+face tracker | X  |
 haar tracking | X |
 motion detection | X |
 optical flow | X |
 
 Data | Ready | TODO
 ---------- | ---------- | ----------
+bang multiplexer | X  |
+data to texture | X  |
 floats to vector | X  |
+texture to data | X  |
+vector at | X  |
 vector concat | X  |
-more to come ... | | X
+vector gate | X  |
+vector multiply | X  |
+
+Graphics | Ready | TODO
+---------- | ---------- | ----------
+image exporter | X |
+image loader | X |
 
 GUI | Ready | TODO
 ---------- | ---------- | ----------
+2D pad | X |
 bang | X |
 comment | X |
 message | X |
 player controls | X |
-slider | X |
 signal viewer | X |
+slider | X |
+sonogram | X |
 timeline | X |
 trigger | X |
 video viewer | X |
-more to come ... | | X
+vu meter | X |
 
 Logic | Ready | TODO
 ---------- | ---------- | ----------
+== | X |
+!= | X |
+> | X |
+< | X |
 counter | X |
 delay bang | X |
 gate | X |
+inverter | X |
 loadbang | X |
-more to come ... | | X
+select | X |
+spigot | X |
 
 Math | Ready | TODO
 ---------- | ---------- | ----------
@@ -469,51 +510,64 @@ constant | X |
 divide | X |
 metronome | X |
 multiply | X |
+range | X |
 simple noise | X |
 simple random | X |
 smooth | X |
 subtract | X |
-more to come ... | | X
 
 Scripting | Ready | TODO
 ---------- | ---------- | ----------
 bash script | X |
 lua script | X |
+processing script | X |
 python script | X |
 shader object | X |
 
 Sound | Ready | TODO
 ---------- | ---------- | ----------
-ADSR envelope | | X
-AHR envelope | | X
+ADSR envelope | X |
+AHR envelope | X |
 bitcruncher | | X
-bit noise | | X
+bit noise | X |
 chorus | | X
 comb filter | | X
 decimator | | X
-delay | | X
+data oscillator | X |
+delay | X |
 ducker | | X
-FMoperator | | X
 lfo | | X
-oscillator | | X
+mixer | X |
+panner | X |
 pd patch | X |
 phase filter | | X
+pulse | X |
+quad panner | X |
 resonant 2 pole filter | | X
 resonant 4 pole filter | | X
-reverb | | X
+reverb | X |
 saturator | | X
+saw | X |
 sequencer | | X
+sine | X |
 soundfile player | X |
+triangle | X |
 wavetable oscillator | | X
-white noise | | X
+white noise | X |
 more to come ... | | X
 
 Video | Ready | TODO
 ---------- | ---------- | ----------
 kinect grabber | X |
+video crop | X |
+video feedback | X |
+video exporter | X |
+video gate | X |
 video grabber | X |
 video player | X |
-more to come ... | | X
+video scale | X |
+video streaming | X |
+video timedelay | X |
 
 Windowing | Ready | TODO
 ---------- | ---------- | ----------
