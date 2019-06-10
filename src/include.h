@@ -153,6 +153,7 @@
 #include "objects/sound/AudioDevice.h"
 #include "objects/sound/AudioExporter.h"
 #include "objects/sound/AudioGate.h"
+#include "objects/sound/Crossfader.h"
 #include "objects/sound/Mixer.h"
 #include "objects/sound/NoteToFrequency.h"
 #include "objects/sound/Oscillator.h"
@@ -167,9 +168,13 @@
 
 #include "objects/sound/pdspAHR.h"
 #include "objects/sound/pdspADSR.h"
+#include "objects/sound/pdspBitNoise.h"
+#include "objects/sound/pdspChorusEffect.h"
+#include "objects/sound/pdspCombFilter.h"
 #include "objects/sound/pdspDataOscillator.h"
 #include "objects/sound/pdspDelay.h"
-#include "objects/sound/pdspBitNoise.h"
+#include "objects/sound/pdspHiCut.h"
+#include "objects/sound/pdspLowCut.h"
 #include "objects/sound/pdspReverb.h"
 #include "objects/sound/pdspWhiteNoise.h"
 

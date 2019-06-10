@@ -80,7 +80,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit noise","data oscillator","delay","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit noise","chorus","comb filter","crossfader","data oscillator","delay","hi pass","low pass","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video streaming","video timedelay"};
@@ -1277,6 +1277,12 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new AudioGate();
     }else if(objname == "bit noise"){
         tempObj = new pdspBitNoise();
+    }else if(objname == "crossfader"){
+        tempObj = new Crossfader();
+    }else if(objname == "chorus"){
+        tempObj = new pdspChorusEffect();
+    }else if(objname == "comb filter"){
+        tempObj = new pdspCombFilter();
     }else if(objname == "mixer"){
         tempObj = new Mixer();
     }else if(objname == "note to frequency"){
@@ -1303,6 +1309,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new pdspDelay();
     }else if(objname == "data oscillator"){
         tempObj = new pdspDataOscillator();
+    }else if(objname == "low pass"){
+        tempObj = new pdspHiCut();
+    }else if(objname == "hi pass"){
+        tempObj = new pdspLowCut();
     }else if(objname == "white noise"){
         tempObj = new pdspWhiteNoise();
     // -------------------------------------- Math
