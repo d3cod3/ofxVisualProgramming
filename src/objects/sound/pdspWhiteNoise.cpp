@@ -74,9 +74,12 @@ void pdspWhiteNoise::updateObjectContent(map<int,PatchObject*> &patchObjects, of
 
 //--------------------------------------------------------------
 void pdspWhiteNoise::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255);
+    ofSetColor(0);
+    ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
+    ofSetColor(255,255,120);
     waveform.draw();
+    ofSetColor(255);
     ofDisableAlphaBlending();
 }
 
