@@ -42,12 +42,19 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
+    void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent();
 
+    void            loadAudioSettings();
+
+    void            audioInObject(ofSoundBuffer &outputBuffer);
     void            audioOutObject(ofSoundBuffer &outBuffer);
 
-    ofPolyline          waveform;
+    ofPolyline              waveform;
+
+    int                     bufferSize;
+    int                     sampleRate;
 
 };

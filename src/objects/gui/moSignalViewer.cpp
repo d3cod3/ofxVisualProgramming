@@ -36,18 +36,20 @@
 moSignalViewer::moSignalViewer() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 2;
+    this->numOutlets = 3;
 
     _inletParams[0] = new ofSoundBuffer();  // signal
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new ofSoundBuffer();  // signal
+    _outletParams[2] = new vector<float>(); // audio buffer
 
     this->initInletsState();
 
     this->isBigGuiViewer    = true;
     this->width             *= 2;
 
+    isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 }
@@ -58,10 +60,16 @@ void moSignalViewer::newObject(){
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    loadAudioSettings();;
+}
+
+//--------------------------------------------------------------
+void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
     this->pdspIn[0] >> this->pdspOut[0];
     this->pdspIn[0] >> this->pdspOut[1];
 }
@@ -89,6 +97,29 @@ void moSignalViewer::removeObjectContent(){
 }
 
 //--------------------------------------------------------------
+void moSignalViewer::loadAudioSettings(){
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        if (XML.pushTag("settings")){
+            sampleRate = XML.getValue("sample_rate_in",0);
+            bufferSize = XML.getValue("buffer_size",0);
+
+            for(int i=0;i<bufferSize;i++){
+                static_cast<vector<float> *>(_outletParams[2])->push_back(0.0f);
+            }
+
+            XML.popTag();
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void moSignalViewer::audioInObject(ofSoundBuffer &outputBuffer){
+
+}
+
+//--------------------------------------------------------------
 void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
     waveform.clear();
     if(this->inletsConnected[0]){
@@ -100,6 +131,9 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
             float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
             float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
             waveform.addVertex(x, y);
+
+            // SIGNAL BUFFER DATA
+            static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
         }
     }else{
         *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
