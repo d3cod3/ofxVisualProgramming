@@ -526,27 +526,39 @@ Sound | Ready | TODO
 ---------- | ---------- | ----------
 ADSR envelope | X |
 AHR envelope | X |
+amp | X |
+audio exporter | X |
+audio gate | X |
 bitcruncher | | X
 bit noise | X |
-chorus | | X
-comb filter | | X
-decimator | | X
+chorus | X |
+click | | X
+comb filter | X |
+compressor | X |
+crossfader | X |
 data oscillator | X |
+decimator | X |
 delay | X |
-ducker | | X
-lfo | | X
+ducker | X |
+hi pass | X |
+lfo | X |
+low pass | X |
 mixer | X |
+note to frequency | X |
 panner | X |
+peak EQ | | X
 pd patch | X |
-phase filter | | X
+phasor filter | | X
 pulse | X |
 quad panner | X |
-resonant 2 pole filter | | X
-resonant 4 pole filter | | X
+resonant 2pole filter | | X
+resonant 4pole filter | | X
 reverb | X |
+sample and hold | | X
 saturator | | X
 saw | X |
 sequencer | | X
+signal trigger | X |
 sine | X |
 soundfile player | X |
 triangle | X |
