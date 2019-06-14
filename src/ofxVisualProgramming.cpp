@@ -80,7 +80,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["scripting"] = vecInit;
 
-    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit noise","chorus","comb filter","crossfader","data oscillator","delay","hi pass","low pass","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","sine","soundfile player","triangle","white noise"};
+    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit noise","chorus","comb filter","compressor","crossfader","data oscillator","decimator","delay","ducker","hi pass","lfo","low pass","mixer","note to frequency","panner","pd patch","quad panner","pulse","reverb","saw","signal trigger","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video streaming","video timedelay"};
@@ -1283,6 +1283,14 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new pdspChorusEffect();
     }else if(objname == "comb filter"){
         tempObj = new pdspCombFilter();
+    }else if(objname == "compressor"){
+        tempObj = new pdspCompressor();
+    }else if(objname == "decimator"){
+        tempObj = new pdspDecimator();
+    }else if(objname == "ducker"){
+        tempObj = new pdspDucker();
+    }else if(objname == "lfo"){
+        tempObj = new pdspLFO();
     }else if(objname == "mixer"){
         tempObj = new Mixer();
     }else if(objname == "note to frequency"){
@@ -1303,6 +1311,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new Oscillator();
     }else if(objname == "triangle"){
         tempObj = new OscTriangle();
+    }else if(objname == "signal trigger"){
+        tempObj = new SignalTrigger();
     }else if(objname == "soundfile player"){
         tempObj = new SoundfilePlayer();
     }else if(objname == "delay"){
