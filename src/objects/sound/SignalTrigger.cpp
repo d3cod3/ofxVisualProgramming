@@ -51,6 +51,7 @@ SignalTrigger::SignalTrigger() : PatchObject(){
     this->isOverGUI         = true;
 
     isAudioINObject         = true;
+    isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
     loaded                  = false;
@@ -97,9 +98,7 @@ void SignalTrigger::setupAudioOutObjectContent(pdsp::Engine &engine){
     thresh_ctrl.set(0.5f);
     thresh_ctrl.enableSmoothing(10.0f);
 
-    //toTrigger.setHystersis(0.2f);
-
-    this->pdspIn[0] >> peakDetector >> follower >> toTrigger >> engine.blackhole();
+    this->pdspIn[0] >> peakDetector >> follower.out_signal() >> toTrigger.out_trig() >> engine.blackhole();
 
 }
 
@@ -166,7 +165,12 @@ void SignalTrigger::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void SignalTrigger::audioInObject(ofSoundBuffer &outputBuffer){
+void SignalTrigger::audioInObject(ofSoundBuffer &inputBuffer){
+
+}
+
+//--------------------------------------------------------------
+void SignalTrigger::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
