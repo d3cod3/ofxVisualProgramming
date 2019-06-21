@@ -226,7 +226,7 @@ void pdspReverb::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspReverb::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspReverb::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

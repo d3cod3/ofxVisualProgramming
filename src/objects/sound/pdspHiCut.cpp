@@ -164,7 +164,7 @@ void pdspHiCut::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspHiCut::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspHiCut::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

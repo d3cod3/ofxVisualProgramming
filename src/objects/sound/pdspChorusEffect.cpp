@@ -191,7 +191,7 @@ void pdspChorusEffect::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspChorusEffect::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

@@ -162,7 +162,7 @@ void pdspDecimator::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspDecimator::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

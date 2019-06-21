@@ -162,7 +162,7 @@ void SigMult::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void SigMult::audioInObject(ofSoundBuffer &outputBuffer){
+void SigMult::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

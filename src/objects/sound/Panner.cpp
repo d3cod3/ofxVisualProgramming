@@ -158,7 +158,7 @@ void Panner::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void Panner::audioInObject(ofSoundBuffer &outputBuffer){
+void Panner::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

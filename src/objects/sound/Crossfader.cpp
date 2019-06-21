@@ -157,7 +157,7 @@ void Crossfader::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void Crossfader::audioInObject(ofSoundBuffer &outputBuffer){
+void Crossfader::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

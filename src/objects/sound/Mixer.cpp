@@ -131,7 +131,7 @@ void Mixer::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void Mixer::audioInObject(ofSoundBuffer &outputBuffer){
+void Mixer::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

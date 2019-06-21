@@ -191,7 +191,7 @@ void pdspCombFilter::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspCombFilter::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspCombFilter::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

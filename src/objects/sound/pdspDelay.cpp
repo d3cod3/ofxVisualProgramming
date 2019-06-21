@@ -195,7 +195,7 @@ void pdspDelay::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspDelay::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspDelay::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

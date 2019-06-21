@@ -204,7 +204,7 @@ void QuadPanner::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void QuadPanner::audioInObject(ofSoundBuffer &outputBuffer){
+void QuadPanner::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 

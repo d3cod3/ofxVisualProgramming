@@ -163,7 +163,7 @@ void pdspLowCut::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void pdspLowCut::audioInObject(ofSoundBuffer &outputBuffer){
+void pdspLowCut::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 
