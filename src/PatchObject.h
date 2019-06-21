@@ -175,6 +175,7 @@ public:
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
     void                    setInletMouseNear(int oid,bool active) { inletsMouseNear.at(oid) = active; }
+    void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
 
     // UTILS
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
@@ -235,6 +236,7 @@ protected:
     bool                    bActive;
     bool                    iconified;
     bool                    isMouseOver;
+    bool                    isObjectSelected;
     bool                    isOverGUI;
     bool                    isRetina;
     bool                    isGUIObject;

@@ -49,6 +49,7 @@ PatchObject::PatchObject(){
     bActive                 = false;
     iconified               = false;
     isMouseOver             = false;
+    isObjectSelected        = false;
     isOverGUI               = false;
     isRetina                = false;
     isGUIObject             = false;
@@ -333,6 +334,12 @@ void PatchObject::draw(ofxFontStash *font){
                 }else{
                     ofSetColor(255,255,255,40);
                 }
+                ofDrawRectangle(*box);
+            }
+
+            // on object selected
+            if(isObjectSelected){
+                ofSetColor(255,255,255,40);
                 ofDrawRectangle(*box);
             }
 
