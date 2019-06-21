@@ -91,12 +91,15 @@ public:
     void            resetSpecificSystemObjects(string name);
     bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
+    void            deleteSelectedObject();
 
     void            newPatch();
     void            newTempPatchFromFile(string patchFile);
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
     void            savePatchAs(string patchFile);
+    void            openLastPatch();
+    void            savePatchAsLast();
     void            setPatchVariable(string var, int value);
 
     void            setAudioInDevice(int ind);
@@ -128,6 +131,7 @@ public:
     ofVec2f                 actualMouse;
     bool                    draggingObject;
     int                     draggingObjectID;
+    int                     pressedObjectID;
     int                     actualObjectID;
     int                     lastAddedObjectID;
     bool                    bLoadingNewObject;

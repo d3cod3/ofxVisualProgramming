@@ -135,6 +135,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     selectedObjectLink      = -1;
     selectedObjectID        = -1;
     draggingObjectID        = -1;
+    pressedObjectID         = -1;
     lastAddedObjectID       = -1;
     draggingObject          = false;
     bLoadingNewObject       = false;
@@ -391,6 +392,8 @@ void ofxVisualProgramming::resetTempFolder(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
 
+    savePatchAsLast();
+
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
@@ -472,9 +475,15 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
     isOutletSelected = false;
     selectedObjectLink = -1;
     selectedObjectLinkType = -1;
+    pressedObjectID = -1;
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(patchObjects[it->first] != nullptr){
+            it->second->setIsObjectSelected(false);
+            if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
+                it->second->setIsObjectSelected(true);
+                pressedObjectID = it->first;
+            }
             for(int p=0;p<it->second->getNumInlets();p++){
                 if(it->second->getInletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
                     isOutletSelected = false;
@@ -711,6 +720,20 @@ void ofxVisualProgramming::activeObject(int oid){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::addObject(string name,ofVec2f pos){
+
+    // check if object exists
+    bool exists = false;
+    for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
+        for(int j=0;j<static_cast<int>(it->second.size());j++){
+            if(it->second.at(j) == name){
+                exists = true;
+                break;
+            }
+        }
+    }
+    if(!exists && name != "audio device"){
+        return;
+    }
 
     // discard special unique objects
     if(name == "live patching" && weAlreadyHaveObject(name)){
@@ -963,6 +986,16 @@ void ofxVisualProgramming::deleteObject(int id){
             it->second->outPut = tempBuffer;
         }
 
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::deleteSelectedObject(){
+    if(pressedObjectID != -1){
+        if(!patchObjects[pressedObjectID]->getIsSystemObject()){
+            deleteObject(pressedObjectID);
+            patchObjects[pressedObjectID]->setWillErase(true);
+        }
     }
 }
 
@@ -1675,6 +1708,19 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
         it->second->setPatchfile(currentPatchFile);
     }
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::openLastPatch(){
+    newTempPatchFromFile("last_patch.xml");
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::savePatchAsLast(){
+    string newFileName = "last_patch.xml";
+    ofFile fileToRead(currentPatchFile);
+    ofFile newPatchFile(newFileName);
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 }
 
 //--------------------------------------------------------------
