@@ -48,6 +48,8 @@ Subtract::Subtract() : PatchObject(){
 
     this->initInletsState();
 
+    this->height        /= 2;
+
     isGUIObject         = true;
     this->isOverGUI     = true;
 
@@ -118,7 +120,7 @@ void Subtract::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
 void Subtract::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
+    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2);
     gui->draw();
     ofDisableAlphaBlending();
 }

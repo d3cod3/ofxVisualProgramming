@@ -49,7 +49,7 @@ public:
 
     void            loadAudioSettings();
 
-    void            audioInObject(ofSoundBuffer &outputBuffer);
+    void            audioInObject(ofSoundBuffer &inputBuffer);
     void            audioOutObject(ofSoundBuffer &outBuffer);
 
     ofPolyline              waveform;

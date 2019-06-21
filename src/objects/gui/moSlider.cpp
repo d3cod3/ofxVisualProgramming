@@ -38,17 +38,16 @@ moSlider::moSlider() : PatchObject(){
     this->numInlets  = 3;
     this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // min
-    _inletParams[1] = new float();  // max
-    _inletParams[2] = new float();  // value
+    _inletParams[0] = new float();  // value
     *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 1.0f;
-    *(float *)&_inletParams[2] = 0.0f;
+
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
+
+    this->height        /= 2;
 
     isGUIObject         = true;
     this->isOverGUI     = true;
@@ -60,14 +59,10 @@ moSlider::moSlider() : PatchObject(){
 //--------------------------------------------------------------
 void moSlider::newObject(){
     this->setName("slider");
-    this->addInlet(VP_LINK_NUMERIC,"min");
-    this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC,"value");
 
-    this->setCustomVar(static_cast<float>(0),"MIN");
-    this->setCustomVar(static_cast<float>(1),"MAX");
-    this->setCustomVar(static_cast<float>(0),"VALUE");
+    this->setCustomVar(0.0f,"VALUE");
 }
 
 //--------------------------------------------------------------
@@ -78,10 +73,11 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setWidth(this->width);
     gui->onSliderEvent(this, &moSlider::onSliderEvent);
 
+    gui->addBreak();
     slider = gui->addSlider("", 0,1,0);
     slider->setUseCustomMouse(true);
 
-    gui->setPosition(0,this->height/3 + slider->getHeight()/2);
+    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
@@ -90,22 +86,13 @@ void moSlider::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     slider->update();
 
     if(this->inletsConnected[0]){
-        slider->setMin(*(float *)&_inletParams[0]);
-    }
-    if(this->inletsConnected[1]){
-        slider->setMax(*(float *)&_inletParams[1]);
-    }
-
-    if(this->inletsConnected[2]){
-        slider->setValue(*(float *)&_inletParams[2]);
+        slider->setValue(*(float *)&_inletParams[0]);
     }
 
     *(float *)&_outletParams[0] = static_cast<float>(slider->getValue());
 
     if(!loaded){
         loaded = true;
-        slider->setMin(this->getCustomVar("MIN"));
-        slider->setMax(this->getCustomVar("MAX"));
         slider->setValue(this->getCustomVar("VALUE"));
     }
 }
@@ -156,12 +143,6 @@ void moSlider::dragGUIObject(ofVec3f _m){
 
 //--------------------------------------------------------------
 void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
-    *(float *)&_outletParams[0] = static_cast<float>(e.value);
+    //*(float *)&_outletParams[0] = static_cast<float>(e.value);
     this->setCustomVar(static_cast<float>(e.value),"VALUE");
-    if(this->inletsConnected[0]){
-        this->setCustomVar(static_cast<float>(*(float *)&_inletParams[0]),"MIN");
-    }
-    if(this->inletsConnected[1]){
-        this->setCustomVar(static_cast<float>(*(float *)&_inletParams[1]),"MAX");
-    }
 }

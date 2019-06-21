@@ -46,6 +46,8 @@ Constant::Constant() : PatchObject(){
 
     this->initInletsState();
 
+    this->height        /= 2;
+
     isGUIObject         = true;
     this->isOverGUI     = true;
 

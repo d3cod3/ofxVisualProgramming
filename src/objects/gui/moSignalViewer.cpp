@@ -115,7 +115,7 @@ void moSignalViewer::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::audioInObject(ofSoundBuffer &outputBuffer){
+void moSignalViewer::audioInObject(ofSoundBuffer &inputBuffer){
 
 }
 
