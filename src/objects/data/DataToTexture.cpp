@@ -78,12 +78,6 @@ void DataToTexture::newObject(){
 //--------------------------------------------------------------
 void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    this->output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
-    this->output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
-
-    temp_width      = this->output_width;
-    temp_height     = this->output_height;
-
     // GUI
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
@@ -109,8 +103,6 @@ void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 
     pix->allocate(320,240,OF_PIXELS_RGB);
-    scaledPix->allocate(this->output_width,this->output_height,OF_PIXELS_RGB);
-    static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
 }
 
 //--------------------------------------------------------------
@@ -128,43 +120,53 @@ void DataToTexture::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
     }
 
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        for(int s=0;s<pix->size();s++){
-            int posR = 0;
-            int sampleR = 0;
-            int posG = 0;
-            int sampleG = 0;
-            int posB = 0;
-            int sampleB = 0;
-            // RED
-            if(this->inletsConnected[0] && static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) > 0){
-                posR = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()))));
-                sampleR = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(posR), -0.5f, 0.5f, 0, 255)));
+        if(this->inletsConnected[0] || this->inletsConnected[1] || this->inletsConnected[2]){
+            for(int s=0;s<pix->size();s++){
+                int posR = 0;
+                int sampleR = 0;
+                int posG = 0;
+                int sampleG = 0;
+                int posB = 0;
+                int sampleB = 0;
+                // RED
+                if(this->inletsConnected[0] && static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) > 0){
+                    posR = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()))));
+                    sampleR = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(posR), -0.5f, 0.5f, 0, 255)));
+                }
+                // GREEN
+                if(this->inletsConnected[1] && static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()) > 0){
+                    posG = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()))));
+                    sampleG = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[1])->at(posG), -0.5f, 0.5f, 0, 255)));
+                }
+                // BLUE
+                if(this->inletsConnected[2] && static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()) > 0){
+                    posB = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()))));
+                    sampleB = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[2])->at(posB), -0.5f, 0.5f, 0, 255)));
+                }
+                ofColor c(sampleR,sampleG,sampleB);
+                int x = s % pix->getWidth();
+                int y = static_cast<int>(ceil(s / pix->getWidth()));
+                if(x >= 0 && x <= pix->getWidth() && y >= 0 && y <= pix->getHeight()){
+                    pix->setColor(x,y,c);
+                }
             }
-            // GREEN
-            if(this->inletsConnected[1] && static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()) > 0){
-                posG = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()))));
-                sampleG = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[1])->at(posG), -0.5f, 0.5f, 0, 255)));
-            }
-            // BLUE
-            if(this->inletsConnected[2] && static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()) > 0){
-                posB = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()))));
-                sampleB = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[2])->at(posB), -0.5f, 0.5f, 0, 255)));
-            }
-            ofColor c(sampleR,sampleG,sampleB);
-            int x = s % pix->getWidth();
-            int y = static_cast<int>(ceil(s / pix->getWidth()));
-            if(x >= 0 && x <= pix->getWidth() && y >= 0 && y <= pix->getHeight()){
-                pix->setColor(x,y,c);
-            }
+            pix->resizeTo(*scaledPix);
+            static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
         }
-        pix->resizeTo(*scaledPix);
-        static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
     }
 
     if(!loaded){
         loaded = true;
+        this->output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+        this->output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
+        temp_width      = this->output_width;
+        temp_height     = this->output_height;
+
         guiTexWidth->setText(ofToString(this->getCustomVar("OUTPUT_WIDTH")));
         guiTexHeight->setText(ofToString(this->getCustomVar("OUTPUT_HEIGHT")));
+        scaledPix->allocate(this->output_width,this->output_height,OF_PIXELS_RGB);
+
+        static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
     }
 
 }
