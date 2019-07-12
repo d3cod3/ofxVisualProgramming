@@ -64,7 +64,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {};
     objectsMatrix["input/output"] = vecInit;
 
-    vecInit = {"==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot"};
+    vecInit = {"==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot","timed semaphore"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {"add","clamp","constant","divide","metronome","multiply","range","simple noise","simple random","smooth","subtract"};
@@ -154,6 +154,8 @@ ofxVisualProgramming::ofxVisualProgramming(){
     audioSampleRate         = 0;
     dspON                   = false;
 
+    inited                  = false;
+
 }
 
 //--------------------------------------------------------------
@@ -183,13 +185,6 @@ void ofxVisualProgramming::setup(){
     canvas.toggleOfCam();
     easyCam.enableOrtho();
 
-    canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
-
-    // RETINA FIX
-    if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
-        canvas.setScale(2);
-    }
-
     // RESET TEMP FOLDER
     resetTempFolder();
 
@@ -207,6 +202,17 @@ void ofxVisualProgramming::setup(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::update(){
+
+    // canvas init
+    if(!inited){
+        inited = true;
+        canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
+
+        // RETINA FIX
+        if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
+            canvas.setScale(2);
+        }
+    }
 
     // Sound Context
     unique_lock<std::mutex> lock(inputAudioMutex);
@@ -246,6 +252,11 @@ void ofxVisualProgramming::update(){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::updateCanvasViewport(){
+    canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
 }
 
 //--------------------------------------------------------------
@@ -1404,6 +1415,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new Select();
     }else if(objname == "spigot"){
         tempObj = new Spigot();
+    }else if(objname == "timed semaphore"){
+        tempObj = new TimedSemaphore();
     // -------------------------------------- GUI
     }else if(objname == "2d pad"){
         tempObj = new mo2DPad();

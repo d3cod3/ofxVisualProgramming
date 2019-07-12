@@ -55,7 +55,7 @@ public:
     ofxDatGuiHeader*        header;
     ofxDatGuiTextInput*     numberBox;
 
-    int                     number;
+    float                   number;
     bool                    loaded;
 
 };

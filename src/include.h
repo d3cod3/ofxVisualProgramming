@@ -121,6 +121,7 @@
 #include "objects/logic/Select.h"
 #include "objects/logic/SmallerThan.h"
 #include "objects/logic/Spigot.h"
+#include "objects/logic/TimedSemaphore.h"
 
 // machine_learning objects
 

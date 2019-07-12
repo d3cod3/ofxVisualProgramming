@@ -325,6 +325,9 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
 //--------------------------------------------------------------
 void VideoPlayer::removeObjectContent(){
     if(isThreadRunning()){
+        video->stop();
+        video->setVolume(0);
+        video->close();
         stopThread();
     }
 }

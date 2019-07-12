@@ -56,6 +56,7 @@ public:
     void            initObjectMatrix();
     void            setup();
     void            update();
+    void            updateCanvasViewport();
     void            draw();
     void            drawLivePatchingSession();
     void            resetTempFolder();
@@ -152,6 +153,7 @@ public:
     string                          glVersion;
     string                          glShadingVersion;
     bool                            profilerActive;
+    bool                            inited;
 
     // GUI
     map<string,vector<string>>      objectsMatrix;
