@@ -522,6 +522,34 @@ void LuaScript::loadScript(string scriptFile){
 void LuaScript::clearScript(){
     unloadScript();
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString("function draw() of.background(0) end");
+
+    // inject incoming data vector to lua
+    string tempstring = mosaicTableName+" = {}";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    tempstring = "function _updateMosaicData(i,data) "+mosaicTableName+"[i] = data  end";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    // inject outgoing data vector
+    tempstring = luaTablename+" = {}";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    tempstring = "function _getLUAOutletTableAt(i) return "+luaTablename+"[i] end";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    // set Mosaic scripting vars
+    tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofFile tempFileScript(filepath);
+    tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
+
+    #ifdef TARGET_WIN32
+        std::replace(tempstring.begin(),tempstring.end(),'\\','/');
+    #endif
+
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    scriptLoaded = static_cast<LiveCoding *>(_outletParams[1])->lua.isValid();
 }
 
 //--------------------------------------------------------------
