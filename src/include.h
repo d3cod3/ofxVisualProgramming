@@ -81,6 +81,7 @@
 
 // data objects
 #include "objects/data/BangMultiplexer.h"
+#include "objects/data/BangToFloat.h"
 #include "objects/data/DataToTexture.h"
 #include "objects/data/FloatsToVector.h"
 #include "objects/data/TextureToData.h"

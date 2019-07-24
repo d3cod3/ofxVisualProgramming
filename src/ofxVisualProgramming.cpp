@@ -52,7 +52,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"bang multiplexer","data to texture","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
+    vecInit = {"bang multiplexer","bang to float","data to texture","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {"image exporter","image loader"};
@@ -1289,6 +1289,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     // -------------------------------------- Data
     }else if(objname == "bang multiplexer"){
         tempObj = new BangMultiplexer();
+    }else if(objname == "bang to float"){
+        tempObj = new BangToFloat();
     }else if(objname == "data to texture"){
         tempObj = new DataToTexture();
     }else if(objname == "vector at"){
