@@ -213,13 +213,13 @@ inline std::string execCmd(const char* cmd){
 //--------------------------------------------------------------
 inline bool checkFilenameError(string fn){
     #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_./") != string::npos){
+    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_./") != string::npos){
         return true;
     }else{
         return false;
     }
     #else
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890_.\/") != string::npos){
+    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_.\/") != string::npos){
         return true;
     }else{
         return false;
