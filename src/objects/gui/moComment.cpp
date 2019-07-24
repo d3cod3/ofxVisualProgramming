@@ -69,7 +69,7 @@ void moComment::newObject(){
 
 //--------------------------------------------------------------
 void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    paragraph->setColor(ofColor::fromHex(0x555555));
+    paragraph->setColor(ofColor::white);
     paragraph->setAlignment(ofxParagraph::ALIGN_CENTER);
     paragraph->setFont(label);
     paragraph->setWidth(this->width-20);
