@@ -36,9 +36,6 @@
 void ofxVisualProgramming::initObjectMatrix(){
     vector<string> vecInit = {};
 
-    vecInit = {};
-    objectsMatrix["3d"] = vecInit;
-
     vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
     objectsMatrix["audio_analysis"] = vecInit;
 
@@ -61,17 +58,11 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","sonogram","timeline","trigger","video viewer","vu meter"};
     objectsMatrix["gui"] = vecInit;
 
-    vecInit = {};
-    objectsMatrix["input/output"] = vecInit;
-
-    vecInit = {"==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot","timed semaphore"};
+    vecInit = {"&&","||","==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot","timed semaphore"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {"add","clamp","constant","divide","metronome","multiply","range","simple noise","simple random","smooth","subtract"};
     objectsMatrix["math"] = vecInit;
-
-    vecInit = {};
-    objectsMatrix["physics"] = vecInit;
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
     vecInit = {"bash script","lua script","processing script","python script","shader object"};
@@ -1395,6 +1386,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "subtract"){
         tempObj = new Subtract();
     // -------------------------------------- Logic
+    }else if(objname == "&&"){
+        tempObj = new AND();
+    }else if(objname == "||"){
+        tempObj = new OR();
     }else if(objname == "=="){
         tempObj = new Equality();
     }else if(objname == "!="){
