@@ -134,6 +134,7 @@
 #include "objects/math/Constant.h"
 #include "objects/math/Divide.h"
 #include "objects/math/Metronome.h"
+#include "objects/math/Module.h"
 #include "objects/math/Multiply.h"
 #include "objects/math/Range.h"
 #include "objects/math/SimpleRandom.h"

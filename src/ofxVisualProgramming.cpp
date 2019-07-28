@@ -61,7 +61,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"&&","||","==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot","timed semaphore"};
     objectsMatrix["logic"] = vecInit;
 
-    vecInit = {"add","clamp","constant","divide","metronome","multiply","range","simple noise","simple random","smooth","subtract"};
+    vecInit = {"add","clamp","constant","divide","metronome","modulus","multiply","range","simple noise","simple random","smooth","subtract"};
     objectsMatrix["math"] = vecInit;
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
@@ -1373,6 +1373,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new Divide();
     }else if(objname == "metronome"){
         tempObj = new Metronome();
+    }else if(objname == "modulus"){
+        tempObj = new Module();
     }else if(objname == "multiply"){
         tempObj = new Multiply();
     }else if(objname == "range"){
