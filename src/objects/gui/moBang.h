@@ -49,5 +49,6 @@ public:
     void            mouseReleasedObjectContent(ofVec3f _m);
 
     bool            bang;
+    bool            isBangFinished;
 
 };

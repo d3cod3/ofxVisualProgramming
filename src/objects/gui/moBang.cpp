@@ -49,7 +49,8 @@ moBang::moBang() : PatchObject(){
 
     this->initInletsState();
 
-    bang = false;
+    bang            = false;
+    isBangFinished  = true;
 
 }
 
@@ -72,17 +73,23 @@ void moBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreade
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
             bang = false;
+            isBangFinished = true;
         }else{
             bang = true;
         }
     }
-    *(float *)&_outletParams[0] = static_cast<float>(bang);
 
-    if(bang){
+    if(bang && isBangFinished){
+        isBangFinished = false;
+
+        *(float *)&_outletParams[0] = static_cast<float>(bang);
         *static_cast<string *>(_outletParams[1]) = "bang";
+
     }else{
+        *(float *)&_outletParams[0] = 0;
         *static_cast<string *>(_outletParams[1]) = "";
     }
+
 }
 
 //--------------------------------------------------------------
@@ -112,5 +119,6 @@ void moBang::mousePressedObjectContent(ofVec3f _m){
 void moBang::mouseReleasedObjectContent(ofVec3f _m){
     if(!this->inletsConnected[0]){
         bang = false;
+        isBangFinished = true;
     }
 }

@@ -108,9 +108,14 @@ void Module::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreade
     }
 
     if(this->inletsConnected[0]){
-      *(float *)&_outletParams[0] = static_cast<int>(floor(*(float *)&_inletParams[0])) % static_cast<int>(floor(number));
+        if(number != 0){
+            *(float *)&_outletParams[0] = static_cast<int>(floor(*(float *)&_inletParams[0])) % static_cast<int>(floor(number));
+        }else{
+            *(float *)&_outletParams[0] = 0.0f;
+        }
+
     }else{
-      *(float *)&_outletParams[0] = 0.0f;
+        *(float *)&_outletParams[0] = 0.0f;
     }
 }
 

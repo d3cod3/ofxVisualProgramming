@@ -36,13 +36,16 @@
 Constant::Constant() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new float();  // input number
     *(float *)&_inletParams[0] = 0.0f;
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
+
+    _outletParams[1] = new string(); // output string
+    *static_cast<string *>(_outletParams[1]) = "";
 
     this->initInletsState();
 
@@ -59,6 +62,7 @@ void Constant::newObject(){
     this->setName("constant");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"number");
+    this->addOutlet(VP_LINK_STRING,"numberString");
 
     this->setCustomVar(static_cast<float>(inputValue),"NUMBER");
 }
@@ -92,6 +96,8 @@ void Constant::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
     inputNumber->update();
 
     *(float *)&_outletParams[0] = inputValue;
+
+    *static_cast<string *>(_outletParams[1]) = ofToString(inputValue);
 
 }
 

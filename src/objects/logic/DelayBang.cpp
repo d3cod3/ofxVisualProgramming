@@ -35,8 +35,8 @@
 //--------------------------------------------------------------
 DelayBang::DelayBang() : PatchObject(){
 
-    this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numInlets  = 2;
+    this->numOutlets = 2;
 
     _inletParams[0] = new float();  // bang
     *(float *)&_inletParams[0] = 0.0f;
