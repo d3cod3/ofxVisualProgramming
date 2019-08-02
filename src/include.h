@@ -32,9 +32,6 @@
 
 #pragma once
 
-
-// 3d objects
-
 // audio_analysis objects
 #include "objects/audio_analysis/AudioAnalyzer.h"
 #include "objects/audio_analysis/BeatExtractor.h"
@@ -108,13 +105,12 @@
 #include "objects/gui/moVideoViewer.h"
 #include "objects/gui/moVUMeter.h"
 
-// input_output objects
-
 // logic objects
 #include "objects/logic/AND.h"
 #include "objects/logic/BiggerThan.h"
 #include "objects/logic/Counter.h"
 #include "objects/logic/DelayBang.h"
+#include "objects/logic/DelayFloat.h"
 #include "objects/logic/Equality.h"
 #include "objects/logic/Gate.h"
 #include "objects/logic/Inequality.h"
@@ -125,8 +121,6 @@
 #include "objects/logic/SmallerThan.h"
 #include "objects/logic/Spigot.h"
 #include "objects/logic/TimedSemaphore.h"
-
-// machine_learning objects
 
 // math objects
 #include "objects/math/Add.h"
@@ -141,8 +135,6 @@
 #include "objects/math/SimpleNoise.h"
 #include "objects/math/Smooth.h"
 #include "objects/math/Subtract.h"
-
-// physics objects
 
 // scripting
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
@@ -201,6 +193,7 @@
 #include "objects/video/VideoTimelapse.h"
 
 // web objects
+#include "objects/web/moHttpForm.h"
 
 // window objects
 #include "objects/windowing/LivePatching.h"

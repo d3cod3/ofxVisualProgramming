@@ -58,7 +58,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","sonogram","timeline","trigger","video viewer","vu meter"};
     objectsMatrix["gui"] = vecInit;
 
-    vecInit = {"&&","||","==","!=",">","<","counter","delay bang","gate","inverter","loadbang","select","spigot","timed semaphore"};
+    vecInit = {"&&","||","==","!=",">","<","counter","delay bang","delay float","gate","inverter","loadbang","select","spigot","timed semaphore"};
     objectsMatrix["logic"] = vecInit;
 
     vecInit = {"add","clamp","constant","divide","metronome","modulus","multiply","range","simple noise","simple random","smooth","subtract"};
@@ -77,7 +77,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video scale","video streaming","video timedelay"};
     objectsMatrix["video"] = vecInit;
 
-    vecInit = {};
+    vecInit = {"http form"};
     objectsMatrix["web"] = vecInit;
 
     vecInit = {"live patching","output window","projection mapping"};
@@ -1404,6 +1404,8 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new Counter();
     }else if(objname == "delay bang"){
         tempObj = new DelayBang();
+    }else if(objname == "delay float"){
+        tempObj = new DelayFloat();
     }else if(objname == "gate"){
         tempObj = new Gate();
     }else if(objname == "inverter"){
@@ -1462,6 +1464,9 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoStreaming();
     }else if(objname == "video timedelay"){
         tempObj = new VideoTimelapse();
+    // -------------------------------------- WEB
+    }else if(objname == "http form"){
+        tempObj = new moHttpForm();
     // -------------------------------------- WINDOWING
     }else if(objname == "live patching"){
         tempObj = new LivePatching();
