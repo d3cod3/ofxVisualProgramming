@@ -417,14 +417,14 @@ void PatchObject::fixCollisions(map<int,PatchObject*> &patchObjects){
         if(it->first != getId()){
             if(getPos().x >= it->second->getPos().x && getPos().x < it->second->getPos().x + it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
                 if(isRetina){
-                    move(it->second->getPos().x+it->second->getObjectWidth()/16,getPos().y);
+                    move((it->second->getPos().x+it->second->getObjectWidth()+20)/2,getPos().y/2);
                 }else{
                     move(it->second->getPos().x+it->second->getObjectWidth()+10,getPos().y);
                 }
                 break;
             }else if(getPos().x+getObjectWidth() >= it->second->getPos().x && getPos().x+getObjectWidth() < it->second->getPos().x+it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
                 if(isRetina){
-                    move(it->second->getPos().x-getObjectWidth()/16,getPos().y);
+                    move((it->second->getPos().x-getObjectWidth()-20)/2,getPos().y/2);
                 }else{
                     move(it->second->getPos().x-getObjectWidth()-10,getPos().y);
                 }
