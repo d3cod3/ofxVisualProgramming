@@ -34,11 +34,11 @@
 
 #include "PatchObject.h"
 
-class VideoScale : public PatchObject {
+class VideoTransform : public PatchObject {
 
 public:
 
-    VideoScale();
+    VideoTransform();
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -64,6 +64,9 @@ public:
     ofxDatGui2dPad*         pad;
     ofxDatGuiSlider*        sliderW;
     ofxDatGuiSlider*        sliderH;
+    ofxDatGuiSlider*        angleX;
+    ofxDatGuiSlider*        angleY;
+    ofxDatGuiSlider*        angleZ;
 
     bool                    loaded;
 

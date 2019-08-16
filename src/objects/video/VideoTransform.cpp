@@ -30,12 +30,12 @@
 
 ==============================================================================*/
 
-#include "VideoScale.h"
+#include "VideoTransform.h"
 
 //--------------------------------------------------------------
-VideoScale::VideoScale() : PatchObject(){
+VideoTransform::VideoTransform() : PatchObject(){
 
-    this->numInlets  = 5;
+    this->numInlets  = 6;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // input
@@ -47,6 +47,12 @@ VideoScale::VideoScale() : PatchObject(){
     *(float *)&_inletParams[3] = 0.0f;
     _inletParams[4] = new float();      // h
     *(float *)&_inletParams[4] = 0.0f;
+    _inletParams[5] = new float();      // angleX
+    *(float *)&_inletParams[5] = 0.0f;
+    _inletParams[6] = new float();      // angleY
+    *(float *)&_inletParams[7] = 0.0f;
+    _inletParams[6] = new float();      // angleZ
+    *(float *)&_inletParams[7] = 0.0f;
 
     _outletParams[0] = new ofTexture(); // output
 
@@ -54,6 +60,9 @@ VideoScale::VideoScale() : PatchObject(){
 
     isGUIObject             = true;
     this->isOverGUI         = true;
+
+    this->width             *= 2;
+    this->height            *= 2;
 
     scaledFbo  = new ofFbo();
     needToGrab  = false;
@@ -63,29 +72,35 @@ VideoScale::VideoScale() : PatchObject(){
 }
 
 //--------------------------------------------------------------
-void VideoScale::newObject(){
-    this->setName("video scale");
+void VideoTransform::newObject(){
+    this->setName("video transform");
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addInlet(VP_LINK_NUMERIC,"width");
     this->addInlet(VP_LINK_NUMERIC,"height");
-    this->addOutlet(VP_LINK_TEXTURE,"scaledOutput");
+    this->addInlet(VP_LINK_NUMERIC,"angleX");
+    this->addInlet(VP_LINK_NUMERIC,"angleY");
+    this->addInlet(VP_LINK_NUMERIC,"angleZ");
+    this->addOutlet(VP_LINK_TEXTURE,"transformedOutput");
 
-    this->setCustomVar(0.0f,"POSX");
-    this->setCustomVar(0.0f,"POSY");
+    this->setCustomVar(0.001f,"POSX");
+    this->setCustomVar(0.001f,"POSY");
     this->setCustomVar(1280.0f,"WIDTH");
     this->setCustomVar(720.0f,"HEIGHT");
+    this->setCustomVar(360.0f,"ANGLEX");
+    this->setCustomVar(360.0f,"ANGLEY");
+    this->setCustomVar(360.0f,"ANGLEZ");
 }
 
 //--------------------------------------------------------------
-void VideoScale::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void VideoTransform::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
     gui->setUseCustomMouse(true);
     gui->setWidth(this->width);
-    gui->on2dPadEvent(this, &VideoScale::on2dPadEvent);
-    gui->onSliderEvent(this, &VideoScale::onSliderEvent);
+    gui->on2dPadEvent(this, &VideoTransform::on2dPadEvent);
+    gui->onSliderEvent(this, &VideoTransform::onSliderEvent);
 
     header = gui->addHeader("CONFIG",false);
     header->setUseCustomMouse(true);
@@ -99,6 +114,12 @@ void VideoScale::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     sliderW->setUseCustomMouse(true);
     sliderH = gui->addSlider("Height", 0.0,720.0,this->getCustomVar("HEIGHT"));
     sliderH->setUseCustomMouse(true);
+    angleX = gui->addSlider("AngleX", 0.0,360.0,this->getCustomVar("ANGLEX"));
+    angleX->setUseCustomMouse(true);
+    angleY = gui->addSlider("AngleY", 0.0,360.0,this->getCustomVar("ANGLEY"));
+    angleY->setUseCustomMouse(true);
+    angleZ = gui->addSlider("AngleZ", 0.0,360.0,this->getCustomVar("ANGLEZ"));
+    angleZ->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -106,14 +127,17 @@ void VideoScale::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoScale::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoTransform::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
     sliderW->update();
     sliderH->update();
+    angleX->update();
+    angleY->update();
+    angleZ->update();
     pad->update();
-    
+
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             if(!needToGrab){
@@ -126,7 +150,14 @@ void VideoScale::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
             scaledFbo->begin();
             ofClear(0,0,0,255);
             bounds.set((pad->getPoint().x/pad->getBounds().width)*static_cast<ofTexture *>(_inletParams[0])->getWidth(),(pad->getPoint().y/pad->getBounds().height)*static_cast<ofTexture *>(_inletParams[0])->getHeight(),sliderW->getValue(),sliderH->getValue());
-            static_cast<ofTexture *>(_inletParams[0])->draw(bounds.x,bounds.y,bounds.width,bounds.height);
+
+            ofPushMatrix();
+            ofTranslate(bounds.x+(bounds.width/2),bounds.y+(bounds.height/2));
+            ofRotateXDeg(angleX->getValue());
+            ofRotateYDeg(angleY->getValue());
+            ofRotateZDeg(angleZ->getValue());
+            static_cast<ofTexture *>(_inletParams[0])->draw(-bounds.width/2,0-bounds.height/2,bounds.width,bounds.height);
+            ofPopMatrix();
             scaledFbo->end();
 
             *static_cast<ofTexture *>(_outletParams[0]) = scaledFbo->getTexture();
@@ -163,17 +194,32 @@ void VideoScale::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
         sliderH->setValue(ofClamp(*(float *)&_inletParams[4],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight()));
     }
 
+    if(this->inletsConnected[5] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        angleX->setValue(ofClamp(*(float *)&_inletParams[5],0.0f,360.0f));
+    }
+
+    if(this->inletsConnected[6] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        angleX->setValue(ofClamp(*(float *)&_inletParams[6],0.0f,360.0f));
+    }
+
+    if(this->inletsConnected[7] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        angleX->setValue(ofClamp(*(float *)&_inletParams[7],0.0f,360.0f));
+    }
+
     if(!loaded){
         loaded = true;
         pad->setPoint(ofPoint(this->getCustomVar("POSX"),this->getCustomVar("POSY"),0));
         sliderW->setValue(this->getCustomVar("WIDTH"));
         sliderH->setValue(this->getCustomVar("HEIGHT"));
+        angleX->setValue(this->getCustomVar("ANGLEX"));
+        angleY->setValue(this->getCustomVar("ANGLEY"));
+        angleZ->setValue(this->getCustomVar("ANGLEZ"));
     }
-    
+
 }
 
 //--------------------------------------------------------------
-void VideoScale::drawObjectContent(ofxFontStash *font){
+void VideoTransform::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -202,20 +248,23 @@ void VideoScale::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoScale::removeObjectContent(){
-    
+void VideoTransform::removeObjectContent(){
+
 }
 
 //--------------------------------------------------------------
-void VideoScale::mouseMovedObjectContent(ofVec3f _m){
+void VideoTransform::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     sliderW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     sliderH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    angleX->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    angleY->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    angleZ->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || pad->hitTest(_m-this->getPos()) || sliderW->hitTest(_m-this->getPos()) || sliderH->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || pad->hitTest(_m-this->getPos()) || sliderW->hitTest(_m-this->getPos()) || sliderH->hitTest(_m-this->getPos()) || angleX->hitTest(_m-this->getPos()) || angleY->hitTest(_m-this->getPos()) || angleZ->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -223,13 +272,16 @@ void VideoScale::mouseMovedObjectContent(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void VideoScale::dragGUIObject(ofVec3f _m){
+void VideoTransform::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         sliderW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         sliderH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        angleX->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        angleY->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        angleZ->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -247,18 +299,24 @@ void VideoScale::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void VideoScale::on2dPadEvent(ofxDatGui2dPadEvent e){
+void VideoTransform::on2dPadEvent(ofxDatGui2dPadEvent e){
     this->setCustomVar(static_cast<float>(e.x),"POSX");
     this->setCustomVar(static_cast<float>(e.y),"POSY");
 }
 
 //--------------------------------------------------------------
-void VideoScale::onSliderEvent(ofxDatGuiSliderEvent e){
+void VideoTransform::onSliderEvent(ofxDatGuiSliderEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == sliderW){
             this->setCustomVar(static_cast<float>(e.value),"WIDTH");
         }else if(e.target == sliderH){
             this->setCustomVar(static_cast<float>(e.value),"HEIGHT");
+        }else if(e.target == angleX){
+            this->setCustomVar(static_cast<float>(e.value),"ANGLEX");
+        }else if(e.target == angleY){
+            this->setCustomVar(static_cast<float>(e.value),"ANGLEY");
+        }else if(e.target == angleZ){
+            this->setCustomVar(static_cast<float>(e.value),"ANGLEZ");
         }
     }
 }
