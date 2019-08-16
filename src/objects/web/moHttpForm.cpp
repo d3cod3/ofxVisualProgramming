@@ -140,10 +140,10 @@ void moHttpForm::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
         for(int i=1;i<this->getNumInlets();i++){
             if(this->inletsConnected[i]){
                 if(this->getInletType(i) == VP_LINK_STRING){
-                    f.addFormField(form_labels.at(i),*static_cast<string *>(_inletParams[i]));
+                    f.addFormField(form_labels.at(i-1),*static_cast<string *>(_inletParams[i]));
                 }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
                     saveTempImageFile(i);
-                    f.addFile(form_labels.at(i), ofToDataPath("temp/tempimage.png",true), "image/png");
+                    f.addFile(form_labels.at(i-1), ofToDataPath("temp/tempimage.png",true), "image/png");
                 }
             }
         }

@@ -154,7 +154,9 @@ void moComment::keyPressedObjectContent(int key){
         if (key < 127 && key > 31) {
             textBuffer->insert(key);
         }else if (key == 8) { // BACKSPACE
-            textBuffer->backspace();
+            if(textBuffer->getText().size() > 0){
+                textBuffer->backspace();
+            }
         }else if(key == 13){ // ENTER
 
         }
