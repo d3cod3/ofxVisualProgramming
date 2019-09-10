@@ -71,7 +71,6 @@ public:
 
     ofxDatGui*                      gui;
     ofxDatGuiHeader*                header;
-    ofxDatGuiTextInput*             host;
 
     vector<ofxDatGuiTextInput*>     labels;
 

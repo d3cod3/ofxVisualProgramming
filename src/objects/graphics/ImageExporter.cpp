@@ -111,6 +111,10 @@ void ImageExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
         isImageSaved = false;
         saveImageFile();
     }
+
+    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0){
+        saveImageFile();
+    }
     
 }
 
@@ -118,6 +122,28 @@ void ImageExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
 void ImageExporter::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
     ofEnableAlphaBlending();
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(static_cast<ofTexture *>(_inletParams[0])->getWidth()/static_cast<ofTexture *>(_inletParams[0])->getHeight() >= this->width/this->height){
+            if(static_cast<ofTexture *>(_inletParams[0])->getWidth() > static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
+                drawW           = this->width;
+                drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
+                posX            = 0;
+                posY            = (this->height-drawH)/2.0f;
+            }else{ // vertical texture
+                drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
+                drawH           = this->height;
+                posX            = (this->width-drawW)/2.0f;
+                posY            = 0;
+            }
+        }else{ // always considered vertical texture
+            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
+            drawH           = this->height;
+            posX            = (this->width-drawW)/2.0f;
+            posY            = 0;
+        }
+        static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
+    }
 
     gui->draw();
     ofDisableAlphaBlending();

@@ -35,18 +35,18 @@
 //--------------------------------------------------------------
 moHttpForm::moHttpForm() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
     _inletParams[0] = new float();  // bang
     *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new string();  // url
+    *static_cast<string *>(_inletParams[1]) = "";
 
     this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;
-
-    this->width         *= 2;
 
     fm      = new HttpFormManager();
     img     = new ofImage();
@@ -62,6 +62,7 @@ moHttpForm::moHttpForm() : PatchObject(){
 void moHttpForm::newObject(){
     this->setName("http form");
     this->addInlet(VP_LINK_NUMERIC,"bang");
+    this->addInlet(VP_LINK_STRING,"url");
 }
 
 //--------------------------------------------------------------
@@ -82,10 +83,6 @@ void moHttpForm::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header = gui->addHeader("CONFIG",false);
     header->setUseCustomMouse(true);
     header->setCollapsable(true);
-
-    host = gui->addTextInput("URL","localhost");
-    host->setUseCustomMouse(true);
-    host->setText(filepath);
 
     gui->addBreak();
 
@@ -114,7 +111,6 @@ void moHttpForm::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
 
     gui->update();
     header->update();
-    host->update();
     addFormField->update();
     addFormImage->update();
 
@@ -131,19 +127,24 @@ void moHttpForm::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
         }
     }
 
+    if(this->inletsConnected[1]){
+        form_url = *static_cast<string *>(_inletParams[1]);
+        filepath = form_url;
+    }
+
     if(bang && isBangFinished){
         isBangFinished = false;
 
         // Send http form
         HttpForm f = HttpForm(form_url);
 
-        for(int i=1;i<this->getNumInlets();i++){
+        for(int i=2;i<this->getNumInlets();i++){
             if(this->inletsConnected[i]){
                 if(this->getInletType(i) == VP_LINK_STRING){
-                    f.addFormField(form_labels.at(i-1),*static_cast<string *>(_inletParams[i]));
+                    f.addFormField(form_labels.at(i-2),*static_cast<string *>(_inletParams[i]));
                 }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
-                    saveTempImageFile(i);
-                    f.addFile(form_labels.at(i-1), ofToDataPath("temp/tempimage.png",true), "image/png");
+                    //saveTempImageFile(i);
+                    f.addFile(form_labels.at(i-2).c_str(), ofToDataPath("temp/tempimage.jpg",true), "image/jpg");
                 }
             }
         }
@@ -170,7 +171,6 @@ void moHttpForm::removeObjectContent(){
 void moHttpForm::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    host->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     addFormField->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     addFormImage->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
@@ -179,7 +179,7 @@ void moHttpForm::mouseMovedObjectContent(ofVec3f _m){
     }
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || host->hitTest(_m-this->getPos()) ||
+        this->isOverGUI = header->hitTest(_m-this->getPos()) ||
                           addFormField->hitTest(_m-this->getPos()) || addFormImage->hitTest(_m-this->getPos());
 
         for(size_t l=0;l<labels.size();l++){
@@ -195,7 +195,6 @@ void moHttpForm::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        host->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         addFormField->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         addFormImage->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
@@ -241,9 +240,9 @@ void moHttpForm::initInlets(){
                     }
                     if (XML.pushTag("vars")){
                         int totalOutlets = XML.getNumTags("var");
-                        this->numInlets = totalOutlets+1;
+                        this->numInlets = totalOutlets+2;
 
-                        int tempCounter = 1;
+                        int tempCounter = 2;
                         for (int t=0;t<totalOutlets;t++){
                             if(XML.pushTag("var",t)){
                                 if(tempTypes.at(tempCounter) == 1){ // string
@@ -344,11 +343,6 @@ void moHttpForm::onButtonEvent(ofxDatGuiButtonEvent e){
 //--------------------------------------------------------------
 void moHttpForm::onTextInputEvent(ofxDatGuiTextInputEvent e){
     if(!header->getIsCollapsed()){
-        if(e.target == host){
-            form_url = e.text;
-            filepath = form_url;
-        }
-
         for(int i=0;i<labels.size();i++){
             if(e.target == labels.at(i)){
                 this->substituteCustomVar(form_labels.at(i),e.text);
