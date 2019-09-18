@@ -137,15 +137,15 @@ void PatchObject::setupDSP(pdsp::Engine &engine){
         for(int i=0;i<static_cast<int>(inlets.size());i++){
             int it = getInletType(i);
             if(it == 4){ // VP_LINK_AUDIO
-                pdsp::PatchNode temp;
-                this->pdspIn[i] = temp;
+                pdsp::PatchNode *temp = new pdsp::PatchNode();
+                this->pdspIn[i] = *temp;
             }
         }
         for(int i=0;i<static_cast<int>(outlets.size());i++){
             int ot = getOutletType(i);
             if(ot == 4){ // VP_LINK_AUDIO
-                pdsp::PatchNode temp;
-                this->pdspOut[i] = temp;
+                pdsp::PatchNode *temp = new pdsp::PatchNode();
+                this->pdspOut[i] = *temp;
             }
         }
     }
@@ -182,6 +182,7 @@ void PatchObject::draw(ofxFontStash *font){
         ofPushStyle();
         if(!iconified){
             // Draw inlets
+            ofSetCircleResolution(6);
             for(int i=0;i<static_cast<int>(inlets.size());i++){
                 int it = getInletType(i);
                 ofSetLineWidth(1);
@@ -306,6 +307,8 @@ void PatchObject::draw(ofxFontStash *font){
                 }
             }
 
+            ofSetCircleResolution(50);
+
             // Draw the object box
             if(isBigGuiViewer){
                 ofSetColor(0);
@@ -315,6 +318,7 @@ void PatchObject::draw(ofxFontStash *font){
                 ofSetColor(*color);
             }
             ofSetLineWidth(1);
+            //ofDrawRectRounded(*box,10);
             ofDrawRectangle(*box);
 
             // Draw the specific object content ()
@@ -334,18 +338,21 @@ void PatchObject::draw(ofxFontStash *font){
                 }else{
                     ofSetColor(255,255,255,40);
                 }
+                //ofDrawRectRounded(*box,10);
                 ofDrawRectangle(*box);
             }
 
             // on object selected
             if(isObjectSelected){
                 ofSetColor(255,255,255,40);
+                //ofDrawRectRounded(*box,10);
                 ofDrawRectangle(*box);
             }
 
             // Draw inlets names
             if(static_cast<int>(inletsNames.size()) > 0 && !isBigGuiViewer && !isBigGuiComment){
                 ofSetColor(0,0,0,180);
+                //ofDrawRectRounded(box->x,box->y,box->width/3 + (3*retinaScale),box->height,10);
                 ofDrawRectangle(box->x,box->y,box->width/3 + (3*retinaScale),box->height);
                 ofSetColor(245);
                 for(int i=0;i<static_cast<int>(inletsNames.size());i++){
@@ -361,6 +368,8 @@ void PatchObject::draw(ofxFontStash *font){
         }else{
             ofSetColor(50);
         }
+
+        //ofDrawRectRounded(*headerBox,4);
         ofDrawRectangle(*headerBox);
 
         if(!isBigGuiViewer && !isBigGuiComment){

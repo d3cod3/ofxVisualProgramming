@@ -196,8 +196,8 @@ void AudioDevice::resetSystemObject(){
             ofSoundBuffer temp;
             IN_CH.push_back(temp);
 
-            pdsp::PatchNode tempPN;
-            this->pdspOut[i] = tempPN;
+            pdsp::PatchNode *tempPN = new pdsp::PatchNode();
+            this->pdspOut[i] = *tempPN;
         }
 
         this->inlets.clear();
@@ -337,8 +337,8 @@ void AudioDevice::loadDeviceInfo(){
             ofSoundBuffer temp;
             IN_CH.push_back(temp);
 
-            pdsp::PatchNode tempPN;
-            this->pdspOut[i] = tempPN;
+            pdsp::PatchNode *tempPN = new pdsp::PatchNode();
+            this->pdspOut[i] = *tempPN;
         }
 
         this->inlets.clear();

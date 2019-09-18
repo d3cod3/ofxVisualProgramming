@@ -262,7 +262,6 @@ void ofxVisualProgramming::draw(){
     canvas.begin(canvasViewport);
 
     ofEnableAlphaBlending();
-    ofSetCircleResolution(6);
     ofSetCurveResolution(50);
     ofSetColor(255);
     ofSetLineWidth(1);
