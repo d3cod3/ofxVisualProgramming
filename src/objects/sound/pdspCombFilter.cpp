@@ -71,7 +71,7 @@ void pdspCombFilter::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"feedback");
     this->addOutlet(VP_LINK_AUDIO,"filteredSignal");
 
-    this->setCustomVar(static_cast<float>(0.1),"TIME");
+    this->setCustomVar(static_cast<float>(0.1),"PITCH");
     this->setCustomVar(static_cast<float>(0),"DAMPING");
     this->setCustomVar(static_cast<float>(0),"FEEDBACK");
 }
