@@ -166,6 +166,7 @@
 
 #include "objects/sound/pdspAHR.h"
 #include "objects/sound/pdspADSR.h"
+#include "objects/sound/pdspBitCruncher.h"
 #include "objects/sound/pdspBitNoise.h"
 #include "objects/sound/pdspChorusEffect.h"
 #include "objects/sound/pdspCombFilter.h"
@@ -177,6 +178,7 @@
 #include "objects/sound/pdspHiCut.h"
 #include "objects/sound/pdspLFO.h"
 #include "objects/sound/pdspLowCut.h"
+#include "objects/sound/pdspResonant2PoleFilter.h"
 #include "objects/sound/pdspReverb.h"
 #include "objects/sound/pdspWhiteNoise.h"
 
