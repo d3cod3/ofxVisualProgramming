@@ -82,6 +82,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
 
+#### [ofxHttpForm](https://github.com/armadillu/ofxHttpForm)
+
 #### [ofxJava](https://github.com/d3cod3/ofxJava)
 
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
@@ -139,6 +141,7 @@ git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
 git clone https://github.com/armadillu/ofxGLError
 git clone https://github.com/armadillu/ofxHistoryPlot
+git clone https://github.com/armadillu/ofxHttpForm
 git clone https://github.com/d3cod3/ofxJava
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
@@ -607,7 +610,7 @@ ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
 
-ofxFontStash, ofxGLError, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
+ofxFontStash, ofxGLError, ofxHistoryPlot, ofxHttpForm, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
