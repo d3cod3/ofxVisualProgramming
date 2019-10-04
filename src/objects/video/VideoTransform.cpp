@@ -199,11 +199,11 @@ void VideoTransform::updateObjectContent(map<int,PatchObject*> &patchObjects, of
     }
 
     if(this->inletsConnected[6] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        angleX->setValue(ofClamp(*(float *)&_inletParams[6],0.0f,360.0f));
+        angleY->setValue(ofClamp(*(float *)&_inletParams[6],0.0f,360.0f));
     }
 
     if(this->inletsConnected[7] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        angleX->setValue(ofClamp(*(float *)&_inletParams[7],0.0f,360.0f));
+        angleZ->setValue(ofClamp(*(float *)&_inletParams[7],0.0f,360.0f));
     }
 
     if(!loaded){

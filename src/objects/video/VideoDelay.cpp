@@ -176,12 +176,12 @@ void VideoDelay::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     }
 
     if(this->inletsConnected[3]){
-        scaleTo = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        scaleTo = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
         slider->setValue(scaleTo);
     }
 
     if(this->inletsConnected[4]){
-        alphaTo = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        alphaTo = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
         sliderA->setValue(alphaTo);
     }
 
