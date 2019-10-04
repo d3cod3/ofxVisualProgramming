@@ -59,7 +59,8 @@ VideoGrabber::VideoGrabber() : PatchObject(){
 
     deviceID            = 0;
 
-    needReset           = false;
+    needReset               = false;
+    isOneDeviceAvailable    = false;
 }
 
 //--------------------------------------------------------------
@@ -89,6 +90,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     wdevices = vidGrabber->listDevices();
     for(int i=0;i<static_cast<int>(wdevices.size());i++){
         if(wdevices[i].bAvailable){
+            isOneDeviceAvailable = true;
             devicesVector.push_back(wdevices[i].deviceName);
             devicesID.push_back(i);
 
@@ -98,35 +100,39 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         }
     }
 
-    loadCameraSettings();
+    if(isOneDeviceAvailable){
+        loadCameraSettings();
 
-    deviceName = gui->addLabel(devicesVector[deviceID]);
-    if(devicesVector[deviceID].size() > 22){
-        deviceName->setLabel(devicesVector[deviceID].substr(0,21)+"...");
+        deviceName = gui->addLabel(devicesVector[deviceID]);
+        if(devicesVector[deviceID].size() > 22){
+            deviceName->setLabel(devicesVector[deviceID].substr(0,21)+"...");
+        }else{
+            deviceName->setLabel(devicesVector[deviceID]);
+        }
+
+        deviceSelector = gui->addMatrix("DEVICE",devicesVector.size(),true);
+        deviceSelector->setUseCustomMouse(true);
+        deviceSelector->setRadioMode(true);
+        deviceSelector->getChildAt(deviceID)->setSelected(true);
+        deviceSelector->onMatrixEvent(this, &VideoGrabber::onMatrixEvent);
+        gui->addBreak();
+
+        mirrorH = gui->addToggle("MIRR.H",static_cast<int>(floor(this->getCustomVar("MIRROR_H"))));
+        mirrorH->setUseCustomMouse(true);
+        mirrorV = gui->addToggle("MIRR.V",static_cast<int>(floor(this->getCustomVar("MIRROR_V"))));
+        mirrorV->setUseCustomMouse(true);
+
+        gui->addBreak();
+        guiTexWidth = gui->addTextInput("WIDTH",ofToString(camWidth));
+        guiTexWidth->setUseCustomMouse(true);
+        guiTexHeight = gui->addTextInput("HEIGHT",ofToString(camHeight));
+        guiTexHeight->setUseCustomMouse(true);
+        applyButton = gui->addButton("APPLY");
+        applyButton->setUseCustomMouse(true);
+        applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
     }else{
-        deviceName->setLabel(devicesVector[deviceID]);
+        deviceName = gui->addLabel("NO DEVICE PRESENT");
     }
-
-    deviceSelector = gui->addMatrix("DEVICE",devicesVector.size(),true);
-    deviceSelector->setUseCustomMouse(true);
-    deviceSelector->setRadioMode(true);
-    deviceSelector->getChildAt(deviceID)->setSelected(true);
-    deviceSelector->onMatrixEvent(this, &VideoGrabber::onMatrixEvent);
-    gui->addBreak();
-
-    mirrorH = gui->addToggle("MIRR.H",static_cast<int>(floor(this->getCustomVar("MIRROR_H"))));
-    mirrorH->setUseCustomMouse(true);
-    mirrorV = gui->addToggle("MIRR.V",static_cast<int>(floor(this->getCustomVar("MIRROR_V"))));
-    mirrorV->setUseCustomMouse(true);
-
-    gui->addBreak();
-    guiTexWidth = gui->addTextInput("WIDTH",ofToString(camWidth));
-    guiTexWidth->setUseCustomMouse(true);
-    guiTexHeight = gui->addTextInput("HEIGHT",ofToString(camHeight));
-    guiTexHeight->setUseCustomMouse(true);
-    applyButton = gui->addButton("APPLY");
-    applyButton->setUseCustomMouse(true);
-    applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 
     gui->onToggleEvent(this, &VideoGrabber::onToggleEvent);
     gui->onButtonEvent(this, &VideoGrabber::onButtonEvent);
@@ -137,7 +143,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->collapse();
     header->setIsCollapsed(true);
 
-    if(wdevices.size() > 0){
+    if(isOneDeviceAvailable){
         vidGrabber->setDeviceID(deviceID);
         vidGrabber->setup(camWidth, camHeight);
     }
@@ -149,7 +155,7 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     gui->update();
     header->update();
-    if(!header->getIsCollapsed()){
+    if(!header->getIsCollapsed() && isOneDeviceAvailable){
         guiTexWidth->update();
         guiTexHeight->update();
         applyButton->update();
@@ -158,7 +164,7 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         mirrorV->update();
     }
 
-    if(needReset){
+    if(needReset && isOneDeviceAvailable){
         resetCameraSettings(deviceID);
     }
 
@@ -213,12 +219,14 @@ void VideoGrabber::removeObjectContent(){
 void VideoGrabber::mouseMovedObjectContent(ofVec3f _m){
     gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    if(isOneDeviceAvailable){
+        guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    }
 
     if(!header->getIsCollapsed()){
         this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos()) || mirrorH->hitTest(_m-this->getPos()) || mirrorV->hitTest(_m-this->getPos());
@@ -233,11 +241,13 @@ void VideoGrabber::dragGUIObject(ofVec3f _m){
     if(this->isOverGUI){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        if(isOneDeviceAvailable){
+            guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+            mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        }
     }else{
         ofNotifyEvent(dragEvent, nId);
 

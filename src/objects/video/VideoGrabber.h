@@ -70,6 +70,7 @@ public:
     int                     temp_width, temp_height;
     int                     deviceID;
     bool                    needReset;
+    bool                    isOneDeviceAvailable;
 
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
