@@ -544,6 +544,11 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
             if(selectedObjectID != it->first){
                 for (int j=0;j<it->second->getNumInlets();j++){
                     if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
+                        // if previously connected, disconnect and refresh connection
+                        if(it->second->inletsConnected.at(j)){
+                            // Disconnect selected --> inlet link
+                            disconnectSelected(it->first,j);
+                        }
                         if(it->second->getInletType(j) == selectedObjectLinkType){
                             connect(selectedObjectID,selectedObjectLink,it->first,j,selectedObjectLinkType);
                             patchObjects[selectedObjectID]->saveConfig(true,selectedObjectID);
@@ -593,45 +598,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
     }else if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && !isOutletSelected){
         // Disconnect selected --> inlet link
-
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                if(it->second->outPut[j]->toObjectID == selectedObjectID && it->second->outPut[j]->toInletID == selectedObjectLink){
-                    // remove link
-                    vector<bool> tempEraseLinks;
-                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                        if(it->second->outPut[s]->toObjectID == selectedObjectID && it->second->outPut[s]->toInletID == selectedObjectLink){
-                            tempEraseLinks.push_back(true);
-                        }else{
-                            tempEraseLinks.push_back(false);
-                        }
-                    }
-
-                    vector<PatchLink*> tempBuffer;
-                    tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
-
-                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                        if(!tempEraseLinks[s]){
-                            tempBuffer.push_back(it->second->outPut[s]);
-                        }else{
-                            it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
-                            if(patchObjects[selectedObjectID] != nullptr){
-                                patchObjects[selectedObjectID]->inletsConnected[selectedObjectLink] = false;
-                                if(patchObjects[selectedObjectID]->getIsPDSPPatchableObject()){
-                                    patchObjects[selectedObjectID]->pdspIn[selectedObjectLink].disconnectIn();
-                                }
-                            }
-                        }
-                    }
-
-                    it->second->outPut = tempBuffer;
-
-                    break;
-                }
-
-            }
-
-        }
+        disconnectSelected(selectedObjectID,selectedObjectLink);
 
     }
 
@@ -1140,6 +1107,49 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
     }
 
     return connected;
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
+
+    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+            if(it->second->outPut[j]->toObjectID == objID && it->second->outPut[j]->toInletID == objLink){
+                // remove link
+                vector<bool> tempEraseLinks;
+                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                    if(it->second->outPut[s]->toObjectID == objID && it->second->outPut[s]->toInletID == objLink){
+                        tempEraseLinks.push_back(true);
+                    }else{
+                        tempEraseLinks.push_back(false);
+                    }
+                }
+
+                vector<PatchLink*> tempBuffer;
+                tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
+
+                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                    if(!tempEraseLinks[s]){
+                        tempBuffer.push_back(it->second->outPut[s]);
+                    }else{
+                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
+                        if(patchObjects[objID] != nullptr){
+                            patchObjects[objID]->inletsConnected[objLink] = false;
+                            if(patchObjects[objID]->getIsPDSPPatchableObject()){
+                                patchObjects[objID]->pdspIn[objLink].disconnectIn();
+                            }
+                        }
+                    }
+                }
+
+                it->second->outPut = tempBuffer;
+
+                break;
+            }
+
+        }
+
+    }
 }
 
 //--------------------------------------------------------------

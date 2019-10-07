@@ -87,6 +87,7 @@ public:
     void            duplicateObject(int &id);
 
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
+    void            disconnectSelected(int objID, int objLink);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);
