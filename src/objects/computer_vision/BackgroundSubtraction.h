@@ -81,6 +81,7 @@ public:
     ofxDatGuiMatrix*            bgSubTechSelector;
     ofxDatGuiSlider*            thresholdValue;
     ofxDatGuiSlider*            blurValue;
+    ofxDatGuiToggle*            adaptiveButton;
     ofxDatGuiToggle*            erodeButton;
     ofxDatGuiToggle*            dilateButton;
     ofxDatGuiSlider*            brightnessValue;

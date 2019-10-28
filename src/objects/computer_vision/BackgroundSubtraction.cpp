@@ -75,6 +75,7 @@ void BackgroundSubtraction::newObject(){
     this->setCustomVar(static_cast<float>(0.0),"BRIGHTNESS");
     this->setCustomVar(static_cast<float>(0.0),"CONTRAST");
     this->setCustomVar(static_cast<float>(1.0),"BLUR");
+    this->setCustomVar(static_cast<float>(0.0),"ADAPTIVE");
     this->setCustomVar(static_cast<float>(0.0),"ERODE");
     this->setCustomVar(static_cast<float>(0.0),"DILATE");
 }
@@ -100,7 +101,7 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
     vector<int> techs = {0,1,2};
     bgTechLabel = gui->addLabel("B&W ABS");
     bgTechLabel->setUseCustomMouse(true);
-    bgSubTechSelector = gui->addMatrix("TECHNIQUE",techs.size(),true);
+    bgSubTechSelector = gui->addMatrix("TECH",techs.size(),true);
     bgSubTechSelector->setUseCustomMouse(true);
     bgSubTechSelector->setRadioMode(true);
     bgSubTech = static_cast<int>(floor(this->getCustomVar("SUBTRACTION_TECHNIQUE")));
@@ -114,6 +115,9 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
     }
 
     bgSubTechSelector->getChildAt(bgSubTech)->setSelected(true);
+    gui->addBreak();
+    adaptiveButton = gui->addToggle("ADAPTIVE",static_cast<int>(floor(this->getCustomVar("ADAPTIVE"))));
+    adaptiveButton->setUseCustomMouse(true);
     gui->addBreak();
     brightnessValue = gui->addSlider("BRIGTH",-1.0,3.0);
     brightnessValue->setUseCustomMouse(true);
@@ -151,6 +155,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
         brightnessValue->update();
         contrastValue->update();
         blurValue->update();
+        adaptiveButton->update();
         erodeButton->update();
         dilateButton->update();
     }
@@ -180,7 +185,6 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
             *grayThresh -= *grayImg;
         }
 
-
         grayThresh->threshold(thresholdValue->getValue());
         if(erodeButton->getChecked()){
             grayThresh->erode();
@@ -208,9 +212,19 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
 
     //////////////////////////////////////////////
     // background learning
+
+    // static
     if(bLearnBackground == true){
         bLearnBackground = false;
         *grayBg = *grayImg;
+        grayBg->updateTexture();
+    }
+
+    // adaptive
+    if(adaptiveButton->getChecked()){
+        Mat temp = toCv(*grayBg);
+        temp = toCv(*grayBg)*0.999 + toCv(*grayImg)*0.001;
+        toOf(temp,grayBg->getPixels());
         grayBg->updateTexture();
     }
     //////////////////////////////////////////////
@@ -261,11 +275,12 @@ void BackgroundSubtraction::mouseMovedObjectContent(ofVec3f _m){
     brightnessValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     contrastValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     blurValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    adaptiveButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     erodeButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     dilateButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || bgTechLabel->hitTest(_m-this->getPos()) || resetButton->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos()) || bgSubTechSelector->hitTest(_m-this->getPos()) || brightnessValue->hitTest(_m-this->getPos()) || contrastValue->hitTest(_m-this->getPos()) || blurValue->hitTest(_m-this->getPos()) || erodeButton->hitTest(_m-this->getPos()) || dilateButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || bgTechLabel->hitTest(_m-this->getPos()) || resetButton->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos()) || bgSubTechSelector->hitTest(_m-this->getPos()) || brightnessValue->hitTest(_m-this->getPos()) || contrastValue->hitTest(_m-this->getPos()) || blurValue->hitTest(_m-this->getPos()) || adaptiveButton->hitTest(_m-this->getPos()) || erodeButton->hitTest(_m-this->getPos()) || dilateButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -284,6 +299,7 @@ void BackgroundSubtraction::dragGUIObject(ofVec3f _m){
         brightnessValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         contrastValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         blurValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        adaptiveButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         erodeButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         dilateButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
@@ -334,7 +350,10 @@ void BackgroundSubtraction::onToggleEvent(ofxDatGuiToggleEvent e){
             this->setCustomVar(static_cast<float>(e.checked),"ERODE");
         }else if(e.target == dilateButton){
             this->setCustomVar(static_cast<float>(e.checked),"DILATE");
+        }else if(e.target == adaptiveButton){
+            this->setCustomVar(static_cast<float>(e.checked),"ADAPTIVE");
         }
+
     }
 }
 
