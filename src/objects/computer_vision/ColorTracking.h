@@ -53,6 +53,7 @@ public:
     void            updateBGColor();
 
     void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
 
     ofxCv::ContourFinder        *contourFinder;

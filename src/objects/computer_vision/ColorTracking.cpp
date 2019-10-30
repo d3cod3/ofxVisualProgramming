@@ -120,6 +120,7 @@ void ColorTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     updateBGColor();
 
     gui->onSliderEvent(this, &ColorTracking::onSliderEvent);
+    gui->onTextInputEvent(this, &ColorTracking::onTextInputEvent);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -423,4 +424,20 @@ void ColorTracking::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 
+}
+
+//--------------------------------------------------------------
+void ColorTracking::onTextInputEvent(ofxDatGuiTextInputEvent e){
+    if(e.target == bgColor){
+        std::string res ( bgColor->getText() );
+        while(res.size() < 6) res+="0";
+
+        ofColor temp = ofColor(strtol(res.substr(0,2).c_str(),nullptr,16),strtol(res.substr(2,2).c_str(),nullptr,16),strtol(res.substr(4,2).c_str(),nullptr,16));
+        bgColor->setBackgroundColor(temp);
+
+        double a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b)/255;
+        bgColor->setTextInactiveColor(a < 0.5 ? ofColor::black : ofColor::white);
+
+        targetColor.set(temp);
+    }
 }
