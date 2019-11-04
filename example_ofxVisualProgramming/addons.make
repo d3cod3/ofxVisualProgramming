@@ -26,6 +26,7 @@ ofxInfiniteCanvas
 ofxLua
 ofxMidi
 ofxMtlMapping2D
+ofxNDI
 ofxParagraph
 ofxPd
 ofxPdExternals

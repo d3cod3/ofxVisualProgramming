@@ -74,7 +74,7 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit cruncher","bit noise","chorus","comb filter","compressor","crossfader","data oscillator","decimator","delay","ducker","hi pass","lfo","low pass","mixer","note to frequency","panner","pd patch","pulse","quad panner","resonant 2pole filter","reverb","saw","signal trigger","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
-    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video streaming","video timedelay","video transform"};
+    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video receiver","video sender","video streaming","video timedelay","video transform"};
     objectsMatrix["video"] = vecInit;
 
     vecInit = {"http form"};
@@ -1473,6 +1473,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoGate();
     }else if(objname == "video transform"){
         tempObj = new VideoTransform();
+    }else if(objname == "video receiver"){
+        tempObj = new VideoReceiver();
+    }else if(objname == "video sender"){
+        tempObj = new VideoSender();
     }else if(objname == "video streaming"){
         tempObj = new VideoStreaming();
     }else if(objname == "video timedelay"){

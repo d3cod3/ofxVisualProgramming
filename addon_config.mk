@@ -26,7 +26,7 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxPoco ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxFFmpegRecorder ofxFontStash ofxGLEditor ofxGLError
-        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJava ofxJSON ofxHttpForm ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
+        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJava ofxJSON ofxHttpForm ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxNDI ofxParagraph ofxPython
         ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxThreadedFileDialog ofxThreadedYouTubeVideo ofxTimeline ofxTimeMeasurements ofxWarp
 
 	# include search paths, this will be usually parsed from the file system

@@ -190,6 +190,8 @@
 #include "objects/video/VideoGate.h"
 #include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"
+#include "objects/video/VideoReceiver.h"
+#include "objects/video/VideoSender.h"
 #include "objects/video/VideoStreaming.h"
 #include "objects/video/VideoTimelapse.h"
 #include "objects/video/VideoTransform.h"

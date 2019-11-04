@@ -96,6 +96,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxMtlMapping2D](https://github.com/d3cod3/ofxMtlMapping2D)
 
+#### [ofxNDI](https://github.com/d3cod3/ofxNDI)
+
 #### [ofxParagraph](https://github.com/d3cod3/ofxParagraph)
 
 #### [ofxPd](https://github.com/danomatika/ofxPd)
@@ -148,6 +150,7 @@ git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
 git clone https://github.com/d3cod3/ofxMidi
 git clone https://github.com/d3cod3/ofxMtlMapping2D
+git clone https://github.com/d3cod3/ofxNDI
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
 git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/danomatika/ofxPd
@@ -621,6 +624,8 @@ ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdon
 ofxLua, ofxMidi, ofxPd original addons by [Dan Wilcox](https://github.com/danomatika)
 
 ofxMtlMapping2D original addon by [morethanlogic](https://github.com/morethanlogic)
+
+ofxNDI original addon by [Thomas Geissl](https://github.com/thomasgeissl)
 
 ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
 
