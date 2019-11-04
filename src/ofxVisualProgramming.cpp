@@ -74,7 +74,11 @@ void ofxVisualProgramming::initObjectMatrix(){
     vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit cruncher","bit noise","chorus","comb filter","compressor","crossfader","data oscillator","decimator","delay","ducker","hi pass","lfo","low pass","mixer","note to frequency","panner","pd patch","pulse","quad panner","resonant 2pole filter","reverb","saw","signal trigger","sine","soundfile player","triangle","white noise"};
     objectsMatrix["sound"] = vecInit;
 
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
     vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video receiver","video sender","video streaming","video timedelay","video transform"};
+#elif defined(TARGET_WIN32)
+   vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video streaming","video timedelay","video transform"};
+#endif
     objectsMatrix["video"] = vecInit;
 
     vecInit = {"http form"};
