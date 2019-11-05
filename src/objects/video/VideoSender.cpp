@@ -35,10 +35,12 @@
 //--------------------------------------------------------------
 VideoSender::VideoSender() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
     _inletParams[0] = new ofTexture(); // input
+    _inletParams[1] = new float();      // bang
+    *(float *)&_inletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -93,6 +95,17 @@ void VideoSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxTh
     header->update();
     if(!header->getIsCollapsed()){
         recButton->update();
+    }
+
+    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
+        if(!recButton->getChecked()){
+            recButton->setChecked(true);
+            ofLog(OF_LOG_NOTICE,"START NDI VIDEO SENDER");
+        }else{
+            recButton->setChecked(false);
+            ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
+        }
+
     }
 
 }

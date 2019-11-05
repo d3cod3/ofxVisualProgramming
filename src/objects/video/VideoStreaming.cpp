@@ -35,10 +35,12 @@
 //--------------------------------------------------------------
 VideoStreaming::VideoStreaming() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
-    _inletParams[0] = new ofTexture(); // input
+    _inletParams[0] = new ofTexture();  // input
+    _inletParams[1] = new float();      // bang
+    *(float *)&_inletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -56,6 +58,7 @@ VideoStreaming::VideoStreaming() : PatchObject(){
 void VideoStreaming::newObject(){
     this->setName("video streaming");
     this->addInlet(VP_LINK_TEXTURE,"input");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
 }
 
 //--------------------------------------------------------------
@@ -99,6 +102,24 @@ void VideoStreaming::updateObjectContent(map<int,PatchObject*> &patchObjects, of
     header->update();
     if(!header->getIsCollapsed()){
         recButton->update();
+    }
+
+    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
+        if(!recButton->getChecked()){
+            recButton->setChecked(true);
+            if(!recorder.isRecording()){
+                recorder.setBitRate(20000);
+                recorder.startCustomStreaming();
+            }
+            ofLog(OF_LOG_NOTICE,"START VIDEO STREAMING");
+        }else{
+            recButton->setChecked(false);
+            if(recorder.isRecording()){
+                recorder.stop();
+            }
+            ofLog(OF_LOG_NOTICE,"STOP VIDEO STREAMING");
+        }
+
     }
 
 }
