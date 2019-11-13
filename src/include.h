@@ -79,7 +79,9 @@
 // data objects
 #include "objects/data/BangMultiplexer.h"
 #include "objects/data/BangToFloat.h"
+#include "objects/data/DataToFile.h"
 #include "objects/data/DataToTexture.h"
+#include "objects/data/FileToData.h"
 #include "objects/data/FloatsToVector.h"
 #include "objects/data/TextureToData.h"
 #include "objects/data/VectorAt.h"
@@ -190,8 +192,10 @@
 #include "objects/video/VideoGate.h"
 #include "objects/video/VideoGrabber.h"
 #include "objects/video/VideoPlayer.h"
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "objects/video/VideoReceiver.h"
 #include "objects/video/VideoSender.h"
+#endif
 #include "objects/video/VideoStreaming.h"
 #include "objects/video/VideoTimelapse.h"
 #include "objects/video/VideoTransform.h"

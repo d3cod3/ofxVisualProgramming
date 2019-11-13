@@ -49,7 +49,7 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["computer vision"] = vecInit;
 
-    vecInit = {"bang multiplexer","bang to float","data to texture","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
+    vecInit = {"bang multiplexer","bang to float","data to file","data to texture","file to data","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
     objectsMatrix["data"] = vecInit;
 
     vecInit = {"image exporter","image loader"};
@@ -1219,6 +1219,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new BashScript();
     }else if(objname == "face tracker"){
         tempObj = new FaceTracker();
+    }else if(objname == "video receiver"){
+        tempObj = new VideoReceiver();
+    }else if(objname == "video sender"){
+        tempObj = new VideoSender();
     }else
 #endif
 
@@ -1295,6 +1299,10 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new BangMultiplexer();
     }else if(objname == "bang to float"){
         tempObj = new BangToFloat();
+    }else if(objname == "data to file"){
+        tempObj = new DataToFile();
+    }else if(objname == "file to data"){
+        tempObj = new FileToData();
     }else if(objname == "data to texture"){
         tempObj = new DataToTexture();
     }else if(objname == "vector at"){
@@ -1477,10 +1485,6 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoGate();
     }else if(objname == "video transform"){
         tempObj = new VideoTransform();
-    }else if(objname == "video receiver"){
-        tempObj = new VideoReceiver();
-    }else if(objname == "video sender"){
-        tempObj = new VideoSender();
     }else if(objname == "video streaming"){
         tempObj = new VideoStreaming();
     }else if(objname == "video timedelay"){
