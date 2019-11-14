@@ -171,6 +171,13 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         resetCameraSettings(deviceID);
     }
 
+}
+
+//--------------------------------------------------------------
+void VideoGrabber::drawObjectContent(ofxFontStash *font){
+    ofSetColor(255);
+    ofEnableAlphaBlending();
+
     if(vidGrabber->isInitialized()){
         vidGrabber->update();
         if(vidGrabber->isFrameNew()){
@@ -182,12 +189,6 @@ void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         }
     }
 
-}
-
-//--------------------------------------------------------------
-void VideoGrabber::drawObjectContent(ofxFontStash *font){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
     if(vidGrabber->isInitialized() && static_cast<ofTexture *>(_outletParams[0])->isAllocated() && !needReset){
         if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
             if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
