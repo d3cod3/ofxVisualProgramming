@@ -98,7 +98,7 @@ void DissonanceExtractor::updateObjectContent(map<int,PatchObject*> &patchObject
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                            if(it->second->getName() == "audio analyzer"){
+                            if(it->second->getName() == "audio analyzer" || it->second->getName() == "file to data"){
                                 isConnectionRight = true;
                             }
                             break;

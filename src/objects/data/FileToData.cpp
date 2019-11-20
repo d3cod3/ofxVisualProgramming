@@ -47,9 +47,11 @@ FileToData::FileToData() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    openFileFlag      = false;
-    fileOpened        = false;
-    readData          = false;
+    openFileFlag        = false;
+    fileOpened          = false;
+    readData            = false;
+
+    actualIndex         = 0;
 }
 
 //--------------------------------------------------------------
@@ -81,6 +83,10 @@ void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->collapse();
     header->setIsCollapsed(true);
 
+    if(filepath != "none"){
+        loadDataFile(filepath);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -100,6 +106,7 @@ void FileToData::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
 
     if(fileOpened){
         fileOpened = false;
+        ofLog(OF_LOG_NOTICE,"FILE DATA IMPORTED!");
         // start reading data from file
         readData = true;
     }
@@ -183,32 +190,44 @@ void FileToData::dragGUIObject(ofVec3f _m){
 void FileToData::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "import datafile"+ofToString(this->getId())){
         filepath = response.filepath;
-        fileOpened = true;
-        fileBuffer = ofBufferFromFile(filepath);
 
-        // fill data matrix
-        if(fileBuffer.size()) {
-            dataMatrix.clear();
-            for (ofBuffer::Line it = fileBuffer.getLines().begin(), end = fileBuffer.getLines().end(); it != end; ++it) {
-                string line = *it;
-                // make sure its not a empty line
-                if(line.empty() == false) {
-                    vector<float> temp;
-                    float temp_number;
-                    // read line into temp
-                    std::istringstream str_buf{line};
-                    while ( str_buf >> temp_number ) {
-                        temp.push_back(temp_number);
-                        // If the next char is a comma, extract it. std::ws discards whitespace
-                        if ( ( str_buf >> std::ws).peek() == ',' ) {
-                            str_buf.ignore();
-                        }
+        loadDataFile(filepath);
+
+    }
+}
+
+//--------------------------------------------------------------
+void FileToData::loadDataFile(string filepath){
+    readData = false;
+
+    fileBuffer = ofBufferFromFile(filepath);
+
+    // fill data matrix
+    if(fileBuffer.size()) {
+        dataMatrix.clear();
+        for (ofBuffer::Line it = fileBuffer.getLines().begin(), end = fileBuffer.getLines().end(); it != end; ++it) {
+            string line = *it;
+            // make sure its not a empty line
+            if(line.empty() == false) {
+                vector<float> temp;
+                float temp_number;
+                // read line into temp
+                std::istringstream str_buf{line};
+                while ( str_buf >> temp_number ) {
+                    temp.push_back(temp_number);
+                    // If the next char is a comma, extract it. std::ws discards whitespace
+                    if ( ( str_buf >> std::ws).peek() == ',' ) {
+                        str_buf.ignore();
                     }
-                    dataMatrix.push_back(temp);
                 }
+                dataMatrix.push_back(temp);
             }
         }
     }
+
+    fileOpened = true;
+
+    readButton->setChecked(true);
 }
 
 //--------------------------------------------------------------

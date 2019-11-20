@@ -51,6 +51,8 @@ public:
     void            dragGUIObject(ofVec3f _m);
     void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
+    void            loadDataFile(string filepath);
+
     void            onToggleEvent(ofxDatGuiToggleEvent e);
 
 
