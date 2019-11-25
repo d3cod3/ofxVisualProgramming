@@ -55,4 +55,6 @@ public:
     ofxDatGuiSlider*        slider;
     ofxDatGuiValuePlotter*  rPlotter;
 
+    bool                    loaded;
+
 };

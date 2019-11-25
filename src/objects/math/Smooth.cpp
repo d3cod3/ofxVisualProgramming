@@ -69,6 +69,7 @@ void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->setAutoDraw(false);
     gui->setWidth(this->width);
     gui->addBreak();
+    gui->onSliderEvent(this, &Smooth::onSliderEvent);
     slider = gui->addSlider("", 0.0f, 1.0f,this->getCustomVar("SMOOTHING"));
     slider->setUseCustomMouse(true);
     gui->addBreak();
@@ -98,6 +99,11 @@ void Smooth::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreade
     slider->update();
 
     rPlotter->setValue(*(float *)&_outletParams[0]);
+
+    if(!loaded){
+        loaded = true;
+        slider->setValue(this->getCustomVar("SMOOTHING"));
+    }
 
 }
 
