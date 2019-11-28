@@ -134,7 +134,7 @@ void Crossfader::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Crossfader::removeObjectContent(){
+void Crossfader::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

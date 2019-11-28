@@ -119,7 +119,7 @@ void MidiKey::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MidiKey::removeObjectContent(){
+void MidiKey::removeObjectContent(bool removeFileFromData){
 
 }
 

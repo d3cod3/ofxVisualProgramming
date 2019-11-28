@@ -226,7 +226,7 @@ void OpticalFlow::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OpticalFlow::removeObjectContent(){
+void OpticalFlow::removeObjectContent(bool removeFileFromData){
     
 }
 

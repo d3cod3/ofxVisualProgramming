@@ -221,7 +221,7 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::removeObjectContent(){
+void VideoGrabber::removeObjectContent(bool removeFileFromData){
     vidGrabber->close();
 }
 

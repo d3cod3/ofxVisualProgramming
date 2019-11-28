@@ -142,7 +142,7 @@ void DelayBang::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void DelayBang::removeObjectContent(){
+void DelayBang::removeObjectContent(bool removeFileFromData){
 
 }
 

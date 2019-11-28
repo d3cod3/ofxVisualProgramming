@@ -204,7 +204,7 @@ void VideoCrop::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoCrop::removeObjectContent(){
+void VideoCrop::removeObjectContent(bool removeFileFromData){
     
 }
 

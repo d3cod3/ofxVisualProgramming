@@ -179,7 +179,7 @@ void VideoTimelapse::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::removeObjectContent(){
+void VideoTimelapse::removeObjectContent(bool removeFileFromData){
     
 }
 

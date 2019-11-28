@@ -112,7 +112,7 @@ void moMessage::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moMessage::removeObjectContent(){
+void moMessage::removeObjectContent(bool removeFileFromData){
     
 }
 

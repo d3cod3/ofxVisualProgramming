@@ -92,6 +92,6 @@ void Clamp::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Clamp::removeObjectContent(){
+void Clamp::removeObjectContent(bool removeFileFromData){
 
 }

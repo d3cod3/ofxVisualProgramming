@@ -108,7 +108,7 @@ void Mixer::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Mixer::removeObjectContent(){
+void Mixer::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

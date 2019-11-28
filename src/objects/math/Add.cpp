@@ -124,7 +124,7 @@ void Add::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Add::removeObjectContent(){
+void Add::removeObjectContent(bool removeFileFromData){
 
 }
 

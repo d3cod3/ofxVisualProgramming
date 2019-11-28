@@ -162,7 +162,7 @@ void DelayFloat::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void DelayFloat::removeObjectContent(){
+void DelayFloat::removeObjectContent(bool removeFileFromData){
 
 }
 

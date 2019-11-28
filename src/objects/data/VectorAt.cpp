@@ -131,7 +131,7 @@ void VectorAt::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VectorAt::removeObjectContent(){
+void VectorAt::removeObjectContent(bool removeFileFromData){
 
 }
 

@@ -46,7 +46,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
-    void            removeObjectContent();
+    void            removeObjectContent(bool removeFileFromData=false);
 
     bool            onset;
 

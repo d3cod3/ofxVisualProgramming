@@ -177,7 +177,7 @@ void MidiSender::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MidiSender::removeObjectContent(){
+void MidiSender::removeObjectContent(bool removeFileFromData){
     if(midiDevicesList.size() > 0){
         if(midiOut.isOpen()){
             midiOut.closePort();

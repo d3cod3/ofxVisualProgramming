@@ -151,7 +151,7 @@ void moSonogram::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moSonogram::removeObjectContent(){
+void moSonogram::removeObjectContent(bool removeFileFromData){
     
 }
 

@@ -217,7 +217,8 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "JSON") {
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 warpController->loadSettings(filepath);
                 edgesExponent->setValue(this->getCustomVar("EDGES_EXPONENT"));
                 edgeL->setValue(this->getCustomVar("EDGE_LEFT"));
@@ -320,7 +321,7 @@ void OutputWindow::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::removeObjectContent(){
+void OutputWindow::removeObjectContent(bool removeFileFromData){
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }

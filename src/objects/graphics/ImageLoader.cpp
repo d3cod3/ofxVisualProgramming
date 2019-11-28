@@ -65,7 +65,8 @@ void ImageLoader::newObject(){
 
 //--------------------------------------------------------------
 void ImageLoader::autoloadFile(string _fp){
-    filepath = _fp;
+    //filepath = _fp;
+    filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
     isImageLoaded= true;
     isFileLoaded = false;
 }
@@ -175,8 +176,10 @@ void ImageLoader::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ImageLoader::removeObjectContent(){
-    
+void ImageLoader::removeObjectContent(bool removeFileFromData){
+    if(removeFileFromData){
+        removeFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------
@@ -226,7 +229,8 @@ void ImageLoader::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "PNG" || fileExtension == "GIF" || fileExtension == "JPG" || fileExtension == "JPEG" || fileExtension == "TIF" || fileExtension == "TIFF") {
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 isImageLoaded= true;
                 isFileLoaded = false;
             }

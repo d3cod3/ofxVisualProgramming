@@ -130,6 +130,6 @@ void RollOffExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void RollOffExtractor::removeObjectContent(){
+void RollOffExtractor::removeObjectContent(bool removeFileFromData){
 
 }

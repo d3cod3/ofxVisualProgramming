@@ -96,6 +96,6 @@ void moVUMeter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moVUMeter::removeObjectContent(){
+void moVUMeter::removeObjectContent(bool removeFileFromData){
     
 }

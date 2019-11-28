@@ -139,7 +139,7 @@ void SigMult::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void SigMult::removeObjectContent(){
+void SigMult::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

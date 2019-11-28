@@ -106,6 +106,6 @@ void BeatExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BeatExtractor::removeObjectContent(){
+void BeatExtractor::removeObjectContent(bool removeFileFromData){
     
 }

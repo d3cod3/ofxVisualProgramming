@@ -104,6 +104,6 @@ void VectorGate::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VectorGate::removeObjectContent(){
+void VectorGate::removeObjectContent(bool removeFileFromData){
 
 }

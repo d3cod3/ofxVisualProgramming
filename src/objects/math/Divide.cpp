@@ -130,7 +130,7 @@ void Divide::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Divide::removeObjectContent(){
+void Divide::removeObjectContent(bool removeFileFromData){
 
 }
 

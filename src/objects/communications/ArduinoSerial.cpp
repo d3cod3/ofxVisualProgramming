@@ -208,7 +208,7 @@ void ArduinoSerial::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::removeObjectContent(){
+void ArduinoSerial::removeObjectContent(bool removeFileFromData){
     if(serial.isInitialized() && deviceNameList.size() > 0){
         serial.close();
     }

@@ -125,7 +125,7 @@ void BangToFloat::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BangToFloat::removeObjectContent(){
+void BangToFloat::removeObjectContent(bool removeFileFromData){
 
 }
 

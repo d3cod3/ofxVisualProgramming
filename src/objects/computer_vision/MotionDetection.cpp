@@ -172,7 +172,7 @@ void MotionDetection::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MotionDetection::removeObjectContent(){
+void MotionDetection::removeObjectContent(bool removeFileFromData){
     
 }
 

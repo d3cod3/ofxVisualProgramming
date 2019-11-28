@@ -237,7 +237,7 @@ void pdspDucker::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspDucker::removeObjectContent(){
+void pdspDucker::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

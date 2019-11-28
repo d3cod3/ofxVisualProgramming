@@ -106,7 +106,7 @@ void moSlider::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moSlider::removeObjectContent(){
+void moSlider::removeObjectContent(bool removeFileFromData){
     
 }
 

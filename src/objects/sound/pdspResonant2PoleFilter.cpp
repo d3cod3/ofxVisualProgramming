@@ -186,7 +186,7 @@ void pdspResonant2PoleFilter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspResonant2PoleFilter::removeObjectContent(){
+void pdspResonant2PoleFilter::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

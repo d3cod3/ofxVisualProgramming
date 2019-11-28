@@ -76,7 +76,8 @@ void BashScript::newObject(){
 //--------------------------------------------------------------
 void BashScript::autoloadFile(string _fp){
     threadLoaded = false;
-    filepath = _fp;
+    //filepath = _fp;
+    filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
     reloadScriptThreaded();
 }
 
@@ -207,10 +208,13 @@ void BashScript::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BashScript::removeObjectContent(){
+void BashScript::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
     if(isThreadRunning()){
         stopThread();
+    }
+    if(filepath != ofToDataPath("scripts/empty.sh",true) && removeFileFromData){
+        removeFile(filepath);
     }
 }
 
@@ -262,7 +266,8 @@ void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "SH") {
                 threadLoaded = false;
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 reloadScriptThreaded();
             }
         }

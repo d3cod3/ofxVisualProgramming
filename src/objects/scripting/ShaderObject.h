@@ -89,7 +89,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
-    void            removeObjectContent();
+    void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
     void            resetResolution(int fromID, int newWidth, int newHeight);
@@ -132,6 +132,7 @@ public:
     vector<float>               objectCustomVars;
 
     string              lastShaderScript;
+    string              lastVertexShaderPath;
     bool                loadShaderScriptFlag;
     bool                saveShaderScriptFlag;
     bool                shaderScriptLoaded;

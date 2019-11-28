@@ -89,6 +89,6 @@ void SimpleNoise::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::removeObjectContent(){
+void SimpleNoise::removeObjectContent(bool removeFileFromData){
     
 }

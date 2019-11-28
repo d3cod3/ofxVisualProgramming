@@ -129,7 +129,7 @@ void MidiPad::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MidiPad::removeObjectContent(){
+void MidiPad::removeObjectContent(bool removeFileFromData){
 
 }
 

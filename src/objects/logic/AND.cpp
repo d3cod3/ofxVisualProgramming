@@ -95,6 +95,6 @@ void AND::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void AND::removeObjectContent(){
+void AND::removeObjectContent(bool removeFileFromData){
 
 }

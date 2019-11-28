@@ -125,7 +125,7 @@ void moVideoViewer::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::removeObjectContent(){
+void moVideoViewer::removeObjectContent(bool removeFileFromData){
     
 }
 

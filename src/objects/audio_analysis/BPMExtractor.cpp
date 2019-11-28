@@ -132,6 +132,6 @@ void BPMExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BPMExtractor::removeObjectContent(){
+void BPMExtractor::removeObjectContent(bool removeFileFromData){
 
 }

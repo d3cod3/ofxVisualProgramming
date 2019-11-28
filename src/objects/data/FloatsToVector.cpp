@@ -96,6 +96,6 @@ void FloatsToVector::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void FloatsToVector::removeObjectContent(){
+void FloatsToVector::removeObjectContent(bool removeFileFromData){
 
 }

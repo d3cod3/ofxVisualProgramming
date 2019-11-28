@@ -199,7 +199,7 @@ void VideoExporter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoExporter::removeObjectContent(){
+void VideoExporter::removeObjectContent(bool removeFileFromData){
 
 }
 

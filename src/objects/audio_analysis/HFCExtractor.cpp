@@ -130,6 +130,6 @@ void HFCExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void HFCExtractor::removeObjectContent(){
+void HFCExtractor::removeObjectContent(bool removeFileFromData){
 
 }

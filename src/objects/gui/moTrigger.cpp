@@ -96,7 +96,7 @@ void moTrigger::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moTrigger::removeObjectContent(){
+void moTrigger::removeObjectContent(bool removeFileFromData){
     
 }
 

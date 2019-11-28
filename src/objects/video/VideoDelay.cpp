@@ -224,7 +224,7 @@ void VideoDelay::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoDelay::removeObjectContent(){
+void VideoDelay::removeObjectContent(bool removeFileFromData){
     
 }
 

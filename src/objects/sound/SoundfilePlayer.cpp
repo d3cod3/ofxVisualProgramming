@@ -95,7 +95,8 @@ void SoundfilePlayer::newObject(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::autoloadFile(string _fp){
-    lastSoundfile = _fp;
+    //lastSoundfile = _fp;
+    lastSoundfile = copyFileToPatchFolder(this->patchFolderPath,_fp);
     soundfileLoaded = true;
     startTime = ofGetElapsedTimeMillis();
 }
@@ -266,7 +267,7 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
 
         ofSetColor(255);
         ofSetLineWidth(2);
-        float phx = ofMap( playhead, 0, audiofile.length(), 0, drawW );
+        float phx = ofMap( playhead, 0, audiofile.length(), 1, drawW-1 );
         ofDrawLine( phx, posY+2, phx, drawH+posY);
     }else if(!isNewObject && !loading){
         ofSetColor(255,0,0);
@@ -274,14 +275,18 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
         ofSetColor(255);
         font->draw("FILE NOT FOUND!",this->fontSize,this->width/3 + 4,this->headerHeight*2.3);
     }
+
     gui->draw();
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::removeObjectContent(){
+void SoundfilePlayer::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
+    }
+    if(removeFileFromData){
+        removeFile(filepath);
     }
 }
 

@@ -121,7 +121,7 @@ void VectorMultiply::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VectorMultiply::removeObjectContent(){
+void VectorMultiply::removeObjectContent(bool removeFileFromData){
 
 }
 

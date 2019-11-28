@@ -129,6 +129,6 @@ void FftExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void FftExtractor::removeObjectContent(){
+void FftExtractor::removeObjectContent(bool removeFileFromData){
     
 }

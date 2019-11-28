@@ -131,7 +131,7 @@ void pdspBitNoise::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::removeObjectContent(){
+void pdspBitNoise::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }

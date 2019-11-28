@@ -139,7 +139,7 @@ void AudioExporter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::removeObjectContent(){
+void AudioExporter::removeObjectContent(bool removeFileFromData){
 
 }
 

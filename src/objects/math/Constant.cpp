@@ -110,7 +110,7 @@ void Constant::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Constant::removeObjectContent(){
+void Constant::removeObjectContent(bool removeFileFromData){
 
 }
 

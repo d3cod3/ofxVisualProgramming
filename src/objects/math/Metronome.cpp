@@ -135,7 +135,7 @@ void Metronome::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Metronome::removeObjectContent(){
+void Metronome::removeObjectContent(bool removeFileFromData){
     
 }
 

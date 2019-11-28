@@ -109,6 +109,6 @@ void Gate::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Gate::removeObjectContent(){
+void Gate::removeObjectContent(bool removeFileFromData){
     
 }

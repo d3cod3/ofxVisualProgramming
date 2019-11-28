@@ -119,6 +119,6 @@ void SimpleRandom::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::removeObjectContent(){
+void SimpleRandom::removeObjectContent(bool removeFileFromData){
     
 }

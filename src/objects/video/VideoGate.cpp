@@ -127,6 +127,6 @@ void VideoGate::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoGate::removeObjectContent(){
+void VideoGate::removeObjectContent(bool removeFileFromData){
     
 }

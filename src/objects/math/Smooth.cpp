@@ -116,7 +116,7 @@ void Smooth::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Smooth::removeObjectContent(){
+void Smooth::removeObjectContent(bool removeFileFromData){
 
 }
 

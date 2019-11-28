@@ -173,7 +173,7 @@ void FaceTracker::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void FaceTracker::removeObjectContent(){
+void FaceTracker::removeObjectContent(bool removeFileFromData){
     tracker.stopThread();
     tracker.waitForThread();
 }

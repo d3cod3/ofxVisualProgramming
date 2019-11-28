@@ -129,7 +129,8 @@ void HaarTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
             if (file.exists()){
                 string fileExtension = ofToUpper(file.getExtension());
                 if(fileExtension == "XML") {
-                    filepath = file.getAbsolutePath();
+                    filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                    //filepath = file.getAbsolutePath();
                     haarFinder->setup(filepath);
 
                     size_t start = file.getFileName().find_first_of("_");
@@ -251,8 +252,10 @@ void HaarTracking::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void HaarTracking::removeObjectContent(){
-    
+void HaarTracking::removeObjectContent(bool removeFileFromData){
+    if(removeFileFromData){
+        removeFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------

@@ -142,6 +142,7 @@ public:
     // LOAD/SAVE
     ofxThreadedFileDialog   fileDialog;
     string                  currentPatchFile;
+    string                  currentPatchFolderPath;
     string                  tempPatchFile;
     int                     output_width;
     int                     output_height;

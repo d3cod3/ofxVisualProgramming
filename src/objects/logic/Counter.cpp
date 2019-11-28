@@ -170,7 +170,7 @@ void Counter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Counter::removeObjectContent(){
+void Counter::removeObjectContent(bool removeFileFromData){
 
 }
 

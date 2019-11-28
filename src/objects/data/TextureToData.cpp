@@ -113,6 +113,6 @@ void TextureToData::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void TextureToData::removeObjectContent(){
+void TextureToData::removeObjectContent(bool removeFileFromData){
 
 }

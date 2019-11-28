@@ -170,7 +170,7 @@ void VideoSender::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoSender::removeObjectContent(){
+void VideoSender::removeObjectContent(bool removeFileFromData){
 
 }
 

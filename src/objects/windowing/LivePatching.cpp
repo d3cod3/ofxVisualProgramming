@@ -86,6 +86,6 @@ void LivePatching::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void LivePatching::removeObjectContent(){
+void LivePatching::removeObjectContent(bool removeFileFromData){
     
 }

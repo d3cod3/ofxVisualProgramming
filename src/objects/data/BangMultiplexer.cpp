@@ -98,6 +98,6 @@ void BangMultiplexer::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BangMultiplexer::removeObjectContent(){
+void BangMultiplexer::removeObjectContent(bool removeFileFromData){
 
 }

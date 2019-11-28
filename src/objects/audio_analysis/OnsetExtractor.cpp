@@ -120,6 +120,6 @@ void OnsetExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OnsetExtractor::removeObjectContent(){
+void OnsetExtractor::removeObjectContent(bool removeFileFromData){
 
 }

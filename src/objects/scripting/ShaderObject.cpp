@@ -66,6 +66,7 @@ ShaderObject::ShaderObject() : PatchObject(){
     vertexShader    = "";
 
     lastShaderScript       = "";
+    lastVertexShaderPath   = "";
     loadShaderScriptFlag   = false;
     saveShaderScriptFlag   = false;
     shaderScriptLoaded     = false;
@@ -87,6 +88,7 @@ void ShaderObject::newObject(){
 //--------------------------------------------------------------
 void ShaderObject::autoloadFile(string _fp){
     lastShaderScript = _fp;
+    //lastShaderScript = copyFileToPatchFolder(this->patchFolderPath,_fp);
     shaderScriptLoaded = true;
 }
 
@@ -159,7 +161,15 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     if(shaderScriptLoaded){
         shaderScriptLoaded = false;
-        currentScriptFile.open(ofToDataPath(lastShaderScript,true));
+        // remove previously loaded shader from data folder
+        if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.isFile()){
+            removeFile(currentScriptFile.getAbsolutePath());
+        }
+        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
+            removeFile(lastVertexShaderPath);
+        }
+        // open the new one
+        currentScriptFile.open(lastShaderScript);
         if (currentScriptFile.exists()){
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {
@@ -178,6 +188,14 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     if(shaderScriptSaved){
         shaderScriptSaved = false;
+        // remove previously loaded shader from data folder
+        if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.isFile()){
+            removeFile(currentScriptFile.getAbsolutePath());
+        }
+        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
+            removeFile(lastVertexShaderPath);
+        }
+        // open the new one
         ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
         ofFile newGLSLFile (lastShaderScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newGLSLFile.getAbsolutePath(),true,true);
@@ -311,8 +329,17 @@ void ShaderObject::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::removeObjectContent(){
+void ShaderObject::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
+
+    if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && removeFileFromData){
+        removeFile(filepath);
+        //ofLog(OF_LOG_NOTICE,"%s",lastVertexShaderPath.c_str());
+        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
+            removeFile(lastVertexShaderPath);
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -618,20 +645,24 @@ void ShaderObject::loadGUI(){
 //--------------------------------------------------------------
 void ShaderObject::loadScript(string scriptFile){
 
-    filepath = forceCheckMosaicDataPath(scriptFile);
-    currentScriptFile.open(ofToDataPath(filepath,true));
+    // Get FRAGMENT_SHADER
+    filepath = copyFileToPatchFolder(this->patchFolderPath,scriptFile);
+    // Check if we have VERTEX_SHADER too
+    ofFile tempCurrentFrag(scriptFile);
+    string fsName = tempCurrentFrag.getFileName();
+    string vsName = tempCurrentFrag.getEnclosingDirectory()+tempCurrentFrag.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+    ofFile vertexShaderFile(vsName);
+
+    currentScriptFile.open(filepath);
 
     if(currentScriptFile.exists()){
         ofBuffer fscontent = ofBufferFromFile(filepath);
 
         fragmentShader = fscontent.getText();
 
-        // Check if we have VERTEX_SHADER too
-        string fsName = currentScriptFile.getFileName();
-        string vsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
-        ofFile vertexShaderFile(ofToDataPath(vsName,true));
         if(vertexShaderFile.exists()){
-            ofBuffer vscontent = ofBufferFromFile(vertexShaderFile.getAbsolutePath());
+            lastVertexShaderPath = copyFileToPatchFolder(this->patchFolderPath,vertexShaderFile.getAbsolutePath());
+            ofBuffer vscontent = ofBufferFromFile(lastVertexShaderPath);
             vertexShader = vscontent.getText();
         }
 

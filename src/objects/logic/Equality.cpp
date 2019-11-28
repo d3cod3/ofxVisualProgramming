@@ -108,7 +108,7 @@ void Equality::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Equality::removeObjectContent(){
+void Equality::removeObjectContent(bool removeFileFromData){
 
 }
 

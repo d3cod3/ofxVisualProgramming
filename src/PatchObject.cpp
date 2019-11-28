@@ -38,6 +38,7 @@ PatchObject::PatchObject(){
     name            = "none";
     filepath        = "none";
     patchFile       = "";
+    patchFolderPath = "";
 
     linkTypeName        = "";
     specialLinkTypeName = "";
@@ -374,7 +375,7 @@ void PatchObject::draw(ofxFontStash *font){
 
         if(!isBigGuiViewer && !isBigGuiComment){
             ofSetColor(230);
-            font->draw(name,fontSize,headerBox->x + 6, headerBox->y + letterHeight);
+            font->draw(name+" | id:"+ofToString(this->nId),fontSize,headerBox->x + 6, headerBox->y + letterHeight);
         }
 
         if(!isSystemObject){
@@ -836,6 +837,32 @@ map<string,float> PatchObject::loadCustomVars(){
 
     return tempVars;
 }
+
+//---------------------------------------------------------------------------------- SETTERS
+//--------------------------------------------------------------
+void PatchObject::setPatchfile(string pf) {
+    patchFile = pf;
+    ofFile temp(patchFile);
+    patchFolderPath = temp.getEnclosingDirectory()+"data/";
+    if(filepath != "none"){
+        ofFile t2(filepath);
+        if(t2.isDirectory()){
+            string tst = filepath.substr(0, filepath.size()-1);
+            size_t needle = tst.find_last_of("/");
+            string folderName = filepath.substr(needle+1);
+            filepath = patchFolderPath+folderName;
+        }else{
+            filepath = patchFolderPath+t2.getFileName();
+        }
+
+        if(this->getName() == "timeline"){
+            this->customReset();
+        }
+
+        saveConfig(false,nId);
+    }
+}
+
 
 //---------------------------------------------------------------------------------- OBJECT HEADER
 //--------------------------------------------------------------

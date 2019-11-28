@@ -332,7 +332,7 @@ void ColorTracking::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ColorTracking::removeObjectContent(){
+void ColorTracking::removeObjectContent(bool removeFileFromData){
     
 }
 

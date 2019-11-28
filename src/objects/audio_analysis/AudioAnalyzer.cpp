@@ -222,7 +222,7 @@ void AudioAnalyzer::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::removeObjectContent(){
+void AudioAnalyzer::removeObjectContent(bool removeFileFromData){
     audioAnalyzer.exit();
 }
 

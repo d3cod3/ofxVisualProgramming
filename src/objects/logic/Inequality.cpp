@@ -108,7 +108,7 @@ void Inequality::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Inequality::removeObjectContent(){
+void Inequality::removeObjectContent(bool removeFileFromData){
 
 }
 

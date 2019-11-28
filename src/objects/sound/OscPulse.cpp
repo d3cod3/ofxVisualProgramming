@@ -152,7 +152,7 @@ void OscPulse::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OscPulse::removeObjectContent(){
+void OscPulse::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }

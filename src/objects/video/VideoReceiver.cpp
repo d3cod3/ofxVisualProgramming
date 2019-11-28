@@ -98,6 +98,6 @@ void VideoReceiver::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoReceiver::removeObjectContent(){
+void VideoReceiver::removeObjectContent(bool removeFileFromData){
 
 }

@@ -156,7 +156,7 @@ void NoteToFrequency::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void NoteToFrequency::removeObjectContent(){
+void NoteToFrequency::removeObjectContent(bool removeFileFromData){
 
 }
 

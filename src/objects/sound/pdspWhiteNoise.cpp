@@ -84,7 +84,7 @@ void pdspWhiteNoise::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::removeObjectContent(){
+void pdspWhiteNoise::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }

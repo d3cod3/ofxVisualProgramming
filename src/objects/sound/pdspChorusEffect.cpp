@@ -168,7 +168,7 @@ void pdspChorusEffect::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::removeObjectContent(){
+void pdspChorusEffect::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

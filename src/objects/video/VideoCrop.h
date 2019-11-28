@@ -44,7 +44,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
-    void            removeObjectContent();
+    void            removeObjectContent(bool removeFileFromData=false);
 
     void            drawTextureCropInsideRect(ofTexture *texture,float x, float y, float w, float h,ofRectangle &bounds);
     ofRectangle     getIntersection(ofRectangle &r1,ofRectangle &r2);

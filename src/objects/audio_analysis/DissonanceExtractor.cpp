@@ -130,6 +130,6 @@ void DissonanceExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void DissonanceExtractor::removeObjectContent(){
+void DissonanceExtractor::removeObjectContent(bool removeFileFromData){
 
 }

@@ -139,6 +139,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     livePatchingObiID       = -1;
 
     currentPatchFile        = "empty_patch.xml";
+    currentPatchFolderPath  = ofToDataPath("temp/");
 
     resetTime               = ofGetElapsedTimeMillis();
     wait                    = 2000;
@@ -241,7 +242,7 @@ void ofxVisualProgramming::update(){
             for(int p=0;p<static_cast<int>(patchObjects.at(eraseIndexes.at(x))->outPut.size());p++){
                 patchObjects[patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toObjectID]->inletsConnected.at(patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toInletID) = false;
             }
-            patchObjects.at(eraseIndexes.at(x))->removeObjectContent();
+            patchObjects.at(eraseIndexes.at(x))->removeObjectContent(true);
             patchObjects.erase(eraseIndexes.at(x));
         }
 
@@ -334,16 +335,18 @@ void ofxVisualProgramming::draw(){
     ofDrawRectangle(0,ofGetHeight() - (18*scaleFactor),ofGetWidth(),(18*scaleFactor));
     ofSetColor(0,200,0);
     font->draw(glVersion,fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
-    ofSetColor(200);
-    font->draw(glError.getError(),fontSize,glVersion.length()*fontSize*0.5f + 10*scaleFactor,ofGetHeight() - (6*scaleFactor));
+    //ofSetColor(200);
+    //font->draw(glError.getError(),fontSize,glVersion.length()*fontSize*0.5f + 10*scaleFactor,ofGetHeight() - (6*scaleFactor));
 
     // DSP flag
     if(dspON){
         ofSetColor(ofColor::fromHex(0xFFD00B));
-        font->draw("DSP ON",fontSize,glVersion.length()*fontSize*0.5f + glError.getError().length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
+        //font->draw("DSP ON",fontSize,glVersion.length()*fontSize*0.5f + glError.getError().length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
+        font->draw("DSP ON",fontSize,glVersion.length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
     }else{
         ofSetColor(ofColor::fromHex(0x777777));
-        font->draw("DSP OFF",fontSize,glVersion.length()*fontSize*0.5f + glError.getError().length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
+        //font->draw("DSP OFF",fontSize,glVersion.length()*fontSize*0.5f + glError.getError().length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
+        font->draw("DSP OFF",fontSize,glVersion.length()*fontSize*0.5f + 30*scaleFactor,ofGetHeight() - (6*scaleFactor));
     }
 
 
@@ -390,14 +393,20 @@ void ofxVisualProgramming::resetTempFolder(){
     ofDirectory dir;
     dir.listDir(ofToDataPath("temp/"));
     for(size_t i = 0; i < dir.size(); i++){
-        dir.getFile(i).remove();
+        if(dir.getFile(i).isDirectory()){
+            ofDirectory temp;
+            temp.removeDirectory(dir.getFile(i).getAbsolutePath(),true,true);
+        }else{
+            dir.getFile(i).remove();
+        }
+
     }
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
 
-    savePatchAsLast();
+    //savePatchAsLast();
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
@@ -1556,6 +1565,13 @@ void ofxVisualProgramming::openPatch(string patchFile){
     bLoadingNewPatch = true;
 
     currentPatchFile = patchFile;
+    ofFile temp(currentPatchFile);
+    currentPatchFolderPath  = temp.getEnclosingDirectory();
+
+    ofFile patchDataFolder(currentPatchFolderPath+"data/");
+    if(!patchDataFolder.exists()){
+        patchDataFolder.create();
+    }
 
     // clear previous patch
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
@@ -1677,6 +1693,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(tempObj != nullptr){
                     loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
                     if(loaded){
+                        tempObj->setPatchfile(currentPatchFile);
                         tempObj->setIsRetina(isRetina);
                         ofAddListener(tempObj->dragEvent ,this,&ofxVisualProgramming::dragObject);
                         ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
@@ -1739,12 +1756,20 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 //--------------------------------------------------------------
 void ofxVisualProgramming::savePatchAs(string patchFile){
 
+    // copy patch file & patch data folder
     string newFileName = patchFile;
     ofFile fileToRead(currentPatchFile);
+    ofDirectory dataFolderOrigin;
+    dataFolderOrigin.listDir(currentPatchFolderPath+"data/");
     ofFile newPatchFile(newFileName);
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
     currentPatchFile = newFileName;
+    ofFile temp(currentPatchFile);
+    currentPatchFolderPath  = temp.getEnclosingDirectory();
+
+    std::filesystem::path tp = currentPatchFolderPath+"data/";
+    dataFolderOrigin.copyTo(tp,true,true);
 
     for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->setPatchfile(currentPatchFile);

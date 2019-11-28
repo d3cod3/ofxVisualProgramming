@@ -141,7 +141,7 @@ void pdspHiCut::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspHiCut::removeObjectContent(){
+void pdspHiCut::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

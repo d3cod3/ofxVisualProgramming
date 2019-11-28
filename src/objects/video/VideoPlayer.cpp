@@ -87,7 +87,8 @@ void VideoPlayer::newObject(){
 
 //--------------------------------------------------------------
 void VideoPlayer::autoloadFile(string _fp){
-    this->filepath = _fp;
+    //this->filepath = _fp;
+    this->filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
     reloadVideoThreaded();
 }
 
@@ -301,11 +302,11 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
 
             ofSetColor(255);
             ofSetLineWidth(2);
-            float phx = ofMap( video->getPosition(), 0, 1, 0, drawW );
+            float phx = ofMap( video->getPosition(), 0, 1, 1, drawW-1 );
             if(phx >= 0.0f){
                 ofDrawLine( phx, posY+2, phx, drawH+posY);
             }else{
-                ofDrawLine( 0, posY+2, 0, drawH+posY);
+                ofDrawLine( 2, posY+2, 2, drawH+posY);
             }
 
         }
@@ -315,6 +316,11 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
         ofSetColor(255);
         font->draw("FILE NOT FOUND!",this->fontSize,this->width/3 + 4,this->headerHeight*2.3);
     }
+
+    ofSetColor(255);
+    font->draw(videoTimecode.timecodeForFrame(video->getCurrentFrame()),static_cast<int>(floor(this->fontSize*1.4)),this->width/3 + 8,this->headerHeight*2.3);
+    font->draw(videoTimecode.timecodeForFrame(video->getTotalNumFrames()),static_cast<int>(floor(this->fontSize*1.4)),this->width/3 + 8,this->headerHeight*3.3);
+
     gui->draw();
     ofDisableAlphaBlending();
 
@@ -323,12 +329,15 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::removeObjectContent(){
+void VideoPlayer::removeObjectContent(bool removeFileFromData){
     if(isThreadRunning()){
         video->stop();
         video->setVolume(0);
         video->close();
         stopThread();
+    }
+    if(removeFileFromData){
+        removeFile(filepath);
     }
 }
 
@@ -379,7 +388,8 @@ void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 reloadVideoThreaded();
             }
         }
@@ -393,6 +403,7 @@ void VideoPlayer::loadVideoFile(){
         isNewObject = false;
         video->setUseTexture(false);
         video->load(filepath);
+        videoTimecode.setFPS(static_cast<int>(ceil(video->getTotalNumFrames()/video->getDuration()))); // fps
         this->saveConfig(false,this->nId);
     }
 }

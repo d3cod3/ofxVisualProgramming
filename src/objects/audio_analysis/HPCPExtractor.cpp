@@ -134,6 +134,6 @@ void HPCPExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void HPCPExtractor::removeObjectContent(){
+void HPCPExtractor::removeObjectContent(bool removeFileFromData){
 
 }

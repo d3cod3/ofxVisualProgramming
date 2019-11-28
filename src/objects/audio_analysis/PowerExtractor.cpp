@@ -130,6 +130,6 @@ void PowerExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void PowerExtractor::removeObjectContent(){
+void PowerExtractor::removeObjectContent(bool removeFileFromData){
 
 }

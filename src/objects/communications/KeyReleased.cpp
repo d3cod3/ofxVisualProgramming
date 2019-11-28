@@ -102,7 +102,7 @@ void KeyReleased::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void KeyReleased::removeObjectContent(){
+void KeyReleased::removeObjectContent(bool removeFileFromData){
 
 }
 

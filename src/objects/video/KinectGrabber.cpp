@@ -219,7 +219,7 @@ void KinectGrabber::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void KinectGrabber::removeObjectContent(){
+void KinectGrabber::removeObjectContent(bool removeFileFromData){
     static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
     static_cast<ofxKinect *>(_outletParams[2])->close();
 }

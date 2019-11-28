@@ -159,7 +159,7 @@ void MidiKnob::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MidiKnob::removeObjectContent(){
+void MidiKnob::removeObjectContent(bool removeFileFromData){
 
 }
 

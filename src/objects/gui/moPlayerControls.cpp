@@ -160,7 +160,7 @@ void moPlayerControls::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moPlayerControls::removeObjectContent(){
+void moPlayerControls::removeObjectContent(bool removeFileFromData){
     
 }
 

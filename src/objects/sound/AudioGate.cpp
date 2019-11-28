@@ -132,7 +132,7 @@ void AudioGate::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void AudioGate::removeObjectContent(){
+void AudioGate::removeObjectContent(bool removeFileFromData){
     
 }
 

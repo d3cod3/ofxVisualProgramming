@@ -134,7 +134,7 @@ void OscTriangle::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OscTriangle::removeObjectContent(){
+void OscTriangle::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }

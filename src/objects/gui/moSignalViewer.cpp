@@ -36,13 +36,15 @@
 moSignalViewer::moSignalViewer() : PatchObject(){
 
     this->numInlets  = 1;
-    this->numOutlets = 3;
+    this->numOutlets = 4;
 
     _inletParams[0] = new ofSoundBuffer();  // signal
 
-    _outletParams[0] = new ofSoundBuffer();  // signal
-    _outletParams[1] = new ofSoundBuffer();  // signal
-    _outletParams[2] = new vector<float>(); // audio buffer
+    _outletParams[0] = new ofSoundBuffer();     // signal
+    _outletParams[1] = new ofSoundBuffer();     // signal
+    _outletParams[2] = new vector<float>();     // audio buffer
+    _outletParams[3] = new float();             // RMS
+    *(float *)&_outletParams[3] = 0.0f;
 
     this->initInletsState();
 
@@ -61,6 +63,7 @@ void moSignalViewer::newObject(){
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
+    this->addOutlet(VP_LINK_NUMERIC,"RMSAmplitude");
 }
 
 //--------------------------------------------------------------
@@ -76,7 +79,11 @@ void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
-
+    if(this->inletsConnected[0]){
+        *(float *)&_outletParams[3] = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
+    }else{
+        *(float *)&_outletParams[3] = 0;
+    }
 }
 
 //--------------------------------------------------------------
@@ -92,7 +99,7 @@ void moSignalViewer::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::removeObjectContent(){
+void moSignalViewer::removeObjectContent(bool removeFileFromData){
     
 }
 

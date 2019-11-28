@@ -177,7 +177,7 @@ void OscReceiver::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OscReceiver::removeObjectContent(){
+void OscReceiver::removeObjectContent(bool removeFileFromData){
     if(osc_receiver.isListening()){
         osc_receiver.stop();
     }

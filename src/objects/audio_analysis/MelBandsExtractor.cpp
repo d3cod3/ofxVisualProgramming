@@ -129,6 +129,6 @@ void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::removeObjectContent(){
+void MelBandsExtractor::removeObjectContent(bool removeFileFromData){
     
 }

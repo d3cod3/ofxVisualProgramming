@@ -130,6 +130,6 @@ void RMSExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void RMSExtractor::removeObjectContent(){
+void RMSExtractor::removeObjectContent(bool removeFileFromData){
 
 }

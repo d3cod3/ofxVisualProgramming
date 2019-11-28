@@ -150,7 +150,7 @@ void ImageExporter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ImageExporter::removeObjectContent(){
+void ImageExporter::removeObjectContent(bool removeFileFromData){
     
 }
 

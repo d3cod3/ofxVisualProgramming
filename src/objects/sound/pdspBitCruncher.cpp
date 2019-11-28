@@ -131,7 +131,7 @@ void pdspBitCruncher::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::removeObjectContent(){
+void pdspBitCruncher::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

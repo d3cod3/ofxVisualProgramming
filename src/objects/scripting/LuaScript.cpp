@@ -75,10 +75,13 @@ LuaScript::LuaScript() : PatchObject(){
     setupTrigger    = false;
 
     lastLuaScript       = "";
+    newFileFromFilepath = ofToDataPath("scripts/empty.lua");
     loadLuaScriptFlag   = false;
     saveLuaScriptFlag   = false;
     luaScriptLoaded     = false;
     luaScriptSaved      = false;
+    loaded              = false;
+    loadTime            = ofGetElapsedTimeMillis();
 
     modalInfo           = false;
 
@@ -101,6 +104,12 @@ void LuaScript::newObject(){
 void LuaScript::autoloadFile(string _fp){
     lastLuaScript = _fp;
     luaScriptLoaded = true;
+}
+
+//--------------------------------------------------------------
+void LuaScript::autosaveNewFile(string fromFile){
+    newFileFromFilepath = fromFile;
+    saveLuaScriptFlag = true;
 }
 
 //--------------------------------------------------------------
@@ -213,7 +222,8 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "LUA") {
                 threadLoaded = false;
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
                 static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
                 reloadScriptThreaded();
@@ -223,11 +233,12 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
 
     if(luaScriptSaved){
         luaScriptSaved = false;
-        ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
+        ofFile fileToRead(newFileFromFilepath);
         ofFile newLuaFile (lastLuaScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newLuaFile.getAbsolutePath(),true,true);
         threadLoaded = false;
-        filepath = newLuaFile.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,newLuaFile.getAbsolutePath());
+        //filepath = newLuaFile.getAbsolutePath();
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
         reloadScriptThreaded();
@@ -261,7 +272,12 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
                 lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,2,0,0);
             }
+            static_cast<LiveCoding *>(_outletParams[1])->lua.doString("USING_DATA_INLET = true");
+        }else{
+            static_cast<LiveCoding *>(_outletParams[1])->lua.doString("USING_DATA_INLET = false");
         }
+
+
 
         // send internal data
         size_t len = static_cast<LiveCoding *>(_outletParams[1])->lua.tableSize(luaTablename);
@@ -310,6 +326,11 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+
+    if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
+        loaded = true;
+        reloadScriptThreaded();
+    }
 }
 
 //--------------------------------------------------------------
@@ -341,12 +362,17 @@ void LuaScript::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void LuaScript::removeObjectContent(){
+void LuaScript::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
+
     ///////////////////////////////////////////
     // LUA EXIT
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
     ///////////////////////////////////////////
+
+    if(removeFileFromData){
+        removeFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------
@@ -440,6 +466,12 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
         tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        if(this->inletsConnected[0]){
+            tempstring = "USING_DATA_INLET = true";
+        }else{
+            tempstring = "USING_DATA_INLET = false";
+        }
+        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
         ofFile tempFileScript(filepath);
         tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
@@ -468,7 +500,7 @@ void LuaScript::unloadScript(){
 //--------------------------------------------------------------
 void LuaScript::loadScript(string scriptFile){
 
-    filepath = forceCheckMosaicDataPath(scriptFile);
+    //filepath = forceCheckMosaicDataPath(scriptFile);
     currentScriptFile.open(filepath);
 
     static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
@@ -491,7 +523,13 @@ void LuaScript::loadScript(string scriptFile){
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
-    ofFile tempFileScript(filepath);
+    if(this->inletsConnected[0]){
+        tempstring = "USING_DATA_INLET = true";
+    }else{
+        tempstring = "USING_DATA_INLET = false";
+    }
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofFile tempFileScript(currentScriptFile.getAbsolutePath());
     tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
 
     #ifdef TARGET_WIN32
@@ -540,6 +578,12 @@ void LuaScript::clearScript(){
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    if(this->inletsConnected[0]){
+        tempstring = "USING_DATA_INLET = true";
+    }else{
+        tempstring = "USING_DATA_INLET = false";
+    }
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     ofFile tempFileScript(filepath);
     tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
 
@@ -554,6 +598,8 @@ void LuaScript::clearScript(){
 
 //--------------------------------------------------------------
 void LuaScript::reloadScriptThreaded(){
+    newFileFromFilepath = ofToDataPath("scripts/empty.lua");
+
     unloadScript();
 
     scriptLoaded = false;

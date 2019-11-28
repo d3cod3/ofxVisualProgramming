@@ -317,7 +317,7 @@ void ContourTracking::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ContourTracking::removeObjectContent(){
+void ContourTracking::removeObjectContent(bool removeFileFromData){
     
 }
 

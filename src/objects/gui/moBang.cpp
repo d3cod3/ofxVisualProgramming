@@ -104,7 +104,7 @@ void moBang::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moBang::removeObjectContent(){
+void moBang::removeObjectContent(bool removeFileFromData){
     
 }
 

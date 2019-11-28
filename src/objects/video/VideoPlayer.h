@@ -34,6 +34,8 @@
 
 #include "PatchObject.h"
 
+#include "ofxTimecode.h"
+
 class VideoPlayer : public ofThread, public PatchObject {
 
 public:
@@ -47,7 +49,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
-    void            removeObjectContent();
+    void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
     void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
@@ -58,6 +60,7 @@ public:
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     ofVideoPlayer*      video;
+    ofxTimecode         videoTimecode;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
     bool                isFileLoaded;

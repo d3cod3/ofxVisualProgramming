@@ -145,7 +145,7 @@ void SignalTrigger::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void SignalTrigger::removeObjectContent(){
+void SignalTrigger::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

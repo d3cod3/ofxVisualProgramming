@@ -89,6 +89,6 @@ void VectorConcat::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VectorConcat::removeObjectContent(){
+void VectorConcat::removeObjectContent(bool removeFileFromData){
 
 }

@@ -213,18 +213,50 @@ inline std::string execCmd(const char* cmd){
 //--------------------------------------------------------------
 inline bool checkFilenameError(string fn){
     #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_./") != string::npos){
+    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_./ ") != string::npos){
         return true;
     }else{
         return false;
     }
     #else
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_.\/") != string::npos){
+    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_.\/ ") != string::npos){
         return true;
     }else{
         return false;
     }
     #endif
+}
+
+//--------------------------------------------------------------
+inline void removeFile(string filepath){
+    ofFile fileToRemove(filepath);
+    if(fileToRemove.exists()){
+        if(fileToRemove.isDirectory()){
+            ofDirectory temp;
+            temp.removeDirectory(fileToRemove.getAbsolutePath(),true,true);
+        }else{
+            fileToRemove.remove();
+        }
+    }
+}
+
+//--------------------------------------------------------------
+inline string copyFileToPatchFolder(string folderpath, string filepath){
+    ofFile fileToRead(filepath);
+    ofFile patchDataFolder(folderpath);
+    if(!patchDataFolder.exists()){
+        patchDataFolder.create();
+    }
+    ofFile patchDataFolder2(folderpath);
+
+    string fileToSave = patchDataFolder2.getAbsolutePath()+fileToRead.getFileName();
+    ofFile newFile (fileToSave);
+
+    //ofLog(OF_LOG_NOTICE,"%s",fileToSave.c_str());
+
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newFile.getAbsolutePath(),true,true);
+
+    return folderpath+newFile.getFileName();
 }
 
 //--------------------------------------------------------------

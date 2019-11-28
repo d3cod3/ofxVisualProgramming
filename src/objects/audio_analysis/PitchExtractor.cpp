@@ -130,6 +130,6 @@ void PitchExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::removeObjectContent(){
+void PitchExtractor::removeObjectContent(bool removeFileFromData){
 
 }

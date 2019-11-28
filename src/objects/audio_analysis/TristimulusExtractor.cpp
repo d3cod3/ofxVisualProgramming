@@ -134,6 +134,6 @@ void TristimulusExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void TristimulusExtractor::removeObjectContent(){
+void TristimulusExtractor::removeObjectContent(bool removeFileFromData){
 
 }

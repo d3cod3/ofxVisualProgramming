@@ -107,7 +107,7 @@ void AudioDevice::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void AudioDevice::removeObjectContent(){
+void AudioDevice::removeObjectContent(bool removeFileFromData){
     for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
         OUT_CH[c].disconnectOut();
     }

@@ -260,7 +260,7 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::removeObjectContent(){
+void BackgroundSubtraction::removeObjectContent(bool removeFileFromData){
     
 }
 

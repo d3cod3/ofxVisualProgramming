@@ -134,6 +134,6 @@ void MFCCExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MFCCExtractor::removeObjectContent(){
+void MFCCExtractor::removeObjectContent(bool removeFileFromData){
 
 }

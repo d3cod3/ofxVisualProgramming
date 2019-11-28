@@ -172,7 +172,7 @@ void pdspDelay::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspDelay::removeObjectContent(){
+void pdspDelay::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

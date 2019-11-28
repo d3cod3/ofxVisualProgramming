@@ -188,7 +188,7 @@ void VideoStreaming::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoStreaming::removeObjectContent(){
+void VideoStreaming::removeObjectContent(bool removeFileFromData){
 
 }
 

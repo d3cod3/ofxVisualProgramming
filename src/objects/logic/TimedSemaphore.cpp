@@ -138,7 +138,7 @@ void TimedSemaphore::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::removeObjectContent(){
+void TimedSemaphore::removeObjectContent(bool removeFileFromData){
 
 }
 

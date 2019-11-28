@@ -102,6 +102,6 @@ void Select::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Select::removeObjectContent(){
+void Select::removeObjectContent(bool removeFileFromData){
     
 }

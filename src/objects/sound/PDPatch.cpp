@@ -95,7 +95,8 @@ void PDPatch::newObject(){
 
 //--------------------------------------------------------------
 void PDPatch::autoloadFile(string _fp){
-    lastLoadedPatch = _fp;
+    //lastLoadedPatch = _fp;
+    lastLoadedPatch = copyFileToPatchFolder(this->patchFolderPath,_fp);
     patchLoaded = true;
 }
 
@@ -189,7 +190,8 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "PD") {
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 loadPatch(filepath);
             }
         }
@@ -200,7 +202,8 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         ofFile fileToRead(ofToDataPath("scripts/empty.pd"));
         ofFile newPDFile (lastLoadedPatch);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPDFile.getAbsolutePath(),true,true);
-        filepath = newPDFile.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,newPDFile.getAbsolutePath());
+        //filepath = newPDFile.getAbsolutePath();
         loadPatch(filepath);
     }
 
@@ -272,7 +275,7 @@ void PDPatch::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void PDPatch::removeObjectContent(){
+void PDPatch::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -281,6 +284,10 @@ void PDPatch::removeObjectContent(){
     }
 
     pd.clear();
+
+    if(removeFileFromData){
+        removeFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------

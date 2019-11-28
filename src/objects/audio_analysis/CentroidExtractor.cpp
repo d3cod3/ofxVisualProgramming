@@ -130,6 +130,6 @@ void CentroidExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void CentroidExtractor::removeObjectContent(){
+void CentroidExtractor::removeObjectContent(bool removeFileFromData){
 
 }

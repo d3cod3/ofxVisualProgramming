@@ -217,7 +217,7 @@ void pdspCompressor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void pdspCompressor::removeObjectContent(){
+void pdspCompressor::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

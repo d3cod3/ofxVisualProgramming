@@ -130,6 +130,6 @@ void InharmonicityExtractor::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void InharmonicityExtractor::removeObjectContent(){
+void InharmonicityExtractor::removeObjectContent(bool removeFileFromData){
 
 }

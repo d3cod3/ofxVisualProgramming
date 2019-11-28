@@ -195,7 +195,7 @@ void OscSender::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void OscSender::removeObjectContent(){
+void OscSender::removeObjectContent(bool removeFileFromData){
 
 }
 

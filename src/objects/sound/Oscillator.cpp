@@ -134,7 +134,7 @@ void Oscillator::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Oscillator::removeObjectContent(){
+void Oscillator::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }

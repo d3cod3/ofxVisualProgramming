@@ -87,12 +87,13 @@ public:
     virtual void            newObject() {}
 
     virtual void            autoloadFile(string _fp) {}
+    virtual void            autosaveNewFile(string fromFile) {}
 
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
-    virtual void            removeObjectContent() {}
+    virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
     virtual void            mousePressedObjectContent(ofVec3f _m) {}
@@ -106,6 +107,7 @@ public:
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outputBuffer) {}
 
+    virtual void            customReset() {}
     virtual void            resetSystemObject() {}
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
 
@@ -170,7 +172,9 @@ public:
     // SETTERS
     void                    setName(string _name) { name = _name; }
     void                    setFilepath(string fp) { filepath = fp; }
-    void                    setPatchfile(string pf) { patchFile = pf; }
+
+    void                    setPatchfile(string pf);
+
     void                    setIsRetina(bool ir) { isRetina = ir; }
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
@@ -221,6 +225,7 @@ protected:
     string                  name;
     string                  filepath;
     string                  patchFile;
+    string                  patchFolderPath;
     vector<string>          inletsNames;
     vector<string>          outletsNames;
     vector<int>             inlets;

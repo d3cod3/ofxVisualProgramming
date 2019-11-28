@@ -248,7 +248,7 @@ void VideoTransform::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void VideoTransform::removeObjectContent(){
+void VideoTransform::removeObjectContent(bool removeFileFromData){
 
 }
 

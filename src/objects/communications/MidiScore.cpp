@@ -104,6 +104,6 @@ void MidiScore::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void MidiScore::removeObjectContent(){
+void MidiScore::removeObjectContent(bool removeFileFromData){
 
 }

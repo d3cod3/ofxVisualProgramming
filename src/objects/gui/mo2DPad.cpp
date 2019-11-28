@@ -128,7 +128,7 @@ void mo2DPad::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void mo2DPad::removeObjectContent(){
+void mo2DPad::removeObjectContent(bool removeFileFromData){
     
 }
 

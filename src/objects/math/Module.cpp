@@ -129,7 +129,7 @@ void Module::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Module::removeObjectContent(){
+void Module::removeObjectContent(bool removeFileFromData){
 
 }
 

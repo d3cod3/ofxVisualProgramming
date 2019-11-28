@@ -143,7 +143,7 @@ void Spigot::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Spigot::removeObjectContent(){
+void Spigot::removeObjectContent(bool removeFileFromData){
     
 }
 

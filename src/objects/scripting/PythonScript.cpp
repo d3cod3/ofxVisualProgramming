@@ -188,7 +188,8 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "PY") {
                 threadLoaded = false;
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 reloadScriptThreaded();
             }
         }
@@ -200,7 +201,8 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         ofFile newPyFile (lastPythonScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPyFile.getAbsolutePath(),true,true);
         threadLoaded = false;
-        filepath = newPyFile.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,newPyFile.getAbsolutePath());
+        //filepath = newPyFile.getAbsolutePath();
         reloadScriptThreaded();
     }
 
@@ -259,11 +261,15 @@ void PythonScript::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void PythonScript::removeObjectContent(){
+void PythonScript::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
     script = ofxPythonObject::_None();
     if(isThreadRunning()){
         stopThread();
+    }
+
+    if(removeFileFromData && filepath != ofToDataPath("scripts/empty.py",true)){
+        removeFile(filepath);
     }
 }
 

@@ -133,7 +133,7 @@ void moComment::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moComment::removeObjectContent(){
+void moComment::removeObjectContent(bool removeFileFromData){
     
 }
 

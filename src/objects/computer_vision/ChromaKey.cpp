@@ -193,7 +193,7 @@ void ChromaKey::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ChromaKey::removeObjectContent(){
+void ChromaKey::removeObjectContent(bool removeFileFromData){
     
 }
 

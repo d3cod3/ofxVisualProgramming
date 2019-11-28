@@ -181,7 +181,7 @@ void QuadPanner::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void QuadPanner::removeObjectContent(){
+void QuadPanner::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }

@@ -126,7 +126,7 @@ void Subtract::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Subtract::removeObjectContent(){
+void Subtract::removeObjectContent(bool removeFileFromData){
 
 }
 

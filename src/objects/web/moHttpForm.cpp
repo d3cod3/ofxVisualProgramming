@@ -163,7 +163,7 @@ void moHttpForm::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void moHttpForm::removeObjectContent(){
+void moHttpForm::removeObjectContent(bool removeFileFromData){
 
 }
 

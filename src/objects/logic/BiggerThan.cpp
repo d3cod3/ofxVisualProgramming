@@ -108,7 +108,7 @@ void BiggerThan::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void BiggerThan::removeObjectContent(){
+void BiggerThan::removeObjectContent(bool removeFileFromData){
 
 }
 

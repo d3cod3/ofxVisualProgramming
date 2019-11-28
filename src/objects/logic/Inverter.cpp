@@ -96,6 +96,6 @@ void Inverter::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void Inverter::removeObjectContent(){
+void Inverter::removeObjectContent(bool removeFileFromData){
     
 }

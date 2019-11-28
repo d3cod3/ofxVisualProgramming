@@ -168,7 +168,8 @@ void ProjectionMapping::updateObjectContent(map<int,PatchObject*> &patchObjects,
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "XML") {
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 _mapping->loadMapping(filepath);
             }
         }
@@ -228,7 +229,7 @@ void ProjectionMapping::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::removeObjectContent(){
+void ProjectionMapping::removeObjectContent(bool removeFileFromData){
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }

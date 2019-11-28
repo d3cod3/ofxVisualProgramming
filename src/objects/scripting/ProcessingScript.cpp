@@ -73,7 +73,8 @@ void ProcessingScript::newObject(){
 
 //--------------------------------------------------------------
 void ProcessingScript::autoloadFile(string _fp){
-    lastProcessingScript = _fp;
+    //lastProcessingScript = _fp;
+    lastProcessingScript = copyFileToPatchFolder(this->patchFolderPath,_fp);
     processingScriptLoaded = true;
 }
 
@@ -190,7 +191,8 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "JAVA") {
                 jvm->closeJVM();
-                filepath = file.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                //filepath = file.getAbsolutePath();
                 loadScript(filepath);
             }
         }
@@ -226,7 +228,8 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font){
         }*/
 
         jvm->closeJVM();
-        filepath = newProcessingFile.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,newProcessingFile.getAbsolutePath());
+        //filepath = newProcessingFile.getAbsolutePath();
         loadScript(filepath);
     }
 
@@ -274,10 +277,14 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
-void ProcessingScript::removeObjectContent(){
+void ProcessingScript::removeObjectContent(bool removeFileFromData){
     jvm->closeJVM();
 
     tempCommand.stop();
+
+    if(removeFileFromData && filepath != ofToDataPath("scripts/Empty.java",true)){
+        removeFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------
