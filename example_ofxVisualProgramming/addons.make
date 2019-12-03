@@ -18,7 +18,6 @@ ofxFaceTracker
 ofxFFmpegRecorder
 ofxFontStash
 ofxGLEditor
-ofxGLError
 ofxHistoryPlot
 ofxJSON
 ofxHttpForm
@@ -33,7 +32,6 @@ ofxPdExternals
 ofxPDSP
 ofxPython
 ofxThreadedFileDialog
-ofxThreadedYouTubeVideo
 ofxTimeline
 ofxTimeMeasurements
 ofxVisualProgramming
