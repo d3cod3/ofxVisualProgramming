@@ -400,6 +400,7 @@ void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
 void VideoPlayer::loadVideoFile(){
     if(filepath != "none"){
         filepath = forceCheckMosaicDataPath(filepath);
+        //filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
         isNewObject = false;
         video->setUseTexture(false);
         video->load(filepath);

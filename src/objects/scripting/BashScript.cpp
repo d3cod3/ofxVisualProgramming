@@ -134,7 +134,8 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.sh"));
-        filepath = file.getAbsolutePath();
+        //filepath = file.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
     if(!isThreadRunning()){
         startThread();
@@ -274,9 +275,10 @@ void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     }else if(response.id == "save bash"+ofToString(this->getId())){
         ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
         ofFile newBashFile (response.filepath);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newBashFile.getAbsolutePath(),true,true);
+
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
         threadLoaded = false;
-        filepath = newBashFile.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
         reloadScriptThreaded();
     }
 }

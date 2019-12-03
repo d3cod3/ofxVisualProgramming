@@ -122,7 +122,8 @@ void ProcessingScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
     if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/Empty.java"));
-        filepath = file.getAbsolutePath();
+        //filepath = file.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
 
     loadScript(filepath);
@@ -206,7 +207,7 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font){
 
         ofFile newProcessingFile (lastProcessingScript);
 
-        string changeTo = newProcessingFile.getFileName().substr(0,newProcessingFile.getFileName().size()-5);
+        string changeTo = newProcessingFile.getFileName().substr(0,checkFileExtension(newProcessingFile.getAbsolutePath(), ofToUpper(newProcessingFile.getExtension()), "JAVA").size()-5);
         size_t index;
         while ((index = tempString.find("Empty")) != string::npos){
             tempString.replace(index, 5, changeTo);
@@ -218,7 +219,8 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font){
         // Save new processing/java script file
         ofBuffer newBuffer;
         newBuffer.append(tempString);
-        ofBufferToFile(newProcessingFile.getAbsolutePath(),newBuffer,false);
+
+        ofBufferToFile(checkFileExtension(newProcessingFile.getAbsolutePath(), ofToUpper(newProcessingFile.getExtension()), "JAVA"),newBuffer,false);
         // Save javalibs folder
         /*ofDirectory newJavalibsdir;
         newJavalibsdir.createDirectory(std::filesystem::path(newProcessingFile.getEnclosingDirectory()+"javalibs/"));
@@ -228,7 +230,7 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font){
         }*/
 
         jvm->closeJVM();
-        filepath = copyFileToPatchFolder(this->patchFolderPath,newProcessingFile.getAbsolutePath());
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newProcessingFile.getAbsolutePath(), ofToUpper(newProcessingFile.getExtension()), "JAVA"));
         //filepath = newProcessingFile.getAbsolutePath();
         loadScript(filepath);
     }
@@ -283,6 +285,18 @@ void ProcessingScript::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
 
     if(removeFileFromData && filepath != ofToDataPath("scripts/Empty.java",true)){
+        ofFile tempFile(filepath);
+        string vsName = tempFile.getFileName();
+        string fsName = tempFile.getEnclosingDirectory()+tempFile.getFileName().substr(0,vsName.find_last_of('.'))+".class";
+
+        removeFile(fsName);
+
+        fsName = tempFile.getEnclosingDirectory()+tempFile.getFileName().substr(0,vsName.find_last_of('.'))+"_in.txt";
+        removeFile(fsName);
+
+        fsName = tempFile.getEnclosingDirectory()+tempFile.getFileName().substr(0,vsName.find_last_of('.'))+"_out.txt";
+        removeFile(fsName);
+
         removeFile(filepath);
     }
 }

@@ -96,9 +96,11 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     if(filepath == "none"){
         ofFile tempHC("haarcascades/haarcascade_frontalface_alt.xml");
-        filepath = tempHC.getAbsolutePath();
+        //filepath = tempHC.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,tempHC.getAbsolutePath());
     }else{
-        filepath = forceCheckMosaicDataPath(filepath);
+        //filepath = forceCheckMosaicDataPath(filepath);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
     }
     haarFinder->setup(filepath);
     haarFinder->setPreset(ObjectFinder::Fast);

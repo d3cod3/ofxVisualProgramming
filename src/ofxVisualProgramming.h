@@ -37,7 +37,6 @@
 #include "include.h"
 #include "config.h"
 
-#include "ofxGLError.h"
 #include "ofxInfiniteCanvas.h"
 #include "ofxTimeMeasurements.h"
 #include "ofxThreadedFileDialog.h"
@@ -110,6 +109,7 @@ public:
     void            deactivateDSP();
 
     void            setIsHoverMenu(bool ish){ isHoverMenu = ish; }
+    void            setIsHoverLogger(bool isl){ isHoverLogger = isl; }
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
@@ -151,7 +151,6 @@ public:
 
     // SYSTEM
     shared_ptr<ofAppGLFWWindow>     mainWindow;
-    ofxGLError                      glError;
     string                          glVersion;
     string                          glShadingVersion;
     bool                            profilerActive;
@@ -161,6 +160,7 @@ public:
     map<string,vector<string>>      objectsMatrix;
     bool                            isVPDragging;
     bool                            isHoverMenu;
+    bool                            isHoverLogger;
 
     // LIVE PATCHING
     int                             livePatchingObiID;

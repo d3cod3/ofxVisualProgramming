@@ -172,7 +172,8 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.lua"));
-        filepath = file.getAbsolutePath();
+        //filepath = file.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
 
 }
@@ -235,9 +236,9 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
         luaScriptSaved = false;
         ofFile fileToRead(newFileFromFilepath);
         ofFile newLuaFile (lastLuaScript);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newLuaFile.getAbsolutePath(),true,true);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"),true,true);
         threadLoaded = false;
-        filepath = copyFileToPatchFolder(this->patchFolderPath,newLuaFile.getAbsolutePath());
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"));
         //filepath = newLuaFile.getAbsolutePath();
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();

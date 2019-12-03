@@ -228,6 +228,16 @@ inline bool checkFilenameError(string fn){
 }
 
 //--------------------------------------------------------------
+inline string checkFileExtension(string filename, string ext, string extNeeded){
+    string fileExtension = ofToUpper(ext);
+    string newFilename = filename;
+    if(fileExtension != extNeeded) {
+        newFilename = filename+"."+ofToLower(extNeeded);
+    }
+    return newFilename;
+}
+
+//--------------------------------------------------------------
 inline void removeFile(string filepath){
     ofFile fileToRemove(filepath);
     if(fileToRemove.exists()){

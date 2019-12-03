@@ -145,7 +145,8 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.py"));
-        filepath = file.getAbsolutePath();
+        //filepath = file.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
     if(!isThreadRunning()){
         startThread();
@@ -199,9 +200,9 @@ void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         pythonScriptSaved = false;
         ofFile fileToRead(ofToDataPath("scripts/empty.py"));
         ofFile newPyFile (lastPythonScript);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPyFile.getAbsolutePath(),true,true);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
         threadLoaded = false;
-        filepath = copyFileToPatchFolder(this->patchFolderPath,newPyFile.getAbsolutePath());
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
         //filepath = newPyFile.getAbsolutePath();
         reloadScriptThreaded();
     }

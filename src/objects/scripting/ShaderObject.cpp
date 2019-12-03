@@ -198,8 +198,9 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         // open the new one
         ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
         ofFile newGLSLFile (lastShaderScript);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newGLSLFile.getAbsolutePath(),true,true);
-        currentScriptFile = newGLSLFile;
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"),true,true);
+        ofFile correctedFileToRead(checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"));
+        currentScriptFile = correctedFileToRead;
         if (currentScriptFile.exists()){
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {

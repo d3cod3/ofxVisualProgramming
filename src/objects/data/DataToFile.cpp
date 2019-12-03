@@ -174,7 +174,8 @@ void DataToFile::dragGUIObject(ofVec3f _m){
 //--------------------------------------------------------------
 void DataToFile::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "export datafile"+ofToString(this->getId())){
-        filepath = response.filepath;
+        ofFile temp(response.filepath);
+        filepath = checkFileExtension(temp.getAbsolutePath(), ofToUpper(temp.getExtension()), "TXT");
         fileSaved = true;
     }
 }

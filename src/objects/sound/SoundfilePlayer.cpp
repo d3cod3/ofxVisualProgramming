@@ -95,9 +95,10 @@ void SoundfilePlayer::newObject(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::autoloadFile(string _fp){
-    //lastSoundfile = _fp;
-    lastSoundfile = copyFileToPatchFolder(this->patchFolderPath,_fp);
+    lastSoundfile = _fp;
+    //lastSoundfile = copyFileToPatchFolder(this->patchFolderPath,_fp);
     soundfileLoaded = true;
+    loading = false;
     startTime = ofGetElapsedTimeMillis();
 }
 
@@ -159,12 +160,12 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
     }
 
     if(loading && ofGetElapsedTimeMillis()-startTime > 500){
-        loading = false;
         if(filepath != "none"){
             loadAudioFile(filepath);
         }else{
             isNewObject = true;
         }
+        loading = false;
     }
 
     if(!isFileLoaded && audiofile.loaded() && audiofile.samplerate() > 100){
@@ -400,7 +401,12 @@ void SoundfilePlayer::loadSettings(){
 //--------------------------------------------------------------
 void SoundfilePlayer::loadAudioFile(string audiofilepath){
 
-    filepath = forceCheckMosaicDataPath(audiofilepath);
+    if(!loading){ // when loading previously saved patch
+        filepath = copyFileToPatchFolder(this->patchFolderPath,audiofilepath);
+    }else{
+        filepath = forceCheckMosaicDataPath(audiofilepath);
+    }
+
 
     audiofile.free();
     audiofile.load(filepath);
