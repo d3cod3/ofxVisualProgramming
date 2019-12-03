@@ -78,8 +78,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxGLEditor](https://github.com/d3cod3/ofxGLEditor)
 
-#### [ofxGLError](https://github.com/armadillu/ofxGLError)
-
 #### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
 
 #### [ofxHttpForm](https://github.com/armadillu/ofxHttpForm)
@@ -110,8 +108,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxThreadedFileDialog](https://github.com/d3cod3/ofxThreadedFileDialog)
 
-#### [ofxThreadedYouTubeVideo](http://github.com/pierrep/ofxThreadedYouTubeVideo)
-
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
 
 #### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
@@ -141,7 +137,6 @@ git clone https://github.com/kylemcdonald/ofxFaceTracker
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
-git clone https://github.com/armadillu/ofxGLError
 git clone https://github.com/armadillu/ofxHistoryPlot
 git clone https://github.com/armadillu/ofxHttpForm
 git clone https://github.com/d3cod3/ofxJava
@@ -157,7 +152,6 @@ git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPdExternals
 git clone https://github.com/npisanti/ofxPDSP
 git clone https://github.com/d3cod3/ofxThreadedFileDialog
-git clone http://github.com/pierrep/ofxThreadedYouTubeVideo
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxWarp
@@ -613,7 +607,7 @@ ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
 
-ofxFontStash, ofxGLError, ofxHistoryPlot, ofxHttpForm, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
+ofxFontStash, ofxHistoryPlot, ofxHttpForm, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
@@ -628,8 +622,6 @@ ofxMtlMapping2D original addon by [morethanlogic](https://github.com/morethanlog
 ofxNDI original addon by [Thomas Geissl](https://github.com/thomasgeissl)
 
 ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
-
-ofxThreadedYouTubeVideo original addon by [Pierre Proske](https://github.com/pierrep)
 
 ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
 
