@@ -136,6 +136,7 @@ public:
     bool                patchLoaded;
     bool                patchSaved;
     bool                externalPathSaved;
+    bool                loading;
 
 protected:
 

@@ -71,6 +71,7 @@ PDPatch::PDPatch() : PatchObject(){
     patchLoaded         = false;
     patchSaved          = false;
     externalPathSaved   = false;
+    loading             = true;
 
     isPDSPPatchableObject   = true;
 
@@ -95,8 +96,9 @@ void PDPatch::newObject(){
 
 //--------------------------------------------------------------
 void PDPatch::autoloadFile(string _fp){
-    //lastLoadedPatch = _fp;
-    lastLoadedPatch = copyFileToPatchFolder(this->patchFolderPath,_fp);
+    lastLoadedPatch = _fp;
+    //lastLoadedPatch = copyFileToPatchFolder(this->patchFolderPath,_fp);
+    loading = false;
     patchLoaded = true;
 }
 
@@ -190,8 +192,8 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "PD") {
-                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                //filepath = file.getAbsolutePath();
+                //filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                filepath = file.getAbsolutePath();
                 loadPatch(filepath);
             }
         }
@@ -201,9 +203,9 @@ void PDPatch::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThread
         patchSaved = false;
         ofFile fileToRead(ofToDataPath("scripts/empty.pd"));
         ofFile newPDFile (lastLoadedPatch);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPDFile.getAbsolutePath(),true,true);
-        filepath = copyFileToPatchFolder(this->patchFolderPath,newPDFile.getAbsolutePath());
-        //filepath = newPDFile.getAbsolutePath();
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPDFile.getAbsolutePath(), ofToUpper(newPDFile.getExtension()), "PD"),true,true);
+        //filepath = copyFileToPatchFolder(this->patchFolderPath,newPDFile.getAbsolutePath());
+        filepath = checkFileExtension(newPDFile.getAbsolutePath(), ofToUpper(newPDFile.getExtension()), "PD");
         loadPatch(filepath);
     }
 
@@ -493,7 +495,8 @@ void PDPatch::loadPatch(string scriptFile){
         pd.stop();
     }
 
-    filepath = forceCheckMosaicDataPath(scriptFile);
+    filepath = copyFileToPatchFolder(this->patchFolderPath,scriptFile);
+
     currentPatchFile.open(filepath);
 
     if(prevExternalsFolder != "" && prevExternalsFolder != "/path_to_pd_externals"){
