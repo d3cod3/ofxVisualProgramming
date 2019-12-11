@@ -227,6 +227,18 @@ void ofxVisualProgramming::update(){
         if(draggingObject && draggingObjectID == it->first){
             it->second->mouseDragged(actualMouse.x,actualMouse.y);
         }
+
+        // update scripts objects files map
+        ofFile tempsofp(it->second->getFilepath());
+        string fileExt = ofToUpper(tempsofp.getExtension());
+        if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+            map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+            if (sofpIT == scriptsObjectsFilesPaths.end()){
+                // not found, insert it
+                scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+            }
+        }
+
     }
     // Clear map from deleted objects
     if(ofGetElapsedTimeMillis()-resetTime > wait){
@@ -242,6 +254,18 @@ void ofxVisualProgramming::update(){
             for(int p=0;p<static_cast<int>(patchObjects.at(eraseIndexes.at(x))->outPut.size());p++){
                 patchObjects[patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toObjectID]->inletsConnected.at(patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toInletID) = false;
             }
+
+            // remove scripts objects filepath reference from scripts objects files map
+            ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
+            string fileExt = ofToUpper(tempsofp.getExtension());
+            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                if (sofpIT != scriptsObjectsFilesPaths.end()){
+                    // found it, remove it
+                    scriptsObjectsFilesPaths.erase(sofpIT);
+                }
+            }
+
             patchObjects.at(eraseIndexes.at(x))->removeObjectContent(true);
             patchObjects.erase(eraseIndexes.at(x));
         }
@@ -421,11 +445,13 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     // CANVAS
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->mouseMoved(actualMouse.x,actualMouse.y);
-        it->second->setIsActive(false);
-        if (it->second->isOver(actualMouse)){
-            activeObject(it->first);
+    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            it->second->mouseMoved(actualMouse.x,actualMouse.y);
+            it->second->setIsActive(false);
+            if (it->second->isOver(actualMouse)){
+                activeObject(it->first);
+            }
         }
     }
 
@@ -439,35 +465,40 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     // CANVAS
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
-            draggingObject = true;
-            draggingObjectID = it->first;
-        }
-        for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
-            if(it->second->outPut[p]->toObjectID == selectedObjectID){
-                if(isRetina){
-                    it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
-                }else{
-                    it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
-                }
-                it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
+    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
+
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+
+            if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
+                draggingObject = true;
+                draggingObjectID = it->first;
             }
-        }
-        if(selectedObjectID != it->first){
-            for (int j=0;j<it->second->getNumInlets();j++){
-                if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
-                    if(it->second->getInletType(j) == selectedObjectLinkType){
-                        it->second->setInletMouseNear(j,true);
+            for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
+                if(it->second->outPut[p]->toObjectID == selectedObjectID){
+                    if(isRetina){
+                        it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
+                    }else{
+                        it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
                     }
-                }else{
-                    it->second->setInletMouseNear(j,false);
+                    it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
+                }
+            }
+            if(selectedObjectID != it->first){
+                for (int j=0;j<it->second->getNumInlets();j++){
+                    if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
+                        if(it->second->getInletType(j) == selectedObjectLinkType){
+                            it->second->setInletMouseNear(j,true);
+                        }
+                    }else{
+                        it->second->setInletMouseNear(j,false);
+                    }
                 }
             }
         }
+
     }
 
-    if(selectedObjectLink == -1 && !draggingObject && !isHoverMenu && !isHoverLogger){
+    if(selectedObjectLink == -1 && !draggingObject && !isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
         canvas.mouseDragged(e);
     }
 
@@ -485,49 +516,54 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
     selectedObjectLinkType = -1;
     pressedObjectID = -1;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(patchObjects[it->first] != nullptr){
-            it->second->setIsObjectSelected(false);
-            if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
-                it->second->setIsObjectSelected(true);
-                pressedObjectID = it->first;
-            }
-            for(int p=0;p<it->second->getNumInlets();p++){
-                if(it->second->getInletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
-                    isOutletSelected = false;
-                    selectedObjectID = it->first;
-                    selectedObjectLink = p;
-                    selectedObjectLinkType = it->second->getInletType(p);
-                    it->second->setIsActive(false);
-                    break;
-                }
-            }
-            for(int p=0;p<it->second->getNumOutlets();p++){
-                if(it->second->getOutletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
-                    isOutletSelected = true;
-                    selectedObjectID = it->first;
-                    selectedObjectLink = p;
-                    selectedObjectLinkType = it->second->getOutletType(p);
-                    it->second->setIsActive(false);
-                    break;
-                }
-            }
-            it->second->mousePressed(actualMouse.x,actualMouse.y);
-        }
-    }
+    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
 
-    if(selectedObjectLink == -1 && !patchObjects.empty()){
         for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
-                if(it->second->getIsActive()){
-                    isOutletSelected = false;
-                    selectedObjectID = it->first;
-                    selectedObjectLinkType = -1;
-                    break;
+                it->second->setIsObjectSelected(false);
+                if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
+                    it->second->setIsObjectSelected(true);
+                    pressedObjectID = it->first;
+                }
+                for(int p=0;p<it->second->getNumInlets();p++){
+                    if(it->second->getInletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
+                        isOutletSelected = false;
+                        selectedObjectID = it->first;
+                        selectedObjectLink = p;
+                        selectedObjectLinkType = it->second->getInletType(p);
+                        it->second->setIsActive(false);
+                        break;
+                    }
+                }
+                for(int p=0;p<it->second->getNumOutlets();p++){
+                    if(it->second->getOutletPosition(p).distance(actualMouse) < linkActivateDistance && !it->second->headerBox->inside(ofVec3f(actualMouse.x,actualMouse.y,0))){
+                        isOutletSelected = true;
+                        selectedObjectID = it->first;
+                        selectedObjectLink = p;
+                        selectedObjectLinkType = it->second->getOutletType(p);
+                        it->second->setIsActive(false);
+                        break;
+                    }
+                }
+                it->second->mousePressed(actualMouse.x,actualMouse.y);
+            }
+        }
+
+        if(selectedObjectLink == -1 && !patchObjects.empty()){
+            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                if(patchObjects[it->first] != nullptr){
+                    if(it->second->getIsActive()){
+                        isOutletSelected = false;
+                        selectedObjectID = it->first;
+                        selectedObjectLinkType = -1;
+                        break;
+                    }
                 }
             }
         }
+
     }
+
 
 }
 
@@ -620,15 +656,17 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
-    if(!isHoverLogger && !isHoverMenu){
+    if(!isHoverLogger && !isHoverMenu && !isHoverCodeEditor){
         canvas.mouseScrolled(e);
     }
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->keyPressed(e.key);
+    if(!isHoverCodeEditor){
+        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            it->second->keyPressed(e.key);
+        }
     }
 }
 

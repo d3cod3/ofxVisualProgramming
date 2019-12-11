@@ -81,7 +81,7 @@
 #define COLOR_SCRIPT            ofColor(255,128,128,255)
 
 #define MAIN_FONT               "ofxbraitsch/fonts/Verdana.ttf"
-#define LIVECODING_FONT         "fonts/IBMPlexSans-Text.otf"
+#define LIVECODING_FONT         "fonts/IBMPlexMono-Medium.ttf"
 
 #define LUA_SYNTAX              "livecoding/luaSyntax.xml"
 #define PYTHON_SYNTAX           "livecoding/pythonSyntax.xml"

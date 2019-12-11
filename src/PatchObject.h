@@ -169,6 +169,8 @@ public:
     int                     getOutputWidth() { return output_width; }
     int                     getOutputHeight() { return output_height; }
 
+    string                  getFilepath() { return filepath; }
+
     // SETTERS
     void                    setName(string _name) { name = _name; }
     void                    setFilepath(string fp) { filepath = fp; }

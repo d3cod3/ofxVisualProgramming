@@ -110,6 +110,7 @@ public:
 
     void            setIsHoverMenu(bool ish){ isHoverMenu = ish; }
     void            setIsHoverLogger(bool isl){ isHoverLogger = isl; }
+    void            setIsHoverCodeEditor(bool isl){ isHoverCodeEditor = isl; }
 
     // PATCH CANVAS
     ofxInfiniteCanvas       canvas;
@@ -125,6 +126,7 @@ public:
 
     // PATCH OBJECTS
     map<int,PatchObject*>   patchObjects;
+    map<string,string>      scriptsObjectsFilesPaths;
     vector<int>             eraseIndexes;
     bool                    isOutletSelected;
     int                     selectedObjectLinkType;
@@ -161,6 +163,7 @@ public:
     bool                            isVPDragging;
     bool                            isHoverMenu;
     bool                            isHoverLogger;
+    bool                            isHoverCodeEditor;
 
     // LIVE PATCHING
     int                             livePatchingObiID;
