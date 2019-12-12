@@ -68,6 +68,16 @@ struct Segment_s{
 #define d_mu(u,v)      norm_mu(u-v)       // distance = norm of difference
 
 //--------------------------------------------------------------
+inline string& fix_newlines(std::string& s){
+    size_t start_pos = 0;
+    while((start_pos = s.find("\\n", start_pos)) != std::string::npos) {
+         s.replace(start_pos, 2, "\n");
+         start_pos += 1;
+    }
+    return s;
+}
+
+//--------------------------------------------------------------
 static inline float hardClip(float x){
     float x1 = fabsf(x + 1.0f);
     float x2 = fabsf(x - 1.0f);
