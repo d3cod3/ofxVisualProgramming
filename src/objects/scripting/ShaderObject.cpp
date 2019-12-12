@@ -143,7 +143,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     header->update();
     newButton->update();
     loadButton->update();
-    editButton->update();
+    //editButton->update();
     for(size_t i=0;i<shaderSliders.size();i++){
         shaderSliders.at(i)->update();
     }
@@ -350,7 +350,7 @@ void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     for(size_t i=0;i<shaderSliders.size();i++){
         shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         if(shaderSliders.at(i)->hitTest(_m-this->getPos())){
@@ -359,7 +359,7 @@ void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
     }
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || testingOver>0;
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || testingOver>0;
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -634,8 +634,8 @@ void ShaderObject::loadGUI(){
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
-    editButton = gui->addButton("EDIT");
-    editButton->setUseCustomMouse(true);
+    //editButton = gui->addButton("EDIT");
+    //editButton->setUseCustomMouse(true);
     gui->addBreak();
 
     gui->setPosition(0,this->height - header->getHeight());
@@ -712,23 +712,6 @@ void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
             saveShaderScriptFlag = true;
         }else if(e.target == loadButton){
             loadShaderScriptFlag = true;
-        }else if(e.target == editButton){
-            bool nameError = checkFilenameError(filepath);
-            if(filepath != "none" && !nameError && scriptLoaded){
-                string cmd = "";
-#ifdef TARGET_LINUX
-                cmd = "atom "+filepath;
-#elif defined(TARGET_OSX)
-                cmd = "open -a /Applications/Atom.app "+filepath;
-#elif defined(TARGET_WIN32)
-                cmd = "atom "+filepath;
-#endif
-                tempCommand.execCommand(cmd);
-            }
-            if(nameError){
-                ofLog(OF_LOG_ERROR,"SHADER SCRIPT NAME ERROR: your script filename: %s contains irregular characters,",filepath.c_str());
-                ofLog(OF_LOG_ERROR,"please use alphanumerical and underscore (_) characters only!");
-            }
         }
     }
 }

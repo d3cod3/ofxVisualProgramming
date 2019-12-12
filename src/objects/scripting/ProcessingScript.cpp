@@ -100,8 +100,8 @@ void ProcessingScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
-    editButton = gui->addButton("EDIT");
-    editButton->setUseCustomMouse(true);
+    //editButton = gui->addButton("EDIT");
+    //editButton->setUseCustomMouse(true);
 
     gui->addBreak();
     clearButton = gui->addButton("CLEAR SCRIPT");
@@ -138,7 +138,7 @@ void ProcessingScript::updateObjectContent(map<int,PatchObject*> &patchObjects, 
     header->update();
     newButton->update();
     loadButton->update();
-    editButton->update();
+    //editButton->update();
     clearButton->update();
     reloadButton->update();
 
@@ -307,12 +307,12 @@ void ProcessingScript::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos()) || clearButton->hitTest(_m-this->getPos()) || reloadButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || clearButton->hitTest(_m-this->getPos()) || reloadButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -326,7 +326,7 @@ void ProcessingScript::dragGUIObject(ofVec3f _m){
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
@@ -393,25 +393,6 @@ void ProcessingScript::onButtonEvent(ofxDatGuiButtonEvent e){
             saveProcessingScriptFlag = true;
         }else if(e.target == loadButton){
             loadProcessingScriptFlag = true;
-        }else if(e.target == editButton){
-            bool nameError = checkFilenameError(filepath);
-            if(filepath != "none" && !nameError){
-                string cmd = "";
-#ifdef TARGET_LINUX
-                cmd = "atom "+filepath;
-#elif defined(TARGET_OSX)
-                cmd = "open -a /Applications/Atom.app "+filepath;
-#elif defined(TARGET_WIN32)
-                cmd = "atom "+filepath;
-#endif
-
-                tempCommand.execCommand(cmd);
-
-            }
-            if(nameError){
-                ofLog(OF_LOG_ERROR,"PROCESSING SCRIPT NAME ERROR: your script filename: %s contains irregular characters,",filepath.c_str());
-                ofLog(OF_LOG_ERROR,"please use alphanumerical and underscore (_) characters only!");
-            }
         }else if(e.target == clearButton){
             clearScript();
         }else if(e.target == reloadButton){

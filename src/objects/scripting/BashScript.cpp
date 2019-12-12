@@ -121,8 +121,8 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadButton = gui->addButton("OPEN");
     loadButton->setUseCustomMouse(true);
 
-    editButton = gui->addButton("EDIT");
-    editButton->setUseCustomMouse(true);
+    //editButton = gui->addButton("EDIT");
+    //editButton->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -166,7 +166,7 @@ void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     header->update();
     newButton->update();
     loadButton->update();
-    editButton->update();
+    //editButton->update();
 
     if(nameLabelLoaded){
         nameLabelLoaded = false;
@@ -225,10 +225,10 @@ void BashScript::mouseMovedObjectContent(ofVec3f _m){
     header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
     if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || editButton->hitTest(_m-this->getPos());
+        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
     }else{
         this->isOverGUI = header->hitTest(_m-this->getPos());
     }
@@ -242,7 +242,7 @@ void BashScript::dragGUIObject(ofVec3f _m){
         header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+        //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
         ofNotifyEvent(dragEvent, nId);
 
@@ -351,24 +351,6 @@ void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
             saveScriptFlag = true;
         }else if(e.target == loadButton){
             loadScriptFlag = true;
-        }else if(e.target == editButton){
-            bool nameError = checkFilenameError(filepath);
-            if(filepath != "none" && !nameError && scriptLoaded){
-                string cmd = "";
-#ifdef TARGET_LINUX
-                cmd = "atom "+filepath;
-#elif defined(TARGET_OSX)
-                cmd = "open -a /Applications/Atom.app "+filepath;
-#elif defined(TARGET_WIN32)
-                cmd = "atom "+filepath;
-#endif
-                tempCommand.execCommand(cmd);
-
-            }
-            if(nameError){
-                ofLog(OF_LOG_ERROR,"BASH SCRIPT NAME ERROR: your script filename: %s contains irregular characters,",filepath.c_str());
-                ofLog(OF_LOG_ERROR,"please use alphanumerical and underscore (_) characters only!");
-            }
         }
     }
 }
