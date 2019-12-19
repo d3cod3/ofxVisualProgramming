@@ -107,7 +107,8 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     if(filepath == "none"){
         currentScriptFile.open(ofToDataPath("scripts/empty.frag"));
-        filepath = currentScriptFile.getAbsolutePath();
+        //filepath = currentScriptFile.getAbsolutePath();
+        filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
         isNewObject = true;
     }
     loadScript(filepath);
@@ -173,13 +174,15 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         if (currentScriptFile.exists()){
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {
-                filepath = currentScriptFile.getAbsolutePath();
+                //filepath = currentScriptFile.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
                 loadScript(filepath);
                 reloading = true;
             }else if(fileExtension == "VERT"){
                 string vsName = currentScriptFile.getFileName();
                 string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
                 filepath = fsName;
+                filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
                 loadScript(filepath);
                 reloading = true;
             }
@@ -204,13 +207,15 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         if (currentScriptFile.exists()){
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {
-                filepath = currentScriptFile.getAbsolutePath();
+                //filepath = currentScriptFile.getAbsolutePath();
+                filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
                 loadScript(filepath);
                 reloading = true;
             }else if(fileExtension == "VERT"){
                 string vsName = currentScriptFile.getFileName();
                 string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
                 filepath = fsName;
+                filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
                 loadScript(filepath);
                 reloading = true;
             }
@@ -647,7 +652,8 @@ void ShaderObject::loadGUI(){
 void ShaderObject::loadScript(string scriptFile){
 
     // Get FRAGMENT_SHADER
-    filepath = copyFileToPatchFolder(this->patchFolderPath,scriptFile);
+    //filepath = copyFileToPatchFolder(this->patchFolderPath,scriptFile);
+    filepath = scriptFile;
     // Check if we have VERTEX_SHADER too
     ofFile tempCurrentFrag(scriptFile);
     string fsName = tempCurrentFrag.getFileName();
