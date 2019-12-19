@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 VideoTransform::VideoTransform() : PatchObject(){
 
-    this->numInlets  = 6;
+    this->numInlets  = 8;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // input

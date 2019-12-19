@@ -147,6 +147,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     if(isOneDeviceAvailable){
         vidGrabber->setDeviceID(deviceID);
         vidGrabber->setup(camWidth, camHeight);
+        resetCameraSettings(deviceID);
     }
     
 }

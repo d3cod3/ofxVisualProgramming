@@ -160,6 +160,16 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
         dilateButton->update();
     }
 
+    // External background reset (BANG)
+    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
+        bLearnBackground = true;
+    }
+}
+
+//--------------------------------------------------------------
+void BackgroundSubtraction::drawObjectContent(ofxFontStash *font){
+
+    // UPDATE STUFF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!newConnection){
             newConnection = true;
@@ -205,11 +215,6 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
         newConnection = false;
     }
 
-    // External background reset (BANG)
-    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
-        bLearnBackground = true;
-    }
-
     //////////////////////////////////////////////
     // background learning
 
@@ -228,10 +233,9 @@ void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObje
         grayBg->updateTexture();
     }
     //////////////////////////////////////////////
-}
 
-//--------------------------------------------------------------
-void BackgroundSubtraction::drawObjectContent(ofxFontStash *font){
+
+    // DRAW STUFF
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
