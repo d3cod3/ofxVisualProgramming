@@ -163,10 +163,13 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     if(shaderScriptLoaded){
         shaderScriptLoaded = false;
         // remove previously loaded shader from data folder
-        if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.isFile()){
-            removeFile(currentScriptFile.getAbsolutePath());
+        if(currentScriptFile.exists()){
+            if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.isFile()){
+                removeFile(currentScriptFile.getAbsolutePath());
+            }
         }
-        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
+
+        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true) && lastVertexShaderPath != ""){
             removeFile(lastVertexShaderPath);
         }
         // open the new one
