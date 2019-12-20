@@ -46,6 +46,20 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
 
-    float           inMin, inMax, outMin, outMax;
+    void            mouseMovedObjectContent(ofVec3f _m);
+    void            dragGUIObject(ofVec3f _m);
+
+    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+
+    ofxDatGui*              gui;
+    ofxDatGuiHeader*        header;
+    ofxDatGuiTextInput*     inputMin;
+    ofxDatGuiTextInput*     inputMax;
+    ofxDatGuiTextInput*     outputMin;
+    ofxDatGuiTextInput*     outputMax;
+
+    float                   inMin, inMax, outMin, outMax;
+
+    bool                    loaded;
 
 };
