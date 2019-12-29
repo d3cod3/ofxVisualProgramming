@@ -6,6 +6,8 @@
 ![Mosaic 0.1.7](https://github.com/d3cod3/Mosaic/raw/master/process/img/20_jupiterBlues.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V21B90C)
+
 Table of Contents
 =================
 
