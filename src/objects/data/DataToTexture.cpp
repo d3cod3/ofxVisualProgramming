@@ -49,8 +49,8 @@ DataToTexture::DataToTexture() : PatchObject(){
     pix                 = new ofPixels();
     scaledPix           = new ofPixels();
 
-    this->output_width  = 1280;
-    this->output_height = 720;
+    this->output_width  = STANDARD_TEXTURE_WIDTH;
+    this->output_height = STANDARD_TEXTURE_HEIGHT;
 
     temp_width          = this->output_width;
     temp_height         = this->output_height;

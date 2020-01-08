@@ -50,8 +50,8 @@ VideoTransform::VideoTransform() : PatchObject(){
     _inletParams[5] = new float();      // angleX
     *(float *)&_inletParams[5] = 0.0f;
     _inletParams[6] = new float();      // angleY
-    *(float *)&_inletParams[7] = 0.0f;
-    _inletParams[6] = new float();      // angleZ
+    *(float *)&_inletParams[6] = 0.0f;
+    _inletParams[7] = new float();      // angleZ
     *(float *)&_inletParams[7] = 0.0f;
 
     _outletParams[0] = new ofTexture(); // output
@@ -86,8 +86,8 @@ void VideoTransform::newObject(){
 
     this->setCustomVar(0.001f,"POSX");
     this->setCustomVar(0.001f,"POSY");
-    this->setCustomVar(1280.0f,"WIDTH");
-    this->setCustomVar(720.0f,"HEIGHT");
+    this->setCustomVar(STANDARD_TEXTURE_WIDTH,"WIDTH");
+    this->setCustomVar(STANDARD_TEXTURE_HEIGHT,"HEIGHT");
     this->setCustomVar(360.0f,"ANGLEX");
     this->setCustomVar(360.0f,"ANGLEY");
     this->setCustomVar(360.0f,"ANGLEZ");

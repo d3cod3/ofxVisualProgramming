@@ -82,7 +82,7 @@ void VideoSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui->collapse();
     header->setIsCollapsed(true);
 
-    captureFbo.allocate( 1280, 720, GL_RGB );
+    captureFbo.allocate( STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT, GL_RGB );
     ndiSender.setMetaData("Mosaic NDI sender", "video sender", "ofxNDI", "0.0.0", "", "", "");
 
 

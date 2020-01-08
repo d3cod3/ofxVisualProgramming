@@ -262,21 +262,29 @@ inline void removeFile(string filepath){
 
 //--------------------------------------------------------------
 inline string copyFileToPatchFolder(string folderpath, string filepath){
+
     ofFile fileToRead(filepath);
-    ofFile patchDataFolder(folderpath);
-    if(!patchDataFolder.exists()){
-        patchDataFolder.create();
+
+    if(folderpath != fileToRead.getEnclosingDirectory()){
+        ofFile patchDataFolder(folderpath);
+        if(!patchDataFolder.exists()){
+            patchDataFolder.create();
+        }
+        ofFile patchDataFolder2(folderpath);
+
+        string fileToSave = patchDataFolder2.getAbsolutePath()+fileToRead.getFileName();
+        ofFile newFile (fileToSave);
+
+        //ofLog(OF_LOG_NOTICE,"%s",fileToSave.c_str());
+
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),newFile.getAbsolutePath(),true,true);
+
+        return folderpath+newFile.getFileName();
+    }else{
+        return filepath;
     }
-    ofFile patchDataFolder2(folderpath);
 
-    string fileToSave = patchDataFolder2.getAbsolutePath()+fileToRead.getFileName();
-    ofFile newFile (fileToSave);
 
-    //ofLog(OF_LOG_NOTICE,"%s",fileToSave.c_str());
-
-    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newFile.getAbsolutePath(),true,true);
-
-    return folderpath+newFile.getFileName();
 }
 
 //--------------------------------------------------------------

@@ -51,8 +51,8 @@ ProjectionMapping::ProjectionMapping() : PatchObject(){
 
     _mapping = new ofxMtlMapping2D();
 
-    output_width            = 1280;
-    output_height           = 720;
+    output_width            = STANDARD_TEXTURE_WIDTH;
+    output_height           = STANDARD_TEXTURE_HEIGHT;
 
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;

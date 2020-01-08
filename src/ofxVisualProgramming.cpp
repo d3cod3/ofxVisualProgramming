@@ -422,6 +422,43 @@ void ofxVisualProgramming::resetTempFolder(){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::cleanPatchDataFolder(){
+    ofDirectory dir;
+    // get patch data folder
+    dir.listDir(currentPatchFolderPath+"data/");
+
+    for(size_t i = 0; i < dir.size(); i++){
+        if(dir.getFile(i).isFile()){
+            map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(dir.getFile(i).getFileName());
+            if (sofpIT == scriptsObjectsFilesPaths.end()){
+                // not found in patch scripts map, remove it from patch data folder
+                //ofLog(OF_LOG_NOTICE,"%s",dir.getFile(i).getAbsolutePath().c_str());
+                string fileExt = ofToUpper(dir.getFile(i).getExtension());
+                if(fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+                    dir.getFile(i).remove();
+                }
+                // remove if filename is empty
+                string tfn = dir.getFile(i).getFileName();
+                if(dir.getFile(i).getFileName().substr(0,tfn.find_last_of('.')) == "empty"){
+                    dir.getFile(i).remove();
+                }
+                // remove alone .vert files
+                if(fileExt == "VERT"){
+                    string vsName = dir.getFile(i).getFileName();
+                    string fsName = dir.getFile(i).getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                    map<string,string>::iterator sofpIT2 = scriptsObjectsFilesPaths.find(fsName);
+                    if (sofpIT2 == scriptsObjectsFilesPaths.end()){
+                        // related fragment shader not found in patch scripts map, remove it from patch data folder
+                        dir.getFile(i).remove();
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
 
     //savePatchAsLast();
@@ -435,6 +472,8 @@ void ofxVisualProgramming::exit(){
     if(dspON){
         deactivateDSP();
     }
+
+    cleanPatchDataFolder();
 
     resetTempFolder();
 }

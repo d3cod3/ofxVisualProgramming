@@ -83,8 +83,8 @@ void VideoStreaming::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
     gui->collapse();
     header->setIsCollapsed(true);
 
-    captureFbo.allocate( 1280, 720, GL_RGB );
-    recorder.setup(true, false, glm::vec2(1280, 720));
+    captureFbo.allocate( STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT, GL_RGB );
+    recorder.setup(true, false, glm::vec2(STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT));
     recorder.setOverWrite(true);
 
 #if defined(TARGET_OSX)

@@ -74,8 +74,8 @@ void VideoCrop::newObject(){
 
     this->setCustomVar(0.0f,"POSX");
     this->setCustomVar(0.0f,"POSY");
-    this->setCustomVar(1280.0f,"WIDTH");
-    this->setCustomVar(720.0f,"HEIGHT");
+    this->setCustomVar(STANDARD_TEXTURE_WIDTH,"WIDTH");
+    this->setCustomVar(STANDARD_TEXTURE_HEIGHT,"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -95,9 +95,9 @@ void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     pad = gui->add2dPad("POS");
     pad->setUseCustomMouse(true);
     pad->setPoint(ofPoint(this->getCustomVar("POSX"),this->getCustomVar("POSY"),0));
-    sliderW = gui->addSlider("Width", 0.0,1280.0,this->getCustomVar("WIDTH"));
+    sliderW = gui->addSlider("Width", 0.0,STANDARD_TEXTURE_WIDTH,this->getCustomVar("WIDTH"));
     sliderW->setUseCustomMouse(true);
-    sliderH = gui->addSlider("Height", 0.0,720.0,this->getCustomVar("HEIGHT"));
+    sliderH = gui->addSlider("Height", 0.0,STANDARD_TEXTURE_HEIGHT,this->getCustomVar("HEIGHT"));
     sliderH->setUseCustomMouse(true);
 
     gui->setPosition(0,this->height - header->getHeight());

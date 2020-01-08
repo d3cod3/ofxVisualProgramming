@@ -61,8 +61,8 @@ LuaScript::LuaScript() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width        = 1280;
-    output_height       = 720;
+    output_width        = STANDARD_TEXTURE_WIDTH;
+    output_height       = STANDARD_TEXTURE_HEIGHT;
 
     mosaicTableName = "_mosaic_data_inlet";
     luaTablename    = "_mosaic_data_outlet";

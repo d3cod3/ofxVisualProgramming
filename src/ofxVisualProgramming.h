@@ -59,6 +59,7 @@ public:
     void            draw();
     void            drawLivePatchingSession();
     void            resetTempFolder();
+    void            cleanPatchDataFolder();
     void            exit();
 
     void            mouseMoved(ofMouseEventArgs &e);

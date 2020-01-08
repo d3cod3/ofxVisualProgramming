@@ -56,8 +56,8 @@ ShaderObject::ShaderObject() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    output_width    = 1280;
-    output_height   = 720;
+    output_width    = STANDARD_TEXTURE_WIDTH;
+    output_height   = STANDARD_TEXTURE_HEIGHT;
 
     nTextures       = 0;
     internalFormat  = GL_RGBA;
@@ -162,16 +162,6 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     if(shaderScriptLoaded){
         shaderScriptLoaded = false;
-        // remove previously loaded shader from data folder
-        if(currentScriptFile.exists()){
-            if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.isFile()){
-                removeFile(currentScriptFile.getAbsolutePath());
-            }
-        }
-
-        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true) && lastVertexShaderPath != ""){
-            removeFile(lastVertexShaderPath);
-        }
         // open the new one
         currentScriptFile.open(lastShaderScript);
         if (currentScriptFile.exists()){
@@ -194,14 +184,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     if(shaderScriptSaved){
         shaderScriptSaved = false;
-        // remove previously loaded shader from data folder
-        if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.isFile()){
-            removeFile(currentScriptFile.getAbsolutePath());
-        }
-        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
-            removeFile(lastVertexShaderPath);
-        }
-        // open the new one
+        // create and open the new one
         ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
         ofFile newGLSLFile (lastShaderScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"),true,true);
@@ -210,7 +193,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         if (currentScriptFile.exists()){
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {
-                //filepath = currentScriptFile.getAbsolutePath();
+                // filepath = currentScriptFile.getAbsolutePath();
                 filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
                 loadScript(filepath);
                 reloading = true;
@@ -671,7 +654,7 @@ void ShaderObject::loadScript(string scriptFile){
         fragmentShader = fscontent.getText();
 
         if(vertexShaderFile.exists()){
-            lastVertexShaderPath = copyFileToPatchFolder(this->patchFolderPath,vertexShaderFile.getAbsolutePath());
+            lastVertexShaderPath = vertexShaderFile.getAbsolutePath();
             ofBuffer vscontent = ofBufferFromFile(lastVertexShaderPath);
             vertexShader = vscontent.getText();
         }
