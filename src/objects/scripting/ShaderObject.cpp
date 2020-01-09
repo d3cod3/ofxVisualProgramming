@@ -324,12 +324,12 @@ void ShaderObject::drawObjectContent(ofxFontStash *font){
 void ShaderObject::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
 
-    if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && removeFileFromData){
+    if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.exists() && removeFileFromData){
         removeFile(filepath);
         //ofLog(OF_LOG_NOTICE,"%s",lastVertexShaderPath.c_str());
-        if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
+        /*if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
             removeFile(lastVertexShaderPath);
-        }
+        }*/
     }
 
 }
