@@ -65,14 +65,15 @@ ShaderObject::ShaderObject() : PatchObject(){
     fragmentShader  = "";
     vertexShader    = "";
 
-    lastShaderScript       = "";
-    lastVertexShaderPath   = "";
-    loadShaderScriptFlag   = false;
-    saveShaderScriptFlag   = false;
-    shaderScriptLoaded     = false;
-    shaderScriptSaved      = false;
+    lastShaderScript        = "";
+    lastVertexShaderPath    = "";
+    loadShaderScriptFlag    = false;
+    saveShaderScriptFlag    = false;
+    shaderScriptLoaded      = false;
+    shaderScriptSaved       = false;
+    oneBang                 = false;
 
-    modalInfo           = false;
+    modalInfo               = false;
 
 }
 
@@ -637,6 +638,8 @@ void ShaderObject::loadGUI(){
 //--------------------------------------------------------------
 void ShaderObject::loadScript(string scriptFile){
 
+    oneBang = true;
+
     // Get FRAGMENT_SHADER
     //filepath = copyFileToPatchFolder(this->patchFolderPath,scriptFile);
     filepath = scriptFile;
@@ -677,7 +680,7 @@ void ShaderObject::loadScript(string scriptFile){
         ofLog(OF_LOG_ERROR,"SHADER File %s do not exists",currentScriptFile.getFileName().c_str());
     }
 
-
+    oneBang = false;
 
 }
 
@@ -716,15 +719,17 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
             break;
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
-            currentScriptFile.open(ofToDataPath(event.path,true));
-            if(ofToUpper(currentScriptFile.getExtension()) == "FRAG") {
-                filepath = currentScriptFile.getAbsolutePath();
-                loadScript(filepath);
-            }else if(ofToUpper(currentScriptFile.getExtension()) == "VERT"){
-                string vsName = currentScriptFile.getFileName();
-                string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                filepath = fsName;
-                loadScript(filepath);
+            if(!oneBang){
+                currentScriptFile.open(ofToDataPath(event.path,true));
+                if(ofToUpper(currentScriptFile.getExtension()) == "FRAG") {
+                    filepath = currentScriptFile.getAbsolutePath();
+                    loadScript(filepath);
+                }else if(ofToUpper(currentScriptFile.getExtension()) == "VERT"){
+                    string vsName = currentScriptFile.getFileName();
+                    string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                    filepath = fsName;
+                    loadScript(filepath);
+                }
             }
             break;
         case PathWatcher::DELETED:

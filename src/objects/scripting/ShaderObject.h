@@ -120,6 +120,7 @@ public:
     bool                scriptLoaded;
     bool                isNewObject;
     bool                reloading;
+    bool                oneBang;
 
     ofxDatGui*                  gui;
     ofxDatGuiHeader*            header;
