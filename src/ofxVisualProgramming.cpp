@@ -147,7 +147,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     alphabet                = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY";
     newFileCounter          = 0;
 
-    audioSampleRate         = 0;
+    audioSampleRate         = 44100;
     dspON                   = false;
 
     inited                  = false;
@@ -1810,10 +1810,6 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
                 XML.popTag();
             }
-        }
-
-        if(dspON){
-            deactivateDSP();
         }
 
     }
