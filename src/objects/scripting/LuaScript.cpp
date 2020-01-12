@@ -223,6 +223,36 @@ void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThre
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "LUA") {
                 threadLoaded = false;
+                // check if others lua files exists in script folder (multiple files lua script) and import them
+                ofDirectory td;
+                td.allowExt("lua");
+                td.listDir(file.getEnclosingDirectory());
+                for(int i = 0; i < (int)td.size(); i++){
+                    if(td.getPath(i) != file.getAbsolutePath()){
+                        copyFileToPatchFolder(this->patchFolderPath,td.getPath(i));
+                    }
+                }
+                // import all subfolders -- NOT RECURSIVE
+                ofDirectory tf;
+                tf.listDir(file.getEnclosingDirectory());
+                for(int i = 0; i < (int)tf.size(); i++){
+                    ofDirectory ttf(tf.getPath(i));
+                    if(ttf.isDirectory()){
+                        filesystem::path tpa(this->patchFolderPath+tf.getName(i)+"/");
+                        ttf.copyTo(tpa,false,false);
+                        ttf.listDir();
+                        for(int j = 0; j < (int)ttf.size(); j++){
+                            ofFile ftf(ttf.getPath(j));
+                            if(ftf.isFile()){
+                                filesystem::path tpa(this->patchFolderPath+tf.getName(i)+"/"+ftf.getFileName());
+                                ftf.copyTo(tpa,false,false);
+                            }
+                        }
+                        //ofLog(OF_LOG_NOTICE,"%s - %s",this->patchFolderPath.c_str(),tf.getName(i).c_str());
+                    }
+                }
+
+                // then import the main script file
                 filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
                 //filepath = file.getAbsolutePath();
                 static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
