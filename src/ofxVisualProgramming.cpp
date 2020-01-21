@@ -1149,6 +1149,9 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
     bool connected = false;
 
     if((fromID != -1) && (patchObjects[fromID] != nullptr) && (toID != -1) && (patchObjects[toID] != nullptr) && (patchObjects[fromID]->getOutletType(fromOutlet) == patchObjects[toID]->getInletType(toInlet)) && !patchObjects[toID]->inletsConnected[toInlet]){
+
+        //cout << "Mosaic :: "<< "Connect object " << patchObjects[fromID]->getName().c_str() << ":" << ofToString(fromID) << " to object " << patchObjects[toID]->getName().c_str() << ":" << ofToString(toID) << endl;
+
         PatchLink   *tempLink = new PatchLink();
 
         tempLink->posFrom = patchObjects[fromID]->getOutletPosition(fromOutlet);
@@ -1746,6 +1749,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
                 ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
                 ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
 
             XML.popTag();
@@ -1774,6 +1779,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                         patchObjects[tempObj->getId()] = tempObj;
                         actualObjectID = tempObj->getId();
                         lastAddedObjectID = tempObj->getId();
+
+                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     }
                 }
                 XML.popTag();
@@ -1797,6 +1804,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
                                     if(connect(fromID,j,toObjectID,toInletID,linkType)){
                                         //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
                                     }
 
                                     XML.popTag();
