@@ -29,7 +29,7 @@ Table of Contents
 ## 0.10.1 STABLE (official download from [OF site](https://openframeworks.cc/))
 > Compiled/tested with QTCreator on osx/linux/windows
 
-If you want to build ofxVisualProgramming, just download OF0.10.0 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
+If you want to build ofxVisualProgramming, just download OF0.10.1 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
 
 # REFERENCE
 
@@ -72,6 +72,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
 
+#### [ofxEasing](https://github.com/arturoc/ofxEasing)
+
 #### [ofxFaceTracker](https://github.com/kylemcdonald/ofxFaceTracker)
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
@@ -81,8 +83,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 #### [ofxGLEditor](https://github.com/d3cod3/ofxGLEditor)
 
 #### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
-
-#### [ofxHttpForm](https://github.com/armadillu/ofxHttpForm)
 
 #### [ofxJava](https://github.com/d3cod3/ofxJava)
 
@@ -116,7 +116,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxWarp](https://github.com/d3cod3/ofxWarp)
 
->Some addons are forks of the original, due to some mods, compatibility with OF0.10.0 and the intention of cross-platform compiling (osx,linux,win)
+>Some addons are forks of the original, due to some mods, compatibility with OF0.10.1 and the intention of cross-platform compiling (osx,linux,win)
 
 # COMPILING
 
@@ -135,12 +135,12 @@ git clone https://github.com/d3cod3/ofxBTrack
 git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/d3cod3/ofxDatGui
+git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/kylemcdonald/ofxFaceTracker
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
 git clone https://github.com/armadillu/ofxHistoryPlot
-git clone https://github.com/armadillu/ofxHttpForm
 git clone https://github.com/d3cod3/ofxJava
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
@@ -194,7 +194,6 @@ then in ofApp.cpp:
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetWindowTitle("ofxVisualProgramming Example");
-    ofSetDrawBitmapMode(OF_BITMAPMODE_SIMPLE);
 
     visualProgramming = new ofxVisualProgramming();
     visualProgramming->setup();
@@ -264,8 +263,9 @@ public:
     // the ones i don't need
 
     void  newObject();
-    // This method is for object with file loading capabilities (video file, audio file, script file, etc)
+    // This methods are for objects with file loading capabilities (video file, audio file, script file, etc)
     // void autoloadFile(string _fp);
+    // void autosaveNewFile(string fromFile)
 
     void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     // void setupAudioOutObjectContent(pdsp::Engine &engine);
@@ -279,6 +279,7 @@ public:
     //void  keyPressedObjectContent(int key);
 
     //void  fileDialogResponse(ofxThreadedFileDialogResponse &response);
+
     //void  dragGUIObject(ofVec3f _m);
 
     // This methods are for audio objects
@@ -286,6 +287,7 @@ public:
     //void  audioOutObject(ofSoundBuffer &outBuffer);
 
     // This methods are for advanced objects with inlets/internal vars changes on runtime
+    //void  customReset()
     //void  resetSystemObject();
     //void  resetResolution(int fromID, int newWidth, int newHeight);
 
@@ -607,9 +609,11 @@ ofxCv, ofxFaceTracker original addons by [Kyle McDonald](https://github.com/kyle
 
 ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
 
+ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
+
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
 
-ofxFontStash, ofxHistoryPlot, ofxHttpForm, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
+ofxFontStash, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
