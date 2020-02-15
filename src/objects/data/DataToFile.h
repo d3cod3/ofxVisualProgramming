@@ -51,17 +51,18 @@ public:
     void            dragGUIObject(ofVec3f _m);
     void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
+    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     void            appendLineToFile(string filepath, string line);
 
 
+    bool                bang;
     bool                exportFileFlag;
     bool                fileSaved;
     bool                recordData;
 
     ofxDatGui*          gui;
     ofxDatGuiHeader*    header;
-    ofxDatGuiToggle*    recButton;
+    ofxDatGuiButton*    recButton;
 
 };

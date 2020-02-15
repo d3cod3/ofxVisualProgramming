@@ -81,9 +81,6 @@ void ofxVisualProgramming::initObjectMatrix(){
 #endif
     objectsMatrix["video"] = vecInit;
 
-    vecInit = {"http form"};
-    objectsMatrix["web"] = vecInit;
-
     vecInit = {"live patching","output window","projection mapping"};
     objectsMatrix["windowing"] = vecInit;
 
@@ -1574,9 +1571,6 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
         tempObj = new VideoStreaming();
     }else if(objname == "video timedelay"){
         tempObj = new VideoTimelapse();
-    // -------------------------------------- WEB
-    }else if(objname == "http form"){
-        tempObj = new moHttpForm();
     // -------------------------------------- WINDOWING
     }else if(objname == "live patching"){
         tempObj = new LivePatching();

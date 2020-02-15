@@ -36,7 +36,7 @@
 SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     this->numInlets  = 5;
-    this->numOutlets = 2;
+    this->numOutlets = 3;
 
     _inletParams[0] = new string();  // control
     *static_cast<string *>(_inletParams[0]) = "";
@@ -51,6 +51,8 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new vector<float>(); // audio buffer
+    _outletParams[2] = new float();  // finish bang
+    *(float *)&_outletParams[2] = 0.0f;
 
     this->initInletsState();
 
@@ -75,6 +77,9 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     loadSoundfileFlag   = false;
     soundfileLoaded     = false;
 
+    finishSemaphore     = false;
+    finishBang          = false;
+
     isPDSPPatchableObject   = true;
 
     this->width         *= 2;
@@ -91,6 +96,7 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
+    this->addOutlet(VP_LINK_NUMERIC,"finishBang");
 }
 
 //--------------------------------------------------------------
@@ -183,6 +189,7 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
                     isPlaying = true;
                     playhead = 0.0;
                     audioWasPlaying = true;
+                    finishSemaphore = true;
                 }else if(lastMessage == "pause"){
                     isPlaying = false;
                 }else if(lastMessage == "unpause"){
@@ -222,8 +229,21 @@ void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, o
             if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f){
                 playhead = 0.0;
                 isPlaying = true;
+                finishSemaphore = true;
             }
         }
+
+        // outlet finish bang
+        if(finishBang){
+            *(float *)&_outletParams[2] = 1.0f;
+        }else{
+            *(float *)&_outletParams[2] = 0.0f;
+        }
+
+        if(finishBang){
+            finishBang = false;
+        }
+
     }
 
 }
@@ -351,6 +371,12 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 
             }else{
                 monoBuffer.getSample(i,0) = 0.0f;
+
+                if(finishSemaphore){
+                    finishSemaphore = false;
+                    finishBang = true;
+                }
+
                 if(loop){
                     // backword
                     if(speed < 0.0){
@@ -358,7 +384,6 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
                     }else if(speed > 0.0){
                         playhead = 0.0;
                     }
-
                 }
             }
         }
