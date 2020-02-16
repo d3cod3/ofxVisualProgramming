@@ -124,7 +124,6 @@ public:
     ofxDatGuiButton*                        addSwitchTrack;
     ofxDatGuiButton*                        addColorTrack;
     ofxDatGuiButton*                        addLFOTrack;
-    ofxDatGuiButton*                        addMIDITrack;
     ofxDatGuiButton*                        loadTimeline;
     ofxDatGuiButton*                        saveTimeline;
 
