@@ -82,6 +82,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxGLEditor](https://github.com/d3cod3/ofxGLEditor)
 
+#### [ofxHapPlayer](https://github.com/d3cod3/ofxHapPlayer)
+
 #### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
 
 #### [ofxJava](https://github.com/d3cod3/ofxJava)
@@ -140,6 +142,7 @@ git clone https://github.com/kylemcdonald/ofxFaceTracker
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
+git clone https://github.com/d3cod3/ofxHapPlayer
 git clone https://github.com/armadillu/ofxHistoryPlot
 git clone https://github.com/d3cod3/ofxJava
 git clone https://github.com/jeffcrouse/ofxJSON
@@ -614,6 +617,8 @@ ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
 
 ofxFontStash, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
+
+ofxHapPlayer otiginal addon by [Tom Butterworth](https://github.com/bangnoise)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
