@@ -246,6 +246,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("N","/labelnumber");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labelnumber");
             gui->setWidth(this->width);
@@ -263,6 +264,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("T","/labeltext");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labeltext");
             gui->setWidth(this->width);
@@ -279,6 +281,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("V","/labelvector");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labelvector");
             gui->setWidth(this->width);
@@ -295,6 +298,7 @@ void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("I","/labelimage");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labelimage");
             gui->setWidth(this->width);
@@ -367,6 +371,7 @@ void OscReceiver::initOutlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("N",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -377,6 +382,7 @@ void OscReceiver::initOutlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("T",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -386,6 +392,7 @@ void OscReceiver::initOutlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("V",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -395,6 +402,7 @@ void OscReceiver::initOutlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("I",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
