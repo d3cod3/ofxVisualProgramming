@@ -104,7 +104,7 @@ void VectorAt::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThrea
         vectorAt = static_cast<int>(floor(*(float *)&_inletParams[1]));
     }
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && _inletParams[0]){
         if(static_cast<vector<float> *>(_inletParams[0])->size() > 0){
             if(vectorAt < static_cast<vector<float> *>(_inletParams[0])->size()){
                 *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(vectorAt);
