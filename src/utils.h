@@ -78,6 +78,20 @@ inline string& fix_newlines(std::string& s){
 }
 
 //--------------------------------------------------------------
+inline void stringReplaceChar(string& s, string x, string y){
+    size_t pos;
+    while ((pos = s.find(x)) != std::string::npos) {
+        s.replace(pos, 1, y);
+    }
+}
+
+//--------------------------------------------------------------
+inline string& sanitizeFilename(string& s){
+    stringReplaceChar(s,string(" "), string("_"));
+    return s;
+}
+
+//--------------------------------------------------------------
 static inline float hardClip(float x){
     float x1 = fabsf(x + 1.0f);
     float x2 = fabsf(x - 1.0f);
