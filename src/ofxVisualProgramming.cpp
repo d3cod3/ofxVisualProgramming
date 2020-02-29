@@ -1829,12 +1829,22 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     //      > DATA/
     //        PATCH_NAME.xml
 
+
+    // sanitize filename
+    ofFile tempPF(patchFile);
+    string preSanitizeFN = tempPF.getFileName();
+    sanitizeFilename(preSanitizeFN);
+
+    string sanitizedPatchFile = tempPF.getEnclosingDirectory()+preSanitizeFN;
+    //ofLog(OF_LOG_NOTICE,"%s",patchFile.c_str());
+    //ofLog(OF_LOG_NOTICE,"%s",sanitizedPatchFile.c_str());
+
     // copy patch file & patch data folder
-    ofFile tempFile(patchFile);
+    ofFile tempFile(sanitizedPatchFile);
     string tempFileName = tempFile.getFileName();
     string finalTempFileName = tempFile.getFileName().substr(0,tempFileName.find_last_of('.'));
 
-    string newFileName = checkFileExtension(patchFile, ofToUpper(tempFile.getExtension()), "XML");
+    string newFileName = checkFileExtension(sanitizedPatchFile, ofToUpper(tempFile.getExtension()), "XML");
     ofFile fileToRead(currentPatchFile);
     ofDirectory dataFolderOrigin;
     dataFolderOrigin.listDir(currentPatchFolderPath+"data/");
