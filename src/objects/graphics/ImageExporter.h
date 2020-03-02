@@ -54,8 +54,7 @@ public:
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
-
-    ofImage             *img;
+    unique_ptr<ofImage> img;
     ofPixels            capturePix;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
@@ -65,6 +64,7 @@ public:
     ofxDatGuiTextInput* imgName;
     ofxDatGuiButton*    saveButton;
     string              lastImageFile;
+    int                 imageSequenceCounter;
 
     bool                saveImgFlag;
     bool                isImageSaved;
