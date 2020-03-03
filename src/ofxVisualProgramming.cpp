@@ -1594,9 +1594,11 @@ PatchObject* ofxVisualProgramming::selectObject(string objname){
     }else if(objname == "optical flow"){
         tempObj = new OpticalFlow();
     }else{
+#ifdef DEBUG
+        ofLog(OF_LOG_WARNING,"ofxVisualProgramming encountered an unknown object : " + objname + ". [this will probably cause a crash]");
+#endif
         tempObj = nullptr;
     }
-
 
     return tempObj;
 }
