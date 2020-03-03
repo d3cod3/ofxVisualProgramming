@@ -124,7 +124,7 @@ void VideoDelay::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
     scale       = .95 * scale + .05 * scaleTo;
     halfscale   = (1.000000f - scale) / 2.000000f;
     
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!needToGrab){
             needToGrab = true;
             backBufferTex->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB);
