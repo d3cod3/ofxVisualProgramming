@@ -87,14 +87,14 @@ void PitchExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
             isNewConnection = true;
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){

@@ -100,7 +100,7 @@ void OscTriangle::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void OscTriangle::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void OscTriangle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();

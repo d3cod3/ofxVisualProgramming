@@ -88,7 +88,7 @@ void MidiPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiPad::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     inputNumber->update();

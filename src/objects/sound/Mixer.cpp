@@ -87,7 +87,7 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Mixer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     waveform.clear();
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {

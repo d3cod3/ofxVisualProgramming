@@ -90,7 +90,7 @@ void TimedSemaphore::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[1]){
       wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
       inputNumber->setText(ofToString(wait));

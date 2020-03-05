@@ -103,7 +103,7 @@ void DelayFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DelayFloat::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     numberBox->update();

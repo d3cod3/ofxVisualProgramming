@@ -153,7 +153,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(isOneDeviceAvailable){
         gui->update();

@@ -96,7 +96,7 @@ void LoadBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LoadBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();

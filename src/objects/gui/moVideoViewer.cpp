@@ -80,7 +80,7 @@ void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
     }

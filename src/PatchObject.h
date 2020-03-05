@@ -80,7 +80,7 @@ public:
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
-    void                    update(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void                    draw(ofxFontStash *font);
 
     // Virtual Methods
@@ -91,7 +91,7 @@ public:
 
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
-    virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd) {}
+    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
@@ -115,7 +115,7 @@ public:
     void                    mouseMoved(float mx, float my);
     void                    mouseDragged(float mx, float my);
     void                    mousePressed(float mx, float my);
-    void                    mouseReleased(float mx, float my,map<int,PatchObject*> &patchObjects);
+    void                    mouseReleased(float mx, float my,map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Keyboard Events
     void                    keyPressed(int key);
@@ -126,7 +126,7 @@ public:
 
     void                    move(int _x, int _y);
     bool                    isOver(ofPoint pos);
-    void                    fixCollisions(map<int,PatchObject*> &patchObjects);
+    void                    fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects);
     void                    iconify();
     void                    duplicate();
     ofVec2f                 getInletPosition(int iid);
@@ -187,7 +187,7 @@ public:
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
 
     // patch object connections
-    vector<PatchLink*>      outPut;
+    vector<shared_ptr<PatchLink>>      outPut;
     vector<bool>            inletsConnected;
 
     void                    *_inletParams[MAX_INLETS];

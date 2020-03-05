@@ -216,7 +216,7 @@ void ofxVisualProgramming::update(){
     // Graphical Context
     canvas.update();
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
         it->second->update(patchObjects,fileDialog);
         TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
@@ -241,7 +241,7 @@ void ofxVisualProgramming::update(){
     if(ofGetElapsedTimeMillis()-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
         eraseIndexes.clear();
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second->getWillErase()){
                 eraseIndexes.push_back(it->first);
 
@@ -294,7 +294,7 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_draw");
         if(it->second->getName() == "live patching"){
            livePatchingObiID = it->second->getId();
@@ -460,7 +460,7 @@ void ofxVisualProgramming::exit(){
 
     //savePatchAsLast();
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
 
@@ -482,7 +482,7 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
     // CANVAS
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->mouseMoved(actualMouse.x,actualMouse.y);
             it->second->setIsActive(false);
             if (it->second->isOver(actualMouse)){
@@ -503,7 +503,7 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     // CANVAS
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
 
             if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
                 draggingObject = true;
@@ -554,7 +554,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
                 it->second->setIsObjectSelected(false);
                 if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
@@ -586,7 +586,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
         }
 
         if(selectedObjectLink == -1 && !patchObjects.empty()){
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr){
                     if(it->second->getIsActive()){
                         isOutletSelected = false;
@@ -614,12 +614,12 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
     bool isLinked = false;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->mouseReleased(actualMouse.x,actualMouse.y,patchObjects);
     }
 
     if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && isOutletSelected){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(selectedObjectID != it->first){
                 for (int j=0;j<it->second->getNumInlets();j++){
                     if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
@@ -652,7 +652,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
             }
         }
 
-        vector<PatchLink*> tempBuffer;
+        vector<shared_ptr<PatchLink>> tempBuffer;
         tempBuffer.reserve(patchObjects[selectedObjectID]->outPut.size()-tempEraseLinks.size());
 
         for (size_t i=0; i<patchObjects[selectedObjectID]->outPut.size(); i++){
@@ -700,7 +700,7 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
     if(!isHoverCodeEditor){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->keyPressed(e.key);
         }
     }
@@ -708,7 +708,7 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::onFileDialogResponse(ofxThreadedFileDialogResponse &response){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->fileDialogResponse(response);
     }
 }
@@ -726,7 +726,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
                 // compute audio input
                 if(!bLoadingNewPatch){
-                    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                         it->second->audioIn(inputBuffer);
                     }
                 }
@@ -738,7 +738,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             if(audioDevices[audioOUTDev].outputChannels > 0){
                 // compute audio output
                 if(!bLoadingNewPatch){
-                    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                         it->second->audioOut(emptyBuffer);
                     }
                 }
@@ -757,7 +757,7 @@ void ofxVisualProgramming::activeObject(int oid){
     if ((oid != -1) && (patchObjects[oid] != nullptr)){
         selectedObjectID = oid;
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if (it->first == oid){
                 it->second->setIsActive(true);
             }else{
@@ -792,7 +792,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     bLoadingNewObject       = true;
 
-    PatchObject* tempObj = selectObject(name);
+    shared_ptr<PatchObject> tempObj = selectObject(name);
 
     tempObj->newObject();
     tempObj->setPatchfile(currentPatchFile);
@@ -822,7 +822,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 }
 
 //--------------------------------------------------------------
-PatchObject* ofxVisualProgramming::getLastAddedObject(){
+shared_ptr<PatchObject> ofxVisualProgramming::getLastAddedObject(){
     if(lastAddedObjectID != -1 && patchObjects.count(lastAddedObjectID) > 0){
         return patchObjects[lastAddedObjectID];
     }else{
@@ -843,8 +843,8 @@ void ofxVisualProgramming::resetObject(int &id){
         ofxXmlSettings XML;
         if (XML.loadFile(currentPatchFile)){
 
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                vector<PatchLink*> tempBuffer;
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                vector<shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                     if(it->second->outPut[j]->toObjectID == id){
                         if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
@@ -899,8 +899,8 @@ void ofxVisualProgramming::resetObject(int &id){
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetObject(int id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<PatchLink*> tempBuffer;
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<shared_ptr<PatchLink>> tempBuffer;
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
@@ -1022,8 +1022,8 @@ void ofxVisualProgramming::deleteObject(int id){
             }
         }
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<PatchLink*> tempBuffer;
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<shared_ptr<PatchLink>> tempBuffer;
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
@@ -1109,8 +1109,8 @@ void ofxVisualProgramming::removeObject(int &id){
             }
         }
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<PatchLink*> tempBuffer;
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<shared_ptr<PatchLink>> tempBuffer;
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
@@ -1149,7 +1149,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         //cout << "Mosaic :: "<< "Connect object " << patchObjects[fromID]->getName().c_str() << ":" << ofToString(fromID) << " to object " << patchObjects[toID]->getName().c_str() << ":" << ofToString(toID) << endl;
 
-        PatchLink   *tempLink = new PatchLink();
+        shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
 
         tempLink->posFrom = patchObjects[fromID]->getOutletPosition(fromOutlet);
         tempLink->posTo = patchObjects[toID]->getInletPosition(toInlet);
@@ -1196,7 +1196,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 //--------------------------------------------------------------
 void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
             if(it->second->outPut[j]->toObjectID == objID && it->second->outPut[j]->toInletID == objLink){
                 // remove link
@@ -1209,7 +1209,7 @@ void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
                     }
                 }
 
-                vector<PatchLink*> tempBuffer;
+                vector<shared_ptr<PatchLink>> tempBuffer;
                 tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
 
                 for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
@@ -1252,7 +1252,7 @@ void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int link
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSystemObjects(){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject()){
             it->second->resetSystemObject();
             resetObject(it->second->getId());
@@ -1265,7 +1265,7 @@ void ofxVisualProgramming::resetSystemObjects(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSpecificSystemObjects(string name){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject() && it->second->getName() == name){
             it->second->resetSystemObject();
             resetObject(it->second->getId());
@@ -1280,7 +1280,7 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
 bool ofxVisualProgramming::weAlreadyHaveObject(string name){
     bool found = false;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getName() == name){
             found = true;
             break;
@@ -1291,308 +1291,308 @@ bool ofxVisualProgramming::weAlreadyHaveObject(string name){
 }
 
 //--------------------------------------------------------------
-PatchObject* ofxVisualProgramming::selectObject(string objname){
-    PatchObject* tempObj;
+shared_ptr<PatchObject> ofxVisualProgramming::selectObject(string objname){
+    shared_ptr<PatchObject> tempObj;
 
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
     if(objname == "bash script"){
-        tempObj = new BashScript();
+        tempObj = shared_ptr<PatchObject>(new BashScript());
     }else if(objname == "face tracker"){
-        tempObj = new FaceTracker();
+        tempObj = shared_ptr<PatchObject>(new FaceTracker());
     }else if(objname == "video receiver"){
-        tempObj = new VideoReceiver();
+        tempObj = shared_ptr<PatchObject>(new VideoReceiver());
     }else if(objname == "video sender"){
-        tempObj = new VideoSender();
+        tempObj = shared_ptr<PatchObject>(new VideoSender());
     }else
 #endif
 
     if(objname == "python script"){
-        tempObj = new PythonScript();
+        tempObj = shared_ptr<PatchObject>(new PythonScript());
     }else if(objname == "lua script"){
-        tempObj = new LuaScript();
+        tempObj = shared_ptr<PatchObject>(new LuaScript());
     }else if(objname == "processing script"){
-        tempObj = new ProcessingScript();
+        tempObj = shared_ptr<PatchObject>(new ProcessingScript());
     }else if(objname == "shader object"){
-        tempObj = new ShaderObject();
+        tempObj = shared_ptr<PatchObject>(new ShaderObject());
     // -------------------------------------- Audio Analysis
     }else if(objname == "audio analyzer"){
-        tempObj = new AudioAnalyzer();
+        tempObj = shared_ptr<PatchObject>(new AudioAnalyzer());
     }else if(objname == "audio device"){
-        tempObj = new AudioDevice();
+        tempObj = shared_ptr<PatchObject>(new AudioDevice());
     }else if(objname == "beat extractor"){
-        tempObj = new BeatExtractor();
+        tempObj = shared_ptr<PatchObject>(new BeatExtractor());
     }else if(objname == "bpm extractor"){
-        tempObj = new BPMExtractor();
+        tempObj = shared_ptr<PatchObject>(new BPMExtractor());
     }else if(objname == "centroid extractor"){
-        tempObj = new CentroidExtractor();
+        tempObj = shared_ptr<PatchObject>(new CentroidExtractor());
     }else if(objname == "dissonance extractor"){
-        tempObj = new DissonanceExtractor();
+        tempObj = shared_ptr<PatchObject>(new DissonanceExtractor());
     }else if(objname == "fft extractor"){
-        tempObj = new FftExtractor();
+        tempObj = shared_ptr<PatchObject>(new FftExtractor());
     }else if(objname == "hfc extractor"){
-        tempObj = new HFCExtractor();
+        tempObj = shared_ptr<PatchObject>(new HFCExtractor());
     }else if(objname == "hpcp extractor"){
-        tempObj = new HPCPExtractor();
+        tempObj = shared_ptr<PatchObject>(new HPCPExtractor());
     }else if(objname == "inharmonicity extractor"){
-        tempObj = new InharmonicityExtractor();
+        tempObj = shared_ptr<PatchObject>(new InharmonicityExtractor());
     }else if(objname == "mel bands extractor"){
-        tempObj = new MelBandsExtractor();
+        tempObj = shared_ptr<PatchObject>(new MelBandsExtractor());
     }else if(objname == "mfcc extractor"){
-        tempObj = new MFCCExtractor();
+        tempObj = shared_ptr<PatchObject>(new MFCCExtractor());
     }else if(objname == "onset extractor"){
-        tempObj = new OnsetExtractor();
+        tempObj = shared_ptr<PatchObject>(new OnsetExtractor());
     }else if(objname == "pitch extractor"){
-        tempObj = new PitchExtractor();
+        tempObj = shared_ptr<PatchObject>(new PitchExtractor());
     }else if(objname == "power extractor"){
-        tempObj = new PowerExtractor();
+        tempObj = shared_ptr<PatchObject>(new PowerExtractor());
     }else if(objname == "rms extractor"){
-        tempObj = new RMSExtractor();
+        tempObj = shared_ptr<PatchObject>(new RMSExtractor());
     }else if(objname == "rolloff extractor"){
-        tempObj = new RollOffExtractor();
+        tempObj = shared_ptr<PatchObject>(new RollOffExtractor());
     }else if(objname == "tristimulus extractor"){
-        tempObj = new TristimulusExtractor();
+        tempObj = shared_ptr<PatchObject>(new TristimulusExtractor());
     // -------------------------------------- Communications
     }else if(objname == "arduino serial"){
-        tempObj = new ArduinoSerial();
+        tempObj = shared_ptr<PatchObject>(new ArduinoSerial());
     }else if(objname == "key pressed"){
-        tempObj = new KeyPressed();
+        tempObj = shared_ptr<PatchObject>(new KeyPressed());
     }else if(objname == "key released"){
-        tempObj = new KeyReleased();
+        tempObj = shared_ptr<PatchObject>(new KeyReleased());
     }else if(objname == "midi key"){
-        tempObj = new MidiKey();
+        tempObj = shared_ptr<PatchObject>(new MidiKey());
     }else if(objname == "midi knob"){
-        tempObj = new MidiKnob();
+        tempObj = shared_ptr<PatchObject>(new MidiKnob());
     }else if(objname == "midi pad"){
-        tempObj = new MidiPad();
+        tempObj = shared_ptr<PatchObject>(new MidiPad());
     }else if(objname == "midi receiver"){
-        tempObj = new MidiReceiver();
+        tempObj = shared_ptr<PatchObject>(new MidiReceiver());
     }else if(objname == "midi score"){
-        tempObj = new MidiScore();
+        tempObj = shared_ptr<PatchObject>(new MidiScore());
     }else if(objname == "midi sender"){
-        tempObj = new MidiSender();
+        tempObj = shared_ptr<PatchObject>(new MidiSender());
     }else if(objname == "osc receiver"){
-        tempObj = new OscReceiver();
+        tempObj = shared_ptr<PatchObject>(new OscReceiver());
     }else if(objname == "osc sender"){
-        tempObj = new OscSender();
+        tempObj = shared_ptr<PatchObject>(new OscSender());
     // -------------------------------------- Data
     }else if(objname == "bang multiplexer"){
-        tempObj = new BangMultiplexer();
+        tempObj = shared_ptr<PatchObject>(new BangMultiplexer());
     }else if(objname == "bang to float"){
-        tempObj = new BangToFloat();
+        tempObj = shared_ptr<PatchObject>(new BangToFloat());
     }else if(objname == "data to file"){
-        tempObj = new DataToFile();
+        tempObj = shared_ptr<PatchObject>(new DataToFile());
     }else if(objname == "file to data"){
-        tempObj = new FileToData();
+        tempObj = shared_ptr<PatchObject>(new FileToData());
     }else if(objname == "data to texture"){
-        tempObj = new DataToTexture();
+        tempObj = shared_ptr<PatchObject>(new DataToTexture());
     }else if(objname == "vector at"){
-        tempObj = new VectorAt();
+        tempObj = shared_ptr<PatchObject>(new VectorAt());
     }else if(objname == "vector concat"){
-        tempObj = new VectorConcat();
+        tempObj = shared_ptr<PatchObject>(new VectorConcat());
     }else if(objname == "floats to vector"){
-        tempObj = new FloatsToVector();
+        tempObj = shared_ptr<PatchObject>(new FloatsToVector());
     }else if(objname == "texture to data"){
-        tempObj = new TextureToData();
+        tempObj = shared_ptr<PatchObject>(new TextureToData());
     }else if(objname == "vector gate"){
-        tempObj = new VectorGate();
+        tempObj = shared_ptr<PatchObject>(new VectorGate());
     }else if(objname == "vector multiply"){
-        tempObj = new VectorMultiply();
+        tempObj = shared_ptr<PatchObject>(new VectorMultiply());
     // -------------------------------------- Graphics
     }else if(objname == "image exporter"){
-        tempObj = new ImageExporter();
+        tempObj = shared_ptr<PatchObject>(new ImageExporter());
     }else if(objname == "image loader"){
-        tempObj = new ImageLoader();
+        tempObj = shared_ptr<PatchObject>(new ImageLoader());
     // -------------------------------------- Sound
     }else if(objname == "ADSR envelope"){
-        tempObj = new pdspADSR();
+        tempObj = shared_ptr<PatchObject>(new pdspADSR());
     }else if(objname == "AHR envelope"){
-        tempObj = new pdspAHR();
+        tempObj = shared_ptr<PatchObject>(new pdspAHR());
     }else if(objname == "amp"){
-        tempObj = new SigMult();
+        tempObj = shared_ptr<PatchObject>(new SigMult());
     }else if(objname == "audio exporter"){
-        tempObj = new AudioExporter();
+        tempObj = shared_ptr<PatchObject>(new AudioExporter());
     }else if(objname == "audio gate"){
-        tempObj = new AudioGate();
+        tempObj = shared_ptr<PatchObject>(new AudioGate());
     }else if(objname == "bit cruncher"){
-        tempObj = new pdspBitCruncher();
+        tempObj = shared_ptr<PatchObject>(new pdspBitCruncher());
     }else if(objname == "bit noise"){
-        tempObj = new pdspBitNoise();
+        tempObj = shared_ptr<PatchObject>(new pdspBitNoise());
     }else if(objname == "crossfader"){
-        tempObj = new Crossfader();
+        tempObj = shared_ptr<PatchObject>(new Crossfader());
     }else if(objname == "chorus"){
-        tempObj = new pdspChorusEffect();
+        tempObj = shared_ptr<PatchObject>(new pdspChorusEffect());
     }else if(objname == "comb filter"){
-        tempObj = new pdspCombFilter();
+        tempObj = shared_ptr<PatchObject>(new pdspCombFilter());
     }else if(objname == "compressor"){
-        tempObj = new pdspCompressor();
+        tempObj = shared_ptr<PatchObject>(new pdspCompressor());
     }else if(objname == "decimator"){
-        tempObj = new pdspDecimator();
+        tempObj = shared_ptr<PatchObject>(new pdspDecimator());
     }else if(objname == "ducker"){
-        tempObj = new pdspDucker();
+        tempObj = shared_ptr<PatchObject>(new pdspDucker());
     }else if(objname == "lfo"){
-        tempObj = new pdspLFO();
+        tempObj = shared_ptr<PatchObject>(new pdspLFO());
     }else if(objname == "mixer"){
-        tempObj = new Mixer();
+        tempObj = shared_ptr<PatchObject>(new Mixer());
     }else if(objname == "note to frequency"){
-        tempObj = new NoteToFrequency();
+        tempObj = shared_ptr<PatchObject>(new NoteToFrequency());
     }else if(objname == "panner"){
-        tempObj = new Panner();
+        tempObj = shared_ptr<PatchObject>(new Panner());
     }else if(objname == "resonant 2pole filter"){
-        tempObj = new pdspResonant2PoleFilter();
+        tempObj = shared_ptr<PatchObject>(new pdspResonant2PoleFilter());
     }else if(objname == "pd patch"){
-        tempObj = new PDPatch();
+        tempObj = shared_ptr<PatchObject>(new PDPatch());
     }else if(objname == "quad panner"){
-        tempObj = new QuadPanner();
+        tempObj = shared_ptr<PatchObject>(new QuadPanner());
     }else if(objname == "pulse"){
-        tempObj = new OscPulse();
+        tempObj = shared_ptr<PatchObject>(new OscPulse());
     }else if(objname == "reverb"){
-        tempObj = new pdspReverb();
+        tempObj = shared_ptr<PatchObject>(new pdspReverb());
     }else if(objname == "saw"){
-        tempObj = new OscSaw();
+        tempObj = shared_ptr<PatchObject>(new OscSaw());
     }else if(objname == "sine"){
-        tempObj = new Oscillator();
+        tempObj = shared_ptr<PatchObject>(new Oscillator());
     }else if(objname == "triangle"){
-        tempObj = new OscTriangle();
+        tempObj = shared_ptr<PatchObject>(new OscTriangle());
     }else if(objname == "signal trigger"){
-        tempObj = new SignalTrigger();
+        tempObj = shared_ptr<PatchObject>(new SignalTrigger());
     }else if(objname == "soundfile player"){
-        tempObj = new SoundfilePlayer();
+        tempObj = shared_ptr<PatchObject>(new SoundfilePlayer());
     }else if(objname == "delay"){
-        tempObj = new pdspDelay();
+        tempObj = shared_ptr<PatchObject>(new pdspDelay());
     }else if(objname == "data oscillator"){
-        tempObj = new pdspDataOscillator();
+        tempObj = shared_ptr<PatchObject>(new pdspDataOscillator());
     }else if(objname == "low pass"){
-        tempObj = new pdspHiCut();
+        tempObj = shared_ptr<PatchObject>(new pdspHiCut());
     }else if(objname == "hi pass"){
-        tempObj = new pdspLowCut();
+        tempObj = shared_ptr<PatchObject>(new pdspLowCut());
     }else if(objname == "white noise"){
-        tempObj = new pdspWhiteNoise();
+        tempObj = shared_ptr<PatchObject>(new pdspWhiteNoise());
     // -------------------------------------- Math
     }else if(objname == "add"){
-        tempObj = new Add();
+        tempObj = shared_ptr<PatchObject>(new Add());
     }else if(objname == "clamp"){
-        tempObj = new Clamp();
+        tempObj = shared_ptr<PatchObject>(new Clamp());
     }else if(objname == "constant"){
-        tempObj = new Constant();
+        tempObj = shared_ptr<PatchObject>(new Constant());
     }else if(objname == "divide"){
-        tempObj = new Divide();
+        tempObj = shared_ptr<PatchObject>(new Divide());
     }else if(objname == "map"){
-        tempObj = new Map();
+        tempObj = shared_ptr<PatchObject>(new Map());
     }else if(objname == "metronome"){
-        tempObj = new Metronome();
+        tempObj = shared_ptr<PatchObject>(new Metronome());
     }else if(objname == "modulus"){
-        tempObj = new Module();
+        tempObj = shared_ptr<PatchObject>(new Module());
     }else if(objname == "multiply"){
-        tempObj = new Multiply();
+        tempObj = shared_ptr<PatchObject>(new Multiply());
     }else if(objname == "range"){
-        tempObj = new Range();
+        tempObj = shared_ptr<PatchObject>(new Range());
     }else if(objname == "simple random"){
-        tempObj = new SimpleRandom();
+        tempObj = shared_ptr<PatchObject>(new SimpleRandom());
     }else if(objname == "simple noise"){
-        tempObj = new SimpleNoise();
+        tempObj = shared_ptr<PatchObject>(new SimpleNoise());
     }else if(objname == "smooth"){
-        tempObj = new Smooth();
+        tempObj = shared_ptr<PatchObject>(new Smooth());
     }else if(objname == "subtract"){
-        tempObj = new Subtract();
+        tempObj = shared_ptr<PatchObject>(new Subtract());
     // -------------------------------------- Logic
     }else if(objname == "&&"){
-        tempObj = new AND();
+        tempObj = shared_ptr<PatchObject>(new AND());
     }else if(objname == "||"){
-        tempObj = new OR();
+        tempObj = shared_ptr<PatchObject>(new OR());
     }else if(objname == "=="){
-        tempObj = new Equality();
+        tempObj = shared_ptr<PatchObject>(new Equality());
     }else if(objname == "!="){
-        tempObj = new Inequality();
+        tempObj = shared_ptr<PatchObject>(new Inequality());
     }else if(objname == ">"){
-        tempObj = new BiggerThan();
+        tempObj = shared_ptr<PatchObject>(new BiggerThan());
     }else if(objname == "<"){
-        tempObj = new SmallerThan();
+        tempObj = shared_ptr<PatchObject>(new SmallerThan());
     }else if(objname == "counter"){
-        tempObj = new Counter();
+        tempObj = shared_ptr<PatchObject>(new Counter());
     }else if(objname == "delay bang"){
-        tempObj = new DelayBang();
+        tempObj = shared_ptr<PatchObject>(new DelayBang());
     }else if(objname == "delay float"){
-        tempObj = new DelayFloat();
+        tempObj = shared_ptr<PatchObject>(new DelayFloat());
     }else if(objname == "gate"){
-        tempObj = new Gate();
+        tempObj = shared_ptr<PatchObject>(new Gate());
     }else if(objname == "inverter"){
-        tempObj = new Inverter();
+        tempObj = shared_ptr<PatchObject>(new Inverter());
     }else if(objname == "loadbang"){
-        tempObj = new LoadBang();
+        tempObj = shared_ptr<PatchObject>(new LoadBang());
     }else if(objname == "select"){
-        tempObj = new Select();
+        tempObj = shared_ptr<PatchObject>(new Select());
     }else if(objname == "spigot"){
-        tempObj = new Spigot();
+        tempObj = shared_ptr<PatchObject>(new Spigot());
     }else if(objname == "timed semaphore"){
-        tempObj = new TimedSemaphore();
+        tempObj = shared_ptr<PatchObject>(new TimedSemaphore());
     // -------------------------------------- GUI
     }else if(objname == "2d pad"){
-        tempObj = new mo2DPad();
+        tempObj = shared_ptr<PatchObject>(new mo2DPad());
     }else if(objname == "bang"){
-        tempObj = new moBang();
+        tempObj = shared_ptr<PatchObject>(new moBang());
     }else if(objname == "comment"){
-        tempObj = new moComment();
+        tempObj = shared_ptr<PatchObject>(new moComment());
     }else if(objname == "message"){
-        tempObj = new moMessage();
+        tempObj = shared_ptr<PatchObject>(new moMessage());
     }else if(objname == "player controls"){
-        tempObj = new moPlayerControls();
+        tempObj = shared_ptr<PatchObject>(new moPlayerControls());
     }else if(objname == "slider"){
-        tempObj = new moSlider();
+        tempObj = shared_ptr<PatchObject>(new moSlider());
     }else if(objname == "sonogram"){
-        tempObj = new moSonogram();
+        tempObj = shared_ptr<PatchObject>(new moSonogram());
     }else if(objname == "timeline"){
-        tempObj = new moTimeline();
+        tempObj = shared_ptr<PatchObject>(new moTimeline());
     }else if(objname == "trigger"){
-        tempObj = new moTrigger();
+        tempObj = shared_ptr<PatchObject>(new moTrigger());
     }else if(objname == "video viewer"){
-        tempObj = new moVideoViewer();
+        tempObj = shared_ptr<PatchObject>(new moVideoViewer());
     }else if(objname == "signal viewer"){
-        tempObj = new moSignalViewer();
+        tempObj = shared_ptr<PatchObject>(new moSignalViewer());
     }else if(objname == "vu meter"){
-        tempObj = new moVUMeter();
+        tempObj = shared_ptr<PatchObject>(new moVUMeter());
     // -------------------------------------- VIDEO
     }else if(objname == "kinect grabber"){
-        tempObj = new KinectGrabber();
+        tempObj = shared_ptr<PatchObject>(new KinectGrabber());
     }else if(objname == "video player"){
-        tempObj = new VideoPlayer();
+        tempObj = shared_ptr<PatchObject>(new VideoPlayer());
     }else if(objname == "video grabber"){
-        tempObj = new VideoGrabber();
+        tempObj = shared_ptr<PatchObject>(new VideoGrabber());
     }else if(objname == "video feedback"){
-        tempObj = new VideoDelay();
+        tempObj = shared_ptr<PatchObject>(new VideoDelay());
     }else if(objname == "video exporter"){
-        tempObj = new VideoExporter();
+        tempObj = shared_ptr<PatchObject>(new VideoExporter());
     }else if(objname == "video crop"){
-        tempObj = new VideoCrop();
+        tempObj = shared_ptr<PatchObject>(new VideoCrop());
     }else if(objname == "video gate"){
-        tempObj = new VideoGate();
+        tempObj = shared_ptr<PatchObject>(new VideoGate());
     }else if(objname == "video transform"){
-        tempObj = new VideoTransform();
+        tempObj = shared_ptr<PatchObject>(new VideoTransform());
     }else if(objname == "video streaming"){
-        tempObj = new VideoStreaming();
+        tempObj = shared_ptr<PatchObject>(new VideoStreaming());
     }else if(objname == "video timedelay"){
-        tempObj = new VideoTimelapse();
+        tempObj = shared_ptr<PatchObject>(new VideoTimelapse());
     // -------------------------------------- WINDOWING
     }else if(objname == "live patching"){
-        tempObj = new LivePatching();
+        tempObj = shared_ptr<PatchObject>(new LivePatching());
     }else if(objname == "output window"){
-        tempObj = new OutputWindow();
+        tempObj = shared_ptr<PatchObject>(new OutputWindow());
     }else if(objname == "projection mapping"){
-        tempObj = new ProjectionMapping();
+        tempObj = shared_ptr<PatchObject>(new ProjectionMapping());
     // -------------------------------------- COMPUTER VISION
     }else if(objname == "background subtraction"){
-        tempObj = new BackgroundSubtraction();
+        tempObj = shared_ptr<PatchObject>(new BackgroundSubtraction());
     }else if(objname == "chroma key"){
-        tempObj = new ChromaKey();
+        tempObj = shared_ptr<PatchObject>(new ChromaKey());
     }else if(objname == "color tracking"){
-        tempObj = new ColorTracking();
+        tempObj = shared_ptr<PatchObject>(new ColorTracking());
     }else if(objname == "contour tracking"){
-        tempObj = new ContourTracking();
+        tempObj = shared_ptr<PatchObject>(new ContourTracking());
     }else if(objname == "haar tracking"){
-        tempObj = new HaarTracking();
+        tempObj = shared_ptr<PatchObject>(new HaarTracking());
     }else if(objname == "motion detection"){
-        tempObj = new MotionDetection();
+        tempObj = shared_ptr<PatchObject>(new MotionDetection());
     }else if(objname == "optical flow"){
-        tempObj = new OpticalFlow();
+        tempObj = shared_ptr<PatchObject>(new OpticalFlow());
     }else{
         tempObj = nullptr;
     }
@@ -1645,10 +1645,10 @@ void ofxVisualProgramming::openPatch(string patchFile){
     }
 
     // clear previous patch
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
-    /*for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    /*for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         delete it->second;
     }*/
     patchObjects.clear();
@@ -1757,7 +1757,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             if(XML.pushTag("object", i)){
                 string objname = XML.getValue("name","");
                 bool loaded = false;
-                PatchObject* tempObj = selectObject(objname);
+                shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr){
                     loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
                     if(loaded){
@@ -1859,7 +1859,7 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     std::filesystem::path tp = currentPatchFolderPath+"/data/";
     dataFolderOrigin.copyTo(tp,true,true);
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->setPatchfile(currentPatchFile);
     }
 

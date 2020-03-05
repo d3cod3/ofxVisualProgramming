@@ -86,7 +86,7 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Constant::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
       inputValue = *(float *)&_inletParams[0];
       inputNumber->setText(ofToString(inputValue));

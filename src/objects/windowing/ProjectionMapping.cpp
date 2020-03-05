@@ -150,7 +150,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();

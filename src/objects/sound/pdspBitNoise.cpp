@@ -99,7 +99,7 @@ void pdspBitNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();

@@ -62,7 +62,7 @@ void TextureToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void TextureToData::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void TextureToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     static_cast<vector<float> *>(_outletParams[0])->clear();
     if(this->inletsConnected[0]){
         if(!newConnection){

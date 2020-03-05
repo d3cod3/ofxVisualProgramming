@@ -77,7 +77,7 @@ void FaceTracker::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FaceTracker::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void FaceTracker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         
         if(!isFBOAllocated){
