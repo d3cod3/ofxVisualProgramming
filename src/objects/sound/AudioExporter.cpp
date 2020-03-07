@@ -57,7 +57,7 @@ AudioExporter::AudioExporter() : PatchObject(){
 
 //--------------------------------------------------------------
 void AudioExporter::newObject(){
-    this->setName("audio exporter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"input");
 }
 
@@ -246,3 +246,5 @@ void AudioExporter::onToggleEvent(ofxDatGuiToggleEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( AudioExporter, "audio exporter", OFXVP_OBJECT_CAT_SOUND);

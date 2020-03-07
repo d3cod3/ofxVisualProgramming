@@ -58,7 +58,7 @@ VectorGate::VectorGate() : PatchObject(){
 
 //--------------------------------------------------------------
 void VectorGate::newObject(){
-    this->setName("vector gate");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"open");
     this->addInlet(VP_LINK_ARRAY,"v1");
     this->addInlet(VP_LINK_ARRAY,"v2");
@@ -107,3 +107,5 @@ void VectorGate::drawObjectContent(ofxFontStash *font){
 void VectorGate::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA);

@@ -64,7 +64,7 @@ LoadBang::LoadBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void LoadBang::newObject(){
-    this->setName("loadbang");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"delay");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
@@ -194,3 +194,5 @@ void LoadBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( LoadBang, "loadbang", OFXVP_OBJECT_CAT_LOGIC);

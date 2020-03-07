@@ -48,4 +48,5 @@ public:
 
     bool            isTrigger;
 
+    OBJECT_FACTORY_PROPS;
 };

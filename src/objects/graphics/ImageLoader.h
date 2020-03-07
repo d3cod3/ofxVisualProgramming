@@ -68,4 +68,5 @@ public:
     bool                loadImgFlag;
     bool                isImageLoaded;
 
+    OBJECT_FACTORY_PROPS;
 };

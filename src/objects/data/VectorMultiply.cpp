@@ -55,7 +55,7 @@ VectorMultiply::VectorMultiply() : PatchObject(){
 
 //--------------------------------------------------------------
 void VectorMultiply::newObject(){
-    this->setName("vector multiply");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addInlet(VP_LINK_NUMERIC,"mult");
     this->addOutlet(VP_LINK_ARRAY,"result");
@@ -176,3 +176,5 @@ void VectorMultiply::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VectorMultiply, "vector multiply", OFXVP_OBJECT_CAT_DATA);

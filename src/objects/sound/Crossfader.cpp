@@ -60,7 +60,7 @@ Crossfader::Crossfader() : PatchObject(){
 
 //--------------------------------------------------------------
 void Crossfader::newObject(){
-    this->setName("crossfader");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"in 1");
     this->addInlet(VP_LINK_AUDIO,"in 2");
     this->addInlet(VP_LINK_NUMERIC,"fade");
@@ -208,3 +208,5 @@ void Crossfader::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"FADE");
     fade_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
 }
+
+OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND);

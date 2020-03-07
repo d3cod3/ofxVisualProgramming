@@ -69,4 +69,5 @@ public:
     ofxDatGuiHeader*    header;
     ofxDatGuiToggle*    recButton;
 
+    OBJECT_FACTORY_PROPS;
 };

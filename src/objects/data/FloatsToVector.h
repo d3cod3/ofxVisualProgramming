@@ -46,4 +46,5 @@ public:
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
 
+    OBJECT_FACTORY_PROPS;
 };

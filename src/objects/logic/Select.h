@@ -50,4 +50,5 @@ public:
     int             lastValue;
     vector<bool>    bangs;
 
+    OBJECT_FACTORY_PROPS;
 };

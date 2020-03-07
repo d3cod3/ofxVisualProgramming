@@ -56,7 +56,7 @@ OR::OR() : PatchObject(){
 
 //--------------------------------------------------------------
 void OR::newObject(){
-    this->setName("||");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"b1");
     this->addInlet(VP_LINK_NUMERIC,"b2");
     this->addOutlet(VP_LINK_NUMERIC,"result");
@@ -98,3 +98,5 @@ void OR::drawObjectContent(ofxFontStash *font){
 void OR::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( OR, "||", OFXVP_OBJECT_CAT_LOGIC);

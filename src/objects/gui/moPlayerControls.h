@@ -61,4 +61,5 @@ public:
     bool                bang;
     bool                loaded;
 
+    OBJECT_FACTORY_PROPS;
 };

@@ -66,7 +66,7 @@ ColorTracking::ColorTracking() : PatchObject(){
 
 //--------------------------------------------------------------
 void ColorTracking::newObject(){
-    this->setName("color tracking");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"blobsData");
@@ -441,3 +441,5 @@ void ColorTracking::onTextInputEvent(ofxDatGuiTextInputEvent e){
         targetColor.set(temp);
     }
 }
+
+OBJECT_REGISTER( ColorTracking, "color tracking", OFXVP_OBJECT_CAT_CV);

@@ -61,7 +61,7 @@ pdspDataOscillator::pdspDataOscillator() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::newObject(){
-    this->setName("data oscillator");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -261,3 +261,5 @@ void pdspDataOscillator::onSliderEvent(ofxDatGuiSliderEvent e){
     pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
     oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }
+
+OBJECT_REGISTER( pdspDataOscillator, "data oscillator", OFXVP_OBJECT_CAT_SOUND);

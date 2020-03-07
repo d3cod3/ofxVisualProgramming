@@ -70,7 +70,7 @@ VideoDelay::VideoDelay() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoDelay::newObject(){
-    this->setName("video feedback");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
@@ -287,3 +287,5 @@ void VideoDelay::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_VIDEO);

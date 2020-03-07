@@ -56,7 +56,7 @@ SmallerThan::SmallerThan() : PatchObject(){
 
 //--------------------------------------------------------------
 void SmallerThan::newObject(){
-    this->setName("<");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 
@@ -151,3 +151,5 @@ void SmallerThan::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( SmallerThan, "<", OFXVP_OBJECT_CAT_LOGIC);

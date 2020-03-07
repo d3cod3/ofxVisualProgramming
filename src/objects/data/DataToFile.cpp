@@ -56,7 +56,7 @@ DataToFile::DataToFile() : PatchObject(){
 
 //--------------------------------------------------------------
 void DataToFile::newObject(){
-    this->setName("data to file");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
@@ -213,3 +213,5 @@ void DataToFile::appendLineToFile(string filepath, string line){
     file << line << std::endl;
     file.close();
 }
+
+OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA);

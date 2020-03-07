@@ -58,7 +58,7 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 
 //--------------------------------------------------------------
 void moVideoViewer::newObject(){
-    this->setName("video viewer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_TEXTURE,"texture");
 
@@ -165,3 +165,5 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
         }
     }
 }
+
+OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI);

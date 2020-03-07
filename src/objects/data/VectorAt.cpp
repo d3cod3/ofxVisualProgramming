@@ -57,7 +57,7 @@ VectorAt::VectorAt() : PatchObject(){
 
 //--------------------------------------------------------------
 void VectorAt::newObject(){
-    this->setName("vector at");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"vector");
     this->addInlet(VP_LINK_NUMERIC,"at");
     this->addOutlet(VP_LINK_NUMERIC,"value");
@@ -183,3 +183,5 @@ void VectorAt::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA);

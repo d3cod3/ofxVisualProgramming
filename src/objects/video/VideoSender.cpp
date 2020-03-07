@@ -30,6 +30,9 @@
 
 ==============================================================================*/
 
+// Unavailable on windows.
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+
 #include "VideoSender.h"
 
 //--------------------------------------------------------------
@@ -56,7 +59,7 @@ VideoSender::VideoSender() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoSender::newObject(){
-    this->setName("video sender");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
 }
 
@@ -222,3 +225,7 @@ void VideoSender::onToggleEvent(ofxDatGuiToggleEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoSender, "video sender", OFXVP_OBJECT_CAT_VIDEO);
+
+#endif

@@ -62,7 +62,7 @@ VideoTimelapse::VideoTimelapse() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoTimelapse::newObject(){
-    this->setName("video timedelay");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"delay");
     this->addOutlet(VP_LINK_TEXTURE,"timeDelayedOutput");
@@ -239,3 +239,5 @@ void VideoTimelapse::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_VIDEO);

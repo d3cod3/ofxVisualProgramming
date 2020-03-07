@@ -56,7 +56,7 @@ FileToData::FileToData() : PatchObject(){
 
 //--------------------------------------------------------------
 void FileToData::newObject(){
-    this->setName("file to data");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_ARRAY,"output");
 }
@@ -244,3 +244,5 @@ void FileToData::onToggleEvent(ofxDatGuiToggleEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA);

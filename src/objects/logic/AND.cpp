@@ -56,7 +56,7 @@ AND::AND() : PatchObject(){
 
 //--------------------------------------------------------------
 void AND::newObject(){
-    this->setName("&&");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"b1");
     this->addInlet(VP_LINK_NUMERIC,"b2");
     this->addOutlet(VP_LINK_NUMERIC,"result");
@@ -98,3 +98,5 @@ void AND::drawObjectContent(ofxFontStash *font){
 void AND::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( AND, "&&", OFXVP_OBJECT_CAT_LOGIC);

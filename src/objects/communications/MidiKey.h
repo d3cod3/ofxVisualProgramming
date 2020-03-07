@@ -56,4 +56,5 @@ public:
 
     int                     lastPitch;
 
+    OBJECT_FACTORY_PROPS;
 };

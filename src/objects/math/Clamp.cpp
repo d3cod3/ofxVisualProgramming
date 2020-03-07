@@ -54,7 +54,7 @@ Clamp::Clamp() : PatchObject(){
 
 //--------------------------------------------------------------
 void Clamp::newObject(){
-    this->setName("clamp");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
@@ -95,3 +95,5 @@ void Clamp::drawObjectContent(ofxFontStash *font){
 void Clamp::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( Clamp, "clamp", OFXVP_OBJECT_CAT_MATH);

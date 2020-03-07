@@ -60,7 +60,7 @@ MidiReceiver::MidiReceiver() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiReceiver::newObject(){
-    this->setName("midi receiver");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_NUMERIC,"channel");
     this->addOutlet(VP_LINK_NUMERIC,"control");
     this->addOutlet(VP_LINK_NUMERIC,"value");
@@ -265,3 +265,5 @@ void MidiReceiver::newMidiMessage(ofxMidiMessage& msg){
     //ofLog(OF_LOG_NOTICE,"%s",msg.toString().c_str());
     lastMessage = msg;
 }
+
+OBJECT_REGISTER( MidiReceiver, "midi receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);

@@ -58,7 +58,7 @@ OscSaw::OscSaw() : PatchObject(){
 
 //--------------------------------------------------------------
 void OscSaw::newObject(){
-    this->setName("saw");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
@@ -218,3 +218,5 @@ void OscSaw::onSliderEvent(ofxDatGuiSliderEvent e){
     pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
     oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }
+
+OBJECT_REGISTER( OscSaw, "saw", OFXVP_OBJECT_CAT_SOUND);

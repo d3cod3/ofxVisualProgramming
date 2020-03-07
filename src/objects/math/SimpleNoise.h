@@ -51,4 +51,5 @@ public:
     ofxDatGui*              gui;
     ofxDatGuiValuePlotter*  noisePlotter;
 
+    OBJECT_FACTORY_PROPS;
 };

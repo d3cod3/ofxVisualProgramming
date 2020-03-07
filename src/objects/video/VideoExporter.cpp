@@ -56,7 +56,7 @@ VideoExporter::VideoExporter() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoExporter::newObject(){
-    this->setName("video exporter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
 }
 
@@ -288,3 +288,5 @@ void VideoExporter::onDropdownEvent(ofxDatGuiDropdownEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO);

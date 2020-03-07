@@ -75,4 +75,5 @@ public:
     ofImage                         *_tempImage;
     ofBuffer                        *_tempBuffer;
 
+    OBJECT_FACTORY_PROPS;
 };

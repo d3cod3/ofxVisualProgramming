@@ -53,7 +53,7 @@ VectorConcat::VectorConcat() : PatchObject(){
 
 //--------------------------------------------------------------
 void VectorConcat::newObject(){
-    this->setName("vector concat");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"v1");
     this->addInlet(VP_LINK_ARRAY,"v2");
     this->addInlet(VP_LINK_ARRAY,"v3");
@@ -92,3 +92,5 @@ void VectorConcat::drawObjectContent(ofxFontStash *font){
 void VectorConcat::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA);

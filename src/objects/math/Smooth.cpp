@@ -55,7 +55,7 @@ Smooth::Smooth() : PatchObject(){
 
 //--------------------------------------------------------------
 void Smooth::newObject(){
-    this->setName("smooth");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"smoothedValue");
 
@@ -153,3 +153,5 @@ void Smooth::dragGUIObject(ofVec3f _m){
 void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"SMOOTHING");
 }
+
+OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH);

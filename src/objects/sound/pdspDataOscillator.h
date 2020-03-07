@@ -76,4 +76,5 @@ public:
     bool                    loaded;
     bool                    reinitDataTable;
 
+    OBJECT_FACTORY_PROPS;
 };

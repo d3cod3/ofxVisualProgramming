@@ -59,7 +59,7 @@ Constant::Constant() : PatchObject(){
 
 //--------------------------------------------------------------
 void Constant::newObject(){
-    this->setName("constant");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_STRING,"numberString");
@@ -153,3 +153,5 @@ void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH);

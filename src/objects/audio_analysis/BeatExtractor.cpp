@@ -52,7 +52,7 @@ BeatExtractor::BeatExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void BeatExtractor::newObject(){
-    this->setName("beat extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"beat");
 }
@@ -109,3 +109,5 @@ void BeatExtractor::drawObjectContent(ofxFontStash *font){
 void BeatExtractor::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( BeatExtractor , "beat extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

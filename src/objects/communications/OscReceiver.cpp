@@ -52,7 +52,7 @@ OscReceiver::OscReceiver() : PatchObject(){
 
 //--------------------------------------------------------------
 void OscReceiver::newObject(){
-    this->setName("osc receiver");
+    this->setName(this->objectName);
 
     this->setCustomVar(static_cast<float>(osc_port),"PORT");
 }
@@ -510,3 +510,5 @@ string OscReceiver::getLocalIP(){
 
     return IP;
 }
+
+OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);

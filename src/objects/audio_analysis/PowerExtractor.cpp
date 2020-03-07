@@ -56,7 +56,7 @@ PowerExtractor::PowerExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void PowerExtractor::newObject(){
-    this->setName("power extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"power");
 }
@@ -133,3 +133,5 @@ void PowerExtractor::drawObjectContent(ofxFontStash *font){
 void PowerExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( PowerExtractor , "power extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

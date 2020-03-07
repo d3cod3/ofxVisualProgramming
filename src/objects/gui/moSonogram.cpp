@@ -61,7 +61,7 @@ moSonogram::moSonogram() : PatchObject(){
 
 //--------------------------------------------------------------
 void moSonogram::newObject(){
-    this->setName("sonogram");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"fft");
 
     this->setCustomVar(static_cast<float>(this->width),"WIDTH");
@@ -195,3 +195,5 @@ void moSonogram::dragGUIObject(ofVec3f _m){
         }
     }
 }
+
+OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI);

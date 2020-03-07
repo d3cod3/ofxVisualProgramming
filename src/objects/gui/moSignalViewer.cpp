@@ -58,7 +58,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::newObject(){
-    this->setName("signal viewer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -148,3 +148,5 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
     }
 
 }
+
+OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI);

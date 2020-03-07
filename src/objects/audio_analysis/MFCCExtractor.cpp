@@ -56,7 +56,7 @@ MFCCExtractor::MFCCExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void MFCCExtractor::newObject(){
-    this->setName("mfcc extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"melFrequencyCepstrumCoefficents");
 }
@@ -137,3 +137,5 @@ void MFCCExtractor::drawObjectContent(ofxFontStash *font){
 void MFCCExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( MFCCExtractor , "mfcc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

@@ -61,7 +61,7 @@ moComment::moComment() : PatchObject(){
 
 //--------------------------------------------------------------
 void moComment::newObject(){
-    this->setName("comment");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_STRING,"comment");
     this->addOutlet(VP_LINK_STRING,"text");
@@ -203,3 +203,5 @@ void moComment::saveCommentSetting(){
         XML.saveFile();
     }
 }
+
+OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI);

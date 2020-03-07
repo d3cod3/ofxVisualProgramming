@@ -49,4 +49,5 @@ public:
     bool            isOpen;
     int             openInlet;
 
+    OBJECT_FACTORY_PROPS;
 };

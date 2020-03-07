@@ -56,7 +56,7 @@ PitchExtractor::PitchExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void PitchExtractor::newObject(){
-    this->setName("pitch extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"pitch");
 }
@@ -133,3 +133,5 @@ void PitchExtractor::drawObjectContent(ofxFontStash *font){
 void PitchExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

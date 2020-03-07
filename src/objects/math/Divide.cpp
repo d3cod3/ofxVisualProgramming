@@ -60,7 +60,7 @@ Divide::Divide() : PatchObject(){
 
 //--------------------------------------------------------------
 void Divide::newObject(){
-    this->setName("divide");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
     this->addOutlet(VP_LINK_NUMERIC,"result");
@@ -185,3 +185,5 @@ void Divide::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Divide, "divide", OFXVP_OBJECT_CAT_MATH);

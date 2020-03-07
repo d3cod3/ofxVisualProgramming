@@ -33,60 +33,6 @@
 #include "ofxVisualProgramming.h"
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::initObjectMatrix(){
-    vector<string> vecInit = {};
-
-    vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
-    objectsMatrix["audio_analysis"] = vecInit;
-
-    vecInit = {"arduino serial","key pressed","key released","midi key","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
-    objectsMatrix["communications"] = vecInit;
-
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","face tracker","haar tracking","motion detection","optical flow"};
-#elif defined(TARGET_WIN32)
-    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
-#endif
-    objectsMatrix["computer vision"] = vecInit;
-
-    vecInit = {"bang multiplexer","bang to float","data to file","data to texture","file to data","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
-    objectsMatrix["data"] = vecInit;
-
-    vecInit = {"image exporter","image loader"};
-    objectsMatrix["graphics"] = vecInit;
-
-    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","sonogram","timeline","trigger","video viewer","vu meter"};
-    objectsMatrix["gui"] = vecInit;
-
-    vecInit = {"&&","||","==","!=",">","<","counter","delay bang","delay float","gate","inverter","loadbang","select","spigot","timed semaphore"};
-    objectsMatrix["logic"] = vecInit;
-
-    vecInit = {"add","clamp","constant","divide","map","metronome","modulus","multiply","range","simple noise","simple random","smooth","subtract"};
-    objectsMatrix["math"] = vecInit;
-
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"bash script","lua script","processing script","python script","shader object"};
-#elif defined(TARGET_WIN32)
-    vecInit = {"lua script","processing script","python script","shader object"};
-#endif
-    objectsMatrix["scripting"] = vecInit;
-
-    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit cruncher","bit noise","chorus","comb filter","compressor","crossfader","data oscillator","decimator","delay","ducker","hi pass","lfo","low pass","mixer","note to frequency","panner","pd patch","pulse","quad panner","resonant 2pole filter","reverb","saw","signal trigger","sine","soundfile player","triangle","white noise"};
-    objectsMatrix["sound"] = vecInit;
-
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video receiver","video sender","video streaming","video timedelay","video transform"};
-#elif defined(TARGET_WIN32)
-   vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video streaming","video timedelay","video transform"};
-#endif
-    objectsMatrix["video"] = vecInit;
-
-    vecInit = {"live patching","output window","projection mapping"};
-    objectsMatrix["windowing"] = vecInit;
-
-}
-
-//--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
 
     mainWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
@@ -184,9 +130,6 @@ void ofxVisualProgramming::setup(){
     // Threaded File Dialogs
     fileDialog.setup();
     ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
-
-    // INIT OBJECTS
-    initObjectMatrix();
 
     // Create new empty file patch
     newPatch();
@@ -772,12 +715,10 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     // check if object exists
     bool exists = false;
-    for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second.size());j++){
-            if(it->second.at(j) == name){
-                exists = true;
-                break;
-            }
+    for(ofxVPObjects::factory::objectRegistry::iterator it = ofxVPObjects::factory::getObjectRegistry().begin(); it != ofxVPObjects::factory::getObjectRegistry().end(); it++ ){
+        if(it->first == name){
+            exists = true;
+            break;
         }
     }
     if(!exists && name != "audio device"){
@@ -1292,315 +1233,16 @@ bool ofxVisualProgramming::weAlreadyHaveObject(string name){
 
 //--------------------------------------------------------------
 PatchObject* ofxVisualProgramming::selectObject(string objname){
-    PatchObject* tempObj;
+    ofxVPObjects::factory::objectRegistry& reg = ofxVPObjects::factory::getObjectRegistry();
+    ofxVPObjects::factory::objectRegistry::iterator it = reg.find(objname);
 
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(objname == "bash script"){
-        tempObj = new BashScript();
-    }else if(objname == "face tracker"){
-        tempObj = new FaceTracker();
-    }else if(objname == "video receiver"){
-        tempObj = new VideoReceiver();
-    }else if(objname == "video sender"){
-        tempObj = new VideoSender();
-    }else
-#endif
-
-    if(objname == "python script"){
-        tempObj = new PythonScript();
-    }else if(objname == "lua script"){
-        tempObj = new LuaScript();
-    }else if(objname == "processing script"){
-        tempObj = new ProcessingScript();
-    }else if(objname == "shader object"){
-        tempObj = new ShaderObject();
-    // -------------------------------------- Audio Analysis
-    }else if(objname == "audio analyzer"){
-        tempObj = new AudioAnalyzer();
-    }else if(objname == "audio device"){
-        tempObj = new AudioDevice();
-    }else if(objname == "beat extractor"){
-        tempObj = new BeatExtractor();
-    }else if(objname == "bpm extractor"){
-        tempObj = new BPMExtractor();
-    }else if(objname == "centroid extractor"){
-        tempObj = new CentroidExtractor();
-    }else if(objname == "dissonance extractor"){
-        tempObj = new DissonanceExtractor();
-    }else if(objname == "fft extractor"){
-        tempObj = new FftExtractor();
-    }else if(objname == "hfc extractor"){
-        tempObj = new HFCExtractor();
-    }else if(objname == "hpcp extractor"){
-        tempObj = new HPCPExtractor();
-    }else if(objname == "inharmonicity extractor"){
-        tempObj = new InharmonicityExtractor();
-    }else if(objname == "mel bands extractor"){
-        tempObj = new MelBandsExtractor();
-    }else if(objname == "mfcc extractor"){
-        tempObj = new MFCCExtractor();
-    }else if(objname == "onset extractor"){
-        tempObj = new OnsetExtractor();
-    }else if(objname == "pitch extractor"){
-        tempObj = new PitchExtractor();
-    }else if(objname == "power extractor"){
-        tempObj = new PowerExtractor();
-    }else if(objname == "rms extractor"){
-        tempObj = new RMSExtractor();
-    }else if(objname == "rolloff extractor"){
-        tempObj = new RollOffExtractor();
-    }else if(objname == "tristimulus extractor"){
-        tempObj = new TristimulusExtractor();
-    // -------------------------------------- Communications
-    }else if(objname == "arduino serial"){
-        tempObj = new ArduinoSerial();
-    }else if(objname == "key pressed"){
-        tempObj = new KeyPressed();
-    }else if(objname == "key released"){
-        tempObj = new KeyReleased();
-    }else if(objname == "midi key"){
-        tempObj = new MidiKey();
-    }else if(objname == "midi knob"){
-        tempObj = new MidiKnob();
-    }else if(objname == "midi pad"){
-        tempObj = new MidiPad();
-    }else if(objname == "midi receiver"){
-        tempObj = new MidiReceiver();
-    }else if(objname == "midi score"){
-        tempObj = new MidiScore();
-    }else if(objname == "midi sender"){
-        tempObj = new MidiSender();
-    }else if(objname == "osc receiver"){
-        tempObj = new OscReceiver();
-    }else if(objname == "osc sender"){
-        tempObj = new OscSender();
-    // -------------------------------------- Data
-    }else if(objname == "bang multiplexer"){
-        tempObj = new BangMultiplexer();
-    }else if(objname == "bang to float"){
-        tempObj = new BangToFloat();
-    }else if(objname == "data to file"){
-        tempObj = new DataToFile();
-    }else if(objname == "file to data"){
-        tempObj = new FileToData();
-    }else if(objname == "data to texture"){
-        tempObj = new DataToTexture();
-    }else if(objname == "vector at"){
-        tempObj = new VectorAt();
-    }else if(objname == "vector concat"){
-        tempObj = new VectorConcat();
-    }else if(objname == "floats to vector"){
-        tempObj = new FloatsToVector();
-    }else if(objname == "texture to data"){
-        tempObj = new TextureToData();
-    }else if(objname == "vector gate"){
-        tempObj = new VectorGate();
-    }else if(objname == "vector multiply"){
-        tempObj = new VectorMultiply();
-    // -------------------------------------- Graphics
-    }else if(objname == "image exporter"){
-        tempObj = new ImageExporter();
-    }else if(objname == "image loader"){
-        tempObj = new ImageLoader();
-    // -------------------------------------- Sound
-    }else if(objname == "ADSR envelope"){
-        tempObj = new pdspADSR();
-    }else if(objname == "AHR envelope"){
-        tempObj = new pdspAHR();
-    }else if(objname == "amp"){
-        tempObj = new SigMult();
-    }else if(objname == "audio exporter"){
-        tempObj = new AudioExporter();
-    }else if(objname == "audio gate"){
-        tempObj = new AudioGate();
-    }else if(objname == "bit cruncher"){
-        tempObj = new pdspBitCruncher();
-    }else if(objname == "bit noise"){
-        tempObj = new pdspBitNoise();
-    }else if(objname == "crossfader"){
-        tempObj = new Crossfader();
-    }else if(objname == "chorus"){
-        tempObj = new pdspChorusEffect();
-    }else if(objname == "comb filter"){
-        tempObj = new pdspCombFilter();
-    }else if(objname == "compressor"){
-        tempObj = new pdspCompressor();
-    }else if(objname == "decimator"){
-        tempObj = new pdspDecimator();
-    }else if(objname == "ducker"){
-        tempObj = new pdspDucker();
-    }else if(objname == "lfo"){
-        tempObj = new pdspLFO();
-    }else if(objname == "mixer"){
-        tempObj = new Mixer();
-    }else if(objname == "note to frequency"){
-        tempObj = new NoteToFrequency();
-    }else if(objname == "panner"){
-        tempObj = new Panner();
-    }else if(objname == "resonant 2pole filter"){
-        tempObj = new pdspResonant2PoleFilter();
-    }else if(objname == "pd patch"){
-        tempObj = new PDPatch();
-    }else if(objname == "quad panner"){
-        tempObj = new QuadPanner();
-    }else if(objname == "pulse"){
-        tempObj = new OscPulse();
-    }else if(objname == "reverb"){
-        tempObj = new pdspReverb();
-    }else if(objname == "saw"){
-        tempObj = new OscSaw();
-    }else if(objname == "sine"){
-        tempObj = new Oscillator();
-    }else if(objname == "triangle"){
-        tempObj = new OscTriangle();
-    }else if(objname == "signal trigger"){
-        tempObj = new SignalTrigger();
-    }else if(objname == "soundfile player"){
-        tempObj = new SoundfilePlayer();
-    }else if(objname == "delay"){
-        tempObj = new pdspDelay();
-    }else if(objname == "data oscillator"){
-        tempObj = new pdspDataOscillator();
-    }else if(objname == "low pass"){
-        tempObj = new pdspHiCut();
-    }else if(objname == "hi pass"){
-        tempObj = new pdspLowCut();
-    }else if(objname == "white noise"){
-        tempObj = new pdspWhiteNoise();
-    // -------------------------------------- Math
-    }else if(objname == "add"){
-        tempObj = new Add();
-    }else if(objname == "clamp"){
-        tempObj = new Clamp();
-    }else if(objname == "constant"){
-        tempObj = new Constant();
-    }else if(objname == "divide"){
-        tempObj = new Divide();
-    }else if(objname == "map"){
-        tempObj = new Map();
-    }else if(objname == "metronome"){
-        tempObj = new Metronome();
-    }else if(objname == "modulus"){
-        tempObj = new Module();
-    }else if(objname == "multiply"){
-        tempObj = new Multiply();
-    }else if(objname == "range"){
-        tempObj = new Range();
-    }else if(objname == "simple random"){
-        tempObj = new SimpleRandom();
-    }else if(objname == "simple noise"){
-        tempObj = new SimpleNoise();
-    }else if(objname == "smooth"){
-        tempObj = new Smooth();
-    }else if(objname == "subtract"){
-        tempObj = new Subtract();
-    // -------------------------------------- Logic
-    }else if(objname == "&&"){
-        tempObj = new AND();
-    }else if(objname == "||"){
-        tempObj = new OR();
-    }else if(objname == "=="){
-        tempObj = new Equality();
-    }else if(objname == "!="){
-        tempObj = new Inequality();
-    }else if(objname == ">"){
-        tempObj = new BiggerThan();
-    }else if(objname == "<"){
-        tempObj = new SmallerThan();
-    }else if(objname == "counter"){
-        tempObj = new Counter();
-    }else if(objname == "delay bang"){
-        tempObj = new DelayBang();
-    }else if(objname == "delay float"){
-        tempObj = new DelayFloat();
-    }else if(objname == "gate"){
-        tempObj = new Gate();
-    }else if(objname == "inverter"){
-        tempObj = new Inverter();
-    }else if(objname == "loadbang"){
-        tempObj = new LoadBang();
-    }else if(objname == "select"){
-        tempObj = new Select();
-    }else if(objname == "spigot"){
-        tempObj = new Spigot();
-    }else if(objname == "timed semaphore"){
-        tempObj = new TimedSemaphore();
-    // -------------------------------------- GUI
-    }else if(objname == "2d pad"){
-        tempObj = new mo2DPad();
-    }else if(objname == "bang"){
-        tempObj = new moBang();
-    }else if(objname == "comment"){
-        tempObj = new moComment();
-    }else if(objname == "message"){
-        tempObj = new moMessage();
-    }else if(objname == "player controls"){
-        tempObj = new moPlayerControls();
-    }else if(objname == "slider"){
-        tempObj = new moSlider();
-    }else if(objname == "sonogram"){
-        tempObj = new moSonogram();
-    }else if(objname == "timeline"){
-        tempObj = new moTimeline();
-    }else if(objname == "trigger"){
-        tempObj = new moTrigger();
-    }else if(objname == "video viewer"){
-        tempObj = new moVideoViewer();
-    }else if(objname == "signal viewer"){
-        tempObj = new moSignalViewer();
-    }else if(objname == "vu meter"){
-        tempObj = new moVUMeter();
-    // -------------------------------------- VIDEO
-    }else if(objname == "kinect grabber"){
-        tempObj = new KinectGrabber();
-    }else if(objname == "video player"){
-        tempObj = new VideoPlayer();
-    }else if(objname == "video grabber"){
-        tempObj = new VideoGrabber();
-    }else if(objname == "video feedback"){
-        tempObj = new VideoDelay();
-    }else if(objname == "video exporter"){
-        tempObj = new VideoExporter();
-    }else if(objname == "video crop"){
-        tempObj = new VideoCrop();
-    }else if(objname == "video gate"){
-        tempObj = new VideoGate();
-    }else if(objname == "video transform"){
-        tempObj = new VideoTransform();
-    }else if(objname == "video streaming"){
-        tempObj = new VideoStreaming();
-    }else if(objname == "video timedelay"){
-        tempObj = new VideoTimelapse();
-    // -------------------------------------- WINDOWING
-    }else if(objname == "live patching"){
-        tempObj = new LivePatching();
-    }else if(objname == "output window"){
-        tempObj = new OutputWindow();
-    }else if(objname == "projection mapping"){
-        tempObj = new ProjectionMapping();
-    // -------------------------------------- COMPUTER VISION
-    }else if(objname == "background subtraction"){
-        tempObj = new BackgroundSubtraction();
-    }else if(objname == "chroma key"){
-        tempObj = new ChromaKey();
-    }else if(objname == "color tracking"){
-        tempObj = new ColorTracking();
-    }else if(objname == "contour tracking"){
-        tempObj = new ContourTracking();
-    }else if(objname == "haar tracking"){
-        tempObj = new HaarTracking();
-    }else if(objname == "motion detection"){
-        tempObj = new MotionDetection();
-    }else if(objname == "optical flow"){
-        tempObj = new OpticalFlow();
-    }else{
-#ifdef DEBUG
-        ofLog(OF_LOG_WARNING,"ofxVisualProgramming encountered an unknown object : " + objname + ". [this will probably cause a crash]");
-#endif
-        tempObj = nullptr;
+    if (it != reg.end()) {
+        ofxVPObjects::factory::CreateObjectFunc func = it->second;
+        return func();
     }
 
-    return tempObj;
+    ofLogError("ofxVisualProgramming::selectObject") << "Object not found: " << objname << ". Maybe this PatchObject is not available on your platform or there might be a version error.";
+    return nullptr;
 }
 
 //--------------------------------------------------------------

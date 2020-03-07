@@ -63,7 +63,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::newObject(){
-    this->setName("audio analyzer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"analysisData");
 
@@ -350,3 +350,5 @@ void AudioAnalyzer::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( AudioAnalyzer , "audio analyzer", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

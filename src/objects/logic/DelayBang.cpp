@@ -67,7 +67,7 @@ DelayBang::DelayBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void DelayBang::newObject(){
-    this->setName("delay bang");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -187,3 +187,5 @@ void DelayBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( DelayBang, "delay bang", OFXVP_OBJECT_CAT_LOGIC);

@@ -75,7 +75,7 @@ Spigot::Spigot() : PatchObject(){
 
 //--------------------------------------------------------------
 void Spigot::newObject(){
-    this->setName("spigot");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"state");
     this->addInlet(VP_LINK_NUMERIC,"float");
     this->addInlet(VP_LINK_STRING,"string");
@@ -153,3 +153,5 @@ void Spigot::mouseReleasedObjectContent(ofVec3f _m){
         isOpen = !isOpen;
     }
 }
+
+OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC);

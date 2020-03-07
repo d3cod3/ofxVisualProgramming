@@ -73,4 +73,5 @@ public:
 
     ofImage                 *bg;
 
+    OBJECT_FACTORY_PROPS;
 };

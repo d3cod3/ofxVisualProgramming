@@ -30,6 +30,9 @@
 
 ==============================================================================*/
 
+// Unavailable on windows.
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+
 #include "FaceTracker.h"
 
 using namespace ofxCv;
@@ -59,7 +62,7 @@ FaceTracker::FaceTracker() : PatchObject(){
 
 //--------------------------------------------------------------
 void FaceTracker::newObject(){
-    this->setName("face tracker");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"faceData");
@@ -177,3 +180,8 @@ void FaceTracker::removeObjectContent(bool removeFileFromData){
     tracker.stopThread();
     tracker.waitForThread();
 }
+
+OBJECT_REGISTER( FaceTracker, "face tracker", OFXVP_OBJECT_CAT_CV);
+
+#endif
+

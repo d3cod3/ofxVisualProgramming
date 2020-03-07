@@ -56,7 +56,7 @@ CentroidExtractor::CentroidExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void CentroidExtractor::newObject(){
-    this->setName("centroid extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"centroid");
 }
@@ -133,3 +133,5 @@ void CentroidExtractor::drawObjectContent(ofxFontStash *font){
 void CentroidExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( CentroidExtractor, "centroid extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

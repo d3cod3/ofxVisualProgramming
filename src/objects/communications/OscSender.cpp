@@ -53,7 +53,7 @@ OscSender::OscSender() : PatchObject(){
 
 //--------------------------------------------------------------
 void OscSender::newObject(){
-    this->setName("osc sender");
+    this->setName(this->objectName);
 
     this->setCustomVar(static_cast<float>(osc_port),"PORT");
 }
@@ -452,3 +452,5 @@ void OscSender::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( OscSender, "osc sender", OFXVP_OBJECT_CAT_COMMUNICATIONS);

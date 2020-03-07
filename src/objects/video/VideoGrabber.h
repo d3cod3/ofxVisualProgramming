@@ -85,4 +85,5 @@ public:
     ofxDatGuiTextInput* guiTexHeight;
     ofxDatGuiButton*    applyButton;
 
+    OBJECT_FACTORY_PROPS;
 };

@@ -101,4 +101,5 @@ public:
     ofxDatGuiHeader*        header;
     ofxDatGuiTextInput*     guiDelayMS;
 
+    OBJECT_FACTORY_PROPS;
 };

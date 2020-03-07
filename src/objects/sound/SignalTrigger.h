@@ -73,4 +73,5 @@ public:
     bool                    loaded;
     bool                    bang;
 
+    OBJECT_FACTORY_PROPS;
 };

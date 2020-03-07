@@ -53,4 +53,5 @@ public:
     bool                    changeRange;
     float                   lastMinRange, lastMaxRange;
 
+    OBJECT_FACTORY_PROPS;
 };

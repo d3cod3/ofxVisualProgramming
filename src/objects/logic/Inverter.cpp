@@ -52,7 +52,7 @@ Inverter::Inverter() : PatchObject(){
 
 //--------------------------------------------------------------
 void Inverter::newObject(){
-    this->setName("inverter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"invertedTrigger");
 }
@@ -99,3 +99,5 @@ void Inverter::drawObjectContent(ofxFontStash *font){
 void Inverter::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC);

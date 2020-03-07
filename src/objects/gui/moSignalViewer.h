@@ -57,4 +57,5 @@ public:
     int                     bufferSize;
     int                     sampleRate;
 
+    OBJECT_FACTORY_PROPS;
 };

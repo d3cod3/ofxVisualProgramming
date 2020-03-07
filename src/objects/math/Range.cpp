@@ -61,7 +61,7 @@ Range::Range() : PatchObject(){
 
 //--------------------------------------------------------------
 void Range::newObject(){
-    this->setName("range");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
     this->addOutlet(VP_LINK_NUMERIC,"min");
@@ -177,3 +177,5 @@ void Range::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH);

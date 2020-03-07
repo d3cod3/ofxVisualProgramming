@@ -56,4 +56,5 @@ public:
 
     float                   inputValue;
 
+    OBJECT_FACTORY_PROPS;
 };

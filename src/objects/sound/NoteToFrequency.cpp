@@ -105,7 +105,7 @@ NoteToFrequency::NoteToFrequency() : PatchObject(){
 
 //--------------------------------------------------------------
 void NoteToFrequency::newObject(){
-    this->setName("note to frequency");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"midi note");
     this->addOutlet(VP_LINK_NUMERIC,"frequency");
     this->addOutlet(VP_LINK_NUMERIC,"midiPitch");
@@ -213,3 +213,5 @@ float NoteToFrequency::noteToHarmonicFrequency(int _note){
 float NoteToFrequency::frequencyToPitch(float freq){
     return pdsp::f2p(freq);
 }
+
+OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND);

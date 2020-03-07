@@ -76,4 +76,5 @@ public:
 
     
 
+    OBJECT_FACTORY_PROPS;
 };

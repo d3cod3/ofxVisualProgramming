@@ -56,4 +56,5 @@ public:
 
     float                   innerRadius, outerRadius;
 
+    OBJECT_FACTORY_PROPS;
 };

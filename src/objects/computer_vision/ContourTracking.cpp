@@ -64,7 +64,7 @@ ContourTracking::ContourTracking() : PatchObject(){
 
 //--------------------------------------------------------------
 void ContourTracking::newObject(){
-    this->setName("contour tracking");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"blobsData");
@@ -385,3 +385,5 @@ void ContourTracking::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( ContourTracking, "contour tracking", OFXVP_OBJECT_CAT_CV);

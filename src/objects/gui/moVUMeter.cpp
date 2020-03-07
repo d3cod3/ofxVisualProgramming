@@ -54,7 +54,7 @@ moVUMeter::moVUMeter() : PatchObject(){
 
 //--------------------------------------------------------------
 void moVUMeter::newObject(){
-    this->setName("vu meter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_NUMERIC,"RMS");
 }
@@ -99,3 +99,5 @@ void moVUMeter::drawObjectContent(ofxFontStash *font){
 void moVUMeter::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI);

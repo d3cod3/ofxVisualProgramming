@@ -67,7 +67,7 @@ QuadPanner::QuadPanner() : PatchObject(){
 
 //--------------------------------------------------------------
 void QuadPanner::newObject(){
-    this->setName("quad panner");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan X");
     this->addInlet(VP_LINK_NUMERIC,"pan Y");
@@ -260,3 +260,5 @@ void QuadPanner::on2dPadEvent(ofxDatGui2dPadEvent e){
     gain_ctrl3.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * ofClamp(ofMap(static_cast<float>(e.x/pad->getBounds().width),0.0,1.0,1.0,0.0),0.0f,1.0f));
     gain_ctrl4.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * static_cast<float>(e.x/pad->getBounds().width));
 }
+
+OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND);

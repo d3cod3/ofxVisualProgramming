@@ -88,7 +88,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::newObject(){
-    this->setName("soundfile player");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
@@ -465,3 +465,5 @@ void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND);

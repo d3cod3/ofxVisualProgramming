@@ -51,7 +51,7 @@ TextureToData::TextureToData() : PatchObject(){
 
 //--------------------------------------------------------------
 void TextureToData::newObject(){
-    this->setName("texture to data");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_ARRAY,"data");
 }
@@ -116,3 +116,5 @@ void TextureToData::drawObjectContent(ofxFontStash *font){
 void TextureToData::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( TextureToData, "texture to data", OFXVP_OBJECT_CAT_DATA);

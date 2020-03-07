@@ -65,7 +65,7 @@ pdspLFO::pdspLFO() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspLFO::newObject(){
-    this->setName("lfo");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"frequency");
     this->addInlet(VP_LINK_NUMERIC,"phase");
@@ -267,3 +267,5 @@ void pdspLFO::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND);

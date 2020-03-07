@@ -56,7 +56,7 @@ VideoStreaming::VideoStreaming() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoStreaming::newObject(){
-    this->setName("video streaming");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
@@ -247,3 +247,5 @@ void VideoStreaming::onToggleEvent(ofxDatGuiToggleEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_VIDEO);

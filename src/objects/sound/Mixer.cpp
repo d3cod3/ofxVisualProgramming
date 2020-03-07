@@ -57,7 +57,7 @@ Mixer::Mixer() : PatchObject(){
 
 //--------------------------------------------------------------
 void Mixer::newObject(){
-    this->setName("mixer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"s1");
     this->addInlet(VP_LINK_AUDIO,"s2");
     this->addInlet(VP_LINK_AUDIO,"s3");
@@ -140,3 +140,5 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
+
+OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND);

@@ -56,7 +56,7 @@ RollOffExtractor::RollOffExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void RollOffExtractor::newObject(){
-    this->setName("rolloff extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"rollOff");
 }
@@ -133,3 +133,5 @@ void RollOffExtractor::drawObjectContent(ofxFontStash *font){
 void RollOffExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( RollOffExtractor , "rolloff extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS );
