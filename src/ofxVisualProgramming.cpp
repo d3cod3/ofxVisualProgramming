@@ -159,7 +159,7 @@ void ofxVisualProgramming::update(){
     // Graphical Context
     canvas.update();
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
         it->second->update(patchObjects,fileDialog);
         TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
@@ -184,7 +184,7 @@ void ofxVisualProgramming::update(){
     if(ofGetElapsedTimeMillis()-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
         eraseIndexes.clear();
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second->getWillErase()){
                 eraseIndexes.push_back(it->first);
 
@@ -237,7 +237,7 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         TS_START(it->second->getName()+ofToString(it->second->getId())+"_draw");
         if(it->second->getName() == "live patching"){
            livePatchingObiID = it->second->getId();
@@ -291,7 +291,7 @@ void ofxVisualProgramming::draw(){
         }
 
     }
-    
+
     canvas.end();
 
     // Draw Bottom Bar
@@ -403,7 +403,7 @@ void ofxVisualProgramming::exit(){
 
     //savePatchAsLast();
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
 
@@ -425,7 +425,7 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
     // CANVAS
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->mouseMoved(actualMouse.x,actualMouse.y);
             it->second->setIsActive(false);
             if (it->second->isOver(actualMouse)){
@@ -446,7 +446,7 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     // CANVAS
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
 
             if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
                 draggingObject = true;
@@ -497,7 +497,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
                 it->second->setIsObjectSelected(false);
                 if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
@@ -529,7 +529,7 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
         }
 
         if(selectedObjectLink == -1 && !patchObjects.empty()){
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr){
                     if(it->second->getIsActive()){
                         isOutletSelected = false;
@@ -557,12 +557,12 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
     bool isLinked = false;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->mouseReleased(actualMouse.x,actualMouse.y,patchObjects);
     }
 
     if(selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && isOutletSelected){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(selectedObjectID != it->first){
                 for (int j=0;j<it->second->getNumInlets();j++){
                     if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
@@ -595,7 +595,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
             }
         }
 
-        vector<PatchLink*> tempBuffer;
+        vector<shared_ptr<PatchLink>> tempBuffer;
         tempBuffer.reserve(patchObjects[selectedObjectID]->outPut.size()-tempEraseLinks.size());
 
         for (size_t i=0; i<patchObjects[selectedObjectID]->outPut.size(); i++){
@@ -643,7 +643,7 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
     if(!isHoverCodeEditor){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->keyPressed(e.key);
         }
     }
@@ -651,7 +651,7 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::onFileDialogResponse(ofxThreadedFileDialogResponse &response){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->fileDialogResponse(response);
     }
 }
@@ -669,7 +669,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
                 // compute audio input
                 if(!bLoadingNewPatch){
-                    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                         it->second->audioIn(inputBuffer);
                     }
                 }
@@ -681,7 +681,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             if(audioDevices[audioOUTDev].outputChannels > 0){
                 // compute audio output
                 if(!bLoadingNewPatch){
-                    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                         it->second->audioOut(emptyBuffer);
                     }
                 }
@@ -700,7 +700,7 @@ void ofxVisualProgramming::activeObject(int oid){
     if ((oid != -1) && (patchObjects[oid] != nullptr)){
         selectedObjectID = oid;
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if (it->first == oid){
                 it->second->setIsActive(true);
             }else{
@@ -733,7 +733,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     bLoadingNewObject       = true;
 
-    PatchObject* tempObj = selectObject(name);
+    shared_ptr<PatchObject> tempObj = selectObject(name);
 
     tempObj->newObject();
     tempObj->setPatchfile(currentPatchFile);
@@ -763,7 +763,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 }
 
 //--------------------------------------------------------------
-PatchObject* ofxVisualProgramming::getLastAddedObject(){
+shared_ptr<PatchObject> ofxVisualProgramming::getLastAddedObject(){
     if(lastAddedObjectID != -1 && patchObjects.count(lastAddedObjectID) > 0){
         return patchObjects[lastAddedObjectID];
     }else{
@@ -784,8 +784,8 @@ void ofxVisualProgramming::resetObject(int &id){
         ofxXmlSettings XML;
         if (XML.loadFile(currentPatchFile)){
 
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                vector<PatchLink*> tempBuffer;
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                vector<shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                     if(it->second->outPut[j]->toObjectID == id){
                         if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
@@ -840,8 +840,8 @@ void ofxVisualProgramming::resetObject(int &id){
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetObject(int id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<PatchLink*> tempBuffer;
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<shared_ptr<PatchLink>> tempBuffer;
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
@@ -963,8 +963,8 @@ void ofxVisualProgramming::deleteObject(int id){
             }
         }
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<PatchLink*> tempBuffer;
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<shared_ptr<PatchLink>> tempBuffer;
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
@@ -1050,8 +1050,8 @@ void ofxVisualProgramming::removeObject(int &id){
             }
         }
 
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<PatchLink*> tempBuffer;
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            vector<shared_ptr<PatchLink>> tempBuffer;
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID != id){
                     tempBuffer.push_back(it->second->outPut[j]);
@@ -1090,7 +1090,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         //cout << "Mosaic :: "<< "Connect object " << patchObjects[fromID]->getName().c_str() << ":" << ofToString(fromID) << " to object " << patchObjects[toID]->getName().c_str() << ":" << ofToString(toID) << endl;
 
-        PatchLink   *tempLink = new PatchLink();
+        shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
 
         tempLink->posFrom = patchObjects[fromID]->getOutletPosition(fromOutlet);
         tempLink->posTo = patchObjects[toID]->getInletPosition(toInlet);
@@ -1137,7 +1137,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 //--------------------------------------------------------------
 void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
             if(it->second->outPut[j]->toObjectID == objID && it->second->outPut[j]->toInletID == objLink){
                 // remove link
@@ -1150,7 +1150,7 @@ void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
                     }
                 }
 
-                vector<PatchLink*> tempBuffer;
+                vector<shared_ptr<PatchLink>> tempBuffer;
                 tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
 
                 for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
@@ -1193,7 +1193,7 @@ void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int link
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSystemObjects(){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject()){
             it->second->resetSystemObject();
             resetObject(it->second->getId());
@@ -1206,7 +1206,7 @@ void ofxVisualProgramming::resetSystemObjects(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSpecificSystemObjects(string name){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject() && it->second->getName() == name){
             it->second->resetSystemObject();
             resetObject(it->second->getId());
@@ -1221,7 +1221,7 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
 bool ofxVisualProgramming::weAlreadyHaveObject(string name){
     bool found = false;
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getName() == name){
             found = true;
             break;
@@ -1232,17 +1232,17 @@ bool ofxVisualProgramming::weAlreadyHaveObject(string name){
 }
 
 //--------------------------------------------------------------
-PatchObject* ofxVisualProgramming::selectObject(string objname){
+shared_ptr<PatchObject> ofxVisualProgramming::selectObject(string objname){
     ofxVPObjects::factory::objectRegistry& reg = ofxVPObjects::factory::getObjectRegistry();
     ofxVPObjects::factory::objectRegistry::iterator it = reg.find(objname);
 
     if (it != reg.end()) {
         ofxVPObjects::factory::CreateObjectFunc func = it->second;
-        return func();
+        return shared_ptr<PatchObject>( func() );
     }
 
     ofLogError("ofxVisualProgramming::selectObject") << "Object not found: " << objname << ". Maybe this PatchObject is not available on your platform or there might be a version error.";
-    return nullptr;
+    return shared_ptr<PatchObject>(nullptr);
 }
 
 //--------------------------------------------------------------
@@ -1289,10 +1289,10 @@ void ofxVisualProgramming::openPatch(string patchFile){
     }
 
     // clear previous patch
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
-    /*for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    /*for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         delete it->second;
     }*/
     patchObjects.clear();
@@ -1401,7 +1401,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             if(XML.pushTag("object", i)){
                 string objname = XML.getValue("name","");
                 bool loaded = false;
-                PatchObject* tempObj = selectObject(objname);
+                shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr){
                     loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
                     if(loaded){
@@ -1473,12 +1473,22 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     //      > DATA/
     //        PATCH_NAME.xml
 
+
+    // sanitize filename
+    ofFile tempPF(patchFile);
+    string preSanitizeFN = tempPF.getFileName();
+    sanitizeFilename(preSanitizeFN);
+
+    string sanitizedPatchFile = tempPF.getEnclosingDirectory()+preSanitizeFN;
+    //ofLog(OF_LOG_NOTICE,"%s",patchFile.c_str());
+    //ofLog(OF_LOG_NOTICE,"%s",sanitizedPatchFile.c_str());
+
     // copy patch file & patch data folder
-    ofFile tempFile(patchFile);
+    ofFile tempFile(sanitizedPatchFile);
     string tempFileName = tempFile.getFileName();
     string finalTempFileName = tempFile.getFileName().substr(0,tempFileName.find_last_of('.'));
 
-    string newFileName = checkFileExtension(patchFile, ofToUpper(tempFile.getExtension()), "XML");
+    string newFileName = checkFileExtension(sanitizedPatchFile, ofToUpper(tempFile.getExtension()), "XML");
     ofFile fileToRead(currentPatchFile);
     ofDirectory dataFolderOrigin;
     dataFolderOrigin.listDir(currentPatchFolderPath+"data/");
@@ -1493,7 +1503,7 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     std::filesystem::path tp = currentPatchFolderPath+"/data/";
     dataFolderOrigin.copyTo(tp,true,true);
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->setPatchfile(currentPatchFile);
     }
 
@@ -1570,7 +1580,7 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
             engine->setup(audioSampleRate, audioBufferSize, 3);
         }
     }
-    
+
 }
 
 //--------------------------------------------------------------
@@ -1623,7 +1633,7 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
             ofLog(OF_LOG_NOTICE,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
         }
     }
-    
+
 }
 
 //--------------------------------------------------------------

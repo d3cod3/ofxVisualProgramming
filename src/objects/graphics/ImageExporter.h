@@ -42,7 +42,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
@@ -54,8 +54,7 @@ public:
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
     void            onButtonEvent(ofxDatGuiButtonEvent e);
 
-
-    ofImage             *img;
+    unique_ptr<ofImage> img;
     ofPixels            capturePix;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
@@ -65,6 +64,7 @@ public:
     ofxDatGuiTextInput* imgName;
     ofxDatGuiButton*    saveButton;
     string              lastImageFile;
+    int                 imageSequenceCounter;
 
     bool                saveImgFlag;
     bool                isImageSaved;

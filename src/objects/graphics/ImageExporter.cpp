@@ -44,7 +44,7 @@ ImageExporter::ImageExporter() : PatchObject(){
 
     this->initInletsState();
 
-    img = new ofImage();
+    img = unique_ptr<ofImage>(new ofImage());
 
     isGUIObject         = true;
     this->isOverGUI     = true;
@@ -57,6 +57,7 @@ ImageExporter::ImageExporter() : PatchObject(){
     posX = posY = drawW = drawH = 0.0f;
 
     lastImageFile       = "";
+    imageSequenceCounter= 0;
 }
 
 //--------------------------------------------------------------
@@ -91,7 +92,7 @@ void ImageExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ImageExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -110,10 +111,14 @@ void ImageExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofx
     if(isImageSaved){
         isImageSaved = false;
         saveImageFile();
+        ofFile tempFilename(lastImageFile);
+        imgName->setText(tempFilename.getFileName());
     }
 
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0){
         saveImageFile();
+    }else if(!this->inletsConnected[1]){
+        imageSequenceCounter = 0;
     }
     
 }
@@ -204,7 +209,7 @@ void ImageExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
 void ImageExporter::saveImageFile(){
     static_cast<ofTexture *>(_inletParams[0])->readToPixels(capturePix);
 
-    img = new ofImage();
+    img = unique_ptr<ofImage>(new ofImage());
     // OF_IMAGE_GRAYSCALE, OF_IMAGE_COLOR, or OF_IMAGE_COLOR_ALPHA
     // GL_LUMINANCE, GL_RGB, GL_RGBA
     if(static_cast<ofTexture *>(_inletParams[0])->getTextureData().glInternalFormat == GL_LUMINANCE){
@@ -215,8 +220,37 @@ void ImageExporter::saveImageFile(){
         img->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR_ALPHA);
     }
 
+    ofFile tempFilename(lastImageFile);
+    string lastImageFileFolder = tempFilename.getEnclosingDirectory();
+    string lastImageFileName = tempFilename.getFileName();
+
+    string finalFileName = "";
+
+    if (lastImageFileName.find('#') != std::string::npos){
+        // found
+        string sequencedFileName = tempFilename.getFileName().substr(0,lastImageFileName.find_last_of('.'));
+
+        int count = std::count(sequencedFileName.begin(), sequencedFileName.end(), '#');
+        string actualFrameStr = ofToString(imageSequenceCounter);
+
+        string cleanSequencedFileName = sequencedFileName.substr(0,sequencedFileName.length()-count);
+
+        cleanSequencedFileName += "_";
+        for(unsigned int i=0;i<(count-actualFrameStr.length());i++){
+            cleanSequencedFileName += "0";
+        }
+        cleanSequencedFileName += actualFrameStr;
+        cleanSequencedFileName += "."+tempFilename.getExtension();
+
+        finalFileName = lastImageFileFolder+cleanSequencedFileName;
+        imageSequenceCounter++;
+    }else{
+        finalFileName = lastImageFile;
+    }
+
     img->setFromPixels(capturePix);
-    img->save(lastImageFile);
+    img->save(finalFileName);
+
 }
 
 //--------------------------------------------------------------

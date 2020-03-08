@@ -73,9 +73,9 @@ public:
 
     void            activeObject(int oid);
 
-    PatchObject*    selectObject(string objname);
+    shared_ptr<PatchObject>    selectObject(string objname);
     void            addObject(string name, ofVec2f pos);
-    PatchObject*    getLastAddedObject();
+    shared_ptr<PatchObject>    getLastAddedObject();
 
     void            dragObject(int &id);
     void            resetObject(int &id);
@@ -125,7 +125,7 @@ public:
     int                     linkActivateDistance;
 
     // PATCH OBJECTS
-    map<int,PatchObject*>   patchObjects;
+    map<int,shared_ptr<PatchObject>>   patchObjects;
     map<string,string>      scriptsObjectsFilesPaths;
     vector<int>             eraseIndexes;
     bool                    isOutletSelected;

@@ -117,7 +117,7 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
@@ -127,7 +127,7 @@ void ShaderObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
     // Recursive reset for shader objects chain
     if(needReset){
         needReset = false;
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                 for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                     if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
