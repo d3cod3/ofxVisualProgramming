@@ -87,6 +87,8 @@ public:
 
     size_t              startTime;
     bool                loading;
+    bool                finishSemaphore;
+    bool                finishBang;
 
     string              lastSoundfile;
     bool                loadSoundfileFlag;
