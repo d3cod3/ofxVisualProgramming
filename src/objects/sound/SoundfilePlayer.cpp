@@ -83,7 +83,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
     isPDSPPatchableObject   = true;
 
     this->width         *= 2;
-    
+
 }
 
 //--------------------------------------------------------------
@@ -97,7 +97,6 @@ void SoundfilePlayer::newObject(){
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
-    this->addOutlet(VP_LINK_NUMERIC,"finishBang");
 }
 
 //--------------------------------------------------------------
