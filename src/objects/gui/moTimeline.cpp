@@ -85,7 +85,7 @@ moTimeline::moTimeline() : PatchObject(){
 
 //--------------------------------------------------------------
 void moTimeline::newObject(){
-    this->setName("timeline");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
 
@@ -973,3 +973,5 @@ void moTimeline::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI);

@@ -69,4 +69,5 @@ public:
     int                     temp_width, temp_height;
     float                   posX, posY, drawW, drawH;
 
+    OBJECT_FACTORY_PROPS;
 };

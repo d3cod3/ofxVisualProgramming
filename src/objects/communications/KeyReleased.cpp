@@ -53,7 +53,7 @@ KeyReleased::KeyReleased() : PatchObject(){
 
 //--------------------------------------------------------------
 void KeyReleased::newObject(){
-    this->setName("key released");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(lastKey),"KEY");
@@ -150,3 +150,5 @@ void KeyReleased::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( KeyReleased, "key released", OFXVP_OBJECT_CAT_COMMUNICATIONS);

@@ -59,7 +59,7 @@ mo2DPad::mo2DPad() : PatchObject(){
 
 //--------------------------------------------------------------
 void mo2DPad::newObject(){
-    this->setName("2d pad");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addOutlet(VP_LINK_NUMERIC,"padX");
@@ -166,3 +166,5 @@ void mo2DPad::on2dPadEvent(ofxDatGui2dPadEvent e){
     this->setCustomVar(static_cast<float>(e.x),"XPOS");
     this->setCustomVar(static_cast<float>(e.y),"YPOS");
 }
+
+OBJECT_REGISTER( mo2DPad, "2d pad", OFXVP_OBJECT_CAT_GUI);

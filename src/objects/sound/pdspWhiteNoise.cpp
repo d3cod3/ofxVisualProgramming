@@ -50,7 +50,7 @@ pdspWhiteNoise::pdspWhiteNoise() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspWhiteNoise::newObject(){
-    this->setName("white noise");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 }
@@ -124,3 +124,5 @@ void pdspWhiteNoise::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
+
+OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND);

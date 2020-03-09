@@ -52,7 +52,6 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            initObjectMatrix();
     void            setup();
     void            update();
     void            updateCanvasViewport();
@@ -141,6 +140,8 @@ public:
     int                     lastAddedObjectID;
     bool                    bLoadingNewObject;
     bool                    bLoadingNewPatch;
+    OF_DEPRECATED_MSG("The variable objectsMatrix has been removed. Please use ofxVPObjects::factory::getCategories() instead.",
+                  map<string,vector<string>> objectsMatrix );
 
     // LOAD/SAVE
     ofxThreadedFileDialog   fileDialog;
@@ -160,7 +161,6 @@ public:
     bool                            inited;
 
     // GUI
-    map<string,vector<string>>      objectsMatrix;
     bool                            isVPDragging;
     bool                            isHoverMenu;
     bool                            isHoverLogger;

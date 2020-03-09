@@ -58,7 +58,7 @@ ChromaKey::ChromaKey() : PatchObject(){
 
 //--------------------------------------------------------------
 void ChromaKey::newObject(){
-    this->setName("chroma key");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_TEXTURE,"mask");
     this->addOutlet(VP_LINK_TEXTURE,"output");
@@ -329,3 +329,5 @@ void ChromaKey::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( ChromaKey, "chroma key", OFXVP_OBJECT_CAT_CV);

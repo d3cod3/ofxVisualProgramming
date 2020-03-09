@@ -58,7 +58,7 @@ pdspBitNoise::pdspBitNoise() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspBitNoise::newObject(){
-    this->setName("bit noise");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
@@ -214,3 +214,5 @@ void pdspBitNoise::onSliderEvent(ofxDatGuiSliderEvent e){
         pitch_ctrl.set(static_cast<float>(e.value));
     }
 }
+
+OBJECT_REGISTER( pdspBitNoise, "bit noise", OFXVP_OBJECT_CAT_SOUND);

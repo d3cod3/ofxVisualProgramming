@@ -62,7 +62,7 @@ ImageExporter::ImageExporter() : PatchObject(){
 
 //--------------------------------------------------------------
 void ImageExporter::newObject(){
-    this->setName("image exporter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
@@ -270,3 +270,5 @@ void ImageExporter::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_GRAPHICS);

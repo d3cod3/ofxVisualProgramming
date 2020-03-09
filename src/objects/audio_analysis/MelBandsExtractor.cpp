@@ -53,7 +53,7 @@ MelBandsExtractor::MelBandsExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void MelBandsExtractor::newObject(){
-    this->setName("mel bands extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"melBandsSpectralEnergy");
 }
@@ -132,3 +132,5 @@ void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
 void MelBandsExtractor::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( MelBandsExtractor , "mel bands extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

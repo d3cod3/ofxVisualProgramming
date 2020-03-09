@@ -56,7 +56,7 @@ OnsetExtractor::OnsetExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void OnsetExtractor::newObject(){
-    this->setName("onset extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"onset");
 }
@@ -123,3 +123,5 @@ void OnsetExtractor::drawObjectContent(ofxFontStash *font){
 void OnsetExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

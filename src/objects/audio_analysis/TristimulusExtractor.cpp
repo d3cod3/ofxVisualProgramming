@@ -56,7 +56,7 @@ TristimulusExtractor::TristimulusExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void TristimulusExtractor::newObject(){
-    this->setName("tristimulus extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"tristimulus");
 }
@@ -137,3 +137,5 @@ void TristimulusExtractor::drawObjectContent(ofxFontStash *font){
 void TristimulusExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( TristimulusExtractor , "tristimulus extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

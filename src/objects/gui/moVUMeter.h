@@ -48,4 +48,5 @@ public:
 
     float           RMS;
 
+    OBJECT_FACTORY_PROPS;
 };

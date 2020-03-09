@@ -59,4 +59,5 @@ public:
     size_t          resetTime;
     size_t          wait;
 
+    OBJECT_FACTORY_PROPS;
 };

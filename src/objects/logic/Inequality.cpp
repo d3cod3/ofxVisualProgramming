@@ -56,7 +56,7 @@ Inequality::Inequality() : PatchObject(){
 
 //--------------------------------------------------------------
 void Inequality::newObject(){
-    this->setName("!=");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 
@@ -151,3 +151,5 @@ void Inequality::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC);

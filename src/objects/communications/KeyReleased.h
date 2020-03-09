@@ -59,4 +59,5 @@ public:
     int                     lastKey;
     int                     persistentKey;
 
+    OBJECT_FACTORY_PROPS;
 };

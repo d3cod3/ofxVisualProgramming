@@ -68,7 +68,7 @@ Map::Map() : PatchObject(){
 
 //--------------------------------------------------------------
 void Map::newObject(){
-    this->setName("map");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"in min");
     this->addInlet(VP_LINK_NUMERIC,"in max");
@@ -243,3 +243,5 @@ void Map::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH);

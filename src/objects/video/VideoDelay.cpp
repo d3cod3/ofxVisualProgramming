@@ -70,7 +70,7 @@ VideoDelay::VideoDelay() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoDelay::newObject(){
-    this->setName("video feedback");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
@@ -124,7 +124,7 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     scale       = .95 * scale + .05 * scaleTo;
     halfscale   = (1.000000f - scale) / 2.000000f;
     
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!needToGrab){
             needToGrab = true;
             backBufferTex->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB);
@@ -287,3 +287,5 @@ void VideoDelay::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_VIDEO);

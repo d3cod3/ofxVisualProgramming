@@ -69,4 +69,5 @@ public:
     bool                saveImgFlag;
     bool                isImageSaved;
 
+    OBJECT_FACTORY_PROPS;
 };

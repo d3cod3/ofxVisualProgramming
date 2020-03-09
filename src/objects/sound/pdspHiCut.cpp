@@ -63,7 +63,7 @@ pdspHiCut::pdspHiCut() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspHiCut::newObject(){
-    this->setName("low pass");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"freq");
     this->addOutlet(VP_LINK_AUDIO,"filteredSignal");
@@ -214,3 +214,5 @@ void pdspHiCut::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"FREQUENCY");
     freq_ctrl.set(ofClamp(static_cast<float>(e.value),20.0f,20000.0f));
 }
+
+OBJECT_REGISTER( pdspHiCut, "low pass", OFXVP_OBJECT_CAT_SOUND);

@@ -59,7 +59,7 @@ ImageLoader::ImageLoader() : PatchObject(){
 
 //--------------------------------------------------------------
 void ImageLoader::newObject(){
-    this->setName("image loader");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_TEXTURE,"image");
 }
 
@@ -264,3 +264,5 @@ void ImageLoader::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_GRAPHICS);

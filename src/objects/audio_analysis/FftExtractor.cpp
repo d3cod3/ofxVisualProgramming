@@ -53,7 +53,7 @@ FftExtractor::FftExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void FftExtractor::newObject(){
-    this->setName("fft extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"fft");
 }
@@ -132,3 +132,5 @@ void FftExtractor::drawObjectContent(ofxFontStash *font){
 void FftExtractor::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

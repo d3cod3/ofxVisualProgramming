@@ -55,4 +55,5 @@ public:
     bool            changedOpenInlet;
 
 
+    OBJECT_FACTORY_PROPS;
 };

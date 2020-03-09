@@ -57,7 +57,7 @@ MidiKey::MidiKey() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiKey::newObject(){
-    this->setName("midi key");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"velocity");
     this->addOutlet(VP_LINK_NUMERIC,"pitch");
@@ -161,3 +161,5 @@ void MidiKey::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( MidiKey, "midi key", OFXVP_OBJECT_CAT_COMMUNICATIONS);

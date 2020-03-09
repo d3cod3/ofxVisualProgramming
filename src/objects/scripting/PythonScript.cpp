@@ -71,7 +71,7 @@ PythonScript::PythonScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void PythonScript::newObject(){
-    this->setName("python script");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"_mosaic_data_outlet");
 }
@@ -430,3 +430,5 @@ void PythonScript::pathChanged(const PathWatcher::Event &event) {
 
 }
 
+
+OBJECT_REGISTER( PythonScript, "python script", OFXVP_OBJECT_CAT_SCRIPTING);

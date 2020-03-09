@@ -53,4 +53,5 @@ public:
     vector<float>   *empty;
     ofImage         *kuro;
 
+    OBJECT_FACTORY_PROPS;
 };

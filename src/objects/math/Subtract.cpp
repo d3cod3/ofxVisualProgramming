@@ -60,7 +60,7 @@ Subtract::Subtract() : PatchObject(){
 
 //--------------------------------------------------------------
 void Subtract::newObject(){
-    this->setName("subtract");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
     this->addOutlet(VP_LINK_NUMERIC,"result");
@@ -181,3 +181,5 @@ void Subtract::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Subtract, "subtract", OFXVP_OBJECT_CAT_MATH);

@@ -62,7 +62,7 @@ SignalTrigger::SignalTrigger() : PatchObject(){
 
 //--------------------------------------------------------------
 void SignalTrigger::newObject(){
-    this->setName("signal trigger");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"thresh");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -215,3 +215,5 @@ void SignalTrigger::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"THRESHOLD");
     thresh_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
 }
+
+OBJECT_REGISTER( SignalTrigger, "signal trigger", OFXVP_OBJECT_CAT_SOUND);

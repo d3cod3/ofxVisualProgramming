@@ -77,7 +77,7 @@ VideoPlayer::VideoPlayer() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoPlayer::newObject(){
-    this->setName("video player");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
@@ -423,3 +423,5 @@ void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoPlayer, "video player", OFXVP_OBJECT_CAT_VIDEO);

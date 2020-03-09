@@ -56,7 +56,7 @@ RMSExtractor::RMSExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void RMSExtractor::newObject(){
-    this->setName("rms extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"RMS");
 }
@@ -133,3 +133,5 @@ void RMSExtractor::drawObjectContent(ofxFontStash *font){
 void RMSExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

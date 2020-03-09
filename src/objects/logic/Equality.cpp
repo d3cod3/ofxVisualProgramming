@@ -56,7 +56,7 @@ Equality::Equality() : PatchObject(){
 
 //--------------------------------------------------------------
 void Equality::newObject(){
-    this->setName("==");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 
@@ -151,3 +151,5 @@ void Equality::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( Equality, "==", OFXVP_OBJECT_CAT_LOGIC);

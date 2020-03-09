@@ -83,4 +83,5 @@ protected:
     bool                    needToLoadVideo;
     bool                    threadLoaded;
 
+    OBJECT_FACTORY_PROPS;
 };

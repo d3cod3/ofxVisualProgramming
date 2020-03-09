@@ -56,4 +56,5 @@ public:
 
     bool                loaded;
 
+    OBJECT_FACTORY_PROPS;
 };

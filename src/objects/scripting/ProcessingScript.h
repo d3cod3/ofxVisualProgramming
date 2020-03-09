@@ -97,4 +97,5 @@ public:
 protected:
     ThreadedCommand         tempCommand;
 
+    OBJECT_FACTORY_PROPS;
 };

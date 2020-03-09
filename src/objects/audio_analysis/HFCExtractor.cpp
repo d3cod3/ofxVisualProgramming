@@ -56,7 +56,7 @@ HFCExtractor::HFCExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void HFCExtractor::newObject(){
-    this->setName("hfc extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"highFrequencyContent");
 }
@@ -133,3 +133,5 @@ void HFCExtractor::drawObjectContent(ofxFontStash *font){
 void HFCExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( HFCExtractor , "hfc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

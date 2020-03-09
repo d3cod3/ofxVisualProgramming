@@ -64,7 +64,7 @@ Gate::Gate() : PatchObject(){
 
 //--------------------------------------------------------------
 void Gate::newObject(){
-    this->setName("gate");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"open");
     this->addInlet(VP_LINK_NUMERIC,"f1");
     this->addInlet(VP_LINK_NUMERIC,"f2");
@@ -112,3 +112,5 @@ void Gate::drawObjectContent(ofxFontStash *font){
 void Gate::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( Gate, "gate", OFXVP_OBJECT_CAT_LOGIC);

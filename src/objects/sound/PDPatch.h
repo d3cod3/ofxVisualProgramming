@@ -141,4 +141,5 @@ public:
 protected:
 
 
+    OBJECT_FACTORY_PROPS;
 };

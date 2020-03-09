@@ -53,7 +53,7 @@ OscSender::OscSender() : PatchObject(){
 
 //--------------------------------------------------------------
 void OscSender::newObject(){
-    this->setName("osc sender");
+    this->setName(this->objectName);
 
     this->setCustomVar(static_cast<float>(osc_port),"PORT");
 }
@@ -292,6 +292,7 @@ void OscSender::initInlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("N",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -302,6 +303,7 @@ void OscSender::initInlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("T",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -311,6 +313,7 @@ void OscSender::initInlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("V",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -320,6 +323,7 @@ void OscSender::initInlets(){
                                         ofxDatGuiTextInput* temp;
                                         temp = gui->addTextInput("I",XML.getValue("name",""));
                                         temp->setUseCustomMouse(true);
+                                        temp->setTextUpperCase(false);
                                         labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
                                         gui->setWidth(this->width);
@@ -352,6 +356,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("N","/labelnumber");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labelnumber");
             gui->setWidth(this->width);
@@ -370,6 +375,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("T","/labeltext");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labeltext");
             gui->setWidth(this->width);
@@ -387,6 +393,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("V","/labelvector");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labelvector");
             gui->setWidth(this->width);
@@ -404,6 +411,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
             ofxDatGuiTextInput* temp;
             temp = gui->addTextInput("I","/labelimage");
             temp->setUseCustomMouse(true);
+            temp->setTextUpperCase(false);
             labels.push_back(temp);
             osc_labels.push_back("/labelimage");
             gui->setWidth(this->width);
@@ -444,3 +452,5 @@ void OscSender::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( OscSender, "osc sender", OFXVP_OBJECT_CAT_COMMUNICATIONS);

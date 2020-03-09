@@ -69,7 +69,7 @@ DelayFloat::DelayFloat() : PatchObject(){
 
 //--------------------------------------------------------------
 void DelayFloat::newObject(){
-    this->setName("delay float");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addInlet(VP_LINK_NUMERIC,"ms");
@@ -214,3 +214,5 @@ void DelayFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( DelayFloat, "delay float", OFXVP_OBJECT_CAT_LOGIC);

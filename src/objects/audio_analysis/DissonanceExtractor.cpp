@@ -56,7 +56,7 @@ DissonanceExtractor::DissonanceExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void DissonanceExtractor::newObject(){
-    this->setName("dissonance extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"dissonance");
 }
@@ -133,3 +133,5 @@ void DissonanceExtractor::drawObjectContent(ofxFontStash *font){
 void DissonanceExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( DissonanceExtractor, "dissonance extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

@@ -61,7 +61,7 @@ MotionDetection::MotionDetection() : PatchObject(){
 
 //--------------------------------------------------------------
 void MotionDetection::newObject(){
-    this->setName("motion detection");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_NUMERIC,"motionQuantity");
 
@@ -249,3 +249,5 @@ void MotionDetection::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( MotionDetection, "motion detection", OFXVP_OBJECT_CAT_CV);

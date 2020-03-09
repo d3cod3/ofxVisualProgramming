@@ -70,4 +70,5 @@ public:
     bool                        loadHaarConfigFlag;
     bool                        haarConfigLoaded;
 
+    OBJECT_FACTORY_PROPS;
 };

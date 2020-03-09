@@ -64,4 +64,5 @@ public:
     ofxParagraph*               paragraph;
     moTextBuffer*               textBuffer;
 
+    OBJECT_FACTORY_PROPS;
 };

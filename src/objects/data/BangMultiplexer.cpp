@@ -60,7 +60,7 @@ BangMultiplexer::BangMultiplexer() : PatchObject(){
 
 //--------------------------------------------------------------
 void BangMultiplexer::newObject(){
-    this->setName("bang multiplexer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"f1");
     this->addInlet(VP_LINK_NUMERIC,"f2");
     this->addInlet(VP_LINK_NUMERIC,"f3");
@@ -101,3 +101,5 @@ void BangMultiplexer::drawObjectContent(ofxFontStash *font){
 void BangMultiplexer::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( BangMultiplexer, "bang multiplexer", OFXVP_OBJECT_CAT_DATA);

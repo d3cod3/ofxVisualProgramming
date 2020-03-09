@@ -59,7 +59,7 @@ Multiply::Multiply() : PatchObject(){
 
 //--------------------------------------------------------------
 void Multiply::newObject(){
-    this->setName("multiply");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
     this->addOutlet(VP_LINK_NUMERIC,"result");
@@ -179,3 +179,5 @@ void Multiply::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Multiply, "multiply", OFXVP_OBJECT_CAT_MATH);

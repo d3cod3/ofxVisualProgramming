@@ -59,7 +59,7 @@ pdspBitCruncher::pdspBitCruncher() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspBitCruncher::newObject(){
-    this->setName("bit cruncher");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"in");
     this->addInlet(VP_LINK_NUMERIC,"bits");
     this->addOutlet(VP_LINK_AUDIO,"out");
@@ -205,3 +205,5 @@ void pdspBitCruncher::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"BITS");
     bits_ctrl.set(ofClamp(static_cast<float>(e.value),1.0f,8.0f));
 }
+
+OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND);

@@ -59,7 +59,7 @@ SigMult::SigMult() : PatchObject(){
 
 //--------------------------------------------------------------
 void SigMult::newObject(){
-    this->setName("amp");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"gain");
     this->addOutlet(VP_LINK_AUDIO,"amplifiedSignal");
@@ -212,3 +212,5 @@ void SigMult::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"GAIN");
     gain_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,12.0f));
 }
+
+OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND);

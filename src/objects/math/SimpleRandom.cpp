@@ -59,7 +59,7 @@ SimpleRandom::SimpleRandom() : PatchObject(){
 
 //--------------------------------------------------------------
 void SimpleRandom::newObject(){
-    this->setName("simple random");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
@@ -122,3 +122,5 @@ void SimpleRandom::drawObjectContent(ofxFontStash *font){
 void SimpleRandom::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH);

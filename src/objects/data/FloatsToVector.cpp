@@ -59,7 +59,7 @@ FloatsToVector::FloatsToVector() : PatchObject(){
 
 //--------------------------------------------------------------
 void FloatsToVector::newObject(){
-    this->setName("floats to vector");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"f1");
     this->addInlet(VP_LINK_NUMERIC,"f2");
     this->addInlet(VP_LINK_NUMERIC,"f3");
@@ -99,3 +99,5 @@ void FloatsToVector::drawObjectContent(ofxFontStash *font){
 void FloatsToVector::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA);

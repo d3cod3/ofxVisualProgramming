@@ -90,3 +90,16 @@
 
 #define	NOTES                           128
 #define MOSAIC_DEFAULT_BUFFER_SIZE     1024
+
+#define OFXVP_OBJECT_CAT_AUDIOANALYSIS  "audio analysis"
+#define OFXVP_OBJECT_CAT_COMMUNICATIONS "communications"
+#define OFXVP_OBJECT_CAT_CV             "computer vision"
+#define OFXVP_OBJECT_CAT_DATA           "data"
+#define OFXVP_OBJECT_CAT_GRAPHICS       "graphics"
+#define OFXVP_OBJECT_CAT_GUI            "gui"
+#define OFXVP_OBJECT_CAT_LOGIC          "logic"
+#define OFXVP_OBJECT_CAT_MATH           "math"
+#define OFXVP_OBJECT_CAT_SCRIPTING      "scripting"
+#define OFXVP_OBJECT_CAT_SOUND          "sound"
+#define OFXVP_OBJECT_CAT_VIDEO          "video"
+#define OFXVP_OBJECT_CAT_WINDOWING      "windowing"

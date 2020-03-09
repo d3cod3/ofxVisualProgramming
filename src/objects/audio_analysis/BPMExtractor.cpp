@@ -58,7 +58,7 @@ BPMExtractor::BPMExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void BPMExtractor::newObject(){
-    this->setName("bpm extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"bpm");
     this->addOutlet(VP_LINK_NUMERIC,"millis");
@@ -135,3 +135,5 @@ void BPMExtractor::drawObjectContent(ofxFontStash *font){
 void BPMExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

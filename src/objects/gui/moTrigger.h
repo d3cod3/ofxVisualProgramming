@@ -50,4 +50,5 @@ public:
 
     bool            trigger;
 
+    OBJECT_FACTORY_PROPS;
 };

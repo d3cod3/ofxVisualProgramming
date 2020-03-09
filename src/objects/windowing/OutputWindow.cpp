@@ -79,7 +79,7 @@ OutputWindow::OutputWindow() : PatchObject(){
 
 //--------------------------------------------------------------
 void OutputWindow::newObject(){
-    this->setName("output window");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"projector");
     this->addInlet(VP_LINK_SPECIAL,"script");
 
@@ -794,3 +794,5 @@ void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
 
     }
 }
+
+OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING);

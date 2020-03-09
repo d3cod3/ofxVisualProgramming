@@ -51,7 +51,7 @@ MidiScore::MidiScore() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiScore::newObject(){
-    this->setName("midi score");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"score");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"midiNote");
@@ -107,3 +107,5 @@ void MidiScore::drawObjectContent(ofxFontStash *font){
 void MidiScore::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS);

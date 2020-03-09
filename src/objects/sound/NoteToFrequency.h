@@ -64,4 +64,5 @@ public:
 
     int                     lastNote;
 
+    OBJECT_FACTORY_PROPS;
 };

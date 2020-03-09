@@ -90,7 +90,7 @@ LuaScript::LuaScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void LuaScript::newObject(){
-    this->setName("lua script");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE,"generatedTexture");
     this->addOutlet(VP_LINK_SPECIAL,"mouseKeyboardInteractivity");
@@ -684,3 +684,5 @@ void LuaScript::errorReceived(std::string& msg) {
         }
     }
 }
+
+OBJECT_REGISTER( LuaScript, "lua script", OFXVP_OBJECT_CAT_SCRIPTING);

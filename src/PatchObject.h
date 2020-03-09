@@ -44,6 +44,8 @@
 
 #include "DraggableVertex.h"
 
+#include "objectFactory.h"
+
 enum LINK_TYPE {
     VP_LINK_NUMERIC,
     VP_LINK_STRING,
@@ -256,3 +258,31 @@ protected:
     float                   retinaScale;
 
 };
+
+// This macro allows easy object registration
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#define OBJECT_REGISTER(TYPE, NAME, CATEGORY)                           \
+namespace ofxVPObjects {                                                \
+namespace factory {                                                     \
+namespace {                                                             \
+template<class T>                                                       \
+class objectRegistration;                                               \
+                                                                        \
+template<>                                                              \
+class objectRegistration<TYPE>{                                         \
+    static const ::ofxVPObjects::factory::RegistryEntry<TYPE>& reg;     \
+};                                                                      \
+                                                                        \
+const ::ofxVPObjects::factory::RegistryEntry<TYPE>&                     \
+objectRegistration<TYPE>::reg =                                         \
+::ofxVPObjects::factory::RegistryEntry<TYPE>::Instance(NAME, CATEGORY); \
+                                                                        \
+}}}                                                                     \
+const std::string TYPE::objectName(NAME);                               \
+const std::string TYPE::objectCategory(CATEGORY);
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#define OBJECT_FACTORY_PROPS                    \
+private:                                        \
+    static const std::string objectName;        \
+    static const std::string objectCategory;    \

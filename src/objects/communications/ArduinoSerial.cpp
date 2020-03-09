@@ -57,7 +57,7 @@ ArduinoSerial::ArduinoSerial() : PatchObject(){
 
 //--------------------------------------------------------------
 void ArduinoSerial::newObject(){
-    this->setName("arduino serial");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"dataFromArduino");
 
@@ -319,3 +319,5 @@ void ArduinoSerial::onDropdownEvent(ofxDatGuiDropdownEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS);

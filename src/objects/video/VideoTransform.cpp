@@ -73,7 +73,7 @@ VideoTransform::VideoTransform() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoTransform::newObject(){
-    this->setName("video transform");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
@@ -320,3 +320,5 @@ void VideoTransform::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO);

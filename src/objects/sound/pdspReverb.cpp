@@ -68,7 +68,7 @@ pdspReverb::pdspReverb() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspReverb::newObject(){
-    this->setName("reverb");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"density");
@@ -300,3 +300,5 @@ void pdspReverb::onSliderEvent(ofxDatGuiSliderEvent e){
     }
     
 }
+
+OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND);

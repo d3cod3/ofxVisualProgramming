@@ -56,7 +56,7 @@ InharmonicityExtractor::InharmonicityExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void InharmonicityExtractor::newObject(){
-    this->setName("inharmonicity extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"inharmonicity");
 }
@@ -133,3 +133,5 @@ void InharmonicityExtractor::drawObjectContent(ofxFontStash *font){
 void InharmonicityExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( InharmonicityExtractor , "inharmonicity extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

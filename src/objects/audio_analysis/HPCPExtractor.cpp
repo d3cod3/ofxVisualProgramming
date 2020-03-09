@@ -56,7 +56,7 @@ HPCPExtractor::HPCPExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void HPCPExtractor::newObject(){
-    this->setName("hpcp extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"harmonicPitchClassProfile");
 }
@@ -137,3 +137,5 @@ void HPCPExtractor::drawObjectContent(ofxFontStash *font){
 void HPCPExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( HPCPExtractor , "hpcp extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

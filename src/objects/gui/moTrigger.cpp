@@ -52,7 +52,7 @@ moTrigger::moTrigger() : PatchObject(){
 
 //--------------------------------------------------------------
 void moTrigger::newObject(){
-    this->setName("trigger");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 }
@@ -106,3 +106,5 @@ void moTrigger::mouseReleasedObjectContent(ofVec3f _m){
         trigger = !trigger;
     }
 }
+
+OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI);

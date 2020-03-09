@@ -79,7 +79,7 @@ ShaderObject::ShaderObject() : PatchObject(){
 
 //--------------------------------------------------------------
 void ShaderObject::newObject(){
-    this->setName("shader object");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_TEXTURE,"output");
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
@@ -740,3 +740,5 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
     }
 
 }
+
+OBJECT_REGISTER( ShaderObject, "shader object", OFXVP_OBJECT_CAT_SCRIPTING);

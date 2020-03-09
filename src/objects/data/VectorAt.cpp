@@ -57,7 +57,7 @@ VectorAt::VectorAt() : PatchObject(){
 
 //--------------------------------------------------------------
 void VectorAt::newObject(){
-    this->setName("vector at");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"vector");
     this->addInlet(VP_LINK_NUMERIC,"at");
     this->addOutlet(VP_LINK_NUMERIC,"value");
@@ -104,7 +104,7 @@ void VectorAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
         vectorAt = static_cast<int>(floor(*(float *)&_inletParams[1]));
     }
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && _inletParams[0]){
         if(static_cast<vector<float> *>(_inletParams[0])->size() > 0){
             if(vectorAt < static_cast<vector<float> *>(_inletParams[0])->size()){
                 *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(vectorAt);
@@ -183,3 +183,5 @@ void VectorAt::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA);

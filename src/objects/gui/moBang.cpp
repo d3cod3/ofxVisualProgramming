@@ -56,7 +56,7 @@ moBang::moBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void moBang::newObject(){
-    this->setName("bang");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
@@ -122,3 +122,5 @@ void moBang::mouseReleasedObjectContent(ofVec3f _m){
         isBangFinished = true;
     }
 }
+
+OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI);

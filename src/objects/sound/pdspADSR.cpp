@@ -73,7 +73,7 @@ pdspADSR::pdspADSR() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspADSR::newObject(){
-    this->setName("ADSR envelope");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"duration");
@@ -334,3 +334,5 @@ void pdspADSR::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( pdspADSR, "ADSR envelope", OFXVP_OBJECT_CAT_SOUND);

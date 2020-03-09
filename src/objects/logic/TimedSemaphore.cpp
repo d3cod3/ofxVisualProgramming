@@ -63,7 +63,7 @@ TimedSemaphore::TimedSemaphore() : PatchObject(){
 
 //--------------------------------------------------------------
 void TimedSemaphore::newObject(){
-    this->setName("timed semaphore");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -183,3 +183,5 @@ void TimedSemaphore::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( TimedSemaphore, "timed semaphore", OFXVP_OBJECT_CAT_LOGIC);

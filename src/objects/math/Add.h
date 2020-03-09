@@ -58,4 +58,5 @@ public:
     float                   number;
     bool                    loaded;
 
+    OBJECT_FACTORY_PROPS;
 };

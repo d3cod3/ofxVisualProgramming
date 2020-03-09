@@ -58,7 +58,7 @@ moMessage::moMessage() : PatchObject(){
 
 //--------------------------------------------------------------
 void moMessage::newObject(){
-    this->setName("message");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_STRING,"message");
     this->addOutlet(VP_LINK_STRING,"message");
@@ -160,3 +160,5 @@ void moMessage::onButtonEvent(ofxDatGuiButtonEvent e){
 void moMessage::onTextInputEvent(ofxDatGuiTextInputEvent e){
     // cout << "From Event Object: " << e.text << endl;
 }
+
+OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI);

@@ -33,60 +33,6 @@
 #include "ofxVisualProgramming.h"
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::initObjectMatrix(){
-    vector<string> vecInit = {};
-
-    vecInit = {"audio analyzer","beat extractor","bpm extractor","centroid extractor","dissonance extractor","fft extractor","hfc extractor","hpcp extractor","inharmonicity extractor","mel bands extractor","mfcc extractor","onset extractor","pitch extractor","power extractor","rms extractor","rolloff extractor","tristimulus extractor"};
-    objectsMatrix["audio_analysis"] = vecInit;
-
-    vecInit = {"arduino serial","key pressed","key released","midi key","midi knob","midi pad","midi receiver","midi score","midi sender","osc receiver","osc sender"};
-    objectsMatrix["communications"] = vecInit;
-
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","face tracker","haar tracking","motion detection","optical flow"};
-#elif defined(TARGET_WIN32)
-    vecInit = {"background subtraction","chroma key","color tracking","contour tracking","haar tracking","motion detection","optical flow"};
-#endif
-    objectsMatrix["computer vision"] = vecInit;
-
-    vecInit = {"bang multiplexer","bang to float","data to file","data to texture","file to data","floats to vector","texture to data","vector at","vector concat","vector gate","vector multiply"};
-    objectsMatrix["data"] = vecInit;
-
-    vecInit = {"image exporter","image loader"};
-    objectsMatrix["graphics"] = vecInit;
-
-    vecInit = {"2d pad","bang","comment","message","player controls","signal viewer","slider","sonogram","timeline","trigger","video viewer","vu meter"};
-    objectsMatrix["gui"] = vecInit;
-
-    vecInit = {"&&","||","==","!=",">","<","counter","delay bang","delay float","gate","inverter","loadbang","select","spigot","timed semaphore"};
-    objectsMatrix["logic"] = vecInit;
-
-    vecInit = {"add","clamp","constant","divide","map","metronome","modulus","multiply","range","simple noise","simple random","smooth","subtract"};
-    objectsMatrix["math"] = vecInit;
-
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"bash script","lua script","processing script","python script","shader object"};
-#elif defined(TARGET_WIN32)
-    vecInit = {"lua script","processing script","python script","shader object"};
-#endif
-    objectsMatrix["scripting"] = vecInit;
-
-    vecInit = {"ADSR envelope","AHR envelope","amp","audio exporter","audio gate","bit cruncher","bit noise","chorus","comb filter","compressor","crossfader","data oscillator","decimator","delay","ducker","hi pass","lfo","low pass","mixer","note to frequency","panner","pd patch","pulse","quad panner","resonant 2pole filter","reverb","saw","signal trigger","sine","soundfile player","triangle","white noise"};
-    objectsMatrix["sound"] = vecInit;
-
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video receiver","video sender","video streaming","video timedelay","video transform"};
-#elif defined(TARGET_WIN32)
-   vecInit = {"kinect grabber","video crop","video feedback","video exporter","video gate","video grabber","video player","video streaming","video timedelay","video transform"};
-#endif
-    objectsMatrix["video"] = vecInit;
-
-    vecInit = {"live patching","output window","projection mapping"};
-    objectsMatrix["windowing"] = vecInit;
-
-}
-
-//--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
 
     mainWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofGetCurrentWindow());
@@ -184,9 +130,6 @@ void ofxVisualProgramming::setup(){
     // Threaded File Dialogs
     fileDialog.setup();
     ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
-
-    // INIT OBJECTS
-    initObjectMatrix();
 
     // Create new empty file patch
     newPatch();
@@ -348,7 +291,7 @@ void ofxVisualProgramming::draw(){
         }
 
     }
-    
+
     canvas.end();
 
     // Draw Bottom Bar
@@ -772,12 +715,10 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     // check if object exists
     bool exists = false;
-    for(map<string,vector<string>>::iterator it = objectsMatrix.begin(); it != objectsMatrix.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second.size());j++){
-            if(it->second.at(j) == name){
-                exists = true;
-                break;
-            }
+    for(ofxVPObjects::factory::objectRegistry::iterator it = ofxVPObjects::factory::getObjectRegistry().begin(); it != ofxVPObjects::factory::getObjectRegistry().end(); it++ ){
+        if(it->first == name){
+            exists = true;
+            break;
         }
     }
     if(!exists && name != "audio device"){
@@ -1292,313 +1233,16 @@ bool ofxVisualProgramming::weAlreadyHaveObject(string name){
 
 //--------------------------------------------------------------
 shared_ptr<PatchObject> ofxVisualProgramming::selectObject(string objname){
-    shared_ptr<PatchObject> tempObj;
+    ofxVPObjects::factory::objectRegistry& reg = ofxVPObjects::factory::getObjectRegistry();
+    ofxVPObjects::factory::objectRegistry::iterator it = reg.find(objname);
 
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(objname == "bash script"){
-        tempObj = shared_ptr<PatchObject>(new BashScript());
-    }else if(objname == "face tracker"){
-        tempObj = shared_ptr<PatchObject>(new FaceTracker());
-    }else if(objname == "video receiver"){
-        tempObj = shared_ptr<PatchObject>(new VideoReceiver());
-    }else if(objname == "video sender"){
-        tempObj = shared_ptr<PatchObject>(new VideoSender());
-    }else
-#endif
-
-    if(objname == "python script"){
-        tempObj = shared_ptr<PatchObject>(new PythonScript());
-    }else if(objname == "lua script"){
-        tempObj = shared_ptr<PatchObject>(new LuaScript());
-    }else if(objname == "processing script"){
-        tempObj = shared_ptr<PatchObject>(new ProcessingScript());
-    }else if(objname == "shader object"){
-        tempObj = shared_ptr<PatchObject>(new ShaderObject());
-    // -------------------------------------- Audio Analysis
-    }else if(objname == "audio analyzer"){
-        tempObj = shared_ptr<PatchObject>(new AudioAnalyzer());
-    }else if(objname == "audio device"){
-        tempObj = shared_ptr<PatchObject>(new AudioDevice());
-    }else if(objname == "beat extractor"){
-        tempObj = shared_ptr<PatchObject>(new BeatExtractor());
-    }else if(objname == "bpm extractor"){
-        tempObj = shared_ptr<PatchObject>(new BPMExtractor());
-    }else if(objname == "centroid extractor"){
-        tempObj = shared_ptr<PatchObject>(new CentroidExtractor());
-    }else if(objname == "dissonance extractor"){
-        tempObj = shared_ptr<PatchObject>(new DissonanceExtractor());
-    }else if(objname == "fft extractor"){
-        tempObj = shared_ptr<PatchObject>(new FftExtractor());
-    }else if(objname == "hfc extractor"){
-        tempObj = shared_ptr<PatchObject>(new HFCExtractor());
-    }else if(objname == "hpcp extractor"){
-        tempObj = shared_ptr<PatchObject>(new HPCPExtractor());
-    }else if(objname == "inharmonicity extractor"){
-        tempObj = shared_ptr<PatchObject>(new InharmonicityExtractor());
-    }else if(objname == "mel bands extractor"){
-        tempObj = shared_ptr<PatchObject>(new MelBandsExtractor());
-    }else if(objname == "mfcc extractor"){
-        tempObj = shared_ptr<PatchObject>(new MFCCExtractor());
-    }else if(objname == "onset extractor"){
-        tempObj = shared_ptr<PatchObject>(new OnsetExtractor());
-    }else if(objname == "pitch extractor"){
-        tempObj = shared_ptr<PatchObject>(new PitchExtractor());
-    }else if(objname == "power extractor"){
-        tempObj = shared_ptr<PatchObject>(new PowerExtractor());
-    }else if(objname == "rms extractor"){
-        tempObj = shared_ptr<PatchObject>(new RMSExtractor());
-    }else if(objname == "rolloff extractor"){
-        tempObj = shared_ptr<PatchObject>(new RollOffExtractor());
-    }else if(objname == "tristimulus extractor"){
-        tempObj = shared_ptr<PatchObject>(new TristimulusExtractor());
-    // -------------------------------------- Communications
-    }else if(objname == "arduino serial"){
-        tempObj = shared_ptr<PatchObject>(new ArduinoSerial());
-    }else if(objname == "key pressed"){
-        tempObj = shared_ptr<PatchObject>(new KeyPressed());
-    }else if(objname == "key released"){
-        tempObj = shared_ptr<PatchObject>(new KeyReleased());
-    }else if(objname == "midi key"){
-        tempObj = shared_ptr<PatchObject>(new MidiKey());
-    }else if(objname == "midi knob"){
-        tempObj = shared_ptr<PatchObject>(new MidiKnob());
-    }else if(objname == "midi pad"){
-        tempObj = shared_ptr<PatchObject>(new MidiPad());
-    }else if(objname == "midi receiver"){
-        tempObj = shared_ptr<PatchObject>(new MidiReceiver());
-    }else if(objname == "midi score"){
-        tempObj = shared_ptr<PatchObject>(new MidiScore());
-    }else if(objname == "midi sender"){
-        tempObj = shared_ptr<PatchObject>(new MidiSender());
-    }else if(objname == "osc receiver"){
-        tempObj = shared_ptr<PatchObject>(new OscReceiver());
-    }else if(objname == "osc sender"){
-        tempObj = shared_ptr<PatchObject>(new OscSender());
-    // -------------------------------------- Data
-    }else if(objname == "bang multiplexer"){
-        tempObj = shared_ptr<PatchObject>(new BangMultiplexer());
-    }else if(objname == "bang to float"){
-        tempObj = shared_ptr<PatchObject>(new BangToFloat());
-    }else if(objname == "data to file"){
-        tempObj = shared_ptr<PatchObject>(new DataToFile());
-    }else if(objname == "file to data"){
-        tempObj = shared_ptr<PatchObject>(new FileToData());
-    }else if(objname == "data to texture"){
-        tempObj = shared_ptr<PatchObject>(new DataToTexture());
-    }else if(objname == "vector at"){
-        tempObj = shared_ptr<PatchObject>(new VectorAt());
-    }else if(objname == "vector concat"){
-        tempObj = shared_ptr<PatchObject>(new VectorConcat());
-    }else if(objname == "floats to vector"){
-        tempObj = shared_ptr<PatchObject>(new FloatsToVector());
-    }else if(objname == "texture to data"){
-        tempObj = shared_ptr<PatchObject>(new TextureToData());
-    }else if(objname == "vector gate"){
-        tempObj = shared_ptr<PatchObject>(new VectorGate());
-    }else if(objname == "vector multiply"){
-        tempObj = shared_ptr<PatchObject>(new VectorMultiply());
-    // -------------------------------------- Graphics
-    }else if(objname == "image exporter"){
-        tempObj = shared_ptr<PatchObject>(new ImageExporter());
-    }else if(objname == "image loader"){
-        tempObj = shared_ptr<PatchObject>(new ImageLoader());
-    // -------------------------------------- Sound
-    }else if(objname == "ADSR envelope"){
-        tempObj = shared_ptr<PatchObject>(new pdspADSR());
-    }else if(objname == "AHR envelope"){
-        tempObj = shared_ptr<PatchObject>(new pdspAHR());
-    }else if(objname == "amp"){
-        tempObj = shared_ptr<PatchObject>(new SigMult());
-    }else if(objname == "audio exporter"){
-        tempObj = shared_ptr<PatchObject>(new AudioExporter());
-    }else if(objname == "audio gate"){
-        tempObj = shared_ptr<PatchObject>(new AudioGate());
-    }else if(objname == "bit cruncher"){
-        tempObj = shared_ptr<PatchObject>(new pdspBitCruncher());
-    }else if(objname == "bit noise"){
-        tempObj = shared_ptr<PatchObject>(new pdspBitNoise());
-    }else if(objname == "crossfader"){
-        tempObj = shared_ptr<PatchObject>(new Crossfader());
-    }else if(objname == "chorus"){
-        tempObj = shared_ptr<PatchObject>(new pdspChorusEffect());
-    }else if(objname == "comb filter"){
-        tempObj = shared_ptr<PatchObject>(new pdspCombFilter());
-    }else if(objname == "compressor"){
-        tempObj = shared_ptr<PatchObject>(new pdspCompressor());
-    }else if(objname == "decimator"){
-        tempObj = shared_ptr<PatchObject>(new pdspDecimator());
-    }else if(objname == "ducker"){
-        tempObj = shared_ptr<PatchObject>(new pdspDucker());
-    }else if(objname == "lfo"){
-        tempObj = shared_ptr<PatchObject>(new pdspLFO());
-    }else if(objname == "mixer"){
-        tempObj = shared_ptr<PatchObject>(new Mixer());
-    }else if(objname == "note to frequency"){
-        tempObj = shared_ptr<PatchObject>(new NoteToFrequency());
-    }else if(objname == "panner"){
-        tempObj = shared_ptr<PatchObject>(new Panner());
-    }else if(objname == "resonant 2pole filter"){
-        tempObj = shared_ptr<PatchObject>(new pdspResonant2PoleFilter());
-    }else if(objname == "pd patch"){
-        tempObj = shared_ptr<PatchObject>(new PDPatch());
-    }else if(objname == "quad panner"){
-        tempObj = shared_ptr<PatchObject>(new QuadPanner());
-    }else if(objname == "pulse"){
-        tempObj = shared_ptr<PatchObject>(new OscPulse());
-    }else if(objname == "reverb"){
-        tempObj = shared_ptr<PatchObject>(new pdspReverb());
-    }else if(objname == "saw"){
-        tempObj = shared_ptr<PatchObject>(new OscSaw());
-    }else if(objname == "sine"){
-        tempObj = shared_ptr<PatchObject>(new Oscillator());
-    }else if(objname == "triangle"){
-        tempObj = shared_ptr<PatchObject>(new OscTriangle());
-    }else if(objname == "signal trigger"){
-        tempObj = shared_ptr<PatchObject>(new SignalTrigger());
-    }else if(objname == "soundfile player"){
-        tempObj = shared_ptr<PatchObject>(new SoundfilePlayer());
-    }else if(objname == "delay"){
-        tempObj = shared_ptr<PatchObject>(new pdspDelay());
-    }else if(objname == "data oscillator"){
-        tempObj = shared_ptr<PatchObject>(new pdspDataOscillator());
-    }else if(objname == "low pass"){
-        tempObj = shared_ptr<PatchObject>(new pdspHiCut());
-    }else if(objname == "hi pass"){
-        tempObj = shared_ptr<PatchObject>(new pdspLowCut());
-    }else if(objname == "white noise"){
-        tempObj = shared_ptr<PatchObject>(new pdspWhiteNoise());
-    // -------------------------------------- Math
-    }else if(objname == "add"){
-        tempObj = shared_ptr<PatchObject>(new Add());
-    }else if(objname == "clamp"){
-        tempObj = shared_ptr<PatchObject>(new Clamp());
-    }else if(objname == "constant"){
-        tempObj = shared_ptr<PatchObject>(new Constant());
-    }else if(objname == "divide"){
-        tempObj = shared_ptr<PatchObject>(new Divide());
-    }else if(objname == "map"){
-        tempObj = shared_ptr<PatchObject>(new Map());
-    }else if(objname == "metronome"){
-        tempObj = shared_ptr<PatchObject>(new Metronome());
-    }else if(objname == "modulus"){
-        tempObj = shared_ptr<PatchObject>(new Module());
-    }else if(objname == "multiply"){
-        tempObj = shared_ptr<PatchObject>(new Multiply());
-    }else if(objname == "range"){
-        tempObj = shared_ptr<PatchObject>(new Range());
-    }else if(objname == "simple random"){
-        tempObj = shared_ptr<PatchObject>(new SimpleRandom());
-    }else if(objname == "simple noise"){
-        tempObj = shared_ptr<PatchObject>(new SimpleNoise());
-    }else if(objname == "smooth"){
-        tempObj = shared_ptr<PatchObject>(new Smooth());
-    }else if(objname == "subtract"){
-        tempObj = shared_ptr<PatchObject>(new Subtract());
-    // -------------------------------------- Logic
-    }else if(objname == "&&"){
-        tempObj = shared_ptr<PatchObject>(new AND());
-    }else if(objname == "||"){
-        tempObj = shared_ptr<PatchObject>(new OR());
-    }else if(objname == "=="){
-        tempObj = shared_ptr<PatchObject>(new Equality());
-    }else if(objname == "!="){
-        tempObj = shared_ptr<PatchObject>(new Inequality());
-    }else if(objname == ">"){
-        tempObj = shared_ptr<PatchObject>(new BiggerThan());
-    }else if(objname == "<"){
-        tempObj = shared_ptr<PatchObject>(new SmallerThan());
-    }else if(objname == "counter"){
-        tempObj = shared_ptr<PatchObject>(new Counter());
-    }else if(objname == "delay bang"){
-        tempObj = shared_ptr<PatchObject>(new DelayBang());
-    }else if(objname == "delay float"){
-        tempObj = shared_ptr<PatchObject>(new DelayFloat());
-    }else if(objname == "gate"){
-        tempObj = shared_ptr<PatchObject>(new Gate());
-    }else if(objname == "inverter"){
-        tempObj = shared_ptr<PatchObject>(new Inverter());
-    }else if(objname == "loadbang"){
-        tempObj = shared_ptr<PatchObject>(new LoadBang());
-    }else if(objname == "select"){
-        tempObj = shared_ptr<PatchObject>(new Select());
-    }else if(objname == "spigot"){
-        tempObj = shared_ptr<PatchObject>(new Spigot());
-    }else if(objname == "timed semaphore"){
-        tempObj = shared_ptr<PatchObject>(new TimedSemaphore());
-    // -------------------------------------- GUI
-    }else if(objname == "2d pad"){
-        tempObj = shared_ptr<PatchObject>(new mo2DPad());
-    }else if(objname == "bang"){
-        tempObj = shared_ptr<PatchObject>(new moBang());
-    }else if(objname == "comment"){
-        tempObj = shared_ptr<PatchObject>(new moComment());
-    }else if(objname == "message"){
-        tempObj = shared_ptr<PatchObject>(new moMessage());
-    }else if(objname == "player controls"){
-        tempObj = shared_ptr<PatchObject>(new moPlayerControls());
-    }else if(objname == "slider"){
-        tempObj = shared_ptr<PatchObject>(new moSlider());
-    }else if(objname == "sonogram"){
-        tempObj = shared_ptr<PatchObject>(new moSonogram());
-    }else if(objname == "timeline"){
-        tempObj = shared_ptr<PatchObject>(new moTimeline());
-    }else if(objname == "trigger"){
-        tempObj = shared_ptr<PatchObject>(new moTrigger());
-    }else if(objname == "video viewer"){
-        tempObj = shared_ptr<PatchObject>(new moVideoViewer());
-    }else if(objname == "signal viewer"){
-        tempObj = shared_ptr<PatchObject>(new moSignalViewer());
-    }else if(objname == "vu meter"){
-        tempObj = shared_ptr<PatchObject>(new moVUMeter());
-    // -------------------------------------- VIDEO
-    }else if(objname == "kinect grabber"){
-        tempObj = shared_ptr<PatchObject>(new KinectGrabber());
-    }else if(objname == "video player"){
-        tempObj = shared_ptr<PatchObject>(new VideoPlayer());
-    }else if(objname == "video grabber"){
-        tempObj = shared_ptr<PatchObject>(new VideoGrabber());
-    }else if(objname == "video feedback"){
-        tempObj = shared_ptr<PatchObject>(new VideoDelay());
-    }else if(objname == "video exporter"){
-        tempObj = shared_ptr<PatchObject>(new VideoExporter());
-    }else if(objname == "video crop"){
-        tempObj = shared_ptr<PatchObject>(new VideoCrop());
-    }else if(objname == "video gate"){
-        tempObj = shared_ptr<PatchObject>(new VideoGate());
-    }else if(objname == "video transform"){
-        tempObj = shared_ptr<PatchObject>(new VideoTransform());
-    }else if(objname == "video streaming"){
-        tempObj = shared_ptr<PatchObject>(new VideoStreaming());
-    }else if(objname == "video timedelay"){
-        tempObj = shared_ptr<PatchObject>(new VideoTimelapse());
-    // -------------------------------------- WINDOWING
-    }else if(objname == "live patching"){
-        tempObj = shared_ptr<PatchObject>(new LivePatching());
-    }else if(objname == "output window"){
-        tempObj = shared_ptr<PatchObject>(new OutputWindow());
-    }else if(objname == "projection mapping"){
-        tempObj = shared_ptr<PatchObject>(new ProjectionMapping());
-    // -------------------------------------- COMPUTER VISION
-    }else if(objname == "background subtraction"){
-        tempObj = shared_ptr<PatchObject>(new BackgroundSubtraction());
-    }else if(objname == "chroma key"){
-        tempObj = shared_ptr<PatchObject>(new ChromaKey());
-    }else if(objname == "color tracking"){
-        tempObj = shared_ptr<PatchObject>(new ColorTracking());
-    }else if(objname == "contour tracking"){
-        tempObj = shared_ptr<PatchObject>(new ContourTracking());
-    }else if(objname == "haar tracking"){
-        tempObj = shared_ptr<PatchObject>(new HaarTracking());
-    }else if(objname == "motion detection"){
-        tempObj = shared_ptr<PatchObject>(new MotionDetection());
-    }else if(objname == "optical flow"){
-        tempObj = shared_ptr<PatchObject>(new OpticalFlow());
-    }else{
-        tempObj = nullptr;
+    if (it != reg.end()) {
+        ofxVPObjects::factory::CreateObjectFunc func = it->second;
+        return shared_ptr<PatchObject>( func() );
     }
 
-
-    return tempObj;
+    ofLogError("ofxVisualProgramming::selectObject") << "Object not found: " << objname << ". Maybe this PatchObject is not available on your platform or there might be a version error.";
+    return shared_ptr<PatchObject>(nullptr);
 }
 
 //--------------------------------------------------------------
@@ -1936,7 +1580,7 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
             engine->setup(audioSampleRate, audioBufferSize, 3);
         }
     }
-    
+
 }
 
 //--------------------------------------------------------------
@@ -1989,7 +1633,7 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
             ofLog(OF_LOG_NOTICE,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
         }
     }
-    
+
 }
 
 //--------------------------------------------------------------

@@ -56,7 +56,7 @@ BiggerThan::BiggerThan() : PatchObject(){
 
 //--------------------------------------------------------------
 void BiggerThan::newObject(){
-    this->setName(">");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 
@@ -151,3 +151,5 @@ void BiggerThan::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( BiggerThan, ">", OFXVP_OBJECT_CAT_LOGIC);
