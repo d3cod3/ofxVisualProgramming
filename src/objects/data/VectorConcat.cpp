@@ -53,7 +53,7 @@ VectorConcat::VectorConcat() : PatchObject(){
 
 //--------------------------------------------------------------
 void VectorConcat::newObject(){
-    this->setName("vector concat");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"v1");
     this->addInlet(VP_LINK_ARRAY,"v2");
     this->addInlet(VP_LINK_ARRAY,"v3");
@@ -69,7 +69,7 @@ void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VectorConcat::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     static_cast<vector<float> *>(_outletParams[0])->clear();
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
@@ -92,3 +92,5 @@ void VectorConcat::drawObjectContent(ofxFontStash *font){
 void VectorConcat::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA);

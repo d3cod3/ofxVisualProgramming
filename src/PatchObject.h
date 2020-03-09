@@ -44,6 +44,8 @@
 
 #include "DraggableVertex.h"
 
+#include "objectFactory.h"
+
 enum LINK_TYPE {
     VP_LINK_NUMERIC,
     VP_LINK_STRING,
@@ -80,7 +82,7 @@ public:
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
-    void                    update(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void                    draw(ofxFontStash *font);
 
     // Virtual Methods
@@ -91,7 +93,7 @@ public:
 
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
-    virtual void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd) {}
+    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) {}
     virtual void            drawObjectContent(ofxFontStash *font) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
@@ -115,7 +117,7 @@ public:
     void                    mouseMoved(float mx, float my);
     void                    mouseDragged(float mx, float my);
     void                    mousePressed(float mx, float my);
-    void                    mouseReleased(float mx, float my,map<int,PatchObject*> &patchObjects);
+    void                    mouseReleased(float mx, float my,map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Keyboard Events
     void                    keyPressed(int key);
@@ -126,7 +128,7 @@ public:
 
     void                    move(int _x, int _y);
     bool                    isOver(ofPoint pos);
-    void                    fixCollisions(map<int,PatchObject*> &patchObjects);
+    void                    fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects);
     void                    iconify();
     void                    duplicate();
     ofVec2f                 getInletPosition(int iid);
@@ -187,7 +189,7 @@ public:
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
 
     // patch object connections
-    vector<PatchLink*>      outPut;
+    vector<shared_ptr<PatchLink>>      outPut;
     vector<bool>            inletsConnected;
 
     void                    *_inletParams[MAX_INLETS];
@@ -256,3 +258,31 @@ protected:
     float                   retinaScale;
 
 };
+
+// This macro allows easy object registration
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#define OBJECT_REGISTER(TYPE, NAME, CATEGORY)                           \
+namespace ofxVPObjects {                                                \
+namespace factory {                                                     \
+namespace {                                                             \
+template<class T>                                                       \
+class objectRegistration;                                               \
+                                                                        \
+template<>                                                              \
+class objectRegistration<TYPE>{                                         \
+    static const ::ofxVPObjects::factory::RegistryEntry<TYPE>& reg;     \
+};                                                                      \
+                                                                        \
+const ::ofxVPObjects::factory::RegistryEntry<TYPE>&                     \
+objectRegistration<TYPE>::reg =                                         \
+::ofxVPObjects::factory::RegistryEntry<TYPE>::Instance(NAME, CATEGORY); \
+                                                                        \
+}}}                                                                     \
+const std::string TYPE::objectName(NAME);                               \
+const std::string TYPE::objectCategory(CATEGORY);
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#define OBJECT_FACTORY_PROPS                    \
+private:                                        \
+    static const std::string objectName;        \
+    static const std::string objectCategory;    \

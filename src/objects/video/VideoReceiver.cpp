@@ -30,6 +30,9 @@
 
 ==============================================================================*/
 
+// Unavailable on windows.
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+
 #include "VideoReceiver.h"
 
 //--------------------------------------------------------------
@@ -50,7 +53,7 @@ VideoReceiver::VideoReceiver() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoReceiver::newObject(){
-    this->setName("video receiver");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_TEXTURE,"textureReceived");
 }
 
@@ -61,7 +64,7 @@ void VideoReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoReceiver::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     ndiGrabber.update();
 
     if(needToGrab && ndiGrabber.getTexture().isAllocated()){
@@ -101,3 +104,7 @@ void VideoReceiver::drawObjectContent(ofxFontStash *font){
 void VideoReceiver::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_VIDEO);
+
+#endif

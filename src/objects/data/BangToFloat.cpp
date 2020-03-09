@@ -60,7 +60,7 @@ BangToFloat::BangToFloat() : PatchObject(){
 
 //--------------------------------------------------------------
 void BangToFloat::newObject(){
-    this->setName("bang to float");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"number");
@@ -86,7 +86,7 @@ void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BangToFloat::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     numberBox->update();
 
@@ -170,3 +170,5 @@ void BangToFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
+
+OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA);

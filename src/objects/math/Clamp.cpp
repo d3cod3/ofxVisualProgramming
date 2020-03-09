@@ -54,7 +54,7 @@ Clamp::Clamp() : PatchObject(){
 
 //--------------------------------------------------------------
 void Clamp::newObject(){
-    this->setName("clamp");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
@@ -68,7 +68,7 @@ void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Clamp::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Clamp::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[2]){
       float _min = 0.0f, _max = 1000000000.0f;
       if(this->inletsConnected[0]){
@@ -95,3 +95,5 @@ void Clamp::drawObjectContent(ofxFontStash *font){
 void Clamp::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( Clamp, "clamp", OFXVP_OBJECT_CAT_MATH);

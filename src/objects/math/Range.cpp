@@ -61,7 +61,7 @@ Range::Range() : PatchObject(){
 
 //--------------------------------------------------------------
 void Range::newObject(){
-    this->setName("range");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
     this->addOutlet(VP_LINK_NUMERIC,"min");
@@ -94,7 +94,7 @@ void Range::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Range::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Range::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
       inputValue1 = *(float *)&_inletParams[0];
       inputNumber1->setText(ofToString(inputValue1));
@@ -177,3 +177,5 @@ void Range::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH);

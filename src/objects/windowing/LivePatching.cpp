@@ -48,7 +48,7 @@ LivePatching::LivePatching() : PatchObject(){
 
 //--------------------------------------------------------------
 void LivePatching::newObject(){
-    this->setName("live patching");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"texture");
 }
 
@@ -58,7 +58,7 @@ void LivePatching::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LivePatching::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void LivePatching::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
     }
@@ -89,3 +89,5 @@ void LivePatching::drawObjectContent(ofxFontStash *font){
 void LivePatching::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING);

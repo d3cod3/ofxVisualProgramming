@@ -56,7 +56,7 @@ Select::Select() : PatchObject(){
 
 //--------------------------------------------------------------
 void Select::newObject(){
-    this->setName("select");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"sel");
     for(int i=0;i<this->numOutlets;i++){
         this->addOutlet(VP_LINK_NUMERIC,"bang"+ofToString(i));
@@ -71,7 +71,7 @@ void Select::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Select::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Select::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(static_cast<int>(floor(*(float *)&_inletParams[0])) != lastValue && static_cast<int>(floor(*(float *)&_inletParams[0])) < bangs.size()){
@@ -105,3 +105,5 @@ void Select::drawObjectContent(ofxFontStash *font){
 void Select::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( Select, "select", OFXVP_OBJECT_CAT_LOGIC);

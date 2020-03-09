@@ -73,7 +73,7 @@ VideoTransform::VideoTransform() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoTransform::newObject(){
-    this->setName("video transform");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
@@ -127,7 +127,7 @@ void VideoTransform::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void VideoTransform::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoTransform::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -320,3 +320,5 @@ void VideoTransform::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO);

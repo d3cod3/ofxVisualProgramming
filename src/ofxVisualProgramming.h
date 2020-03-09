@@ -52,7 +52,6 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            initObjectMatrix();
     void            setup();
     void            update();
     void            updateCanvasViewport();
@@ -74,9 +73,9 @@ public:
 
     void            activeObject(int oid);
 
-    PatchObject*    selectObject(string objname);
+    shared_ptr<PatchObject>    selectObject(string objname);
     void            addObject(string name, ofVec2f pos);
-    PatchObject*    getLastAddedObject();
+    shared_ptr<PatchObject>    getLastAddedObject();
 
     void            dragObject(int &id);
     void            resetObject(int &id);
@@ -126,7 +125,7 @@ public:
     int                     linkActivateDistance;
 
     // PATCH OBJECTS
-    map<int,PatchObject*>   patchObjects;
+    map<int,shared_ptr<PatchObject>>   patchObjects;
     map<string,string>      scriptsObjectsFilesPaths;
     vector<int>             eraseIndexes;
     bool                    isOutletSelected;
@@ -141,6 +140,8 @@ public:
     int                     lastAddedObjectID;
     bool                    bLoadingNewObject;
     bool                    bLoadingNewPatch;
+    OF_DEPRECATED_MSG("The variable objectsMatrix has been removed. Please use ofxVPObjects::factory::getCategories() instead.",
+                  map<string,vector<string>> objectsMatrix );
 
     // LOAD/SAVE
     ofxThreadedFileDialog   fileDialog;
@@ -160,7 +161,6 @@ public:
     bool                            inited;
 
     // GUI
-    map<string,vector<string>>      objectsMatrix;
     bool                            isVPDragging;
     bool                            isHoverMenu;
     bool                            isHoverLogger;

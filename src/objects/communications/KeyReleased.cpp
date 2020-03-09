@@ -53,7 +53,7 @@ KeyReleased::KeyReleased() : PatchObject(){
 
 //--------------------------------------------------------------
 void KeyReleased::newObject(){
-    this->setName("key released");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(lastKey),"KEY");
@@ -78,7 +78,7 @@ void KeyReleased::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KeyReleased::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     inputNumber->update();
@@ -150,3 +150,5 @@ void KeyReleased::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( KeyReleased, "key released", OFXVP_OBJECT_CAT_COMMUNICATIONS);

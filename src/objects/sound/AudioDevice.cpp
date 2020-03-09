@@ -58,7 +58,7 @@ AudioDevice::AudioDevice() : PatchObject(){
 
 //--------------------------------------------------------------
 void AudioDevice::newObject(){
-    this->setName("audio device");
+    this->setName(this->objectName);
 }
 
 //--------------------------------------------------------------
@@ -93,7 +93,7 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void AudioDevice::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
 }
 
@@ -372,3 +372,5 @@ void AudioDevice::loadDeviceInfo(){
         deviceLoaded      = true;
     }
 }
+
+OBJECT_REGISTER( AudioDevice, "audio device", OFXVP_OBJECT_CAT_SOUND);

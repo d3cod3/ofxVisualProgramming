@@ -61,7 +61,7 @@ MotionDetection::MotionDetection() : PatchObject(){
 
 //--------------------------------------------------------------
 void MotionDetection::newObject(){
-    this->setName("motion detection");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_NUMERIC,"motionQuantity");
 
@@ -109,7 +109,7 @@ void MotionDetection::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void MotionDetection::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -249,3 +249,5 @@ void MotionDetection::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( MotionDetection, "motion detection", OFXVP_OBJECT_CAT_CV);

@@ -56,7 +56,7 @@ DataToFile::DataToFile() : PatchObject(){
 
 //--------------------------------------------------------------
 void DataToFile::newObject(){
-    this->setName("data to file");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
@@ -86,7 +86,7 @@ void DataToFile::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DataToFile::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -213,3 +213,5 @@ void DataToFile::appendLineToFile(string filepath, string line){
     file << line << std::endl;
     file.close();
 }
+
+OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA);

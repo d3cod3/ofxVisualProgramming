@@ -56,7 +56,7 @@ VideoExporter::VideoExporter() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoExporter::newObject(){
-    this->setName("video exporter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
 }
 
@@ -104,7 +104,7 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -288,3 +288,5 @@ void VideoExporter::onDropdownEvent(ofxDatGuiDropdownEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO);

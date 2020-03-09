@@ -30,6 +30,9 @@
 
 ==============================================================================*/
 
+// Unavailable on windows.
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+
 #include "BashScript.h"
 
 //--------------------------------------------------------------
@@ -68,7 +71,7 @@ BashScript::BashScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void BashScript::newObject(){
-    this->setName("bash script");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_STRING,"control");
     this->addOutlet(VP_LINK_STRING,"scriptSTDOutput");
 }
@@ -143,7 +146,7 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BashScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
@@ -374,3 +377,7 @@ void BashScript::pathChanged(const PathWatcher::Event &event) {
     }
 
 }
+
+OBJECT_REGISTER( BashScript, "bash script", OFXVP_OBJECT_CAT_SCRIPTING);
+
+#endif

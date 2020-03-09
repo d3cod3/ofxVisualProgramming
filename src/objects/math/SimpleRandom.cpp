@@ -59,7 +59,7 @@ SimpleRandom::SimpleRandom() : PatchObject(){
 
 //--------------------------------------------------------------
 void SimpleRandom::newObject(){
-    this->setName("simple random");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
@@ -82,7 +82,7 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
             bang = false;
@@ -122,3 +122,5 @@ void SimpleRandom::drawObjectContent(ofxFontStash *font){
 void SimpleRandom::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH);

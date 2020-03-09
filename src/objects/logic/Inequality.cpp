@@ -56,7 +56,7 @@ Inequality::Inequality() : PatchObject(){
 
 //--------------------------------------------------------------
 void Inequality::newObject(){
-    this->setName("!=");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 
@@ -82,7 +82,7 @@ void Inequality::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Inequality::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Inequality::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         inputValue = *(float *)&_inletParams[0];
         if(inputValue != equalsTo){
@@ -151,3 +151,5 @@ void Inequality::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC);

@@ -59,7 +59,7 @@ FloatsToVector::FloatsToVector() : PatchObject(){
 
 //--------------------------------------------------------------
 void FloatsToVector::newObject(){
-    this->setName("floats to vector");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"f1");
     this->addInlet(VP_LINK_NUMERIC,"f2");
     this->addInlet(VP_LINK_NUMERIC,"f3");
@@ -75,7 +75,7 @@ void FloatsToVector::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void FloatsToVector::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             static_cast<vector<float> *>(_outletParams[0])->at(i) = *(float *)&_inletParams[i];
@@ -99,3 +99,5 @@ void FloatsToVector::drawObjectContent(ofxFontStash *font){
 void FloatsToVector::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA);

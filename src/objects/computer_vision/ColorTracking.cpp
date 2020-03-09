@@ -66,7 +66,7 @@ ColorTracking::ColorTracking() : PatchObject(){
 
 //--------------------------------------------------------------
 void ColorTracking::newObject(){
-    this->setName("color tracking");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"blobsData");
@@ -140,7 +140,7 @@ void ColorTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ColorTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -441,3 +441,5 @@ void ColorTracking::onTextInputEvent(ofxDatGuiTextInputEvent e){
         targetColor.set(temp);
     }
 }
+
+OBJECT_REGISTER( ColorTracking, "color tracking", OFXVP_OBJECT_CAT_CV);

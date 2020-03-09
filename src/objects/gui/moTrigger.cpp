@@ -52,7 +52,7 @@ moTrigger::moTrigger() : PatchObject(){
 
 //--------------------------------------------------------------
 void moTrigger::newObject(){
-    this->setName("trigger");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 }
@@ -63,7 +63,7 @@ void moTrigger::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moTrigger::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0f){
@@ -106,3 +106,5 @@ void moTrigger::mouseReleasedObjectContent(ofVec3f _m){
         trigger = !trigger;
     }
 }
+
+OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI);

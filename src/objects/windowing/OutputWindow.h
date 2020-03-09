@@ -48,7 +48,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
@@ -116,4 +116,5 @@ public:
     bool                                    loaded;
     bool                                    autoRemove;
 
+    OBJECT_FACTORY_PROPS;
 };

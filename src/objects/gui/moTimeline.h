@@ -51,7 +51,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
@@ -124,7 +124,6 @@ public:
     ofxDatGuiButton*                        addSwitchTrack;
     ofxDatGuiButton*                        addColorTrack;
     ofxDatGuiButton*                        addLFOTrack;
-    ofxDatGuiButton*                        addMIDITrack;
     ofxDatGuiButton*                        loadTimeline;
     ofxDatGuiButton*                        saveTimeline;
 
@@ -140,4 +139,5 @@ public:
     size_t                                  startTime;
     size_t                                  waitTime;
 
+    OBJECT_FACTORY_PROPS;
 };

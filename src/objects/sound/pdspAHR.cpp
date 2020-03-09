@@ -72,7 +72,7 @@ pdspAHR::pdspAHR() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspAHR::newObject(){
-    this->setName("AHR envelope");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"duration");
@@ -134,7 +134,7 @@ void pdspAHR::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspAHR::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     duration->update();
@@ -319,3 +319,5 @@ void pdspAHR::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( pdspAHR, "AHR envelope", OFXVP_OBJECT_CAT_SOUND);

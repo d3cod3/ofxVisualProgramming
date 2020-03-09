@@ -66,7 +66,7 @@ HaarTracking::HaarTracking() : PatchObject(){
 
 //--------------------------------------------------------------
 void HaarTracking::newObject(){
-    this->setName("haar tracking");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"haarBlobsData");
@@ -109,7 +109,7 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void HaarTracking::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     // Object GUI
     gui->update();
     header->update();
@@ -314,3 +314,5 @@ void HaarTracking::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( HaarTracking, "haar tracking", OFXVP_OBJECT_CAT_CV);

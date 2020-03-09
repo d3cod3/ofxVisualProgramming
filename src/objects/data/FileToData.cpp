@@ -56,7 +56,7 @@ FileToData::FileToData() : PatchObject(){
 
 //--------------------------------------------------------------
 void FileToData::newObject(){
-    this->setName("file to data");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_ARRAY,"output");
 }
@@ -90,7 +90,7 @@ void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FileToData::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -244,3 +244,5 @@ void FileToData::onToggleEvent(ofxDatGuiToggleEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA);

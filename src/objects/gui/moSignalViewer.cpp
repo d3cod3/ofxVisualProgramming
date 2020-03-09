@@ -58,7 +58,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::newObject(){
-    this->setName("signal viewer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -78,7 +78,7 @@ void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         *(float *)&_outletParams[3] = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
     }else{
@@ -148,3 +148,5 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
     }
 
 }
+
+OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI);

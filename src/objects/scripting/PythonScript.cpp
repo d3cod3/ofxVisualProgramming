@@ -71,7 +71,7 @@ PythonScript::PythonScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void PythonScript::newObject(){
-    this->setName("python script");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"_mosaic_data_outlet");
 }
@@ -155,7 +155,7 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void PythonScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
@@ -430,3 +430,5 @@ void PythonScript::pathChanged(const PathWatcher::Event &event) {
 
 }
 
+
+OBJECT_REGISTER( PythonScript, "python script", OFXVP_OBJECT_CAT_SCRIPTING);

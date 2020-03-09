@@ -65,7 +65,7 @@ ProcessingScript::ProcessingScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void ProcessingScript::newObject(){
-    this->setName("processing script");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE,"processingTexture");
     this->addOutlet(VP_LINK_ARRAY,"processingData");
@@ -131,7 +131,7 @@ void ProcessingScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void ProcessingScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ProcessingScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     // GUI
     gui->update();
@@ -421,3 +421,5 @@ void ProcessingScript::pathChanged(const PathWatcher::Event &event) {
 
 }
 
+
+OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING);

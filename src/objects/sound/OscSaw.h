@@ -43,7 +43,7 @@ public:
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
 
@@ -73,4 +73,5 @@ public:
 
     bool                    loaded;
 
+    OBJECT_FACTORY_PROPS;
 };

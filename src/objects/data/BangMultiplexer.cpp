@@ -60,7 +60,7 @@ BangMultiplexer::BangMultiplexer() : PatchObject(){
 
 //--------------------------------------------------------------
 void BangMultiplexer::newObject(){
-    this->setName("bang multiplexer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"f1");
     this->addInlet(VP_LINK_NUMERIC,"f2");
     this->addInlet(VP_LINK_NUMERIC,"f3");
@@ -76,7 +76,7 @@ void BangMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void BangMultiplexer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             *(float *)&_outletParams[0] = *(float *)&_inletParams[i];
@@ -101,3 +101,5 @@ void BangMultiplexer::drawObjectContent(ofxFontStash *font){
 void BangMultiplexer::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( BangMultiplexer, "bang multiplexer", OFXVP_OBJECT_CAT_DATA);

@@ -61,7 +61,7 @@ moComment::moComment() : PatchObject(){
 
 //--------------------------------------------------------------
 void moComment::newObject(){
-    this->setName("comment");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_STRING,"comment");
     this->addOutlet(VP_LINK_STRING,"text");
@@ -82,7 +82,7 @@ void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moComment::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -203,3 +203,5 @@ void moComment::saveCommentSetting(){
         XML.saveFile();
     }
 }
+
+OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI);

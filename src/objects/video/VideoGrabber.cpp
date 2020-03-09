@@ -65,7 +65,7 @@ VideoGrabber::VideoGrabber() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoGrabber::newObject(){
-    this->setName("video grabber");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_TEXTURE,"deviceImage");
 
     this->setCustomVar(static_cast<float>(camWidth),"CAM_WIDTH");
@@ -153,7 +153,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(isOneDeviceAvailable){
         gui->update();
@@ -390,3 +390,5 @@ void VideoGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_VIDEO);

@@ -62,7 +62,7 @@ AudioGate::AudioGate() : PatchObject(){
 
 //--------------------------------------------------------------
 void AudioGate::newObject(){
-    this->setName("audio gate");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"open");
     this->addInlet(VP_LINK_AUDIO,"s1");
     this->addInlet(VP_LINK_AUDIO,"s2");
@@ -83,7 +83,7 @@ void AudioGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioGate::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void AudioGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -146,3 +146,5 @@ void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
     }
 }
+
+OBJECT_REGISTER( AudioGate, "audio gate", OFXVP_OBJECT_CAT_SOUND);

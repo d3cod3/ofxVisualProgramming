@@ -56,7 +56,7 @@ RollOffExtractor::RollOffExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void RollOffExtractor::newObject(){
-    this->setName("rolloff extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"rollOff");
 }
@@ -87,14 +87,14 @@ void RollOffExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void RollOffExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void RollOffExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
             isNewConnection = true;
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
@@ -133,3 +133,5 @@ void RollOffExtractor::drawObjectContent(ofxFontStash *font){
 void RollOffExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( RollOffExtractor , "rolloff extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS );

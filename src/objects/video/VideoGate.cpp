@@ -60,7 +60,7 @@ VideoGate::VideoGate() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoGate::newObject(){
-    this->setName("video gate");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"open");
     this->addInlet(VP_LINK_TEXTURE,"t1");
     this->addInlet(VP_LINK_TEXTURE,"t2");
@@ -77,7 +77,7 @@ void VideoGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGate::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -130,3 +130,5 @@ void VideoGate::drawObjectContent(ofxFontStash *font){
 void VideoGate::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO);

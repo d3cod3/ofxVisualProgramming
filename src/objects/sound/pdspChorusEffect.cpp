@@ -64,7 +64,7 @@ pdspChorusEffect::pdspChorusEffect() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspChorusEffect::newObject(){
-    this->setName("chorus");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"depth");
@@ -124,7 +124,7 @@ void pdspChorusEffect::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -254,3 +254,5 @@ void pdspChorusEffect::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( pdspChorusEffect, "chorus", OFXVP_OBJECT_CAT_SOUND);

@@ -88,7 +88,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::newObject(){
-    this->setName("soundfile player");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
@@ -97,6 +97,7 @@ void SoundfilePlayer::newObject(){
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
+    this->addOutlet(VP_LINK_NUMERIC,"finishBang");
 }
 
 //--------------------------------------------------------------
@@ -144,7 +145,7 @@ void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     loadButton->update();
@@ -465,3 +466,5 @@ void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND);

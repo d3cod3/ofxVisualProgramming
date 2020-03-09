@@ -65,7 +65,7 @@ BackgroundSubtraction::BackgroundSubtraction() : PatchObject(){
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::newObject(){
-    this->setName("background subtraction");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"reset");
     this->addOutlet(VP_LINK_TEXTURE,"output");
@@ -144,7 +144,7 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -393,3 +393,5 @@ void BackgroundSubtraction::onMatrixEvent(ofxDatGuiMatrixEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV);

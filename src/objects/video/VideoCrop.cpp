@@ -64,7 +64,7 @@ VideoCrop::VideoCrop() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoCrop::newObject(){
-    this->setName("video crop");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
@@ -106,7 +106,7 @@ void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoCrop::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -316,3 +316,5 @@ ofRectangle VideoCrop::getIntersection(ofRectangle & r1,ofRectangle & r2){
         return result;
     }
 }
+
+OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO);

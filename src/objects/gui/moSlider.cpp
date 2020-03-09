@@ -58,7 +58,7 @@ moSlider::moSlider() : PatchObject(){
 
 //--------------------------------------------------------------
 void moSlider::newObject(){
-    this->setName("slider");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC,"value");
 
@@ -81,7 +81,7 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moSlider::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     slider->update();
 
@@ -146,3 +146,5 @@ void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
     //*(float *)&_outletParams[0] = static_cast<float>(e.value);
     this->setCustomVar(static_cast<float>(e.value),"VALUE");
 }
+
+OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI);

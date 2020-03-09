@@ -64,7 +64,7 @@ pdspResonant2PoleFilter::pdspResonant2PoleFilter() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::newObject(){
-    this->setName("resonant 2pole filter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"cutoff");
@@ -140,7 +140,7 @@ void pdspResonant2PoleFilter::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspResonant2PoleFilter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspResonant2PoleFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -298,3 +298,5 @@ void pdspResonant2PoleFilter::onMatrixEvent(ofxDatGuiMatrixEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( pdspResonant2PoleFilter, "resonant 2pole filter", OFXVP_OBJECT_CAT_SOUND);

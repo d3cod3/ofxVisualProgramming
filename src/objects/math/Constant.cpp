@@ -59,7 +59,7 @@ Constant::Constant() : PatchObject(){
 
 //--------------------------------------------------------------
 void Constant::newObject(){
-    this->setName("constant");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_STRING,"numberString");
@@ -86,7 +86,7 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Constant::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
       inputValue = *(float *)&_inletParams[0];
       inputNumber->setText(ofToString(inputValue));
@@ -153,3 +153,5 @@ void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH);

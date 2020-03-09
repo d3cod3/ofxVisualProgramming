@@ -53,7 +53,7 @@ KeyPressed::KeyPressed() : PatchObject(){
 
 //--------------------------------------------------------------
 void KeyPressed::newObject(){
-    this->setName("key pressed");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(lastKey),"KEY");
@@ -78,7 +78,7 @@ void KeyPressed::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KeyPressed::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     inputNumber->update();
@@ -150,3 +150,5 @@ void KeyPressed::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS);

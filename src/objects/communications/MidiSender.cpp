@@ -61,7 +61,7 @@ MidiSender::MidiSender() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiSender::newObject(){
-    this->setName("midi sender");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addInlet(VP_LINK_NUMERIC,"channel");
     this->addInlet(VP_LINK_NUMERIC,"note");
@@ -118,7 +118,7 @@ void MidiSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiSender::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -263,3 +263,5 @@ void MidiSender::onMatrixEvent(ofxDatGuiMatrixEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS);

@@ -56,7 +56,7 @@ moBang::moBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void moBang::newObject(){
-    this->setName("bang");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
@@ -68,7 +68,7 @@ void moBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -122,3 +122,5 @@ void moBang::mouseReleasedObjectContent(ofVec3f _m){
         isBangFinished = true;
     }
 }
+
+OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI);

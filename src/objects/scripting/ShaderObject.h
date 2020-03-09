@@ -87,7 +87,7 @@ public:
     void            autoloadFile(string _fp);
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
@@ -148,4 +148,5 @@ public:
 protected:
     ThreadedCommand     tempCommand;
 
+    OBJECT_FACTORY_PROPS;
 };

@@ -64,7 +64,7 @@ LoadBang::LoadBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void LoadBang::newObject(){
-    this->setName("loadbang");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"delay");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
@@ -96,7 +96,7 @@ void LoadBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LoadBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -194,3 +194,5 @@ void LoadBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( LoadBang, "loadbang", OFXVP_OBJECT_CAT_LOGIC);

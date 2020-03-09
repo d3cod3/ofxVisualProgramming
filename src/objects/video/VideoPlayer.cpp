@@ -77,7 +77,7 @@ VideoPlayer::VideoPlayer() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoPlayer::newObject(){
-    this->setName("video player");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
@@ -138,7 +138,7 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -423,3 +423,5 @@ void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( VideoPlayer, "video player", OFXVP_OBJECT_CAT_VIDEO);

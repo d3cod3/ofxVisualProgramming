@@ -76,7 +76,7 @@ ProjectionMapping::ProjectionMapping() : PatchObject(){
 
 //--------------------------------------------------------------
 void ProjectionMapping::newObject(){
-    this->setName("projection mapping");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"source");
     this->addInlet(VP_LINK_TEXTURE,"background");
     this->addOutlet(VP_LINK_TEXTURE,"mappingOutput");
@@ -150,7 +150,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -426,3 +426,5 @@ void ProjectionMapping::onButtonEvent(ofxDatGuiButtonEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( ProjectionMapping, "projection mapping", OFXVP_OBJECT_CAT_WINDOWING);

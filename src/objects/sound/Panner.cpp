@@ -60,7 +60,7 @@ Panner::Panner() : PatchObject(){
 
 //--------------------------------------------------------------
 void Panner::newObject(){
-    this->setName("panner");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan");
     this->addOutlet(VP_LINK_AUDIO,"left");
@@ -107,7 +107,7 @@ void Panner::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Panner::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -210,3 +210,5 @@ void Panner::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"PAN");
     pan_ctrl.set(ofClamp(static_cast<float>(e.value),-1.0f,1.0f));
 }
+
+OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND);

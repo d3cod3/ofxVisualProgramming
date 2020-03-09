@@ -68,7 +68,7 @@ pdspCompressor::pdspCompressor() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspCompressor::newObject(){
-    this->setName("compressor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"attack");
     this->addInlet(VP_LINK_NUMERIC,"release");
@@ -144,7 +144,7 @@ void pdspCompressor::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspCompressor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     attack->update();
@@ -314,3 +314,5 @@ void pdspCompressor::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( pdspCompressor, "compressor", OFXVP_OBJECT_CAT_SOUND);

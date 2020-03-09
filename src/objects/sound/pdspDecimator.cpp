@@ -59,7 +59,7 @@ pdspDecimator::pdspDecimator() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDecimator::newObject(){
-    this->setName("decimator");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"freq");
     this->addOutlet(VP_LINK_AUDIO,"decimatedSignal");
@@ -99,7 +99,7 @@ void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -212,3 +212,5 @@ void pdspDecimator::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"GAIN");
     freq_ctrl.set(ofMap(ofClamp(static_cast<float>(e.value),0.0f,1.0f),0.0f,1.0f,2.0f,1600.0f,true));
 }
+
+OBJECT_REGISTER( pdspDecimator, "decimator", OFXVP_OBJECT_CAT_SOUND);

@@ -58,7 +58,7 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 
 //--------------------------------------------------------------
 void moVideoViewer::newObject(){
-    this->setName("video viewer");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_TEXTURE,"texture");
 
@@ -80,7 +80,7 @@ void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
     }
@@ -165,3 +165,5 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
         }
     }
 }
+
+OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI);

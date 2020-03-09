@@ -56,7 +56,7 @@ PowerExtractor::PowerExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void PowerExtractor::newObject(){
-    this->setName("power extractor");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_NUMERIC,"power");
 }
@@ -87,14 +87,14 @@ void PowerExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void PowerExtractor::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void PowerExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
             isNewConnection = true;
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
@@ -133,3 +133,5 @@ void PowerExtractor::drawObjectContent(ofxFontStash *font){
 void PowerExtractor::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( PowerExtractor , "power extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);

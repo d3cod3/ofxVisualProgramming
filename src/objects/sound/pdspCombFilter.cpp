@@ -64,7 +64,7 @@ pdspCombFilter::pdspCombFilter() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspCombFilter::newObject(){
-    this->setName("comb filter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"damping");
@@ -124,7 +124,7 @@ void pdspCombFilter::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspCombFilter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -254,3 +254,5 @@ void pdspCombFilter::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( pdspCombFilter, "comb filter", OFXVP_OBJECT_CAT_SOUND);

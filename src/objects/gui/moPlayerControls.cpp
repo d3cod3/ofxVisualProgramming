@@ -59,7 +59,7 @@ moPlayerControls::moPlayerControls() : PatchObject(){
 
 //--------------------------------------------------------------
 void moPlayerControls::newObject(){
-    this->setName("player controls");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"select");
     this->addOutlet(VP_LINK_STRING,"command");
@@ -90,7 +90,7 @@ void moPlayerControls::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void moPlayerControls::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moPlayerControls::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     playButton->update();
     stopButton->update();
@@ -236,3 +236,5 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
     }
 
 }
+
+OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI);

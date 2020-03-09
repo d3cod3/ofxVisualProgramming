@@ -60,7 +60,7 @@ Metronome::Metronome() : PatchObject(){
 
 //--------------------------------------------------------------
 void Metronome::newObject(){
-    this->setName("metronome");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"sync");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -90,7 +90,7 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     metroTime = ofGetElapsedTimeMillis();
 
@@ -180,3 +180,5 @@ void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH);

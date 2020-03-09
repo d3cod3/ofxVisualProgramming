@@ -67,7 +67,7 @@ DelayBang::DelayBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void DelayBang::newObject(){
-    this->setName("delay bang");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -95,7 +95,7 @@ void DelayBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DelayBang::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[1]){
       wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
       inputNumber->setText(ofToString(wait));
@@ -187,3 +187,5 @@ void DelayBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( DelayBang, "delay bang", OFXVP_OBJECT_CAT_LOGIC);

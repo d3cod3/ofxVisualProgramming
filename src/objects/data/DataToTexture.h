@@ -42,7 +42,7 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
     void            removeObjectContent(bool removeFileFromData=false);
 
@@ -69,4 +69,5 @@ public:
     int                     temp_width, temp_height;
     float                   posX, posY, drawW, drawH;
 
+    OBJECT_FACTORY_PROPS;
 };

@@ -57,7 +57,7 @@ ArduinoSerial::ArduinoSerial() : PatchObject(){
 
 //--------------------------------------------------------------
 void ArduinoSerial::newObject(){
-    this->setName("arduino serial");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"dataFromArduino");
 
@@ -139,7 +139,7 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -319,3 +319,5 @@ void ArduinoSerial::onDropdownEvent(ofxDatGuiDropdownEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS);

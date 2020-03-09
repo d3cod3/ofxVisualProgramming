@@ -57,7 +57,7 @@ AudioExporter::AudioExporter() : PatchObject(){
 
 //--------------------------------------------------------------
 void AudioExporter::newObject(){
-    this->setName("audio exporter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"input");
 }
 
@@ -97,7 +97,7 @@ void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -246,3 +246,5 @@ void AudioExporter::onToggleEvent(ofxDatGuiToggleEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( AudioExporter, "audio exporter", OFXVP_OBJECT_CAT_SOUND);

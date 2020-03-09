@@ -89,10 +89,6 @@ PatchObject::PatchObject(){
 PatchObject::~PatchObject(){
 
     // free memory and point lost pointer to null
-    for(int i=0;i<static_cast<int>(outPut.size());i++){
-        delete outPut.at(i);
-        outPut.at(i) = nullptr;
-    }
     for(int i=0;i<static_cast<int>(headerButtons.size());i++){
         delete headerButtons.at(i);
         headerButtons.at(i) = nullptr;
@@ -156,7 +152,7 @@ void PatchObject::setupDSP(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PatchObject::update(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     // update links positions
     if(!willErase){
@@ -422,8 +418,8 @@ bool PatchObject::isOver(ofPoint pos){
 }
 
 //--------------------------------------------------------------
-void PatchObject::fixCollisions(map<int,PatchObject*> &patchObjects){
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+void PatchObject::fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->first != getId()){
             if(getPos().x >= it->second->getPos().x && getPos().x < it->second->getPos().x + it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
                 if(isRetina){
@@ -443,7 +439,7 @@ void PatchObject::fixCollisions(map<int,PatchObject*> &patchObjects){
         }
     }
 
-    for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
             it->second->outPut[j]->linkVertices[0].move(it->second->outPut[j]->posFrom.x,it->second->outPut[j]->posFrom.y);
             if(isRetina){
@@ -966,7 +962,7 @@ void PatchObject::mousePressed(float mx, float my){
 }
 
 //--------------------------------------------------------------
-void PatchObject::mouseReleased(float mx, float my,map<int,PatchObject*> &patchObjects){
+void PatchObject::mouseReleased(float mx, float my,map<int,shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
         ofVec3f m = ofVec3f(mx, my,0);
 

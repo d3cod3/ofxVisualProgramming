@@ -56,7 +56,7 @@ AND::AND() : PatchObject(){
 
 //--------------------------------------------------------------
 void AND::newObject(){
-    this->setName("&&");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"b1");
     this->addInlet(VP_LINK_NUMERIC,"b2");
     this->addOutlet(VP_LINK_NUMERIC,"result");
@@ -68,7 +68,7 @@ void AND::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AND::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void AND::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0] && this->inletsConnected[1]){
         if(*(float *)&_inletParams[0] >= 1.0 && *(float *)&_inletParams[1] >= 1.0){
             *(float *)&_outletParams[0] = 1;
@@ -98,3 +98,5 @@ void AND::drawObjectContent(ofxFontStash *font){
 void AND::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( AND, "&&", OFXVP_OBJECT_CAT_LOGIC);

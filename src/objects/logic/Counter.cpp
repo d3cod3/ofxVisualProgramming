@@ -66,7 +66,7 @@ Counter::Counter() : PatchObject(){
 
 //--------------------------------------------------------------
 void Counter::newObject(){
-    this->setName("counter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"start");
     this->addInlet(VP_LINK_NUMERIC,"end");
@@ -98,7 +98,7 @@ void Counter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Counter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     start->update();
@@ -220,3 +220,5 @@ void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC);

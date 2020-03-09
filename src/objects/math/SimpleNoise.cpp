@@ -51,7 +51,7 @@ SimpleNoise::SimpleNoise() : PatchObject(){
 
 //--------------------------------------------------------------
 void SimpleNoise::newObject(){
-    this->setName("simple noise");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"step");
     this->addOutlet(VP_LINK_NUMERIC,"noise");
 }
@@ -70,7 +70,7 @@ void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void SimpleNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     *(float *)&_outletParams[0] = ofNoise(timePosition);
 
     gui->update();
@@ -92,3 +92,5 @@ void SimpleNoise::drawObjectContent(ofxFontStash *font){
 void SimpleNoise::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH);

@@ -105,7 +105,7 @@ NoteToFrequency::NoteToFrequency() : PatchObject(){
 
 //--------------------------------------------------------------
 void NoteToFrequency::newObject(){
-    this->setName("note to frequency");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"midi note");
     this->addOutlet(VP_LINK_NUMERIC,"frequency");
     this->addOutlet(VP_LINK_NUMERIC,"midiPitch");
@@ -128,7 +128,7 @@ void NoteToFrequency::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void NoteToFrequency::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void NoteToFrequency::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     inputNote->update();
@@ -213,3 +213,5 @@ float NoteToFrequency::noteToHarmonicFrequency(int _note){
 float NoteToFrequency::frequencyToPitch(float freq){
     return pdsp::f2p(freq);
 }
+
+OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND);

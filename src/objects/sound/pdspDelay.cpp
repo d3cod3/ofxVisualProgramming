@@ -66,7 +66,7 @@ pdspDelay::pdspDelay() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDelay::newObject(){
-    this->setName("delay");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"damping");
@@ -128,7 +128,7 @@ void pdspDelay::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDelay::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -258,3 +258,5 @@ void pdspDelay::onSliderEvent(ofxDatGuiSliderEvent e){
     }
     
 }
+
+OBJECT_REGISTER( pdspDelay, "delay", OFXVP_OBJECT_CAT_SOUND);

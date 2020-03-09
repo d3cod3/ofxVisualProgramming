@@ -60,7 +60,7 @@ OscPulse::OscPulse() : PatchObject(){
 
 //--------------------------------------------------------------
 void OscPulse::newObject(){
-    this->setName("pulse");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"pulseWidth");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -110,7 +110,7 @@ void OscPulse::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void OscPulse::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void OscPulse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -246,3 +246,5 @@ void OscPulse::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( OscPulse, "pulse", OFXVP_OBJECT_CAT_SOUND);

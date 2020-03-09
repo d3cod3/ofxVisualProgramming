@@ -63,7 +63,7 @@ TimedSemaphore::TimedSemaphore() : PatchObject(){
 
 //--------------------------------------------------------------
 void TimedSemaphore::newObject(){
-    this->setName("timed semaphore");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -90,7 +90,7 @@ void TimedSemaphore::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[1]){
       wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
       inputNumber->setText(ofToString(wait));
@@ -183,3 +183,5 @@ void TimedSemaphore::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( TimedSemaphore, "timed semaphore", OFXVP_OBJECT_CAT_LOGIC);

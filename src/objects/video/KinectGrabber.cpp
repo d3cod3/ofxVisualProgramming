@@ -64,7 +64,7 @@ KinectGrabber::KinectGrabber() : PatchObject(){
 
 //--------------------------------------------------------------
 void KinectGrabber::newObject(){
-    this->setName("kinect grabber");
+    this->setName(this->objectName);
     this->addOutlet(VP_LINK_TEXTURE,"kinectImage");
     this->addOutlet(VP_LINK_TEXTURE,"kinectDepth");
 
@@ -141,7 +141,7 @@ void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KinectGrabber::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -368,3 +368,5 @@ void KinectGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_VIDEO);

@@ -58,7 +58,7 @@ Oscillator::Oscillator() : PatchObject(){
 
 //--------------------------------------------------------------
 void Oscillator::newObject(){
-    this->setName("sine");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
@@ -100,7 +100,7 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Oscillator::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -218,3 +218,5 @@ void Oscillator::onSliderEvent(ofxDatGuiSliderEvent e){
     pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
     oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }
+
+OBJECT_REGISTER( Oscillator, "sine", OFXVP_OBJECT_CAT_SOUND);

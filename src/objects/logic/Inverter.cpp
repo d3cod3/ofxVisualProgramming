@@ -52,7 +52,7 @@ Inverter::Inverter() : PatchObject(){
 
 //--------------------------------------------------------------
 void Inverter::newObject(){
-    this->setName("inverter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"invertedTrigger");
 }
@@ -63,7 +63,7 @@ void Inverter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Inverter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0f){
@@ -99,3 +99,5 @@ void Inverter::drawObjectContent(ofxFontStash *font){
 void Inverter::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC);

@@ -90,7 +90,7 @@ LuaScript::LuaScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void LuaScript::newObject(){
-    this->setName("lua script");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE,"generatedTexture");
     this->addOutlet(VP_LINK_SPECIAL,"mouseKeyboardInteractivity");
@@ -179,7 +179,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LuaScript::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
@@ -684,3 +684,5 @@ void LuaScript::errorReceived(std::string& msg) {
         }
     }
 }
+
+OBJECT_REGISTER( LuaScript, "lua script", OFXVP_OBJECT_CAT_SCRIPTING);

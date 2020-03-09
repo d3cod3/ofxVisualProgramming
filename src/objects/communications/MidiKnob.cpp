@@ -58,7 +58,7 @@ MidiKnob::MidiKnob() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiKnob::newObject(){
-    this->setName("midi knob");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"control");
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC,"value");
@@ -87,7 +87,7 @@ void MidiKnob::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiKnob::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     inputNumber->update();
@@ -201,3 +201,5 @@ void MidiKnob::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( MidiKnob, "midi knob", OFXVP_OBJECT_CAT_COMMUNICATIONS);

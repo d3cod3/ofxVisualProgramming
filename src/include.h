@@ -201,9 +201,6 @@
 #include "objects/video/VideoTimelapse.h"
 #include "objects/video/VideoTransform.h"
 
-// web objects
-#include "objects/web/moHttpForm.h"
-
 // window objects
 #include "objects/windowing/LivePatching.h"
 #include "objects/windowing/OutputWindow.h"

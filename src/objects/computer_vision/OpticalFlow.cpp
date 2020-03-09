@@ -63,7 +63,7 @@ OpticalFlow::OpticalFlow() : PatchObject(){
 
 //--------------------------------------------------------------
 void OpticalFlow::newObject(){
-    this->setName("optical flow");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"opticalFlowData");
@@ -121,7 +121,7 @@ void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OpticalFlow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -310,3 +310,5 @@ void OpticalFlow::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( OpticalFlow, "optical flow", OFXVP_OBJECT_CAT_CV);

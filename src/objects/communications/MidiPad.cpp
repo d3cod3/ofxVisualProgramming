@@ -59,7 +59,7 @@ MidiPad::MidiPad() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiPad::newObject(){
-    this->setName("midi pad");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"velocity");
@@ -88,7 +88,7 @@ void MidiPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiPad::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     inputNumber->update();
@@ -171,3 +171,5 @@ void MidiPad::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
     }
 }
+
+OBJECT_REGISTER( MidiPad, "midi pad", OFXVP_OBJECT_CAT_COMMUNICATIONS);

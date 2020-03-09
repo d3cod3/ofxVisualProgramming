@@ -55,7 +55,7 @@ Smooth::Smooth() : PatchObject(){
 
 //--------------------------------------------------------------
 void Smooth::newObject(){
-    this->setName("smooth");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"smoothedValue");
 
@@ -82,7 +82,7 @@ void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Smooth::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         *(float *)&_outletParams[0] = *(float *)&_outletParams[0]*(1-slider->getValue()) + *(float *)&_inletParams[0]*slider->getValue();
         if(*(float *)&_inletParams[0] > rPlotter->getMax()){
@@ -153,3 +153,5 @@ void Smooth::dragGUIObject(ofVec3f _m){
 void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"SMOOTHING");
 }
+
+OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH);

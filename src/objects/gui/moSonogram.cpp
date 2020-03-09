@@ -61,7 +61,7 @@ moSonogram::moSonogram() : PatchObject(){
 
 //--------------------------------------------------------------
 void moSonogram::newObject(){
-    this->setName("sonogram");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"fft");
 
     this->setCustomVar(static_cast<float>(this->width),"WIDTH");
@@ -96,7 +96,7 @@ void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moSonogram::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     if(this->inletsConnected[0]){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
             resetTime = ofGetElapsedTimeMillis();
@@ -195,3 +195,5 @@ void moSonogram::dragGUIObject(ofVec3f _m){
         }
     }
 }
+
+OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI);

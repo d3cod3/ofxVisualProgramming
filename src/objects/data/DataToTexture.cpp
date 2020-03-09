@@ -68,7 +68,7 @@ DataToTexture::DataToTexture() : PatchObject(){
 
 //--------------------------------------------------------------
 void DataToTexture::newObject(){
-    this->setName("data to texture");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"red");
     this->addInlet(VP_LINK_ARRAY,"green");
     this->addInlet(VP_LINK_ARRAY,"blue");
@@ -106,7 +106,7 @@ void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DataToTexture::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -300,3 +300,5 @@ void DataToTexture::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( DataToTexture, "data to texture", OFXVP_OBJECT_CAT_DATA);

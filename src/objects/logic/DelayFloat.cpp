@@ -69,7 +69,7 @@ DelayFloat::DelayFloat() : PatchObject(){
 
 //--------------------------------------------------------------
 void DelayFloat::newObject(){
-    this->setName("delay float");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addInlet(VP_LINK_NUMERIC,"ms");
@@ -103,7 +103,7 @@ void DelayFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DelayFloat::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     numberBox->update();
@@ -214,3 +214,5 @@ void DelayFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( DelayFloat, "delay float", OFXVP_OBJECT_CAT_LOGIC);

@@ -51,7 +51,7 @@ MidiScore::MidiScore() : PatchObject(){
 
 //--------------------------------------------------------------
 void MidiScore::newObject(){
-    this->setName("midi score");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_ARRAY,"score");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"midiNote");
@@ -63,7 +63,7 @@ void MidiScore::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiScore::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void MidiScore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     if(this->inletsConnected[0]){
         isTrigger = false;
@@ -107,3 +107,5 @@ void MidiScore::drawObjectContent(ofxFontStash *font){
 void MidiScore::removeObjectContent(bool removeFileFromData){
 
 }
+
+OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS);

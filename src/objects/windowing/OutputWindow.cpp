@@ -79,7 +79,7 @@ OutputWindow::OutputWindow() : PatchObject(){
 
 //--------------------------------------------------------------
 void OutputWindow::newObject(){
-    this->setName("output window");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"projector");
     this->addInlet(VP_LINK_SPECIAL,"script");
 
@@ -190,7 +190,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     gui->update();
     header->update();
@@ -238,7 +238,7 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
         needReset = false;
         resetResolution();
         if(this->inletsConnected[0]){
-            for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
@@ -255,7 +255,7 @@ void OutputWindow::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxT
 
     // Manage the different scripts reference available (ofxLua)
     if(!isNewScriptConnected && this->inletsConnected[1]){
-        for(map<int,PatchObject*>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                 for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                     if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
@@ -794,3 +794,5 @@ void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
 
     }
 }
+
+OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING);

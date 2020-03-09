@@ -58,7 +58,7 @@ ChromaKey::ChromaKey() : PatchObject(){
 
 //--------------------------------------------------------------
 void ChromaKey::newObject(){
-    this->setName("chroma key");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_TEXTURE,"mask");
     this->addOutlet(VP_LINK_TEXTURE,"output");
@@ -128,7 +128,7 @@ void ChromaKey::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ChromaKey::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){
@@ -329,3 +329,5 @@ void ChromaKey::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 
 }
+
+OBJECT_REGISTER( ChromaKey, "chroma key", OFXVP_OBJECT_CAT_CV);

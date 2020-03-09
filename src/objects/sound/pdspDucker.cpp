@@ -74,7 +74,7 @@ pdspDucker::pdspDucker() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDucker::newObject(){
-    this->setName("ducker");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"duration");
@@ -156,7 +156,7 @@ void pdspDucker::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDucker::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     gui->update();
     header->update();
     duration->update();
@@ -355,3 +355,5 @@ void pdspDucker::onSliderEvent(ofxDatGuiSliderEvent e){
         }
     }
 }
+
+OBJECT_REGISTER( pdspDucker, "ducker", OFXVP_OBJECT_CAT_SOUND);

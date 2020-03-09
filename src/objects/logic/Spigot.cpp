@@ -75,7 +75,7 @@ Spigot::Spigot() : PatchObject(){
 
 //--------------------------------------------------------------
 void Spigot::newObject(){
-    this->setName("spigot");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_NUMERIC,"state");
     this->addInlet(VP_LINK_NUMERIC,"float");
     this->addInlet(VP_LINK_STRING,"string");
@@ -100,7 +100,7 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Spigot::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -153,3 +153,5 @@ void Spigot::mouseReleasedObjectContent(ofVec3f _m){
         isOpen = !isOpen;
     }
 }
+
+OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC);

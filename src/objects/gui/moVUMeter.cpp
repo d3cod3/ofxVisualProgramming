@@ -54,7 +54,7 @@ moVUMeter::moVUMeter() : PatchObject(){
 
 //--------------------------------------------------------------
 void moVUMeter::newObject(){
-    this->setName("vu meter");
+    this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_NUMERIC,"RMS");
 }
@@ -65,7 +65,7 @@ void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVUMeter::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
+void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
 
     RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
 
@@ -99,3 +99,5 @@ void moVUMeter::drawObjectContent(ofxFontStash *font){
 void moVUMeter::removeObjectContent(bool removeFileFromData){
     
 }
+
+OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI);
