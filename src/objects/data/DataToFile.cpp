@@ -35,16 +35,20 @@
 //--------------------------------------------------------------
 DataToFile::DataToFile() : PatchObject(){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
     _inletParams[0] = new vector<float>(); // input
+
+    _inletParams[1] = new float();  // bang
+    *(float *)&_inletParams[1] = 0.0f;
 
     this->initInletsState();
 
     isGUIObject         = true;
     this->isOverGUI     = true;
 
+    bang                = false;
     exportFileFlag      = false;
     fileSaved           = false;
     recordData          = false;
@@ -54,6 +58,7 @@ DataToFile::DataToFile() : PatchObject(){
 void DataToFile::newObject(){
     this->setName("data to file");
     this->addInlet(VP_LINK_ARRAY,"input");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
 }
 
 //--------------------------------------------------------------
@@ -68,11 +73,11 @@ void DataToFile::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     header->setUseCustomMouse(true);
     header->setCollapsable(true);
 
-    recButton = gui->addToggle("EXPORT");
+    recButton = gui->addButton("SELECT FILE");
     recButton->setUseCustomMouse(true);
     recButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
 
-    gui->onToggleEvent(this, &DataToFile::onToggleEvent);
+    gui->onButtonEvent(this, &DataToFile::onButtonEvent);
 
     gui->setPosition(0,this->height - header->getHeight());
     gui->collapse();
@@ -94,10 +99,22 @@ void DataToFile::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThr
         fd.saveFile("export datafile"+ofToString(this->getId()),"Export new data file as","data.txt");
     }
 
-    if(fileSaved){
+    if(this->inletsConnected[1]){
+        if(*(float *)&_inletParams[1] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
+    }
+
+    if(fileSaved && !recordData && bang){
         fileSaved = false;
         // start recording data to file
         recordData = true;
+        ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
+    }else if(recordData && bang){
+        recordData = false;
+        ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
     }
 
 }
@@ -119,7 +136,7 @@ void DataToFile::drawObjectContent(ofxFontStash *font){
         appendLineToFile(filepath,temp);
     }
 
-    if (recButton->getChecked()){
+    if (recordData){
         ofSetColor(ofColor::red);
     }else{
         ofSetColor(ofColor::green);
@@ -181,16 +198,10 @@ void DataToFile::fileDialogResponse(ofxThreadedFileDialogResponse &response){
 }
 
 //--------------------------------------------------------------
-void DataToFile::onToggleEvent(ofxDatGuiToggleEvent e){
+void DataToFile::onButtonEvent(ofxDatGuiButtonEvent e){
     if(!header->getIsCollapsed()){
         if(e.target == recButton){
-            if(e.checked){
-                exportFileFlag = true;
-                ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
-            }else{
-                recordData = false;
-                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
-            }
+            exportFileFlag = true;
         }
     }
 }
