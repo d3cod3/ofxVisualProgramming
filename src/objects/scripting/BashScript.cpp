@@ -30,8 +30,10 @@
 
 ==============================================================================*/
 
-// Unavailable on windows.
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
 
 #include "BashScript.h"
 
@@ -378,6 +380,6 @@ void BashScript::pathChanged(const PathWatcher::Event &event) {
 
 }
 
-OBJECT_REGISTER( BashScript, "bash script", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( BashScript, "bash script", OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif
