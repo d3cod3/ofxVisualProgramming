@@ -30,8 +30,9 @@
 
 ==============================================================================*/
 
-// Unavailable on windows.
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
 
 #include "VideoSender.h"
 
@@ -226,6 +227,6 @@ void VideoSender::onToggleEvent(ofxDatGuiToggleEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoSender, "video sender", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoSender, "video sender", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

@@ -30,8 +30,9 @@
 
 ==============================================================================*/
 
-// Unavailable on windows.
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
 
 #include "FaceTracker.h"
 
@@ -181,7 +182,7 @@ void FaceTracker::removeObjectContent(bool removeFileFromData){
     tracker.waitForThread();
 }
 
-OBJECT_REGISTER( FaceTracker, "face tracker", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( FaceTracker, "face tracker", OFXVP_OBJECT_CAT_CV)
 
 #endif
 

@@ -30,8 +30,9 @@
 
 ==============================================================================*/
 
-// Unavailable on windows.
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
 
 #include "VideoReceiver.h"
 
@@ -105,6 +106,6 @@ void VideoReceiver::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif
