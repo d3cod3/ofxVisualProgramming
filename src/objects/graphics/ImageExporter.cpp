@@ -104,7 +104,7 @@ void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             fd.saveFile("save imagefile"+ofToString(this->getId()),"Save an image file",imgName->getText());
         }else{
-            ofLog(OF_LOG_NOTICE,"There is no ofTexture connectoed to the object inlet, connect something if you want to export it as image!");
+            ofLog(OF_LOG_NOTICE,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
         }
     }
 
@@ -271,4 +271,4 @@ void ImageExporter::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_GRAPHICS);
+OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_GRAPHICS)
