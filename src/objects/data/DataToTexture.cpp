@@ -301,4 +301,4 @@ void DataToTexture::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( DataToTexture, "data to texture", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( DataToTexture, "data to texture", OFXVP_OBJECT_CAT_DATA)

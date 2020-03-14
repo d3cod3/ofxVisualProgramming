@@ -117,4 +117,4 @@ void TextureToData::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( TextureToData, "texture to data", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( TextureToData, "texture to data", OFXVP_OBJECT_CAT_DATA)
