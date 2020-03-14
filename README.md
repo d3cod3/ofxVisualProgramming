@@ -294,6 +294,10 @@ public:
     // my SuperAmazingObject public variables (if any)
     // .............
 
+
+    // initialize object in factory
+    OBJECT_FACTORY_PROPS
+
 };
 
 ```
@@ -366,12 +370,12 @@ void SuperAmazingObject::newObject(){
 
     // first set the name of the object
     // (choose a cool one, no strange chars please)
-    this->setName("super amazing object");
+    this->setName(this->objectName);
 
     // and then the inlets/outlets names/types
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
-    this->addOutlet(VP_LINK_NUMERIC);
+    this->addOutlet(VP_LINK_NUMERIC,"output");
 }
 
 //--------------------------------------------------------------
@@ -407,6 +411,23 @@ void SuperAmazingObject::drawObjectContent(ofxFontStash *font){
 void SuperAmazingObject::removeObjectContent(){
   // anything you need to remove or stop when deleting the object
 }
+
+// register object to factory OBJECT_REGISTER(class, object name, category)
+OBJECT_REGISTER( SuperAmazingObject, "super amazing object", OFXVP_OBJECT_CAT_DATA)
+
+// available categories
+OFXVP_OBJECT_CAT_AUDIOANALYSIS
+OFXVP_OBJECT_CAT_COMMUNICATIONS
+OFXVP_OBJECT_CAT_CV
+OFXVP_OBJECT_CAT_DATA
+OFXVP_OBJECT_CAT_GRAPHICS
+OFXVP_OBJECT_CAT_GUI
+OFXVP_OBJECT_CAT_LOGIC
+OFXVP_OBJECT_CAT_MATH
+OFXVP_OBJECT_CAT_SCRIPTING
+OFXVP_OBJECT_CAT_SOUND
+OFXVP_OBJECT_CAT_VIDEO
+OFXVP_OBJECT_CAT_WINDOWING
 
 ```
 
