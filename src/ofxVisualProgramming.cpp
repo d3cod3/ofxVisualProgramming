@@ -159,35 +159,6 @@ void ofxVisualProgramming::update(){
     // Graphical Context
     canvas.update();
 
-    // left to right computing order
-    leftToRightIndexOrder.clear();
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
-    }
-    // sort the vector by it's pair first value (object X position)
-    sort(leftToRightIndexOrder.begin(),leftToRightIndexOrder.end());
-
-    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-        TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
-        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,fileDialog);
-        TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
-
-        if(draggingObject && draggingObjectID == leftToRightIndexOrder[i].second){
-            patchObjects[leftToRightIndexOrder[i].second]->mouseDragged(actualMouse.x,actualMouse.y);
-        }
-
-        // update scripts objects files map
-        ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-        string fileExt = ofToUpper(tempsofp.getExtension());
-        if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
-            map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-            if (sofpIT == scriptsObjectsFilesPaths.end()){
-                // not found, insert it
-                scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-            }
-        }
-    }
-
     // Clear map from deleted objects
     if(ofGetElapsedTimeMillis()-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
@@ -218,6 +189,35 @@ void ofxVisualProgramming::update(){
             patchObjects.erase(eraseIndexes.at(x));
         }
 
+    }
+
+    // left to right computing order
+    leftToRightIndexOrder.clear();
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
+    }
+    // sort the vector by it's pair first value (object X position)
+    sort(leftToRightIndexOrder.begin(),leftToRightIndexOrder.end());
+
+    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
+        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,fileDialog);
+        TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
+
+        if(draggingObject && draggingObjectID == leftToRightIndexOrder[i].second){
+            patchObjects[leftToRightIndexOrder[i].second]->mouseDragged(actualMouse.x,actualMouse.y);
+        }
+
+        // update scripts objects files map
+        ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+        string fileExt = ofToUpper(tempsofp.getExtension());
+        if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+            map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+            if (sofpIT == scriptsObjectsFilesPaths.end()){
+                // not found, insert it
+                scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+            }
+        }
     }
 
 }
