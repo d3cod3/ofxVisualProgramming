@@ -159,17 +159,25 @@ void ofxVisualProgramming::update(){
     // Graphical Context
     canvas.update();
 
+    // left to right computing order
+    leftToRightIndexOrder.clear();
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        TS_START(it->second->getName()+ofToString(it->second->getId())+"_update");
-        it->second->update(patchObjects,fileDialog);
-        TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_update");
+        leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
+    }
+    // sort the vector by it's pair first value (object X position)
+    sort(leftToRightIndexOrder.begin(),leftToRightIndexOrder.end());
 
-        if(draggingObject && draggingObjectID == it->first){
-            it->second->mouseDragged(actualMouse.x,actualMouse.y);
+    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
+        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,fileDialog);
+        TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
+
+        if(draggingObject && draggingObjectID == leftToRightIndexOrder[i].second){
+            patchObjects[leftToRightIndexOrder[i].second]->mouseDragged(actualMouse.x,actualMouse.y);
         }
 
         // update scripts objects files map
-        ofFile tempsofp(it->second->getFilepath());
+        ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
         string fileExt = ofToUpper(tempsofp.getExtension());
         if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
             map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
@@ -178,8 +186,8 @@ void ofxVisualProgramming::update(){
                 scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
             }
         }
-
     }
+
     // Clear map from deleted objects
     if(ofGetElapsedTimeMillis()-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
@@ -237,13 +245,13 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        TS_START(it->second->getName()+ofToString(it->second->getId())+"_draw");
-        if(it->second->getName() == "live patching"){
-           livePatchingObiID = it->second->getId();
+    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
+        if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
+           livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
         }
-        it->second->draw(font);
-        TS_STOP(it->second->getName()+ofToString(it->second->getId())+"_draw");
+        patchObjects[leftToRightIndexOrder[i].second]->draw(font);
+        TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
     }
 
     // draw outlet cables with var name

@@ -127,6 +127,7 @@ public:
     // PATCH OBJECTS
     map<int,shared_ptr<PatchObject>>   patchObjects;
     map<string,string>      scriptsObjectsFilesPaths;
+    vector<pair<int,int>>   leftToRightIndexOrder;
     vector<int>             eraseIndexes;
     bool                    isOutletSelected;
     int                     selectedObjectLinkType;
