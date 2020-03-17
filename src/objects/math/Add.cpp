@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Add.h"
 
 //--------------------------------------------------------------
@@ -181,3 +183,5 @@ void Add::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Add, "add", OFXVP_OBJECT_CAT_MATH);
+
+#endif

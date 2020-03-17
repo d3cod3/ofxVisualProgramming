@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 
 // A Synths class collection from ofxPDSP (amazing addon) examples synths from Nicola Pisanti:
 // https://github.com/npisanti/ofxPDSP
@@ -443,3 +445,5 @@ private:
     
 };
 
+
+#endif

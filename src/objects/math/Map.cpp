@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Map.h"
 
 //--------------------------------------------------------------
@@ -245,3 +247,5 @@ void Map::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH);
+
+#endif

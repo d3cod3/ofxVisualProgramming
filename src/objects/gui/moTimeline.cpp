@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moTimeline.h"
 
 #include "GLFW/glfw3.h"
@@ -975,3 +977,5 @@ void moTimeline::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI);
+
+#endif

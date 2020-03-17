@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Gate.h"
 
 //--------------------------------------------------------------
@@ -114,3 +116,5 @@ void Gate::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( Gate, "gate", OFXVP_OBJECT_CAT_LOGIC);
+
+#endif

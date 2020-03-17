@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moBang.h"
 
 //--------------------------------------------------------------
@@ -124,3 +126,5 @@ void moBang::mouseReleasedObjectContent(ofVec3f _m){
 }
 
 OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI);
+
+#endif

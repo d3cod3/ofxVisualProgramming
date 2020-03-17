@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
@@ -381,5 +383,7 @@ void BashScript::pathChanged(const PathWatcher::Event &event) {
 }
 
 OBJECT_REGISTER( BashScript, "bash script", OFXVP_OBJECT_CAT_SCRIPTING)
+
+#endif
 
 #endif

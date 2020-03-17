@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Subtract.h"
 
 //--------------------------------------------------------------
@@ -183,3 +185,5 @@ void Subtract::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Subtract, "subtract", OFXVP_OBJECT_CAT_MATH);
+
+#endif

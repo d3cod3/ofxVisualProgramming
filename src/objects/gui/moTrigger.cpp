@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moTrigger.h"
 
 //--------------------------------------------------------------
@@ -108,3 +110,5 @@ void moTrigger::mouseReleasedObjectContent(ofVec3f _m){
 }
 
 OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI);
+
+#endif

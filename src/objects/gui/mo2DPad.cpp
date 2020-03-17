@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "mo2DPad.h"
 
 //--------------------------------------------------------------
@@ -168,3 +170,5 @@ void mo2DPad::on2dPadEvent(ofxDatGui2dPadEvent e){
 }
 
 OBJECT_REGISTER( mo2DPad, "2d pad", OFXVP_OBJECT_CAT_GUI);
+
+#endif

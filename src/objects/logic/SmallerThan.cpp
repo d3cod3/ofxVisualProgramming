@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SmallerThan.h"
 
 //--------------------------------------------------------------
@@ -153,3 +155,5 @@ void SmallerThan::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( SmallerThan, "<", OFXVP_OBJECT_CAT_LOGIC);
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VectorGate.h"
 
 //--------------------------------------------------------------
@@ -109,3 +111,5 @@ void VectorGate::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA);
+
+#endif

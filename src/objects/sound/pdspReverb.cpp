@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspReverb.h"
 
 //--------------------------------------------------------------
@@ -302,3 +304,5 @@ void pdspReverb::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

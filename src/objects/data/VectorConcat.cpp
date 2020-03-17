@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VectorConcat.h"
 
 //--------------------------------------------------------------
@@ -94,3 +96,5 @@ void VectorConcat::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA);
+
+#endif

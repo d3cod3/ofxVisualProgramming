@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OutputWindow.h"
 
 #include "GLFW/glfw3.h"
@@ -796,3 +798,5 @@ void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING);
+
+#endif

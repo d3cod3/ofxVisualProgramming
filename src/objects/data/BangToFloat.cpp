@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "BangToFloat.h"
 
 //--------------------------------------------------------------
@@ -172,3 +174,5 @@ void BangToFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
 
 
 OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA);
+
+#endif

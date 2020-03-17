@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspADSR.h"
 
 //--------------------------------------------------------------
@@ -336,3 +338,5 @@ void pdspADSR::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspADSR, "ADSR envelope", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspDecimator.h"
 
 //--------------------------------------------------------------
@@ -214,3 +216,5 @@ void pdspDecimator::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspDecimator, "decimator", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

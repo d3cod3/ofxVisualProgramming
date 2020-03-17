@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moSonogram.h"
 
 //--------------------------------------------------------------
@@ -197,3 +199,5 @@ void moSonogram::dragGUIObject(ofVec3f _m){
 }
 
 OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI);
+
+#endif

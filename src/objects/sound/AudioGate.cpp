@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "AudioGate.h"
 
 //--------------------------------------------------------------
@@ -148,3 +150,5 @@ void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 OBJECT_REGISTER( AudioGate, "audio gate", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

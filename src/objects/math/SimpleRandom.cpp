@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SimpleRandom.h"
 
 //--------------------------------------------------------------
@@ -124,3 +126,5 @@ void SimpleRandom::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH);
+
+#endif

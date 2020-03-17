@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moMessage.h"
 
 //--------------------------------------------------------------
@@ -162,3 +164,5 @@ void moMessage::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI);
+
+#endif

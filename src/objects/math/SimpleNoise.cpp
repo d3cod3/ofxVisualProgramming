@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SimpleNoise.h"
 
 //--------------------------------------------------------------
@@ -94,3 +96,5 @@ void SimpleNoise::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH);
+
+#endif

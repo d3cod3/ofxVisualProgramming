@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Select.h"
 
 //--------------------------------------------------------------
@@ -107,3 +109,5 @@ void Select::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( Select, "select", OFXVP_OBJECT_CAT_LOGIC);
+
+#endif

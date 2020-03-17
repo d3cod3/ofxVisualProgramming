@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moVUMeter.h"
 
 //--------------------------------------------------------------
@@ -101,3 +103,5 @@ void moVUMeter::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI);
+
+#endif

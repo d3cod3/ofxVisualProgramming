@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "ofxOsc.h"
@@ -77,3 +79,5 @@ public:
 
     OBJECT_FACTORY_PROPS;
 };
+
+#endif

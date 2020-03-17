@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MidiScore.h"
 
 //--------------------------------------------------------------
@@ -109,3 +111,5 @@ void MidiScore::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+
+#endif

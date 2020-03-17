@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+//#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Constant.h"
 
 //--------------------------------------------------------------
@@ -155,3 +157,5 @@ void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH);
+
+//#endif

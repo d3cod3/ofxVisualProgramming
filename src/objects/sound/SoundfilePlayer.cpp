@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SoundfilePlayer.h"
 
 //--------------------------------------------------------------
@@ -467,3 +469,5 @@ void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
 }
 
 OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

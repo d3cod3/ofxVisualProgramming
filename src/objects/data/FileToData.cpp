@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "FileToData.h"
 
 //--------------------------------------------------------------
@@ -246,3 +248,5 @@ void FileToData::onToggleEvent(ofxDatGuiToggleEvent e){
 }
 
 OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA);
+
+#endif

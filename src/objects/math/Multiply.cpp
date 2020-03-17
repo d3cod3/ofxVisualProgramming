@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Multiply.h"
 
 //--------------------------------------------------------------
@@ -181,3 +183,5 @@ void Multiply::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Multiply, "multiply", OFXVP_OBJECT_CAT_MATH);
+
+#endif

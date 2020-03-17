@@ -19,3 +19,4 @@ public:
     string::iterator cursorPosition;
 
 };
+

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "FloatsToVector.h"
 
 //--------------------------------------------------------------
@@ -101,3 +103,5 @@ void FloatsToVector::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA);
+
+#endif

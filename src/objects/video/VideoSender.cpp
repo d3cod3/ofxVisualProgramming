@@ -32,7 +32,7 @@
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
-#else
+#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
 
 #include "VideoSender.h"
 
@@ -230,3 +230,4 @@ void VideoSender::onToggleEvent(ofxDatGuiToggleEvent e){
 OBJECT_REGISTER( VideoSender, "video sender", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif
+

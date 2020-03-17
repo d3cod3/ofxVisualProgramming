@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "AND.h"
 
 //--------------------------------------------------------------
@@ -100,3 +102,5 @@ void AND::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( AND, "&&", OFXVP_OBJECT_CAT_LOGIC);
+
+#endif

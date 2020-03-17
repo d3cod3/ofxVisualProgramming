@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoGate.h"
 
 //--------------------------------------------------------------
@@ -132,3 +134,5 @@ void VideoGate::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO);
+
+#endif

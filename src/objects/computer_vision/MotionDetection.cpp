@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MotionDetection.h"
 
 using namespace ofxCv;
@@ -251,3 +253,5 @@ void MotionDetection::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( MotionDetection, "motion detection", OFXVP_OBJECT_CAT_CV);
+
+#endif

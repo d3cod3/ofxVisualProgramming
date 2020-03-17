@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspAHR.h"
 
 //--------------------------------------------------------------
@@ -321,3 +323,5 @@ void pdspAHR::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspAHR, "AHR envelope", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

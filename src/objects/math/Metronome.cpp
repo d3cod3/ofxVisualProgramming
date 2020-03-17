@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Metronome.h"
 
 //--------------------------------------------------------------
@@ -182,3 +184,5 @@ void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH);
+
+#endif

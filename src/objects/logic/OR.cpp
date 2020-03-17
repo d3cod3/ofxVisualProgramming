@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OR.h"
 
 //--------------------------------------------------------------
@@ -100,3 +102,5 @@ void OR::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( OR, "||", OFXVP_OBJECT_CAT_LOGIC);
+
+#endif

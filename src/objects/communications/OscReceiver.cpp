@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OscReceiver.h"
 
 //--------------------------------------------------------------
@@ -512,3 +514,5 @@ string OscReceiver::getLocalIP(){
 }
 
 OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+
+#endif

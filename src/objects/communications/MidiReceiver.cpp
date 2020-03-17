@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MidiReceiver.h"
 
 //--------------------------------------------------------------
@@ -267,3 +269,5 @@ void MidiReceiver::newMidiMessage(ofxMidiMessage& msg){
 }
 
 OBJECT_REGISTER( MidiReceiver, "midi receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoDelay.h"
 
 //--------------------------------------------------------------
@@ -289,3 +291,5 @@ void VideoDelay::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_VIDEO);
+
+#endif

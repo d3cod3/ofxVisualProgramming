@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MidiSender.h"
 
 //--------------------------------------------------------------
@@ -265,3 +267,5 @@ void MidiSender::onMatrixEvent(ofxDatGuiMatrixEvent e){
 }
 
 OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+
+#endif

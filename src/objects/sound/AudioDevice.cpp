@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "AudioDevice.h"
 
 //--------------------------------------------------------------
@@ -374,3 +376,5 @@ void AudioDevice::loadDeviceInfo(){
 }
 
 OBJECT_REGISTER( AudioDevice, "audio device", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

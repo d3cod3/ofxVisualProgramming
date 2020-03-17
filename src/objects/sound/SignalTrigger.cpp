@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SignalTrigger.h"
 
 //--------------------------------------------------------------
@@ -217,3 +219,5 @@ void SignalTrigger::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( SignalTrigger, "signal trigger", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

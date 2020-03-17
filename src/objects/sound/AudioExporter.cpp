@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "AudioExporter.h"
 
 //--------------------------------------------------------------
@@ -248,3 +250,5 @@ void AudioExporter::onToggleEvent(ofxDatGuiToggleEvent e){
 }
 
 OBJECT_REGISTER( AudioExporter, "audio exporter", OFXVP_OBJECT_CAT_SOUND);
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -49,3 +51,5 @@ public:
 
     OBJECT_FACTORY_PROPS;
 };
+
+#endif

@@ -32,7 +32,7 @@
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
-#else
+#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
 
 #include "FaceTracker.h"
 
@@ -185,4 +185,3 @@ void FaceTracker::removeObjectContent(bool removeFileFromData){
 OBJECT_REGISTER( FaceTracker, "face tracker", OFXVP_OBJECT_CAT_CV)
 
 #endif
-

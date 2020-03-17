@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Inequality.h"
 
 //--------------------------------------------------------------
@@ -153,3 +155,5 @@ void Inequality::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC);
+
+#endif
