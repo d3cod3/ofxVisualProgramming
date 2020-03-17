@@ -48,10 +48,12 @@ public:
 
     void            mouseReleasedObjectContent(ofVec3f _m);
 
+    void            audioOutObject(ofSoundBuffer &outputBuffer);
+
     bool            isOpen;
 
     vector<float>   *empty;
     ofImage         *kuro;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

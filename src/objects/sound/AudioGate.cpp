@@ -147,4 +147,4 @@ void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 }
 
-OBJECT_REGISTER( AudioGate, "audio gate", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( AudioGate, "audio gate", OFXVP_OBJECT_CAT_SOUND)
