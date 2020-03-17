@@ -214,4 +214,4 @@ float NoteToFrequency::frequencyToPitch(float freq){
     return pdsp::f2p(freq);
 }
 
-OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND)

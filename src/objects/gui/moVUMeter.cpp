@@ -100,4 +100,4 @@ void moVUMeter::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI)

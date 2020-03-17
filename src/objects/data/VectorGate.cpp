@@ -108,4 +108,4 @@ void VectorGate::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA)

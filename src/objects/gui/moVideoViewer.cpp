@@ -166,4 +166,4 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)

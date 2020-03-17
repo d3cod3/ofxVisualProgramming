@@ -52,5 +52,5 @@ public:
 
     float           posX, posY, drawW, drawH;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

@@ -154,4 +154,4 @@ void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"SMOOTHING");
 }
 
-OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH)

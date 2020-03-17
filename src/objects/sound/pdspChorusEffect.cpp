@@ -255,4 +255,4 @@ void pdspChorusEffect::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( pdspChorusEffect, "chorus", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspChorusEffect, "chorus", OFXVP_OBJECT_CAT_SOUND)

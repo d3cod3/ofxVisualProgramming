@@ -106,4 +106,4 @@ void Select::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( Select, "select", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Select, "select", OFXVP_OBJECT_CAT_LOGIC)

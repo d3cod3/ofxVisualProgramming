@@ -264,4 +264,4 @@ void MidiSender::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS)

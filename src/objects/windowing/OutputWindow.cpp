@@ -795,4 +795,4 @@ void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING);
+OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING)

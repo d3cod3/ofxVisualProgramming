@@ -68,5 +68,5 @@ public:
     ofxDatGuiSlider*            minAreaRadius;
     ofxDatGuiSlider*            maxAreaRadius;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

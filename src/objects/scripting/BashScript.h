@@ -92,5 +92,5 @@ protected:
     bool                    loadScriptFlag;
     bool                    saveScriptFlag;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

@@ -301,4 +301,4 @@ void pdspReverb::onSliderEvent(ofxDatGuiSliderEvent e){
     
 }
 
-OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND)

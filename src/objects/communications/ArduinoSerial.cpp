@@ -320,4 +320,4 @@ void ArduinoSerial::onDropdownEvent(ofxDatGuiDropdownEvent e){
     }
 }
 
-OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS)

@@ -90,4 +90,4 @@ void LivePatching::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING);
+OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING)

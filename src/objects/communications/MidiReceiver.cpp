@@ -266,4 +266,4 @@ void MidiReceiver::newMidiMessage(ofxMidiMessage& msg){
     lastMessage = msg;
 }
 
-OBJECT_REGISTER( MidiReceiver, "midi receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiReceiver, "midi receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)

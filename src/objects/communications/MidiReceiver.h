@@ -68,5 +68,5 @@ public:
     ofxDatGuiLabel*         midiDeviceName;
     ofxDatGuiMatrix*        deviceSelector;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

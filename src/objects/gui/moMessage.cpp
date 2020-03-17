@@ -161,4 +161,4 @@ void moMessage::onTextInputEvent(ofxDatGuiTextInputEvent e){
     // cout << "From Event Object: " << e.text << endl;
 }
 
-OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI)

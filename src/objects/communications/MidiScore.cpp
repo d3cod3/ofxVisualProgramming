@@ -108,4 +108,4 @@ void MidiScore::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS)

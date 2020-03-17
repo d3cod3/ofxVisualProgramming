@@ -110,4 +110,4 @@ void BeatExtractor::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( BeatExtractor , "beat extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( BeatExtractor , "beat extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

@@ -186,4 +186,4 @@ void Divide::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Divide, "divide", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Divide, "divide", OFXVP_OBJECT_CAT_MATH)

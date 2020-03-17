@@ -315,4 +315,4 @@ void HaarTracking::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-OBJECT_REGISTER( HaarTracking, "haar tracking", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( HaarTracking, "haar tracking", OFXVP_OBJECT_CAT_CV)

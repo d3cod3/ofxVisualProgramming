@@ -685,4 +685,4 @@ void LuaScript::errorReceived(std::string& msg) {
     }
 }
 
-OBJECT_REGISTER( LuaScript, "lua script", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( LuaScript, "lua script", OFXVP_OBJECT_CAT_SCRIPTING)

@@ -136,4 +136,4 @@ void BPMExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

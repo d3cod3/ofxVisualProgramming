@@ -152,4 +152,4 @@ void BiggerThan::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( BiggerThan, ">", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( BiggerThan, ">", OFXVP_OBJECT_CAT_LOGIC)

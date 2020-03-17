@@ -247,4 +247,4 @@ void OscPulse::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( OscPulse, "pulse", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( OscPulse, "pulse", OFXVP_OBJECT_CAT_SOUND)

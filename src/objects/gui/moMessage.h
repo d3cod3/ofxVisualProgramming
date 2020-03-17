@@ -57,5 +57,5 @@ public:
 
     string              actualMessage;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

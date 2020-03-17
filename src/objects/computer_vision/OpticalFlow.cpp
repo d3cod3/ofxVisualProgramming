@@ -311,4 +311,4 @@ void OpticalFlow::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( OpticalFlow, "optical flow", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( OpticalFlow, "optical flow", OFXVP_OBJECT_CAT_CV)

@@ -134,4 +134,4 @@ void HFCExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( HFCExtractor , "hfc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( HFCExtractor , "hfc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

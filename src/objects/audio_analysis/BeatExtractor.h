@@ -51,5 +51,5 @@ public:
     bool            isNewConnection;
     bool            isConnectionRight;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

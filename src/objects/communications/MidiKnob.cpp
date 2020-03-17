@@ -202,4 +202,4 @@ void MidiKnob::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( MidiKnob, "midi knob", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiKnob, "midi knob", OFXVP_OBJECT_CAT_COMMUNICATIONS)

@@ -219,4 +219,4 @@ void Oscillator::onSliderEvent(ofxDatGuiSliderEvent e){
     oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }
 
-OBJECT_REGISTER( Oscillator, "sine", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Oscillator, "sine", OFXVP_OBJECT_CAT_SOUND)

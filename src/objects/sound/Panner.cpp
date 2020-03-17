@@ -211,4 +211,4 @@ void Panner::onSliderEvent(ofxDatGuiSliderEvent e){
     pan_ctrl.set(ofClamp(static_cast<float>(e.value),-1.0f,1.0f));
 }
 
-OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND)

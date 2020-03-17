@@ -77,5 +77,5 @@ public:
 
     vector<string>      codecsList;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

@@ -107,4 +107,4 @@ void moTrigger::mouseReleasedObjectContent(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI)

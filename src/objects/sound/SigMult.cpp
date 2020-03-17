@@ -213,4 +213,4 @@ void SigMult::onSliderEvent(ofxDatGuiSliderEvent e){
     gain_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,12.0f));
 }
 
-OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND)

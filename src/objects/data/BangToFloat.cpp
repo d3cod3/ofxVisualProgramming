@@ -171,4 +171,4 @@ void BangToFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 
-OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA)

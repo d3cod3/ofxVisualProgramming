@@ -180,4 +180,4 @@ void Multiply::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Multiply, "multiply", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Multiply, "multiply", OFXVP_OBJECT_CAT_MATH)

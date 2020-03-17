@@ -133,4 +133,4 @@ void FftExtractor::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

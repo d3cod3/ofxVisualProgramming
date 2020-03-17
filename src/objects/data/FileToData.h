@@ -69,5 +69,5 @@ public:
     ofxDatGuiHeader*        header;
     ofxDatGuiToggle*        readButton;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

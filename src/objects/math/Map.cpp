@@ -244,4 +244,4 @@ void Map::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH)

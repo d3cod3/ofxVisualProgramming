@@ -57,5 +57,5 @@ public:
     float                   inputValue;
     float                   equalsTo;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

@@ -99,4 +99,4 @@ void OR::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( OR, "||", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( OR, "||", OFXVP_OBJECT_CAT_LOGIC)

@@ -125,4 +125,4 @@ void pdspWhiteNoise::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND)

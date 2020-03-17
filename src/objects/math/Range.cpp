@@ -178,4 +178,4 @@ void Range::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH)

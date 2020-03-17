@@ -162,4 +162,4 @@ void MidiKey::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( MidiKey, "midi key", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiKey, "midi key", OFXVP_OBJECT_CAT_COMMUNICATIONS)

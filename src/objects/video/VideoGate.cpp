@@ -131,4 +131,4 @@ void VideoGate::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO)

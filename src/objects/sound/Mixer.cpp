@@ -141,4 +141,4 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND)

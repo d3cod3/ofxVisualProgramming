@@ -265,4 +265,4 @@ void ImageLoader::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_GRAPHICS);
+OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_GRAPHICS)

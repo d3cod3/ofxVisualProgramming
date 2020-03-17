@@ -261,4 +261,4 @@ void QuadPanner::on2dPadEvent(ofxDatGui2dPadEvent e){
     gain_ctrl4.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * static_cast<float>(e.x/pad->getBounds().width));
 }
 
-OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND)

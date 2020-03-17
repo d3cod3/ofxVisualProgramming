@@ -86,5 +86,5 @@ public:
     ofxDatGuiSlider*    nearThreshold;
     ofxDatGuiSlider*    farThreshold;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

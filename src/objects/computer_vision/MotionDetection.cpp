@@ -250,4 +250,4 @@ void MotionDetection::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( MotionDetection, "motion detection", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( MotionDetection, "motion detection", OFXVP_OBJECT_CAT_CV)

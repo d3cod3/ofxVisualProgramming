@@ -93,4 +93,4 @@ void VectorConcat::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA)

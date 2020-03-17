@@ -184,4 +184,4 @@ void VectorAt::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA)

@@ -240,4 +240,4 @@ void VideoTimelapse::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_VIDEO)

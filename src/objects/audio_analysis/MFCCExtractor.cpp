@@ -138,4 +138,4 @@ void MFCCExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( MFCCExtractor , "mfcc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( MFCCExtractor , "mfcc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

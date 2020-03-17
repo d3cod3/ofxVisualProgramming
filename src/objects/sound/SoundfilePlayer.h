@@ -94,5 +94,5 @@ public:
     bool                loadSoundfileFlag;
     bool                soundfileLoaded;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

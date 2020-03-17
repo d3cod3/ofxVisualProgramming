@@ -259,4 +259,4 @@ void pdspDelay::onSliderEvent(ofxDatGuiSliderEvent e){
     
 }
 
-OBJECT_REGISTER( pdspDelay, "delay", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspDelay, "delay", OFXVP_OBJECT_CAT_SOUND)

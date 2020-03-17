@@ -511,4 +511,4 @@ string OscReceiver::getLocalIP(){
     return IP;
 }
 
-OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)

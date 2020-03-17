@@ -315,4 +315,4 @@ void pdspCompressor::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( pdspCompressor, "compressor", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspCompressor, "compressor", OFXVP_OBJECT_CAT_SOUND)

@@ -123,4 +123,4 @@ void moBang::mouseReleasedObjectContent(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)

@@ -185,4 +185,4 @@ void Module::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Module, "modulus", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Module, "modulus", OFXVP_OBJECT_CAT_MATH)

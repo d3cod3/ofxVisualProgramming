@@ -96,4 +96,4 @@ void Clamp::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( Clamp, "clamp", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Clamp, "clamp", OFXVP_OBJECT_CAT_MATH)

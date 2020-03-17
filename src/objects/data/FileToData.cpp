@@ -245,4 +245,4 @@ void FileToData::onToggleEvent(ofxDatGuiToggleEvent e){
     }
 }
 
-OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA)

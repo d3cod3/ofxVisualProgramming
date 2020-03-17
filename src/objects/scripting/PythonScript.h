@@ -111,5 +111,5 @@ protected:
     bool                    needToLoadScript;
     bool                    threadLoaded;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

@@ -299,4 +299,4 @@ void pdspResonant2PoleFilter::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( pdspResonant2PoleFilter, "resonant 2pole filter", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspResonant2PoleFilter, "resonant 2pole filter", OFXVP_OBJECT_CAT_SOUND)

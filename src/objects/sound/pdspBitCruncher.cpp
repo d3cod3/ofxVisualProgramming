@@ -206,4 +206,4 @@ void pdspBitCruncher::onSliderEvent(ofxDatGuiSliderEvent e){
     bits_ctrl.set(ofClamp(static_cast<float>(e.value),1.0f,8.0f));
 }
 
-OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND)

@@ -335,4 +335,4 @@ void pdspADSR::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( pdspADSR, "ADSR envelope", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspADSR, "ADSR envelope", OFXVP_OBJECT_CAT_SOUND)

@@ -209,4 +209,4 @@ void Crossfader::onSliderEvent(ofxDatGuiSliderEvent e){
     fade_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
 }
 
-OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND)

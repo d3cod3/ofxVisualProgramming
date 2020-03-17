@@ -466,4 +466,4 @@ void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND)

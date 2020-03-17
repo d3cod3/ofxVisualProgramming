@@ -75,5 +75,5 @@ public:
     ofxDatGuiSlider*            greenValue;
     ofxDatGuiSlider*            blueValue;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

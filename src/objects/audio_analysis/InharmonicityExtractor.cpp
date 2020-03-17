@@ -134,4 +134,4 @@ void InharmonicityExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( InharmonicityExtractor , "inharmonicity extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( InharmonicityExtractor , "inharmonicity extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

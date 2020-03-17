@@ -139,5 +139,5 @@ public:
     size_t                                  startTime;
     size_t                                  waitTime;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

@@ -48,5 +48,5 @@ public:
 
     bool            bang;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

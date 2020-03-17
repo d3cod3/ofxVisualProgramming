@@ -268,4 +268,4 @@ void pdspLFO::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND)

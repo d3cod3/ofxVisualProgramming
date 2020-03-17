@@ -134,4 +134,4 @@ void RMSExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

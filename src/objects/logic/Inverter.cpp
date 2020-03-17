@@ -100,4 +100,4 @@ void Inverter::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC)

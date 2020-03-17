@@ -78,5 +78,5 @@ public:
     ofxDatGuiMatrix*            deviceSelector;
     ofxDatGuiDropdown*          baudRates;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

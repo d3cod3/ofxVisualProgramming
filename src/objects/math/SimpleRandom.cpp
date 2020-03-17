@@ -123,4 +123,4 @@ void SimpleRandom::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH)

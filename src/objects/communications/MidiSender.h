@@ -68,5 +68,5 @@ public:
     bool                    trigger;
     float                   lastNote;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

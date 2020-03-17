@@ -636,4 +636,4 @@ void PDPatch::receiveMidiByte(const int port, const int byte) {
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }
 
-OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND)

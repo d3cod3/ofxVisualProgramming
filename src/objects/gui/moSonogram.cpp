@@ -196,4 +196,4 @@ void moSonogram::dragGUIObject(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI)

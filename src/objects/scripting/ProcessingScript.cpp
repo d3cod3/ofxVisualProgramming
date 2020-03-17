@@ -422,4 +422,4 @@ void ProcessingScript::pathChanged(const PathWatcher::Event &event) {
 }
 
 
-OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING)

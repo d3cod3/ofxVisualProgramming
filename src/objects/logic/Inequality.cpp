@@ -152,4 +152,4 @@ void Inequality::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC)

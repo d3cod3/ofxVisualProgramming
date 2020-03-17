@@ -51,5 +51,5 @@ public:
     bool            bang;
     bool            isBangFinished;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

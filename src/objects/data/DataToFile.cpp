@@ -214,4 +214,4 @@ void DataToFile::appendLineToFile(string filepath, string line){
     file.close();
 }
 
-OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA)

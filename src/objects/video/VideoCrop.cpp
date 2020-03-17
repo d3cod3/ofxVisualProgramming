@@ -317,4 +317,4 @@ ofRectangle VideoCrop::getIntersection(ofRectangle & r1,ofRectangle & r2){
     }
 }
 
-OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO)

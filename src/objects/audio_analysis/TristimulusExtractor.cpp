@@ -138,4 +138,4 @@ void TristimulusExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( TristimulusExtractor , "tristimulus extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( TristimulusExtractor , "tristimulus extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

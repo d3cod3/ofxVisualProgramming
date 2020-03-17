@@ -204,4 +204,4 @@ void moComment::saveCommentSetting(){
     }
 }
 
-OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)

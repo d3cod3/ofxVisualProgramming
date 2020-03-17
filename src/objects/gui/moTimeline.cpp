@@ -974,4 +974,4 @@ void moTimeline::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI)

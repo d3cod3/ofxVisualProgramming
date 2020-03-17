@@ -133,4 +133,4 @@ void MelBandsExtractor::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( MelBandsExtractor , "mel bands extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( MelBandsExtractor , "mel bands extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

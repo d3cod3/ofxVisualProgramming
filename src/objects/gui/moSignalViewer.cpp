@@ -149,4 +149,4 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
 
 }
 
-OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI)

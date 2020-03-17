@@ -255,4 +255,4 @@ void pdspCombFilter::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( pdspCombFilter, "comb filter", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspCombFilter, "comb filter", OFXVP_OBJECT_CAT_SOUND)

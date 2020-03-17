@@ -177,4 +177,4 @@ void VectorMultiply::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( VectorMultiply, "vector multiply", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorMultiply, "vector multiply", OFXVP_OBJECT_CAT_DATA)

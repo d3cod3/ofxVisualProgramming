@@ -47,5 +47,5 @@ public:
     void            removeObjectContent(bool removeFileFromData=false);
 
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

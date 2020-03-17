@@ -182,4 +182,4 @@ void Subtract::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Subtract, "subtract", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Subtract, "subtract", OFXVP_OBJECT_CAT_MATH)

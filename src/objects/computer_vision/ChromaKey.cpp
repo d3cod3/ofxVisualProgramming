@@ -330,4 +330,4 @@ void ChromaKey::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( ChromaKey, "chroma key", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( ChromaKey, "chroma key", OFXVP_OBJECT_CAT_CV)

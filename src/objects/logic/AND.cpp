@@ -99,4 +99,4 @@ void AND::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( AND, "&&", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( AND, "&&", OFXVP_OBJECT_CAT_LOGIC)

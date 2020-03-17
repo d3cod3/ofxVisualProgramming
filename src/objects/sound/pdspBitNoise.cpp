@@ -215,4 +215,4 @@ void pdspBitNoise::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( pdspBitNoise, "bit noise", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspBitNoise, "bit noise", OFXVP_OBJECT_CAT_SOUND)

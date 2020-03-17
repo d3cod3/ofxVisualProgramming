@@ -151,4 +151,4 @@ void KeyPressed::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS)

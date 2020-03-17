@@ -134,4 +134,4 @@ void DissonanceExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( DissonanceExtractor, "dissonance extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( DissonanceExtractor, "dissonance extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

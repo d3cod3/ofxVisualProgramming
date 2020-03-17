@@ -247,4 +247,4 @@ void AudioExporter::onToggleEvent(ofxDatGuiToggleEvent e){
     }
 }
 
-OBJECT_REGISTER( AudioExporter, "audio exporter", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( AudioExporter, "audio exporter", OFXVP_OBJECT_CAT_SOUND)

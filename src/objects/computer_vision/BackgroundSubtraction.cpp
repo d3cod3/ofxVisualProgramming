@@ -394,4 +394,4 @@ void BackgroundSubtraction::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV)

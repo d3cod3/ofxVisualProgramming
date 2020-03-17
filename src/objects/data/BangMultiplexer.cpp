@@ -102,4 +102,4 @@ void BangMultiplexer::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( BangMultiplexer, "bang multiplexer", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( BangMultiplexer, "bang multiplexer", OFXVP_OBJECT_CAT_DATA)

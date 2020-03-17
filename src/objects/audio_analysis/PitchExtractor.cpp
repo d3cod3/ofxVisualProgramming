@@ -134,4 +134,4 @@ void PitchExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

@@ -100,4 +100,4 @@ void FloatsToVector::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA)

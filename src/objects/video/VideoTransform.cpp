@@ -321,4 +321,4 @@ void VideoTransform::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO)

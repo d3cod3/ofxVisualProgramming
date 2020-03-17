@@ -147,4 +147,4 @@ void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"VALUE");
 }
 
-OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI)

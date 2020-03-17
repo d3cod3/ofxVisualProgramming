@@ -237,4 +237,4 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
 
 }
 
-OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI)

@@ -124,4 +124,4 @@ void OnsetExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

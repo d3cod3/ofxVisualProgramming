@@ -154,4 +154,4 @@ void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH)

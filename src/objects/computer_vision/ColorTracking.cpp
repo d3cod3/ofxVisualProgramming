@@ -442,4 +442,4 @@ void ColorTracking::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( ColorTracking, "color tracking", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( ColorTracking, "color tracking", OFXVP_OBJECT_CAT_CV)

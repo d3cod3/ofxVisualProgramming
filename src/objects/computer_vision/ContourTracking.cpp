@@ -386,4 +386,4 @@ void ContourTracking::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( ContourTracking, "contour tracking", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( ContourTracking, "contour tracking", OFXVP_OBJECT_CAT_CV)

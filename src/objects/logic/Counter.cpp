@@ -221,4 +221,4 @@ void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC)

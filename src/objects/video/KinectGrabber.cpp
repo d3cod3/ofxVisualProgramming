@@ -369,4 +369,4 @@ void KinectGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_VIDEO)

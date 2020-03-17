@@ -93,4 +93,4 @@ void SimpleNoise::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH)

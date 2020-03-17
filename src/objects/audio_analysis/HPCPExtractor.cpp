@@ -138,4 +138,4 @@ void HPCPExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( HPCPExtractor , "hpcp extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( HPCPExtractor , "hpcp extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

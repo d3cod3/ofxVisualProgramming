@@ -431,4 +431,4 @@ void PythonScript::pathChanged(const PathWatcher::Event &event) {
 }
 
 
-OBJECT_REGISTER( PythonScript, "python script", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( PythonScript, "python script", OFXVP_OBJECT_CAT_SCRIPTING)

@@ -75,5 +75,5 @@ public:
     ofxDatGuiSlider*            fbWinSize;
     
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };

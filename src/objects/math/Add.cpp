@@ -180,4 +180,4 @@ void Add::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Add, "add", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Add, "add", OFXVP_OBJECT_CAT_MATH)
