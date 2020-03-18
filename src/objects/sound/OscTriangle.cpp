@@ -96,7 +96,7 @@ void OscTriangle::setupAudioOutObjectContent(pdsp::Engine &engine){
     pitch_ctrl.enableSmoothing(50.0f);
 
     osc.out_triangle() >> this->pdspOut[0];
-    osc.out_triangle() >> scope >> engine.blackhole();
+    osc.out_sine() >> scope >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
