@@ -54,6 +54,7 @@ public:
 
     void            setup();
     void            update();
+    void            updateCanvasGUI();
     void            updateCanvasViewport();
     void            draw();
     void            drawLivePatchingSession();
@@ -162,6 +163,7 @@ public:
     bool                            inited;
 
     // GUI
+    bool                            isVPMouseMoving;
     bool                            isVPDragging;
     bool                            isHoverMenu;
     bool                            isHoverLogger;

@@ -66,6 +66,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     isRetina                = false;
     scaleFactor             = 1;
     linkActivateDistance    = 5;
+    isVPMouseMoving         = false;
     isVPDragging            = false;
 
     isOutletSelected        = false;
@@ -223,6 +224,45 @@ void ofxVisualProgramming::update(){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::updateCanvasGUI(){
+
+    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(isVPDragging){
+                if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
+                    draggingObject = true;
+                    draggingObjectID = it->first;
+                }
+                for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
+                    if(it->second->outPut[p]->toObjectID == selectedObjectID){
+                        if(isRetina){
+                            it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
+                        }else{
+                            it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
+                        }
+                        it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
+                    }
+                }
+                if(selectedObjectID != it->first){
+                    for (int j=0;j<it->second->getNumInlets();j++){
+                        if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
+                            if(it->second->getInletType(j) == selectedObjectLinkType){
+                                it->second->setInletMouseNear(j,true);
+                            }
+                        }else{
+                            it->second->setInletMouseNear(j,false);
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::updateCanvasViewport(){
     canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
 }
@@ -321,6 +361,8 @@ void ofxVisualProgramming::draw(){
     ofPopMatrix();
     ofPopStyle();
     ofPopView();
+
+    updateCanvasGUI();
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
@@ -431,7 +473,8 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
-    // CANVAS
+    isVPMouseMoving = true;
+
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->mouseMoved(actualMouse.x,actualMouse.y);
@@ -450,40 +493,6 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     isVPDragging = true;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-    // CANVAS
-    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
-
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-
-            if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
-                draggingObject = true;
-                draggingObjectID = it->first;
-            }
-            for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
-                if(it->second->outPut[p]->toObjectID == selectedObjectID){
-                    if(isRetina){
-                        it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
-                    }else{
-                        it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
-                    }
-                    it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
-                }
-            }
-            if(selectedObjectID != it->first){
-                for (int j=0;j<it->second->getNumInlets();j++){
-                    if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
-                        if(it->second->getInletType(j) == selectedObjectLinkType){
-                            it->second->setInletMouseNear(j,true);
-                        }
-                    }else{
-                        it->second->setInletMouseNear(j,false);
-                    }
-                }
-            }
-        }
-
-    }
 
     if(selectedObjectLink == -1 && !draggingObject && !isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
         canvas.mouseDragged(e);
@@ -557,7 +566,8 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
-    isVPDragging = false;
+    isVPDragging    = false;
+    isVPMouseMoving = false;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
