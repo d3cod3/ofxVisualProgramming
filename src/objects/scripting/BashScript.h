@@ -39,13 +39,11 @@
 
 #include <atomic>
 
-class BashScript : public ofThread, public PatchObject{
+class BashScript : public PatchObject{
 
 public:
 
     BashScript();
-
-    void            threadedFunction();
 
     void            autoloadFile(string _fp);
     void            newObject();
@@ -86,9 +84,7 @@ public:
 
 protected:
     ThreadedCommand         tempCommand;
-    std::condition_variable condition;
     bool                    needToLoadScript;
-    bool                    threadLoaded;
     bool                    loadScriptFlag;
     bool                    saveScriptFlag;
 
