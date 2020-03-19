@@ -36,13 +36,11 @@
 
 #include "ofxTimecode.h"
 
-class VideoPlayer : public ofThread, public PatchObject {
+class VideoPlayer : public PatchObject {
 
 public:
 
     VideoPlayer();
-
-    void            threadedFunction();
 
     void            autoloadFile(string _fp);
     void            newObject();
@@ -79,9 +77,7 @@ public:
     bool                loadVideoFlag;
 
 protected:
-    std::condition_variable condition;
     bool                    needToLoadVideo;
-    bool                    threadLoaded;
 
     OBJECT_FACTORY_PROPS
 };
