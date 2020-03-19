@@ -41,13 +41,11 @@
 
 #include <atomic>
 
-class PythonScript : public ofThread, public PatchObject {
+class PythonScript : public PatchObject {
 
 public:
 
     PythonScript();
-
-    void            threadedFunction();
 
     void            autoloadFile(string _fp);
     void            newObject();
@@ -107,9 +105,7 @@ public:
 
 protected:
     ThreadedCommand         tempCommand;
-    std::condition_variable condition;
     bool                    needToLoadScript;
-    bool                    threadLoaded;
 
     OBJECT_FACTORY_PROPS
 };
