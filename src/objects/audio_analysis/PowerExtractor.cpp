@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "PowerExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void PowerExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( PowerExtractor , "power extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+
+#endif

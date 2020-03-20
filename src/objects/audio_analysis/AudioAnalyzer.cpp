@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "AudioAnalyzer.h"
 
 //--------------------------------------------------------------
@@ -352,3 +354,5 @@ void AudioAnalyzer::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( AudioAnalyzer , "audio analyzer", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+
+#endif

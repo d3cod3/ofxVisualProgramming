@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MelBandsExtractor.h"
 
 //--------------------------------------------------------------
@@ -134,3 +136,5 @@ void MelBandsExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( MelBandsExtractor , "mel bands extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+
+#endif

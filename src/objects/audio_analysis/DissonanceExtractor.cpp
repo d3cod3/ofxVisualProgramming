@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "DissonanceExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void DissonanceExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( DissonanceExtractor, "dissonance extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+
+#endif

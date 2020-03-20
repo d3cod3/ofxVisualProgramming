@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "FftExtractor.h"
 
 //--------------------------------------------------------------
@@ -134,3 +136,5 @@ void FftExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+
+#endif
