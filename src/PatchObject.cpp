@@ -33,7 +33,7 @@
 #include "PatchObject.h"
 
 //--------------------------------------------------------------
-PatchObject::PatchObject(){
+PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUID) {
     nId             = -1;
     name            = "none";
     filepath        = "none";
