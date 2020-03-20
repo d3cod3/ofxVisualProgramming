@@ -28,6 +28,7 @@ common:
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
         ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJava ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
         ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxThreadedFileDialog ofxTimeline ofxTimeMeasurements ofxWarp
+        ADDON_DEPENDENCIES += ofxImGui
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
