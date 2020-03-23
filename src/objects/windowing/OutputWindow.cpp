@@ -31,6 +31,7 @@
 ==============================================================================*/
 
 #include "OutputWindow.h"
+#include "LuaScript.h"
 
 #include "GLFW/glfw3.h"
 

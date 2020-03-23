@@ -41,6 +41,13 @@
 
 #include <atomic>
 
+struct LiveCoding{
+    ofxLua          lua;
+    ofxEditor       liveEditor;
+    string          filepath;
+    bool            hide;
+};
+
 class LuaScript : public PatchObject, public ofxLuaListener{
 
 public:
