@@ -107,6 +107,8 @@ void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
     }else if(bang && !this->inletsConnected[1]){
         *(float *)&_outletParams[0] = static_cast<float>(ofToFloat(numberBox->getText()));
+    }else{
+        *(float *)&_outletParams[0] = 0.0f;
     }
 
     if(!loaded){
