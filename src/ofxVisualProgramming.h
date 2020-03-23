@@ -42,6 +42,7 @@
 #include "ofxThreadedFileDialog.h"
 #include "ofxPDSP.h"
 
+#include "Kernel.h"
 #include "PatchObject.h"
 
 
@@ -124,6 +125,9 @@ public:
     bool                    isRetina;
     int                     scaleFactor;
     int                     linkActivateDistance;
+
+    // PUGG external plugins objects
+    pugg::Kernel            plugins_kernel;
 
     // PATCH OBJECTS
     map<int,shared_ptr<PatchObject>>   patchObjects;

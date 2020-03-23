@@ -132,6 +132,26 @@ void ofxVisualProgramming::setup(){
     fileDialog.setup();
     ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
 
+    // Load external plugins objects
+    plugins_kernel.add_server(PatchObject::server_name(), PatchObject::version);
+    // list plugin directory
+    ofDirectory pluginsDir;
+    pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
+#ifdef TARGET_LINUX
+    pluginsDir.allowExt("so");
+#elif defined(TARGET_OSX)
+    pluginsDir.allowExt("bundle");
+#elif defined(TARGET_WIN32)
+    pluginsDir.allowExt("dll");
+#endif
+    pluginsDir.sort();
+
+    // load all plugins
+    for(unsigned int i = 0; i < pluginsDir.size(); i++){
+        ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
+        plugins_kernel.load_plugin(pluginsDir.getFile(i).getAbsolutePath().c_str());
+    }
+
     // Create new empty file patch
     newPatch();
 

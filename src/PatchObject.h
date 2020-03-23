@@ -46,6 +46,8 @@
 
 #include "objectFactory.h"
 
+#include "Driver.h"
+
 enum LINK_TYPE {
     VP_LINK_NUMERIC,
     VP_LINK_STRING,
@@ -188,6 +190,10 @@ public:
     // UTILS
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
 
+    // PUGG Plugin System
+    static const int version = 1;
+    static const std::string server_name() {return "PatchObjectServer";}
+
     // patch object connections
     vector<shared_ptr<PatchLink>>      outPut;
     vector<bool>            inletsConnected;
@@ -257,6 +263,14 @@ protected:
     bool                    willErase;
     float                   retinaScale;
 
+};
+
+// PUGG driver class
+class PatchObjectDriver : public pugg::Driver
+{
+public:
+    PatchObjectDriver(string name, int version) : pugg::Driver(PatchObject::server_name(),name,version) {}
+    virtual PatchObject* create() = 0;
 };
 
 // This macro allows easy object registration

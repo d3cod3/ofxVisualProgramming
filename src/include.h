@@ -82,6 +82,7 @@
 #include "objects/data/DataToFile.h"
 #include "objects/data/DataToTexture.h"
 #include "objects/data/FileToData.h"
+#include "objects/data/FloatMultiplexer.h"
 #include "objects/data/FloatsToVector.h"
 #include "objects/data/TextureToData.h"
 #include "objects/data/VectorAt.h"
