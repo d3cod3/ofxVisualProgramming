@@ -324,11 +324,13 @@ void ofxVisualProgramming::draw(){
             break;
         case 2: ofSetColor(COLOR_ARRAY_LINK);
             break;
-        case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
+        case 3: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
             break;
-        case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
+        case 4: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
             break;
-        case 5: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
+        case 5: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
+            break;
+        case 6: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
             break;
         default: break;
         }
@@ -342,11 +344,13 @@ void ofxVisualProgramming::draw(){
             break;
         case 2: patchObjects[selectedObjectID]->linkTypeName = "vector<float>";
             break;
-        case 3: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
+        case 3: patchObjects[selectedObjectID]->linkTypeName = "ofPixels";
             break;
-        case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
+        case 4: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
             break;
-        case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
+        case 5: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
+            break;
+        case 6: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
             break;
         default: patchObjects[selectedObjectID]->linkTypeName = "";
             break;
@@ -1153,6 +1157,8 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
             patchObjects[toID]->_inletParams[toInlet] = new string();
         }else if(tempLink->type == VP_LINK_ARRAY){
             patchObjects[toID]->_inletParams[toInlet] = new vector<float>();
+        }else if(tempLink->type == VP_LINK_PIXELS){
+            patchObjects[toID]->_inletParams[toInlet] = new ofPixels();
         }else if(tempLink->type == VP_LINK_TEXTURE){
             patchObjects[toID]->_inletParams[toInlet] = new ofTexture();
         }else if(tempLink->type == VP_LINK_AUDIO){

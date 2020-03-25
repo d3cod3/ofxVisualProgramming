@@ -190,11 +190,13 @@ void PatchObject::draw(ofxFontStash *font){
                     break;
                 case 2: ofSetColor(COLOR_ARRAY);
                     break;
-                case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
+                case 3: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                     break;
-                case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                case 4: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
                     break;
-                case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
+                case 5: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                    break;
+                case 6: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
                     break;
                 default: break;
                 }
@@ -233,11 +235,13 @@ void PatchObject::draw(ofxFontStash *font){
                     break;
                 case 2: ofSetColor(COLOR_ARRAY);
                     break;
-                case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
+                case 3: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                     break;
-                case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                case 4: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
                     break;
-                case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
+                case 5: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                    break;
+                case 6: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
                     break;
                 default: break;
                 }
@@ -266,11 +270,13 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     case 2: ofSetColor(COLOR_ARRAY_LINK);
                         break;
-                    case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
+                    case 3: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
                         break;
-                    case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
+                    case 4: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
                         break;
-                    case 5: ofSetColor(COLOR_SCRIPT_LINK);
+                    case 5: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
+                        break;
+                    case 6: ofSetColor(COLOR_SCRIPT_LINK);
                         break;
                     default: break;
                     }
@@ -290,11 +296,13 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     case 2: ofSetColor(COLOR_ARRAY);
                         break;
-                    case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
+                    case 3: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                         break;
-                    case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                    case 4: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
                         break;
-                    case 5: ofSetColor(COLOR_SCRIPT);
+                    case 5: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                        break;
+                    case 6: ofSetColor(COLOR_SCRIPT);
                         break;
                     default: break;
                     }
