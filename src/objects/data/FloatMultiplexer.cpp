@@ -88,7 +88,7 @@ void FloatMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void FloatMultiplexer::drawObjectContent(ofxFontStash *font){
+void FloatMultiplexer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     for(int i=0;i<this->numInlets;i++){

@@ -190,13 +190,13 @@ void PatchObject::draw(ofxFontStash *font){
                     break;
                 case 2: ofSetColor(COLOR_ARRAY);
                     break;
-                case 3: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
+                case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
                     break;
-                case 4: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
+                case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
                     break;
-                case 5: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
                     break;
-                case 6: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
+                case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                     break;
                 default: break;
                 }
@@ -208,7 +208,7 @@ void PatchObject::draw(ofxFontStash *font){
                     ofSetLineWidth(3);
                     ofDrawCircle(0, 0, 10);
                 }else{
-                    if(it == 3 || it == 4){
+                    if(it == 3 || it == 4 || it == 6){
                         ofSetLineWidth(2);
                     }else{
                         ofSetLineWidth(1);
@@ -235,13 +235,13 @@ void PatchObject::draw(ofxFontStash *font){
                     break;
                 case 2: ofSetColor(COLOR_ARRAY);
                     break;
-                case 3: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
+                case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
                     break;
-                case 4: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
+                case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
                     break;
-                case 5: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
                     break;
-                case 6: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
+                case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                     break;
                 default: break;
                 }
@@ -270,13 +270,13 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     case 2: ofSetColor(COLOR_ARRAY_LINK);
                         break;
-                    case 3: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
+                    case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
                         break;
-                    case 4: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
+                    case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
                         break;
-                    case 5: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
+                    case 5: ofSetColor(COLOR_SCRIPT_LINK);
                         break;
-                    case 6: ofSetColor(COLOR_SCRIPT_LINK);
+                    case 6: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
                         break;
                     default: break;
                     }
@@ -296,13 +296,13 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     case 2: ofSetColor(COLOR_ARRAY);
                         break;
-                    case 3: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
+                    case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
                         break;
-                    case 4: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
+                    case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
                         break;
-                    case 5: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
+                    case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(2);
                         break;
-                    case 6: ofSetColor(COLOR_SCRIPT);
+                    case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                         break;
                     default: break;
                     }
@@ -330,7 +330,7 @@ void PatchObject::draw(ofxFontStash *font){
             ofPushStyle();
             ofPushMatrix();
             ofTranslate(box->getPosition().x,box->getPosition().y);
-            drawObjectContent(font);
+            drawObjectContent(font,(shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer());
             ofPopMatrix();
             ofPopStyle();
 

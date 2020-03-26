@@ -119,7 +119,7 @@ void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::drawObjectContent(ofxFontStash *font){
+void pdspBitNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();

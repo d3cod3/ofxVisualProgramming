@@ -168,7 +168,7 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void pdspDataOscillator::drawObjectContent(ofxFontStash *font){
+void pdspDataOscillator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     waveform.draw();

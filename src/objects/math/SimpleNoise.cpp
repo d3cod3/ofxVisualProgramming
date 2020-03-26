@@ -80,7 +80,7 @@ void SimpleNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::drawObjectContent(ofxFontStash *font){
+void SimpleNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

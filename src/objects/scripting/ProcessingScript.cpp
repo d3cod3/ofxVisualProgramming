@@ -173,7 +173,7 @@ void ProcessingScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void ProcessingScript::drawObjectContent(ofxFontStash *font){
+void ProcessingScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 

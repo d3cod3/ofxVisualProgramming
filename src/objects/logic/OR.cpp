@@ -84,7 +84,7 @@ void OR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofx
 }
 
 //--------------------------------------------------------------
-void OR::drawObjectContent(ofxFontStash *font){
+void OR::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){

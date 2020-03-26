@@ -167,7 +167,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>>
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::drawObjectContent(ofxFontStash *font){
+void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE STUFF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){

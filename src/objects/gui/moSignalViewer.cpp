@@ -87,7 +87,7 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::drawObjectContent(ofxFontStash *font){
+void moSignalViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
     if(this->inletsConnected[0]){
         ofSetColor(255,255,120,10);

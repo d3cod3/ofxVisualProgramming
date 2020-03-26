@@ -100,7 +100,7 @@ void Equality::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void Equality::drawObjectContent(ofxFontStash *font){
+void Equality::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

@@ -52,10 +52,10 @@ enum LINK_TYPE {
     VP_LINK_NUMERIC,
     VP_LINK_STRING,
     VP_LINK_ARRAY,
-    VP_LINK_PIXELS,
     VP_LINK_TEXTURE,
     VP_LINK_AUDIO,
-    VP_LINK_SPECIAL
+    VP_LINK_SPECIAL,
+    VP_LINK_PIXELS
 };
 
 struct PatchLink{
@@ -97,7 +97,7 @@ public:
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) {}
-    virtual void            drawObjectContent(ofxFontStash *font) {}
+    virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}

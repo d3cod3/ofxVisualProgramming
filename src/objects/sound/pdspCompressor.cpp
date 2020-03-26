@@ -209,7 +209,7 @@ void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void pdspCompressor::drawObjectContent(ofxFontStash *font){
+void pdspCompressor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

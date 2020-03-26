@@ -102,7 +102,7 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void Constant::drawObjectContent(ofxFontStash *font){
+void Constant::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

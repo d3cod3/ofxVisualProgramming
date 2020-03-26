@@ -123,7 +123,7 @@ void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::drawObjectContent(ofxFontStash *font){
+void pdspBitCruncher::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

@@ -160,7 +160,7 @@ void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::drawObjectContent(ofxFontStash *font){
+void pdspChorusEffect::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

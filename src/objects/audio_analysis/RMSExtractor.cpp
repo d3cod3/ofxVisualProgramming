@@ -121,7 +121,7 @@ void RMSExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void RMSExtractor::drawObjectContent(ofxFontStash *font){
+void RMSExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

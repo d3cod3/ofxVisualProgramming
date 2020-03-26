@@ -120,7 +120,7 @@ void Range::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, 
 }
 
 //--------------------------------------------------------------
-void Range::drawObjectContent(ofxFontStash *font){
+void Range::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

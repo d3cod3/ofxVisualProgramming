@@ -110,7 +110,7 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void moSonogram::drawObjectContent(ofxFontStash *font){
+void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
     if(this->inletsConnected[0]){
         sonogram->begin();

@@ -204,7 +204,7 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::drawObjectContent(ofxFontStash *font){
+void ProjectionMapping::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){

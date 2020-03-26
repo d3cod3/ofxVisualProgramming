@@ -125,7 +125,7 @@ void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void VideoStreaming::drawObjectContent(ofxFontStash *font){
+void VideoStreaming::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();

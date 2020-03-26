@@ -86,7 +86,7 @@ void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void FloatsToVector::drawObjectContent(ofxFontStash *font){
+void FloatsToVector::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     for(int i=0;i<this->numInlets;i++){

@@ -125,7 +125,7 @@ void pdspHiCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void pdspHiCut::drawObjectContent(ofxFontStash *font){
+void pdspHiCut::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();

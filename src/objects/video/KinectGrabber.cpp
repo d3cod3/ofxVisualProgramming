@@ -190,7 +190,7 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void KinectGrabber::drawObjectContent(ofxFontStash *font){
+void KinectGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

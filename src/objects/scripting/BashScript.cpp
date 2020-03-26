@@ -187,7 +187,7 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void BashScript::drawObjectContent(ofxFontStash *font){
+void BashScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255,150);
     ofEnableAlphaBlending();
     bashIcon->draw(this->width/2,this->headerHeight,((this->height/2.2f)/bashIcon->getHeight())*bashIcon->getWidth(),this->height/2.2f);

@@ -115,7 +115,7 @@ void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void MidiPad::drawObjectContent(ofxFontStash *font){
+void MidiPad::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(30,31,36);
     ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);

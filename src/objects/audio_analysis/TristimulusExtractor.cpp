@@ -119,7 +119,7 @@ void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void TristimulusExtractor::drawObjectContent(ofxFontStash *font){
+void TristimulusExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);

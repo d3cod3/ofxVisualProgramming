@@ -234,7 +234,7 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void PythonScript::drawObjectContent(ofxFontStash *font){
+void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     pythonIcon->draw(this->width/2,this->headerHeight*1.8f,((this->height/2.2f)/pythonIcon->getHeight())*pythonIcon->getWidth(),this->height/2.2f);

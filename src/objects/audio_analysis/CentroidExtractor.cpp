@@ -121,7 +121,7 @@ void CentroidExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void CentroidExtractor::drawObjectContent(ofxFontStash *font){
+void CentroidExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

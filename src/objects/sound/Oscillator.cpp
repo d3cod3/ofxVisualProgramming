@@ -122,7 +122,7 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void Oscillator::drawObjectContent(ofxFontStash *font){
+void Oscillator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();

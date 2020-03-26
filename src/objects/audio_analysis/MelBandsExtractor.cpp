@@ -114,7 +114,7 @@ void MelBandsExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::drawObjectContent(ofxFontStash *font){
+void MelBandsExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);

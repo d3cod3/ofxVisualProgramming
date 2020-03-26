@@ -169,7 +169,7 @@ void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void OscReceiver::drawObjectContent(ofxFontStash *font){
+void OscReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

@@ -131,7 +131,7 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Spigot::drawObjectContent(ofxFontStash *font){
+void Spigot::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetLineWidth(3);

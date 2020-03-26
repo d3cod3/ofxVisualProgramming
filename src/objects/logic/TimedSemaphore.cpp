@@ -118,7 +118,7 @@ void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::drawObjectContent(ofxFontStash *font){
+void TimedSemaphore::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();

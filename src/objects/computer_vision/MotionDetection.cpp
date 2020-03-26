@@ -162,7 +162,7 @@ void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void MotionDetection::drawObjectContent(ofxFontStash *font){
+void MotionDetection::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

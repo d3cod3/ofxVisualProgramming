@@ -126,7 +126,7 @@ void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void Crossfader::drawObjectContent(ofxFontStash *font){
+void Crossfader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

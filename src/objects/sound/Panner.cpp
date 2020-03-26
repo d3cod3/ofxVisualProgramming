@@ -127,7 +127,7 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Panner::drawObjectContent(ofxFontStash *font){
+void Panner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

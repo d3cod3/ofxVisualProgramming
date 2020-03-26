@@ -88,7 +88,7 @@ void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void BangMultiplexer::drawObjectContent(ofxFontStash *font){
+void BangMultiplexer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     for(int i=0;i<this->numInlets;i++){

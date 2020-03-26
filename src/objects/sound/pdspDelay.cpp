@@ -164,7 +164,7 @@ void pdspDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void pdspDelay::drawObjectContent(ofxFontStash *font){
+void pdspDelay::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

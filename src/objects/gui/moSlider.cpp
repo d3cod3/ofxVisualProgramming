@@ -98,7 +98,7 @@ void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void moSlider::drawObjectContent(ofxFontStash *font){
+void moSlider::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

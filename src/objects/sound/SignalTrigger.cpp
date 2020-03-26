@@ -133,7 +133,7 @@ void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void SignalTrigger::drawObjectContent(ofxFontStash *font){
+void SignalTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){

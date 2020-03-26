@@ -324,13 +324,13 @@ void ofxVisualProgramming::draw(){
             break;
         case 2: ofSetColor(COLOR_ARRAY_LINK);
             break;
-        case 3: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
+        case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
             break;
-        case 4: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
+        case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
             break;
-        case 5: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
+        case 5: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
             break;
-        case 6: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
+        case 6: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
             break;
         default: break;
         }
@@ -344,13 +344,13 @@ void ofxVisualProgramming::draw(){
             break;
         case 2: patchObjects[selectedObjectID]->linkTypeName = "vector<float>";
             break;
-        case 3: patchObjects[selectedObjectID]->linkTypeName = "ofPixels";
+        case 3: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
             break;
-        case 4: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
+        case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
             break;
-        case 5: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
+        case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
             break;
-        case 6: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
+        case 6: patchObjects[selectedObjectID]->linkTypeName = "ofPixels";
             break;
         default: patchObjects[selectedObjectID]->linkTypeName = "";
             break;

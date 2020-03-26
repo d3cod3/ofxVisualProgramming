@@ -195,7 +195,7 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void VideoDelay::drawObjectContent(ofxFontStash *font){
+void VideoDelay::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

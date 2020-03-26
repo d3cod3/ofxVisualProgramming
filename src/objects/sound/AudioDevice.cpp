@@ -98,7 +98,7 @@ void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void AudioDevice::drawObjectContent(ofxFontStash *font){
+void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     //font->draw(ofToString(sampleRateIN),this->fontSize,this->width/2,this->headerHeight*2);

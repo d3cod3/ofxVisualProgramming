@@ -178,7 +178,7 @@ void pdspADSR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void pdspADSR::drawObjectContent(ofxFontStash *font){
+void pdspADSR::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,255,120);

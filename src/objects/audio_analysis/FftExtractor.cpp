@@ -114,7 +114,7 @@ void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void FftExtractor::drawObjectContent(ofxFontStash *font){
+void FftExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);

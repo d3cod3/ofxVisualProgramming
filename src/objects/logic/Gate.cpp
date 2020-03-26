@@ -102,7 +102,7 @@ void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, o
 }
 
 //--------------------------------------------------------------
-void Gate::drawObjectContent(ofxFontStash *font){
+void Gate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofDisableAlphaBlending();

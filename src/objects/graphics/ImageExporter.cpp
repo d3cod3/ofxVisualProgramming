@@ -124,7 +124,7 @@ void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void ImageExporter::drawObjectContent(ofxFontStash *font){
+void ImageExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 

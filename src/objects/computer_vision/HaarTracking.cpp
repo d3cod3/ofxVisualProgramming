@@ -195,7 +195,7 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void HaarTracking::drawObjectContent(ofxFontStash *font){
+void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

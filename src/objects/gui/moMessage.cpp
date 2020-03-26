@@ -103,7 +103,7 @@ void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moMessage::drawObjectContent(ofxFontStash *font){
+void moMessage::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(actualMessage,this->fontSize,this->width - (strlen(actualMessage.c_str())*this->fontSize),this->headerHeight*2.3);

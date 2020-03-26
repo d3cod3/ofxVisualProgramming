@@ -93,7 +93,7 @@ void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void moBang::drawObjectContent(ofxFontStash *font){
+void moBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){

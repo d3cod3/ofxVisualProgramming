@@ -119,7 +119,7 @@ void MFCCExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void MFCCExtractor::drawObjectContent(ofxFontStash *font){
+void MFCCExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);

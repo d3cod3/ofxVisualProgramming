@@ -117,7 +117,7 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moComment::drawObjectContent(ofxFontStash *font){
+void moComment::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     paragraph->draw();

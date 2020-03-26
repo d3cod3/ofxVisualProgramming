@@ -173,7 +173,7 @@ void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void QuadPanner::drawObjectContent(ofxFontStash *font){
+void QuadPanner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

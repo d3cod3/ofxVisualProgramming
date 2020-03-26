@@ -103,7 +103,7 @@ void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void MidiKnob::drawObjectContent(ofxFontStash *font){
+void MidiKnob::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(30,31,36);
     ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);

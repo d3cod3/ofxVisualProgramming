@@ -140,7 +140,7 @@ void OscPulse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void OscPulse::drawObjectContent(ofxFontStash *font){
+void OscPulse::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();

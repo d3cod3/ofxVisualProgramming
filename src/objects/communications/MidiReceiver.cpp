@@ -151,7 +151,7 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void MidiReceiver::drawObjectContent(ofxFontStash *font){
+void MidiReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(30,31,36);
     ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);

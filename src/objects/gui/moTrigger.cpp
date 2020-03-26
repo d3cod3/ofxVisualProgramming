@@ -76,7 +76,7 @@ void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moTrigger::drawObjectContent(ofxFontStash *font){
+void moTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(trigger){

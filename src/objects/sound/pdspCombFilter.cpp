@@ -160,7 +160,7 @@ void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void pdspCombFilter::drawObjectContent(ofxFontStash *font){
+void pdspCombFilter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

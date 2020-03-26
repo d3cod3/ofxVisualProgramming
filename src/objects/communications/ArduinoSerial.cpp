@@ -196,7 +196,7 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::drawObjectContent(ofxFontStash *font){
+void ArduinoSerial::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0,151,157);
     ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);

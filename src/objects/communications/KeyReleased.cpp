@@ -93,7 +93,7 @@ void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void KeyReleased::drawObjectContent(ofxFontStash *font){
+void KeyReleased::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw("Last Key: "+ofToString(persistentKey),this->fontSize,this->width/3,this->height/2);

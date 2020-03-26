@@ -195,7 +195,7 @@ void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void pdspReverb::drawObjectContent(ofxFontStash *font){
+void pdspReverb::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

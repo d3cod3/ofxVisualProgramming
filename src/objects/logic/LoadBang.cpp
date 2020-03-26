@@ -133,7 +133,7 @@ void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void LoadBang::drawObjectContent(ofxFontStash *font){
+void LoadBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){

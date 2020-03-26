@@ -81,7 +81,7 @@ void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void VectorConcat::drawObjectContent(ofxFontStash *font){
+void VectorConcat::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw("Size: "+ofToString(static_cast<size_t>(static_cast<vector<float> *>(_outletParams[0])->size())),this->fontSize,this->width/2,this->headerHeight*2.3);

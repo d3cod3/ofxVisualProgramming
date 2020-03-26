@@ -213,7 +213,7 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::drawObjectContent(ofxFontStash *font){
+void AudioAnalyzer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     waveform.draw();

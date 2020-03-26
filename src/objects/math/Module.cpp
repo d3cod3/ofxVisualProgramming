@@ -120,7 +120,7 @@ void Module::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Module::drawObjectContent(ofxFontStash *font){
+void Module::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2);

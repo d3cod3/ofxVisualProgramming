@@ -76,7 +76,7 @@ void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void Inverter::drawObjectContent(ofxFontStash *font){
+void Inverter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(trigger){

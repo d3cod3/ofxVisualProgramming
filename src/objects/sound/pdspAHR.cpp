@@ -169,7 +169,7 @@ void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void pdspAHR::drawObjectContent(ofxFontStash *font){
+void pdspAHR::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,255,120);

@@ -150,7 +150,7 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::drawObjectContent(ofxFontStash *font){
+void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 

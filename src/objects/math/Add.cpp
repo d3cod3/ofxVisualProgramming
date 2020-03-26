@@ -115,7 +115,7 @@ void Add::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, of
 }
 
 //--------------------------------------------------------------
-void Add::drawObjectContent(ofxFontStash *font){
+void Add::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2);

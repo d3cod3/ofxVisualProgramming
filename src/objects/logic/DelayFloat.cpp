@@ -150,7 +150,7 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void DelayFloat::drawObjectContent(ofxFontStash *font){
+void DelayFloat::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){

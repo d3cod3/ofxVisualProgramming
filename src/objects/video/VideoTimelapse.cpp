@@ -150,7 +150,7 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::drawObjectContent(ofxFontStash *font){
+void VideoTimelapse::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

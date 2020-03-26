@@ -108,7 +108,7 @@ void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Smooth::drawObjectContent(ofxFontStash *font){
+void Smooth::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

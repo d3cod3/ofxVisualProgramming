@@ -202,7 +202,7 @@ void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void pdspDucker::drawObjectContent(ofxFontStash *font){
+void pdspDucker::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,255,120);

@@ -129,7 +129,7 @@ void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void FileToData::drawObjectContent(ofxFontStash *font){
+void FileToData::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();
