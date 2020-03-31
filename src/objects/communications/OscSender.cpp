@@ -156,7 +156,7 @@ void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
                 }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
                     depth = 4;
                 }
-                if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight()*depth < 327680){
+                if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight()*depth < 922000){ // 327680
                     static_cast<ofTexture *>(_inletParams[i])->readToPixels(*_tempPixels);
                     m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getWidth());
                     m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getHeight());
