@@ -68,7 +68,7 @@ void moSignalViewer::newObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    loadAudioSettings();;
+    loadAudioSettings();
 }
 
 //--------------------------------------------------------------
