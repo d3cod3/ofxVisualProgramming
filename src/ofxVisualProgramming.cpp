@@ -122,13 +122,11 @@ void ofxVisualProgramming::setup(  ofxImGui::Gui* _guiRef ){
     // Initialise GUI
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();
-        ofxVPGui->setup();
-        //ofLogError("ofxVP","Setting up new ImGui instance. If your app has its own one, pass it's reference in setup();");
+        ofxVPGui->setup(nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
+        ofLogNotice("ofxVP","Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();");
     }
     else {
         ofxVPGui = _guiRef;
-        //ImGui::SetCurrentContext();
-        //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
 
     // Set pan-zoom canvas
