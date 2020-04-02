@@ -24,11 +24,13 @@ meta:
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
-        ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
-        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJava ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
-        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxThreadedFileDialog ofxTimeline ofxTimeMeasurements ofxWarp
-        ADDON_DEPENDENCIES += ofxImGui
+#        ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
+#        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
+#        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJava ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
+#        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxThreadedFileDialog ofxTimeline ofxTimeMeasurements ofxWarp
+#        ADDON_DEPENDENCIES += ofxImGui
+#		ADDON_DEPENDENCIES += ofxTurboJpeg
+
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
@@ -73,10 +75,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker ofxNDI
+#        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker ofxNDI
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/computer_vision/FaceTracker% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+#        ADDON_SOURCES_EXCLUDE = src/objects/computer_vision/FaceTracker% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker ofxNDI
+#        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker ofxNDI

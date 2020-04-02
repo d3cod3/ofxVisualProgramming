@@ -18,8 +18,39 @@ Project{
         ]
 
         of.addons: [
+            // ofxVP Core Addons
+            // ------------------
             'ofxImGui',
-            'ofxVisualProgramming'
+            'ofxVisualProgramming',
+            'ofxLua',               // <-- Should not be ?
+            'ofxXmlSettings',
+            'ofxPython',            // <-- Should not be ?
+            'ofxGLEditor',
+            'ofxFontStash',
+            'ofxAssimpModelLoader', // <-- Should not be ?
+            'ofxDatGui',
+            'ofxGui',
+            'ofxTimeMeasurements',
+            'ofxInfiniteCanvas',
+            'ofxPd',                // <-- Should not be ?
+            'ofxPDSP',              // <-- Should not be ?
+            'ofxAudioFile',         // <-- Should not be ?
+            'ofxMidi',              // <-- Should not be ?
+            'ofxOsc',               // <-- Should not be ?
+            'ofxNetwork',
+            'ofxThreadedFileDialog',
+            'ofxOpenCv',            // <-- Should not be ?
+            //'ofxCv',
+            'ofxSvg',               // <-- Should not be ?
+            'ofxVectorGraphics',    // <-- Should not be ?
+
+            // ADDONS BELOW ARE REALLY OPTIONAL
+            // --------------------------------
+//             ofxKinect
+//             ADDON_DEPENDENCIES += ofxAudioAnalyzer  ofxBTrack ofxChromaKeyShader ofxEasing ofxFFmpegRecorder
+//            #        ADDON_DEPENDENCIES += ofxHistoryPlot ofxJava ofxJSON ofxMtlMapping2D ofxParagraph
+//            #        ADDON_DEPENDENCIES += ofxTimeline ofxWarp
+//            #		ADDON_DEPENDENCIES += ofxTurboJpeg
         ]
 
         // additional flags for the project. the of module sets some
@@ -32,7 +63,7 @@ Project{
         of.cxxFlags: []
         of.linkerFlags: []      // flags passed to the linker
         of.defines: [  // defines are passed as -D to the compiler
-            //'OFXVP_BUILD_WITH_MINIMAL_OBJECTS', // uncomment to speed up compilation time by excluding most objects
+            'OFXVP_BUILD_WITH_MINIMAL_OBJECTS', // uncomment to speed up compilation time by excluding most objects
         ]
         // and can be checked with #ifdef or #if in the code
         of.frameworks: ['/System/Library/Frameworks/CoreMIDI.framework']       // osx only, additional frameworks to link with the project
