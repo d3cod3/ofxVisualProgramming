@@ -154,7 +154,7 @@ void ExampleObject::drawObjectContent(ofxFontStash *font){
         ImGui::CollapsingHeader("params", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen);
         intParam.drawGui();
         floatParam.drawGui();
-        ImGui::Button("ExampleObject");
+        ImGui::Button("ExampleObjectHardcoded");
     }
 
     ImGui::End();
@@ -162,6 +162,39 @@ void ExampleObject::drawObjectContent(ofxFontStash *font){
     ofDrawEllipse(glm::vec2(this->getPos().x, this->getPos().y), this->getObjectWidth(), this->getObjectHeight());
 
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void ExampleObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::MenuItem("Menu From User code !");
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        ImGui::Button("Node Button", ImVec2(-1,20));
+        ImGui::TextUnformatted("Hello World!");
+        ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
+        ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
+        ImGui::TextWrapped("PrevItemSize: %f, %f", ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y);//
+        ImGui::TextWrapped("WindowSize: %f, %f", ImGui::GetCurrentWindow()->Rect().GetSize().x, ImGui::GetCurrentWindow()->Rect().GetSize().y);
+        //ImGui::TextWrapped("WidgetSize: %f, %f", imSize.x, imSize.y);
+        ImGui::TextWrapped("AvailableCRWidth: %f", ImGui::GetContentRegionAvailWidth());
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            ImGui::Text("Cur View :Parameters");
+        }
+        else {
+            ImGui::Text("Unknown View : %d", _nodeCanvas.GetNodeData().viewName );
+        }
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------

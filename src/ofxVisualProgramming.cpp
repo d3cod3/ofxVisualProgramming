@@ -292,72 +292,93 @@ void ofxVisualProgramming::draw(){
     // Should always return true, except if window is minimised or somehow not rendered.
     ImGui::SetNextWindowPos(canvasViewport.getTopLeft(), ImGuiCond_Always );
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
-    if ( nodeCanvas.Begin("ofxVPNodeCanvas" )){
+    bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
+    if ( isCanvasVisible ){
         nodeCanvas.DrawFrameBorder(false);
-        static ImVec2 pos1( 50, 20);
-        static ImVec2 size1( 200, 150 );
-        if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
 
-            // Inlets
-            ImVec2 pos[4]; // Will hold positions afterwards
-            nodeCanvas.AddNodePin("test", pos[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-            nodeCanvas.AddNodePin("test2", pos[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-            nodeCanvas.AddNodePin("test3", pos[2], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-            nodeCanvas.AddNodePin("test4", pos[3], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+        // Draw a demo Node (temp)
+        {
+            static ImVec2 pos1( 50, 20);
+            static ImVec2 size1( 200, 150 );
+            if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
 
-            // Oulets
-            ImVec2 pos2[2]; // Will hold positions afterwards
-            nodeCanvas.AddNodePin("test", pos2[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
-            nodeCanvas.AddNodePin("test2", pos2[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+                // Inlets
+                ImVec2 pos[4]; // Will hold positions afterwards
+                nodeCanvas.AddNodePin("test", pos[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+                nodeCanvas.AddNodePin("test2", pos[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+                nodeCanvas.AddNodePin("test3", pos[2], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+                nodeCanvas.AddNodePin("test4", pos[3], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
 
-            // Menu
-            if(nodeCanvas.BeginNodeMenu()){
-                ImGui::MenuItem("Menu From User code !");
-                nodeCanvas.EndNodeMenu();
-            }
+                // Oulets
+                ImVec2 pos2[2]; // Will hold positions afterwards
+                nodeCanvas.AddNodePin("test", pos2[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+                nodeCanvas.AddNodePin("test2", pos2[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
 
-            // Info view
-            if( nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
-                ImGui::Button("Node Button22", ImVec2(-1,20));
-                ImGui::Button("Node Button");
-                ImGui::TextUnformatted("Hello World!");
-                ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
-                ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
-                ImGui::TextWrapped("PrevItemSize: %f, %f", ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y);//
-                ImGui::TextWrapped("WindowSize: %f, %f", ImGui::GetCurrentWindow()->Rect().GetSize().x, ImGui::GetCurrentWindow()->Rect().GetSize().y);
-                ImGui::TextWrapped("WidgetSize: %f, %f", size1.x, size1.y);
-                ImGui::TextWrapped("AvailableCRWidth: %f", ImGui::GetContentRegionAvailWidth());
-                nodeCanvas.EndNodeContent();
-            }
-
-            // Any other view
-            else if( nodeCanvas.BeginNodeContent() ){
-                if(nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-                    ImGui::Text("Cur View :Parameters");
+                // Menu
+                if(nodeCanvas.BeginNodeMenu()){
+                    ImGui::MenuItem("Menu From User code !");
+                    nodeCanvas.EndNodeMenu();
                 }
-                else {
-                    ImGui::Text("Unknown View : %d", nodeCanvas.GetNodeData().viewName );
+
+                // Info view
+                if( nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+                    ImGui::Button("Node Button22", ImVec2(-1,20));
+                    ImGui::Button("Node Button");
+                    ImGui::TextUnformatted("Hello World!");
+                    ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
+                    ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
+                    ImGui::TextWrapped("PrevItemSize: %f, %f", ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y);//
+                    ImGui::TextWrapped("WindowSize: %f, %f", ImGui::GetCurrentWindow()->Rect().GetSize().x, ImGui::GetCurrentWindow()->Rect().GetSize().y);
+                    ImGui::TextWrapped("WidgetSize: %f, %f", size1.x, size1.y);
+                    ImGui::TextWrapped("AvailableCRWidth: %f", ImGui::GetContentRegionAvailWidth());
+                    nodeCanvas.EndNodeContent();
                 }
-                nodeCanvas.EndNodeContent();
+
+                // Any other view
+                else if( nodeCanvas.BeginNodeContent() ){
+                    if(nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+                        ImGui::Text("Cur View :Parameters");
+                    }
+                    else {
+                        ImGui::Text("Unknown View : %d", nodeCanvas.GetNodeData().viewName );
+                    }
+                    nodeCanvas.EndNodeContent();
+                }
+
             }
 
+            // Close Node
+            nodeCanvas.EndNode();
         }
 
-        // Close Node
-        nodeCanvas.EndNode();
-    }
-    // Close canvas
-    nodeCanvas.End();
 
+    }
+
+
+    // Render objects.
     for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        // Record timimgs
         TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
+
+        // LivePatchingObject hack, should not be handled by mosaic.
         if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
            livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
         }
+
+        // Draw
         patchObjects[leftToRightIndexOrder[i].second]->draw(font);
+        if(isCanvasVisible){
+            patchObjects[leftToRightIndexOrder[i].second]->drawImGuiNode(nodeCanvas);
+        }
+
+        // Record timimgs
         TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
     }
 
+    // Close canvas
+    nodeCanvas.End();
+
+    // We're done drawing to IMGUI
     ofxVPGui->end();
 
     // draw outlet cables with var name

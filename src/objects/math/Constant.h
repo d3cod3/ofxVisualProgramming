@@ -46,6 +46,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void            drawObjectContent(ofxFontStash *font);
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            removeObjectContent(bool removeFileFromData=false);
 
     void            mouseMovedObjectContent(ofVec3f _m);

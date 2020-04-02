@@ -34,8 +34,10 @@
 
 #pragma once
 
-#include "ofxVPObjectParameter.h" // later to include in patcherObject !!
+#include "ofxVPObjectParameter.h" // later to include in patcherObject !
 #include "PatchObject.h"
+#include "ofxImGui.h"
+#include "imgui_node_canvas.h"
 
 
 // Extend the right classes you need to rely on.
@@ -50,6 +52,7 @@ public:
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
 
     void            drawObjectContent(ofxFontStash *font) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            removeObjectContent(bool removeFileFromData=false) override;
 
  //   void            drawTextureCropInsideRect(ofTexture *texture,float x, float y, float w, float h,ofRectangle &bounds);
