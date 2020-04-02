@@ -122,11 +122,13 @@ void ofxVisualProgramming::setup(  ofxImGui::Gui* _guiRef ){
     // Initialise GUI
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();
-        ofxVPGui->setup(nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
+        ofxVPGui->setup();//nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
         ofLogNotice("ofxVP","Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();");
     }
     else {
         ofxVPGui = _guiRef;
+        // Dummy call to IO which will crash if _guiRef is not initialised.
+        ImGui::GetIO();
     }
 
     // Set pan-zoom canvas
@@ -235,7 +237,7 @@ void ofxVisualProgramming::update(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::updateCanvasViewport(){
-    canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
+    canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
 }
 
 //--------------------------------------------------------------
@@ -250,6 +252,11 @@ void ofxVisualProgramming::draw(){
     // Init canvas
     nodeCanvas.SetTransform( canvas.getTranslation(), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
 
+    // tmp, visualise viewport
+//    ofSetColor(0,255,255,126);
+//    ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
+//    ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 10);
+
     canvas.begin(canvasViewport);
 
     ofEnableAlphaBlending();
@@ -260,8 +267,16 @@ void ofxVisualProgramming::draw(){
     livePatchingObiID = -1;
 
     // Set GUI context
+
+    // Already finished drawing to frame...
+    // Please call ofxVP::draw() before rendering imgui.
+    // Maybe you need to call it within your imgui draw() scope !
+    if( (ImGui::GetDrawData()!=NULL) )
+        ofLogError("ofxVisualProgramming::draw", "Warning, you're calling draw after rendering ImGui. Please call before.");
+
     ofxVPGui->begin();
 
+    ImGui::ShowMetricsWindow();
     //    static ImGuiEx::Canvas imGuiCanvas;
     //    auto canvasRect = imGuiCanvas.Rect();
     //    auto viewRect = imGuiCanvas.ViewRect();
@@ -269,17 +284,16 @@ void ofxVisualProgramming::draw(){
     //    auto viewScale = imGuiCanvas.ViewScale();
     //    imGuiCanvas.SetView( ImVec2(canvas.getTranslation().x, canvas.getTranslation().y), canvas.getScale());
     // tmp, visualise viewport
-    ImGui::GetForegroundDrawList()->AddRect( ImVec2( canvasViewport.x+5, canvasViewport.y+5), ImVec2( canvasViewport.width-10, canvasViewport.height-10 ), ImGui::ColorConvertFloat4ToU32(ImVec4(1,1,1,.5f)) );
-    if(false){
-        ImGui::PushClipRect(ImVec2( canvasViewport.x, canvasViewport.y), ImVec2( canvasViewport.width, canvasViewport.height ), false);
-        //ImGui::SetCursorPos(ImVec2(0,0));
-    }
+//    ImGui::GetForegroundDrawList()->AddRect( canvasViewport.getTopLeft()+ImVec2(10,10), canvasViewport.getBottomRight()-ImVec2(10,10), IM_COL32(255,255,255,255) );
+//    ImGui::GetForegroundDrawList()->AddCircleFilled( ImVec2(ofGetMouseX(),ofGetMouseY()), 10, IM_COL32(255,255,255,255) );
 
 
     // Try to begin ImGui Canvas.
     // Should always return true, except if window is minimised or somehow not rendered.
+    ImGui::SetNextWindowPos(canvasViewport.getTopLeft(), ImGuiCond_Always );
+    ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
     if ( nodeCanvas.Begin("ofxVPNodeCanvas" )){
-        nodeCanvas.DrawFrameBorder(true);
+        nodeCanvas.DrawFrameBorder(false);
         static ImVec2 pos1( 50, 20);
         static ImVec2 size1( 200, 150 );
         if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
@@ -343,6 +357,7 @@ void ofxVisualProgramming::draw(){
         patchObjects[leftToRightIndexOrder[i].second]->draw(font);
         TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
     }
+
     ofxVPGui->end();
 
     // draw outlet cables with var name
