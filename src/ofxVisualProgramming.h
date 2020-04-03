@@ -41,6 +41,7 @@
 #include "ofxTimeMeasurements.h"
 #include "ofxThreadedFileDialog.h"
 #include "ofxPDSP.h"
+#include "ofxImGui.h"
 
 #include "Kernel.h"
 #include "PatchObject.h"
@@ -53,7 +54,7 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            setup();
+    void            setup(ofxImGui::Gui* guiRef = nullptr);
     void            update();
     void            updateCanvasGUI();
     void            updateCanvasViewport();
@@ -118,6 +119,7 @@ public:
     ofxInfiniteCanvas       canvas;
     ofEasyCam               easyCam;
     ofRectangle             canvasViewport;
+    ofxImGui::Gui*          ofxVPGui;
 
     // PATCH DRAWING RESOURCES
     ofxFontStash            *font;

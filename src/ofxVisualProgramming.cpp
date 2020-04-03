@@ -31,6 +31,7 @@
 ==============================================================================*/
 
 #include "ofxVisualProgramming.h"
+#include "imgui_internal.h"
 
 //--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
@@ -105,7 +106,7 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setup(){
+void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
 
     // Load resources
     font->setup(MAIN_FONT,1.0,2048,true,8,3.0f);
@@ -117,6 +118,18 @@ void ofxVisualProgramming::setup(){
         fontSize    = 26;
         linkActivateDistance *= scaleFactor;
         TIME_SAMPLE_GET_INSTANCE()->setUiScale(scaleFactor);
+    }
+
+    // Initialise GUI
+    if( _guiRef == nullptr ){
+        ofxVPGui = new ofxImGui::Gui();
+        ofxVPGui->setup();
+        //ofLogError("ofxVP","Setting up new ImGui instance. If your app has its own one, pass it's reference in setup();");
+    }
+    else {
+        ofxVPGui = _guiRef;
+        //ImGui::SetCurrentContext();
+        //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
 
     // Set pan-zoom canvas
@@ -305,6 +318,8 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
+    ofxVPGui->begin(); // allows objects to draw to our GUI
+
     for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
         TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
         if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
@@ -313,6 +328,8 @@ void ofxVisualProgramming::draw(){
         patchObjects[leftToRightIndexOrder[i].second]->draw(font);
         TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
     }
+
+    ofxVPGui->end();
 
     // draw outlet cables with var name
     if(selectedObjectLink >= 0 && isOutletSelected){
