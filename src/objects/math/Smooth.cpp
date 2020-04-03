@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Smooth.h"
 
 //--------------------------------------------------------------
@@ -155,3 +157,5 @@ void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH)
+
+#endif

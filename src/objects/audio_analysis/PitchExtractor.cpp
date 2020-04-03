@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "PitchExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void PitchExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

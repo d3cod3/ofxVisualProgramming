@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoCrop.h"
 
 //--------------------------------------------------------------
@@ -318,3 +320,5 @@ ofRectangle VideoCrop::getIntersection(ofRectangle & r1,ofRectangle & r2){
 }
 
 OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Mixer.h"
 
 //--------------------------------------------------------------
@@ -142,3 +144,5 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

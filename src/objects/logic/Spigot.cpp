@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Spigot.h"
 
 //--------------------------------------------------------------
@@ -170,3 +172,5 @@ void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC)
+
+#endif

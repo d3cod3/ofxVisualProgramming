@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspLowCut.h"
 
 //--------------------------------------------------------------
@@ -215,3 +217,5 @@ void pdspLowCut::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspLowCut, "hi pass", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "BackgroundSubtraction.h"
 
 using namespace ofxCv;
@@ -395,3 +397,5 @@ void BackgroundSubtraction::onMatrixEvent(ofxDatGuiMatrixEvent e){
 }
 
 OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV)
+
+#endif

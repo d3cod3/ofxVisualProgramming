@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moVideoViewer.h"
 
 //--------------------------------------------------------------
@@ -167,3 +169,5 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
 }
 
 OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moSlider.h"
 
 //--------------------------------------------------------------
@@ -148,3 +150,5 @@ void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI)
+
+#endif

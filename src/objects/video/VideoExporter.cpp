@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoExporter.h"
 
 //--------------------------------------------------------------
@@ -290,3 +292,5 @@ void VideoExporter::onDropdownEvent(ofxDatGuiDropdownEvent e){
 }
 
 OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

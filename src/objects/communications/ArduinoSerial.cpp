@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ArduinoSerial.h"
 
 //--------------------------------------------------------------
@@ -321,3 +323,5 @@ void ArduinoSerial::onDropdownEvent(ofxDatGuiDropdownEvent e){
 }
 
 OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+
+#endif

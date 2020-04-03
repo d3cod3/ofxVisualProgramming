@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Counter.h"
 
 //--------------------------------------------------------------
@@ -222,3 +224,5 @@ void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC)
+
+#endif

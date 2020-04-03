@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "FloatMultiplexer.h"
 
 //--------------------------------------------------------------
@@ -103,3 +105,5 @@ void FloatMultiplexer::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( FloatMultiplexer, "float multiplexer", OFXVP_OBJECT_CAT_DATA)
+
+#endif

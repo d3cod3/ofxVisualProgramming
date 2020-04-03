@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoGrabber.h"
 
 //--------------------------------------------------------------
@@ -392,3 +394,5 @@ void VideoGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
 }
 
 OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

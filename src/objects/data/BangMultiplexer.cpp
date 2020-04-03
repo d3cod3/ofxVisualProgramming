@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "BangMultiplexer.h"
 
 //--------------------------------------------------------------
@@ -103,3 +105,5 @@ void BangMultiplexer::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( BangMultiplexer, "bang multiplexer", OFXVP_OBJECT_CAT_DATA)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ImageLoader.h"
 
 //--------------------------------------------------------------
@@ -266,3 +268,5 @@ void ImageLoader::onButtonEvent(ofxDatGuiButtonEvent e){
 }
 
 OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_GRAPHICS)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Range.h"
 
 //--------------------------------------------------------------
@@ -179,3 +181,5 @@ void Range::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH)
+
+#endif

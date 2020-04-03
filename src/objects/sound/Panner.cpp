@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Panner.h"
 
 //--------------------------------------------------------------
@@ -212,3 +214,5 @@ void Panner::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "PDPatch.h"
 
 //--------------------------------------------------------------
@@ -637,3 +639,5 @@ void PDPatch::receiveMidiByte(const int port, const int byte) {
 }
 
 OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

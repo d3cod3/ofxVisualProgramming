@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoStreaming.h"
 
 //--------------------------------------------------------------
@@ -249,3 +251,5 @@ void VideoStreaming::onToggleEvent(ofxDatGuiToggleEvent e){
 }
 
 OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

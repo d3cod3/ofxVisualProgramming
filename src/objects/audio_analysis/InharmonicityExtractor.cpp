@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "InharmonicityExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void InharmonicityExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( InharmonicityExtractor , "inharmonicity extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

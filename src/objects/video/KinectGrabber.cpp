@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "KinectGrabber.h"
 
 //--------------------------------------------------------------
@@ -370,3 +372,5 @@ void KinectGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
 }
 
 OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

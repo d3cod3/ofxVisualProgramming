@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoPlayer.h"
 
 //--------------------------------------------------------------
@@ -410,3 +412,5 @@ void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
 }
 
 OBJECT_REGISTER( VideoPlayer, "video player", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

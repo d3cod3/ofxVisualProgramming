@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OscTriangle.h"
 
 //--------------------------------------------------------------
@@ -220,3 +222,5 @@ void OscTriangle::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( OscTriangle, "triangle", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SigMult.h"
 
 //--------------------------------------------------------------
@@ -214,3 +216,5 @@ void SigMult::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

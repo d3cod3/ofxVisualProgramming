@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "BPMExtractor.h"
 
 //--------------------------------------------------------------
@@ -137,3 +139,5 @@ void BPMExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

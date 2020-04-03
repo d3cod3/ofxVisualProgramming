@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspDelay.h"
 
 #define DELAY_MAX_TIME 10000
@@ -260,3 +262,5 @@ void pdspDelay::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspDelay, "delay", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

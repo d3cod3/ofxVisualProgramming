@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OscPulse.h"
 
 //--------------------------------------------------------------
@@ -248,3 +250,5 @@ void OscPulse::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( OscPulse, "pulse", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

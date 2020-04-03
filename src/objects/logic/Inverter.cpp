@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Inverter.h"
 
 //--------------------------------------------------------------
@@ -101,3 +103,5 @@ void Inverter::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC)
+
+#endif

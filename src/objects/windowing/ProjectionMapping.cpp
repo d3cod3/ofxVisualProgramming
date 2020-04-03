@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ProjectionMapping.h"
 
 #include "GLFW/glfw3.h"
@@ -428,3 +430,5 @@ void ProjectionMapping::onButtonEvent(ofxDatGuiButtonEvent e){
 }
 
 OBJECT_REGISTER( ProjectionMapping, "projection mapping", OFXVP_OBJECT_CAT_WINDOWING)
+
+#endif

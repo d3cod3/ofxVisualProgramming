@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "HFCExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void HFCExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( HFCExtractor , "hfc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

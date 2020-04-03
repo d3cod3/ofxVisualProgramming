@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspWhiteNoise.h"
 
 //--------------------------------------------------------------
@@ -126,3 +128,5 @@ void pdspWhiteNoise::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

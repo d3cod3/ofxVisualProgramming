@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoTransform.h"
 
 //--------------------------------------------------------------
@@ -322,3 +324,5 @@ void VideoTransform::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

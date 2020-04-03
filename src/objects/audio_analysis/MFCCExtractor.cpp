@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MFCCExtractor.h"
 
 //--------------------------------------------------------------
@@ -139,3 +141,5 @@ void MFCCExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( MFCCExtractor , "mfcc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

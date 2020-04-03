@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ProcessingScript.h"
 
 //--------------------------------------------------------------
@@ -423,3 +425,5 @@ void ProcessingScript::pathChanged(const PathWatcher::Event &event) {
 
 
 OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING)
+
+#endif

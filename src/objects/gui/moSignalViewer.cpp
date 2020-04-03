@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moSignalViewer.h"
 
 //--------------------------------------------------------------
@@ -150,3 +152,5 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
 }
 
 OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI)
+
+#endif

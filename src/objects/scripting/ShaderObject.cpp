@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ShaderObject.h"
 
 //--------------------------------------------------------------
@@ -742,3 +744,5 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
 }
 
 OBJECT_REGISTER( ShaderObject, "shader object", OFXVP_OBJECT_CAT_SCRIPTING)
+
+#endif

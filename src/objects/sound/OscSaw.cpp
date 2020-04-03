@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OscSaw.h"
 
 //--------------------------------------------------------------
@@ -220,3 +222,5 @@ void OscSaw::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( OscSaw, "saw", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

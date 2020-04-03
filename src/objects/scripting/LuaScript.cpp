@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "LuaScript.h"
 
 //--------------------------------------------------------------
@@ -686,3 +688,5 @@ void LuaScript::errorReceived(std::string& msg) {
 }
 
 OBJECT_REGISTER( LuaScript, "lua script", OFXVP_OBJECT_CAT_SCRIPTING)
+
+#endif

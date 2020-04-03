@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "NoteToFrequency.h"
 
 string notation[NOTES]	 = {"C1","C#1","D1","D#1","E1","F1","F#1","G1","G#1","A1","A#1","B1",
@@ -215,3 +217,5 @@ float NoteToFrequency::frequencyToPitch(float freq){
 }
 
 OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

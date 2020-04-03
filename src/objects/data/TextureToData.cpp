@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "TextureToData.h"
 
 //--------------------------------------------------------------
@@ -118,3 +120,5 @@ void TextureToData::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( TextureToData, "texture to data", OFXVP_OBJECT_CAT_DATA)
+
+#endif

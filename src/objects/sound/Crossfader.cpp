@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Crossfader.h"
 
 //--------------------------------------------------------------
@@ -210,3 +212,5 @@ void Crossfader::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Oscillator.h"
 
 //--------------------------------------------------------------
@@ -220,3 +222,5 @@ void Oscillator::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( Oscillator, "sine", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

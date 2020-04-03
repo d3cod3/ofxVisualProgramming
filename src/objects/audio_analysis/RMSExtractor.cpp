@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "RMSExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void RMSExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

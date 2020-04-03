@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Clamp.h"
 
 //--------------------------------------------------------------
@@ -97,3 +99,5 @@ void Clamp::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( Clamp, "clamp", OFXVP_OBJECT_CAT_MATH)
+
+#endif

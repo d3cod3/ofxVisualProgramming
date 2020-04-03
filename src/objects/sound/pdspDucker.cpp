@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspDucker.h"
 
 //--------------------------------------------------------------
@@ -355,3 +357,5 @@ void pdspDucker::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( pdspDucker, "ducker", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "LivePatching.h"
 
 //--------------------------------------------------------------
@@ -91,3 +93,5 @@ void LivePatching::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING)
+
+#endif

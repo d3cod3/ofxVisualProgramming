@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "TextureToPixels.h"
 
 //--------------------------------------------------------------
@@ -103,3 +105,5 @@ void TextureToPixels::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( TextureToPixels, "texture to pixels", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

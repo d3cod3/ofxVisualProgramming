@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoTimelapse.h"
 
 //--------------------------------------------------------------
@@ -241,3 +243,5 @@ void VideoTimelapse::onTextInputEvent(ofxDatGuiTextInputEvent e){
 }
 
 OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_VIDEO)
+
+#endif

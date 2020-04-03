@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "QuadPanner.h"
 
 //--------------------------------------------------------------
@@ -262,3 +264,5 @@ void QuadPanner::on2dPadEvent(ofxDatGui2dPadEvent e){
 }
 
 OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

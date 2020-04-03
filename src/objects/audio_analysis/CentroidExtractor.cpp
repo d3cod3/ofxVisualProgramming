@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "CentroidExtractor.h"
 
 //--------------------------------------------------------------
@@ -135,3 +137,5 @@ void CentroidExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( CentroidExtractor, "centroid extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

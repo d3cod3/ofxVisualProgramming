@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moPlayerControls.h"
 
 //--------------------------------------------------------------
@@ -238,3 +240,5 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
 }
 
 OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI)
+
+#endif

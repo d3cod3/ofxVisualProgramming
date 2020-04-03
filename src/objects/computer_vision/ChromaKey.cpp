@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ChromaKey.h"
 
 using namespace ofxCv;
@@ -331,3 +333,5 @@ void ChromaKey::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 OBJECT_REGISTER( ChromaKey, "chroma key", OFXVP_OBJECT_CAT_CV)
+
+#endif

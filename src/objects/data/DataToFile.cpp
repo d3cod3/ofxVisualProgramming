@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "DataToFile.h"
 
 //--------------------------------------------------------------
@@ -215,3 +217,5 @@ void DataToFile::appendLineToFile(string filepath, string line){
 }
 
 OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA)
+
+#endif

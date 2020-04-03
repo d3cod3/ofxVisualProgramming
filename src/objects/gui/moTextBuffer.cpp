@@ -33,4 +33,3 @@ void moTextBuffer::clear() {
     text.clear();
     cursorPosition = text.end();
 }
-

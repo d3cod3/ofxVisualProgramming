@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OnsetExtractor.h"
 
 //--------------------------------------------------------------
@@ -125,3 +127,5 @@ void OnsetExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif
