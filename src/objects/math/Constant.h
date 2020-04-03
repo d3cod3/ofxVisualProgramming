@@ -42,22 +42,23 @@ public:
 
     Constant();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+    void            drawObjectContent(ofxFontStash *font) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            mouseMovedObjectContent(ofVec3f _m) override;
+    void            dragGUIObject(ofVec3f _m) override;
 
     void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
     ofxDatGui*              gui;
     ofxDatGuiTextInput*     inputNumber;
 
-    float                   inputValue;
+    float                       inputValue; // to be replaced soon by variable below
+    ofxVPObjectParameter<float> inputValueNew;
 
     OBJECT_FACTORY_PROPS;
 };

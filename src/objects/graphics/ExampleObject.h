@@ -39,7 +39,6 @@
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
 
-
 // Extend the right classes you need to rely on.
 class ExampleObject : public PatchObject/* , public ofThread*/ {
 

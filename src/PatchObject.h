@@ -46,6 +46,7 @@
 
 #include "objectFactory.h"
 #include "ofxVPHasUid.h"
+#include "ofxVPObjectParameter.h"
 
 //#include "imgui_internal.h"
 #include "ofxImGui.h"

@@ -53,6 +53,7 @@ public:
         return out.str();
     }
     // Global method for decoding the data. Please override me.
+    // Returns true if successfully parsed the value.
     virtual bool unSerialize( const std::string _serialized ){
 #ifdef DEBUG
         ofLogError("ofxVPBaseParameter", "Unserialize() is unimplemented, please implement it for your specific data type before using it.");
@@ -62,17 +63,18 @@ public:
         return false;
     }
 
-    virtual bool drawGui() {
-
-        if( std::is_same<T, int>::value ){
-
-            ImGui::LabelText( this->getUID().c_str(), "%s = %s", this->getUID().c_str(), serialize().c_str() );
-
-            //ImGui::DragInt( getUID(), &value);
-            return true;
+    // Override this function with your own types.
+    // Called to render the param into an ImGui view.
+    virtual void drawGui() {
+        // Try to guess the type, to enable some editing possibilities.
+        if( false && std::is_same<T, int>::value ){
+            // Line below doesn't compile.. todo
+            //ImGui::DragInt( this->getDisplayName().c_str(), (T&) (this->value) );
         }
-
-        return false;
+        // Fallback behaviour for any type, so the serialized version is displayed without editing capabilities.
+        else {
+            ImGui::Text( this->getUID().c_str(), "%s = %s", this->getUID().c_str(), serialize().c_str() );
+        }
     }
 
     // copy constructor

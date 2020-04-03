@@ -9,15 +9,15 @@
 class ofxVPHasUID {
 
 public:
-    ofxVPHasUID(const std::string& _name = "UID") {
+    ofxVPHasUID(const std::string& _name = "UID") : displayName(_name) {
         myUID = _name;
         if( !registerUniqueIdentifier(myUID, this) ){
             //myUID = _name;
             ofLogError("There was a problem registering a unique ID. Watchout for problems !");
         }
     }
-    ofxVPHasUID(const char* _chars ) {
-        std::string _name = std::string( _chars );
+    ofxVPHasUID(const char* _chars ) : displayName( std::string( _chars ) ) {
+        std::string _name = displayName;
         if(_name.length()<1){
             _name="UID";
         }
@@ -34,6 +34,11 @@ public:
     }
 
     std::string getUID() const{
+        return myUID;
+    }
+
+    // "DisplayName" is the initially requested name, not guaranteed to be unique.
+    std::string getDisplayName() const{
         return myUID;
     }
 
@@ -98,5 +103,6 @@ public:
 
 protected:
     std::string myUID;
+    const std::string displayName;
     static std::map<ofxVPHasUID*, std::string> allUIDs;
 };
