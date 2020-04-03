@@ -45,6 +45,7 @@
 #include "DraggableVertex.h"
 
 #include "objectFactory.h"
+#include "ofxVPHasUid.h"
 
 #include "Driver.h"
 
@@ -76,11 +77,11 @@ struct PushButton{
 };
 
 
-class PatchObject {
+class PatchObject : public ofxVPHasUID {
 
 public:
 
-    PatchObject();
+    PatchObject(const std::string& _customUID = "patchObject");
     virtual ~PatchObject();
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
@@ -205,7 +206,7 @@ public:
     map<int,pdsp::PatchNode> pdspIn;
     map<int,pdsp::PatchNode> pdspOut;
 
-    // heaader buttons
+    // header buttons
     vector<PushButton*>     headerButtons;
     ofRectangle             *headerBox;
 
