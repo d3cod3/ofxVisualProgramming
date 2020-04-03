@@ -30,7 +30,7 @@
 
 ==============================================================================*/
 
-//#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
 #pragma once
 
@@ -63,4 +63,4 @@ public:
     OBJECT_FACTORY_PROPS;
 };
 
-//#endif
+#endif

@@ -148,8 +148,8 @@ public:
     bool                    removeLinkFromConfig(int outlet);
 
     void                    addButton(char letter, bool *variableToControl, int offset);
-    void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); }
-    void                    addOutlet(int type,string name = "") { outlets.push_back(type);outletsNames.push_back(name); }
+    void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
+    void                    addOutlet(int type,string name = "") { outlets.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
@@ -167,6 +167,7 @@ public:
     bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
     bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
+    ofColor                 getInletColor(const int& iid) const;
     int                     getOutletType(int oid) const { return outlets[oid]; }
     string                  getOutletName(int oid) const { return outletsNames[oid]; }
     int                     getNumInlets() { return inlets.size(); }
@@ -240,8 +241,10 @@ protected:
     string                  patchFolderPath;
     vector<string>          inletsNames;
     vector<string>          outletsNames;
-    vector<int>             inlets;
-    vector<int>             outlets;
+    vector<ImVec2>          inletsPositions; // ImVec2 to prevent too much type casting
+    vector<ImVec2>          outletsPositions; // Will hold screenpositions of pins, updated by ImGui
+    vector<int>             inlets; // inlet types, to be renamed for clarity ?
+    vector<int>             outlets; // outlet types
     vector<bool>            inletsMouseNear;
     map<string,float>       customVars;
 

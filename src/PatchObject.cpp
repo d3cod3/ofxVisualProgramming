@@ -397,21 +397,21 @@ void PatchObject::draw(ofxFontStash *font){
 //--------------------------------------------------------------
 void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
 
+    // Begin node box
     ImVec2 imPos( this->getPos() );
-    ImVec2 imSize( getObjectWidth(), getObjectHeight() );
-    if(_nodeCanvas.BeginNode(this->getUID().c_str(), imPos, imSize, 4, 2)){
+    ImVec2 imSize( this->width, this->height );
+    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), imPos, imSize, this->getNumInlets(), this->getNumOutlets() )){
 
         // Inlets
-        ImVec2 pos[4]; // Will hold positions afterwards
-        _nodeCanvas.AddNodePin("test", pos[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-        _nodeCanvas.AddNodePin("test2", pos[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-        _nodeCanvas.AddNodePin("test3", pos[2], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-        _nodeCanvas.AddNodePin("test4", pos[3], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-
-        // Oulets
-        ImVec2 pos2[2]; // Will hold positions afterwards
-        _nodeCanvas.AddNodePin("test", pos2[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
-        _nodeCanvas.AddNodePin("test2", pos2[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+        for(int i=0;i<static_cast<int>(inlets.size());i++){
+            auto pinCol = getInletColor(i);
+            _nodeCanvas.AddNodePin( inletsNames.at(i).c_str(), inletsPositions[0], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+        }
+        // Outlets
+        for(int i=0;i<static_cast<int>(inlets.size());i++){
+            auto pinCol = getInletColor(i);
+            _nodeCanvas.AddNodePin( inletsNames.at(i).c_str(), outletsPositions[0], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
+        }
 
         // Let objects draw their own Gui
         this->drawObjectNodeGui( _nodeCanvas );
@@ -423,13 +423,12 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
     // Update pos & size
     if( imPos.x != this->x )
         this->x = imPos.x;
-    if( imPos.y != this->y ){
+    if( imPos.y != this->y )
         this->y = imPos.y;
-    if( imSize.x != this->getObjectWidth() )
+    if( imSize.x != this->width )
         this->width = imSize.x;
-    if( imSize.y != this->getObjectHeight() )
+    if( imSize.y != this->height )
         this->height = imSize.y;
-    }
 }
 
 //--------------------------------------------------------------
@@ -569,6 +568,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
                     if(XML.pushTag("link",i)){
                         inlets.push_back(XML.getValue("type", 0));
                         inletsNames.push_back(XML.getValue("name", ""));
+                        inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
                         XML.popTag();
                     }
                 }
@@ -584,6 +584,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
                     if(XML.pushTag("link",i)){
                         outlets.push_back(XML.getValue("type", 0));
                         outletsNames.push_back(XML.getValue("name", ""));
+                        outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) );
                         XML.popTag();
                     }
                 }
@@ -874,6 +875,29 @@ map<string,float> PatchObject::loadCustomVars(){
     }
 
     return tempVars;
+}
+
+//---------------------------------------------------------------------------------- GETTERS
+//--------------------------------------------------------------
+ofColor PatchObject::getInletColor(const int& iid) const {
+    switch( getInletType(iid) ) {
+        case 0: return COLOR_NUMERIC;
+            break;
+        case 1: return COLOR_STRING;
+            break;
+        case 2: return COLOR_ARRAY;
+            break;
+        case 3: return COLOR_TEXTURE;
+            break;
+        case 4: return COLOR_AUDIO;
+            break;
+        case 5: return COLOR_SCRIPT;
+            break;
+        default:
+            break;
+    }
+    // Default color
+    return COLOR_UNKNOWN;
 }
 
 //---------------------------------------------------------------------------------- SETTERS

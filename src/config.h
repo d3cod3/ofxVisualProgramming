@@ -79,6 +79,7 @@
 #define COLOR_TEXTURE           ofColor(120,255,255,255)
 #define COLOR_AUDIO             ofColor(255,255,120,255)
 #define COLOR_SCRIPT            ofColor(255,128,128,255)
+#define COLOR_UNKNOWN           ofColor(255,126,000,255)
 
 #define MAIN_FONT               "ofxbraitsch/fonts/Verdana.ttf"
 #define LIVECODING_FONT         "fonts/IBMPlexMono-Medium.ttf"
