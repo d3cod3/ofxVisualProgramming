@@ -42,6 +42,7 @@
 #include "ofxThreadedFileDialog.h"
 #include "ofxPDSP.h"
 #include "ofxImGui.h"
+#include "imgui_node_canvas.h"
 
 #include "Kernel.h"
 #include "PatchObject.h"
@@ -120,6 +121,7 @@ public:
     ofEasyCam               easyCam;
     ofRectangle             canvasViewport;
     ofxImGui::Gui*          ofxVPGui;
+    ImGuiEx::NodeCanvas     nodeCanvas;
 
     // PATCH DRAWING RESOURCES
     ofxFontStash            *font;

@@ -309,6 +309,9 @@ void ofxVisualProgramming::draw(){
     ofPushStyle();
     ofPushMatrix();
 
+    // Init canvas
+    nodeCanvas.SetTransform( canvas.getTranslation(), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
+
     canvas.begin(canvasViewport);
 
     ofEnableAlphaBlending();
@@ -318,7 +321,80 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
-    ofxVPGui->begin(); // allows objects to draw to our GUI
+    // Set GUI context
+    ofxVPGui->begin();
+
+    //    static ImGuiEx::Canvas imGuiCanvas;
+    //    auto canvasRect = imGuiCanvas.Rect();
+    //    auto viewRect = imGuiCanvas.ViewRect();
+    //    auto viewOrigin = imGuiCanvas.ViewOrigin();
+    //    auto viewScale = imGuiCanvas.ViewScale();
+    //    imGuiCanvas.SetView( ImVec2(canvas.getTranslation().x, canvas.getTranslation().y), canvas.getScale());
+    // tmp, visualise viewport
+    ImGui::GetForegroundDrawList()->AddRect( ImVec2( canvasViewport.x+5, canvasViewport.y+5), ImVec2( canvasViewport.width-10, canvasViewport.height-10 ), ImGui::ColorConvertFloat4ToU32(ImVec4(1,1,1,.5f)) );
+    if(false){
+        ImGui::PushClipRect(ImVec2( canvasViewport.x, canvasViewport.y), ImVec2( canvasViewport.width, canvasViewport.height ), false);
+        //ImGui::SetCursorPos(ImVec2(0,0));
+    }
+
+    // Try to begin ImGui Canvas.
+    // Should always return true, except if window is minimised or somehow not rendered.
+    if ( nodeCanvas.Begin("ofxVPNodeCanvas" )){
+        nodeCanvas.DrawFrameBorder(true);
+        static ImVec2 pos1( 50, 20);
+        static ImVec2 size1( 200, 150 );
+        if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
+
+            // Inlets
+            ImVec2 pos[4]; // Will hold positions afterwards
+            nodeCanvas.AddNodePin("test", pos[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+            nodeCanvas.AddNodePin("test2", pos[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+            nodeCanvas.AddNodePin("test3", pos[2], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+            nodeCanvas.AddNodePin("test4", pos[3], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+
+            // Oulets
+            ImVec2 pos2[2]; // Will hold positions afterwards
+            nodeCanvas.AddNodePin("test", pos2[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+            nodeCanvas.AddNodePin("test2", pos2[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+
+            // Menu
+            if(nodeCanvas.BeginNodeMenu()){
+                ImGui::MenuItem("Menu From User code !");
+                nodeCanvas.EndNodeMenu();
+            }
+
+            // Info view
+            if( nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+                ImGui::Button("Node Button22", ImVec2(-1,20));
+                ImGui::Button("Node Button");
+                ImGui::TextUnformatted("Hello World!");
+                ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
+                ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
+                ImGui::TextWrapped("PrevItemSize: %f, %f", ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y);//
+                ImGui::TextWrapped("WindowSize: %f, %f", ImGui::GetCurrentWindow()->Rect().GetSize().x, ImGui::GetCurrentWindow()->Rect().GetSize().y);
+                ImGui::TextWrapped("WidgetSize: %f, %f", size1.x, size1.y);
+                ImGui::TextWrapped("AvailableCRWidth: %f", ImGui::GetContentRegionAvailWidth());
+                nodeCanvas.EndNodeContent();
+            }
+
+            // Any other view
+            else if( nodeCanvas.BeginNodeContent() ){
+                if(nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+                    ImGui::Text("Cur View :Parameters");
+                }
+                else {
+                    ImGui::Text("Unknown View : %d", nodeCanvas.GetNodeData().viewName );
+                }
+                nodeCanvas.EndNodeContent();
+            }
+
+        }
+
+        // Close Node
+        nodeCanvas.EndNode();
+    }
+    // Close canvas
+    nodeCanvas.End();
 
     for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
         TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
