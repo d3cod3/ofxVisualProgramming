@@ -146,31 +146,14 @@ void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
     gui->draw();
     //cout << getUID() << endl;
 
-    ofPoint curPos = this->getPos();
-
-    struct t {
-        static void pushMatrix(const ImDrawList* parent_list, const ImDrawCmd* cmd){
-            glm::mat4 ofMatrix = ofGetCurrentMatrix(OF_MATRIX_PROJECTION);
-            glLoadMatrixf(glm::value_ptr(ofMatrix));
-            //cout << ofMatrix << endl;
-            //glTranslatef(curPos.x,curPos.y,0);
-            glPushMatrix();
-        }
-        static void popMatrix(const ImDrawList* parent_list, const ImDrawCmd* cmd){
-            glPopMatrix();
-        }
-    };
-    //ImGui::GetWindowDrawList()->AddCallback(t::pushMatrix, NULL);
-
     ImGui::SetNextWindowPos( ImVec2( this->getPos().x, this->getPos().y ), ImGuiCond_Always );
     ImGui::SetNextWindowSize( ImVec2( this->getObjectWidth(), this->getObjectHeight() ), ImGuiCond_Always );
     if(ImGui::Begin( getUID().c_str() )){
         ImGui::CollapsingHeader("params", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen);
         intParam.drawGui();
         floatParam.drawGui();
+        ImGui::Button("ExampleObject");
     }
-
-    //ImGui::GetWindowDrawList()->AddCallback(t::popMatrix, NULL);
 
     ImGui::End();
 
