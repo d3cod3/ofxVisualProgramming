@@ -30,22 +30,20 @@ public:
         return true;
     }
 
-    // assign
-//    ofxVPBaseParameter<T> operator=(T&& _value){
+    // copy
+//    ofxVPBaseParameter<T>& operator=(T _value){
 //        this->set(_value);
-//        return this;
+//        return *this;
 //    }
 
-    // copy constructor
-    ofxVPBaseParameter<T>& operator=(T const & _value){
+    // assign
+    ofxVPBaseParameter<T>& operator=(const T& _value){
         this->set(_value);
-
         return *this;
     }
 
 //	ofxVPParameter<T>& operator=(T&& _value){
 //		set(_value);
-//
 //		return *this;
 //	}
 

@@ -69,11 +69,19 @@ public:
         // Try to guess the type, to enable some editing possibilities.
         if( false && std::is_same<T, int>::value ){
             // Line below doesn't compile.. todo
-            //ImGui::DragInt( this->getDisplayName().c_str(), (T&) (this->value) );
+            //ImGui::DragInt( this->getDisplayName().c_str(), (T&) &(this->value) );
         }
-        // Fallback behaviour for any type, so the serialized version is displayed without editing capabilities.
         else {
-            ImGui::Text( this->getUID().c_str(), "%s = %s", this->getUID().c_str(), serialize().c_str() );
+            // Fallback behaviour for any type : Try to display without editing capabilities.
+            std::string serialized = serialize();
+            if(serialized.length()>0){
+                // Echo serialized value
+                ImGui::LabelText( this->getDisplayName().c_str(), "%s", serialized.c_str() );
+            }
+            else {
+                // echo variable type
+                ImGui::LabelText( this->getUID().c_str(), "%s", typeid(*this).name() );
+            }
         }
     }
 
