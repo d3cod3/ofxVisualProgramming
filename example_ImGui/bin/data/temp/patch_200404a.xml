@@ -11,25 +11,3 @@
     <input_channels>0</input_channels>
     <output_channels>2</output_channels>
 </settings>
-<object>
-    <id>1</id>
-    <name>Example Object</name>
-    <filepath>none</filepath>
-    <position>
-        <x>169.000000000</x>
-        <y>319.000000000</y>
-    </position>
-    <outlets>
-        <link>
-            <type>0</type>
-            <name>output</name>
-        </link>
-    </outlets>
-    <vars></vars>
-    <inlets>
-        <link>
-            <type>0</type>
-            <name>input</name>
-        </link>
-    </inlets>
-</object>

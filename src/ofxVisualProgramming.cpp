@@ -620,6 +620,9 @@ void ofxVisualProgramming::exit(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
+        return;
+
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     isVPMouseMoving = true;
@@ -639,6 +642,9 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
+        return;
+
     isVPDragging = true;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
@@ -651,6 +657,9 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
+
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
+        return;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -714,6 +723,9 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
+
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
+        return;
 
     isVPDragging    = false;
     isVPMouseMoving = false;
@@ -802,6 +814,10 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
+
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())// | ImGui::IsAnyWindowHovered() )
+        return;
+
     if(!isHoverLogger && !isHoverMenu && !isHoverCodeEditor){
         canvas.mouseScrolled(e);
     }
@@ -809,6 +825,10 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
+
+    if(ImGui::IsAnyItemActive())
+        return;
+
     if(!isHoverCodeEditor){
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->keyPressed(e.key);

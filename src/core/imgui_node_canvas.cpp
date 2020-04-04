@@ -46,11 +46,15 @@
 #include "imgui_node_canvas.h"
 #include <type_traits>
 
+// NodePin Connection types in ImGui namespace
+#define IMGUI_PAYLOAD_TYPE_PIN_FLOAT     "PINF"    // float - VP_LINK_NUMERIC
+
+// ImGui helper func
 static inline ImVec2 ImAbs(const ImVec2& lhs) {
     return ImVec2(lhs.x > 0.0f ? lhs.x : std::abs(lhs.x), lhs.y > 0.0f ? lhs.y : std::abs(lhs.y));
 }
 
-bool ImGuiEx::NodeCanvas::Begin(const char* _id/*, const ImVec2& _size*/){
+bool ImGuiEx::NodeCanvas::Begin(const char* _id){
 
     // Verify orchestration of ImGui function calls
     IM_ASSERT(isDrawingCanvas == false); // Always call End(), even when Begin() returns true.
@@ -66,10 +70,11 @@ bool ImGuiEx::NodeCanvas::Begin(const char* _id/*, const ImVec2& _size*/){
         ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_NoDecoration |
         ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_NoNav |
         ImGuiWindowFlags_NoBringToFrontOnFocus |
         ImGuiWindowFlags_NoScrollWithMouse |
-        ImGuiWindowFlags_NoScrollbar
-        //| ImGuiWindowFlags_NoMouseInputs
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoMouseInputs
         );
     ImGui::PopStyleVar();
 
@@ -100,7 +105,7 @@ void ImGuiEx::NodeCanvas::End(){
     IM_ASSERT(isDrawingCanvas == true); // // Begin() wasn't called
     IM_ASSERT(isDrawingNode == false); // Forgot to call EndNode()
 
-    isAnyCanvasNodeHovered = !ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) && ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
+    isAnyCanvasNodeHovered = ImGui::IsAnyWindowHovered(); // not really needed anymore...
 
     // reset cursor pos to canvas window
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
@@ -512,11 +517,29 @@ void ImGuiEx::NodeCanvas::AddNodePin( const char* _label, ImVec2& _pinPosition, 
         else {
             ImGui::SetCursorScreenPos( pinLayout.curDrawPos + ImVec2( -pinLayout.pinSpace.x, 0)  );
         }
+
 # if __IMGUI_EX_NODECANVAS_DEBUG__
         ImGui::Button("##nodeBtn", pinLayout.pinSpace);
 # else
         ImGui::InvisibleButton("nodeBtn", ImMax(pinLayout.pinSpace, ImVec2(1,1)));
 # endif
+        // Let shis pin be draggable
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)){
+            static int tmpNum=777;
+            ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int));    // Set payload to carry the index of our item (could be anything)
+            ImGui::Text("%i", tmpNum);
+            ImGui::EndDragDropSource();
+        }
+        // Accept other pins dropping on this
+        if (ImGui::BeginDragDropTarget()){
+            static int tmpAccept = 0;
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT)){
+
+                memcpy((float*)&tmpAccept, payload->Data, sizeof(int));
+                std::cout << "ACCEPTED = " << tmpAccept << std::endl;
+            }
+            ImGui::EndDragDropTarget();
+        }
     }
 
     // Set position of pin so user can draw it.

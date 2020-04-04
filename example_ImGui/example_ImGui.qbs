@@ -31,7 +31,7 @@ Project{
         of.cxxFlags: []         // flags passed to the c++ compiler
         of.linkerFlags: []      // flags passed to the linker
         of.defines: [          // defines are passed as -D to the compiler
-            //'OFXVP_BUILD_WITH_MINIMAL_OBJECTS', // uncomment to speed up compilation time by excluding most objects
+            'OFXVP_BUILD_WITH_MINIMAL_OBJECTS', // uncomment to speed up compilation time by excluding most objects
         ]
         // and can be checked with #ifdef or #if in the code
         of.frameworks: ['/System/Library/Frameworks/CoreMIDI.framework']       // osx only, additional frameworks to link with the project
