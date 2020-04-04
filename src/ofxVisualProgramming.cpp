@@ -339,15 +339,7 @@ void ofxVisualProgramming::draw(){
     ofxVPGui->begin();
 
     ImGui::ShowMetricsWindow();
-    //    static ImGuiEx::Canvas imGuiCanvas;
-    //    auto canvasRect = imGuiCanvas.Rect();
-    //    auto viewRect = imGuiCanvas.ViewRect();
-    //    auto viewOrigin = imGuiCanvas.ViewOrigin();
-    //    auto viewScale = imGuiCanvas.ViewScale();
-    //    imGuiCanvas.SetView( ImVec2(canvas.getTranslation().x, canvas.getTranslation().y), canvas.getScale());
-    // tmp, visualise viewport
-    //    ImGui::GetForegroundDrawList()->AddRect( canvasViewport.getTopLeft()+ImVec2(10,10), canvasViewport.getBottomRight()-ImVec2(10,10), IM_COL32(255,255,255,255) );
-    //    ImGui::GetForegroundDrawList()->AddCircleFilled( ImVec2(ofGetMouseX(),ofGetMouseY()), 10, IM_COL32(255,255,255,255) );
+
 
     // Try to begin ImGui Canvas.
     // Should always return true, except if window is minimised or somehow not rendered.
@@ -355,10 +347,10 @@ void ofxVisualProgramming::draw(){
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
     bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
     if ( isCanvasVisible ){
-        nodeCanvas.DrawFrameBorder(false);
+        //nodeCanvas.DrawFrameBorder(false);
 
         // Draw a demo Node (temp)
-        {
+        /*{
             static ImVec2 pos1( 50, 20);
             static ImVec2 size1( 200, 150 );
             if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
@@ -410,7 +402,7 @@ void ofxVisualProgramming::draw(){
 
             // Close Node
             nodeCanvas.EndNode();
-        }
+        }*/
     }
 
     // Render objects.
