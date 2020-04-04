@@ -230,4 +230,3 @@ void VideoSender::onToggleEvent(ofxDatGuiToggleEvent e){
 OBJECT_REGISTER( VideoSender, "video sender", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif
-
