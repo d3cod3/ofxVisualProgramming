@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 ExampleObject::ExampleObject() :
     // Extend the classes you need
-    PatchObject(),// ofThread(),
+    PatchObject("Example Object"),// ofThread(),
 
     // define default values
     intParam(0, "My integer param"),
@@ -50,7 +50,7 @@ ExampleObject::ExampleObject() :
     this->numOutlets = 1;
 
     //*(float *)&_inletParams[0] = intParam.get();
-    *(unsigned int *)&_inletParams[0] = intParam.get();;
+    *(unsigned int *)&_inletParams[0] = intParam.get();
     *(float *)&_outletParams[0] = floatParam.get(); // output
 
     this->initInletsState();
@@ -145,17 +145,6 @@ void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 //    }
     gui->draw();
     //cout << getUID() << endl;
-
-    ImGui::SetNextWindowPos( ImVec2( this->getPos().x, this->getPos().y ), ImGuiCond_Always );
-    ImGui::SetNextWindowSize( ImVec2( this->getObjectWidth(), this->getObjectHeight() ), ImGuiCond_Always );
-    if(ImGui::Begin( getUID().c_str() )){
-        ImGui::CollapsingHeader("params", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_NoTreePushOnOpen);
-        intParam.drawGui();
-        floatParam.drawGui();
-        ImGui::Button("ExampleObjectHardcoded");
-    }
-
-    ImGui::End();
 
     ofDrawEllipse(glm::vec2(this->getPos().x, this->getPos().y), this->getObjectWidth(), this->getObjectHeight());
 

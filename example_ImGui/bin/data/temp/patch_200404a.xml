@@ -11,3 +11,91 @@
     <input_channels>0</input_channels>
     <output_channels>2</output_channels>
 </settings>
+<object>
+    <id>1</id>
+    <name>constant</name>
+    <filepath>none</filepath>
+    <position>
+        <x>151.000000000</x>
+        <y>248.000000000</y>
+    </position>
+    <outlets>
+        <link>
+            <type>0</type>
+            <name>number</name>
+        </link>
+        <link>
+            <type>1</type>
+            <name>numberString</name>
+        </link>
+    </outlets>
+    <vars>
+        <var>
+            <name>NUMBER</name>
+            <value>0.000000000</value>
+        </var>
+    </vars>
+    <inlets>
+        <link>
+            <type>0</type>
+            <name>number</name>
+        </link>
+    </inlets>
+</object>
+<object>
+    <id>2</id>
+    <name>constant</name>
+    <filepath>none</filepath>
+    <position>
+        <x>-146.000000000</x>
+        <y>419.000000000</y>
+    </position>
+    <outlets>
+        <link>
+            <type>0</type>
+            <name>number</name>
+            <to>
+                <id>1</id>
+                <inlet>0</inlet>
+            </to>
+        </link>
+        <link>
+            <type>1</type>
+            <name>numberString</name>
+        </link>
+    </outlets>
+    <vars>
+        <var>
+            <name>NUMBER</name>
+            <value>0.000000000</value>
+        </var>
+    </vars>
+    <inlets>
+        <link>
+            <type>0</type>
+            <name>number</name>
+        </link>
+    </inlets>
+</object>
+<object>
+    <id>3</id>
+    <name>Example Object</name>
+    <filepath>none</filepath>
+    <position>
+        <x>165.000000000</x>
+        <y>233.000000000</y>
+    </position>
+    <vars></vars>
+    <inlets>
+        <link>
+            <type>0</type>
+            <name>input</name>
+        </link>
+    </inlets>
+    <outlets>
+        <link>
+            <type>0</type>
+            <name>output</name>
+        </link>
+    </outlets>
+</object>
