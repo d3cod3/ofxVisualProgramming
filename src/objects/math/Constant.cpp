@@ -110,6 +110,18 @@ void Constant::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer
 }
 
 //--------------------------------------------------------------
+void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        //static float value;
+        //inputNumber.
+        ImGui::DragFloat("Value", &inputValue);
+        _nodeCanvas.EndNodeContent();
+    }
+}
+
+//--------------------------------------------------------------
 void Constant::removeObjectContent(bool removeFileFromData){
 
 }

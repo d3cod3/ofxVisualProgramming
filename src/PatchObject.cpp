@@ -399,6 +399,44 @@ void PatchObject::draw(ofxFontStash *font){
 }
 
 //--------------------------------------------------------------
+void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
+
+    ImVec2 imPos( this->getPos() );
+    ImVec2 imSize( getObjectWidth(), getObjectHeight() );
+    if(_nodeCanvas.BeginNode(this->getUID().c_str(), imPos, imSize, 4, 2)){
+
+        // Inlets
+        ImVec2 pos[4]; // Will hold positions afterwards
+        _nodeCanvas.AddNodePin("test", pos[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+        _nodeCanvas.AddNodePin("test2", pos[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+        _nodeCanvas.AddNodePin("test3", pos[2], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+        _nodeCanvas.AddNodePin("test4", pos[3], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
+
+        // Oulets
+        ImVec2 pos2[2]; // Will hold positions afterwards
+        _nodeCanvas.AddNodePin("test", pos2[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+        _nodeCanvas.AddNodePin("test2", pos2[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
+
+        // Let objects draw their own Gui
+        this->drawObjectNodeGui( _nodeCanvas );
+    }
+
+    // Close Node
+    _nodeCanvas.EndNode();
+
+    // Update pos & size
+    if( imPos.x != this->x )
+        this->x = imPos.x;
+    if( imPos.y != this->y ){
+        this->y = imPos.y;
+    if( imSize.x != this->getObjectWidth() )
+        this->width = imSize.x;
+    if( imSize.y != this->getObjectHeight() )
+        this->height = imSize.y;
+    }
+}
+
+//--------------------------------------------------------------
 void PatchObject::bezierLink(DraggableVertex from, DraggableVertex to, float _width){
     ofNoFill();
     ofDrawBezier(from.x, from.y+(_width/2), ((to.x-from.x)*.5f)+from.x,from.y+(_width/2), ((to.x-from.x)*.5f)+from.x, to.y+(_width/2), to.x,to.y+(_width/2));

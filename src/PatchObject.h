@@ -47,6 +47,9 @@
 #include "objectFactory.h"
 #include "ofxVPHasUid.h"
 
+#include "ofxImGui.h"
+#include "imgui_node_canvas.h"
+
 #include "Driver.h"
 
 enum LINK_TYPE {
@@ -88,6 +91,7 @@ public:
     void                    setupDSP(pdsp::Engine &engine);
     void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void                    draw(ofxFontStash *font);
+    void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas);
 
     // Virtual Methods
     virtual void            newObject() {}
@@ -99,6 +103,7 @@ public:
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) {}
     virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
+    virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
