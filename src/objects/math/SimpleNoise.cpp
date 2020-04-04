@@ -82,7 +82,7 @@ void SimpleNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void SimpleNoise::drawObjectContent(ofxFontStash *font){
+void SimpleNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -95,6 +95,6 @@ void SimpleNoise::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH)
 
 #endif

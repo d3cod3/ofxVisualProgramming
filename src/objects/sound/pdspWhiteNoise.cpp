@@ -75,7 +75,7 @@ void pdspWhiteNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::drawObjectContent(ofxFontStash *font){
+void pdspWhiteNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -127,6 +127,6 @@ void pdspWhiteNoise::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

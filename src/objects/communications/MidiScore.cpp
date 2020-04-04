@@ -93,7 +93,7 @@ void MidiScore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void MidiScore::drawObjectContent(ofxFontStash *font){
+void MidiScore::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(30,31,36);
     ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);
@@ -110,6 +110,6 @@ void MidiScore::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiScore, "midi score", OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

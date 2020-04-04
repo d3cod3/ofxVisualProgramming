@@ -123,7 +123,7 @@ void CentroidExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void CentroidExtractor::drawObjectContent(ofxFontStash *font){
+void CentroidExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -136,6 +136,6 @@ void CentroidExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( CentroidExtractor, "centroid extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( CentroidExtractor, "centroid extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

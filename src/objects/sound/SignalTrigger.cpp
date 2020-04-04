@@ -135,7 +135,7 @@ void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void SignalTrigger::drawObjectContent(ofxFontStash *font){
+void SignalTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){
@@ -218,6 +218,6 @@ void SignalTrigger::onSliderEvent(ofxDatGuiSliderEvent e){
     thresh_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
 }
 
-OBJECT_REGISTER( SignalTrigger, "signal trigger", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( SignalTrigger, "signal trigger", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

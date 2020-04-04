@@ -264,7 +264,7 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void PDPatch::drawObjectContent(ofxFontStash *font){
+void PDPatch::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,100);
@@ -638,6 +638,6 @@ void PDPatch::receiveMidiByte(const int port, const int byte) {
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }
 
-OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

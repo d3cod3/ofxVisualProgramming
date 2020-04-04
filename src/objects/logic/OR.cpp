@@ -86,7 +86,7 @@ void OR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofx
 }
 
 //--------------------------------------------------------------
-void OR::drawObjectContent(ofxFontStash *font){
+void OR::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){
@@ -101,6 +101,6 @@ void OR::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( OR, "||", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( OR, "||", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

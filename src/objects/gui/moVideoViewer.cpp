@@ -89,7 +89,7 @@ void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::drawObjectContent(ofxFontStash *font){
+void moVideoViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -168,6 +168,6 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)
 
 #endif

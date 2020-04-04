@@ -163,7 +163,7 @@ void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void Counter::drawObjectContent(ofxFontStash *font){
+void Counter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -223,6 +223,6 @@ void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

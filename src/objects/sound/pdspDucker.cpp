@@ -189,11 +189,9 @@ void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     // ducking
     if(this->inletsConnected[3]){
-        if(ducking->getValue() != *(float *)&_inletParams[3]){
-            ducking->setValue(ofMap(ofClamp(*(float *)&_inletParams[3],0.0f,1.0f),0.0f,1.0f,-48.0f,0.0f,true));
-            duck_ctrl.set(ducking->getValue());
-            this->setCustomVar(ofClamp(*(float *)&_inletParams[3],0.0f,1.0f),"DUCKING");
-        }
+        ducking->setValue(ofClamp(static_cast<float>(*(float *)&_inletParams[3]),0.0f,1.0f));
+        duck_ctrl.set(ofMap(ofClamp(static_cast<float>(*(float *)&_inletParams[3]),0.0f,1.0f),0.0f,1.0f,-48.0f,0.0f,true));
+        this->setCustomVar(ofClamp(static_cast<float>(*(float *)&_inletParams[3]),0.0f,1.0f),"DUCKER");
     }
 
     if(!loaded){
@@ -206,7 +204,7 @@ void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void pdspDucker::drawObjectContent(ofxFontStash *font){
+void pdspDucker::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,255,120);
@@ -358,6 +356,6 @@ void pdspDucker::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( pdspDucker, "ducker", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspDucker, "ducker", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

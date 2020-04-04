@@ -101,7 +101,7 @@ void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void VideoGate::drawObjectContent(ofxFontStash *font){
+void VideoGate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(isOpen && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -133,6 +133,6 @@ void VideoGate::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

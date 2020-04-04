@@ -123,7 +123,7 @@ void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::drawObjectContent(ofxFontStash *font){
+void PitchExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -136,6 +136,6 @@ void PitchExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

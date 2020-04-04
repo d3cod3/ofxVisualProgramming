@@ -32,10 +32,6 @@
 
 #include "PatchObject.h"
 
-// These files are only needed in the .cpp part
-//#include "ofxImGui.h"
-//#include "imgui_node_canvas.h"
-
 //--------------------------------------------------------------
 PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUID) {
     nId             = -1;
@@ -200,6 +196,8 @@ void PatchObject::draw(ofxFontStash *font){
                     break;
                 case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
                     break;
+                case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
+                    break;
                 default: break;
                 }
                 ofPushMatrix();
@@ -210,7 +208,7 @@ void PatchObject::draw(ofxFontStash *font){
                     ofSetLineWidth(3);
                     ofDrawCircle(0, 0, 10);
                 }else{
-                    if(it == 3 || it == 4){
+                    if(it == 3 || it == 4 || it == 6){
                         ofSetLineWidth(2);
                     }else{
                         ofSetLineWidth(1);
@@ -242,6 +240,8 @@ void PatchObject::draw(ofxFontStash *font){
                 case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
                     break;
                 case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
+                    break;
+                case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                     break;
                 default: break;
                 }
@@ -276,6 +276,8 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     case 5: ofSetColor(COLOR_SCRIPT_LINK);
                         break;
+                    case 6: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
+                        break;
                     default: break;
                     }
 
@@ -298,7 +300,9 @@ void PatchObject::draw(ofxFontStash *font){
                         break;
                     case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
                         break;
-                    case 5: ofSetColor(COLOR_SCRIPT);
+                    case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(2);
+                        break;
+                    case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
                         break;
                     default: break;
                     }
@@ -326,7 +330,7 @@ void PatchObject::draw(ofxFontStash *font){
             ofPushStyle();
             ofPushMatrix();
             ofTranslate(box->getPosition().x,box->getPosition().y);
-            drawObjectContent(font);
+            drawObjectContent(font,(shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer());
             ofPopMatrix();
             ofPopStyle();
 
@@ -397,12 +401,10 @@ void PatchObject::draw(ofxFontStash *font){
 //--------------------------------------------------------------
 void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
 
-    // Begin node box
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
     if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), imPos, imSize, this->getNumInlets(), this->getNumOutlets() )){
 
-        // Inlets
         for(int i=0;i<static_cast<int>(inlets.size());i++){
             auto pinCol = getInletColor(i);
             _nodeCanvas.AddNodePin( inletsNames.at(i).c_str(), inletsPositions[0], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
@@ -429,6 +431,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
         this->width = imSize.x;
     if( imSize.y != this->height )
         this->height = imSize.y;
+
 }
 
 //--------------------------------------------------------------

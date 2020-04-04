@@ -71,6 +71,9 @@ Spigot::Spigot() : PatchObject(){
 
     isOpen  = false;
 
+    isAudioOUTObject        = true;
+    isPDSPPatchableObject   = true;
+
     empty   = new vector<float>();
     kuro    = new ofImage();
 }
@@ -98,6 +101,7 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
 
+    static_cast<ofSoundBuffer *>(_inletParams[5])->set(0.0f);
     static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
 }
 
@@ -129,7 +133,7 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Spigot::drawObjectContent(ofxFontStash *font){
+void Spigot::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetLineWidth(3);
@@ -156,6 +160,17 @@ void Spigot::mouseReleasedObjectContent(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC);
+//--------------------------------------------------------------
+void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
+    if(isOpen){
+        if(this->inletsConnected[5]){
+            *static_cast<ofSoundBuffer *>(_outletParams[4]) = *static_cast<ofSoundBuffer *>(_inletParams[5]);
+        }
+    }else{
+        *static_cast<ofSoundBuffer *>(_outletParams[4]) *= 0.0f;
+    }
+}
+
+OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

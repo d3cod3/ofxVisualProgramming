@@ -105,7 +105,7 @@ void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moMessage::drawObjectContent(ofxFontStash *font){
+void moMessage::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(actualMessage,this->fontSize,this->width - (strlen(actualMessage.c_str())*this->fontSize),this->headerHeight*2.3);
@@ -163,6 +163,6 @@ void moMessage::onTextInputEvent(ofxDatGuiTextInputEvent e){
     // cout << "From Event Object: " << e.text << endl;
 }
 
-OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI)
 
 #endif

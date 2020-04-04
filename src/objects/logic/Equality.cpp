@@ -102,7 +102,7 @@ void Equality::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void Equality::drawObjectContent(ofxFontStash *font){
+void Equality::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -154,6 +154,6 @@ void Equality::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Equality, "==", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Equality, "==", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

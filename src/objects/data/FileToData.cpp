@@ -131,7 +131,7 @@ void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void FileToData::drawObjectContent(ofxFontStash *font){
+void FileToData::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();
@@ -247,6 +247,6 @@ void FileToData::onToggleEvent(ofxDatGuiToggleEvent e){
     }
 }
 
-OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA)
 
 #endif

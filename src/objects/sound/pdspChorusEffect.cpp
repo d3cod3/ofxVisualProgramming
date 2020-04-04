@@ -162,7 +162,7 @@ void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::drawObjectContent(ofxFontStash *font){
+void pdspChorusEffect::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -257,6 +257,6 @@ void pdspChorusEffect::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( pdspChorusEffect, "chorus", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspChorusEffect, "chorus", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

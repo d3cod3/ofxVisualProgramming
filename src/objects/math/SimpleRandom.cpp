@@ -112,7 +112,7 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::drawObjectContent(ofxFontStash *font){
+void SimpleRandom::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -125,6 +125,6 @@ void SimpleRandom::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH)
 
 #endif

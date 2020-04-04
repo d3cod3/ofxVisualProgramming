@@ -66,7 +66,6 @@ VideoPlayer::VideoPlayer() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    threadLoaded    = false;
     needToLoadVideo = true;
 
     lastPlayhead    = 0.0f;
@@ -95,21 +94,6 @@ void VideoPlayer::autoloadFile(string _fp){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::threadedFunction(){
-    while(isThreadRunning()){
-        std::unique_lock<std::mutex> lock(mutex);
-        if(needToLoadVideo){
-            needToLoadVideo = false;
-            loadVideoFile();
-            threadLoaded = true;
-            nameLabelLoaded = true;
-        }
-        condition.wait(lock);
-        sleep(10);
-    }
-}
-
-//--------------------------------------------------------------
 void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
     gui->setAutoDraw(false);
@@ -134,9 +118,6 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         isNewObject = true;
     }
 
-    if(!isThreadRunning()){
-        startThread(true);
-    }
 }
 
 //--------------------------------------------------------------
@@ -146,7 +127,7 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
     header->update();
     loadButton->update();
 
-    if(nameLabelLoaded && threadLoaded){
+    if(nameLabelLoaded){
         nameLabelLoaded = false;
         ofFile tempFile(filepath);
         if(tempFile.getFileName().size() > 22){
@@ -162,14 +143,20 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
     }
 
+    if(needToLoadVideo){
+        needToLoadVideo = false;
+        loadVideoFile();
+        nameLabelLoaded = true;
+    }
+
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::drawObjectContent(ofxFontStash *font){
+void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 
-    if(!isFileLoaded && video->isLoaded() && video->isInitialized() && threadLoaded){
+    if(!isFileLoaded && video->isLoaded() && video->isInitialized()){
         if(video->isInitialized()){
             video->setLoopState(OF_LOOP_NONE);
             video->stop();
@@ -184,7 +171,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
         }
     }
 
-    if(isFileLoaded && video->isLoaded() && threadLoaded){
+    if(isFileLoaded && video->isLoaded()){
 
         if(video->getWidth() != static_cast<ofTexture *>(_outletParams[0])->getWidth() || video->getHeight() != static_cast<ofTexture *>(_outletParams[0])->getHeight()){
             _outletParams[0] = new ofTexture();
@@ -327,16 +314,14 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font){
     ofDisableAlphaBlending();
 
     ///////////////////////////////////////////
-    condition.notify_one();
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::removeObjectContent(bool removeFileFromData){
-    if(isThreadRunning()){
+    if(video->isLoaded()){
         video->stop();
         video->setVolume(0);
         video->close();
-        stopThread();
     }
     if(removeFileFromData){
         removeFile(filepath);
@@ -426,6 +411,6 @@ void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoPlayer, "video player", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoPlayer, "video player", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

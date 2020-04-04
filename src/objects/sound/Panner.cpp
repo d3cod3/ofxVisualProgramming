@@ -129,7 +129,7 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Panner::drawObjectContent(ofxFontStash *font){
+void Panner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -213,6 +213,6 @@ void Panner::onSliderEvent(ofxDatGuiSliderEvent e){
     pan_ctrl.set(ofClamp(static_cast<float>(e.value),-1.0f,1.0f));
 }
 
-OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

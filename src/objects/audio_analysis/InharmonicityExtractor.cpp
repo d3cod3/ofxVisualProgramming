@@ -123,7 +123,7 @@ void InharmonicityExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void InharmonicityExtractor::drawObjectContent(ofxFontStash *font){
+void InharmonicityExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -136,6 +136,6 @@ void InharmonicityExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( InharmonicityExtractor , "inharmonicity extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( InharmonicityExtractor , "inharmonicity extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

@@ -123,7 +123,7 @@ void RollOffExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void RollOffExtractor::drawObjectContent(ofxFontStash *font){
+void RollOffExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();

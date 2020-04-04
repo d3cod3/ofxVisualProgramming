@@ -252,7 +252,7 @@ void ContourTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void ContourTracking::drawObjectContent(ofxFontStash *font){
+void ContourTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -388,6 +388,6 @@ void ContourTracking::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( ContourTracking, "contour tracking", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( ContourTracking, "contour tracking", OFXVP_OBJECT_CAT_CV)
 
 #endif

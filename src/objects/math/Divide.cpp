@@ -123,7 +123,7 @@ void Divide::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Divide::drawObjectContent(ofxFontStash *font){
+void Divide::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2);
@@ -188,6 +188,6 @@ void Divide::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Divide, "divide", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Divide, "divide", OFXVP_OBJECT_CAT_MATH)
 
 #endif

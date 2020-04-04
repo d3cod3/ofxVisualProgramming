@@ -158,7 +158,7 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void MidiSender::drawObjectContent(ofxFontStash *font){
+void MidiSender::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(30,31,36);
     ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);
@@ -266,6 +266,6 @@ void MidiSender::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

@@ -31,7 +31,7 @@
 ==============================================================================*/
 
 #include "ofxVisualProgramming.h"
-#include "imgui_internal.h" // tmp
+#include "imgui_internal.h"
 
 //--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
@@ -67,6 +67,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     isRetina                = false;
     scaleFactor             = 1;
     linkActivateDistance    = 5;
+    isVPMouseMoving         = false;
     isVPDragging            = false;
 
     isOutletSelected        = false;
@@ -105,7 +106,7 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setup(  ofxImGui::Gui* _guiRef ){
+void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
 
     // Load resources
     font->setup(MAIN_FONT,1.0,2048,true,8,3.0f);
@@ -129,6 +130,8 @@ void ofxVisualProgramming::setup(  ofxImGui::Gui* _guiRef ){
         ofxVPGui = _guiRef;
         // Dummy call to IO which will crash if _guiRef is not initialised.
         ImGui::GetIO();
+        //ImGui::SetCurrentContext();
+        //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
 
     // Set pan-zoom canvas
@@ -143,6 +146,26 @@ void ofxVisualProgramming::setup(  ofxImGui::Gui* _guiRef ){
     // Threaded File Dialogs
     fileDialog.setup();
     ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
+
+    // Load external plugins objects
+    plugins_kernel.add_server(PatchObject::server_name(), PatchObject::version);
+    // list plugin directory
+    ofDirectory pluginsDir;
+    pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
+#ifdef TARGET_LINUX
+    pluginsDir.allowExt("so");
+#elif defined(TARGET_OSX)
+    pluginsDir.allowExt("bundle");
+#elif defined(TARGET_WIN32)
+    pluginsDir.allowExt("dll");
+#endif
+    pluginsDir.sort();
+
+    // load all plugins
+    for(unsigned int i = 0; i < pluginsDir.size(); i++){
+        ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
+        plugins_kernel.load_plugin(pluginsDir.getFile(i).getAbsolutePath().c_str());
+    }
 
     // Create new empty file patch
     newPatch();
@@ -236,6 +259,45 @@ void ofxVisualProgramming::update(){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::updateCanvasGUI(){
+
+    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(isVPDragging){
+                if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
+                    draggingObject = true;
+                    draggingObjectID = it->first;
+                }
+                for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
+                    if(it->second->outPut[p]->toObjectID == selectedObjectID){
+                        if(isRetina){
+                            it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
+                        }else{
+                            it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
+                        }
+                        it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
+                    }
+                }
+                if(selectedObjectID != it->first){
+                    for (int j=0;j<it->second->getNumInlets();j++){
+                        if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
+                            if(it->second->getInletType(j) == selectedObjectLinkType){
+                                it->second->setInletMouseNear(j,true);
+                            }
+                        }else{
+                            it->second->setInletMouseNear(j,false);
+                        }
+                    }
+                }
+
+            }
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::updateCanvasViewport(){
     canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
 }
@@ -253,9 +315,9 @@ void ofxVisualProgramming::draw(){
     nodeCanvas.SetTransform( canvas.getTranslation(), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
 
     // tmp, visualise viewport
-//    ofSetColor(0,255,255,126);
-//    ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
-//    ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 10);
+    //    ofSetColor(0,255,255,126);
+    //    ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
+    //    ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 10);
 
     canvas.begin(canvasViewport);
 
@@ -277,15 +339,6 @@ void ofxVisualProgramming::draw(){
     ofxVPGui->begin();
 
     ImGui::ShowMetricsWindow();
-    //    static ImGuiEx::Canvas imGuiCanvas;
-    //    auto canvasRect = imGuiCanvas.Rect();
-    //    auto viewRect = imGuiCanvas.ViewRect();
-    //    auto viewOrigin = imGuiCanvas.ViewOrigin();
-    //    auto viewScale = imGuiCanvas.ViewScale();
-    //    imGuiCanvas.SetView( ImVec2(canvas.getTranslation().x, canvas.getTranslation().y), canvas.getScale());
-    // tmp, visualise viewport
-//    ImGui::GetForegroundDrawList()->AddRect( canvasViewport.getTopLeft()+ImVec2(10,10), canvasViewport.getBottomRight()-ImVec2(10,10), IM_COL32(255,255,255,255) );
-//    ImGui::GetForegroundDrawList()->AddCircleFilled( ImVec2(ofGetMouseX(),ofGetMouseY()), 10, IM_COL32(255,255,255,255) );
 
 
     // Try to begin ImGui Canvas.
@@ -294,10 +347,10 @@ void ofxVisualProgramming::draw(){
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
     bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
     if ( isCanvasVisible ){
-        nodeCanvas.DrawFrameBorder(false);
+        //nodeCanvas.DrawFrameBorder(false);
 
         // Draw a demo Node (temp)
-        {
+        /*{
             static ImVec2 pos1( 50, 20);
             static ImVec2 size1( 200, 150 );
             if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
@@ -349,11 +402,8 @@ void ofxVisualProgramming::draw(){
 
             // Close Node
             nodeCanvas.EndNode();
-        }
-
-
+        }*/
     }
-
 
     // Render objects.
     for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
@@ -362,7 +412,7 @@ void ofxVisualProgramming::draw(){
 
         // LivePatchingObject hack, should not be handled by mosaic.
         if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
-           livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
+            livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
         }
 
         // Draw
@@ -397,6 +447,8 @@ void ofxVisualProgramming::draw(){
             break;
         case 5: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
             break;
+        case 6: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
+            break;
         default: break;
         }
         ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
@@ -414,6 +466,8 @@ void ofxVisualProgramming::draw(){
         case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
             break;
         case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
+            break;
+        case 6: patchObjects[selectedObjectID]->linkTypeName = "ofPixels";
             break;
         default: patchObjects[selectedObjectID]->linkTypeName = "";
             break;
@@ -448,6 +502,8 @@ void ofxVisualProgramming::draw(){
     ofPopMatrix();
     ofPopStyle();
     ofPopView();
+
+    updateCanvasGUI();
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
@@ -555,12 +611,14 @@ void ofxVisualProgramming::exit(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
+
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
         return;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
-    // CANVAS
+    isVPMouseMoving = true;
+
     if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             it->second->mouseMoved(actualMouse.x,actualMouse.y);
@@ -575,46 +633,13 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())// || ImGui::IsAnyWindowHovered())
+
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
         return;
 
     isVPDragging = true;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-    // CANVAS
-    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
-
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-
-            if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
-                draggingObject = true;
-                draggingObjectID = it->first;
-            }
-            for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
-                if(it->second->outPut[p]->toObjectID == selectedObjectID){
-                    if(isRetina){
-                        it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
-                    }else{
-                        it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
-                    }
-                    it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
-                }
-            }
-            if(selectedObjectID != it->first){
-                for (int j=0;j<it->second->getNumInlets();j++){
-                    if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
-                        if(it->second->getInletType(j) == selectedObjectLinkType){
-                            it->second->setInletMouseNear(j,true);
-                        }
-                    }else{
-                        it->second->setInletMouseNear(j,false);
-                    }
-                }
-            }
-        }
-
-    }
 
     if(selectedObjectLink == -1 && !draggingObject && !isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
         canvas.mouseDragged(e);
@@ -694,7 +719,8 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
-    isVPDragging = false;
+    isVPDragging    = false;
+    isVPMouseMoving = false;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
@@ -780,6 +806,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
+
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())// | ImGui::IsAnyWindowHovered() )
         return;
 
@@ -790,6 +817,7 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
+
     if(ImGui::IsAnyItemActive())
         return;
 
@@ -1266,6 +1294,8 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
             patchObjects[toID]->_inletParams[toInlet] = new string();
         }else if(tempLink->type == VP_LINK_ARRAY){
             patchObjects[toID]->_inletParams[toInlet] = new vector<float>();
+        }else if(tempLink->type == VP_LINK_PIXELS){
+            patchObjects[toID]->_inletParams[toInlet] = new ofPixels();
         }else if(tempLink->type == VP_LINK_TEXTURE){
             patchObjects[toID]->_inletParams[toInlet] = new ofTexture();
         }else if(tempLink->type == VP_LINK_AUDIO){

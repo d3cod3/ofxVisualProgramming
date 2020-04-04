@@ -251,7 +251,7 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::drawObjectContent(ofxFontStash *font){
+void SoundfilePlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(isFileLoaded && audiofile.loaded()){
@@ -468,6 +468,6 @@ void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

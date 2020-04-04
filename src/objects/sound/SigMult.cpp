@@ -129,7 +129,7 @@ void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void SigMult::drawObjectContent(ofxFontStash *font){
+void SigMult::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -215,6 +215,6 @@ void SigMult::onSliderEvent(ofxDatGuiSliderEvent e){
     gain_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,12.0f));
 }
 
-OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

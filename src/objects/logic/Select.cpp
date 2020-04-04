@@ -96,7 +96,7 @@ void Select::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Select::drawObjectContent(ofxFontStash *font){
+void Select::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     
@@ -108,6 +108,6 @@ void Select::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( Select, "select", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Select, "select", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

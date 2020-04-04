@@ -99,7 +99,7 @@ void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void VectorGate::drawObjectContent(ofxFontStash *font){
+void VectorGate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofDisableAlphaBlending();
@@ -110,6 +110,6 @@ void VectorGate::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA)
 
 #endif

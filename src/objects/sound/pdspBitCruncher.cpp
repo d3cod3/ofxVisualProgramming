@@ -125,7 +125,7 @@ void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::drawObjectContent(ofxFontStash *font){
+void pdspBitCruncher::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -208,6 +208,6 @@ void pdspBitCruncher::onSliderEvent(ofxDatGuiSliderEvent e){
     bits_ctrl.set(ofClamp(static_cast<float>(e.value),1.0f,8.0f));
 }
 
-OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

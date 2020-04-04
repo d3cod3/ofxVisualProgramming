@@ -79,7 +79,7 @@ void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void VideoReceiver::drawObjectContent(ofxFontStash *font){
+void VideoReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();

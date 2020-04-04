@@ -175,7 +175,7 @@ void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void pdspLFO::drawObjectContent(ofxFontStash *font){
+void pdspLFO::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -270,6 +270,6 @@ void pdspLFO::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 
-OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

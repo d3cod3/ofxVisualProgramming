@@ -100,7 +100,7 @@ void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void moSlider::drawObjectContent(ofxFontStash *font){
+void moSlider::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -149,6 +149,6 @@ void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"VALUE");
 }
 
-OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI)
 
 #endif

@@ -123,7 +123,7 @@ void DissonanceExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &
 }
 
 //--------------------------------------------------------------
-void DissonanceExtractor::drawObjectContent(ofxFontStash *font){
+void DissonanceExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -136,6 +136,6 @@ void DissonanceExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( DissonanceExtractor, "dissonance extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( DissonanceExtractor, "dissonance extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

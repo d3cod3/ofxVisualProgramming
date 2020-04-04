@@ -349,7 +349,7 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void moTimeline::drawObjectContent(ofxFontStash *font){
+void moTimeline::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     localFont = font;
     ofSetColor(255);
     ofEnableAlphaBlending();
@@ -976,6 +976,6 @@ void moTimeline::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI)
 
 #endif

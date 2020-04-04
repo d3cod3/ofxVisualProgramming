@@ -67,7 +67,7 @@ void LivePatching::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void LivePatching::drawObjectContent(ofxFontStash *font){
+void LivePatching::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -92,6 +92,6 @@ void LivePatching::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING);
+OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING)
 
 #endif

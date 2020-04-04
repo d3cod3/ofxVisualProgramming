@@ -111,7 +111,7 @@ void OnsetExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void OnsetExtractor::drawObjectContent(ofxFontStash *font){
+void OnsetExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(*(float *)&_outletParams[0] > 0){
@@ -126,6 +126,6 @@ void OnsetExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

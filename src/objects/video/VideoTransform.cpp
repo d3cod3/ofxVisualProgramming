@@ -221,7 +221,7 @@ void VideoTransform::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void VideoTransform::drawObjectContent(ofxFontStash *font){
+void VideoTransform::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -323,6 +323,6 @@ void VideoTransform::onSliderEvent(ofxDatGuiSliderEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoTransform, "video transform", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

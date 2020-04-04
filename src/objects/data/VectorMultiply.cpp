@@ -114,7 +114,7 @@ void VectorMultiply::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void VectorMultiply::drawObjectContent(ofxFontStash *font){
+void VectorMultiply::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw("Size: "+ofToString(static_cast<size_t>(static_cast<vector<float> *>(_outletParams[0])->size())),this->fontSize,this->width/2,this->headerHeight*2.3);
@@ -179,6 +179,6 @@ void VectorMultiply::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( VectorMultiply, "vector multiply", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorMultiply, "vector multiply", OFXVP_OBJECT_CAT_DATA)
 
 #endif

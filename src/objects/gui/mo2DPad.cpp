@@ -122,7 +122,7 @@ void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void mo2DPad::drawObjectContent(ofxFontStash *font){
+void mo2DPad::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -169,6 +169,6 @@ void mo2DPad::on2dPadEvent(ofxDatGui2dPadEvent e){
     this->setCustomVar(static_cast<float>(e.y),"YPOS");
 }
 
-OBJECT_REGISTER( mo2DPad, "2d pad", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( mo2DPad, "2d pad", OFXVP_OBJECT_CAT_GUI)
 
 #endif

@@ -177,7 +177,7 @@ void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void VideoCrop::drawObjectContent(ofxFontStash *font){
+void VideoCrop::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -319,6 +319,6 @@ ofRectangle VideoCrop::getIntersection(ofRectangle & r1,ofRectangle & r2){
     }
 }
 
-OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

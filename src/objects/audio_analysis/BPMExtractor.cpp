@@ -125,7 +125,7 @@ void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void BPMExtractor::drawObjectContent(ofxFontStash *font){
+void BPMExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     bpmPlot->draw(0,0,this->width,this->height);
@@ -138,6 +138,6 @@ void BPMExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

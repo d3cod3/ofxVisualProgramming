@@ -48,9 +48,10 @@
 #include "ofxVPHasUid.h"
 #include "ofxVPObjectParameter.h"
 
-//#include "imgui_internal.h"
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
+
+#include "Driver.h"
 
 enum LINK_TYPE {
     VP_LINK_NUMERIC,
@@ -58,7 +59,8 @@ enum LINK_TYPE {
     VP_LINK_ARRAY,
     VP_LINK_TEXTURE,
     VP_LINK_AUDIO,
-    VP_LINK_SPECIAL
+    VP_LINK_SPECIAL,
+    VP_LINK_PIXELS
 };
 
 struct PatchLink{
@@ -83,7 +85,6 @@ class PatchObject : public ofxVPHasUID {
 
 public:
 
-    //PatchObject();// : ofxVPHasUID("");
     PatchObject(const std::string& _customUID = "patchObject");
     virtual ~PatchObject();
 
@@ -102,7 +103,7 @@ public:
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) {}
-    virtual void            drawObjectContent( ofxFontStash *font ) {}
+    virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
@@ -198,6 +199,10 @@ public:
     // UTILS
     void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
 
+    // PUGG Plugin System
+    static const int version = 1;
+    static const std::string server_name() {return "PatchObjectServer";}
+
     // patch object connections
     vector<shared_ptr<PatchLink>>      outPut;
     vector<bool>            inletsConnected;
@@ -269,6 +274,14 @@ protected:
     bool                    willErase;
     float                   retinaScale;
 
+};
+
+// PUGG driver class
+class PatchObjectDriver : public pugg::Driver
+{
+public:
+    PatchObjectDriver(string name, int version) : pugg::Driver(PatchObject::server_name(),name,version) {}
+    virtual PatchObject* create() = 0;
 };
 
 // This macro allows easy object registration

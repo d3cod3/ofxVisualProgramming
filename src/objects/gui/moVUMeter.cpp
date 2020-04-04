@@ -79,7 +79,7 @@ void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moVUMeter::drawObjectContent(ofxFontStash *font){
+void moVUMeter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
     if(this->inletsConnected[0]){
         int numRect = static_cast<int>(floor(ofClamp(ofMap(RMS,0.0,1.0,0,14),0,14)));
@@ -102,6 +102,6 @@ void moVUMeter::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI)
 
 #endif

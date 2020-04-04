@@ -121,7 +121,7 @@ void HPCPExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void HPCPExtractor::drawObjectContent(ofxFontStash *font){
+void HPCPExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);
@@ -140,6 +140,6 @@ void HPCPExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( HPCPExtractor , "hpcp extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( HPCPExtractor , "hpcp extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

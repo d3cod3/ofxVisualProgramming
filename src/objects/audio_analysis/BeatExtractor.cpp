@@ -97,7 +97,7 @@ void BeatExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void BeatExtractor::drawObjectContent(ofxFontStash *font){
+void BeatExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(*(float *)&_outletParams[0] > 0){
@@ -112,6 +112,6 @@ void BeatExtractor::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( BeatExtractor , "beat extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( BeatExtractor , "beat extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

@@ -119,7 +119,7 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moComment::drawObjectContent(ofxFontStash *font){
+void moComment::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     paragraph->draw();
@@ -206,6 +206,6 @@ void moComment::saveCommentSetting(){
     }
 }
 
-OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)
 
 #endif

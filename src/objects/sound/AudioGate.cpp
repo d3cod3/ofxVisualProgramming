@@ -126,7 +126,7 @@ void AudioGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void AudioGate::drawObjectContent(ofxFontStash *font){
+void AudioGate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     waveform.draw();
@@ -149,6 +149,6 @@ void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 }
 
-OBJECT_REGISTER( AudioGate, "audio gate", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( AudioGate, "audio gate", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

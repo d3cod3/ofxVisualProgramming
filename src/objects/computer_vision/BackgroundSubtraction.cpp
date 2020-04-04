@@ -169,7 +169,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>>
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::drawObjectContent(ofxFontStash *font){
+void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE STUFF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -396,6 +396,6 @@ void BackgroundSubtraction::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV)
 
 #endif

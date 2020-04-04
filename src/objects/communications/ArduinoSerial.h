@@ -48,7 +48,7 @@ public:
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
 
     void            mouseMovedObjectContent(ofVec3f _m);
@@ -80,7 +80,7 @@ public:
     ofxDatGuiMatrix*            deviceSelector;
     ofxDatGuiDropdown*          baudRates;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };
 
 #endif

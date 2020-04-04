@@ -124,7 +124,7 @@ void VectorAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void VectorAt::drawObjectContent(ofxFontStash *font){
+void VectorAt::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
@@ -186,6 +186,6 @@ void VectorAt::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA)
 
 #endif

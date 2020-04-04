@@ -126,7 +126,7 @@ void pdspLowCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void pdspLowCut::drawObjectContent(ofxFontStash *font){
+void pdspLowCut::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -216,6 +216,6 @@ void pdspLowCut::onSliderEvent(ofxDatGuiSliderEvent e){
     freq_ctrl.set(ofClamp(static_cast<float>(e.value),20.0f,20000.0f));
 }
 
-OBJECT_REGISTER( pdspLowCut, "hi pass", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspLowCut, "hi pass", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

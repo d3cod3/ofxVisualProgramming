@@ -128,7 +128,7 @@ void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void Crossfader::drawObjectContent(ofxFontStash *font){
+void Crossfader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -211,6 +211,6 @@ void Crossfader::onSliderEvent(ofxDatGuiSliderEvent e){
     fade_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
 }
 
-OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

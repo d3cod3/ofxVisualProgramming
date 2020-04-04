@@ -296,7 +296,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void ShaderObject::drawObjectContent(ofxFontStash *font){
+void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
@@ -743,6 +743,6 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
 
 }
 
-OBJECT_REGISTER( ShaderObject, "shader object", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( ShaderObject, "shader object", OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

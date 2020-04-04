@@ -98,7 +98,7 @@ void OscTriangle::setupAudioOutObjectContent(pdsp::Engine &engine){
     pitch_ctrl.enableSmoothing(50.0f);
 
     osc.out_triangle() >> this->pdspOut[0];
-    osc.out_triangle() >> scope >> engine.blackhole();
+    osc.out_sine() >> scope >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
@@ -124,7 +124,7 @@ void OscTriangle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void OscTriangle::drawObjectContent(ofxFontStash *font){
+void OscTriangle::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -166,7 +166,7 @@ void OscTriangle::audioOutObject(ofSoundBuffer &outputBuffer){
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {
         float sample = scope.getBuffer().at(i);
         float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
+        float y = ofMap(hardClip(sample), -1.0f, 1.0f, headerHeight, this->height);
         waveform.addVertex(x, y);
 
         // SIGNAL BUFFER DATA
@@ -221,6 +221,6 @@ void OscTriangle::onSliderEvent(ofxDatGuiSliderEvent e){
     oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }
 
-OBJECT_REGISTER( OscTriangle, "triangle", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( OscTriangle, "triangle", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

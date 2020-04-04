@@ -163,7 +163,7 @@ void Map::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, of
 }
 
 //--------------------------------------------------------------
-void Map::drawObjectContent(ofxFontStash *font){
+void Map::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
@@ -246,6 +246,6 @@ void Map::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH)
 
 #endif

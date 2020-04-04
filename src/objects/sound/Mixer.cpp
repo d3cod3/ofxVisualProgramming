@@ -102,7 +102,7 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, 
 }
 
 //--------------------------------------------------------------
-void Mixer::drawObjectContent(ofxFontStash *font){
+void Mixer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     waveform.draw();
@@ -143,6 +143,6 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

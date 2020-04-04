@@ -127,7 +127,7 @@ void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void VideoStreaming::drawObjectContent(ofxFontStash *font){
+void VideoStreaming::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();
@@ -250,6 +250,6 @@ void VideoStreaming::onToggleEvent(ofxDatGuiToggleEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

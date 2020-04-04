@@ -30,7 +30,10 @@ Desktop.ini
 *.app
 *.dSYM
 example_ofxVisualProgramming/bin/.tmp
+example_ImGui/bin/.tmp
 bin/.tmp
 obj/
 **/build-ofxVisualProgramming_example-Desktop-Debug
 **/build-ofxVisualProgramming_example-Desktop-Release
+**/build-example_ImGui-Desktop-Debug
+**/build-example_ImGui-Desktop-Release

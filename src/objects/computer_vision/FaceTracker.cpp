@@ -30,6 +30,7 @@
 
 ==============================================================================*/
 
+
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
 #elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
@@ -132,7 +133,7 @@ void FaceTracker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void FaceTracker::drawObjectContent(ofxFontStash *font){
+void FaceTracker::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

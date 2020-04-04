@@ -70,7 +70,7 @@ void moSignalViewer::newObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    loadAudioSettings();;
+    loadAudioSettings();
 }
 
 //--------------------------------------------------------------
@@ -89,7 +89,7 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::drawObjectContent(ofxFontStash *font){
+void moSignalViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
     if(this->inletsConnected[0]){
         ofSetColor(255,255,120,10);
@@ -151,6 +151,6 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
 
 }
 
-OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI)
 
 #endif

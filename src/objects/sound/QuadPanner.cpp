@@ -175,7 +175,7 @@ void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void QuadPanner::drawObjectContent(ofxFontStash *font){
+void QuadPanner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -263,6 +263,6 @@ void QuadPanner::on2dPadEvent(ofxDatGui2dPadEvent e){
     gain_ctrl4.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * static_cast<float>(e.x/pad->getBounds().width));
 }
 
-OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -121,7 +121,7 @@ void MFCCExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void MFCCExtractor::drawObjectContent(ofxFontStash *font){
+void MFCCExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);
@@ -140,6 +140,6 @@ void MFCCExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( MFCCExtractor , "mfcc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( MFCCExtractor , "mfcc extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

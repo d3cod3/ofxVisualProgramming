@@ -30,8 +30,6 @@
 
 ==============================================================================*/
 
-//#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
-
 #include "Constant.h"
 
 //--------------------------------------------------------------
@@ -47,16 +45,13 @@ Constant::Constant() :
     this->numOutlets = 2;
 
     // Bind Inlets to values
-    //_inletParams[0] = new float();  // input number
-    //*(float *)&_inletParams[0] = 0.0f;
-    *(unsigned int *)&_inletParams[0] = inputValueNew.get();
+    *(float *)&_inletParams[0] = inputValueNew.get();
 
     // Bind outlets to values
-    //_outletParams[0] = new float(); // output
-    //*(float *)&_outletParams[0] = 0.0f;
     *(float *)&_outletParams[0] = inputValueNew.get(); // float output
-    _outletParams[1] = new string(); // string output
-    *static_cast<string *>(_outletParams[1]) = ""; // default value
+
+     _outletParams[1] = new string(); // string output
+     *static_cast<string *>(_outletParams[1]) = "";
 
     this->initInletsState();
 
@@ -116,7 +111,7 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void Constant::drawObjectContent(ofxFontStash *font){
+void Constant::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -143,46 +138,44 @@ void Constant::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void Constant::mouseMovedObjectContent(ofVec3f _m){
-// Soon to be removed
-//    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-//    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    // Soon to be removed
+    //    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    //    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-//    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
+    // this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
 }
 
 //--------------------------------------------------------------
 void Constant::dragGUIObject(ofVec3f _m){
-// Soon to be removed
-//    if(this->isOverGUI){
-//        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-//        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-//    }else{
-//        ofNotifyEvent(dragEvent, nId);
+    // Soon to be removed
+    //    if(this->isOverGUI){
+    //        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    //        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+    //    }else{
+    //        ofNotifyEvent(dragEvent, nId);
 
-//        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-//        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+    //        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
+    //        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
 
-//        x = box->getPosition().x;
-//        y = box->getPosition().y;
+    //        x = box->getPosition().x;
+    //        y = box->getPosition().y;
 
-//        for(int j=0;j<static_cast<int>(outPut.size());j++){
-//            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-//            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-//        }
-//    }
+    //        for(int j=0;j<static_cast<int>(outPut.size());j++){
+    //            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+    //            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+    //        }
+    //    }
 }
 
 //--------------------------------------------------------------
 void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
-// Soon to be removed
-//    if(e.target == inputNumber){
-//        if(isInteger(e.text) || isFloat(e.text)){
-//            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"NUMBER");
-//            inputValue = ofToFloat(e.text);
-//        }
-//    }
+    // Soon to be removed
+    //    if(e.target == inputNumber){
+    //        if(isInteger(e.text) || isFloat(e.text)){
+    //            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"NUMBER");
+    //            inputValue = ofToFloat(e.text);
+    //        }
+    //    }
 }
 
-OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH);
-
-//#endif
+OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH)

@@ -177,7 +177,7 @@ void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::drawObjectContent(ofxFontStash *font){
+void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 
@@ -393,6 +393,6 @@ void VideoGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

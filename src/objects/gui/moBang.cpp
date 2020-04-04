@@ -95,7 +95,7 @@ void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void moBang::drawObjectContent(ofxFontStash *font){
+void moBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(bang){
@@ -125,6 +125,6 @@ void moBang::mouseReleasedObjectContent(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)
 
 #endif

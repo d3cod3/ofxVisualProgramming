@@ -57,8 +57,6 @@ PythonScript::PythonScript() : PatchObject(){
     mosaicTableName = "_mosaic_data_inlet";
     pythonTableName = "_mosaic_data_outlet";
     tempstring      = "";
-
-    threadLoaded    = false;
     needToLoadScript= true;
 
     lastPythonScript       = "";
@@ -82,22 +80,6 @@ void PythonScript::newObject(){
 void PythonScript::autoloadFile(string _fp){
     lastPythonScript = _fp;
     pythonScriptLoaded = true;
-}
-
-//--------------------------------------------------------------
-void PythonScript::threadedFunction(){
-    while(isThreadRunning()){
-        std::unique_lock<std::mutex> lock(mutex);
-        if(needToLoadScript){
-            needToLoadScript = false;
-            loadScript(filepath);
-            threadLoaded = true;
-            nameLabelLoaded = true;
-        }
-        condition.wait(lock);
-        sleep(10);
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -150,9 +132,6 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         //filepath = file.getAbsolutePath();
         filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
-    if(!isThreadRunning()){
-        startThread();
-    }
 
 }
 
@@ -190,7 +169,6 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         if (file.exists()){
             string fileExtension = ofToUpper(file.getExtension());
             if(fileExtension == "PY") {
-                threadLoaded = false;
                 filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
                 //filepath = file.getAbsolutePath();
                 reloadScriptThreaded();
@@ -203,7 +181,6 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         ofFile fileToRead(ofToDataPath("scripts/empty.py"));
         ofFile newPyFile (lastPythonScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
-        threadLoaded = false;
         filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
         //filepath = newPyFile.getAbsolutePath();
         reloadScriptThreaded();
@@ -215,7 +192,7 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     ///////////////////////////////////////////
     // PYTHON UPDATE
-    if(script && threadLoaded){
+    if(script){
         if(nameLabelLoaded){
             nameLabelLoaded = false;
             if(currentScriptFile.getFileName().size() > 22){
@@ -249,12 +226,17 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         }
     }
     ///////////////////////////////////////////
-    condition.notify_one();
+
+    if(needToLoadScript){
+        needToLoadScript = false;
+        loadScript(filepath);
+        nameLabelLoaded = true;
+    }
 
 }
 
 //--------------------------------------------------------------
-void PythonScript::drawObjectContent(ofxFontStash *font){
+void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     pythonIcon->draw(this->width/2,this->headerHeight*1.8f,((this->height/2.2f)/pythonIcon->getHeight())*pythonIcon->getWidth(),this->height/2.2f);
@@ -267,9 +249,6 @@ void PythonScript::drawObjectContent(ofxFontStash *font){
 void PythonScript::removeObjectContent(bool removeFileFromData){
     tempCommand.stop();
     script = ofxPythonObject::_None();
-    if(isThreadRunning()){
-        stopThread();
-    }
 
     if(removeFileFromData && filepath != ofToDataPath("scripts/empty.py",true)){
         removeFile(filepath);
@@ -433,6 +412,6 @@ void PythonScript::pathChanged(const PathWatcher::Event &event) {
 }
 
 
-OBJECT_REGISTER( PythonScript, "python script", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( PythonScript, "python script", OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

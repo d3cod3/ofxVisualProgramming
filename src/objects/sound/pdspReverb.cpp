@@ -197,7 +197,7 @@ void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void pdspReverb::drawObjectContent(ofxFontStash *font){
+void pdspReverb::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -303,6 +303,6 @@ void pdspReverb::onSliderEvent(ofxDatGuiSliderEvent e){
     
 }
 
-OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -197,7 +197,7 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void HaarTracking::drawObjectContent(ofxFontStash *font){
+void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -317,6 +317,6 @@ void HaarTracking::onButtonEvent(ofxDatGuiButtonEvent e){
     }
 }
 
-OBJECT_REGISTER( HaarTracking, "haar tracking", OFXVP_OBJECT_CAT_CV);
+OBJECT_REGISTER( HaarTracking, "haar tracking", OFXVP_OBJECT_CAT_CV)
 
 #endif

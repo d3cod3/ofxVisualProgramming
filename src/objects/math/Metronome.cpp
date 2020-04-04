@@ -129,7 +129,7 @@ void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void Metronome::drawObjectContent(ofxFontStash *font){
+void Metronome::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -183,6 +183,6 @@ void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH)
 
 #endif

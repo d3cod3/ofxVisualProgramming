@@ -95,7 +95,7 @@ void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void KeyPressed::drawObjectContent(ofxFontStash *font){
+void KeyPressed::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw("Last Key: "+ofToString(persistentKey),this->fontSize,this->width/3,this->height/2);
@@ -153,6 +153,6 @@ void KeyPressed::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

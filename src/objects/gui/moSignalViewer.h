@@ -46,7 +46,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            setupAudioOutObjectContent(pdsp::Engine &engine);
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
 
     void            loadAudioSettings();
@@ -59,7 +59,7 @@ public:
     int                     bufferSize;
     int                     sampleRate;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };
 
 #endif

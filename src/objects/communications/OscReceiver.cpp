@@ -171,7 +171,7 @@ void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void OscReceiver::drawObjectContent(ofxFontStash *font){
+void OscReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -513,6 +513,6 @@ string OscReceiver::getLocalIP(){
     return IP;
 }
 
-OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS);
+OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

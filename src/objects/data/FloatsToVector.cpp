@@ -88,7 +88,7 @@ void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void FloatsToVector::drawObjectContent(ofxFontStash *font){
+void FloatsToVector::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     for(int i=0;i<this->numInlets;i++){
@@ -102,6 +102,6 @@ void FloatsToVector::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA)
 
 #endif

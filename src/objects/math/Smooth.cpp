@@ -110,7 +110,7 @@ void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void Smooth::drawObjectContent(ofxFontStash *font){
+void Smooth::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -156,6 +156,6 @@ void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
     this->setCustomVar(static_cast<float>(e.value),"SMOOTHING");
 }
 
-OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH)
 
 #endif

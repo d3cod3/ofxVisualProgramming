@@ -102,7 +102,7 @@ void Inequality::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void Inequality::drawObjectContent(ofxFontStash *font){
+void Inequality::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -154,6 +154,6 @@ void Inequality::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Inequality, "!=", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

@@ -116,7 +116,7 @@ void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void FftExtractor::drawObjectContent(ofxFontStash *font){
+void FftExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);
@@ -135,6 +135,6 @@ void FftExtractor::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

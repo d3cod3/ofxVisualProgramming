@@ -175,7 +175,7 @@ void ProcessingScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void ProcessingScript::drawObjectContent(ofxFontStash *font){
+void ProcessingScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 
@@ -424,6 +424,6 @@ void ProcessingScript::pathChanged(const PathWatcher::Event &event) {
 }
 
 
-OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING);
+OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

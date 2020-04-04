@@ -30,11 +30,11 @@
 
 ==============================================================================*/
 
-#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
-
 
 // A Synths class collection from ofxPDSP (amazing addon) examples synths from Nicola Pisanti:
 // https://github.com/npisanti/ofxPDSP
+
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
 #pragma once
 
@@ -84,6 +84,8 @@ struct BassPattern : public pdsp::Sequence{
     BassPattern(){
 
         sequence = { 29.0f, 31.f, 34.f, 36.f, 38.f, 41.f, 43.f, 29.f };
+
+#endif
         
         code = [&] () noexcept {
             if (counter() == 4 ) resetCount(); 
@@ -112,6 +114,8 @@ struct BassPattern : public pdsp::Sequence{
             end();
                       
         };
+
+#endif
         
     }
 
@@ -120,6 +124,8 @@ struct BassPattern : public pdsp::Sequence{
     std::vector<float> sequence;
     
 };
+
+#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class Zap : public pdsp::Patchable{
@@ -166,6 +172,8 @@ private:
 
 };
 
+#endif
+
 
 class Zaps {
 
@@ -207,6 +215,8 @@ private:
 
 };
 
+#endif
+
 // ----------------------------------------------------------------------------------------------------------------------------
 class SineBleep : public pdsp::Patchable{
 public:
@@ -229,6 +239,8 @@ private:
     pdsp::ADSR env;
     
 };
+
+#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class KickSynth : public pdsp::Patchable{
@@ -255,6 +267,8 @@ private:
     pdsp::AHR           modEnv;
     pdsp::PatchNode     trigger_in;
 };
+
+#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class BassSynth : public pdsp::Patchable{
@@ -286,6 +300,8 @@ private:
     pdsp::Saturator1    drive;
     pdsp::PatchNode     trigger_in;
 };
+
+#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class SlideSynth : public pdsp::Patchable{
@@ -342,6 +358,8 @@ private:
     pdsp::VAFilter      filter; // 24dB multimode filter
 
 };
+
+#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class MultiSampler : public pdsp::Patchable{
@@ -404,6 +422,8 @@ private:
     std::vector<pdsp::SampleBuffer*> samples;
 };
 
+#endif
+
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class Reese : public pdsp::Patchable{
@@ -445,5 +465,5 @@ private:
     
 };
 
-
 #endif
+

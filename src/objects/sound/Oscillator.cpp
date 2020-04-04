@@ -124,7 +124,7 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void Oscillator::drawObjectContent(ofxFontStash *font){
+void Oscillator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -221,6 +221,6 @@ void Oscillator::onSliderEvent(ofxDatGuiSliderEvent e){
     oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
 }
 
-OBJECT_REGISTER( Oscillator, "sine", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( Oscillator, "sine", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

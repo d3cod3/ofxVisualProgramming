@@ -122,7 +122,7 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void DataToFile::drawObjectContent(ofxFontStash *font){
+void DataToFile::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();
@@ -216,6 +216,6 @@ void DataToFile::appendLineToFile(string filepath, string line){
     file.close();
 }
 
-OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA);
+OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA)
 
 #endif

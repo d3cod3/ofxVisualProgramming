@@ -78,7 +78,7 @@ void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moTrigger::drawObjectContent(ofxFontStash *font){
+void moTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     if(trigger){
@@ -109,6 +109,6 @@ void moTrigger::mouseReleasedObjectContent(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI)
 
 #endif

@@ -30,8 +30,6 @@
 
 ==============================================================================*/
 
-//#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
-
 #pragma once
 
 #include "PatchObject.h"
@@ -45,7 +43,7 @@ public:
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
-    void            drawObjectContent(ofxFontStash *font) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            removeObjectContent(bool removeFileFromData=false) override;
 
@@ -60,7 +58,5 @@ public:
     float                       inputValue; // to be replaced soon by variable below
     ofxVPObjectParameter<float> inputValueNew;
 
-    OBJECT_FACTORY_PROPS;
+    OBJECT_FACTORY_PROPS
 };
-
-//#endif

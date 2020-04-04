@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
     // Mosaic main visual-programming window
     shared_ptr<ofAppBaseWindow> mosaicWindow = ofCreateWindow(settings);
 
-    TIME_SAMPLE_SET_FRAMERATE(30);
+    TIME_SAMPLE_SET_FRAMERATE(25);
 
     ofRunApp(mosaicWindow,mosaicApp);
     ofRunMainLoop();

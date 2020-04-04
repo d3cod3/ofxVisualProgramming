@@ -122,7 +122,7 @@ void Range::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, 
 }
 
 //--------------------------------------------------------------
-void Range::drawObjectContent(ofxFontStash *font){
+void Range::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -180,6 +180,6 @@ void Range::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH);
+OBJECT_REGISTER( Range, "range", OFXVP_OBJECT_CAT_MATH)
 
 #endif

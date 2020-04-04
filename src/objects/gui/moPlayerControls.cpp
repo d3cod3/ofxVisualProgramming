@@ -154,7 +154,7 @@ void moPlayerControls::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 }
 
 //--------------------------------------------------------------
-void moPlayerControls::drawObjectContent(ofxFontStash *font){
+void moPlayerControls::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -239,6 +239,6 @@ void moPlayerControls::onToggleEvent(ofxDatGuiToggleEvent e){
 
 }
 
-OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI)
 
 #endif

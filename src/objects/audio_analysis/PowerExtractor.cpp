@@ -123,7 +123,7 @@ void PowerExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void PowerExtractor::drawObjectContent(ofxFontStash *font){
+void PowerExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -136,6 +136,6 @@ void PowerExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( PowerExtractor , "power extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( PowerExtractor , "power extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

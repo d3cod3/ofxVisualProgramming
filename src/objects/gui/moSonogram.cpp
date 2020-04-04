@@ -112,7 +112,7 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void moSonogram::drawObjectContent(ofxFontStash *font){
+void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
     if(this->inletsConnected[0]){
         sonogram->begin();
@@ -198,6 +198,6 @@ void moSonogram::dragGUIObject(ofVec3f _m){
     }
 }
 
-OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI);
+OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI)
 
 #endif

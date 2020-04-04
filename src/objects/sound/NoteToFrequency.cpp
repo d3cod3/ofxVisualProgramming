@@ -147,7 +147,7 @@ void NoteToFrequency::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void NoteToFrequency::drawObjectContent(ofxFontStash *font){
+void NoteToFrequency::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw("Frequency: "+ofToString(*(float *)&_outletParams[0],2),this->fontSize,this->width/3 + 4,this->headerHeight*4);
@@ -216,6 +216,6 @@ float NoteToFrequency::frequencyToPitch(float freq){
     return pdsp::f2p(freq);
 }
 
-OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

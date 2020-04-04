@@ -30,8 +30,6 @@
 
 ==============================================================================*/
 
-//#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
-
 #include "ExampleObject.h"
 
 //--------------------------------------------------------------
@@ -92,7 +90,7 @@ void ExampleObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void ExampleObject::drawObjectContent(ofxFontStash *font){
+void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
 //    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -100,7 +98,7 @@ void ExampleObject::drawObjectContent(ofxFontStash *font){
 //    }
     //cout << getUID() << endl;
 
-    ofDrawEllipse(glm::vec2(this->x, this->y), this->width, this->height);
+    ofDrawEllipse(glm::vec2(this->getPos().x, this->getPos().y), this->getObjectWidth(), this->getObjectHeight());
 
     ofDisableAlphaBlending();
 }
@@ -165,6 +163,4 @@ void ExampleObject::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 // REGISTER OBJECT ON COMPILATION TIME
-OBJECT_REGISTER( ExampleObject, "Example Object", OFXVP_OBJECT_CAT_GRAPHICS);
-
-//#endif
+OBJECT_REGISTER( ExampleObject, "Example Object", OFXVP_OBJECT_CAT_GRAPHICS)

@@ -137,7 +137,7 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void VideoExporter::drawObjectContent(ofxFontStash *font){
+void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofSetCircleResolution(50);
     ofEnableAlphaBlending();
@@ -291,6 +291,6 @@ void VideoExporter::onDropdownEvent(ofxDatGuiDropdownEvent e){
     }
 }
 
-OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO);
+OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO)
 
 #endif

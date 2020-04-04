@@ -44,6 +44,7 @@
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
 
+#include "Kernel.h"
 #include "PatchObject.h"
 
 
@@ -54,8 +55,9 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            setup( ofxImGui::Gui* guiRef = nullptr );
+    void            setup(ofxImGui::Gui* guiRef = nullptr);
     void            update();
+    void            updateCanvasGUI();
     void            updateCanvasViewport();
     void            draw();
     void            drawLivePatchingSession();
@@ -128,6 +130,9 @@ public:
     int                     scaleFactor;
     int                     linkActivateDistance;
 
+    // PUGG external plugins objects
+    pugg::Kernel            plugins_kernel;
+
     // PATCH OBJECTS
     map<int,shared_ptr<PatchObject>>   patchObjects;
     map<string,string>      scriptsObjectsFilesPaths;
@@ -166,6 +171,7 @@ public:
     bool                            inited;
 
     // GUI
+    bool                            isVPMouseMoving;
     bool                            isVPDragging;
     bool                            isHoverMenu;
     bool                            isHoverLogger;

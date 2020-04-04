@@ -102,7 +102,7 @@ void SmallerThan::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void SmallerThan::drawObjectContent(ofxFontStash *font){
+void SmallerThan::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     gui->draw();
@@ -154,6 +154,6 @@ void SmallerThan::onTextInputEvent(ofxDatGuiTextInputEvent e){
     }
 }
 
-OBJECT_REGISTER( SmallerThan, "<", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( SmallerThan, "<", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

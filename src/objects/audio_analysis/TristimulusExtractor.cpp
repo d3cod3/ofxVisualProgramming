@@ -121,7 +121,7 @@ void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void TristimulusExtractor::drawObjectContent(ofxFontStash *font){
+void TristimulusExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofSetColor(255,220,110,120);
@@ -140,6 +140,6 @@ void TristimulusExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( TristimulusExtractor , "tristimulus extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS);
+OBJECT_REGISTER( TristimulusExtractor , "tristimulus extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

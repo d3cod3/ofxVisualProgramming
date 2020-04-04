@@ -129,7 +129,7 @@ void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::drawObjectContent(ofxFontStash *font){
+void pdspDecimator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
     ofDrawRectangle(0,0,this->width,this->height);
     ofEnableAlphaBlending();
@@ -215,6 +215,6 @@ void pdspDecimator::onSliderEvent(ofxDatGuiSliderEvent e){
     freq_ctrl.set(ofMap(ofClamp(static_cast<float>(e.value),0.0f,1.0f),0.0f,1.0f,2.0f,1600.0f,true));
 }
 
-OBJECT_REGISTER( pdspDecimator, "decimator", OFXVP_OBJECT_CAT_SOUND);
+OBJECT_REGISTER( pdspDecimator, "decimator", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

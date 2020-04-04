@@ -104,7 +104,7 @@ void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, o
 }
 
 //--------------------------------------------------------------
-void Gate::drawObjectContent(ofxFontStash *font){
+void Gate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
     ofDisableAlphaBlending();
@@ -115,6 +115,6 @@ void Gate::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( Gate, "gate", OFXVP_OBJECT_CAT_LOGIC);
+OBJECT_REGISTER( Gate, "gate", OFXVP_OBJECT_CAT_LOGIC)
 
 #endif
