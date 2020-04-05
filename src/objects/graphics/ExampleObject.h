@@ -36,7 +36,9 @@
 #include "PatchObject.h"
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
-
+#include "ofxVPEnumParam.h"
+#include "ofxVPFloatParam.h"
+#include "ofxVPIntParam.h"
 
 // Extend the right classes you need to rely on.
 class ExampleObject : public PatchObject/* , public ofThread*/ {
@@ -63,8 +65,8 @@ public:
 
     void            threadedFunction();
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
+    //ofxDatGui*              gui;
+    //ofxDatGuiHeader*        header;
     //ofxDatGuiSlider*        qualitySlider;
     //ofxDatGuiSlider*        qualityVariationSlider;
     //ofxDatGuiSlider*        subSamplingSlider;
@@ -74,8 +76,9 @@ public:
 protected:
     //float opacity;
     //ofMutex objectMutex;
-    ofxVPObjectParameter<unsigned int> intParam;
-    ofxVPObjectParameter<float> floatParam;
+    ofxVPObjectParameter<int> intParam;
+    ofxVPFloatParam floatParam;
+    ofxVPEnumParam myEnumParam;
     unsigned int test;
 
 private:
