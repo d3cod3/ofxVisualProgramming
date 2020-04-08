@@ -87,11 +87,11 @@ void Spigot::newObject(){
     this->addInlet(VP_LINK_ARRAY,"vector");
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addInlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_STRING);
-    this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_AUDIO);
+    this->addOutlet(VP_LINK_NUMERIC,"float");
+    this->addOutlet(VP_LINK_STRING,"string");
+    this->addOutlet(VP_LINK_ARRAY,"vector");
+    this->addOutlet(VP_LINK_TEXTURE,"texture");
+    this->addOutlet(VP_LINK_AUDIO,"signal");
 }
 
 //--------------------------------------------------------------
