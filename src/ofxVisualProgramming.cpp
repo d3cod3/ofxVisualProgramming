@@ -66,7 +66,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     fontSize                = 12;
     isRetina                = false;
     scaleFactor             = 1;
-    linkActivateDistance    = 5;
+    linkActivateDistance    = 10;
     isVPMouseMoving         = false;
     isVPDragging            = false;
 
@@ -192,9 +192,6 @@ void ofxVisualProgramming::update(){
 
     }
 
-    // Graphical Context
-    canvas.update();
-
     // Clear map from deleted objects
     if(ofGetElapsedTimeMillis()-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
@@ -259,38 +256,11 @@ void ofxVisualProgramming::update(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::updateCanvasGUI(){
+void ofxVisualProgramming::updateLinksInletsPositions(){
 
-    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(isVPDragging){
-                if(it->second->isOver(ofPoint(actualMouse.x,actualMouse.y,0))){
-                    draggingObject = true;
-                    draggingObjectID = it->first;
-                }
-                for(int p=0;p<static_cast<int>(it->second->outPut.size());p++){
-                    if(it->second->outPut[p]->toObjectID == selectedObjectID){
-                        if(isRetina){
-                            it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-40,it->second->outPut[p]->posTo.y);
-                        }else{
-                            it->second->outPut[p]->linkVertices[2].move(it->second->outPut[p]->posTo.x-20,it->second->outPut[p]->posTo.y);
-                        }
-                        it->second->outPut[p]->linkVertices[3].move(it->second->outPut[p]->posTo.x,it->second->outPut[p]->posTo.y);
-                    }
-                }
-                if(selectedObjectID != it->first){
-                    for (int j=0;j<it->second->getNumInlets();j++){
-                        if(it->second->getInletPosition(j).distance(actualMouse) < linkActivateDistance){
-                            if(it->second->getInletType(j) == selectedObjectLinkType){
-                                it->second->setInletMouseNear(j,true);
-                            }
-                        }else{
-                            it->second->setInletMouseNear(j,false);
-                        }
-                    }
-                }
-
-            }
+    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        for(int p=0;p<static_cast<int>(patchObjects[leftToRightIndexOrder[i].second]->outPut.size());p++){
+            patchObjects[leftToRightIndexOrder[i].second]->outPut[p]->linkVertices[1].set(patchObjects[leftToRightIndexOrder[i].second]->outPut[p]->posTo.x,patchObjects[leftToRightIndexOrder[i].second]->outPut[p]->posTo.y);
         }
 
     }
@@ -347,62 +317,7 @@ void ofxVisualProgramming::draw(){
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
     bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
     if ( isCanvasVisible ){
-        //nodeCanvas.DrawFrameBorder(false);
 
-        // Draw a demo Node (temp)
-        /*{
-            static ImVec2 pos1( 50, 20);
-            static ImVec2 size1( 200, 150 );
-            if(nodeCanvas.BeginNode("testNode", pos1, size1, 4, 2)){
-
-                // Inlets
-                ImVec2 pos[4]; // Will hold positions afterwards
-                nodeCanvas.AddNodePin("test", pos[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-                nodeCanvas.AddNodePin("test2", pos[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-                nodeCanvas.AddNodePin("test3", pos[2], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-                nodeCanvas.AddNodePin("test4", pos[3], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Left );
-
-                // Oulets
-                ImVec2 pos2[2]; // Will hold positions afterwards
-                nodeCanvas.AddNodePin("test", pos2[0], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
-                nodeCanvas.AddNodePin("test2", pos2[1], IM_COL32(255,0,0,255), ImGuiExNodePinsFlags_Right );
-
-                // Menu
-                if(nodeCanvas.BeginNodeMenu()){
-                    ImGui::MenuItem("Menu From User code !");
-                    nodeCanvas.EndNodeMenu();
-                }
-
-                // Info view
-                if( nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
-                    ImGui::Button("Node Button22", ImVec2(-1,20));
-                    ImGui::Button("Node Button");
-                    ImGui::TextUnformatted("Hello World!");
-                    ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
-                    ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
-                    ImGui::TextWrapped("PrevItemSize: %f, %f", ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y);//
-                    ImGui::TextWrapped("WindowSize: %f, %f", ImGui::GetCurrentWindow()->Rect().GetSize().x, ImGui::GetCurrentWindow()->Rect().GetSize().y);
-                    ImGui::TextWrapped("WidgetSize: %f, %f", size1.x, size1.y);
-                    ImGui::TextWrapped("AvailableCRWidth: %f", ImGui::GetContentRegionAvailWidth());
-                    nodeCanvas.EndNodeContent();
-                }
-
-                // Any other view
-                else if( nodeCanvas.BeginNodeContent() ){
-                    if(nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-                        ImGui::Text("Cur View :Parameters");
-                    }
-                    else {
-                        ImGui::Text("Unknown View : %d", nodeCanvas.GetNodeData().viewName );
-                    }
-                    nodeCanvas.EndNodeContent();
-                }
-
-            }
-
-            // Close Node
-            nodeCanvas.EndNode();
-        }*/
     }
 
     // Render objects.
@@ -421,7 +336,7 @@ void ofxVisualProgramming::draw(){
             patchObjects[leftToRightIndexOrder[i].second]->drawImGuiNode(nodeCanvas);
         }
 
-        // Record timimgs
+        // Record timings
         TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
     }
 
@@ -430,56 +345,6 @@ void ofxVisualProgramming::draw(){
 
     // We're done drawing to IMGUI
     ofxVPGui->end();
-
-    // draw outlet cables with var name
-    if(selectedObjectLink >= 0 && isOutletSelected){
-        int lt = patchObjects[selectedObjectID]->getOutletType(selectedObjectLink);
-        switch(lt) {
-        case 0: ofSetColor(COLOR_NUMERIC_LINK);
-            break;
-        case 1: ofSetColor(COLOR_STRING_LINK);
-            break;
-        case 2: ofSetColor(COLOR_ARRAY_LINK);
-            break;
-        case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
-            break;
-        case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
-            break;
-        case 5: ofSetColor(COLOR_SCRIPT_LINK); ofSetLineWidth(1);
-            break;
-        case 6: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
-            break;
-        default: break;
-        }
-        ofDrawLine(patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).x, patchObjects[selectedObjectID]->getOutletPosition(selectedObjectLink).y, canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-        // Draw outlet type name
-        switch(lt) {
-        case 0: patchObjects[selectedObjectID]->linkTypeName = "float";
-            break;
-        case 1: patchObjects[selectedObjectID]->linkTypeName = "string";
-            break;
-        case 2: patchObjects[selectedObjectID]->linkTypeName = "vector<float>";
-            break;
-        case 3: patchObjects[selectedObjectID]->linkTypeName = "ofTexture";
-            break;
-        case 4: patchObjects[selectedObjectID]->linkTypeName = "ofSoundBuffer";
-            break;
-        case 5: patchObjects[selectedObjectID]->linkTypeName = patchObjects[selectedObjectID]->specialLinkTypeName;
-            break;
-        case 6: patchObjects[selectedObjectID]->linkTypeName = "ofPixels";
-            break;
-        default: patchObjects[selectedObjectID]->linkTypeName = "";
-            break;
-        }
-
-        if(isRetina){
-            font->draw(patchObjects[selectedObjectID]->linkTypeName+" "+patchObjects[selectedObjectID]->getOutletName(selectedObjectLink),fontSize/2,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
-        }else{
-            font->draw(patchObjects[selectedObjectID]->linkTypeName+" "+patchObjects[selectedObjectID]->getOutletName(selectedObjectLink),fontSize,canvas.getMovingPoint().x + (10*scaleFactor),canvas.getMovingPoint().y);
-        }
-
-    }
 
     canvas.end();
 
@@ -503,7 +368,9 @@ void ofxVisualProgramming::draw(){
     ofPopStyle();
     ofPopView();
 
-    updateCanvasGUI();
+    // Graphical Context
+    canvas.update();
+    updateLinksInletsPositions();
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
@@ -612,9 +479,6 @@ void ofxVisualProgramming::exit(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
-        return;
-
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
 
     isVPMouseMoving = true;
@@ -650,19 +514,14 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
-        return;
-
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-    canvas.mousePressed(e);
 
     isOutletSelected = false;
     selectedObjectLink = -1;
     selectedObjectLinkType = -1;
     pressedObjectID = -1;
 
-    if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
+    if(!isHoverLogger && !isHoverCodeEditor){
 
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(patchObjects[it->first] != nullptr){
@@ -710,21 +569,20 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     }
 
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
+        return;
+
+    canvas.mousePressed(e);
 
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
-        return;
-
     isVPDragging    = false;
     isVPMouseMoving = false;
 
     actualMouse = ofVec2f(canvas.getMovingPoint().x,canvas.getMovingPoint().y);
-
-    canvas.mouseReleased(e);
 
     bool isLinked = false;
 
@@ -755,41 +613,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
         }
     }
 
-    if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && patchObjects[selectedObjectID]->outPut.size()>0 && isOutletSelected){
-        vector<bool> tempEraseLinks;
-        for(int j=0;j<static_cast<int>(patchObjects[selectedObjectID]->outPut.size());j++){
-            //ofLog(OF_LOG_NOTICE,"Object %i have link to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[j]->toObjectID);
-            if(patchObjects[selectedObjectID]->outPut[j]->fromOutletID == selectedObjectLink){
-                tempEraseLinks.push_back(true);
-            }else{
-                tempEraseLinks.push_back(false);
-            }
-        }
-
-        vector<shared_ptr<PatchLink>> tempBuffer;
-        tempBuffer.reserve(patchObjects[selectedObjectID]->outPut.size()-tempEraseLinks.size());
-
-        for (size_t i=0; i<patchObjects[selectedObjectID]->outPut.size(); i++){
-            if(!tempEraseLinks[i]){
-                tempBuffer.push_back(patchObjects[selectedObjectID]->outPut[i]);
-            }else{
-                patchObjects[selectedObjectID]->removeLinkFromConfig(selectedObjectLink);
-                if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID] != nullptr){
-                    patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->inletsConnected[patchObjects[selectedObjectID]->outPut[i]->toInletID] = false;
-                    if(patchObjects[selectedObjectID]->getIsPDSPPatchableObject() || patchObjects[selectedObjectID]->getName() == "audio device"){
-                        patchObjects[selectedObjectID]->pdspOut[i].disconnectOut();
-                    }
-                    if(patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
-                        patchObjects[patchObjects[selectedObjectID]->outPut[i]->toObjectID]->pdspIn[patchObjects[selectedObjectID]->outPut[i]->toInletID].disconnectIn();
-                    }
-                }
-                //ofLog(OF_LOG_NOTICE,"Removed link from %i to %i",selectedObjectID,patchObjects[selectedObjectID]->outPut[i]->toObjectID);
-            }
-        }
-
-        patchObjects[selectedObjectID]->outPut = tempBuffer;
-
-    }else if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && !isOutletSelected){
+    if(!isLinked && selectedObjectLinkType != -1 && selectedObjectLink != -1 && selectedObjectID != -1 && !patchObjects.empty() && patchObjects[selectedObjectID] != nullptr && !isOutletSelected){
         // Disconnect selected --> inlet link
         disconnectSelected(selectedObjectID,selectedObjectLink);
 
@@ -801,6 +625,11 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 
     draggingObject          = false;
     draggingObjectID        = -1;
+
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
+        return;
+
+    canvas.mouseReleased(e);
 
 }
 
@@ -822,8 +651,16 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
         return;
 
     if(!isHoverCodeEditor){
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            it->second->keyPressed(e.key);
+        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+            patchObjects[leftToRightIndexOrder[i].second]->keyPressed(e.key);
+
+            if(e.key == OF_KEY_BACKSPACE){
+                for (int j=0;j<patchObjects[leftToRightIndexOrder[i].second]->linksToDisconnect.size();j++){
+                    disconnectLink(patchObjects[leftToRightIndexOrder[i].second]->linksToDisconnect.at(j));
+                }
+                patchObjects[leftToRightIndexOrder[i].second]->linksToDisconnect.clear();
+            }
+
         }
     }
 }
@@ -1271,18 +1108,19 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
 
-        tempLink->posFrom = patchObjects[fromID]->getOutletPosition(fromOutlet);
-        tempLink->posTo = patchObjects[toID]->getInletPosition(toInlet);
-        tempLink->type = patchObjects[toID]->getInletType(toInlet);
-        tempLink->fromOutletID = fromOutlet;
-        tempLink->toObjectID = toID;
-        tempLink->toInletID = toInlet;
-        tempLink->isDisabled = false;
+        string tmpID = ofToString(fromID)+ofToString(fromOutlet)+ofToString(toID)+ofToString(toInlet);
 
-        tempLink->linkVertices.push_back(DraggableVertex(tempLink->posFrom.x,tempLink->posFrom.y));
-        tempLink->linkVertices.push_back(DraggableVertex(tempLink->posFrom.x+20,tempLink->posFrom.y));
-        tempLink->linkVertices.push_back(DraggableVertex(tempLink->posTo.x-20,tempLink->posTo.y));
-        tempLink->linkVertices.push_back(DraggableVertex(tempLink->posTo.x,tempLink->posTo.y));
+        tempLink->id            = stoi(tmpID);
+        tempLink->posFrom       = patchObjects[fromID]->getOutletPosition(fromOutlet);
+        tempLink->posTo         = patchObjects[toID]->getInletPosition(toInlet);
+        tempLink->type          = patchObjects[toID]->getInletType(toInlet);
+        tempLink->fromOutletID  = fromOutlet;
+        tempLink->toObjectID    = toID;
+        tempLink->toInletID     = toInlet;
+        tempLink->isDisabled    = false;
+
+        tempLink->linkVertices.push_back(ofVec2f(tempLink->posFrom.x,tempLink->posFrom.y));
+        tempLink->linkVertices.push_back(ofVec2f(tempLink->posTo.x,tempLink->posTo.y));
 
         patchObjects[fromID]->outPut.push_back(tempLink);
 
@@ -1359,8 +1197,50 @@ void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::disconnectLink(int linkID){
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+            if(it->second->outPut[j]->id == linkID){
+                // remove link
+                vector<bool> tempEraseLinks;
+                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                    if(it->second->outPut[s]->id == linkID){
+                        tempEraseLinks.push_back(true);
+                    }else{
+                        tempEraseLinks.push_back(false);
+                    }
+                }
+
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
+
+                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                    if(!tempEraseLinks[s]){
+                        tempBuffer.push_back(it->second->outPut[s]);
+                    }else{
+                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
+                        if(patchObjects[it->second->outPut[j]->toObjectID] != nullptr){
+                            patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                            if(patchObjects[it->second->outPut[j]->toObjectID]->getIsPDSPPatchableObject()){
+                                patchObjects[it->second->outPut[j]->toObjectID]->pdspIn[it->second->outPut[j]->toInletID].disconnectIn();
+                            }
+                        }
+                    }
+                }
+
+                it->second->outPut = tempBuffer;
+
+                break;
+            }
+
+        }
+
+    }
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int linkType){
-    if(patchObjects[fromID]->getName() == "lua script" || patchObjects[fromID]->getName() == "python script"){
+    if(patchObjects[fromID]->getName() == "lua script"){
         if((patchObjects[fromID]->getName() == "shader object" || patchObjects[toID]->getName() == "output window") && linkType == VP_LINK_TEXTURE){
             patchObjects[fromID]->resetResolution(toID,patchObjects[toID]->getOutputWidth(),patchObjects[toID]->getOutputHeight());
         }

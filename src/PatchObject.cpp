@@ -124,6 +124,9 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     inletsMouseNear.assign(MAX_OUTLETS,false);
 
+    inletsPositionOF.assign(inlets.size(),ofVec2f(0));
+    outletsPositionOF.assign(outlets.size(),ofVec2f(0));
+
     setupObjectContent(mainWindow);
 
 }
@@ -178,140 +181,6 @@ void PatchObject::draw(ofxFontStash *font){
     if(!willErase){
         ofPushStyle();
         if(!iconified){
-            // Draw inlets
-            ofSetCircleResolution(6);
-            for(int i=0;i<static_cast<int>(inlets.size());i++){
-                int it = getInletType(i);
-                ofSetLineWidth(1);
-                switch(it) {
-                case 0: ofSetColor(COLOR_NUMERIC);
-                    break;
-                case 1: ofSetColor(COLOR_STRING);
-                    break;
-                case 2: ofSetColor(COLOR_ARRAY);
-                    break;
-                case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
-                    break;
-                case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
-                    break;
-                case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
-                    break;
-                case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
-                    break;
-                default: break;
-                }
-                ofPushMatrix();
-                ofTranslate(getInletPosition(i).x, getInletPosition(i).y);
-                ofRotateZDeg(30);
-                ofNoFill();
-                if(inletsMouseNear.at(i)){
-                    ofSetLineWidth(3);
-                    ofDrawCircle(0, 0, 10);
-                }else{
-                    if(it == 3 || it == 4 || it == 6){
-                        ofSetLineWidth(2);
-                    }else{
-                        ofSetLineWidth(1);
-                    }
-                    ofDrawCircle(0, 0, 5);
-                }
-                if(inletsConnected[i]){
-                    ofFill();
-                    ofDrawCircle(0, 0, 3);
-                }
-                ofPopMatrix();
-
-
-            }
-
-            // Draw outlets
-            for(int i=0;i<static_cast<int>(outlets.size());i++){
-                int ot = getOutletType(i);
-                ofSetLineWidth(1);
-                switch(ot) {
-                case 0: ofSetColor(COLOR_NUMERIC);
-                    break;
-                case 1: ofSetColor(COLOR_STRING);
-                    break;
-                case 2: ofSetColor(COLOR_ARRAY);
-                    break;
-                case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
-                    break;
-                case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
-                    break;
-                case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(1);
-                    break;
-                case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
-                    break;
-                default: break;
-                }
-                ofPushMatrix();
-                ofTranslate(getOutletPosition(i).x, getOutletPosition(i).y);
-                ofRotateZDeg(30);
-                ofNoFill();
-                ofDrawCircle(0, 0, 5);
-                if(getIsOutletConnected(i)){
-                    ofFill();
-                    ofDrawCircle(0, 0, 3);
-                }
-                ofPopMatrix();
-
-            }
-            // Draw links
-            ofFill();
-            for(int j=0;j<static_cast<int>(outPut.size());j++){
-                if(!outPut[j]->isDisabled){
-                    int ot = outPut[j]->type;
-                    ofSetLineWidth(1);
-                    switch(ot) {
-                    case 0: ofSetColor(COLOR_NUMERIC_LINK);
-                        break;
-                    case 1: ofSetColor(COLOR_STRING_LINK);
-                        break;
-                    case 2: ofSetColor(COLOR_ARRAY_LINK);
-                        break;
-                    case 3: ofSetColor(COLOR_TEXTURE_LINK); ofSetLineWidth(2);
-                        break;
-                    case 4: ofSetColor(COLOR_AUDIO_LINK); ofSetLineWidth(2);
-                        break;
-                    case 5: ofSetColor(COLOR_SCRIPT_LINK);
-                        break;
-                    case 6: ofSetColor(COLOR_PIXELS_LINK); ofSetLineWidth(2);
-                        break;
-                    default: break;
-                    }
-
-                    for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
-                        if(v==0 || v==static_cast<int>(outPut[j]->linkVertices.size())-2){
-                            ofDrawLine(outPut[j]->linkVertices.at(v), outPut[j]->linkVertices.at(v+1));
-                        }else{
-                            bezierLink(outPut[j]->linkVertices.at(v), outPut[j]->linkVertices.at(v+1),ofGetStyle().lineWidth);
-                        }
-                    }
-
-                    switch(ot) {
-                    case 0: ofSetColor(COLOR_NUMERIC);
-                        break;
-                    case 1: ofSetColor(COLOR_STRING);
-                        break;
-                    case 2: ofSetColor(COLOR_ARRAY);
-                        break;
-                    case 3: ofSetColor(COLOR_TEXTURE); ofSetLineWidth(2);
-                        break;
-                    case 4: ofSetColor(COLOR_AUDIO); ofSetLineWidth(2);
-                        break;
-                    case 5: ofSetColor(COLOR_SCRIPT); ofSetLineWidth(2);
-                        break;
-                    case 6: ofSetColor(COLOR_PIXELS); ofSetLineWidth(2);
-                        break;
-                    default: break;
-                    }
-                    for (int v=1;v<static_cast<int>(outPut[j]->linkVertices.size())-1;v++) {
-                        outPut[j]->linkVertices.at(v).draw(outPut[j]->linkVertices.at(v).x,outPut[j]->linkVertices.at(v).y);
-                    }
-                }
-            }
-
             ofSetCircleResolution(50);
 
             // Draw the object box
@@ -323,7 +192,6 @@ void PatchObject::draw(ofxFontStash *font){
                 ofSetColor(*color);
             }
             ofSetLineWidth(1);
-            //ofDrawRectRounded(*box,10);
             ofDrawRectangle(*box);
 
             // Draw the specific object content ()
@@ -334,36 +202,6 @@ void PatchObject::draw(ofxFontStash *font){
             ofPopMatrix();
             ofPopStyle();
 
-            // on mouse over
-            if(bActive){
-                if(isBigGuiViewer){
-                    ofSetColor(255,255,255,5);
-                }else if(isBigGuiComment){
-                    ofSetColor(255,255,255,15);
-                }else{
-                    ofSetColor(255,255,255,40);
-                }
-                //ofDrawRectRounded(*box,10);
-                ofDrawRectangle(*box);
-            }
-
-            // on object selected
-            if(isObjectSelected){
-                ofSetColor(255,255,255,40);
-                //ofDrawRectRounded(*box,10);
-                ofDrawRectangle(*box);
-            }
-
-            // Draw inlets names
-            if(static_cast<int>(inletsNames.size()) > 0 && !isBigGuiViewer && !isBigGuiComment){
-                ofSetColor(0,0,0,180);
-                //ofDrawRectRounded(box->x,box->y,box->width/3 + (3*retinaScale),box->height,10);
-                ofDrawRectangle(box->x,box->y,box->width/3 + (3*retinaScale),box->height);
-                ofSetColor(245);
-                for(int i=0;i<static_cast<int>(inletsNames.size());i++){
-                    font->draw(inletsNames.at(i),fontSize,getInletPosition(i).x + (6*retinaScale), getInletPosition(i).y + (4*retinaScale));
-                }
-            }
         }
 
         // Draw the header
@@ -374,7 +212,6 @@ void PatchObject::draw(ofxFontStash *font){
             ofSetColor(50);
         }
 
-        //ofDrawRectRounded(*headerBox,4);
         ofDrawRectangle(*headerBox);
 
         if(!isBigGuiViewer && !isBigGuiComment){
@@ -405,15 +242,40 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
     ImVec2 imSize( this->width, this->height );
     if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), imPos, imSize, this->getNumInlets(), this->getNumOutlets() )){
 
+        // Inlets
         for(int i=0;i<static_cast<int>(inlets.size());i++){
             auto pinCol = getInletColor(i);
-            _nodeCanvas.AddNodePin( inletsNames.at(i).c_str(), inletsPositions[0], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+            vector<ImVec2> tempLinksToPos;
+            vector<int> tempLinksIDs;
+
+            _nodeCanvas.AddNodePin( inletsNames.at(i).c_str(), inletsPositions[0], tempLinksToPos, tempLinksIDs, getInletTypeName(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+
+            inletsPositionOF[i] = ofVec2f((inletsPositions[0].x - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale(), (inletsPositions[0].y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale());
         }
+
         // Outlets
-        for(int i=0;i<static_cast<int>(inlets.size());i++){
-            auto pinCol = getInletColor(i);
-            _nodeCanvas.AddNodePin( inletsNames.at(i).c_str(), outletsPositions[0], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
+        for(int i=0;i<static_cast<int>(outlets.size());i++){
+            auto pinCol = getOutletColor(i);
+
+            // links
+            vector<ImVec2> tempLinksToPos;
+            vector<int> tempLinksIDs;
+
+            for(int j=0;j<static_cast<int>(outPut.size());j++){
+                if(!outPut[j]->isDisabled && outPut[j]->fromOutletID == i){
+                    tempLinksToPos.push_back(ImVec2(outPut[j]->linkVertices[1].x,outPut[j]->linkVertices[1].y));
+                    tempLinksIDs.push_back(outPut[j]->id);
+                }
+            }
+
+            _nodeCanvas.AddNodePin( getOutletName(i).c_str(), outletsPositions[0], tempLinksToPos, tempLinksIDs, getOutletTypeName(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
+
+            outletsPositionOF[i] = ofVec2f((outletsPositions[0].x - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale(), (outletsPositions[0].y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale());
+
         }
+
+        // Refresh links to eventually disconnect (backspace key or right click menu)
+        linksToDisconnect = _nodeCanvas.getSelectedLinks();
 
         // Let objects draw their own Gui
         this->drawObjectNodeGui( _nodeCanvas );
@@ -431,6 +293,9 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas){
         this->width = imSize.x;
     if( imSize.y != this->height )
         this->height = imSize.y;
+
+    box->setPosition(this->x,this->y);
+    headerBox->setPosition(this->x,this->y);
 
 }
 
@@ -463,6 +328,7 @@ bool PatchObject::isOver(ofPoint pos){
 
 //--------------------------------------------------------------
 void PatchObject::fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects){
+
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->first != getId()){
             if(getPos().x >= it->second->getPos().x && getPos().x < it->second->getPos().x + it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
@@ -483,19 +349,6 @@ void PatchObject::fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects){
         }
     }
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-            it->second->outPut[j]->linkVertices[0].move(it->second->outPut[j]->posFrom.x,it->second->outPut[j]->posFrom.y);
-            if(isRetina){
-                it->second->outPut[j]->linkVertices[1].move(it->second->outPut[j]->posFrom.x+40,it->second->outPut[j]->posFrom.y);
-                it->second->outPut[j]->linkVertices[2].move(it->second->outPut[j]->posTo.x-40,it->second->outPut[j]->posTo.y);
-            }else{
-                it->second->outPut[j]->linkVertices[1].move(it->second->outPut[j]->posFrom.x+20,it->second->outPut[j]->posFrom.y);
-                it->second->outPut[j]->linkVertices[2].move(it->second->outPut[j]->posTo.x-20,it->second->outPut[j]->posTo.y);
-            }
-            it->second->outPut[j]->linkVertices[3].move(it->second->outPut[j]->posTo.x,it->second->outPut[j]->posTo.y);
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -515,12 +368,12 @@ void PatchObject::duplicate(){
 
 //--------------------------------------------------------------
 ofVec2f PatchObject::getInletPosition(int iid){
-    return ofVec2f(-3 + x,y + (headerHeight*2) + ((height-(headerHeight*2))/inlets.size()*iid));
+    return inletsPositionOF[iid];
 }
 
 //--------------------------------------------------------------
 ofVec2f PatchObject::getOutletPosition(int oid){
-    return ofVec2f(x + width + 3,y + (headerHeight*2) + ((height-(headerHeight*2))/outlets.size()*oid));
+    return outletsPositionOF[oid];
 }
 
 //--------------------------------------------------------------
@@ -896,11 +749,85 @@ ofColor PatchObject::getInletColor(const int& iid) const {
             break;
         case 5: return COLOR_SCRIPT;
             break;
+        case 6: return COLOR_PIXELS;
+            break;
         default:
             break;
     }
     // Default color
     return COLOR_UNKNOWN;
+}
+
+//--------------------------------------------------------------
+ofColor PatchObject::getOutletColor(const int& oid) const {
+    switch( getOutletType(oid) ) {
+        case 0: return COLOR_NUMERIC;
+            break;
+        case 1: return COLOR_STRING;
+            break;
+        case 2: return COLOR_ARRAY;
+            break;
+        case 3: return COLOR_TEXTURE;
+            break;
+        case 4: return COLOR_AUDIO;
+            break;
+        case 5: return COLOR_SCRIPT;
+            break;
+        case 6: return COLOR_PIXELS;
+            break;
+        default:
+            break;
+    }
+    // Default color
+    return COLOR_UNKNOWN;
+}
+
+//--------------------------------------------------------------
+string PatchObject::getInletTypeName(const int& iid) const{
+    switch( getInletType(iid) ) {
+        case 0: return "float";
+            break;
+        case 1: return "string";
+            break;
+        case 2: return "vector<float>";
+            break;
+        case 3: return "ofTexture";
+            break;
+        case 4: return "ofSoundBuffer";
+            break;
+        case 5: return specialLinkTypeName;
+            break;
+        case 6: return "ofPixels";
+            break;
+        default:
+            break;
+    }
+    // Default type name
+    return "";
+}
+
+//--------------------------------------------------------------
+string PatchObject::getOutletTypeName(const int& oid) const{
+    switch( getOutletType(oid) ) {
+        case 0: return "float";
+            break;
+        case 1: return "string";
+            break;
+        case 2: return "vector<float>";
+            break;
+        case 3: return "ofTexture";
+            break;
+        case 4: return "ofSoundBuffer";
+            break;
+        case 5: return specialLinkTypeName;
+            break;
+        case 6: return "ofPixels";
+            break;
+        default:
+            break;
+    }
+    // Default type name
+    return "";
 }
 
 //---------------------------------------------------------------------------------- SETTERS
@@ -959,12 +886,6 @@ void PatchObject::mouseMoved(float mx, float my){
             }
         }
 
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size());v++) {
-                outPut[j]->linkVertices[v].over(m.x,m.y);
-            }
-        }
     }
 }
 
@@ -982,22 +903,11 @@ void PatchObject::mouseDragged(float mx, float my){
             y = box->getPosition().y;
 
             for(int j=0;j<static_cast<int>(outPut.size());j++){
-                outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-                if(isRetina){
-                    outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+40,outPut[j]->posFrom.y);
-                }else{
-                    outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-                }
-
+                outPut[j]->linkVertices[0].set(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
             }
         }else if(isMouseOver && isGUIObject){
             dragGUIObject(m);
         }
-
-        /*for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[1].drag(m.x,m.y);
-            outPut[j]->linkVertices[2].drag(m.x,m.y);
-        }*/
 
     }
 
@@ -1044,12 +954,6 @@ void PatchObject::mouseReleased(float mx, float my,map<int,shared_ptr<PatchObjec
             fixCollisions(patchObjects);
 
             saveConfig(false,nId);
-        }
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            for (int v=0;v<static_cast<int>(outPut[j]->linkVertices.size());v++) {
-                outPut[j]->linkVertices[v].bOver = false;
-            }
         }
 
         for(size_t m=0;m<inletsMouseNear.size();m++){

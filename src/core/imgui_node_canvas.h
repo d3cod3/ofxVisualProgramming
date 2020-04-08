@@ -38,7 +38,7 @@
     https://github.com/ocornut/imgui/
     Inspired by several other node projects mentioned in https://github.com/ocornut/imgui/issues/306
 
-    Made for Mocaic, but could be of use in any other project.
+    Made for Mosaic, but could be of use in any other project.
     https://mosaic.d3cod3.org/
 ==============================================================================*/
 
@@ -62,13 +62,16 @@
 # define IMGUI_EX_NODE_MIN_WIDTH_NORMAL (IMGUI_EX_NODE_MIN_WIDTH_SMALL + 40)
 # define IMGUI_EX_NODE_MIN_WIDTH_LARGE (IMGUI_EX_NODE_MIN_WIDTH_NORMAL + 60)
 # define IMGUI_EX_NODE_FOOTER_HEIGHT 6
-# define IMGUI_EX_NODE_FOOTER_HANDLE_SIZE 30
+# define IMGUI_EX_NODE_FOOTER_HANDLE_SIZE 16
 # define IMGUI_EX_NODE_CONTENT_PADDING 4
 # define IMGUI_EX_NODE_PINS_WIDTH_SMALL 10
 # define IMGUI_EX_NODE_PINS_WIDTH_NORMAL 20
 # define IMGUI_EX_NODE_PINS_WIDTH_LARGE 50
 # define IMGUI_EX_NODE_PIN_WIDTH 8
 # define IMGUI_EX_NODE_PIN_WIDTH_HOVERED 12
+# define IMGUI_EX_NODE_HOVER_DISTANCE 7
+# define IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH 0.1
+# define IMGUI_EX_NODE_LINK_THICKNESS 3
 
 typedef int ImGuiExNodePinsFlags;    // -> enum ImGuiExNodePinsFlags_
 enum ImGuiExNodePinsFlags_ {
@@ -192,7 +195,7 @@ struct NodeCanvas {
     // Always call EndNodePins, only draw when it returns true.
     //void BeginNodePins( const int& _numPins, const ImGuiExNodePinsFlags& _pinFlags = ImGuiExNodePinsFlags_Left );
     //void EndNodePins();
-    void AddNodePin( const char* _label, ImVec2& _pinPosition, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
+    void AddNodePin( const char* _label, ImVec2& _pinPosition, std::vector<ImVec2>& _toPinPosition, std::vector<int> _linkIds, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
 
     // To extend the menu
     bool BeginNodeMenu();
@@ -232,6 +235,9 @@ struct NodeCanvas {
         return curNodeData;
     }
 
+    // Returns selected links
+    std::vector<int> getSelectedLinks(){ return selected_links; }
+
 private:
 //    void pushNodeWorkRect();
 //    void popNodeWorkRect();
@@ -250,6 +256,10 @@ private:
     NodeCanvasView  canvasView;
     ImDrawList* canvasDrawList = nullptr;
     ImDrawList* nodeDrawList = nullptr;
+
+    // Links data
+    std::vector<int> selected_links;
+    std::string activePin;
 };
 
 } // namespace ImGuiEx

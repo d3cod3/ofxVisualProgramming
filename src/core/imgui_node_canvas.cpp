@@ -49,10 +49,134 @@
 // NodePin Connection types in ImGui namespace
 #define IMGUI_PAYLOAD_TYPE_PIN_FLOAT     "PINF"    // float - VP_LINK_NUMERIC
 
+
+struct BezierCurve
+{
+    // the curve control points
+    ImVec2 p0, p1, p2, p3;
+};
+
+struct LinkBezierData
+{
+    BezierCurve bezier;
+    int num_segments;
+};
+
+
 // ImGui helper func
 static inline ImVec2 ImAbs(const ImVec2& lhs) {
     return ImVec2(lhs.x > 0.0f ? lhs.x : std::abs(lhs.x), lhs.y > 0.0f ? lhs.y : std::abs(lhs.y));
 }
+
+inline ImVec2 eval_bezier(float t, const BezierCurve& bezier){
+    // B(t) = (1-t)**3 p0 + 3(1 - t)**2 t P1 + 3(1-t)t**2 P2 + t**3 P3
+    return ImVec2(
+        (1 - t) * (1 - t) * (1 - t) * bezier.p0.x +
+            3 * (1 - t) * (1 - t) * t * bezier.p1.x +
+            3 * (1 - t) * t * t * bezier.p2.x + t * t * t * bezier.p3.x,
+        (1 - t) * (1 - t) * (1 - t) * bezier.p0.y +
+            3 * (1 - t) * (1 - t) * t * bezier.p1.y +
+            3 * (1 - t) * t * t * bezier.p2.y + t * t * t * bezier.p3.y);
+}
+
+// Divides the bezier curve into n segments. Evaluates the distance to each
+// segment. Chooses the segment with the smallest distance, and repeats the
+// algorithm on that segment, for the given number of iterations.
+inline float get_closest_point_on_cubic_bezier(const int num_iterations, const int num_segments, const ImVec2& pos, const BezierCurve& bezier){
+    assert(num_iterations > 0 && num_segments > 0);
+    float tstart = 0.0f;
+    float tend = 1.0f;
+    float tbest = 0.5f;
+    float best_distance = FLT_MAX;
+
+    for (int i = 0; i < num_iterations; ++i)
+    {
+        // split the current t-range to segments
+        const float dt = (tend - tstart) / num_segments;
+        for (int s = 0; s < num_segments; ++s)
+        {
+            const float tmid = tstart + dt * (float(s) + 0.5f);
+            const ImVec2 bt = eval_bezier(tmid, bezier);
+            const ImVec2 dv = bt - pos;
+            float cur_distance = ImLengthSqr(dv);
+            if (cur_distance < best_distance)
+            {
+                best_distance = cur_distance;
+                tbest = tmid;
+            }
+        }
+        // shrink the current t-range to the best segment
+        tstart = tbest - 0.5f * dt;
+        tend = tbest + 0.5f * dt;
+    }
+
+    return tbest;
+}
+
+inline float get_distance_to_cubic_bezier(const ImVec2& pos, const BezierCurve& bezier){
+    const int segments = 5;
+    const float length = ImSqrt(ImLengthSqr(bezier.p3 - bezier.p2)) +
+                         ImSqrt(ImLengthSqr(bezier.p2 - bezier.p1)) +
+                         ImSqrt(ImLengthSqr(bezier.p1 - bezier.p0));
+    const float iterations_per_length = 0.01f;
+    const int iterations =
+        int(ImClamp(length * iterations_per_length, 2.0f, 8.f));
+
+    const float t =
+        get_closest_point_on_cubic_bezier(iterations, segments, pos, bezier);
+    const ImVec2 point_on_curve = eval_bezier(t, bezier);
+
+    const ImVec2 to_curve = point_on_curve - pos;
+    return ImSqrt(ImLengthSqr(to_curve));
+}
+
+inline ImRect get_containing_rect_for_bezier_curve(const BezierCurve& bezier){
+    const ImVec2 min = ImVec2(
+        ImMin(bezier.p0.x, bezier.p3.x), ImMin(bezier.p0.y, bezier.p3.y));
+    const ImVec2 max = ImVec2(
+        ImMax(bezier.p0.x, bezier.p3.x), ImMax(bezier.p0.y, bezier.p3.y));
+
+    ImRect rect(min, max);
+    rect.Add(bezier.p1);
+    rect.Add(bezier.p2);
+
+    return rect;
+}
+
+inline LinkBezierData get_link_renderable(ImVec2 start, ImVec2 end, const float line_segments_per_length){
+
+    // function arguments assed by value, since we mutate them
+    const ImVec2 delta = end - start;
+    const float link_length = ImSqrt(ImLengthSqr(delta));
+    const ImVec2 offset = ImVec2(0.25f * link_length, 0.f);
+    LinkBezierData link_data;
+    link_data.bezier.p0 = start;
+    link_data.bezier.p1 = start + offset;
+    link_data.bezier.p2 = end - offset;
+    link_data.bezier.p3 = end;
+    link_data.num_segments = ImMax(int(link_length * line_segments_per_length), 1);
+    return link_data;
+}
+
+inline bool is_mouse_hovering_near_link(const BezierCurve& bezier){
+    const ImVec2 mouse_pos = ImGui::GetIO().MousePos;
+
+    // First, do a simple bounding box test against the box containing the link
+    // to see whether calculating the distance to the link is worth doing.
+    const ImRect link_rect = get_containing_rect_for_bezier_curve(bezier);
+
+    if (link_rect.Contains(mouse_pos))
+    {
+        const float distance = get_distance_to_cubic_bezier(mouse_pos, bezier);
+        if (distance < IMGUI_EX_NODE_HOVER_DISTANCE)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 bool ImGuiEx::NodeCanvas::Begin(const char* _id){
 
@@ -492,7 +616,7 @@ void ImGuiEx::NodeCanvas::SetTransform(const ImVec2& _origin, float _scale){
 //    //curPinFlags = ImGuiExNodePinsFlags_Left; // resets
 //}
 
-void ImGuiEx::NodeCanvas::AddNodePin( const char* _label, ImVec2& _pinPosition, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
+void ImGuiEx::NodeCanvas::AddNodePin( const char* _label, ImVec2& _pinPosition, std::vector<ImVec2>& _toPinPosition, std::vector<int> _linkIds, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
     // Check ImGui Callstack
     IM_ASSERT(isDrawingCanvas == true); // Please Call between Begin() and End()
     IM_ASSERT(isDrawingNode == true); // Please Call between BeginNode() and EndNode()
@@ -508,7 +632,6 @@ void ImGuiEx::NodeCanvas::AddNodePin( const char* _label, ImVec2& _pinPosition, 
     ImGui::NextColumn(); // right col
     if( _pinFlag==ImGuiExNodePinsFlags_Left ) ImGui::NextColumn(); // left column
 
-
     // Hover interaction
     if(pinLayout.pinSpace.x > 0){
         if( _pinFlag==ImGuiExNodePinsFlags_Left ){
@@ -523,11 +646,28 @@ void ImGuiEx::NodeCanvas::AddNodePin( const char* _label, ImVec2& _pinPosition, 
 # else
         ImGui::InvisibleButton("nodeBtn", ImMax(pinLayout.pinSpace, ImVec2(1,1)));
 # endif
-        // Let shis pin be draggable
+
+        std::string _str_label(_label);
+
+        // update node active pin
+        if(ImGui::IsItemClicked() || ImGui::IsItemHovered()){
+            activePin = _str_label;
+        }
+
+        // Let this pin be draggable
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)){
-            static int tmpNum=777;
-            ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int));    // Set payload to carry the index of our item (could be anything)
-            ImGui::Text("%i", tmpNum);
+            // draw dragging link creation
+            if( activePin == _label && _pinFlag==ImGuiExNodePinsFlags_Right ){
+                static int tmpNum=777;
+                ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int));    // Set payload to carry the index of our item (could be anything)
+                // add payload info
+                std::string _temp = _type+" "+_str_label+"  "+std::to_string(tmpNum);
+                canvasDrawList->AddText( ImGui::GetCursorScreenPos() + ImVec2(20,-20), _color, _temp.c_str());
+                // add connecting link
+                const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetCursorScreenPos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+                canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,_color,IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+            }
+
             ImGui::EndDragDropSource();
         }
         // Accept other pins dropping on this
@@ -537,25 +677,76 @@ void ImGuiEx::NodeCanvas::AddNodePin( const char* _label, ImVec2& _pinPosition, 
 
                 memcpy((float*)&tmpAccept, payload->Data, sizeof(int));
                 std::cout << "ACCEPTED = " << tmpAccept << std::endl;
+
+                activePin = "";
+
             }
             ImGui::EndDragDropTarget();
         }
     }
 
     // Set position of pin so user can draw it.
-    float pinSpace = (ImGui::IsItemHovered()) ? IMGUI_EX_NODE_PIN_WIDTH_HOVERED : IMGUI_EX_NODE_PIN_WIDTH;
+    //float pinSpace = (ImGui::IsItemHovered()) ? IMGUI_EX_NODE_PIN_WIDTH_HOVERED : IMGUI_EX_NODE_PIN_WIDTH;
+    float pinSpace = IMGUI_EX_NODE_PIN_WIDTH;
 
     // Draw pin
-    if( _pinFlag==ImGuiExNodePinsFlags_Left ){ // Left side
+    if( _pinFlag==ImGuiExNodePinsFlags_Left ){ // Left side (INLETS)
         _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * .5f, pinLayout.pinSpace.y * .5f);
+
         nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
+        if(ImGui::GetMousePos().x > _pinPosition.x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < _pinPosition.x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > _pinPosition.y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < _pinPosition.y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
+            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+        }
+
+        if(_connected){
+            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+        }
+
         nodeDrawList->AddText( _pinPosition + ImVec2(pinSpace * .5f + 2,ImGui::GetTextLineHeight()*-.5f), _color, _label);
     }
-    else { // right side
+    else { // right side (OUTLETS)
         _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f);
+
         nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
-        ImVec2 labelSize = ImGui::CalcTextSize(_label);
-        nodeDrawList->AddText( _pinPosition + ImVec2(pinSpace * -.5f - 2 -labelSize.x, labelSize.y*-.5f ), _color, _label);
+        if(ImGui::GetMousePos().x > _pinPosition.x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < _pinPosition.x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > _pinPosition.y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < _pinPosition.y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
+            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+
+            canvasDrawList->AddText( _pinPosition + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f), _color, _label);
+        }
+
+        if(_connected){
+            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+        }
+
+        // draw links (OUTLETS to INLETS ONLY)
+        for(int i=0;i<_toPinPosition.size();i++){
+            const LinkBezierData link_data = get_link_renderable(_pinPosition, canvasView.translation+(_toPinPosition.at(i)*canvasView.scale), IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+
+            const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
+
+            if(ImGui::IsMouseClicked(0)){
+                if (is_hovered){
+                    if (std::find(selected_links.begin(), selected_links.end(),_linkIds.at(i))==selected_links.end()){
+                        selected_links.push_back(_linkIds.at(i));
+                    }
+                }else if(!is_hovered && !ImGui::IsKeyDown(ImGui::GetIO().KeyMap[ImGuiKey_Tab])){ // && !ImGui::IsKeyDown(ImGui::GetIO().KeyMap[ImGuiKey_Tab])
+                    std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linkIds.at(i));
+                    if (it!=selected_links.end()){
+                        selected_links.erase(it);
+                    }
+                }
+            }
+
+
+            ImU32 _tempColor = _color;
+            if (std::find(selected_links.begin(), selected_links.end(),_linkIds.at(i))!=selected_links.end()){ // selected
+                _tempColor = IM_COL32(255,0,0,255);
+            }
+
+            canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
+        }
+
+
     }
     pinLayout.curDrawPos += ImVec2(0,pinLayout.pinSpace.y);
 

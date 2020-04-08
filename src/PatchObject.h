@@ -64,13 +64,14 @@ enum LINK_TYPE {
 };
 
 struct PatchLink{
-    vector<DraggableVertex> linkVertices;
+    vector<ofVec2f>         linkVertices;
     ofVec2f                 posFrom;
     ofVec2f                 posTo;
     int                     type;
     int                     fromOutletID;
     int                     toObjectID;
     int                     toInletID;
+    int                     id;
     bool                    isDisabled;
 };
 
@@ -169,9 +170,12 @@ public:
     bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
     bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
     int                     getInletType(int iid) const { return inlets[iid]; }
+    string                  getInletTypeName(const int& iid) const;
     ofColor                 getInletColor(const int& iid) const;
+    ofColor                 getOutletColor(const int& oid) const;
     int                     getOutletType(int oid) const { return outlets[oid]; }
     string                  getOutletName(int oid) const { return outletsNames[oid]; }
+    string                  getOutletTypeName(const int& oid) const;
     int                     getNumInlets() { return inlets.size(); }
     int                     getNumOutlets() { return outlets.size(); }
     bool                    getIsOutletConnected(int oid);
@@ -205,6 +209,7 @@ public:
 
     // patch object connections
     vector<shared_ptr<PatchLink>>      outPut;
+    vector<int>             linksToDisconnect;
     vector<bool>            inletsConnected;
 
     void                    *_inletParams[MAX_INLETS];
@@ -249,6 +254,8 @@ protected:
     vector<string>          outletsNames;
     vector<ImVec2>          inletsPositions; // ImVec2 to prevent too much type casting
     vector<ImVec2>          outletsPositions; // Will hold screenpositions of pins, updated by ImGui
+    vector<ofVec2f>         inletsPositionOF;
+    vector<ofVec2f>         outletsPositionOF;
     vector<int>             inlets; // inlet types, to be renamed for clarity ?
     vector<int>             outlets; // outlet types
     vector<bool>            inletsMouseNear;

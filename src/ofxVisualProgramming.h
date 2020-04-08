@@ -57,7 +57,7 @@ public:
 
     void            setup(ofxImGui::Gui* guiRef = nullptr);
     void            update();
-    void            updateCanvasGUI();
+    void            updateLinksInletsPositions();
     void            updateCanvasViewport();
     void            draw();
     void            drawLivePatchingSession();
@@ -91,6 +91,7 @@ public:
 
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
     void            disconnectSelected(int objID, int objLink);
+    void            disconnectLink(int linkID);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);

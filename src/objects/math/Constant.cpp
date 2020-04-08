@@ -126,7 +126,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //static float value;
         //inputNumber.
         ImGui::DragFloat(inputValueNew.getDisplayName().c_str(), &inputValueNew.get());
-        inputValueNew.drawGui();
+        //inputValueNew.drawGui();
         _nodeCanvas.EndNodeContent();
     }
 }
@@ -161,8 +161,8 @@ void Constant::dragGUIObject(ofVec3f _m){
     //        y = box->getPosition().y;
 
     //        for(int j=0;j<static_cast<int>(outPut.size());j++){
-    //            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-    //            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+    //            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
+    //            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
     //        }
     //    }
 }
