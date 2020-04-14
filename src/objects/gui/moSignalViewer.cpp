@@ -62,8 +62,8 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 void moSignalViewer::newObject(){
     this->setName(this->objectName);
     this->addInlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_AUDIO,"signal1");
-    this->addOutlet(VP_LINK_AUDIO,"signal2");
+    this->addOutlet(VP_LINK_AUDIO,"signal");
+    this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"RMSAmplitude");
 }

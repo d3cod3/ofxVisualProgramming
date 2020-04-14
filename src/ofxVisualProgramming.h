@@ -57,7 +57,6 @@ public:
 
     void            setup(ofxImGui::Gui* guiRef = nullptr);
     void            update();
-    void            updateLinksInletsPositions();
     void            updateCanvasViewport();
     void            draw();
     void            drawLivePatchingSession();
@@ -81,12 +80,10 @@ public:
     void            addObject(string name, ofVec2f pos);
     shared_ptr<PatchObject>    getLastAddedObject();
 
-    void            dragObject(int &id);
     void            resetObject(int &id);
     void            resetObject(int id);
     void            reconnectObjectOutlets(int &id);
     void            removeObject(int &id);
-    void            iconifyObject(int &id);
     void            duplicateObject(int &id);
 
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
@@ -97,7 +94,6 @@ public:
     void            resetSpecificSystemObjects(string name);
     bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
-    void            deleteSelectedObject();
 
     void            newPatch();
     void            newTempPatchFromFile(string patchFile);
@@ -139,20 +135,12 @@ public:
     map<string,string>      scriptsObjectsFilesPaths;
     vector<pair<int,int>>   leftToRightIndexOrder;
     vector<int>             eraseIndexes;
-    bool                    isOutletSelected;
-    int                     selectedObjectLinkType;
-    int                     selectedObjectLink;
+
     int                     selectedObjectID;
-    ofVec2f                 actualMouse;
-    bool                    draggingObject;
-    int                     draggingObjectID;
-    int                     pressedObjectID;
     int                     actualObjectID;
     int                     lastAddedObjectID;
     bool                    bLoadingNewObject;
     bool                    bLoadingNewPatch;
-    OF_DEPRECATED_MSG("The variable objectsMatrix has been removed. Please use ofxVPObjects::factory::getCategories() instead.",
-                  map<string,vector<string>> objectsMatrix );
 
     // LOAD/SAVE
     ofxThreadedFileDialog   fileDialog;

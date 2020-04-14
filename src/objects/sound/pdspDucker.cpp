@@ -311,7 +311,7 @@ void pdspDucker::dragGUIObject(ofVec3f _m){
         this->setCustomVar(controlPoints.at(2).y,"RELEASE_Y");
 
     }else{
-        ofNotifyEvent(dragEvent, nId);
+        
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
         headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);

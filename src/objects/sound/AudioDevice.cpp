@@ -35,7 +35,7 @@
 #include "AudioDevice.h"
 
 //--------------------------------------------------------------
-AudioDevice::AudioDevice() : PatchObject(){
+AudioDevice::AudioDevice() : PatchObject("audio device"){
 
     this->numInlets     = 0;
     this->numOutlets    = 0;
@@ -106,6 +106,16 @@ void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
     //font->draw(ofToString(sampleRateIN),this->fontSize,this->width/2,this->headerHeight*2);
     bg->draw(0,0,this->width,120 * this->retinaScale);
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------
@@ -204,12 +214,14 @@ void AudioDevice::resetSystemObject(){
 
         this->inlets.clear();
         this->inletsNames.clear();
+        this->inletsPositionOF.clear();
 
         for( int i = 0; i < out_channels; i++){
             this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
         }
 
         this->outlets.clear();
+        this->outletsPositionOF.clear();
         for( int i = 0; i < in_channels; i++){
             this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
         }
@@ -345,6 +357,7 @@ void AudioDevice::loadDeviceInfo(){
 
         this->inlets.clear();
         this->inletsNames.clear();
+        this->inletsPositionOF.clear();
 
         for( int i = 0; i < out_channels; i++){
             this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
@@ -352,6 +365,7 @@ void AudioDevice::loadDeviceInfo(){
 
         if(isNewObject){
             this->outlets.clear();
+            this->outletsPositionOF.clear();
             for( int i = 0; i < in_channels; i++){
                 this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
             }

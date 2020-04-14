@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 Constant::Constant() :
         // Extend the classes you need
-        PatchObject("Constant"),
+        PatchObject("constant"),
 
         // define default values
         inputValueNew(0.f, "Number")
@@ -125,7 +125,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
         //static float value;
         //inputNumber.
-        ImGui::DragFloat(inputValueNew.getDisplayName().c_str(), &inputValueNew.get());
+        ImGui::DragFloat("", &inputValueNew.get()); // inputValueNew.getDisplayName().c_str()
         //inputValueNew.drawGui();
         _nodeCanvas.EndNodeContent();
     }
@@ -152,7 +152,7 @@ void Constant::dragGUIObject(ofVec3f _m){
     //        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     //        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     //    }else{
-    //        ofNotifyEvent(dragEvent, nId);
+    //        
 
     //        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
     //        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);

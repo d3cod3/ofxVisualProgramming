@@ -155,7 +155,7 @@ void Metronome::dragGUIObject(ofVec3f _m){
         gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
-        ofNotifyEvent(dragEvent, nId);
+        
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
         headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);

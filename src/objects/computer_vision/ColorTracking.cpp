@@ -375,7 +375,7 @@ void ColorTracking::dragGUIObject(ofVec3f _m){
         greenValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
         blueValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
     }else{
-        ofNotifyEvent(dragEvent, nId);
+        
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
         headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);

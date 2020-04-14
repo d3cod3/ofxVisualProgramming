@@ -75,12 +75,6 @@ struct PatchLink{
     bool                    isDisabled;
 };
 
-struct PushButton{
-    char letter;
-    bool *state;
-    int  offset;
-};
-
 
 class PatchObject : public ofxVPHasUID {
 
@@ -93,7 +87,7 @@ public:
     void                    setupDSP(pdsp::Engine &engine);
     void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
     void                    draw(ofxFontStash *font);
-    void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas);
+    void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Virtual Methods
     virtual void            newObject() {}
@@ -131,7 +125,7 @@ public:
     void                    mouseReleased(float mx, float my,map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Keyboard Events
-    void                    keyPressed(int key);
+    void                    keyPressed(int key,map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Sound
     void                    audioIn(ofSoundBuffer &inputBuffer);
@@ -140,10 +134,11 @@ public:
     void                    move(int _x, int _y);
     bool                    isOver(ofPoint pos);
     void                    fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void                    iconify();
-    void                    duplicate();
-    ofVec2f                 getInletPosition(int iid);
-    ofVec2f                 getOutletPosition(int oid);
+
+    // PatchLinks utils
+    bool                    connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toObjectID,int toInlet, int linkType);
+    void                    disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectID, int objectInlet);
+    void                    disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID);
 
     // LOAD/SAVE
     bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,pdsp::Engine &engine,int oTag, string &configFile);
@@ -151,8 +146,8 @@ public:
     bool                    removeLinkFromConfig(int outlet);
 
     void                    addButton(char letter, bool *variableToControl, int offset);
-    void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
-    void                    addOutlet(int type,string name = "") { outlets.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
+    void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); inletsPositionOF.push_back(ofVec2f(0)); }
+    void                    addOutlet(int type,string name = "") { outlets.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); outletsPositionOF.push_back(ofVec2f(0)); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
@@ -176,6 +171,8 @@ public:
     int                     getOutletType(int oid) const { return outlets[oid]; }
     string                  getOutletName(int oid) const { return outletsNames[oid]; }
     string                  getOutletTypeName(const int& oid) const;
+    ofVec2f                 getInletPosition(int iid);
+    ofVec2f                 getOutletPosition(int oid);
     int                     getNumInlets() { return inlets.size(); }
     int                     getNumOutlets() { return outlets.size(); }
     bool                    getIsOutletConnected(int oid);
@@ -200,9 +197,6 @@ public:
     void                    setInletMouseNear(int oid,bool active) { inletsMouseNear.at(oid) = active; }
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
 
-    // UTILS
-    void                    bezierLink(DraggableVertex from, DraggableVertex to, float _width);
-
     // PUGG Plugin System
     static const int version = 1;
     static const std::string server_name() {return "PatchObjectServer";}
@@ -218,15 +212,9 @@ public:
     map<int,pdsp::PatchNode> pdspIn;
     map<int,pdsp::PatchNode> pdspOut;
 
-    // header buttons
-    vector<PushButton*>     headerButtons;
-    ofRectangle             *headerBox;
-
     ofEvent<int>            resetEvent;
     ofEvent<int>            removeEvent;
     ofEvent<int>            reconnectOutletsEvent;
-    ofEvent<int>            dragEvent;
-    ofEvent<int>            iconifyEvent;
     ofEvent<int>            duplicateEvent;
 
     string                  linkTypeName;
@@ -239,7 +227,7 @@ protected:
 
     // Drawing vars
     ofRectangle             *box;
-    ofColor                 *color;
+    ofRectangle             *headerBox;
     float                   x, y, width, height, headerHeight;
     int                     letterWidth, letterHeight, offSetWidth;
     int                     buttonOffset;

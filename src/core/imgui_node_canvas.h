@@ -73,6 +73,19 @@
 # define IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH 0.1
 # define IMGUI_EX_NODE_LINK_THICKNESS 3
 
+// Other defines
+# define IMGUI_EX_NODE_MENU_ID "nodeMenu"
+# define IMGUI_EX_NODE_MENU_ACTION_DELETE 1
+
+// Indicates which menu action has triggered, if any.
+typedef int ImGuiExNodeMenuActionFlags;
+enum ImGuiExNodeMenuActionFlags_ {
+    ImGuiExNodeMenuActionFlags_None           = 0,     // No menu actions, do nothing.
+    ImGuiExNodeMenuActionFlags_DeleteNode     = 1 << 0,// Delete this node please
+    ImGuiExNodeMenuActionFlags_DuplicateNode  = 1 << 1,// Duplicate
+    ImGuiExNodeMenuActionFlags_CopyNode       = 1 << 2 // Copy
+};
+
 typedef int ImGuiExNodePinsFlags;    // -> enum ImGuiExNodePinsFlags_
 enum ImGuiExNodePinsFlags_ {
     ImGuiExNodePinsFlags_None  = 0,      // No nodes
@@ -151,6 +164,8 @@ struct NodeLayoutData {
     ImGuiExNodeZoom zoomName = ImGuiExNodeZoom_Normal;
     ImGuiExNodeView viewName = ImGuiExNodeView_None;
     ImGuiExNodePinsFlags pinsFlags = ImGuiExNodePinsFlags_None;
+    ImGuiExNodeMenuActionFlags menuActions;
+    bool  canResize = true;
 
     NodeLayoutData() = default;
     NodeLayoutData(const ImVec2& _origin, const ImVec2& _size, const float _scale) :
@@ -171,6 +186,23 @@ struct NodeLayoutData {
         pinsFlags(ImGuiExNodePinsFlags_None)
     {
     }
+};
+
+struct ofxVPLinkData{
+    int         _fromObjectID;
+    int         _fromPinID;
+    int         _linkID;
+    std::string _linkLabel;
+    ImVec2      _toPinPosition;
+};
+
+struct NodeConnectData{
+    int connectType; // 1 connect, 2 disconnect, 3 re-connect
+    int linkID;
+    int fromObjectID;
+    int fromOutletPinID;
+    int toObjectID;
+    int toInletPinID;
 };
 
 
@@ -195,7 +227,7 @@ struct NodeCanvas {
     // Always call EndNodePins, only draw when it returns true.
     //void BeginNodePins( const int& _numPins, const ImGuiExNodePinsFlags& _pinFlags = ImGuiExNodePinsFlags_Left );
     //void EndNodePins();
-    void AddNodePin( const char* _label, ImVec2& _pinPosition, std::vector<ImVec2>& _toPinPosition, std::vector<int> _linkIds, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
+    NodeConnectData AddNodePin(const int nodeID, const int pinID, const char* _label, ImVec2& _pinPosition, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
 
     // To extend the menu
     bool BeginNodeMenu();
@@ -205,6 +237,10 @@ struct NodeCanvas {
     // Returns true if the view can be drawn
     bool BeginNodeContent( const ImGuiExNodeView& _renderingView=ImGuiExNodeView_Any );
     void EndNodeContent();
+
+    // Menu actions
+    // helper func. Otherwise you can access GetNodeData.menuActions
+    bool doNodeMenuAction( const ImGuiExNodeMenuActionFlags& _menuItem=ImGuiExNodeMenuActionFlags_None );
 
     // For now you have to use an external / custom translation engine to navigate space.
     // Todo: It will be nice to have ImGui handle user interaction.
@@ -235,6 +271,11 @@ struct NodeCanvas {
         return curNodeData;
     }
 
+    // activate/deactivate node resive handle
+    void SetNodeIsResizable(bool _resizable) {
+        curNodeData.canResize = _resizable;
+    }
+
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
 
@@ -257,9 +298,11 @@ private:
     ImDrawList* canvasDrawList = nullptr;
     ImDrawList* nodeDrawList = nullptr;
 
-    // Links data
-    std::vector<int> selected_links;
+    // Patch Control data
+    std::vector<int> selected_nodes; // for group actions (copy, duplicate, delete) -- TO IMPLEMENT
+    std::vector<int> selected_links; // for delete links (one or multiple)          -- IMPLEMENTED
     std::string activePin;
+    std::string activePinType;
 };
 
 } // namespace ImGuiEx

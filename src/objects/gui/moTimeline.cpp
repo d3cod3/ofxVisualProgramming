@@ -452,7 +452,7 @@ void moTimeline::dragGUIObject(ofVec3f _m){
         //loadTimeline->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
         //saveTimeline->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
     }else{
-        ofNotifyEvent(dragEvent, nId);
+        
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
         headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
@@ -757,6 +757,7 @@ void moTimeline::resetOutlets(){
 
     this->outPut.clear();
     this->outlets.clear();
+    this->outletsPositionOF.clear();
 
     this->numOutlets = tempTracks.size();
 

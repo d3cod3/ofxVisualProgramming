@@ -153,7 +153,7 @@ void moVideoViewer::dragGUIObject(ofVec3f _m){
         this->setCustomVar(static_cast<float>(this->height),"HEIGHT");
 
     }else{
-        ofNotifyEvent(dragEvent, nId);
+        
 
         box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
         headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
