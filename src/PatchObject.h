@@ -159,6 +159,7 @@ public:
     int                     getId() const { return nId; }
     ofPoint                 getPos() const { return ofPoint(x,y); }
     string                  getName() const { return name; }
+    bool                    getIsResizable() const { return isResizable; }
     bool                    getIsSystemObject() const { return isSystemObject; }
     bool                    getIsActive() const { return bActive; }
     bool                    getIsAudioINObject() const { return isAudioINObject; }
@@ -191,6 +192,7 @@ public:
 
     void                    setPatchfile(string pf);
 
+    void                    setIsResizable(bool ir) { isResizable = ir; }
     void                    setIsRetina(bool ir) { isRetina = ir; }
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
@@ -255,7 +257,6 @@ protected:
     int                     nId;
     bool                    isSystemObject;
     bool                    bActive;
-    bool                    iconified;
     bool                    isMouseOver;
     bool                    isObjectSelected;
     bool                    isOverGUI;
@@ -266,6 +267,7 @@ protected:
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
     bool                    isPDSPPatchableObject;
+    bool                    isResizable;
     bool                    willErase;
     float                   retinaScale;
 

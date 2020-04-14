@@ -165,7 +165,6 @@ struct NodeLayoutData {
     ImGuiExNodeView viewName = ImGuiExNodeView_None;
     ImGuiExNodePinsFlags pinsFlags = ImGuiExNodePinsFlags_None;
     ImGuiExNodeMenuActionFlags menuActions;
-    bool  canResize = true;
 
     NodeLayoutData() = default;
     NodeLayoutData(const ImVec2& _origin, const ImVec2& _size, const float _scale) :
@@ -220,7 +219,7 @@ struct NodeCanvas {
 
     // Draw Child windows (aka Nodes) on the canvas.
     // position and size may change be updated after function call.
-    bool BeginNode( const char* id, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins );
+    bool BeginNode( const char* id, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize );
     void EndNode();
 
     // Adds an inlet and sets its position on screen so you can do more graphic stuff with it.
@@ -269,11 +268,6 @@ struct NodeCanvas {
     const NodeLayoutData& GetNodeData() const {
         IM_ASSERT( isDrawingNode == true ); // Only between BeginNode() and EndNode()
         return curNodeData;
-    }
-
-    // activate/deactivate node resive handle
-    void SetNodeIsResizable(bool _resizable) {
-        curNodeData.canResize = _resizable;
     }
 
     // Returns selected links

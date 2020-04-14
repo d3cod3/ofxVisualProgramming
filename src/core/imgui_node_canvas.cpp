@@ -268,7 +268,7 @@ void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
 
 
 // always use EndNode() even if returns false. Like ImGui Windows.
-bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins ){
+bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize ){
     // Check callstack
     IM_ASSERT(isDrawingCanvas == true);  // forgot to End();
     IM_ASSERT(canDrawNode == true); // Don't call if Begin() returned false
@@ -456,7 +456,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
         }
 
         // Draw footer resize handle
-        if(curNodeData.canResize){
+        if(canResize){
             ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE )  );
             ImGui::InvisibleButton( "footerGripBtn", ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE )  );
             static bool isDraggingFooter = false;

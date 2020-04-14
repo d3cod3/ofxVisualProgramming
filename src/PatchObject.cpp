@@ -48,7 +48,6 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
 
     isSystemObject          = false;
     bActive                 = false;
-    iconified               = false;
     isMouseOver             = false;
     isObjectSelected        = false;
     isOverGUI               = false;
@@ -59,6 +58,7 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     isAudioINObject         = false;
     isAudioOUTObject        = false;
     isPDSPPatchableObject   = false;
+    isResizable             = false;
     willErase               = false;
 
     width       = OBJECT_WIDTH;
@@ -184,7 +184,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
-    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), imPos, imSize, this->getNumInlets(), this->getNumOutlets() )){
+    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable() )){
 
         // Check menu state
         if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DeleteNode) ){
