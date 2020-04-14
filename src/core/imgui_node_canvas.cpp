@@ -752,7 +752,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
                         //std::cout << "ACCEPTED = " << tmpAccept << " from object " << fromObjectID << ", from OUTLET PIN " << outletPinID << " to object ID " << nodeID << " to INLET PIN " << pinID << std::endl;
 
-                        // connect
+                        // connect/reconnect
                         connectData.connectType = connectType;
                         connectData.linkID = linkID;
                         connectData.fromObjectID = fromObjectID;
@@ -876,6 +876,9 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     ImGui::SetCursorScreenPos(cursorBackup);
 
     if(ImGui::GetIO().MouseReleased[0] && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive() && !ImGui::IsAnyItemFocused() && !ImGui::IsAnyWindowHovered()){
+        connectData.connectType = 3;
+        connectData.linkID = linkID;
+
         activePinType = "";
         connectType = 0;
     }
