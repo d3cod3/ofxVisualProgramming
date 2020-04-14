@@ -112,7 +112,7 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
     box->set(x,y,width,height);
     headerBox->set(x,y,width,headerHeight);
 
-    inletsMouseNear.assign(MAX_OUTLETS,false);
+    this->width       = std::max((ImGui::CalcTextSize(this->name.c_str()).x+IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH+16)*1.f,OBJECT_WIDTH*1.f);
 
     setupObjectContent(mainWindow);
 
@@ -1070,10 +1070,6 @@ void PatchObject::mouseReleased(float mx, float my,map<int,shared_ptr<PatchObjec
             fixCollisions(patchObjects);
 
             saveConfig(false,nId);
-        }
-
-        for(size_t m=0;m<inletsMouseNear.size();m++){
-            inletsMouseNear.at(m) = false;
         }
 
     }*/

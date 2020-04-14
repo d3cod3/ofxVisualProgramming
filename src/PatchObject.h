@@ -196,7 +196,6 @@ public:
     void                    setIsRetina(bool ir) { isRetina = ir; }
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
-    void                    setInletMouseNear(int oid,bool active) { inletsMouseNear.at(oid) = active; }
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
 
     // PUGG Plugin System
@@ -248,7 +247,6 @@ protected:
     vector<ofVec2f>         outletsPositionOF;
     vector<int>             inlets; // inlet types, to be renamed for clarity ?
     vector<int>             outlets; // outlet types
-    vector<bool>            inletsMouseNear;
     map<string,float>       customVars;
 
 

@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 ExampleObject::ExampleObject() :
     // Extend the classes you need
-    PatchObject("Example Object"),// ofThread(),
+    PatchObject("example Object"),// ofThread(),
 
     // define default values
     intParam(0, "My integer param"),
@@ -59,6 +59,8 @@ ExampleObject::ExampleObject() :
 
     isGUIObject             = false;
     this->isOverGUI         = false;
+
+    this->setIsResizable(true);
 
 }
 
@@ -163,4 +165,4 @@ void ExampleObject::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 // REGISTER OBJECT ON COMPILATION TIME
-OBJECT_REGISTER( ExampleObject, "Example Object", OFXVP_OBJECT_CAT_GRAPHICS)
+OBJECT_REGISTER( ExampleObject, "example Object", OFXVP_OBJECT_CAT_GRAPHICS)
