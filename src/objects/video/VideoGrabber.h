@@ -36,6 +36,9 @@
 
 #include "PatchObject.h"
 
+#include "ofxImGui.h"
+#include "imgui_node_canvas.h"
+
 #include "ofxOpenCv.h"
 
 #define CAM_MAX_WIDTH        1920
@@ -47,13 +50,16 @@ public:
 
     VideoGrabber();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            mouseMovedObjectContent(ofVec3f _m) override;
+    void            dragGUIObject(ofVec3f _m) override;
 
     void            loadCameraSettings();
     void            resetCameraSettings(int devID);
