@@ -227,7 +227,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), inletsPositions[0], tempLinkData, getInletTypeName(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
 
             // check for inbound connections
-            if(connectData.connectType == 1){
+            if(connectData.connectType == 1){ // connect new
                 //cout << "Connect object " << nId << " from outlet " << i << " to object " << connectData.toObjectID << " at inlet " << connectData.toInletPinID << endl;
                 // if previously connected, disconnect and refresh connection
                 if(patchObjects[connectData.toObjectID]->inletsConnected.at(connectData.toInletPinID)){
@@ -239,7 +239,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                     connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toObjectID,connectData.toInletPinID,getOutletType(connectData.fromOutletPinID));
                     saveConfig(true,connectData.fromObjectID);
                 }
-            }else if(connectData.connectType == 2){
+            }else if(connectData.connectType == 2){ // re-connect
                 // disconnect from elsewhere ( if another object have this connection )
                 if(patchObjects[connectData.toObjectID]->inletsConnected.at(connectData.toInletPinID)){
                     disconnectFrom(patchObjects,connectData.toObjectID,connectData.toInletPinID);
@@ -252,9 +252,10 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                     saveConfig(true,connectData.fromObjectID);
                 }
 
-            }else if(connectData.connectType == 3){
+            }else if(connectData.connectType == 3){ // disconnect
                 // disconnect link
                 disconnectLink(patchObjects,connectData.linkID);
+                saveConfig(true,connectData.fromObjectID);
             }
 
             inletsPositionOF[i] = ofVec2f((inletsPositions[0].x - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale(), (inletsPositions[0].y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale());

@@ -303,7 +303,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
 
     // Adapt the layout for pins
     int pinsWidth = 0;
-    if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
+    /*if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
         // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
         pinsWidth = 0;
         if(_numLeftPins > 0 || _numLeftPins > 0)
@@ -313,10 +313,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
     }
     else{
         pinsWidth = (curNodeData.zoomName >= ImGuiExNodeZoom_Large) ? IMGUI_EX_NODE_PINS_WIDTH_LARGE : (curNodeData.zoomName >= ImGuiExNodeZoom_Normal) ? IMGUI_EX_NODE_PINS_WIDTH_NORMAL : IMGUI_EX_NODE_PINS_WIDTH_SMALL;
-    }
+    }*/
+
+
 
     // Remove pins space from innerContentBox
     if( _numLeftPins > 0 ){ // Has left pins
+        pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_NORMAL;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Left;
         curNodeData.leftPins.region.Max.x += pinsWidth;
         curNodeData.innerContentBox.Min.x += pinsWidth;
@@ -326,6 +329,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
         curNodeData.leftPins.curDrawPos = curNodeData.leftPins.region.Min;
     }
     if( _numRightPins > 0 ){ // Has right pins
+        pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_SMALL;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Right;
         curNodeData.rightPins.region.Min.x -= pinsWidth;
         curNodeData.innerContentBox.Max.x -= pinsWidth;
@@ -334,6 +338,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
         curNodeData.rightPins.pinSpace = ImVec2(curNodeData.rightPins.region.GetSize().x, curNodeData.rightPins.region.GetSize().y / _numRightPins);
         curNodeData.rightPins.curDrawPos = ImVec2(curNodeData.rightPins.region.Max.x, curNodeData.rightPins.region.Min.y);
     }
+
 #if __IMGUI_EX_NODECANVAS_DEBUG__
     // For debugging, draw all parts of node
     ImDrawList* fg = ImGui::GetForegroundDrawList();
@@ -423,8 +428,8 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
         if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
 
             // Tabs
-            ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, curNodeData.outerContentBox.Min.y + 3));
-            if(ImGui::BeginTabBar("widgetTabs")){//, ImGuiTabBarFlags_FittingPolicyResizeDown)){
+            ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, curNodeData.outerContentBox.Min.y + 2));
+            if(ImGui::BeginTabBar("widgetTabs",ImGuiTabBarFlags_NoTooltip)){//, ImGuiTabBarFlags_FittingPolicyResizeDown)){
 
                 static bool tabInfoOpen = true, tabVisualiseOpen = false, tabParamsOpen = false;
                 ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, ImGui::GetCursorScreenPos().y));
@@ -450,7 +455,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
                 nodeDrawList->AddLine(
                             curNodeData.outerContentBox.Min+ImVec2(0,IMGUI_EX_NODE_HEADER_HEIGHT - 1),
                             ImVec2( curNodeData.outerContentBox.Max.x, curNodeData.outerContentBox.Min.y + IMGUI_EX_NODE_HEADER_HEIGHT - 1),
-                            ImGui::GetColorU32(ImGuiCol_TabHovered)
+                            ImGui::GetColorU32(ImGuiCol_WindowBg)
                             );
             }
         }
@@ -705,7 +710,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     // add link info
                     std::string _temp = _type+" "+_gui_label;
                     ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,170) );
+                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
                     canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
                 }
                 else if(_pinFlag==ImGuiExNodePinsFlags_Left && _connected && !_linksData.empty()){ // change previously created links ( only from inlets )
@@ -729,7 +734,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     // add link info
                     std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
                     ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,170) );
+                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
                     canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
 
                 }
@@ -745,7 +750,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             if(activePinType == _type){
 
                 static int tmpAccept = 0;
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT )){ // ImGuiDragDropFlags_AcceptNoDrawDefaultRect
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT,ImGuiDragDropFlags_AcceptNoDrawDefaultRect)){ // ImGuiDragDropFlags_AcceptNoDrawDefaultRect
 
                     if(_pinFlag==ImGuiExNodePinsFlags_Left){ // only on inlets
                         memcpy((float*)&tmpAccept, payload->Data, sizeof(int));
@@ -806,7 +811,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             if(activePinType == _type || activePinType == ""){
                 nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
                 ImVec2 tempPos = _pinPosition - ImVec2(pinSpace * .5f + IMGUI_EX_NODE_PIN_WIDTH + 6,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
-                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,170) );
+                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
                 canvasDrawList->AddText( tempPos, _color, _label);
             }
 
@@ -823,18 +828,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
         _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f);
 
         nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
-        if(ImGui::GetMousePos().x > _pinPosition.x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < _pinPosition.x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > _pinPosition.y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < _pinPosition.y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
-            if(connectType == 0){
-                nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
-                ImVec2 tempPos = _pinPosition + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
-                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,170) );
-                canvasDrawList->AddText( tempPos, _color, _label);
-            }
-        }
-
-        if(_connected){
-            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
-        }
 
         // draw links (OUTLETS to INLETS ONLY)
         for(int i=0;i<_linksData.size();i++){
@@ -864,6 +857,21 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
         }
 
+        // draw labels
+        if(ImGui::GetMousePos().x > _pinPosition.x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < _pinPosition.x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > _pinPosition.y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < _pinPosition.y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
+            if(connectType == 0){
+                nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+                ImVec2 tempPos = _pinPosition + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
+                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
+                canvasDrawList->AddText( tempPos, _color, _label);
+            }
+        }
+
+        // draw pin connected
+        if(_connected){
+            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+        }
+
 
     }
     pinLayout.curDrawPos += ImVec2(0,pinLayout.pinSpace.y);
@@ -875,6 +883,13 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     // Restore cursor
     ImGui::SetCursorScreenPos(cursorBackup);
 
+    // reset if drag&drop on self
+    if(ImGui::GetIO().MouseReleased[0] && ImGui::IsItemHovered() && connectData.toObjectID == -1){
+        activePinType = "";
+        connectType = 0;
+    }
+
+    // remove link if drag from connected inlet and drop on canvas
     if(ImGui::GetIO().MouseReleased[0] && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive() && !ImGui::IsAnyItemFocused() && !ImGui::IsAnyWindowHovered()){
         connectData.connectType = 3;
         connectData.linkID = linkID;
