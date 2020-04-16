@@ -35,12 +35,15 @@
 //--------------------------------------------------------------
 ExampleObject::ExampleObject() :
     // Extend the classes you need
-    PatchObject("example Object"),// ofThread(),
+    PatchObject("example object"),// ofThread(),
 
     // define default values
     intParam(0, "My integer param"),
     floatParam(0.f, "My float param"),
-    myEnumParam(-1, "My Enum Param", {"Option 1", "Option 2"})
+    myEnumParam(-1, "My Enum Param", {"Option 1", "Option 2"}),
+    myColorParam( ofFloatColor(0), "Color"),
+    myStringParam("Mosaic is great", "String"),
+    myBoolParam(true, "ToggleMe")
 {
 
     // default values
@@ -100,7 +103,7 @@ void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 //    }
     //cout << getUID() << endl;
 
-    ofDrawEllipse(glm::vec2(this->getPos().x, this->getPos().y), this->getObjectWidth(), this->getObjectHeight());
+    //ofDrawEllipse(glm::vec2(this->getPos().x, this->getPos().y), this->getObjectWidth(), this->getObjectHeight());
 
     ofDisableAlphaBlending();
 }
@@ -121,6 +124,9 @@ void ExampleObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         intParam.drawGui();
         floatParam.drawGui();
         myEnumParam.drawGui();
+        myColorParam.drawGui();
+        myStringParam.drawGui();
+        myBoolParam.drawGui();
 
         ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
         ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
@@ -165,4 +171,4 @@ void ExampleObject::onSliderEvent(ofxDatGuiSliderEvent e){
 }
 
 // REGISTER OBJECT ON COMPILATION TIME
-OBJECT_REGISTER( ExampleObject, "example Object", OFXVP_OBJECT_CAT_GRAPHICS)
+OBJECT_REGISTER( ExampleObject, "example object", OFXVP_OBJECT_CAT_GRAPHICS)

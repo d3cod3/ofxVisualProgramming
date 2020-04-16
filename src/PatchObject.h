@@ -42,8 +42,6 @@
 #include "ofxPDSP.h"
 #include "ofxThreadedFileDialog.h"
 
-#include "DraggableVertex.h"
-
 #include "objectFactory.h"
 #include "ofxVPHasUid.h"
 #include "ofxVPObjectParameter.h"

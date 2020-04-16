@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "imgui_plotvar.h"
 
 class SimpleRandom : public PatchObject {
 
@@ -42,18 +46,23 @@ public:
 
     SimpleRandom();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiValuePlotter*  rPlotter;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
 
     bool                    bang;
-    bool                    changeRange;
-    float                   lastMinRange, lastMaxRange;
+
+protected:
+
+    ofxVPObjectParameter<float> lastMinRange, lastMaxRange;
+
+private:
 
     OBJECT_FACTORY_PROPS
 };

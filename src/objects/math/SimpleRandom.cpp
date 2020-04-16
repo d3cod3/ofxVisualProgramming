@@ -35,33 +35,36 @@
 #include "SimpleRandom.h"
 
 //--------------------------------------------------------------
-SimpleRandom::SimpleRandom() : PatchObject(){
+SimpleRandom::SimpleRandom() :
+            PatchObject("simple random"),
+
+            // define default values
+            lastMinRange(0.f,"min"),
+            lastMaxRange(1.f,"max")
+{
 
     this->numInlets  = 3;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    _inletParams[1] = new float();  // min
-    _inletParams[2] = new float();  // max
     *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 1.0f;
+
+    *(float *)&_inletParams[1] = lastMinRange.get();
+    *(float *)&_inletParams[2] = lastMaxRange.get();
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
-    changeRange     = false;
     bang            = false;
 
-    lastMinRange    = *(float *)&_inletParams[1];
-    lastMaxRange    = *(float *)&_inletParams[2];
 }
 
 //--------------------------------------------------------------
 void SimpleRandom::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
@@ -71,16 +74,6 @@ void SimpleRandom::newObject(){
 //--------------------------------------------------------------
 void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofSeedRandom(ofGetElapsedTimeMillis());
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-
-    rPlotter = gui->addValuePlotter("",*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
-
-    gui->setPosition(0,this->height-rPlotter->getHeight());
 }
 
 //--------------------------------------------------------------
@@ -96,18 +89,12 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
     }
 
-    gui->update();
-    rPlotter->setValue(*(float *)&_outletParams[0]);
     if(this->inletsConnected[1] || this->inletsConnected[2]){
         if(lastMinRange != *(float *)&_inletParams[1] || lastMaxRange != *(float *)&_inletParams[2]){
             lastMinRange    = *(float *)&_inletParams[1];
             lastMaxRange    = *(float *)&_inletParams[2];
-            changeRange = true;
         }
-        if(changeRange){
-            changeRange = false;
-            rPlotter->setRange(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
-        }
+
     }
 }
 
@@ -115,9 +102,44 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 void SimpleRandom::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    gui->draw();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
+
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::MenuItem("Menu From User code !");
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+
+        ImGui::TextWrapped("Range controlled random number generator.");
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+
+        // parameters view
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            ImGui::DragFloat("min", &lastMinRange.get());
+            //lastMinRange.drawGui();
+            ImGui::DragFloat("max", &lastMaxRange.get());
+            //lastMaxRange.drawGui();
+        }
+        // visualize view
+        else {
+            ImGui::PlotVar("", *(float *)&_outletParams[0],lastMinRange.get(),lastMaxRange.get(),256,this->height*0.7f);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------

@@ -32,13 +32,17 @@
 
 #pragma once
 
-#include "ofxVPObjectParameter.h" // later to include in patcherObject !
 #include "PatchObject.h"
 #include "ofxImGui.h"
-#include "imgui_node_canvas.h"
+
 #include "ofxVPEnumParam.h"
 #include "ofxVPFloatParam.h"
 #include "ofxVPIntParam.h"
+#include "ofxVPColorParam.h"
+#include "ofxVPStringParam.h"
+#include "ofxVPBoolParam.h"
+
+#include "imgui_node_canvas.h"
 
 // Extend the right classes you need to rely on.
 class ExampleObject : public PatchObject/* , public ofThread*/ {
@@ -77,8 +81,11 @@ protected:
     //float opacity;
     //ofMutex objectMutex;
     ofxVPObjectParameter<int> intParam;
-    ofxVPFloatParam floatParam;
+    ofxVPObjectParameter<float> floatParam;
     ofxVPEnumParam myEnumParam;
+    ofxVPObjectParameter<ofFloatColor> myColorParam;
+    ofxVPObjectParameter<std::string> myStringParam;
+    ofxVPObjectParameter<bool> myBoolParam;
     unsigned int test;
 
 private:

@@ -35,7 +35,10 @@
 #include "VideoGrabber.h"
 
 //--------------------------------------------------------------
-VideoGrabber::VideoGrabber() : PatchObject("video grabber"){
+VideoGrabber::VideoGrabber() :
+            PatchObject("video grabber")
+
+{
 
     this->numInlets  = 0;
     this->numOutlets = 1;
@@ -67,7 +70,8 @@ VideoGrabber::VideoGrabber() : PatchObject("video grabber"){
 
 //--------------------------------------------------------------
 void VideoGrabber::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_TEXTURE,"deviceImage");
 
     this->setCustomVar(static_cast<float>(camWidth),"CAM_WIDTH");

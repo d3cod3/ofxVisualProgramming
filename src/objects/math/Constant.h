@@ -47,15 +47,7 @@ public:
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m) override;
-    void            dragGUIObject(ofVec3f _m) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     inputNumber;
-
-    float                       inputValue; // to be replaced soon by variable below
     ofxVPObjectParameter<float> inputValueNew;
 
     OBJECT_FACTORY_PROPS
