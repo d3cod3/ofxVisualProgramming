@@ -48,7 +48,7 @@ public:
 
     // Global method for saving the data. Please override me.
     virtual std::string serialize() const {
-        ostringstream out;
+        std::ostringstream out;
         out << &this->value;
         return out.str();
     }
