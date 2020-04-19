@@ -47,7 +47,6 @@ moVUMeter::moVUMeter() : PatchObject(){
 
     this->initInletsState();
 
-    this->isBigGuiViewer    = true;
     this->width             /= 4;
 
     RMS                     = 0;

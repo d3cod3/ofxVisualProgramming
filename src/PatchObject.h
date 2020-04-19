@@ -258,7 +258,6 @@ protected:
     bool                    isOverGUI;
     bool                    isRetina;
     bool                    isGUIObject;
-    bool                    isBigGuiViewer;
     bool                    isBigGuiComment;
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;

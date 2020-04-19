@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "imgui_plot.h"
 
 class moSignalViewer : public PatchObject {
 
@@ -43,21 +47,26 @@ public:
     moSignalViewer();
 
     void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadAudioSettings();
 
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outBuffer);
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &outBuffer) override;
 
     ofPolyline              waveform;
+    float                   y_data[1024];
 
     int                     bufferSize;
     int                     sampleRate;
+
+private:
 
     OBJECT_FACTORY_PROPS
 };

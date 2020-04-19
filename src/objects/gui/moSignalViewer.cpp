@@ -35,7 +35,10 @@
 #include "moSignalViewer.h"
 
 //--------------------------------------------------------------
-moSignalViewer::moSignalViewer() : PatchObject(){
+moSignalViewer::moSignalViewer() :
+            PatchObject("signal viewer")
+
+{
 
     this->numInlets  = 1;
     this->numOutlets = 4;
@@ -50,7 +53,6 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 
     this->initInletsState();
 
-    this->isBigGuiViewer    = true;
     this->width             *= 2;
 
     isAudioINObject         = true;
@@ -60,7 +62,7 @@ moSignalViewer::moSignalViewer() : PatchObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -91,13 +93,59 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
-    if(this->inletsConnected[0]){
+    /*if(this->inletsConnected[0]){
         ofSetColor(255,255,120,10);
         ofDrawRectangle(0,this->height,this->width,-this->height * ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0));
     }
     ofSetColor(255,255,120);
-    waveform.draw();
+    waveform.draw();*/
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::MenuItem("Menu From User code !");
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+
+        ImGui::TextWrapped("Signal Viewer.");
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+
+        // parameters view
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+
+        }
+        // visualize view
+        else {
+            ImGui::PlotConfig conf;
+            conf.values.ys = y_data;
+            conf.values.count = 1024;
+            conf.values.color = IM_COL32(255,255,120,255);
+            conf.scale.min = -1;
+            conf.scale.max = 1;
+            conf.tooltip.show = false;
+            conf.tooltip.format = "x=%.2f, y=%.2f";
+            conf.grid_x.show = false;
+            conf.grid_y.show = false;
+            conf.frame_size = ImVec2(this->width*0.98f, this->height*0.7f);
+            conf.line_thickness = 1.3f;
+
+            ImGui::Plot("plot", conf);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------
@@ -140,6 +188,8 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
             float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
             float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
             waveform.addVertex(x, y);
+
+            y_data[i] = hardClip(sample);
 
             // SIGNAL BUFFER DATA
             static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;

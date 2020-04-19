@@ -125,7 +125,6 @@ public:
     int                     fontSize;
     bool                    isRetina;
     int                     scaleFactor;
-    int                     linkActivateDistance;
 
     // PUGG external plugins objects
     pugg::Kernel            plugins_kernel;

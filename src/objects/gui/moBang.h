@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "imgui_plotvar.h"
 
 class moBang : public PatchObject {
 
@@ -42,18 +46,26 @@ public:
 
     moBang();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mousePressedObjectContent(ofVec3f _m);
-    void            mouseReleasedObjectContent(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            mousePressedObjectContent(ofVec3f _m) override;
+    void            mouseReleasedObjectContent(ofVec3f _m) override;
 
     bool            bang;
     bool            isBangFinished;
 
+
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

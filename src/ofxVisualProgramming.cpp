@@ -66,7 +66,6 @@ ofxVisualProgramming::ofxVisualProgramming(){
     fontSize                = 12;
     isRetina                = false;
     scaleFactor             = 1;
-    linkActivateDistance    = 10;
     isVPMouseMoving         = false;
     isVPDragging            = false;
 
@@ -109,7 +108,6 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
         isRetina = true;
         scaleFactor = 2;
         fontSize    = 26;
-        linkActivateDistance *= scaleFactor;
         TIME_SAMPLE_GET_INSTANCE()->setUiScale(scaleFactor);
     }
 

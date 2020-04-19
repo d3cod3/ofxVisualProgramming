@@ -111,14 +111,14 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        ImGui::MenuItem("Menu From User code !");
+        //ImGui::MenuItem("Menu From User code !");
         _nodeCanvas.EndNodeMenu();
     }
 
     // Info view
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
 
-        ImGui::TextWrapped("Range controlled random number generator.");
+        ImGui::TextWrapped("Standard Range controlled random number generator.");
 
         _nodeCanvas.EndNodeContent();
     }
@@ -135,7 +135,7 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         // visualize view
         else {
-            ImGui::PlotVar("", *(float *)&_outletParams[0],lastMinRange.get(),lastMaxRange.get(),256,this->height*0.7f);
+            ImGui::PlotVar("", *(float *)&_outletParams[0], this->width*0.8f, this->height*0.7f, lastMinRange.get(), lastMaxRange.get(),256);
         }
 
         _nodeCanvas.EndNodeContent();

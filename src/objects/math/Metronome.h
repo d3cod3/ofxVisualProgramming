@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "imgui_plotvar.h"
 
 class Metronome : public PatchObject {
 
@@ -42,28 +46,27 @@ public:
 
     Metronome();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiValuePlotter*  rPlotter;
-    ofxDatGuiTextInput*     timeSetting;
-
-    size_t                  wait;
     size_t                  resetTime;
     size_t                  metroTime;
 
     bool                    sync;
-    bool                    loaded;
+
+protected:
+
+    ofxVPObjectParameter<int> timeSetting;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

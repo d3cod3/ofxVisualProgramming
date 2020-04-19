@@ -190,6 +190,7 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
             colorImage->mirror(mirrorV->getChecked(),mirrorH->getChecked());
             colorImage->updateTexture();
 
+            // IMPORTANT - Needed for OF <--> imgui texture sharing
             static_cast<ofTexture *>(_outletParams[0])->loadData(colorImage->getPixels());
         }
     }
@@ -319,6 +320,7 @@ void VideoGrabber::loadCameraSettings(){
         colorImage    = new ofxCvColorImage();
         colorImage->allocate(camWidth,camHeight);
 
+        // IMPORTANT - Needed for OF <--> imgui texture sharing
         ofTextureData texData;
         texData.width = camWidth;
         texData.height = camHeight;

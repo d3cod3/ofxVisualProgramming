@@ -1,6 +1,8 @@
 // imgui_plotvar.h
 // https://github.com/ocornut/imgui/wiki/plot_var_example
 
+# pragma once
+
 #include "imgui.h"
 
 #include <map>
@@ -21,7 +23,7 @@ static PlotVarsMap	g_PlotVarsMap;
 namespace ImGui{
     // Plot value over time
     // Call with 'value == FLT_MAX' to draw without adding new value to the buffer
-    void PlotVar(const char* label, float value, float scale_min = FLT_MAX, float scale_max = FLT_MAX, size_t buffer_size = 120, float height=40);
+    void PlotVar(const char* label, float value, float width, float height, float scale_min = FLT_MAX, float scale_max = FLT_MAX, size_t buffer_size = 120);
 
     void PlotVarFlushOldEntries();
 }

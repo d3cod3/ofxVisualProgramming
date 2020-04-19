@@ -434,10 +434,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
                 static bool tabInfoOpen = true, tabVisualiseOpen = false, tabParamsOpen = false;
                 ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, ImGui::GetCursorScreenPos().y));
                 ImGui::SameLine();
-                if((tabInfoOpen = ImGui::BeginTabItem("i",NULL, ImGuiTabItemFlags_NoCloseButton))) ImGui::EndTabItem();
                 //if(ImGui::BeginTabItem("i", &tabInfoOpen, ImGuiTabItemFlags_NoCloseButton | ImGuiTabItemFlags_NoCloseWithMiddleMouseButton )) ImGui::EndTabItem();
                 if((tabVisualiseOpen = ImGui::BeginTabItem("v",NULL, ImGuiTabItemFlags_NoCloseButton)))ImGui::EndTabItem();
                 if((tabParamsOpen = ImGui::BeginTabItem("p",NULL, ImGuiTabItemFlags_NoCloseButton)))ImGui::EndTabItem();
+                if((tabInfoOpen = ImGui::BeginTabItem("i",NULL, ImGuiTabItemFlags_NoCloseButton))) ImGui::EndTabItem();
 
                 // Set view state
                 curNodeData.viewName = tabInfoOpen ? ImGuiExNodeView_Info : tabVisualiseOpen ? ImGuiExNodeView_Visualise : tabParamsOpen ? ImGuiExNodeView_Params : ImGuiExNodeView_None;

@@ -35,7 +35,10 @@
 #include "moBang.h"
 
 //--------------------------------------------------------------
-moBang::moBang() : PatchObject(){
+moBang::moBang() :
+        PatchObject("bang")
+
+{
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -58,7 +61,7 @@ moBang::moBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void moBang::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
@@ -98,11 +101,60 @@ void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 void moBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(bang){
+    /*if(bang){
         ofSetColor(250,250,5);
         ofDrawRectangle(0,0,this->width,this->height);
-    }
+    }*/
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        //ImGui::MenuItem("Menu From User code !");
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+
+        ImGui::TextWrapped("Triggers a bang. You can control it manually with the mouse or automate it by its inlet.");
+
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+
+        // parameters view
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+
+        }
+        // visualize view
+        else {
+            // BANG (PD Style) button
+            static const ImVec4 pressColor { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+            static const ImVec4 releaseColor { 0.f, 0.f, 0.f, 0.f };
+            static ImVec4 currentColor = releaseColor;
+
+            ImGui::PushStyleColor(ImGuiCol_Button, currentColor);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, currentColor);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, currentColor);
+            bool released = ImGui::Button("", ImVec2(this->width*0.8f, this->height*0.7f));
+            ImGui::PopStyleColor(3);
+
+            if (ImGui::IsItemActive() || bang){
+                currentColor = pressColor;
+            }else if(released || !bang){
+                currentColor = releaseColor;
+            }
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------
@@ -112,17 +164,17 @@ void moBang::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void moBang::mousePressedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[0]){
+    /*if(!this->inletsConnected[0]){
         bang = true;
-    }
+    }*/
 }
 
 //--------------------------------------------------------------
 void moBang::mouseReleasedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[0]){
+   /* if(!this->inletsConnected[0]){
         bang = false;
         isBangFinished = true;
-    }
+    }*/
 }
 
 OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)

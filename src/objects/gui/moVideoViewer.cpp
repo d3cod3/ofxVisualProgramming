@@ -48,7 +48,6 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
-    this->isBigGuiViewer    = true;
     this->width             *= 2;
     this->height            *= 2;
 

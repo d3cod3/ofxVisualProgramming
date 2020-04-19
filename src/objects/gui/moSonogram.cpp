@@ -44,7 +44,6 @@ moSonogram::moSonogram() : PatchObject(){
 
     this->initInletsState();
 
-    this->isBigGuiViewer    = true;
     this->width             *= 2;
     this->height            *= 2;
 

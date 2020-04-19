@@ -53,7 +53,6 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     isOverGUI               = false;
     isRetina                = false;
     isGUIObject             = false;
-    isBigGuiViewer          = false;
     isBigGuiComment         = false;
     isAudioINObject         = false;
     isAudioOUTObject        = false;
@@ -112,7 +111,7 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
     box->set(x,y,width,height);
     headerBox->set(x,y,width,headerHeight);
 
-    this->width       = std::max((ImGui::CalcTextSize(this->name.c_str()).x+IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH+16)*1.f,OBJECT_WIDTH*1.f);
+    this->width       = std::max((ImGui::CalcTextSize(this->name.c_str()).x+IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH+16)*1.f,this->width*1.f);
 
     setupObjectContent(mainWindow);
 

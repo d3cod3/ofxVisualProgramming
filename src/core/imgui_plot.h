@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <imgui.h>
+#include "imgui.h"
 
 namespace ImGui {
 // Use this structure to pass the plot data and settings into the Plot function
