@@ -89,7 +89,7 @@ void MidiKnob::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     inputNumber->update();

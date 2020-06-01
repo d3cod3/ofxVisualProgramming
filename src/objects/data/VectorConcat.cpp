@@ -71,7 +71,7 @@ void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     static_cast<vector<float> *>(_outletParams[0])->clear();
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){

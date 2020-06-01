@@ -158,7 +158,7 @@ void pdspDucker::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     gui->update();
     header->update();
     duration->update();

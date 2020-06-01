@@ -159,7 +159,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(isOneDeviceAvailable){
         gui->update();
@@ -195,33 +195,6 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
         }
     }
 
-    if(vidGrabber->isInitialized() && static_cast<ofTexture *>(_outletParams[0])->isAllocated() && !needReset){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
-        }
-
-        //static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
-    }
-
-    if(isOneDeviceAvailable){
-        //gui->draw();
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -245,7 +218,12 @@ void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         else {
             if(isOneDeviceAvailable){
-                ofxImGui::AddImage(*static_cast<ofTexture *>(_outletParams[0]), ImVec2(this->width*_nodeCanvas.GetCanvasScale(), this->height*_nodeCanvas.GetCanvasScale()));
+                if(vidGrabber->isInitialized() && !needReset){
+                    float _tw = this->width*_nodeCanvas.GetCanvasScale();
+                    float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+                    ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+                }
             }else{
                 ImGui::Text("NO DEVICE AVAILABLE!");
             }
@@ -260,55 +238,6 @@ void VideoGrabber::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::mouseMovedObjectContent(ofVec3f _m){
-    /*if(isOneDeviceAvailable){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-        if(!header->getIsCollapsed()){
-            this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos()) || applyButton->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos()) || mirrorH->hitTest(_m-this->getPos()) || mirrorV->hitTest(_m-this->getPos());
-        }else{
-            this->isOverGUI = header->hitTest(_m-this->getPos());
-        }
-    }*/
-
-}
-
-//--------------------------------------------------------------
-void VideoGrabber::dragGUIObject(ofVec3f _m){
-    /*if(this->isOverGUI){
-        if(isOneDeviceAvailable){
-            gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-            header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-            guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-            guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-            applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-            mirrorH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-            mirrorV->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }*/
-}
-
-//--------------------------------------------------------------
 void VideoGrabber::loadCameraSettings(){
     if(static_cast<int>(floor(this->getCustomVar("CAM_WIDTH"))) > 0){
         camWidth = static_cast<int>(floor(this->getCustomVar("CAM_WIDTH")));
@@ -320,13 +249,16 @@ void VideoGrabber::loadCameraSettings(){
         colorImage    = new ofxCvColorImage();
         colorImage->allocate(camWidth,camHeight);
 
+
         // IMPORTANT - Needed for OF <--> imgui texture sharing
         ofTextureData texData;
         texData.width = camWidth;
         texData.height = camHeight;
         texData.textureTarget = GL_TEXTURE_2D;
         texData.bFlipTexture = true;
+
         static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+        static_cast<ofTexture *>(_outletParams[0])->loadData(colorImage->getPixels());
 
     }
 
@@ -375,6 +307,7 @@ void VideoGrabber::resetCameraSettings(int devID){
             texData.textureTarget = GL_TEXTURE_2D;
             texData.bFlipTexture = true;
             static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+            static_cast<ofTexture *>(_outletParams[0])->loadData(colorImage->getPixels());
         }
 
         if(vidGrabber->isInitialized()){

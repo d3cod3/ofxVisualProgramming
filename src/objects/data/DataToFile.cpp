@@ -35,7 +35,9 @@
 #include "DataToFile.h"
 
 //--------------------------------------------------------------
-DataToFile::DataToFile() : PatchObject(){
+DataToFile::DataToFile() :
+            PatchObject("data to file")
+{
 
     this->numInlets  = 2;
     this->numOutlets = 0;
@@ -47,18 +49,18 @@ DataToFile::DataToFile() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     bang                = false;
     exportFileFlag      = false;
     fileSaved           = false;
     recordData          = false;
+
+    tmpFileName         = "";
 }
 
 //--------------------------------------------------------------
 void DataToFile::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
@@ -66,40 +68,10 @@ void DataToFile::newObject(){
 //--------------------------------------------------------------
 void DataToFile::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    recButton = gui->addButton("SELECT FILE");
-    recButton->setUseCustomMouse(true);
-    recButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-    gui->onButtonEvent(this, &DataToFile::onButtonEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
 }
 
 //--------------------------------------------------------------
-void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        recButton->update();
-    }
-
-    if(exportFileFlag){
-        exportFileFlag = false;
-        fd.saveFile("export datafile"+ofToString(this->getId()),"Export new data file as","data.txt");
-    }
+void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         if(*(float *)&_inletParams[1] < 1.0){
@@ -119,14 +91,6 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
     }
 
-}
-
-//--------------------------------------------------------------
-void DataToFile::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofSetCircleResolution(50);
-    ofEnableAlphaBlending();
-
     if(this->inletsConnected[0] && recordData){
         string temp = "";
         for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
@@ -138,74 +102,66 @@ void DataToFile::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
         appendLineToFile(filepath,temp);
     }
 
-    if (recordData){
-        ofSetColor(ofColor::red);
-    }else{
-        ofSetColor(ofColor::green);
-    }
-    ofDrawCircle(ofPoint(this->width-20, 30), 10);
+}
 
-    gui->draw();
+//--------------------------------------------------------------
+void DataToFile::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    ofSetColor(255);
+    ofEnableAlphaBlending();
+
     ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void DataToFile::removeObjectContent(bool removeFileFromData){
+void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-}
+    exportFileFlag = false;
 
-//--------------------------------------------------------------
-void DataToFile::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || recButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        ImGui::TextWrapped("Saves the vector data in a .txt file, line by line for each computing frame.");
+        _nodeCanvas.EndNodeContent();
     }
 
-}
-
-//--------------------------------------------------------------
-void DataToFile::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+        // parameters view
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            ImGui::Text("Saving data to:");
+            ImGui::Text("%s",tmpFileName.c_str());
+            if(ImGui::Button("SELECT FILE",ImVec2(-1,20))){
+                exportFileFlag = true;
+            }
         }
+        // visualize view
+        else {
+            ImVec2 window_pos = ImGui::GetWindowPos();
+            ImVec2 window_size = ImGui::GetWindowSize();
+            ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
+            if (recordData){ 
+                ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
+            }else{
+                ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
+            }
+        }
+        _nodeCanvas.EndNodeContent();
     }
-}
 
-//--------------------------------------------------------------
-void DataToFile::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "export datafile"+ofToString(this->getId())){
-        ofFile temp(response.filepath);
-        filepath = checkFileExtension(temp.getAbsolutePath(), ofToUpper(temp.getExtension()), "TXT");
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, exportFileFlag, "Export new data file as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".txt")){
+        ofFile file (fileDialog.selected_path);
+        if (!file.exists()){
+            file.create();
+        }
+        filepath = checkFileExtension(file.getAbsolutePath(), ofToUpper(file.getExtension()), "TXT");
+        tmpFileName = file.getFileName();
         fileSaved = true;
     }
 }
 
 //--------------------------------------------------------------
-void DataToFile::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == recButton){
-            exportFileFlag = true;
-        }
-    }
+void DataToFile::removeObjectContent(bool removeFileFromData){
+
 }
 
 //--------------------------------------------------------------

@@ -38,7 +38,7 @@
 #include "ofxImGui.h"
 
 #include "imgui_node_canvas.h"
-#include "imgui_plotvar.h"
+#include "imgui_plot.h"
 
 class Metronome : public PatchObject {
 
@@ -48,7 +48,7 @@ public:
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;

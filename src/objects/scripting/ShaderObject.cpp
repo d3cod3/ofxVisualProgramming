@@ -119,11 +119,11 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
+        //fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
     }
 
     // Recursive reset for shader objects chain
@@ -154,13 +154,13 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(loadShaderScriptFlag){
         loadShaderScriptFlag = false;
-        fd.openFile("load shader"+ofToString(this->getId()),"Select a shader");
+        //fd.openFile("load shader"+ofToString(this->getId()),"Select a shader");
     }
 
     if(saveShaderScriptFlag){
         saveShaderScriptFlag = false;
         string newFileName = "shader_"+ofGetTimestampString("%y%m%d")+".frag";
-        fd.saveFile("save shader"+ofToString(this->getId()),"Save new GLSL shader as",newFileName);
+        //fd.saveFile("save shader"+ofToString(this->getId()),"Save new GLSL shader as",newFileName);
     }
 
     if(shaderScriptLoaded){
@@ -423,9 +423,8 @@ void ShaderObject::doFragmentShader(){
         reloading = false;
         nTextures = num;
 
-        this->inlets.clear();
+        this->inletsType.clear();
         this->inletsNames.clear();
-        this->inletsPositionOF.clear();
 
         // add texture(s) inlets
         for( int i = 0; i < nTextures; i++){
@@ -591,7 +590,7 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void ShaderObject::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load shader"+ofToString(this->getId())){
         lastShaderScript = response.filepath;
         shaderScriptLoaded = true;
@@ -599,7 +598,7 @@ void ShaderObject::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         lastShaderScript = response.filepath;
         shaderScriptSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void ShaderObject::loadGUI(){

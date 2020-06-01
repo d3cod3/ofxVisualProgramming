@@ -113,7 +113,7 @@ void pdspDataOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();

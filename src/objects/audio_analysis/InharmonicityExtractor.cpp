@@ -89,7 +89,7 @@ void InharmonicityExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mai
 }
 
 //--------------------------------------------------------------
-void InharmonicityExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void InharmonicityExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

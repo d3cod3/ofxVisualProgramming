@@ -101,7 +101,7 @@ void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();

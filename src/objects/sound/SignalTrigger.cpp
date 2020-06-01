@@ -105,7 +105,7 @@ void SignalTrigger::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();

@@ -143,7 +143,7 @@ void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();

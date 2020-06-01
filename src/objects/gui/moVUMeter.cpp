@@ -66,7 +66,7 @@ void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
 

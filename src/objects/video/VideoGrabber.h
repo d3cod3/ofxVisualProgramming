@@ -52,14 +52,11 @@ public:
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            removeObjectContent(bool removeFileFromData=false) override;
-
-    void            mouseMovedObjectContent(ofVec3f _m) override;
-    void            dragGUIObject(ofVec3f _m) override;
 
     void            loadCameraSettings();
     void            resetCameraSettings(int devID);

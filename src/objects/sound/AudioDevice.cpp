@@ -95,7 +95,7 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 }
 
@@ -104,7 +104,7 @@ void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
     ofSetColor(255);
     ofEnableAlphaBlending();
     //font->draw(ofToString(sampleRateIN),this->fontSize,this->width/2,this->headerHeight*2);
-    bg->draw(0,0,this->width,120 * this->retinaScale);
+    //bg->draw(0,0,this->width,120 * this->retinaScale);
     ofDisableAlphaBlending();
 }
 
@@ -212,16 +212,14 @@ void AudioDevice::resetSystemObject(){
             this->pdspOut[i] = *tempPN;
         }
 
-        this->inlets.clear();
+        this->inletsType.clear();
         this->inletsNames.clear();
-        this->inletsPositionOF.clear();
 
         for( int i = 0; i < out_channels; i++){
             this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
         }
 
-        this->outlets.clear();
-        this->outletsPositionOF.clear();
+        this->outletsType.clear();
         for( int i = 0; i < in_channels; i++){
             this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
         }
@@ -248,10 +246,10 @@ void AudioDevice::resetSystemObject(){
                     XML.removeTag("outlets");
                     int newOutlets = XML.addTag("outlets");
                     if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
                             int newLink = XML.addTag("link");
                             if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outlets.at(j));
+                                XML.setValue("type",this->outletsType.at(j));
                                 XML.popTag();
                             }
                         }
@@ -355,17 +353,15 @@ void AudioDevice::loadDeviceInfo(){
             this->pdspOut[i] = *tempPN;
         }
 
-        this->inlets.clear();
+        this->inletsType.clear();
         this->inletsNames.clear();
-        this->inletsPositionOF.clear();
 
         for( int i = 0; i < out_channels; i++){
             this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
         }
 
         if(isNewObject){
-            this->outlets.clear();
-            this->outletsPositionOF.clear();
+            this->outletsType.clear();
             for( int i = 0; i < in_channels; i++){
                 this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
             }

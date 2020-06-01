@@ -82,7 +82,7 @@ void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){

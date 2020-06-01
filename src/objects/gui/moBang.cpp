@@ -62,6 +62,7 @@ moBang::moBang() :
 //--------------------------------------------------------------
 void moBang::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
@@ -69,11 +70,14 @@ void moBang::newObject(){
 
 //--------------------------------------------------------------
 void moBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
+
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
-void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -101,10 +105,7 @@ void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 void moBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    /*if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
-    }*/
+
     ofDisableAlphaBlending();
 }
 
@@ -136,45 +137,34 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // visualize view
         else {
             // BANG (PD Style) button
-            static const ImVec4 pressColor { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
-            static const ImVec4 releaseColor { 0.f, 0.f, 0.f, 0.f };
-            static ImVec4 currentColor = releaseColor;
+            auto state = ImGui::BangButton("", currentColor, ImVec2(this->width,this->height));
 
-            ImGui::PushStyleColor(ImGuiCol_Button, currentColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, currentColor);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, currentColor);
-            bool released = ImGui::Button("", ImVec2(this->width*0.8f, this->height*0.7f));
-            ImGui::PopStyleColor(3);
-
-            if (ImGui::IsItemActive() || bang){
+            if (state == SmartButtonState_Pressed || bang){
                 currentColor = pressColor;
-            }else if(released || !bang){
-                currentColor = releaseColor;
+                if(!bang && !this->inletsConnected[0]){
+                    bang = true;
+                }
             }
+
+            if(state == SmartButtonState_Released || !bang){
+                currentColor = releaseColor;
+                if(bang && !this->inletsConnected[0]){
+                    bang = false;
+                    isBangFinished = true;
+                }
+            }
+
+
         }
 
         _nodeCanvas.EndNodeContent();
     }
+
 }
 
 //--------------------------------------------------------------
 void moBang::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void moBang::mousePressedObjectContent(ofVec3f _m){
-    /*if(!this->inletsConnected[0]){
-        bang = true;
-    }*/
-}
-
-//--------------------------------------------------------------
-void moBang::mouseReleasedObjectContent(ofVec3f _m){
-   /* if(!this->inletsConnected[0]){
-        bang = false;
-        isBangFinished = true;
-    }*/
 }
 
 OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)

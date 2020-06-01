@@ -63,7 +63,7 @@ void TextureToPixels::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         static_cast<ofTexture *>(_inletParams[0])->readToPixels(*static_cast<ofPixels *>(_outletParams[0]));

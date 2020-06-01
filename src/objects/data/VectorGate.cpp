@@ -76,7 +76,7 @@ void VectorGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     static_cast<vector<float> *>(_outletParams[0])->clear();
 
     if(this->inletsConnected[0]){

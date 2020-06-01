@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "ImGuiFileBrowser.h"
 
 class ImageLoader : public PatchObject {
 
@@ -42,35 +46,37 @@ public:
 
     ImageLoader();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadImageFile();
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-
     ofImage             *img;
+    string              imgName;
+    string              imgRes;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
     bool                isFileLoaded;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     imgName;
-    ofxDatGuiLabel*     imgRes;
-    ofxDatGuiButton*    loadButton;
+    imgui_addons::ImGuiFileBrowser  fileDialog;
 
     bool                loadImgFlag;
     bool                isImageLoaded;
 
+protected:
+
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

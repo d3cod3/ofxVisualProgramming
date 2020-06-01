@@ -133,7 +133,7 @@ void ProcessingScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void ProcessingScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ProcessingScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     // GUI
     gui->update();
@@ -146,13 +146,13 @@ void ProcessingScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 
     if(loadProcessingScriptFlag){
         loadProcessingScriptFlag = false;
-        fd.openFile("load processing script"+ofToString(this->getId()),"Select a processing script");
+        //fd.openFile("load processing script"+ofToString(this->getId()),"Select a processing script");
     }
 
     if(saveProcessingScriptFlag){
         saveProcessingScriptFlag = false;
         string newFileName = "ProcessingScript_"+ofGetTimestampString("%y%m%d")+".java";
-        fd.saveFile("save processing script"+ofToString(this->getId()),"Save new Processing script as",newFileName);
+        //fd.saveFile("save processing script"+ofToString(this->getId()),"Save new Processing script as",newFileName);
     }
 
     while(watcher.waitingEvents()) {
@@ -348,7 +348,7 @@ void ProcessingScript::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void ProcessingScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void ProcessingScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load processing script"+ofToString(this->getId())){
         lastProcessingScript = response.filepath;
         processingScriptLoaded = true;
@@ -356,7 +356,7 @@ void ProcessingScript::fileDialogResponse(ofxThreadedFileDialogResponse &respons
         lastProcessingScript = response.filepath;
         processingScriptSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void ProcessingScript::loadScript(string scriptFile){

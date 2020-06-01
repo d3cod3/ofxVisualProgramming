@@ -35,7 +35,7 @@
 #include "FileToData.h"
 
 //--------------------------------------------------------------
-FileToData::FileToData() : PatchObject(){
+FileToData::FileToData() : PatchObject("file to data"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -46,44 +46,25 @@ FileToData::FileToData() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     openFileFlag        = false;
     fileOpened          = false;
     readData            = false;
 
     actualIndex         = 0;
+
+    tmpFileName         = "";
 }
 
 //--------------------------------------------------------------
 void FileToData::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_ARRAY,"output");
 }
 
 //--------------------------------------------------------------
 void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    readButton = gui->addToggle("READ");
-    readButton->setUseCustomMouse(true);
-    readButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-    gui->onToggleEvent(this, &FileToData::onToggleEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     if(filepath != "none"){
         loadDataFile(filepath);
@@ -92,19 +73,7 @@ void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        readButton->update();
-    }
-
-    if(openFileFlag){
-        openFileFlag = false;
-        // open file
-        fd.openFile("import datafile"+ofToString(this->getId()),"Select a previously saved Mosaic data file");
-    }
+void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(fileOpened){
         fileOpened = false;
@@ -133,69 +102,52 @@ void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void FileToData::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofSetCircleResolution(50);
     ofEnableAlphaBlending();
 
-    if (readButton->getChecked()){
-        ofSetColor(ofColor::red);
-    }else{
-        ofSetColor(ofColor::green);
-    }
-    ofDrawCircle(ofPoint(this->width-20, 30), 10);
-
-    gui->draw();
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    openFileFlag = false;
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        ImGui::TextWrapped("Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.");
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+        // parameters view
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            ImGui::Text("Reading data from:");
+            ImGui::Text("%s",tmpFileName.c_str());
+            if(ImGui::Button("SELECT FILE",ImVec2(-1,20))){
+                openFileFlag = true;
+            }
+        }
+        // visualize view
+        else {
+
+        }
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, openFileFlag, "Open a previously saved Mosaic data file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".txt")){
+        ofLog(OF_LOG_NOTICE,"START IMPORTING DATA");
+        ofFile file (fileDialog.selected_path);
+        tmpFileName = file.getFileName();
+        filepath = file.getAbsolutePath();
+        loadDataFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------
 void FileToData::removeObjectContent(bool removeFileFromData){
 
-}
-
-//--------------------------------------------------------------
-void FileToData::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    readButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || readButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void FileToData::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        readButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void FileToData::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "import datafile"+ofToString(this->getId())){
-        filepath = response.filepath;
-
-        loadDataFile(filepath);
-
-    }
 }
 
 //--------------------------------------------------------------
@@ -227,24 +179,9 @@ void FileToData::loadDataFile(string filepath){
         }
     }
 
+    ofLog(OF_LOG_NOTICE,"FINISHED IMPORTING DATA");
+
     fileOpened = true;
-
-    readButton->setChecked(true);
-}
-
-//--------------------------------------------------------------
-void FileToData::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == readButton){
-            if(e.checked){
-                openFileFlag = true;
-                ofLog(OF_LOG_NOTICE,"START IMPORTING DATA");
-            }else{
-                readData = false;
-                ofLog(OF_LOG_NOTICE,"FINISHED IMPORTING DATA");
-            }
-        }
-    }
 }
 
 OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA)

@@ -56,10 +56,9 @@ public:
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     void            audioInObject(ofSoundBuffer &inputBuffer);
     void            audioOutObject(ofSoundBuffer &outputBuffer);

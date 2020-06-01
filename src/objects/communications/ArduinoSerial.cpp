@@ -141,7 +141,7 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

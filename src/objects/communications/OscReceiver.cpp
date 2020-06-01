@@ -108,7 +108,7 @@ void OscReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();
@@ -448,10 +448,10 @@ void OscReceiver::resetOutlets(){
                     XML.removeTag("outlets");
                     int newOutlets = XML.addTag("outlets");
                     if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
                             int newLink = XML.addTag("link");
                             if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outlets.at(j));
+                                XML.setValue("type",this->outletsType.at(j));
                                 XML.popTag();
                             }
                         }

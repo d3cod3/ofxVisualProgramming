@@ -65,7 +65,7 @@ void BeatExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BeatExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void BeatExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){

@@ -106,7 +106,7 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();
@@ -121,9 +121,9 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     if(exportVideoFlag){
         exportVideoFlag = false;
         #if defined(TARGET_WIN32)
-        fd.saveFile("export videofile"+ofToString(this->getId()),"Export new video file as","export.avi");
+        //fd.saveFile("export videofile"+ofToString(this->getId()),"Export new video file as","export.avi");
         #else
-        fd.saveFile("export videofile"+ofToString(this->getId()),"Export new video file as","export.mp4");
+        //fd.saveFile("export videofile"+ofToString(this->getId()),"Export new video file as","export.mp4");
         #endif
     }
 
@@ -255,12 +255,12 @@ void VideoExporter::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void VideoExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void VideoExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "export videofile"+ofToString(this->getId())){
         filepath = response.filepath;
         videoSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void VideoExporter::onToggleEvent(ofxDatGuiToggleEvent e){

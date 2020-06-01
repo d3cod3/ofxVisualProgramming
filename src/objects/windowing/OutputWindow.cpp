@@ -193,7 +193,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();
@@ -211,7 +211,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(loadWarpingFlag){
         loadWarpingFlag = false;
-        fd.openFile("open warp config"+ofToString(this->getId()),"Select a warping config file");
+        //fd.openFile("open warp config"+ofToString(this->getId()),"Select a warping config file");
     }
 
     if(warpingConfigLoaded){
@@ -234,7 +234,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(saveWarpingFlag){
         saveWarpingFlag = false;
-        fd.saveFile("save warp config"+ofToString(this->getId()),"Save warping settings as","warpSettings.json");
+        //fd.saveFile("save warp config"+ofToString(this->getId()),"Save warping settings as","warpSettings.json");
     }
 
     if(needReset){
@@ -389,7 +389,7 @@ void OutputWindow::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void OutputWindow::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "open warp config"+ofToString(this->getId())){
         warpingConfigLoaded = true;
         lastWarpingConfig = response.filepath;
@@ -398,7 +398,7 @@ void OutputWindow::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         filepath = newFile.getAbsolutePath();
         warpController->saveSettings(filepath);
     }
-}
+}*/
 
 //--------------------------------------------------------------
 glm::vec2 OutputWindow::reduceToAspectRatio(int _w, int _h){

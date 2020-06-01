@@ -354,10 +354,12 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));//IMGUI_EX_NODE_CONTENT_PADDING,IMGUI_EX_NODE_CONTENT_PADDING));
     ImGui::SetNextWindowPos(curNodeData.outerContentBox.Min);
     ImGui::SetNextWindowSize(curNodeData.outerContentBox.GetSize());
+    //ImGui::SetNextWindowSize(ImVec2(curNodeData.outerContentBox.GetSize().x,0.0f));
     bool ret = ImGui::Begin(_id, NULL,
                             ImGuiWindowFlags_NoMove
                             | ImGuiWindowFlags_NoBackground
                             | ImGuiWindowFlags_NoDecoration
+                            //| ImGuiWindowFlags_AlwaysAutoResize
                             //| ImGuiWindowFlags_AlwaysUseWindowPadding
                             | ImGuiWindowFlags_NoFocusOnAppearing
                             );
@@ -402,9 +404,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
         ImGui::PopStyleColor();
 
         // Enable drag on title
-        unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
+        //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min );
-        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-curTabsWidth, IMGUI_EX_NODE_HEADER_HEIGHT )  );
+        //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-curTabsWidth, IMGUI_EX_NODE_HEADER_HEIGHT )  );
+        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT, IMGUI_EX_NODE_HEADER_HEIGHT )  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
 
@@ -428,7 +431,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
         if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
 
             // Tabs
-            ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, curNodeData.outerContentBox.Min.y + 2));
+            /*ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, curNodeData.outerContentBox.Min.y + 2));
             if(ImGui::BeginTabBar("widgetTabs",ImGuiTabBarFlags_NoTooltip)){//, ImGuiTabBarFlags_FittingPolicyResizeDown)){
 
                 static bool tabInfoOpen = true, tabVisualiseOpen = false, tabParamsOpen = false;
@@ -457,7 +460,19 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
                             ImVec2( curNodeData.outerContentBox.Max.x, curNodeData.outerContentBox.Min.y + IMGUI_EX_NODE_HEADER_HEIGHT - 1),
                             ImGui::GetColorU32(ImGuiCol_WindowBg)
                             );
+            }*/
+
+            // NO TABS DESIGN -- TESTING
+
+            // Node Menu Toggle
+            ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-18, curNodeData.outerContentBox.Min.y + 1));
+            ImGui::Button("#");
+            if(ImGui::IsItemActivated()){
+                nodeMenuIsOpen = true;
             }
+
+            curNodeData.viewName = ImGuiExNodeView_Visualise;
+
         }
 
         // Draw footer resize handle
@@ -520,13 +535,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
     ImGui::NextColumn();
 
     // Draw column BG, to mask overlapping nodes
-    if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
+    /*if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
         ImGui::GetWindowDrawList()->AddRectFilled(curNodeData.innerContentBox.Min, curNodeData.innerContentBox.Max, ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f) );
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING));// Padding top
-    }
+    }*/
 
     // By default, try to draw full width
-    ImGui::PushItemWidth(-1.0f); // Todo: doesn't seem have any effect...
+    //ImGui::PushItemWidth(-1.0f); // Todo: doesn't seem have any effect...
 
     // Allow User to catch the menu and extend it
     if( nodeMenuIsOpen ){
@@ -554,19 +569,20 @@ void ImGuiEx::NodeCanvas::EndNode() {
     if(curNodeData.zoomName > ImGuiExNodeZoom_Invisible ){
 
         // Only pop these if content is drawn
-        if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
-            ImGui::PopItemWidth();
+        /*if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
+            //ImGui::PopItemWidth();
             ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding bottom
             ImGui::EndColumns();
             ImGui::PopClipRect(); // Inner space + nodes
         }
 
         // Always pop these ()
-        ImGui::PopClipRect();
+        ImGui::PopClipRect();*/
 
         //ImGui::EndGroup();
         ImGui::PopID();
         ImGui::End();
+
     }
 
     // manage state
@@ -835,7 +851,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
             const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
 
-            if(ImGui::IsMouseClicked(0)){
+            if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
                 if (is_hovered){
                     if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
                         selected_links.push_back(_linksData.at(i)._linkID);
@@ -890,7 +906,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     }
 
     // remove link if drag from connected inlet and drop on canvas
-    if(ImGui::GetIO().MouseReleased[0] && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive() && !ImGui::IsAnyItemFocused() && !ImGui::IsAnyWindowHovered()){
+    if(ImGui::GetIO().MouseReleased[0] && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive() && !ImGui::IsAnyItemFocused() && !ImGui::IsAnyWindowHovered() && connectType == 2){
         connectData.connectType = 3;
         connectData.linkID = linkID;
 
@@ -968,6 +984,21 @@ void ImGuiEx::NodeCanvas::EndNodeContent(){
     IM_ASSERT(isDrawingContent == true); // // Only call when BeginNodeContent() returned true !
 
     isDrawingContent = false;
+
+    if(curNodeData.zoomName > ImGuiExNodeZoom_Invisible ){
+
+        // Only pop these if content is drawn
+        if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
+            //ImGui::PopItemWidth();
+            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding bottom
+            ImGui::EndColumns();
+            ImGui::PopClipRect(); // Inner space + nodes
+        }
+
+        // Always pop these ()
+        ImGui::PopClipRect();
+
+    }
 }
 
 bool ImGuiEx::NodeCanvas::doNodeMenuAction( const ImGuiExNodeMenuActionFlags& _menuItem ){

@@ -50,12 +50,11 @@ public:
 
     void            newObject();
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
     void            mouseMovedObjectContent(ofVec3f _m);
     void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
 
     glm::vec2       reduceToAspectRatio(int _w, int _h);
     void            scaleTextureToWindow(int theScreenW, int theScreenH);

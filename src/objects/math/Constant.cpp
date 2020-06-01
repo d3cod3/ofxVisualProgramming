@@ -78,7 +78,7 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
       inputValueNew = *(float *)&_inletParams[0];
     }
@@ -121,6 +121,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         // visualize view
         else {
+            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding top
             ImGui::DragFloat("", &inputValueNew.get());
         }
         _nodeCanvas.EndNodeContent();

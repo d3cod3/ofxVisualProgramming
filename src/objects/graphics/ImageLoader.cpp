@@ -35,7 +35,7 @@
 #include "ImageLoader.h"
 
 //--------------------------------------------------------------
-ImageLoader::ImageLoader() : PatchObject(){
+ImageLoader::ImageLoader() : PatchObject("image loader"){
 
     this->numInlets  = 0;
     this->numOutlets = 1;
@@ -46,9 +46,6 @@ ImageLoader::ImageLoader() : PatchObject(){
 
     img = new ofImage();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     isNewObject         = false;
     isFileLoaded        = false;
     
@@ -57,17 +54,19 @@ ImageLoader::ImageLoader() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
+    imgName = "";
+
 }
 
 //--------------------------------------------------------------
 void ImageLoader::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_TEXTURE,"image");
 }
 
 //--------------------------------------------------------------
 void ImageLoader::autoloadFile(string _fp){
-    //filepath = _fp;
     filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
     isImageLoaded= true;
     isFileLoaded = false;
@@ -75,24 +74,6 @@ void ImageLoader::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &ImageLoader::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    imgName = gui->addLabel("NONE");
-    imgRes = gui->addLabel("0x0");
-    gui->addBreak();
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     if(filepath == "none"){
         isNewObject = true;
@@ -103,12 +84,21 @@ void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(!isFileLoaded && img->isAllocated()){
         isFileLoaded = true;
         if(img->isAllocated()){
-            static_cast<ofTexture *>(_outletParams[0])->allocate(img->getPixels());
+            ofTextureData texData;
+            texData.width = img->getWidth();
+            texData.height = img->getHeight();
+            texData.textureTarget = GL_TEXTURE_2D;
+            texData.bFlipTexture = true;
+
+            _outletParams[0] = new ofTexture();
+            static_cast<ofTexture *>(_outletParams[0])->clear();
+            static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+            static_cast<ofTexture *>(_outletParams[0])->loadData(img->getPixels());
             ofLog(OF_LOG_NOTICE,"[verbose] image file loaded: %s",filepath.c_str());
         }else{
             if(!isNewObject){
@@ -118,19 +108,8 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         }
     }
 
-    gui->update();
-    header->update();
-    imgName->update();
-    imgRes->update();
-    loadButton->update();
-
     if(img->isAllocated()){
-        *static_cast<ofTexture *>(_outletParams[0]) = img->getTexture();
-    }
-
-    if(loadImgFlag){
-        loadImgFlag = false;
-        fd.openFile("load imagefile"+ofToString(this->getId()),"Select an image file");
+        static_cast<ofTexture *>(_outletParams[0])->loadData(img->getPixels());
     }
 
     if(isImageLoaded){
@@ -144,37 +123,57 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 void ImageLoader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    if(isFileLoaded){
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            imgRes->setLabel(ofToString(static_cast<ofTexture *>(_outletParams[0])->getWidth())+"x"+ofToString(static_cast<ofTexture *>(_outletParams[0])->getHeight()));
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-                if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                    drawW           = this->width;
-                    drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                    posX            = 0;
-                    posY            = (this->height-drawH)/2.0f;
-                }else{ // vertical texture
-                    drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                    drawH           = this->height;
-                    posX            = (this->width-drawW)/2.0f;
-                    posY            = 0;
-                }
-            }else{ // always considered vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-            static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
-        }
-    }else if(!isNewObject){
-        ofSetColor(255,0,0);
-        ofDrawRectangle(0,0,this->width,this->height);
-        ofSetColor(255);
-        font->draw("FILE NOT FOUND!",this->fontSize,this->width/3 + 4,this->headerHeight*2.3);
-    }
-    gui->draw();
+
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    loadImgFlag = false;
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        ImGui::TextWrapped("Simple object for loading image files. Compatible formats are jpg, png, gif and tif.");
+        if(ImGui::Button("reference",ImVec2(-1,20))){
+            ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=image-loader");
+        }
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            ImGui::Text("Loaded File: %s",imgName.c_str());
+            ImGui::Text("Resolution: %s",imgRes.c_str());
+            if(ImGui::Button("open image",ImVec2(-1,20))){
+                loadImgFlag = true;
+            }
+        }
+        else {
+            if(isFileLoaded){
+                float _tw = this->width*_nodeCanvas.GetCanvasScale();
+                float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+                ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+
+            }else if(!isNewObject){
+                ImGui::Text("FILE NOT FOUND!");
+            }
+        }
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadImgFlag, "Select image", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".jpg,.jpeg,.gif,.png,.tif,.tiff")){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            isImageLoaded= true;
+            isFileLoaded = false;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -185,85 +184,23 @@ void ImageLoader::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void ImageLoader::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    imgName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    imgRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || imgName->hitTest(_m-this->getPos()) || imgRes->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ImageLoader::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        imgName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        imgRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ImageLoader::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load imagefile"+ofToString(this->getId())){
-        ofFile file (response.filepath);
-        if (file.exists()){
-            string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "PNG" || fileExtension == "GIF" || fileExtension == "JPG" || fileExtension == "JPEG" || fileExtension == "TIF" || fileExtension == "TIFF") {
-                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                //filepath = file.getAbsolutePath();
-                isImageLoaded= true;
-                isFileLoaded = false;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void ImageLoader::loadImageFile(){
     if(filepath != "none"){
         filepath = forceCheckMosaicDataPath(filepath);
         isNewObject = false;
+        img = new ofImage();
         img->load(filepath);
 
         ofFile tempFile(filepath);
         if(tempFile.getFileName().size() > 22){
-            imgName->setLabel(tempFile.getFileName().substr(0,21)+"...");
+            imgName = tempFile.getFileName().substr(0,21)+"...";
         }else{
-            imgName->setLabel(tempFile.getFileName());
+            imgName = tempFile.getFileName();
         }
+
+        imgRes = ofToString(img->getWidth())+"x"+ofToString(img->getHeight());
 
         this->saveConfig(false,this->nId);
-    }
-}
-
-//--------------------------------------------------------------
-void ImageLoader::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == loadButton){
-            loadImgFlag = true;
-        }
     }
 }
 

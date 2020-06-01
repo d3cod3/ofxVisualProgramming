@@ -96,7 +96,7 @@ void Range::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Range::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Range::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
       inputValue1 = *(float *)&_inletParams[0];
       inputNumber1->setText(ofToString(inputValue1));

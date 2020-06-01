@@ -90,7 +90,7 @@ void ExampleObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ExampleObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ExampleObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 }
 
@@ -112,12 +112,23 @@ void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 void ExampleObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        ImGui::MenuItem("Menu From User code !");
+        if (ImGui::BeginMenu("PARAMS"))
+        {
+            intParam.drawGui();
+            floatParam.drawGui();
+            myEnumParam.drawGui();
+            myColorParam.drawGui();
+            myStringParam.drawGui();
+            myBoolParam.drawGui();
+
+            ImGui::EndMenu();
+        }
+
         _nodeCanvas.EndNodeMenu();
     }
 
     // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    /*if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
         ImGui::Button("Node Button", ImVec2(-1,20));
         ImGui::TextUnformatted("Hello World!");
 
@@ -144,29 +155,41 @@ void ExampleObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::Text("Cur View :Parameters");
         }
         else {
-            ImGui::Text("Unknown View : %d", _nodeCanvas.GetNodeData().viewName );
+            if (ImGui::CollapsingHeader("CONFIG")){
+                ImGui::Button("Node Button", ImVec2(-1,20));
+                ImGui::TextUnformatted("Hello World!");
+
+                intParam.drawGui();
+                floatParam.drawGui();
+                myEnumParam.drawGui();
+                myColorParam.drawGui();
+                myStringParam.drawGui();
+                myBoolParam.drawGui();
+
+                ImGui::TextUnformatted( ofToString(ImGui::GetCurrentWindow()->Pos).c_str() );
+                ImGui::TextWrapped("Hovered:     %d", ImGui::IsWindowHovered() ? 1 : 0);
+                ImGui::TextWrapped("PrevItemSize: %f, %f", ImGui::GetItemRectSize().x, ImGui::GetItemRectSize().y);//
+                ImGui::TextWrapped("WindowSize: %f, %f", ImGui::GetCurrentWindow()->Rect().GetSize().x, ImGui::GetCurrentWindow()->Rect().GetSize().y);
+                //ImGui::TextWrapped("WidgetSize: %f, %f", imSize.x, imSize.y);
+                ImGui::TextWrapped("AvailableCRWidth: %f", ImGui::GetContentRegionAvailWidth());
+            }
+
         }
         _nodeCanvas.EndNodeContent();
+    }*/
+
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding top
+        ImGui::Button("Node Button", ImVec2(-1,20));
+        ImGui::TextUnformatted("Hello World!");
+
+        _nodeCanvas.EndNodeContent();
     }
+
 }
 
 //--------------------------------------------------------------
 void ExampleObject::removeObjectContent(bool removeFileFromData){
-
-}
-
-//--------------------------------------------------------------
-void ExampleObject::mouseMovedObjectContent(ofVec3f _m){
-
-}
-
-//--------------------------------------------------------------
-void ExampleObject::dragGUIObject(ofVec3f _m){
-
-}
-
-//--------------------------------------------------------------
-void ExampleObject::onSliderEvent(ofxDatGuiSliderEvent e){
 
 }
 

@@ -70,7 +70,7 @@ void pdspWhiteNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void pdspWhiteNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 }
 

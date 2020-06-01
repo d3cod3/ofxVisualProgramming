@@ -38,7 +38,7 @@ using namespace ofxCv;
 using namespace cv;
 
 //--------------------------------------------------------------
-HaarTracking::HaarTracking() : PatchObject(){
+HaarTracking::HaarTracking() : PatchObject("haar tracking"){
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -52,6 +52,7 @@ HaarTracking::HaarTracking() : PatchObject(){
     haarFinder      = new ofxCv::ObjectFinder();
     pix             = new ofPixels();
     outputFBO       = new ofFbo();
+    haarfileName    = "";
 
     isGUIObject         = true;
     this->isOverGUI     = true;
@@ -60,15 +61,14 @@ HaarTracking::HaarTracking() : PatchObject(){
 
     isFBOAllocated      = false;
 
-    haarToLoad          = "";
     loadHaarConfigFlag  = false;
-    haarConfigLoaded    = false;
 
 }
 
 //--------------------------------------------------------------
 void HaarTracking::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"haarBlobsData");
@@ -76,25 +76,6 @@ void HaarTracking::newObject(){
 
 //--------------------------------------------------------------
 void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    haarFileName = gui->addLabel("frontalface");
-    gui->addBreak();
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-    
-    gui->onButtonEvent(this, &HaarTracking::onButtonEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     if(filepath == "none"){
         ofFile tempHC("haarcascades/haarcascade_frontalface_alt.xml");
@@ -108,43 +89,14 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     haarFinder->setPreset(ObjectFinder::Fast);
     haarFinder->getTracker().setSmoothingRate(.1);
 
+    ofFile file(filepath);
+    size_t start = file.getFileName().find_first_of("_");
+    haarfileName = file.getFileName().substr(start+1,file.getFileName().size()-start-5);
+
 }
 
 //--------------------------------------------------------------
-void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-    // Object GUI
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        haarFileName->update();
-        loadButton->update();
-    }
-
-    // file dialogs
-    if(loadHaarConfigFlag){
-        loadHaarConfigFlag = false;
-        fd.openFile("load haar"+ofToString(this->getId()),"Select a haarcascade xml file");
-    }
-
-    if(haarConfigLoaded){
-        haarConfigLoaded = false;
-        if(haarToLoad != ""){
-            ofFile file(haarToLoad);
-            if (file.exists()){
-                string fileExtension = ofToUpper(file.getExtension());
-                if(fileExtension == "XML") {
-                    filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                    //filepath = file.getAbsolutePath();
-                    haarFinder->setup(filepath);
-
-                    size_t start = file.getFileName().find_first_of("_");
-                    string tempName = file.getFileName().substr(start+1,file.getFileName().size()-start-5);
-
-                    haarFileName->setLabel(tempName);
-                }
-            }
-        }
-    }
+void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     // HAAR Tracking
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -231,89 +183,55 @@ void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
         outputFBO->end();
 
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
-        }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
-    gui->draw();
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadHaarConfigFlag = false;
+
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        ImGui::Text("Loaded Haar:");
+        ImGui::Text("%s",haarfileName.c_str());
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            if(ImGui::Button("open file",ImVec2(-1,20))){
+                loadHaarConfigFlag = true;
+            }
+        }
+        else {
+            float _tw = this->width*_nodeCanvas.GetCanvasScale();
+            float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+        }
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadHaarConfigFlag, "Select haarcascade xml file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml")){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            haarFinder->setup(filepath);
+
+            size_t start = file.getFileName().find_first_of("_");
+            haarfileName = file.getFileName().substr(start+1,file.getFileName().size()-start-5);
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void HaarTracking::removeObjectContent(bool removeFileFromData){
     if(removeFileFromData){
         removeFile(filepath);
-    }
-}
-
-//--------------------------------------------------------------
-void HaarTracking::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    haarFileName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || haarFileName->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void HaarTracking::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        haarFileName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void HaarTracking::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load haar"+ofToString(this->getId())){
-        haarToLoad = response.filepath;
-        haarConfigLoaded = true;
-    }
-}
-
-//--------------------------------------------------------------
-void HaarTracking::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == loadButton){
-            loadHaarConfigFlag = true;
-        }
     }
 }
 

@@ -78,7 +78,7 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     metroTime = ofGetElapsedTimeMillis();
 
@@ -139,7 +139,15 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         // visualize view
         else {
-            ImGui::PlotVar("", *(float *)&_outletParams[0], this->width*0.8f, this->height*0.7f, 0.0f, 1.0f, 256);
+            ImGui::PlotVarConfig conf;
+            conf.value = *(float *)&_outletParams[0];
+            conf.frame_size = ImVec2(this->width*0.8f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
+            conf.scale.min = 0.f;
+            conf.scale.max = 1.f;
+            conf.buffer_size = 256;
+
+            ImGui::PlotVar("", conf);
+
         }
 
         _nodeCanvas.EndNodeContent();

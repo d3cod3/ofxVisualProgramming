@@ -77,7 +77,7 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
             bang = false;
@@ -135,7 +135,14 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         // visualize view
         else {
-            ImGui::PlotVar("", *(float *)&_outletParams[0], this->width*0.8f, this->height*0.7f, lastMinRange.get(), lastMaxRange.get(),256);
+            ImGui::PlotVarConfig conf;
+            conf.value = *(float *)&_outletParams[0];
+            conf.frame_size = ImVec2(this->width*0.8f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
+            conf.scale.min = lastMinRange.get();
+            conf.scale.max = lastMaxRange.get();
+            conf.buffer_size = 256;
+
+            ImGui::PlotVar("", conf);
         }
 
         _nodeCanvas.EndNodeContent();

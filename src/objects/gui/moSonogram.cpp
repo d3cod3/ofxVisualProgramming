@@ -97,7 +97,7 @@ void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
             resetTime = ofGetElapsedTimeMillis();

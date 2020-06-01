@@ -77,7 +77,7 @@ void FloatsToVector::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             static_cast<vector<float> *>(_outletParams[0])->at(i) = *(float *)&_inletParams[i];

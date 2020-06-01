@@ -136,11 +136,11 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
+        //fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
     }
 
     // GUI
@@ -154,13 +154,13 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(loadPythonScriptFlag){
         loadPythonScriptFlag = false;
-        fd.openFile("load python script"+ofToString(this->getId()),"Select a python script");
+        //fd.openFile("load python script"+ofToString(this->getId()),"Select a python script");
     }
 
     if(savePythonScriptFlag){
         savePythonScriptFlag = false;
         string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
-        fd.saveFile("save python script"+ofToString(this->getId()),"Save new Python script as",newFileName);
+        //fd.saveFile("save python script"+ofToString(this->getId()),"Save new Python script as",newFileName);
     }
 
     if(pythonScriptLoaded){
@@ -300,7 +300,7 @@ void PythonScript::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load python script"+ofToString(this->getId())){
         lastPythonScript = response.filepath;
         pythonScriptLoaded = true;
@@ -308,7 +308,7 @@ void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         lastPythonScript = response.filepath;
         pythonScriptSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void PythonScript::loadScript(string scriptFile){

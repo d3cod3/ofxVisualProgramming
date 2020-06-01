@@ -146,14 +146,14 @@ void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     gui->update();
     header->update();
     loadButton->update();
 
     if(loadSoundfileFlag){
         loadSoundfileFlag = false;
-        fd.openFile("load soundfile"+ofToString(this->getId()),"Select an audio file");
+        //fd.openFile("load soundfile"+ofToString(this->getId()),"Select an audio file");
     }
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
@@ -314,13 +314,13 @@ void SoundfilePlayer::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load soundfile"+ofToString(this->getId())){
         lastSoundfile = response.filepath;
         soundfileLoaded = true;
         startTime = ofGetElapsedTimeMillis();
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void SoundfilePlayer::mouseMovedObjectContent(ofVec3f _m){

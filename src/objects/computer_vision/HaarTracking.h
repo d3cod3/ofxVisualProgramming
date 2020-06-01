@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "ImGuiFileBrowser.h"
 
 #include "ofxCv.h"
 
@@ -44,35 +48,35 @@ public:
 
     HaarTracking();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
 
     ofxCv::ObjectFinder         *haarFinder;
     ofPixels                    *pix;
     ofFbo                       *outputFBO;
+    string                      haarfileName;
     bool                        isFBOAllocated;
 
     float                       posX, posY, drawW, drawH;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiLabel*             haarFileName;
-    ofxDatGuiButton*            loadButton;
+    imgui_addons::ImGuiFileBrowser  fileDialog;
 
-    string                      haarToLoad;
     bool                        loadHaarConfigFlag;
-    bool                        haarConfigLoaded;
+
+protected:
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

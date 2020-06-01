@@ -152,7 +152,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();
@@ -161,7 +161,7 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 
     if(loadWarpingFlag){
         loadWarpingFlag = false;
-        fd.openFile("open mapping config"+ofToString(this->getId()),"Select a mapping config file");
+        //fd.openFile("open mapping config"+ofToString(this->getId()),"Select a mapping config file");
     }
 
     if(warpingConfigLoaded){
@@ -179,7 +179,7 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 
     if(saveWarpingFlag){
         saveWarpingFlag = false;
-        fd.saveFile("save mapping config"+ofToString(this->getId()),"Save mapping settings as","mappingSettings.xml");
+        //fd.saveFile("save mapping config"+ofToString(this->getId()),"Save mapping settings as","mappingSettings.xml");
     }
 
     // reset mapping textures resolution on inlet connection
@@ -276,7 +276,7 @@ void ProjectionMapping::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void ProjectionMapping::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "open mapping config"+ofToString(this->getId())){
         warpingConfigLoaded = true;
         lastWarpingConfig = response.filepath;
@@ -285,7 +285,7 @@ void ProjectionMapping::fileDialogResponse(ofxThreadedFileDialogResponse &respon
         filepath = newFile.getAbsolutePath();
         _mapping->saveMappingAs(filepath);
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void ProjectionMapping::toggleWindowFullscreen(){

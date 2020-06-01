@@ -97,7 +97,7 @@ void DelayBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[1]){
       wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
       inputNumber->setText(ofToString(wait));

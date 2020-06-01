@@ -72,8 +72,6 @@ public:
 
     void            keyPressed(ofKeyEventArgs &e);
 
-    void            onFileDialogResponse(ofxThreadedFileDialogResponse &response);
-
     void            activeObject(int oid);
 
     shared_ptr<PatchObject>    selectObject(string objname);
@@ -114,11 +112,12 @@ public:
     void            setIsHoverCodeEditor(bool isl){ isHoverCodeEditor = isl; }
 
     // PATCH CANVAS
-    ofxInfiniteCanvas       canvas;
-    ofEasyCam               easyCam;
-    ofRectangle             canvasViewport;
-    ofxImGui::Gui*          ofxVPGui;
-    ImGuiEx::NodeCanvas     nodeCanvas;
+    ofxInfiniteCanvas               canvas;
+    ofEasyCam                       easyCam;
+    ofRectangle                     canvasViewport;
+    ofxImGui::Gui*                  ofxVPGui;
+    ImGuiEx::NodeCanvas             nodeCanvas;
+
 
     // PATCH DRAWING RESOURCES
     ofxFontStash            *font;
@@ -142,7 +141,6 @@ public:
     bool                    bLoadingNewPatch;
 
     // LOAD/SAVE
-    ofxThreadedFileDialog   fileDialog;
     string                  currentPatchFile;
     string                  currentPatchFolderPath;
     string                  tempPatchFile;

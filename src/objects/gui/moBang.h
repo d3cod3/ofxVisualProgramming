@@ -38,7 +38,7 @@
 #include "ofxImGui.h"
 
 #include "imgui_node_canvas.h"
-#include "imgui_plotvar.h"
+#include "imgui_controls.h"
 
 class moBang : public PatchObject {
 
@@ -48,17 +48,20 @@ public:
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            mousePressedObjectContent(ofVec3f _m) override;
-    void            mouseReleasedObjectContent(ofVec3f _m) override;
 
     bool            bang;
     bool            isBangFinished;
+
+    ImVec4          currentColor;
+    ImVec4          pressColor;
+    ImVec4          releaseColor;
 
 
 

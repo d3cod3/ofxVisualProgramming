@@ -121,7 +121,7 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();
@@ -140,7 +140,7 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
     if(loadVideoFlag){
         loadVideoFlag = false;
-        fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
+        //fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
     }
 
     if(needToLoadVideo){
@@ -369,7 +369,7 @@ void VideoPlayer::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load videofile"+ofToString(this->getId())){
         ofFile file (response.filepath);
         if (file.exists()){
@@ -381,7 +381,7 @@ void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
             }
         }
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void VideoPlayer::loadVideoFile(){

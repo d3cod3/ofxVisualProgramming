@@ -1,8 +1,11 @@
 #pragma once
 #include <cstdint>
+#include <map>
+
 #include "imgui.h"
 
 namespace ImGui {
+
 // Use this structure to pass the plot data and settings into the Plot function
 struct PlotConfig {
     struct Values {
@@ -71,5 +74,31 @@ enum class PlotStatus {
     selection_updated,
 };
 
+struct PlotVarConfig {
+    float   value = 0.f;
+    ImVec2  frame_size = ImVec2(0.f, 0.f);
+    struct Scale {
+        // Minimum plot value
+        float min;
+        // Maximum plot value
+        float max;
+    } scale;
+    size_t buffer_size = 120;
+};
+
+struct PlotVarData{
+    ImGuiID             ID;
+    ImVector<float>     Data;
+    int                 DataInsertIdx;
+    int                 LastFrame;
+
+    PlotVarData() : ID(0), DataInsertIdx(0), LastFrame(-1) {}
+};
+
+static std::map<ImGuiID, PlotVarData>	g_PlotVarsMap;
+
 IMGUI_API PlotStatus Plot(const char* label, const PlotConfig& conf);
+
+IMGUI_API PlotStatus PlotVar(const char* label, const PlotVarConfig& conf);
+
 }

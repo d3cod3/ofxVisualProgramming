@@ -130,7 +130,7 @@ void ChromaKey::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     gui->update();
     header->update();
     if(!header->getIsCollapsed()){

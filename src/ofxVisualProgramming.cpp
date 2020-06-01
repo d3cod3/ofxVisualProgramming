@@ -33,6 +33,8 @@
 #include "ofxVisualProgramming.h"
 #include "imgui_internal.h"
 
+#include "imgui_controls.h"
+
 //--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
 
@@ -134,10 +136,6 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
     // RESET TEMP FOLDER
     resetTempFolder();
 
-    // Threaded File Dialogs
-    fileDialog.setup();
-    ofAddListener(fileDialog.fileDialogEvent, this, &ofxVisualProgramming::onFileDialogResponse);
-
     // Load external plugins objects
     plugins_kernel.add_server(PatchObject::server_name(), PatchObject::version);
     // list plugin directory
@@ -225,7 +223,7 @@ void ofxVisualProgramming::update(){
 
     for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
         TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
-        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,fileDialog);
+        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects);
         TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update");
 
         // update scripts objects files map
@@ -283,7 +281,17 @@ void ofxVisualProgramming::draw(){
 
     ofxVPGui->begin();
 
+    // DEBUG
     ImGui::ShowMetricsWindow();
+
+    // TESTING
+    float tp[6] = { 0.2f, 0.0f, 0.4f, 0.5f, 0.7f, 0.5f };
+    if(ImGui::Begin("ENVELOPE EDITOR"))
+    {
+        //ImGui::EnvelopeEditor(256, tp, ImGuiEnvelopeEditorType_AHR);
+        ImGui::EnvelopeEditor(256, 128, tp, ImGuiEnvelopeEditorType_ADSR);
+    }
+    ImGui::End();
 
 
     // Try to begin ImGui Canvas.
@@ -296,23 +304,25 @@ void ofxVisualProgramming::draw(){
     }
 
     // Render objects.
-    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-        // Record timimgs
-        TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
+    if(!bLoadingNewPatch && !patchObjects.empty()){
+        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+            // Record timimgs
+            TS_START(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
 
-        // LivePatchingObject hack, should not be handled by mosaic.
-        if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
-            livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
+            // LivePatchingObject hack, should not be handled by mosaic.
+            if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
+                livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
+            }
+
+            // Draw
+            patchObjects[leftToRightIndexOrder[i].second]->draw(font);
+            if(isCanvasVisible){
+                patchObjects[leftToRightIndexOrder[i].second]->drawImGuiNode(nodeCanvas,patchObjects);
+            }
+
+            // Record timings
+            TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
         }
-
-        // Draw
-        patchObjects[leftToRightIndexOrder[i].second]->draw(font);
-        if(isCanvasVisible){
-            patchObjects[leftToRightIndexOrder[i].second]->drawImGuiNode(nodeCanvas,patchObjects);
-        }
-
-        // Record timings
-        TS_STOP(patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw");
     }
 
     // Close canvas
@@ -433,13 +443,9 @@ void ofxVisualProgramming::cleanPatchDataFolder(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
 
-    //savePatchAsLast();
-
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
-
-    fileDialog.stop();
 
     if(dspON){
         deactivateDSP();
@@ -515,13 +521,6 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
             patchObjects[leftToRightIndexOrder[i].second]->keyPressed(e.key,patchObjects);
         }
-    }
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::onFileDialogResponse(ofxThreadedFileDialogResponse &response){
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->fileDialogResponse(response);
     }
 }
 
@@ -935,9 +934,6 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
         tempLink->toInletID     = toInlet;
         tempLink->isDisabled    = false;
 
-        tempLink->linkVertices.push_back(ofVec2f(tempLink->posFrom.x,tempLink->posFrom.y));
-        tempLink->linkVertices.push_back(ofVec2f(tempLink->posTo.x,tempLink->posTo.y));
-
         patchObjects[fromID]->outPut.push_back(tempLink);
 
         patchObjects[toID]->inletsConnected[toInlet] = true;
@@ -1278,6 +1274,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             if(XML.pushTag("object", i)){
                 string objname = XML.getValue("name","");
                 bool loaded = false;
+
                 shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr){
                     loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);

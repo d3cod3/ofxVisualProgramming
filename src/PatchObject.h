@@ -48,6 +48,7 @@
 
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
+#include "imgui_helpers.h"
 
 #include "Driver.h"
 
@@ -62,9 +63,8 @@ enum LINK_TYPE {
 };
 
 struct PatchLink{
-    vector<ofVec2f>         linkVertices;
-    ofVec2f                 posFrom;
-    ofVec2f                 posTo;
+    ImVec2                  posFrom;
+    ImVec2                  posTo;
     int                     type;
     int                     fromOutletID;
     int                     toObjectID;
@@ -83,7 +83,7 @@ public:
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
-    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
+    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects);
     void                    draw(ofxFontStash *font);
     void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
 
@@ -95,7 +95,7 @@ public:
 
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
-    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd) {}
+    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) {}
     virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
@@ -104,8 +104,6 @@ public:
     virtual void            mousePressedObjectContent(ofVec3f _m) {}
     virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
     virtual void            keyPressedObjectContent(int key) {}
-
-    virtual void            fileDialogResponse(ofxThreadedFileDialogResponse &response) {}
 
     virtual void            dragGUIObject(ofVec3f _m) {}
 
@@ -130,12 +128,11 @@ public:
     void                    audioOut(ofSoundBuffer &outputBuffer);
 
     void                    move(int _x, int _y);
-    bool                    isOver(ofPoint pos);
     void                    fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // PatchLinks utils
-    bool                    connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toObjectID,int toInlet, int linkType);
-    void                    disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectID, int objectInlet);
+    bool                    connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType);
+    void                    disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectInlet);
     void                    disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID);
 
     // LOAD/SAVE
@@ -144,8 +141,8 @@ public:
     bool                    removeLinkFromConfig(int outlet);
 
     void                    addButton(char letter, bool *variableToControl, int offset);
-    void                    addInlet(int type,string name) { inlets.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); inletsPositionOF.push_back(ofVec2f(0)); }
-    void                    addOutlet(int type,string name = "") { outlets.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); outletsPositionOF.push_back(ofVec2f(0)); }
+    void                    addInlet(int type,string name) { inletsType.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
+    void                    addOutlet(int type,string name = "") { outletsType.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
@@ -163,17 +160,17 @@ public:
     bool                    getIsAudioINObject() const { return isAudioINObject; }
     bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
     bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
-    int                     getInletType(int iid) const { return inlets[iid]; }
+    int                     getInletType(int iid) const { return inletsType[iid]; }
     string                  getInletTypeName(const int& iid) const;
     ofColor                 getInletColor(const int& iid) const;
     ofColor                 getOutletColor(const int& oid) const;
-    int                     getOutletType(int oid) const { return outlets[oid]; }
+    int                     getOutletType(int oid) const { return outletsType[oid]; }
     string                  getOutletName(int oid) const { return outletsNames[oid]; }
     string                  getOutletTypeName(const int& oid) const;
-    ofVec2f                 getInletPosition(int iid);
-    ofVec2f                 getOutletPosition(int oid);
-    int                     getNumInlets() { return inlets.size(); }
-    int                     getNumOutlets() { return outlets.size(); }
+    ImVec2                  getInletPosition(int iid);
+    ImVec2                  getOutletPosition(int oid);
+    int                     getNumInlets() { return inletsType.size(); }
+    int                     getNumOutlets() { return outletsType.size(); }
     bool                    getIsOutletConnected(int oid);
     bool                    getWillErase() { return willErase; }
 
@@ -201,22 +198,21 @@ public:
     static const std::string server_name() {return "PatchObjectServer";}
 
     // patch object connections
-    vector<shared_ptr<PatchLink>>      outPut;
-    vector<int>             linksToDisconnect;
-    vector<bool>            inletsConnected;
+    vector<shared_ptr<PatchLink>>       outPut;
+    vector<int>                         linksToDisconnect;
+    vector<bool>                        inletsConnected;
 
-    void                    *_inletParams[MAX_INLETS];
-    void                    *_outletParams[MAX_OUTLETS];
+    void                                *_inletParams[MAX_INLETS];
+    void                                *_outletParams[MAX_OUTLETS];
 
-    map<int,pdsp::PatchNode> pdspIn;
-    map<int,pdsp::PatchNode> pdspOut;
+    map<int,pdsp::PatchNode>            pdspIn;
+    map<int,pdsp::PatchNode>            pdspOut;
 
     ofEvent<int>            resetEvent;
     ofEvent<int>            removeEvent;
     ofEvent<int>            reconnectOutletsEvent;
     ofEvent<int>            duplicateEvent;
 
-    string                  linkTypeName;
     string                  specialLinkTypeName;
 
 protected:
@@ -228,9 +224,9 @@ protected:
     ofRectangle             *box;
     ofRectangle             *headerBox;
     float                   x, y, width, height, headerHeight;
-    int                     letterWidth, letterHeight, offSetWidth;
-    int                     buttonOffset;
     int                     fontSize;
+    ImVec2                  canvasTranslation;
+    float                   canvasScale;
 
     // Core vars
     string                  name;
@@ -241,10 +237,8 @@ protected:
     vector<string>          outletsNames;
     vector<ImVec2>          inletsPositions; // ImVec2 to prevent too much type casting
     vector<ImVec2>          outletsPositions; // Will hold screenpositions of pins, updated by ImGui
-    vector<ofVec2f>         inletsPositionOF;
-    vector<ofVec2f>         outletsPositionOF;
-    vector<int>             inlets; // inlet types, to be renamed for clarity ?
-    vector<int>             outlets; // outlet types
+    vector<int>             inletsType;
+    vector<int>             outletsType;
     map<string,float>       customVars;
 
 
@@ -258,13 +252,11 @@ protected:
     bool                    isOverGUI;
     bool                    isRetina;
     bool                    isGUIObject;
-    bool                    isBigGuiComment;
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
     bool                    isPDSPPatchableObject;
     bool                    isResizable;
     bool                    willErase;
-    float                   retinaScale;
 
 };
 

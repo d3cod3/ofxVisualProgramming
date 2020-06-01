@@ -84,7 +84,7 @@ void BiggerThan::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BiggerThan::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void BiggerThan::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         inputValue = *(float *)&_inletParams[0];
         if(inputValue > equalsTo){

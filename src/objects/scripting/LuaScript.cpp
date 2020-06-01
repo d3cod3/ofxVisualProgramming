@@ -181,11 +181,11 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
+        //fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
     }
 
     // GUI
@@ -208,14 +208,14 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     if(loadLuaScriptFlag){
         loadLuaScriptFlag = false;
         string tempID = "load lua script"+ofToString(this->getId());
-        fd.openFile(tempID,"Select a lua script");
+        //fd.openFile(tempID,"Select a lua script");
     }
 
     if(saveLuaScriptFlag){
         saveLuaScriptFlag = false;
         string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
         string tempID = "save lua script"+ofToString(this->getId());
-        fd.saveFile(tempID,"Save new Lua script as",newFileName);
+        //fd.saveFile(tempID,"Save new Lua script as",newFileName);
     }
 
     if(luaScriptLoaded){
@@ -514,7 +514,7 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 }
 
 //--------------------------------------------------------------
-void LuaScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void LuaScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load lua script"+ofToString(this->getId())){
         lastLuaScript = response.filepath;
         luaScriptLoaded = true;
@@ -522,7 +522,7 @@ void LuaScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         lastLuaScript = response.filepath;
         luaScriptSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void LuaScript::unloadScript(){

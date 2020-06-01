@@ -99,7 +99,7 @@ void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     gui->update();
     header->update();
@@ -109,7 +109,7 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(exportAudioFlag){
         exportAudioFlag = false;
-        fd.saveFile("export audiofile"+ofToString(this->getId()),"Export new mp3 320kb audio file as","export.mp3");
+        //fd.saveFile("export audiofile"+ofToString(this->getId()),"Export new mp3 320kb audio file as","export.mp3");
     }
 
     if(audioSaved){
@@ -223,12 +223,12 @@ void AudioExporter::audioInObject(ofSoundBuffer &inputBuffer){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void AudioExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "export audiofile"+ofToString(this->getId())){
         filepath = response.filepath;
         audioSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void AudioExporter::onToggleEvent(ofxDatGuiToggleEvent e){

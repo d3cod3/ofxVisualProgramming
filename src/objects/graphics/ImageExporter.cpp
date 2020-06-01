@@ -35,7 +35,7 @@
 #include "ImageExporter.h"
 
 //--------------------------------------------------------------
-ImageExporter::ImageExporter() : PatchObject(){
+ImageExporter::ImageExporter() : PatchObject("image exporter"){
 
     this->numInlets  = 2;
     this->numOutlets = 0;
@@ -47,9 +47,6 @@ ImageExporter::ImageExporter() : PatchObject(){
     this->initInletsState();
 
     img = unique_ptr<ofImage>(new ofImage());
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     isNewObject         = false;
     
@@ -64,57 +61,23 @@ ImageExporter::ImageExporter() : PatchObject(){
 
 //--------------------------------------------------------------
 void ImageExporter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
 
 //--------------------------------------------------------------
 void ImageExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &ImageExporter::onButtonEvent);
-    gui->onTextInputEvent(this, &ImageExporter::onTextInputEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    imgName = gui->addTextInput("name","export.jpg");
-    imgName->setUseCustomMouse(true);
-    gui->addBreak();
-    saveButton = gui->addButton("SAVE");
-    saveButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
 }
 
 //--------------------------------------------------------------
-void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    imgName->update();
-    saveButton->update();
-
-    if(saveImgFlag){
-        saveImgFlag = false;
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            fd.saveFile("save imagefile"+ofToString(this->getId()),"Save an image file",imgName->getText());
-        }else{
-            ofLog(OF_LOG_NOTICE,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
-        }
-    }
+void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(isImageSaved){
         isImageSaved = false;
         saveImageFile();
-        ofFile tempFilename(lastImageFile);
-        imgName->setText(tempFilename.getFileName());
     }
 
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0){
@@ -130,81 +93,66 @@ void ImageExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
     ofSetColor(255);
     ofEnableAlphaBlending();
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth()/static_cast<ofTexture *>(_inletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_inletParams[0])->getWidth() > static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    saveImgFlag = false;
+
+    // Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        if(ImGui::MenuItem("Object Reference")){
+            ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=image-exporter");
         }
-        static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
+        _nodeCanvas.EndNodeMenu();
     }
 
-    gui->draw();
-    ofDisableAlphaBlending();
+    // Info view
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+        ImGui::TextWrapped("Export an image or image sequence (using ### for auto-numeration) from every texture cable (blue ones).");
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // Any other view
+    else if( _nodeCanvas.BeginNodeContent() ){
+        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+            ofFile tempFilename(lastImageFile);
+            ImGui::Text("Export File:");
+            ImGui::Text("%s",tempFilename.getFileName().c_str());
+            if(ImGui::Button("SAVE",ImVec2(-1,20))){
+                saveImgFlag = true;
+            }
+        }
+        else {
+            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+                float _tw = this->width*_nodeCanvas.GetCanvasScale();
+                float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+                ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_inletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+
+            }
+        }
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // file dialog
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(ImGuiEx::getFileDialog(fileDialog, saveImgFlag, "Save image", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".jpg,.jpeg,.gif,.png,.tif,.tiff")){
+            lastImageFile = fileDialog.selected_path;
+            isImageSaved= true;
+        }
+    }else{
+        ofLog(OF_LOG_NOTICE,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
+    }
+
+
 }
 
 //--------------------------------------------------------------
 void ImageExporter::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void ImageExporter::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    imgName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    saveButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || imgName->hitTest(_m-this->getPos()) || saveButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ImageExporter::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        imgName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        saveButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ImageExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "save imagefile"+ofToString(this->getId())){
-        lastImageFile = response.filepath;
-        isImageSaved = true;
-    }
 }
 
 //--------------------------------------------------------------
@@ -253,24 +201,6 @@ void ImageExporter::saveImageFile(){
     img->setFromPixels(capturePix);
     img->save(finalFileName);
 
-}
-
-//--------------------------------------------------------------
-void ImageExporter::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == saveButton){
-            saveImgFlag = true;
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ImageExporter::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == imgName){
-
-        }
-    }
 }
 
 OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_GRAPHICS)

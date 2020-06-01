@@ -130,11 +130,11 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
         modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor\nand it seems you do not have it installed on your system.");
+        //fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor\nand it seems you do not have it installed on your system.");
     }
 
     // listen to message control (_inletParams[0])
@@ -167,13 +167,13 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     // file dialogs
     if(loadScriptFlag){
         loadScriptFlag = false;
-        fd.openFile("load bash"+ofToString(this->getId()),"Select a bash script");
+        //fd.openFile("load bash"+ofToString(this->getId()),"Select a bash script");
     }
 
     if(saveScriptFlag){
         saveScriptFlag = false;
         string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
-        fd.saveFile("save bash"+ofToString(this->getId()),"Save new Bash script as",newFileName);
+        //fd.saveFile("save bash"+ofToString(this->getId()),"Save new Bash script as",newFileName);
     }
 
     // path watcher
@@ -249,7 +249,7 @@ void BashScript::dragGUIObject(ofVec3f _m){
 }
 
 //--------------------------------------------------------------
-void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load bash"+ofToString(this->getId())){
         ofFile file (response.filepath);
         if (file.exists()){
@@ -268,7 +268,7 @@ void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
         reloadScriptThreaded();
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void BashScript::loadScript(string scriptFile){

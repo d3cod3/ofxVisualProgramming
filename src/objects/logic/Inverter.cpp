@@ -65,7 +65,7 @@ void Inverter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0f){

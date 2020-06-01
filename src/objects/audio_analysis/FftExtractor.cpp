@@ -80,7 +80,7 @@ void FftExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){

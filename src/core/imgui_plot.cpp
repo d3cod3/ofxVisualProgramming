@@ -6,6 +6,7 @@
 #include "imgui_internal.h"
 
 namespace ImGui {
+
 // [0..1] -> [0..1]
 static float rescale(float t, float min, float max, PlotConfig::Scale::Type type) {
     switch (type) {
@@ -36,6 +37,18 @@ static int cursor_to_idx(const ImVec2& pos, const ImRect& bb, const PlotConfig& 
     return v_idx;
 }
 
+void plotvar_flush_old_entries() {
+    int current_frame = ImGui::GetFrameCount();
+    for (std::map<ImGuiID, PlotVarData>::iterator it = g_PlotVarsMap.begin(); it != g_PlotVarsMap.end(); )
+    {
+        PlotVarData& pvd = it->second;
+        if (pvd.LastFrame < current_frame - (int)pvd.Data.size())
+            it = g_PlotVarsMap.erase(it);
+        else
+            ++it;
+    }
+}
+
 PlotStatus Plot(const char* label, const PlotConfig& conf) {
     PlotStatus status = PlotStatus::nothing;
 
@@ -57,11 +70,11 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
     const ImGuiID id = window->GetID(label);
 
     const ImRect frame_bb(
-        window->DC.CursorPos,
-        window->DC.CursorPos + conf.frame_size);
+                window->DC.CursorPos,
+                window->DC.CursorPos + conf.frame_size);
     const ImRect inner_bb(
-        frame_bb.Min + style.FramePadding,
-        frame_bb.Max - style.FramePadding);
+                frame_bb.Min + style.FramePadding,
+                frame_bb.Max - style.FramePadding);
     const ImRect total_bb = frame_bb;
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, 0, &frame_bb))
@@ -69,11 +82,11 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
     const bool hovered = ItemHoverable(frame_bb, id);
 
     RenderFrame(
-        frame_bb.Min,
-        frame_bb.Max,
-        GetColorU32(ImGuiCol_FrameBg),
-        true,
-        style.FrameRounding);
+                frame_bb.Min,
+                frame_bb.Max,
+                GetColorU32(ImGuiCol_FrameBg),
+                true,
+                style.FrameRounding);
 
     if (conf.values.count > 0) {
         int res_w;
@@ -104,7 +117,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
 
         const float t_step = 1.0f / (float)res_w;
         const float inv_scale = (conf.scale.min == conf.scale.max) ?
-                                    0.0f : (1.0f / (conf.scale.max - conf.scale.min));
+                    0.0f : (1.0f / (conf.scale.max - conf.scale.min));
 
         if (conf.grid_x.show) {
             int y0 = inner_bb.Min.y;
@@ -116,9 +129,9 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                 for (int i = 0; i <= cnt; ++i) {
                     int x0 = ImLerp(inner_bb.Min.x, inner_bb.Max.x, i * inc);
                     window->DrawList->AddLine(
-                        ImVec2(x0, y0),
-                        ImVec2(x0, y1),
-                        IM_COL32(200, 200, 200, (i % conf.grid_x.subticks) ? 128 : 255));
+                                ImVec2(x0, y0),
+                                ImVec2(x0, y1),
+                                IM_COL32(200, 200, 200, (i % conf.grid_x.subticks) ? 128 : 255));
                 }
                 break;
             }
@@ -132,9 +145,9 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                         float t = log10(x / x_min) / log10(x_max / x_min);
                         int x0 = ImLerp(inner_bb.Min.x, inner_bb.Max.x, t);
                         window->DrawList->AddLine(
-                            ImVec2(x0, y0),
-                            ImVec2(x0, y1),
-                            IM_COL32(200, 200, 200, (i > 1) ? 128 : 255));
+                                    ImVec2(x0, y0),
+                                    ImVec2(x0, y1),
+                                    IM_COL32(200, 200, 200, (i > 1) ? 128 : 255));
                     }
                     start *= 10.f;
                 }
@@ -150,9 +163,9 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
             for (int i = 0; i <= cnt; ++i) {
                 int y0 = ImLerp(inner_bb.Min.y, inner_bb.Max.y, i * inc);
                 window->DrawList->AddLine(
-                    ImVec2(x0, y0),
-                    ImVec2(x1, y0),
-                    IM_COL32(0, 0, 0, (i % conf.grid_y.subticks) ? 16 : 64));
+                            ImVec2(x0, y0),
+                            ImVec2(x1, y0),
+                            IM_COL32(0, 0, 0, (i % conf.grid_y.subticks) ? 16 : 64));
             }
         }
 
@@ -176,10 +189,10 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                 IM_ASSERT(v1_idx >= 0 && v1_idx < conf.values.count);
                 const float v1 = ys_list[i][conf.values.offset + (v1_idx + 1) % conf.values.count];
                 const ImVec2 tp1 = ImVec2(
-                    rescale(t1, x_min, x_max, conf.scale.type),
-                    1.0f - ImSaturate((v1 - conf.scale.min) * inv_scale));
+                            rescale(t1, x_min, x_max, conf.scale.type),
+                            1.0f - ImSaturate((v1 - conf.scale.min) * inv_scale));
 
-            // NB: Draw calls are merged together by the DrawList system. Still, we should render our batch are lower level to save a bit of CPU.
+                // NB: Draw calls are merged together by the DrawList system. Still, we should render our batch are lower level to save a bit of CPU.
                 ImVec2 pos0 = ImLerp(inner_bb.Min, inner_bb.Max, tp0);
                 ImVec2 pos1 = ImLerp(inner_bb.Min, inner_bb.Max, tp1);
 
@@ -188,10 +201,10 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                 }
 
                 window->DrawList->AddLine(
-                    pos0,
-                    pos1,
-                    col_base,
-                    conf.line_thickness);
+                            pos0,
+                            pos1,
+                            col_base,
+                            conf.line_thickness);
 
                 t0 = t1;
                 tp0 = tp1;
@@ -248,7 +261,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
             ImVec2 pos0 = ImLerp(inner_bb.Min, inner_bb.Max,
                                  ImVec2(fSelectionStep * *conf.selection.start, 0.f));
             ImVec2 pos1 = ImLerp(inner_bb.Min, inner_bb.Max,
-                                ImVec2(fSelectionStep * (*conf.selection.start + *conf.selection.length), 1.f));
+                                 ImVec2(fSelectionStep * (*conf.selection.start + *conf.selection.length), 1.f));
             window->DrawList->AddRectFilled(pos0, pos1, IM_COL32(128, 128, 128, 32));
             window->DrawList->AddRect(pos0, pos1, IM_COL32(128, 128, 128, 128));
         }
@@ -260,4 +273,57 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
 
     return status;
 }
+
+PlotStatus PlotVar(const char* label, const PlotVarConfig& conf) {
+
+    PlotStatus status = PlotStatus::nothing;
+
+    assert(label);
+
+    assert(conf.buffer_size > 0);
+
+    PushID(label);
+    ImGuiID id = GetID("");
+
+    // Lookup O(log N)
+    PlotVarData& pvd = g_PlotVarsMap[id];
+
+    // Setup
+    if (pvd.Data.capacity() != conf.buffer_size)
+    {
+        pvd.Data.resize(conf.buffer_size);
+        memset(&pvd.Data[0], 0, sizeof(float) * conf.buffer_size);
+        pvd.DataInsertIdx = 0;
+        pvd.LastFrame = -1;
+    }
+
+    // Insert (avoid unnecessary modulo operator)
+    if (pvd.DataInsertIdx == conf.buffer_size)
+        pvd.DataInsertIdx = 0;
+    //int display_idx = pvd.DataInsertIdx;
+    if (conf.value != FLT_MAX)
+        pvd.Data[pvd.DataInsertIdx++] = conf.value;
+
+    // Draw
+    int current_frame = GetFrameCount();
+    if (pvd.LastFrame != current_frame)
+    {
+        //char overlay[32];
+        //sprintf(overlay, "%-3.4f", pvd.Data[display_idx]);
+        PlotLines("##plot", &pvd.Data[0], conf.buffer_size, pvd.DataInsertIdx, NULL, conf.scale.min, conf.scale.max, ImVec2(conf.frame_size.x, conf.frame_size.y));
+        //ImGui::SameLine();
+        //ImGui::Text("%s\n%-3.4f", label, pvd.Data[display_idx]);	// Display last value in buffer
+        pvd.LastFrame = current_frame;
+
+        status = PlotStatus::selection_updated;
+    }
+
+    // flush old entries
+    plotvar_flush_old_entries();
+
+    PopID();
+
+    return status;
+}
+
 }

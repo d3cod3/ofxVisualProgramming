@@ -40,7 +40,6 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     patchFile       = "";
     patchFolderPath = "";
 
-    linkTypeName        = "";
     specialLinkTypeName = "";
 
     numInlets   = 0;
@@ -53,7 +52,6 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     isOverGUI               = false;
     isRetina                = false;
     isGUIObject             = false;
-    isBigGuiComment         = false;
     isAudioINObject         = false;
     isAudioOUTObject        = false;
     isPDSPPatchableObject   = false;
@@ -65,13 +63,9 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     headerHeight= HEADER_HEIGHT;
     x           = 0.0f;
     y           = 0.0f;
-    letterWidth = 12;
-    letterHeight= 11;
-    offSetWidth = 5;
     fontSize    = 12;
-    buttonOffset= 10;
 
-    retinaScale = 1.0f;
+    canvasScale         = 1;
 
     // Dynamically allocate pointers
     // so we'll be able to call delete on them
@@ -101,11 +95,7 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
         width           *= 2;
         height          *= 2;
         headerHeight    *= 2;
-        letterWidth     *= 2;
-        letterHeight    *= 2;
-        buttonOffset    *= 2;
         fontSize         = 16;
-        retinaScale      = 2.0f;
     }
 
     box->set(x,y,width,height);
@@ -120,14 +110,14 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void PatchObject::setupDSP(pdsp::Engine &engine){
     if(this->isPDSPPatchableObject){
-        for(int i=0;i<static_cast<int>(inlets.size());i++){
+        for(int i=0;i<static_cast<int>(inletsType.size());i++){
             int it = getInletType(i);
             if(it == 4){ // VP_LINK_AUDIO
                 pdsp::PatchNode *temp = new pdsp::PatchNode();
                 this->pdspIn[i] = *temp;
             }
         }
-        for(int i=0;i<static_cast<int>(outlets.size());i++){
+        for(int i=0;i<static_cast<int>(outletsType.size());i++){
             int ot = getOutletType(i);
             if(ot == 4){ // VP_LINK_AUDIO
                 pdsp::PatchNode *temp = new pdsp::PatchNode();
@@ -141,7 +131,7 @@ void PatchObject::setupDSP(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(willErase) return;
 
@@ -151,14 +141,12 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThre
             if(!outPut[i]->isDisabled && outPut[i]->fromOutletID == out && patchObjects[outPut[i]->toObjectID]!=nullptr && !patchObjects[outPut[i]->toObjectID]->getWillErase()){
                 outPut[i]->posFrom = getOutletPosition(out);
                 outPut[i]->posTo = patchObjects[outPut[i]->toObjectID]->getInletPosition(outPut[i]->toInletID);
-                outPut[i]->linkVertices[0].set(outPut[i]->posFrom.x,outPut[i]->posFrom.y);
-                outPut[i]->linkVertices[1].set(outPut[i]->posTo.x,outPut[i]->posTo.y);
                 // send data through links
                 patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
             }
         }
     }
-    updateObjectContent(patchObjects,fd);
+    updateObjectContent(patchObjects);
 
 }
 
@@ -189,18 +177,17 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
         if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DeleteNode) ){
             ofNotifyEvent(removeEvent, nId);
             this->setWillErase(true);
-
-            // todo: tell ImGui explicitly to close/remove window instance ? This doesn't seem to be available (yet).
         }
         else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_CopyNode) ){
         //          ofGetWindowPtr()->setClipboardString( this->serialize() );
+            // ofNotifyEvent(copyEvent, nId); ?
         }
         else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DuplicateNode) ){
             ofNotifyEvent(duplicateEvent, nId);
         }
 
         // Inlets
-        for(int i=0;i<static_cast<int>(inlets.size());i++){
+        for(int i=0;i<static_cast<int>(inletsType.size());i++){
             auto pinCol = getInletColor(i);
             vector<ImGuiEx::ofxVPLinkData> tempLinkData;
 
@@ -210,7 +197,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                     for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                         if(it->second->outPut[j]->toObjectID == nId && it->second->outPut[j]->toInletID == i){
                             ImGuiEx::ofxVPLinkData tvpld;
-                            tvpld._toPinPosition = ImVec2(it->second->outPut[j]->linkVertices[0].x,it->second->outPut[j]->linkVertices[0].y);
+                            tvpld._toPinPosition = it->second->outPut[j]->posFrom;
                             tvpld._linkID = it->second->outPut[j]->id;
                             tvpld._linkLabel = it->second->getOutletName(it->second->outPut[j]->fromOutletID);
                             tvpld._fromObjectID = it->second->getId();
@@ -223,31 +210,31 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), inletsPositions[0], tempLinkData, getInletTypeName(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), inletsPositions[i], tempLinkData, getInletTypeName(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
 
             // check for inbound connections
             if(connectData.connectType == 1){ // connect new
-                //cout << "Connect object " << nId << " from outlet " << i << " to object " << connectData.toObjectID << " at inlet " << connectData.toInletPinID << endl;
+                //cout << "Connect object " << nId << " from outlet " << i << " to object " << this->getId() << " at inlet " << connectData.toInletPinID << endl;
                 // if previously connected, disconnect and refresh connection
-                if(patchObjects[connectData.toObjectID]->inletsConnected.at(connectData.toInletPinID)){
+                if(this->inletsConnected.at(connectData.toInletPinID)){
                     // Disconnect from --> inlet link
-                    disconnectFrom(patchObjects,connectData.toObjectID,connectData.toInletPinID);
+                    disconnectFrom(patchObjects,connectData.toInletPinID);
                 }
                 // if compatible type, connect
                 if(getInletType(connectData.toInletPinID) == patchObjects[connectData.fromObjectID]->getOutletType(connectData.fromOutletPinID)){
-                    connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toObjectID,connectData.toInletPinID,getOutletType(connectData.fromOutletPinID));
+                    connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toInletPinID,getInletType(connectData.toInletPinID));
                     saveConfig(true,connectData.fromObjectID);
                 }
             }else if(connectData.connectType == 2){ // re-connect
                 // disconnect from elsewhere ( if another object have this connection )
-                if(patchObjects[connectData.toObjectID]->inletsConnected.at(connectData.toInletPinID)){
-                    disconnectFrom(patchObjects,connectData.toObjectID,connectData.toInletPinID);
+                if(this->inletsConnected.at(connectData.toInletPinID)){
+                    disconnectFrom(patchObjects,connectData.toInletPinID);
                 }
                 // disconnect previous link
                 disconnectLink(patchObjects,connectData.linkID);
                 // if compatible type, connect
                 if(getInletType(connectData.toInletPinID) == patchObjects[connectData.fromObjectID]->getOutletType(connectData.fromOutletPinID)){
-                    connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toObjectID,connectData.toInletPinID,getOutletType(connectData.fromOutletPinID));
+                    connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toInletPinID,getInletType(connectData.toInletPinID));
                     saveConfig(true,connectData.fromObjectID);
                 }
 
@@ -257,11 +244,11 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 saveConfig(true,connectData.fromObjectID);
             }
 
-            inletsPositionOF[i] = ofVec2f((inletsPositions[0].x - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale(), (inletsPositions[0].y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale());
         }
 
+
         // Outlets
-        for(int i=0;i<static_cast<int>(outlets.size());i++){
+        for(int i=0;i<static_cast<int>(outletsType.size());i++){
             auto pinCol = getOutletColor(i);
 
             // links
@@ -270,7 +257,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             for(int j=0;j<static_cast<int>(outPut.size());j++){
                 if(!outPut[j]->isDisabled && outPut[j]->fromOutletID == i){
                     ImGuiEx::ofxVPLinkData tvpld;
-                    tvpld._toPinPosition = ImVec2(outPut[j]->linkVertices[1].x,outPut[j]->linkVertices[1].y);
+                    tvpld._toPinPosition = outPut[j]->posTo;
                     tvpld._linkID = outPut[j]->id;
                     tvpld._linkLabel = getOutletName(outPut[j]->fromOutletID);
                     tvpld._fromObjectID = nId;
@@ -281,9 +268,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), outletsPositions[0], tempLinkData, getOutletTypeName(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
-
-            outletsPositionOF[i] = ofVec2f((outletsPositions[0].x - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale(), (outletsPositions[0].y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale());
+            _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), outletsPositions[i], tempLinkData, getOutletTypeName(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
 
         }
 
@@ -310,6 +295,9 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     box->setPosition(this->x,this->y);
     headerBox->setPosition(this->x,this->y);
 
+    canvasTranslation   = _nodeCanvas.GetCanvasTranslation();
+    canvasScale         = _nodeCanvas.GetCanvasScale();
+
 }
 
 //--------------------------------------------------------------
@@ -321,16 +309,11 @@ void PatchObject::move(int _x, int _y){
         py *= 2;
     }
 
-    x = px;
-    y = py;
+    this->x = px;
+    this->y = py;
 
     box->setPosition(px,py);
     headerBox->setPosition(px,py);
-}
-
-//--------------------------------------------------------------
-bool PatchObject::isOver(ofPoint pos){
-    return box->inside(pos) || isOverGUI;
 }
 
 //--------------------------------------------------------------
@@ -359,13 +342,13 @@ void PatchObject::fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects){
 }
 
 //--------------------------------------------------------------
-ofVec2f PatchObject::getInletPosition(int iid){
-    return inletsPositionOF[iid];
+ImVec2 PatchObject::getInletPosition(int iid){
+    return ImVec2((inletsPositions[iid].x - canvasTranslation.x)/canvasScale, (inletsPositions[iid].y - canvasTranslation.y)/canvasScale);
 }
 
 //--------------------------------------------------------------
-ofVec2f PatchObject::getOutletPosition(int oid){
-    return outletsPositionOF[oid];
+ImVec2 PatchObject::getOutletPosition(int oid){
+    return ImVec2((outletsPositions[oid].x - canvasTranslation.x)/canvasScale, (outletsPositions[oid].y - canvasTranslation.y)/canvasScale);
 }
 
 //--------------------------------------------------------------
@@ -383,61 +366,58 @@ bool PatchObject::getIsOutletConnected(int oid){
 
 //---------------------------------------------------------------------------------- PatchLinks utils
 //--------------------------------------------------------------
-bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toObjectID,int toInlet, int linkType){
+bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType){
     bool connected = false;
 
-    if( (fromObjectID != -1) && (patchObjects[fromObjectID] != nullptr) && (fromObjectID!=toObjectID) && (toObjectID != -1) && (patchObjects[toObjectID] != nullptr) && (patchObjects[fromObjectID]->getOutletType(fromOutlet) == patchObjects[toObjectID]->getInletType(toInlet)) && !patchObjects[toObjectID]->inletsConnected[toInlet]){
+    if( (fromObjectID != -1) && (patchObjects[fromObjectID] != nullptr) && (fromObjectID!=this->getId()) && (this->getId() != -1) && (patchObjects[fromObjectID]->getOutletType(fromOutlet) == getInletType(toInlet)) && !inletsConnected[toInlet]){
 
-        //cout << "Mosaic :: "<< "Connect object " << getName().c_str() << ":" << ofToString(getId()) << " to object " << patchObjects[toObjectID]->getName().c_str() << ":" << ofToString(toObjectID) << endl;
+        //cout << "Mosaic :: "<< "Connect object " << getName().c_str() << ":" << ofToString(getId()) << " to object " << getName().c_str() << ":" << ofToString(this->getId()) << endl;
 
         shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
 
-        string tmpID = ofToString(fromObjectID)+ofToString(fromOutlet)+ofToString(toObjectID)+ofToString(toInlet);
+        string tmpID = ofToString(fromObjectID)+ofToString(fromOutlet)+ofToString(this->getId())+ofToString(toInlet);
 
         tempLink->id            = stoi(tmpID);
         tempLink->posFrom       = patchObjects[fromObjectID]->getOutletPosition(fromOutlet);
-        tempLink->posTo         = patchObjects[toObjectID]->getInletPosition(toInlet);
-        tempLink->type          = patchObjects[toObjectID]->getInletType(toInlet);
+        tempLink->posTo         = getInletPosition(toInlet);
+        tempLink->type          = getInletType(toInlet);
         tempLink->fromOutletID  = fromOutlet;
-        tempLink->toObjectID    = toObjectID;
+        tempLink->toObjectID    = this->getId();
         tempLink->toInletID     = toInlet;
         tempLink->isDisabled    = false;
 
-        tempLink->linkVertices.push_back(ofVec2f(tempLink->posFrom.x,tempLink->posFrom.y));
-        tempLink->linkVertices.push_back(ofVec2f(tempLink->posTo.x,tempLink->posTo.y));
-
         patchObjects[fromObjectID]->outPut.push_back(tempLink);
 
-        patchObjects[toObjectID]->inletsConnected[toInlet] = true;
+        inletsConnected[toInlet] = true;
 
         if(tempLink->type == VP_LINK_NUMERIC){
-            patchObjects[toObjectID]->_inletParams[toInlet] = new float();
+            _inletParams[toInlet] = new float();
         }else if(tempLink->type == VP_LINK_STRING){
-            patchObjects[toObjectID]->_inletParams[toInlet] = new string();
+            _inletParams[toInlet] = new string();
         }else if(tempLink->type == VP_LINK_ARRAY){
-            patchObjects[toObjectID]->_inletParams[toInlet] = new vector<float>();
+            _inletParams[toInlet] = new vector<float>();
         }else if(tempLink->type == VP_LINK_PIXELS){
-            patchObjects[toObjectID]->_inletParams[toInlet] = new ofPixels();
+            _inletParams[toInlet] = new ofPixels();
         }else if(tempLink->type == VP_LINK_TEXTURE){
-            patchObjects[toObjectID]->_inletParams[toInlet] = new ofTexture();
+            _inletParams[toInlet] = new ofTexture();
         }else if(tempLink->type == VP_LINK_AUDIO){
-            patchObjects[toObjectID]->_inletParams[toInlet] = new ofSoundBuffer();
-            if(patchObjects[fromObjectID]->getIsPDSPPatchableObject() && patchObjects[toObjectID]->getIsPDSPPatchableObject()){
-                patchObjects[fromObjectID]->pdspOut[fromOutlet] >> patchObjects[toObjectID]->pdspIn[toInlet];
-            }else if(patchObjects[fromObjectID]->getName() == "audio device" && patchObjects[toObjectID]->getIsPDSPPatchableObject()){
-                patchObjects[fromObjectID]->pdspOut[fromOutlet] >> patchObjects[toObjectID]->pdspIn[toInlet];
+            _inletParams[toInlet] = new ofSoundBuffer();
+            if(patchObjects[fromObjectID]->getIsPDSPPatchableObject() && getIsPDSPPatchableObject()){
+                patchObjects[fromObjectID]->pdspOut[fromOutlet] >> pdspIn[toInlet];
+            }else if(patchObjects[fromObjectID]->getName() == "audio device" && getIsPDSPPatchableObject()){
+                patchObjects[fromObjectID]->pdspOut[fromOutlet] >> pdspIn[toInlet];
             }
         }
 
         // check special connections
-        if(getName() == "lua script"){
-            if((patchObjects[toObjectID]->getName() == "shader object" || patchObjects[toObjectID]->getName() == "output window") && linkType == VP_LINK_TEXTURE){
-                patchObjects[fromObjectID]->resetResolution(toObjectID,patchObjects[toObjectID]->getOutputWidth(),patchObjects[toObjectID]->getOutputHeight());
+        if(patchObjects[fromObjectID]->getName() == "lua script"){
+            if((this->getName() == "shader object" || this->getName() == "output window") && linkType == VP_LINK_TEXTURE){
+                patchObjects[fromObjectID]->resetResolution(this->getId(),this->getOutputWidth(),this->getOutputHeight());
             }
         }
-        if(getName() == "shader object"){
-            if(patchObjects[toObjectID]->getName() == "output window" && linkType == VP_LINK_TEXTURE){
-                patchObjects[fromObjectID]->resetResolution(toObjectID,patchObjects[toObjectID]->getOutputWidth(),patchObjects[toObjectID]->getOutputHeight());
+        if(patchObjects[fromObjectID]->getName() == "shader object"){
+            if(this->getName() == "output window" && linkType == VP_LINK_TEXTURE){
+                patchObjects[fromObjectID]->resetResolution(this->getId(),this->getOutputWidth(),this->getOutputHeight());
             }
         }
 
@@ -448,15 +428,15 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
 }
 
 //--------------------------------------------------------------
-void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectID, int objectInlet){
+void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectInlet){
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-            if(it->second->outPut[j]->toObjectID == objectID && it->second->outPut[j]->toInletID == objectInlet){
+            if(it->second->outPut[j]->toObjectID == this->getId() && it->second->outPut[j]->toInletID == objectInlet){
                 // remove link
                 vector<bool> tempEraseLinks;
                 for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(it->second->outPut[s]->toObjectID == objectID && it->second->outPut[s]->toInletID == objectInlet){
+                    if(it->second->outPut[s]->toObjectID == this->getId() && it->second->outPut[s]->toInletID == objectInlet){
                         tempEraseLinks.push_back(true);
                     }else{
                         tempEraseLinks.push_back(false);
@@ -471,11 +451,9 @@ void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects,
                         tempBuffer.push_back(it->second->outPut[s]);
                     }else{
                         it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
-                        if(patchObjects[objectID] != nullptr){
-                            patchObjects[objectID]->inletsConnected[objectInlet] = false;
-                            if(patchObjects[objectID]->getIsPDSPPatchableObject()){
-                                patchObjects[objectID]->pdspIn[objectInlet].disconnectIn();
-                            }
+                        this->inletsConnected[objectInlet] = false;
+                        if(this->getIsPDSPPatchableObject()){
+                            this->pdspIn[objectInlet].disconnectIn();
                         }
                     }
                 }
@@ -566,7 +544,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
                 int totalInlets = XML.getNumTags("link");
                 for (int i=0;i<totalInlets;i++){
                     if(XML.pushTag("link",i)){
-                        inlets.push_back(XML.getValue("type", 0));
+                        inletsType.push_back(XML.getValue("type", 0));
                         inletsNames.push_back(XML.getValue("name", ""));
                         inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
                         XML.popTag();
@@ -582,7 +560,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
                 int totalOutlets = XML.getNumTags("link");
                 for (int i=0;i<totalOutlets;i++){
                     if(XML.pushTag("link",i)){
-                        outlets.push_back(XML.getValue("type", 0));
+                        outletsType.push_back(XML.getValue("type", 0));
                         outletsNames.push_back(XML.getValue("name", ""));
                         outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) );
                         XML.popTag();
@@ -656,10 +634,10 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                         // Save inlets
                         int newInlets = XML.addTag("inlets");
                         if(XML.pushTag("inlets",newInlets)){
-                            for(int i=0;i<static_cast<int>(inlets.size());i++){
+                            for(int i=0;i<static_cast<int>(inletsType.size());i++){
                                 int newLink = XML.addTag("link");
                                 if(XML.pushTag("link",newLink)){
-                                    XML.setValue("type",inlets.at(i));
+                                    XML.setValue("type",inletsType.at(i));
                                     XML.setValue("name",inletsNames.at(i));
                                     XML.popTag();
                                 }
@@ -670,10 +648,10 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                         // Save oulets & links
                         int newOutlets = XML.addTag("outlets");
                         if(XML.pushTag("outlets",newOutlets)){
-                            for(int i=0;i<static_cast<int>(outlets.size());i++){
+                            for(int i=0;i<static_cast<int>(outletsType.size());i++){
                                 int newLink = XML.addTag("link");
                                 if(XML.pushTag("link",newLink)){
-                                    XML.setValue("type",outlets.at(i));
+                                    XML.setValue("type",outletsType.at(i));
                                     XML.setValue("name",outletsNames.at(i));
                                     XML.popTag();
                                 }
@@ -712,10 +690,10 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                             XML.removeTag("inlets");
                             int newInlets = XML.addTag("inlets");
                             if(XML.pushTag("inlets",newInlets)){
-                                for(int i=0;i<static_cast<int>(inlets.size());i++){
+                                for(int i=0;i<static_cast<int>(inletsType.size());i++){
                                     int newLink = XML.addTag("link");
                                     if(XML.pushTag("link",newLink)){
-                                        XML.setValue("type",inlets.at(i));
+                                        XML.setValue("type",inletsType.at(i));
                                         XML.setValue("name",inletsNames.at(i));
                                         XML.popTag();
                                     }
@@ -725,7 +703,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
 
                             // Fixed static outlets
                             if(XML.pushTag("outlets")){
-                                for(int j=0;j<static_cast<int>(outlets.size());j++){
+                                for(int j=0;j<static_cast<int>(outletsType.size());j++){
                                     if(XML.pushTag("link", j)){
                                         if(static_cast<int>(outPut.size()) > 0 && newConnection){
                                             int totalTo = XML.getNumTags("to");
@@ -1035,9 +1013,6 @@ void PatchObject::mouseDragged(float mx, float my){
             x = box->getPosition().x;
             y = box->getPosition().y;
 
-            for(int j=0;j<static_cast<int>(outPut.size());j++){
-                outPut[j]->linkVertices[0].set(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            }
         }else if(isMouseOver && isGUIObject){
             dragGUIObject(m);
         }

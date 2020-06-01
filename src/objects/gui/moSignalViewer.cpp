@@ -82,7 +82,7 @@ void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         *(float *)&_outletParams[3] = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
     }else{
@@ -93,12 +93,7 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofEnableAlphaBlending();
-    /*if(this->inletsConnected[0]){
-        ofSetColor(255,255,120,10);
-        ofDrawRectangle(0,this->height,this->width,-this->height * ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0));
-    }
-    ofSetColor(255,255,120);
-    waveform.draw();*/
+
     ofDisableAlphaBlending();
 }
 
@@ -129,7 +124,7 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // visualize view
         else {
             ImGui::PlotConfig conf;
-            conf.values.ys = y_data;
+            conf.values.ys = plot_data;
             conf.values.count = 1024;
             conf.values.color = IM_COL32(255,255,120,255);
             conf.scale.min = -1;
@@ -138,7 +133,7 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             conf.tooltip.format = "x=%.2f, y=%.2f";
             conf.grid_x.show = false;
             conf.grid_y.show = false;
-            conf.frame_size = ImVec2(this->width*0.98f, this->height*0.7f);
+            conf.frame_size = ImVec2(this->width*0.98f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
             conf.line_thickness = 1.3f;
 
             ImGui::Plot("plot", conf);
@@ -178,18 +173,13 @@ void moSignalViewer::audioInObject(ofSoundBuffer &inputBuffer){
 
 //--------------------------------------------------------------
 void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
-    waveform.clear();
     if(this->inletsConnected[0]){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
 
         for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
             float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
-            float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
-            float y = ofMap(hardClip(sample), -1, 1, 0, this->height);
-            waveform.addVertex(x, y);
-
-            y_data[i] = hardClip(sample);
+            plot_data[i] = hardClip(sample);
 
             // SIGNAL BUFFER DATA
             static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;

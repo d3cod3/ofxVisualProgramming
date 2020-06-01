@@ -168,7 +168,7 @@ void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     // GUI
     gui->update();
@@ -179,13 +179,13 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
     if(loadPatchFlag){
         loadPatchFlag = false;
-        fd.openFile("load pd patch"+ofToString(this->getId()),"Select a PD patch");
+        //fd.openFile("load pd patch"+ofToString(this->getId()),"Select a PD patch");
     }
 
     if(savePatchFlag){
         savePatchFlag = false;
         string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
-        fd.saveFile("save pd patch"+ofToString(this->getId()),"Save new PD patch as",newFileName);
+        //fd.saveFile("save pd patch"+ofToString(this->getId()),"Save new PD patch as",newFileName);
     }
 
     if(patchLoaded){
@@ -214,7 +214,7 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
     if(setExternalFlag){
         setExternalFlag = false;
-        fd.openFolder("load pd external folder"+ofToString(this->getId()),"Select your PD external folder");
+        //fd.openFolder("load pd external folder"+ofToString(this->getId()),"Select your PD external folder");
     }
 
     if(externalPathSaved){
@@ -296,7 +296,7 @@ void PDPatch::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
+/*void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
     if(response.id == "load pd patch"+ofToString(this->getId())){
         lastLoadedPatch = response.filepath;
         patchLoaded = true;
@@ -307,7 +307,7 @@ void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
         lastExternalsFolder = response.filepath;
         externalPathSaved = true;
     }
-}
+}*/
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){

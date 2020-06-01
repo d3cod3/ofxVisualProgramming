@@ -89,7 +89,7 @@ void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void RMSExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void RMSExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     gui->update();
     rPlotter->setValue(*(float *)&_outletParams[0]);
 

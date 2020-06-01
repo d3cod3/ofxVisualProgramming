@@ -57,7 +57,6 @@ moComment::moComment() : PatchObject(){
     actualComment   = "This project deals with the idea of integrate/amplify human-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, Python, GLSL and BASH).";
     bang            = false;
 
-    this->isBigGuiComment   = true;
     this->width             *= 2;
 }
 
@@ -84,7 +83,7 @@ void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){

@@ -78,7 +78,7 @@ void FloatMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void FloatMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void FloatMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             if(*(float *)&_inletParams[i] != 0.0f){

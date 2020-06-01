@@ -85,7 +85,7 @@ void TristimulusExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainW
 }
 
 //--------------------------------------------------------------
-void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){

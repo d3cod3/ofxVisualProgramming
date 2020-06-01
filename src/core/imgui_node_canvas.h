@@ -270,6 +270,12 @@ struct NodeCanvas {
         return curNodeData;
     }
 
+    // Returns nodeDrawList
+    ImDrawList* getNodeDrawList() const {
+        IM_ASSERT(nodeDrawList != nullptr);
+        return nodeDrawList;
+    }
+
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
 
@@ -297,6 +303,7 @@ private:
     std::vector<int> selected_links; // for delete links (one or multiple)          -- IMPLEMENTED
     std::string activePin;
     std::string activePinType;
+
 };
 
 } // namespace ImGuiEx

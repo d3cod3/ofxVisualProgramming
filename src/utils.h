@@ -43,19 +43,28 @@
 #include <iostream>
 #include <fstream>
 
-struct Segment_s{
-    ofVec3f P0;
-    ofVec3f P1;
-};
+//--------------------------------------------------------------
+inline std::string random_string( size_t length ){
 
-#define dot_mu(u,v)    ((u).x * (v).x + (u).y * (v).y + (u).z * (v).z)
-#define norm2_mu(v)    dot_mu(v,v)        // norm2 = squared length of vector
-#define norm_mu(v)     sqrt(norm2_mu(v))  // norm = length of vector
-#define d2_mu(u,v)     norm2_mu(u-v)      // distance squared = norm2 of difference
-#define d_mu(u,v)      norm_mu(u-v)       // distance = norm of difference
+    srand(ofGetElapsedTimeMillis());
+
+    auto randchar = []() -> char
+    {
+            const char charset[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz"
+            "!¿?*+{}[]%&()=%$-_";
+            const size_t max_index = (sizeof(charset) - 1);
+            return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
 
 //--------------------------------------------------------------
-inline string& fix_newlines(std::string& s){
+inline std::string& fix_newlines(std::string& s){
     size_t start_pos = 0;
     while((start_pos = s.find("\\n", start_pos)) != std::string::npos) {
          s.replace(start_pos, 2, "\n");
@@ -65,7 +74,7 @@ inline string& fix_newlines(std::string& s){
 }
 
 //--------------------------------------------------------------
-inline void stringReplaceChar(string& s, string x, string y){
+inline void stringReplaceChar(std::string& s, std::string x, std::string y){
     size_t pos;
     while ((pos = s.find(x)) != std::string::npos) {
         s.replace(pos, 1, y);
@@ -73,8 +82,8 @@ inline void stringReplaceChar(string& s, string x, string y){
 }
 
 //--------------------------------------------------------------
-inline string& sanitizeFilename(string& s){
-    stringReplaceChar(s,string(" "), string("_"));
+inline std::string& sanitizeFilename(std::string& s){
+    stringReplaceChar(s,std::string(" "), std::string("_"));
     return s;
 }
 
@@ -87,7 +96,7 @@ static inline float hardClip(float x){
 }
 
 //--------------------------------------------------------------
-inline bool isInteger(const string & s){
+inline bool isInteger(const std::string & s){
    if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
 
    char * p ;
@@ -97,8 +106,8 @@ inline bool isInteger(const string & s){
 }
 
 //--------------------------------------------------------------
-inline bool isFloat(const string & s){
-    string::const_iterator it = s.begin();
+inline bool isFloat(const std::string & s){
+    std::string::const_iterator it = s.begin();
     bool decimalPoint = false;
     unsigned int minSize = 0;
     if(s.size()>0 && (s[0] == '-' || s[0] == '+')){
@@ -186,7 +195,7 @@ static inline float gaussianFn(float x, float amplitude, float center, float wid
 //--------------------------------------------------------------
 inline std::string execCmd(const char* cmd){
     char buffer[128];
-    string result = "";
+    std::string result = "";
 #ifdef TARGET_LINUX
     FILE* pipe = popen(cmd, "r");
 #elif defined(TARGET_OSX)
@@ -222,15 +231,15 @@ inline std::string execCmd(const char* cmd){
 }
 
 //--------------------------------------------------------------
-inline bool checkFilenameError(string fn){
+inline bool checkFilenameError(std::string fn){
     #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_./ ") != string::npos){
+    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_./ ") != std::string::npos){
         return true;
     }else{
         return false;
     }
     #else
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_.\/ ") != string::npos){
+    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_.\/ ") != std::string::npos){
         return true;
     }else{
         return false;
@@ -239,9 +248,9 @@ inline bool checkFilenameError(string fn){
 }
 
 //--------------------------------------------------------------
-inline string checkFileExtension(string filename, string ext, string extNeeded){
-    string fileExtension = ofToUpper(ext);
-    string newFilename = filename;
+inline std::string checkFileExtension(std::string filename, std::string ext, std::string extNeeded){
+    std::string fileExtension = ofToUpper(ext);
+    std::string newFilename = filename;
     if(fileExtension != extNeeded) {
         newFilename = filename+"."+ofToLower(extNeeded);
     }
@@ -249,7 +258,7 @@ inline string checkFileExtension(string filename, string ext, string extNeeded){
 }
 
 //--------------------------------------------------------------
-inline void removeFile(string filepath){
+inline void removeFile(std::string filepath){
     ofFile fileToRemove(filepath);
     if(fileToRemove.exists()){
         if(fileToRemove.isDirectory()){
@@ -262,7 +271,7 @@ inline void removeFile(string filepath){
 }
 
 //--------------------------------------------------------------
-inline string copyFileToPatchFolder(string folderpath, string filepath){
+inline std::string copyFileToPatchFolder(std::string folderpath, std::string filepath){
 
     ofFile fileToRead(filepath);
 
@@ -273,7 +282,7 @@ inline string copyFileToPatchFolder(string folderpath, string filepath){
         }
         ofFile patchDataFolder2(folderpath);
 
-        string fileToSave = patchDataFolder2.getAbsolutePath()+fileToRead.getFileName();
+        std::string fileToSave = patchDataFolder2.getAbsolutePath()+fileToRead.getFileName();
         ofFile newFile (fileToSave);
 
         //ofLog(OF_LOG_NOTICE,"%s",fileToSave.c_str());
@@ -289,15 +298,15 @@ inline string copyFileToPatchFolder(string folderpath, string filepath){
 }
 
 //--------------------------------------------------------------
-inline string forceCheckMosaicDataPath(string filepath){
+inline std::string forceCheckMosaicDataPath(std::string filepath){
     ofFile file (filepath);
 
     if(file.exists()){
         return filepath;
     }else{
-        if(filepath.find("Mosaic/data/") != string::npos || filepath.find("Mosaic/examples/") != string::npos) {
+        if(filepath.find("Mosaic/data/") != std::string::npos || filepath.find("Mosaic/examples/") != string::npos) {
             size_t start = filepath.find("Mosaic/");
-            string newPath = filepath.substr(start,filepath.size()-start);
+            std::string newPath = filepath.substr(start,filepath.size()-start);
 
             const char *homeDir = getenv("HOME");
 
@@ -311,7 +320,7 @@ inline string forceCheckMosaicDataPath(string filepath){
             }
             #endif
 
-            string finalPath(homeDir);
+            std::string finalPath(homeDir);
 
             #if defined(TARGET_WIN32) || defined(TARGET_LINUX)
                 finalPath = ofToDataPath("",true);
