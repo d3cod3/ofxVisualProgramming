@@ -72,10 +72,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker ofxNDI
+        ADDON_DEPENDENCIES += ofxPdExternals ofxNDI
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/computer_vision/FaceTracker% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+        ADDON_SOURCES_EXCLUDE = src/objects/video/VideoSender% src/objects/video/VideoReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPdExternals ofxFaceTracker ofxNDI
+        ADDON_DEPENDENCIES += ofxPdExternals ofxNDI

@@ -26,10 +26,10 @@ Table of Contents
 
 # OF COMPATIBLE RELEASE
 
-## 0.10.1 STABLE (official download from [OF site](https://openframeworks.cc/))
+## 0.11.0 STABLE (official download from [OF site](https://openframeworks.cc/))
 > Compiled/tested with QTCreator on osx/linux/windows
 
-If you want to build ofxVisualProgramming, just download OF0.10.1 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
+If you want to build ofxVisualProgramming, just download OF0.11.0 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
 
 # REFERENCE
 
@@ -73,8 +73,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 #### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
 
 #### [ofxEasing](https://github.com/arturoc/ofxEasing)
-
-#### [ofxFaceTracker](https://github.com/kylemcdonald/ofxFaceTracker)
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
@@ -136,7 +134,6 @@ git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/d3cod3/ofxDatGui
 git clone https://github.com/arturoc/ofxEasing
-git clone https://github.com/kylemcdonald/ofxFaceTracker
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
@@ -477,7 +474,6 @@ background subtraction | X  |
 chroma key | X  |
 color tracking | X  |
 contour tracking | X  |
-face tracker | X  |
 haar tracking | X |
 motion detection | X |
 optical flow | X |
@@ -626,7 +622,7 @@ ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 
 ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
 
-ofxCv, ofxFaceTracker original addons by [Kyle McDonald](https://github.com/kylemcdonald)
+ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 
 ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
 
