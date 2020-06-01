@@ -69,9 +69,6 @@
 #include "objects/computer_vision/ChromaKey.h"
 #include "objects/computer_vision/ColorTracking.h"
 #include "objects/computer_vision/ContourTracking.h"
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "objects/computer_vision/FaceTracker.h"
-#endif
 #include "objects/computer_vision/HaarTracking.h"
 #include "objects/computer_vision/MotionDetection.h"
 #include "objects/computer_vision/OpticalFlow.h"
