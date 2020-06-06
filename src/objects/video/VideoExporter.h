@@ -35,6 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "ImGuiFileBrowser.h"
 
 #include "ofxFFmpegRecorder.h"
 #include "ofxFastFboReader.h"
@@ -46,17 +50,15 @@ public:
 
     VideoExporter();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onDropdownEvent(ofxDatGuiDropdownEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
 
     ofxFFmpegRecorder   recorder;
     ofxFastFboReader    reader;
@@ -68,17 +70,21 @@ public:
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
 
+    imgui_addons::ImGuiFileBrowser  fileDialog;
+
     bool                exportVideoFlag;
     bool                videoSaved;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiToggle*    recButton;
-    ofxDatGuiDropdown*  codecs;
+protected:
 
-    vector<string>      codecsList;
+    string                  recButtonLabel;
+    vector<string>          codecsList;
+    int                     selectedCodec;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

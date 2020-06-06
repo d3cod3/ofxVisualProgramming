@@ -119,6 +119,9 @@ public:
     size_t                                  startTime;
     size_t                                  waitTime;
 
+protected:
+
+
 private:
 
     OBJECT_FACTORY_PROPS

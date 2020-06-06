@@ -178,10 +178,10 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             ofNotifyEvent(removeEvent, nId);
             this->setWillErase(true);
         }
-        else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_CopyNode) ){
+        //else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_CopyNode) ){
         //          ofGetWindowPtr()->setClipboardString( this->serialize() );
             // ofNotifyEvent(copyEvent, nId); ?
-        }
+        //}
         else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DuplicateNode) ){
             ofNotifyEvent(duplicateEvent, nId);
         }

@@ -46,6 +46,7 @@
 #include "imgui_node_canvas.h"
 #include <type_traits>
 #include <bitset> // bitset::count
+#include <algorithm>
 
 // NodePin Connection types in ImGui namespace
 #define IMGUI_PAYLOAD_TYPE_PIN_FLOAT     "PINF"    // float - VP_LINK_NUMERIC
@@ -551,7 +552,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
     // Draw default menu items
     if(ImGui::BeginPopup(IMGUI_EX_NODE_MENU_ID)){
         if(ImGui::MenuItem("Delete")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DeleteNode;
-        if(ImGui::MenuItem("Copy")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_CopyNode;
+        //if(ImGui::MenuItem("Copy")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_CopyNode;
         if(ImGui::MenuItem("Duplicate")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DuplicateNode;
         ImGui::EndPopup();
     }

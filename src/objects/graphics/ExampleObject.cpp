@@ -112,7 +112,7 @@ void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 void ExampleObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        if (ImGui::BeginMenu("PARAMS"))
+        if (ImGui::BeginMenu("CONFIG"))
         {
             intParam.drawGui();
             floatParam.drawGui();

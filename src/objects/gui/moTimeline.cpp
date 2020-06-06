@@ -423,17 +423,6 @@ void moTimeline::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-/*void moTimeline::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load timeline config"){
-        lastTimelineFolder = response.filepath;
-        loadedTimelineConfig = true;
-    }else if(response.id == "save timeline config"){
-        lastTimelineFolder = response.filepath;
-        savedTimelineConfig = true;
-    }
-}*/
-
-//--------------------------------------------------------------
 void moTimeline::initTimeline(){
     sameNameAvoider += static_cast<int>(floor(this->getCustomVar("LAST_TRACK_ID")));
 
