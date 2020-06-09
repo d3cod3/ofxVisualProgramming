@@ -171,7 +171,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
-    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable() )){
+    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable() )){
 
         // Check menu state
         if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DeleteNode) ){

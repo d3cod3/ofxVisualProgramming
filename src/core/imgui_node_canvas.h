@@ -219,7 +219,7 @@ struct NodeCanvas {
 
     // Draw Child windows (aka Nodes) on the canvas.
     // position and size may change be updated after function call.
-    bool BeginNode( const char* id, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize );
+    bool BeginNode( const char* id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize );
     void EndNode();
 
     // Adds an inlet and sets its position on screen so you can do more graphic stuff with it.

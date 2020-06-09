@@ -35,6 +35,12 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "imgui_plot.h"
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 class SoundfilePlayer : public PatchObject {
 
@@ -42,33 +48,33 @@ public:
 
     SoundfilePlayer();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
+
 
     void            loadSettings();
     void            loadAudioFile(string audiofilepath);
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     ofSoundBuffer       lastBuffer;
     ofSoundBuffer       monoBuffer;
     short               *shortBuffer;
-    float               posX, posY, drawW, drawH;
     float               volume;
     double              speed;
     bool                loop;
     bool                isNewObject;
     bool                isFileLoaded;
+    bool                loadingFile;
     bool                isPlaying;
     bool                audioWasPlaying;
     string              lastMessage;
@@ -76,26 +82,30 @@ public:
     ofxAudioFile        audiofile;
     pdsp::ExternalInput fileOUT;
     pdsp::Scope         scope;
+    float               *plot_data;
     double              playhead;
     double              step;
     double              sampleRate;
     int                 bufferSize;
-
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     soundfileName;
-    ofxDatGuiButton*    loadButton;
 
     size_t              startTime;
     bool                loading;
     bool                finishSemaphore;
     bool                finishBang;
 
+    imgui_addons::ImGuiFileBrowser  fileDialog;
+
     string              lastSoundfile;
     bool                loadSoundfileFlag;
     bool                soundfileLoaded;
 
+protected:
+
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

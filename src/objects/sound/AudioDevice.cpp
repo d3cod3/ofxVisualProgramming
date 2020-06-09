@@ -55,6 +55,8 @@ AudioDevice::AudioDevice() : PatchObject("audio device"){
     deviceLoaded        = false;
 
     bg                  = new ofImage();
+    bg_tex              = new ofTexture();
+    posX = posY = drawW = drawH = 0.0f;
     
 }
 
@@ -67,7 +69,17 @@ void AudioDevice::newObject(){
 void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadDeviceInfo();
 
-    bg->load("images/audioDevice_bg.png");
+    bg->setUseTexture(false);
+    bg->load("images/audioDevice_bg.jpg");
+
+    ofTextureData texData;
+    texData.width = bg->getWidth();
+    texData.height = bg->getHeight();
+    texData.textureTarget = GL_TEXTURE_2D;
+    texData.bFlipTexture = true;
+    bg_tex->allocate(texData);
+    bg_tex->loadData(bg->getPixels());
+
 }
 
 //--------------------------------------------------------------
@@ -112,7 +124,12 @@ void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        float _tw = this->width*_nodeCanvas.GetCanvasScale();
+        float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+        ImGuiEx::drawOFTexture(bg_tex,_tw,_th,posX,posY,drawW,drawH);
 
         _nodeCanvas.EndNodeContent();
     }

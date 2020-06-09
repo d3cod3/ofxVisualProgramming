@@ -35,7 +35,7 @@
 #include "AudioExporter.h"
 
 //--------------------------------------------------------------
-AudioExporter::AudioExporter() : PatchObject(){
+AudioExporter::AudioExporter() : PatchObject("audio exporter"){
 
     this->numInlets  = 1;
     this->numOutlets = 0;
@@ -43,9 +43,6 @@ AudioExporter::AudioExporter() : PatchObject(){
     _inletParams[0] = new ofSoundBuffer(); // input
 
     this->initInletsState();
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     isAudioINObject     = true;
 
@@ -55,36 +52,20 @@ AudioExporter::AudioExporter() : PatchObject(){
     audioFPS            = 0.0f;
     audioCounter        = 0;
     lastAudioTimeReset  = ofGetElapsedTimeMillis();
+
+    recButtonLabel      = "REC";
 }
 
 //--------------------------------------------------------------
 void AudioExporter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"input");
 }
 
 //--------------------------------------------------------------
 void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    recButton = gui->addToggle("REC");
-    recButton->setUseCustomMouse(true);
-    recButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-    gui->onToggleEvent(this, &AudioExporter::onToggleEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     recorder.setup(true, false, glm::vec2(1280, 720));
     recorder.setAudioConfig(bufferSize,sampleRate);
@@ -101,17 +82,6 @@ void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        recButton->update();
-    }
-
-    if(exportAudioFlag){
-        exportAudioFlag = false;
-        //fd.saveFile("export audiofile"+ofToString(this->getId()),"Export new mp3 320kb audio file as","export.mp3");
-    }
-
     if(audioSaved){
         audioSaved = false;
         recorder.setOutputPath(filepath);
@@ -123,21 +93,122 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void AudioExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofSetCircleResolution(50);
     ofEnableAlphaBlending();
-    if(this->inletsConnected[0]){
-        waveform.draw();
-    }
-    if (recorder.isPaused() && recorder.isRecording()){
-        ofSetColor(ofColor::yellow);
-    }else if (recorder.isRecording()){
-        ofSetColor(ofColor::red);
-    }else{
-        ofSetColor(ofColor::green);
-    }
-    ofDrawCircle(ofPoint(this->width-20, 30), 10);
-    gui->draw();
+
     ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    exportAudioFlag = false;
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ofFile tempFilename(filepath);
+            ImGui::Text("Export File:");
+            ImGui::Text("%s",tempFilename.getFileName().c_str());
+            ImGui::Spacing();
+            if(ImGui::Button(recButtonLabel.c_str(),ImVec2(200,20))){
+                if(!this->inletsConnected[0]){
+                    ofLog(OF_LOG_WARNING,"There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!");
+                }else{
+                    if(!recorder.isRecording()){
+                        exportAudioFlag = true;
+                        recButtonLabel = "STOP";
+                        ofLog(OF_LOG_NOTICE,"START EXPORTING AUDIO");
+                    }else if(recorder.isRecording()){
+                        recorder.stop();
+                        recButtonLabel = "REC";
+                        ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING AUDIO");
+                    }
+                }
+            }
+
+            ImGui::Spacing();
+            if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
+                ImGui::TextWrapped("Export audio from every sound buffer cable (yellow ones). Export format is fixed to 320 kb mp3.");
+                ImGui::Spacing();
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.129f, 0.0f, 1.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
+                if(ImGui::Button("Reference")){
+                    ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=audio-exporter");
+                }
+                ImGui::PopStyleColor(3);
+            }
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(this->inletsConnected[0]){
+            // Waveform plot
+            ImGui::PlotConfig conf;
+            conf.values.ys = plot_data;
+            conf.values.count = 1024;
+            conf.values.color = IM_COL32(255,255,120,255);
+            conf.scale.min = -1;
+            conf.scale.max = 1;
+            conf.tooltip.show = false;
+            conf.tooltip.format = "x=%.2f, y=%.2f";
+            conf.grid_x.show = false;
+            conf.grid_y.show = false;
+            conf.frame_size = ImVec2(this->width*0.98f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
+            conf.line_thickness = 1.3f;
+
+            ImGui::Plot("plot", conf);
+        }
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
+        if (recorder.isRecording()){
+            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
+        }else if(recorder.isPaused() && recorder.isRecording()){
+            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 255, 0, 255), 40);
+        }else{
+            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // file dialog
+    if(this->inletsConnected[0]){
+        #if defined(TARGET_WIN32)
+        if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3")){
+            filepath = fileDialog.selected_path;
+            // check extension
+            if(fileDialog.ext != "mp3"){
+                filepath += ".mp3";
+            }
+            audioSaved = true;
+        }
+        #else
+        if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3")){
+            filepath = fileDialog.selected_path;
+            // check extension
+            if(fileDialog.ext != "mp3"){
+                filepath += ".mp3";
+            }
+            audioSaved = true;
+        }
+        #endif
+
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -160,44 +231,6 @@ void AudioExporter::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || recButton->hitTest(_m-this->getPos());
-
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void AudioExporter::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void AudioExporter::audioInObject(ofSoundBuffer &inputBuffer){
     if(ofGetElapsedTimeMillis()-lastAudioTimeReset >= 1000){
         lastAudioTimeReset = ofGetElapsedTimeMillis();
@@ -212,39 +245,9 @@ void AudioExporter::audioInObject(ofSoundBuffer &inputBuffer){
             recorder.addBuffer(*static_cast<ofSoundBuffer *>(_inletParams[0]),audioFPS);
         }
 
-        waveform.clear();
         for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
             float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
-            float x = ofMap(i, 0, static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(), 0, this->width);
-            float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-            waveform.addVertex(x, y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-/*void AudioExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "export audiofile"+ofToString(this->getId())){
-        filepath = response.filepath;
-        audioSaved = true;
-    }
-}*/
-
-//--------------------------------------------------------------
-void AudioExporter::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == recButton){
-            if(e.checked){
-                if(!recorder.isRecording()){
-                    exportAudioFlag = true;
-                }
-                ofLog(OF_LOG_NOTICE,"START EXPORTING AUDIO");
-            }else{
-                if(recorder.isRecording()){
-                    recorder.stop();
-                }
-                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING AUDIO");
-            }
+            plot_data[i] = hardClip(sample);
         }
     }
 }

@@ -132,36 +132,50 @@ void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     loadImgFlag = false;
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
-        ImGui::TextWrapped("Simple object for loading image files. Compatible formats are jpg, png, gif and tif.");
-        if(ImGui::Button("reference",ImVec2(-1,20))){
-            ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=image-loader");
-        }
-        _nodeCanvas.EndNodeContent();
-    }
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
 
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-            ImGui::Text("Loaded File: %s",imgName.c_str());
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Text("Loaded File:");
+            ImGui::Text("%s",imgName.c_str());
             ImGui::Text("Resolution: %s",imgRes.c_str());
-            if(ImGui::Button("open image",ImVec2(-1,20))){
+            if(ImGui::Button("OPEN",ImVec2(200,20))){
                 loadImgFlag = true;
             }
-        }
-        else {
-            if(isFileLoaded){
-                float _tw = this->width*_nodeCanvas.GetCanvasScale();
-                float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
 
-                ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
-
-            }else if(!isNewObject){
-                ImGui::Text("FILE NOT FOUND!");
+            ImGui::Spacing();
+            if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
+                ImGui::TextWrapped("Simple object for loading image files. Compatible formats are jpg, png, gif and tif.");
+                ImGui::Spacing();
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.129f, 0.0f, 1.0f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
+                if(ImGui::Button("Reference")){
+                    ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=image-loader");
+                }
+                ImGui::PopStyleColor(3);
             }
+
+            ImGui::EndMenu();
         }
-        _nodeCanvas.EndNodeContent();
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+        if(isFileLoaded){
+            float _tw = this->width*_nodeCanvas.GetCanvasScale();
+            float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+
+        }else if(!isNewObject){
+            ImGui::Text("FILE NOT FOUND!");
+        }
     }
 
     // file dialog

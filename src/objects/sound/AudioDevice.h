@@ -75,6 +75,8 @@ public:
     bool                    deviceLoaded;
 
     ofImage                 *bg;
+    ofTexture               *bg_tex;
+    float                   posX, posY, drawW, drawH;
 
     OBJECT_FACTORY_PROPS
 };

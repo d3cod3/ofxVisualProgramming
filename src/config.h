@@ -108,3 +108,15 @@
 #define OFXVP_OBJECT_CAT_SOUND          "sound"
 #define OFXVP_OBJECT_CAT_VIDEO          "video"
 #define OFXVP_OBJECT_CAT_WINDOWING      "windowing"
+
+// ImGui colors
+#define VHS_GRAY        ImVec4(82/255.0f,99/255.0f,106/255.0f,1.0f)
+#define VHS_GRAY_OVER   ImVec4(82/255.0f,99/255.0f,106/255.0f,0.7f)
+#define VHS_LGRAY       ImVec4(121/255.0f,135/255.0f,140/255.0f,1.0f)
+#define VHS_LGRAY_OVER  ImVec4(121/255.0f,135/255.0f,140/255.0f,0.7f)
+#define VHS_RED         ImVec4(182/255.0f,30/255.0f,41/255.0f,1.0f)
+#define VHS_RED_OVER    ImVec4(182/255.0f,30/255.0f,41/255.0f,0.7f)
+#define VHS_BLUE        ImVec4(35/255.0f,81/255.0f,140/255.0f,1.0f)
+#define VHS_BLUE_OVER   ImVec4(35/255.0f,81/255.0f,140/255.0f,0.7f)
+#define VHS_YELLOW      ImVec4(190/255.0f,134/255.0f,60/255.0f,1.0f)
+#define VHS_YELLOW_OVER ImVec4(190/255.0f,134/255.0f,60/255.0f,0.7f)

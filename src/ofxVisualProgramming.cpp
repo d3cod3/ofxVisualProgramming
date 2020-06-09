@@ -829,7 +829,7 @@ void ofxVisualProgramming::deleteObject(int id){
 void ofxVisualProgramming::removeObject(int &id){
     resetTime = ofGetElapsedTimeMillis();
 
-    if ((id != -1) && (patchObjects[id] != nullptr)){
+    if ( (id != -1) && (patchObjects[id] != nullptr) && (patchObjects[id]->getName() != "audio device") ){
 
         int targetID = id;
         bool found = false;
@@ -905,7 +905,7 @@ void ofxVisualProgramming::removeObject(int &id){
 //--------------------------------------------------------------
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
-    if(patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching" && patchObjects[id]->getName() != "projection mapping"){
+    if(patchObjects[id]->getName() != "audio device" && patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching" && patchObjects[id]->getName() != "projection mapping"){
         ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
         addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
     }else{

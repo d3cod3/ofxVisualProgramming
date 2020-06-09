@@ -1,3 +1,11 @@
+/*
+ *
+ * Original code from https://github.com/soulthreads/imgui-plot
+ *
+ * Modified by n3m3da
+ *
+ */
+
 #include "imgui_plot.h"
 
 #ifndef IMGUI_DEFINE_MATH_OPERATORS

@@ -269,7 +269,7 @@ void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
 
 
 // always use EndNode() even if returns false. Like ImGui Windows.
-bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize ){
+bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize ){
     // Check callstack
     IM_ASSERT(isDrawingCanvas == true);  // forgot to End();
     IM_ASSERT(canDrawNode == true); // Don't call if Begin() returned false
@@ -551,9 +551,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, ImVec2& _pos, ImVec2& _siz
 
     // Draw default menu items
     if(ImGui::BeginPopup(IMGUI_EX_NODE_MENU_ID)){
-        if(ImGui::MenuItem("Delete")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DeleteNode;
-        //if(ImGui::MenuItem("Copy")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_CopyNode;
-        if(ImGui::MenuItem("Duplicate")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DuplicateNode;
+        if(name != "audio device"){
+            if(ImGui::MenuItem("Delete")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DeleteNode;
+            //if(ImGui::MenuItem("Copy")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_CopyNode;
+            if(ImGui::MenuItem("Duplicate")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DuplicateNode;
+        }
         ImGui::EndPopup();
     }
 

@@ -35,6 +35,11 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "ofxImGui.h"
+
+#include "imgui_node_canvas.h"
+#include "imgui_plot.h"
+#include "ImGuiFileBrowser.h"
 
 #include "ofxFFmpegRecorder.h"
 
@@ -45,23 +50,24 @@ public:
 
     AudioExporter();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
 
     void            loadAudioSettings();
 
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
 
     ofxFFmpegRecorder   recorder;
-    ofPolyline          waveform;
+    float               plot_data[1024];
+
+    imgui_addons::ImGuiFileBrowser  fileDialog;
 
     bool                exportAudioFlag;
     bool                audioSaved;
@@ -73,11 +79,14 @@ public:
     float               audioFPS;
     int                 audioCounter;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiToggle*    recButton;
+protected:
+
+    string                  recButtonLabel;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

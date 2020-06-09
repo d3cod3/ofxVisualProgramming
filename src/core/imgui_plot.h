@@ -1,3 +1,11 @@
+/*
+ *
+ * Original code from https://github.com/soulthreads/imgui-plot
+ *
+ * Modified by n3m3da
+ *
+ */
+
 #pragma once
 #include <cstdint>
 #include <map>
