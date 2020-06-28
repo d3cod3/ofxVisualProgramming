@@ -32,6 +32,10 @@
 
 #pragma once
 
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
+
 #include "PatchObject.h"
 
 #include "ofxJava.h"
@@ -99,3 +103,5 @@ protected:
 
     OBJECT_FACTORY_PROPS
 };
+
+#endif
