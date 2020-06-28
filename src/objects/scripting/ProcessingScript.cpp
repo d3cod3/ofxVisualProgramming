@@ -30,6 +30,10 @@
 
 ==============================================================================*/
 
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
+
 #include "ProcessingScript.h"
 
 //--------------------------------------------------------------
@@ -423,3 +427,5 @@ void ProcessingScript::pathChanged(const PathWatcher::Event &event) {
 
 
 OBJECT_REGISTER( ProcessingScript, "processing script", OFXVP_OBJECT_CAT_SCRIPTING)
+
+#endif
