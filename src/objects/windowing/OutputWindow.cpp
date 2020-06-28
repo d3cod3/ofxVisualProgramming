@@ -578,7 +578,7 @@ void OutputWindow::resetResolution(){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
             this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
 
             asRatio = reduceToAspectRatio(this->output_width,this->output_height);
             if(!isFullscreen){

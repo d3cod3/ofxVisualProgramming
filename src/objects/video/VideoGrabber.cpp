@@ -50,9 +50,6 @@ VideoGrabber::VideoGrabber() :
     vidGrabber  = new ofVideoGrabber();
     colorImage  = new ofxCvColorImage();
 
-    isGUIObject         = false;
-    this->isOverGUI     = false;
-
     isNewObject         = false;
 
     posX = posY = drawW = drawH = 0.0f;
@@ -63,6 +60,10 @@ VideoGrabber::VideoGrabber() :
     temp_height         = camHeight;
 
     deviceID            = 0;
+    deviceName          = "NO DEVICE AVAILABLE";
+
+    hMirror             = false;
+    vMirror             = false;
 
     needReset               = false;
     isOneDeviceAvailable    = false;
@@ -84,11 +85,6 @@ void VideoGrabber::newObject(){
 //--------------------------------------------------------------
 void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
     wdevices = vidGrabber->listDevices();
     for(int i=0;i<static_cast<int>(wdevices.size());i++){
         if(wdevices[i].bAvailable){
@@ -99,80 +95,24 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
             for(size_t f=0;f<wdevices[i].formats.size();f++){
                 ofLog(OF_LOG_NOTICE,"Capture Device format vailable: %ix%i",wdevices[i].formats.at(f).width,wdevices[i].formats.at(f).height);
             }
+
         }
     }
 
     if(isOneDeviceAvailable){
-        isGUIObject         = true;
-        this->isOverGUI     = true;
-
-        header = gui->addHeader("CONFIG",false);
-        header->setUseCustomMouse(true);
-        header->setCollapsable(true);
 
         loadCameraSettings();
 
-        deviceName = gui->addLabel(devicesVector[deviceID]);
-        if(devicesVector[deviceID].size() > 22){
-            deviceName->setLabel(devicesVector[deviceID].substr(0,21)+"...");
-        }else{
-            deviceName->setLabel(devicesVector[deviceID]);
-        }
-
-        deviceSelector = gui->addMatrix("DEVICE",devicesVector.size(),true);
-        deviceSelector->setUseCustomMouse(true);
-        deviceSelector->setRadioMode(true);
-        deviceSelector->getChildAt(deviceID)->setSelected(true);
-        deviceSelector->onMatrixEvent(this, &VideoGrabber::onMatrixEvent);
-        gui->addBreak();
-
-        mirrorH = gui->addToggle("MIRR.H",static_cast<int>(floor(this->getCustomVar("MIRROR_H"))));
-        mirrorH->setUseCustomMouse(true);
-        mirrorV = gui->addToggle("MIRR.V",static_cast<int>(floor(this->getCustomVar("MIRROR_V"))));
-        mirrorV->setUseCustomMouse(true);
-
-        gui->addBreak();
-        guiTexWidth = gui->addTextInput("WIDTH",ofToString(camWidth));
-        guiTexWidth->setUseCustomMouse(true);
-        guiTexHeight = gui->addTextInput("HEIGHT",ofToString(camHeight));
-        guiTexHeight->setUseCustomMouse(true);
-        applyButton = gui->addButton("APPLY");
-        applyButton->setUseCustomMouse(true);
-        applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-        gui->onToggleEvent(this, &VideoGrabber::onToggleEvent);
-        gui->onButtonEvent(this, &VideoGrabber::onButtonEvent);
-        gui->onTextInputEvent(this, &VideoGrabber::onTextInputEvent);
-        gui->onMatrixEvent(this, &VideoGrabber::onMatrixEvent);
-
-        gui->setPosition(0,this->height - header->getHeight());
-        gui->collapse();
-        header->setIsCollapsed(true);
-    }
-
-    if(isOneDeviceAvailable){
         vidGrabber->setDeviceID(deviceID);
         vidGrabber->setup(camWidth, camHeight);
         resetCameraSettings(deviceID);
+
     }
     
 }
 
 //--------------------------------------------------------------
 void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    if(isOneDeviceAvailable){
-        gui->update();
-        header->update();
-        if(!header->getIsCollapsed()){
-            guiTexWidth->update();
-            guiTexHeight->update();
-            applyButton->update();
-            deviceSelector->update();
-            mirrorH->update();
-            mirrorV->update();
-        }
-    }
 
     if(needReset && isOneDeviceAvailable){
         resetCameraSettings(deviceID);
@@ -187,7 +127,7 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
         vidGrabber->update();
         if(vidGrabber->isFrameNew()){
             colorImage->setFromPixels(vidGrabber->getPixels());
-            colorImage->mirror(mirrorV->getChecked(),mirrorH->getChecked());
+            colorImage->mirror(vMirror,hMirror);
             colorImage->updateTexture();
 
             // IMPORTANT - Needed for OF <--> imgui texture sharing
@@ -199,37 +139,86 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
-    // Menu
+
+    // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        ImGui::MenuItem("Menu From User code !");
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            ImGui::Text("%s",deviceName.c_str());
+            ImGui::Text("Format: %ix%i",camWidth,camHeight);
+
+            ImGui::Spacing();
+            if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
+                for(int i=0; i < devicesVector.size(); ++i){
+                    bool is_selected = (deviceID == i );
+                    if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
+                        resetCameraSettings(i);
+                    }
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            ImGui::Spacing();
+            if(ImGui::Checkbox("HORIZONTAL MIRROR",&hMirror)){
+                this->setCustomVar(static_cast<float>(hMirror),"MIRROR_H");
+            }
+            ImGui::Spacing();
+            if(ImGui::Checkbox("VERTICAL MIRROR",&vMirror)){
+                this->setCustomVar(static_cast<float>(vMirror),"MIRROR_V");
+            }
+
+            ImGui::Spacing();
+            if(ImGui::InputInt("Width",&temp_width)){
+                if(temp_width > CAM_MAX_WIDTH){
+                    temp_width = camWidth;
+                }
+            }
+            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set a supported resolution WxH (limited for now at max. 1920x1080)");
+
+            if(ImGui::InputInt("Height",&temp_height)){
+                if(temp_height > CAM_MAX_HEIGHT){
+                    temp_height = camHeight;
+                }
+            }
+            ImGui::Spacing();
+            if(ImGui::Button("APPLY",ImVec2(224,20))){
+                needReset = true;
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Opens a compatible video input/webcam device",
+                        "https://mosaic.d3cod3.org/reference.php?r=video-grabber");
+
+            ImGui::EndMenu();
+        }
         _nodeCanvas.EndNodeMenu();
     }
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        _nodeCanvas.EndNodeContent();
-    }
+        if(isOneDeviceAvailable){
+            if(vidGrabber->isInitialized() && !needReset){
+                float _tw = this->width*_nodeCanvas.GetCanvasScale();
+                float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
 
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-            ImGui::Text("Cur View :Parameters");
-        }
-        else {
-            if(isOneDeviceAvailable){
-                if(vidGrabber->isInitialized() && !needReset){
-                    float _tw = this->width*_nodeCanvas.GetCanvasScale();
-                    float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
-
-                    ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
-                }
-            }else{
-                ImGui::Text("NO DEVICE AVAILABLE!");
+                ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
             }
+        }else{
+            ImGui::Text("NO DEVICE AVAILABLE!");
         }
+
         _nodeCanvas.EndNodeContent();
     }
+
 }
 
 //--------------------------------------------------------------
@@ -269,6 +258,10 @@ void VideoGrabber::loadCameraSettings(){
         this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
     }
 
+    if(isOneDeviceAvailable){
+        deviceName = devicesVector[deviceID];
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -280,11 +273,7 @@ void VideoGrabber::resetCameraSettings(int devID){
             ofLog(OF_LOG_NOTICE,"Changing Device to: %s",devicesVector[devID].c_str());
 
             deviceID = devID;
-            if(devicesVector[deviceID].size() > 22){
-                deviceName->setLabel(devicesVector[deviceID].substr(0,21)+"...");
-            }else{
-                deviceName->setLabel(devicesVector[deviceID]);
-            }
+            deviceName = devicesVector[deviceID];
             this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
         }
 
@@ -320,57 +309,6 @@ void VideoGrabber::resetCameraSettings(int devID){
     }
 
     needReset = false;
-}
-
-//--------------------------------------------------------------
-void VideoGrabber::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == mirrorH){
-            this->setCustomVar(static_cast<float>(e.checked),"MIRROR_H");
-        }else if (e.target == mirrorH){
-            this->setCustomVar(static_cast<float>(e.checked),"MIRROR_V");
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void VideoGrabber::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == applyButton){
-            needReset = true;
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void VideoGrabber::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        int tempInValue = ofToInt(e.text);
-        if(e.target == guiTexWidth){
-            if(tempInValue <= CAM_MAX_WIDTH){
-                temp_width = tempInValue;
-            }else{
-                temp_width = camWidth;
-            }
-        }else if(e.target == guiTexHeight){
-            if(tempInValue <= CAM_MAX_HEIGHT){
-                temp_height = tempInValue;
-            }else{
-                temp_height = camHeight;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void VideoGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == deviceSelector){
-            resetCameraSettings(e.child);
-        }
-    }
 }
 
 OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_VIDEO)

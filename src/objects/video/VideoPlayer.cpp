@@ -35,10 +35,10 @@
 #include "VideoPlayer.h"
 
 //--------------------------------------------------------------
-VideoPlayer::VideoPlayer() : PatchObject(){
+VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
-    this->numInlets  = 4;
-    this->numOutlets = 1;
+    this->numInlets  = 5;
+    this->numOutlets = 2;
 
     _inletParams[0] = new string();  // control
     *static_cast<string *>(_inletParams[0]) = "";
@@ -48,71 +48,68 @@ VideoPlayer::VideoPlayer() : PatchObject(){
     *(float *)&_inletParams[2] = 0.0f;
     _inletParams[3] = new float();  // volume
     *(float *)&_inletParams[3] = 0.0f;
+    _inletParams[4] = new float();  // trigger
+    *(float *)&_inletParams[4] = 0.0f;
 
     _outletParams[0] = new ofTexture(); // output
+    _outletParams[1] = new float();  // finish bang
+    *(float *)&_outletParams[1] = 0.0f;
 
     this->initInletsState();
 
     video = new ofVideoPlayer();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     lastMessage         = "";
-
     isNewObject         = false;
     isFileLoaded        = false;
     nameLabelLoaded     = false;
 
+    loop                = false;
+    volume              = 1.0f;
+    speed               = 1.0f;
+
     posX = posY = drawW = drawH = 0.0f;
 
-    needToLoadVideo = true;
+    needToLoadVideo     = true;
+    lastPlayhead        = 0.0f;
+    loadVideoFlag       = false;
+    videoWasPlaying     = false;
+    isPaused            = false;
 
-    lastPlayhead    = 0.0f;
+    videoName           = "";
+    videoRes            = "";
+    videoPath           = "";
 
-    loadVideoFlag   = false;
+    finishBang          = false;
 
-    videoWasPlaying = false;
+    preloadFirstFrame   = false;
 
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
+
     this->addOutlet(VP_LINK_TEXTURE,"output");
+    this->addOutlet(VP_LINK_NUMERIC,"finish");
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::autoloadFile(string _fp){
     //this->filepath = _fp;
     this->filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
-    reloadVideoThreaded();
+    isFileLoaded = false;
+    needToLoadVideo = true;
 }
 
 //--------------------------------------------------------------
 void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &VideoPlayer::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    videoName = gui->addLabel("NONE");
-    videoRes = gui->addLabel("0x0");
-    gui->addBreak();
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     if(filepath == "none"){
         isNewObject = true;
@@ -123,30 +120,9 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    loadButton->update();
-
-    if(nameLabelLoaded){
-        nameLabelLoaded = false;
-        ofFile tempFile(filepath);
-        if(tempFile.getFileName().size() > 22){
-            videoName->setLabel(tempFile.getFileName().substr(0,21)+"...");
-        }else{
-            videoName->setLabel(tempFile.getFileName());
-        }
-        videoRes->setLabel(ofToString(video->getWidth())+"x"+ofToString(video->getHeight()));
-    }
-
-    if(loadVideoFlag){
-        loadVideoFlag = false;
-        //fd.openFile("load videofile"+ofToString(this->getId()),"Select a video file");
-    }
-
     if(needToLoadVideo){
         needToLoadVideo = false;
         loadVideoFile();
-        nameLabelLoaded = true;
     }
 
 }
@@ -154,29 +130,29 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 //--------------------------------------------------------------
 void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
 
     if(!isFileLoaded && video->isLoaded() && video->isInitialized()){
-        if(video->isInitialized()){
-            video->setLoopState(OF_LOOP_NONE);
-            video->stop();
+        video->setLoopState(OF_LOOP_NONE);
+        video->play();
+        preloadFirstFrame = true;
 
-            ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
-            isFileLoaded = true;
-        }else{
-            if(!isNewObject){
-                ofLog(OF_LOG_ERROR,"video file: %s NOT FOUND!",filepath.c_str());
-            }
-            filepath = "none";
-        }
+        ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
+        isFileLoaded = true;
     }
 
     if(isFileLoaded && video->isLoaded()){
 
         if(video->getWidth() != static_cast<ofTexture *>(_outletParams[0])->getWidth() || video->getHeight() != static_cast<ofTexture *>(_outletParams[0])->getHeight()){
             _outletParams[0] = new ofTexture();
-            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
+            ofTextureData texData;
+            texData.width = video->getWidth();
+            texData.height = video->getHeight();
+            texData.textureTarget = GL_TEXTURE_2D;
+            texData.bFlipTexture = true;
+            static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+            static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
             static_cast<ofTexture *>(_outletParams[0])->clear();
+
         }else{
             static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
         }
@@ -201,14 +177,17 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
                     video->stop();
                     videoWasPlaying = false;
                 }else if(lastMessage == "loop_normal"){
+                    loop = true;
                     video->setLoopState(OF_LOOP_NORMAL);
                 }else if(lastMessage == "loop_none"){
+                    loop = false;
                     video->setLoopState(OF_LOOP_NONE);
                 }
 
                 //ofLog(OF_LOG_NOTICE,"%s",lastMessage.c_str());
             }
         }
+
         // playhead
         if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f && *(float *)&_inletParams[1] != lastPlayhead){
             video->setPosition(*(float *)&_inletParams[1]);
@@ -216,104 +195,185 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
         }
         // speed
         if(this->inletsConnected[2]){
-            video->setSpeed(*(float *)&_inletParams[2]);
+            speed = *(float *)&_inletParams[2];
+            video->setSpeed(speed);
         }
         // volume
         if(this->inletsConnected[3]){
-            video->setVolume(*(float *)&_inletParams[3]);
+            volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+            video->setVolume(volume);
         }
 
-        //scaleH = (this->width/video->getWidth())*video->getHeight();
+        // trigger
+        if(this->inletsConnected[4]){
+            if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f){
+                video->firstFrame();
+                video->play();
+            }
+        }
+
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             if(video->isPlaying()){ // play
                video->update();
 
-               if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-                   if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                       drawW           = this->width;
-                       drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                       posX            = 0;
-                       posY            = (this->height-drawH)/2.0f;
-                   }else{ // vertical texture
-                       drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                       drawH           = this->height;
-                       posX            = (this->width-drawW)/2.0f;
-                       posY            = 0;
-                   }
-               }else{ // always considered vertical texture
-                   drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                   drawH           = this->height;
-                   posX            = (this->width-drawW)/2.0f;
-                   posY            = 0;
+               // preload first video frame into outlet texture
+               if(preloadFirstFrame && video->getCurrentFrame() > 0){
+                   preloadFirstFrame = false;
+                   video->stop();
                }
 
-               static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
-            }else if(video->isPaused() && video->getCurrentFrame() > 1){ // pause
-                if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-                    if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                        drawW           = this->width;
-                        drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                        posX            = 0;
-                        posY            = (this->height-drawH)/2.0f;
-                    }else{ // vertical texture
-                        drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                        drawH           = this->height;
-                        posX            = (this->width-drawW)/2.0f;
-                        posY            = 0;
-                    }
-                }else{ // always considered vertical texture
-                    drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                    drawH           = this->height;
-                    posX            = (this->width-drawW)/2.0f;
-                    posY            = 0;
-                }
+               // bang on video end -- TODO FIX
+               if(video->getCurrentFrame() == video->getTotalNumFrames()){
+                   finishBang = true;
+               }
 
-                static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
-            }else{
-                ofSetColor(0);
-                ofDrawRectangle(0,0,this->width, this->height);
-            }
+               // outlet finish bang
+               if(finishBang){
+                   finishBang = false;
+                   *(float *)&_outletParams[1] = 1.0f;
+               }else{
+                   *(float *)&_outletParams[1] = 0.0f;
+               }
 
-            // draw player state
-            ofSetColor(255,60);
-            if(video->isPlaying()){ // play
-                ofBeginShape();
-                ofVertex(this->width - 30,this->height - 50);
-                ofVertex(this->width - 30,this->height - 30);
-                ofVertex(this->width - 10,this->height - 40);
-                ofEndShape();
-            }else if(video->isPaused() && video->getCurrentFrame() > 1){ // pause
-                ofDrawRectangle(this->width - 30, this->height - 50,8,20);
-                ofDrawRectangle(this->width - 18, this->height - 50,8,20);
-            }else if(video->getCurrentFrame() <= 1){ // stop
-                ofDrawRectangle(this->width - 30, this->height - 50,20,20);
-            }
-
-            ofSetColor(255);
-            ofSetLineWidth(2);
-            float phx = ofMap( video->getPosition(), 0, 1, 1, drawW-1 );
-            if(phx >= 0.0f){
-                ofDrawLine( phx, posY+2, phx, drawH+posY);
-            }else{
-                ofDrawLine( 2, posY+2, 2, drawH+posY);
             }
 
         }
-    }else if(!isNewObject){
-        ofSetColor(255,0,0);
-        ofDrawRectangle(0,0,this->width,this->height);
-        ofSetColor(255);
-        font->draw("FILE NOT FOUND!",this->fontSize,this->width/3 + 4,this->headerHeight*2.3);
+
+
     }
 
-    ofSetColor(255);
-    font->draw(videoTimecode.timecodeForFrame(video->getCurrentFrame()),static_cast<int>(floor(this->fontSize*1.4)),this->width/3 + 8,this->headerHeight*2.3);
-    font->draw(videoTimecode.timecodeForFrame(video->getTotalNumFrames()),static_cast<int>(floor(this->fontSize*1.4)),this->width/3 + 8,this->headerHeight*3.3);
-
-    gui->draw();
-    ofDisableAlphaBlending();
-
     ///////////////////////////////////////////
+}
+
+//--------------------------------------------------------------
+void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    ofFile tempFilename(filepath);
+
+    loadVideoFlag = false;
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
+            ImGui::Text("Loaded File:");
+            if(filepath == "none"){
+                ImGui::Text("%s",filepath.c_str());
+            }else{
+                ImGui::Text("%s",tempFilename.getFileName().c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+                ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
+            }
+            if(ImGui::Button(ICON_FA_FILE,ImVec2(180,26))){
+                loadVideoFlag = true;
+            }
+
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
+            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56,26))){
+                video->firstFrame();
+                video->play();
+                videoWasPlaying = true;
+            }
+            ImGui::SameLine();
+            if(ImGui::Button(ICON_FA_STOP,ImVec2(56,26))){
+                video->stop();
+                videoWasPlaying = false;
+            }
+            ImGui::PopStyleColor(3);
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
+            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56,26))){
+                isPaused = !isPaused;
+                video->setPaused(isPaused);
+                if(!isPaused){
+                    if(!videoWasPlaying){
+                        video->stop();
+                    }
+                }
+            }
+            ImGui::PopStyleColor(3);
+
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
+                video->setSpeed(speed);
+            }
+            ImGui::PushItemWidth(130);
+            if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
+                video->setVolume(volume);
+            }
+            ImGui::Spacing();
+            ImGui::Spacing();
+            if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
+                if(loop){
+                    video->setLoopState(OF_LOOP_NORMAL);
+                }else{
+                    video->setLoopState(OF_LOOP_NONE);
+                }
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
+                        "https://mosaic.d3cod3.org/reference.php?r=video-player");
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            ImVec2 window_pos = ImGui::GetWindowPos();
+            ImVec2 window_size = ImGui::GetWindowSize();
+            ImVec2 ph_pos = ImVec2(window_pos.x + 20, window_pos.y + 20);
+
+            float _tw = this->width*_nodeCanvas.GetCanvasScale();
+            float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+
+            // draw position (timecode)
+            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
+
+            // draw player state
+            if(video->isPlaying()){ // play
+                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
+            }else if(!video->isPlaying() && video->isPaused() && video->getCurrentFrame() > 1){ // pause
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+            }else if(!video->isPlaying() && video->getCurrentFrame() <= 1){ // stop
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+            }
+
+            // draw playhead
+            float phx = ofMap( ofClamp(video->getPosition(),0.0f,1.0f), 0.0f, 1.0f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-31 );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
+        }
+    }
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".mov,.mp4,.mpg,.mpeg,.avi")){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            isFileLoaded = false;
+            needToLoadVideo = true;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -329,85 +389,27 @@ void VideoPlayer::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    videoName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    videoRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || videoName->hitTest(_m-this->getPos()) || videoRes->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void VideoPlayer::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        videoName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        videoRes->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-/*void VideoPlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load videofile"+ofToString(this->getId())){
-        ofFile file (response.filepath);
-        if (file.exists()){
-            string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "MOV" || fileExtension == "MP4" || fileExtension == "MPEG" || fileExtension == "MPG" || fileExtension == "AVI") {
-                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                //filepath = file.getAbsolutePath();
-                reloadVideoThreaded();
-            }
-        }
-    }
-}*/
-
-//--------------------------------------------------------------
 void VideoPlayer::loadVideoFile(){
     if(filepath != "none"){
         filepath = forceCheckMosaicDataPath(filepath);
-        //filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
         isNewObject = false;
         video->setUseTexture(false);
         video->load(filepath);
-        videoTimecode.setFPS(static_cast<int>(ceil(video->getTotalNumFrames()/video->getDuration()))); // fps
-        this->saveConfig(false,this->nId);
-    }
-}
 
-//--------------------------------------------------------------
-void VideoPlayer::reloadVideoThreaded(){
-    isFileLoaded = false;
-    needToLoadVideo = true;
-}
+        ofFile tempFile(filepath);
+        videoName = tempFile.getFileName();
+        videoPath = tempFile.getAbsolutePath();
+        videoRes = ofToString(video->getWidth())+"x"+ofToString(video->getHeight());
 
-//--------------------------------------------------------------
-void VideoPlayer::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == loadButton){
-            loadVideoFlag = true;
-        }
+        ofTextureData texData;
+        texData.width = video->getWidth();
+        texData.height = video->getHeight();
+        texData.textureTarget = GL_TEXTURE_2D;
+        texData.bFlipTexture = true;
+        static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+        static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+
+        this->saveConfig(false);
     }
 }
 

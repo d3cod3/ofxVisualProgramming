@@ -38,11 +38,10 @@
 #include "config.h"
 
 #include "ofxInfiniteCanvas.h"
-#include "ofxTimeMeasurements.h"
-#include "ofxThreadedFileDialog.h"
 #include "ofxPDSP.h"
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
+#include "imgui_profiler.h"
 
 #include "Kernel.h"
 #include "PatchObject.h"
@@ -117,6 +116,7 @@ public:
     ofRectangle                     canvasViewport;
     ofxImGui::Gui*                  ofxVPGui;
     ImGuiEx::NodeCanvas             nodeCanvas;
+    ImGuiEx::ProfilersWindow        profiler;
 
 
     // PATCH DRAWING RESOURCES
@@ -157,8 +157,6 @@ public:
     bool                            inited;
 
     // GUI
-    bool                            isVPMouseMoving;
-    bool                            isVPDragging;
     bool                            isHoverMenu;
     bool                            isHoverLogger;
     bool                            isHoverCodeEditor;
@@ -191,7 +189,7 @@ public:
     // MEMORY
     uint64_t                resetTime;
     uint64_t                wait;
-    
+
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
 };

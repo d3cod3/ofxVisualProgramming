@@ -35,7 +35,7 @@
 #include "moVideoViewer.h"
 
 //--------------------------------------------------------------
-moVideoViewer::moVideoViewer() : PatchObject(){
+moVideoViewer::moVideoViewer() : PatchObject("video viewer"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -44,24 +44,20 @@ moVideoViewer::moVideoViewer() : PatchObject(){
 
     _outletParams[0] = new ofTexture();  // texture
 
-    this->initInletsState();
-
     posX = posY = drawW = drawH = 0.0f;
 
     this->width             *= 2;
     this->height            *= 2;
 
-    isGUIObject             = true;
-    this->isOverGUI         = false;
-
-    resizeQuad.set(this->width-20,this->height-20,20,20);
+    this->initInletsState();
 
     this->setIsResizable(true);
 }
 
 //--------------------------------------------------------------
 void moVideoViewer::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_TEXTURE,"texture");
 
@@ -73,13 +69,6 @@ void moVideoViewer::newObject(){
 void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     this->width = static_cast<int>(floor(this->getCustomVar("WIDTH")));
     this->height = static_cast<int>(floor(this->getCustomVar("HEIGHT")));
-
-    box->setWidth(this->width);
-    box->setHeight(this->height);
-
-    headerBox->setWidth(this->width);
-
-    resizeQuad.set(this->width-20,this->height-20,20,20);
 }
 
 //--------------------------------------------------------------
@@ -92,81 +81,48 @@ void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void moVideoViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth()/static_cast<ofTexture *>(_inletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_inletParams[0])->getWidth() > static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+
+}
+
+//--------------------------------------------------------------
+void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "A basic video viewer, the object visualizes it, and bypasses it by its outlet.",
+                        "https://mosaic.d3cod3.org/reference.php?r=video-viewer");
+
+            ImGui::EndMenu();
         }
-        static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
+        _nodeCanvas.EndNodeMenu();
     }
 
-    ofSetColor(255,255,255,70);
-    if(this->isOverGUI){
-        ofFill();
-    }else{
-        ofNoFill();
-    }
-    ofDrawRectangle(resizeQuad);
-    ofFill();
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-    ofDisableAlphaBlending();
+        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            float _tw = this->width*_nodeCanvas.GetCanvasScale();
+            float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_inletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
 void moVideoViewer::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void moVideoViewer::mouseMovedObjectContent(ofVec3f _m){
-    this->isOverGUI = resizeQuad.inside(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void moVideoViewer::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        this->width =  _m.x - this->getPos().x;
-        this->height =  _m.y - this->getPos().y;
-
-        box->setWidth(_m.x - this->getPos().x);
-        box->setHeight(_m.y - this->getPos().y);
-
-        headerBox->setWidth(_m.x - this->getPos().x);
-
-        resizeQuad.set(this->width-20,this->height-20,20,20);
-
-        this->setCustomVar(static_cast<float>(this->width),"WIDTH");
-        this->setCustomVar(static_cast<float>(this->height),"HEIGHT");
-
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
 }
 
 OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)

@@ -110,28 +110,50 @@ void FileToData::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 //--------------------------------------------------------------
 void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
+    ofFile tempFilename(filepath);
+
     openFileFlag = false;
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
-        ImGui::TextWrapped("Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.");
-        _nodeCanvas.EndNodeContent();
-    }
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
 
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-        // parameters view
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
             ImGui::Text("Reading data from:");
-            ImGui::Text("%s",tmpFileName.c_str());
-            if(ImGui::Button("SELECT FILE",ImVec2(-1,20))){
+            if(filepath == "none"){
+                ImGui::Text("%s",filepath.c_str());
+            }else{
+                ImGui::Text("%s",tempFilename.getFileName().c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+            }
+            ImGui::Spacing();
+            if(ImGui::Button(ICON_FA_FILE,ImVec2(180,26))){
                 openFileFlag = true;
             }
-        }
-        // visualize view
-        else {
 
+            ImGuiEx::ObjectInfo(
+                        "Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.",
+                        "https://mosaic.d3cod3.org/reference.php?r=file-to-data");
+
+            ImGui::EndMenu();
         }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 16)); // Padding top
+        if(ImGui::Button(ICON_FA_FILE,ImVec2(-1,40))){
+            openFileFlag = true;
+        }
+
         _nodeCanvas.EndNodeContent();
     }
 

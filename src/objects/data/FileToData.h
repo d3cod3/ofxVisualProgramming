@@ -35,10 +35,9 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
 #include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 
 class FileToData : public PatchObject {

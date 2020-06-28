@@ -294,7 +294,7 @@ void ArduinoSerial::resetSERIALSettings(int devID, int br){
 
         if(serial.isInitialized() && serial.available()){
             ofLog(OF_LOG_NOTICE,"SERIAL device %s connected!", deviceNameList.at(devID).c_str());
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
         }
     }
 }

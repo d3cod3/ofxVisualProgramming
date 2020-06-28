@@ -36,30 +36,30 @@
 
 #include "PatchObject.h"
 
+#include "imgui_stdlib.h"
+
 class moMessage : public PatchObject {
 
 public:
 
     moMessage();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    ofxDatGui*          gui;
-    ofxDatGuiButton*    sendButton;
-    ofxDatGuiTextInput* message;
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
 
     string              actualMessage;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

@@ -401,7 +401,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         // Header info
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min+ImVec2(5, (IMGUI_EX_NODE_HEADER_HEIGHT-ImGui::CalcTextSize("").y)*.5f) );//canvasView.translation+pos+ImVec2(5,4));
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,255,255,255));
-        ImGui::Text("%s", _id); // title
+        ImGui::Text("%s", name.c_str()); // title
         ImGui::PopStyleColor();
 
         // Enable drag on title

@@ -40,7 +40,6 @@
 #include "ofxDatGui.h"
 #include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
-#include "ofxThreadedFileDialog.h"
 
 #include "objectFactory.h"
 #include "ofxVPHasUid.h"
@@ -128,7 +127,6 @@ public:
     void                    audioOut(ofSoundBuffer &outputBuffer);
 
     void                    move(int _x, int _y);
-    void                    fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // PatchLinks utils
     bool                    connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType);
@@ -137,14 +135,13 @@ public:
 
     // LOAD/SAVE
     bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,pdsp::Engine &engine,int oTag, string &configFile);
-    bool                    saveConfig(bool newConnection,int objID);
-    bool                    removeLinkFromConfig(int outlet);
+    bool                    saveConfig(bool newConnection);
+    bool                    removeLinkFromConfig(int outlet, int toObjectID, int toInletID);
 
-    void                    addButton(char letter, bool *variableToControl, int offset);
     void                    addInlet(int type,string name) { inletsType.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
     void                    addOutlet(int type,string name = "") { outletsType.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
-    void                    setCustomVar(float value, string name){ customVars[name] = value; }
+    void                    setCustomVar(float value, string name){ customVars[name] = value; saveConfig(false); }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
     void                    substituteCustomVar(string oldName, string newName) { if ( customVars.find(oldName) != customVars.end() ) { customVars[newName] = customVars[oldName]; customVars.erase(oldName); } }
     bool                    clearCustomVars();

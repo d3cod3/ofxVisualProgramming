@@ -26,8 +26,8 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
-        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJava ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph ofxPython
-        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxThreadedFileDialog ofxTimeline ofxTimeMeasurements ofxWarp
+        ADDON_DEPENDENCIES += ofxDatGui ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
+        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxTimeline ofxWarp
         ADDON_DEPENDENCIES += ofxImGui
 
 	# include search paths, this will be usually parsed from the file system
@@ -73,10 +73,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPdExternals ofxNDI
+        ADDON_DEPENDENCIES += ofxJava ofxPdExternals ofxPython ofxNDI
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/ProcessingScript% src/objects/scripting/PythonScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPdExternals ofxNDI
+        ADDON_DEPENDENCIES += ofxJava ofxPdExternals ofxPython ofxNDI

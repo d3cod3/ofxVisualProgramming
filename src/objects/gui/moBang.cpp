@@ -57,6 +57,9 @@ moBang::moBang() :
     bang            = false;
     isBangFinished  = true;
 
+    this->width         /= 2;
+    this->height        /= 2;
+
 }
 
 //--------------------------------------------------------------
@@ -104,57 +107,51 @@ void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 //--------------------------------------------------------------
 void moBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
 
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    // Menu
+    // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        //ImGui::MenuItem("Menu From User code !");
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Triggers a bang. You can control it manually with the mouse or automate it by its inlet.",
+                        "https://mosaic.d3cod3.org/reference.php?r=bang");
+
+            ImGui::EndMenu();
+        }
+
         _nodeCanvas.EndNodeMenu();
     }
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::TextWrapped("Triggers a bang. You can control it manually with the mouse or automate it by its inlet.");
+        // BANG (PD Style) button
+        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(this->width,this->height));
 
-
-        _nodeCanvas.EndNodeContent();
-    }
-
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-
-        // parameters view
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-
+        if (state == SmartButtonState_Pressed || bang){
+            currentColor = pressColor;
+            if(!bang && !this->inletsConnected[0]){
+                bang = true;
+            }
         }
-        // visualize view
-        else {
-            // BANG (PD Style) button
-            auto state = ImGui::BangButton("", currentColor, ImVec2(this->width,this->height));
 
-            if (state == SmartButtonState_Pressed || bang){
-                currentColor = pressColor;
-                if(!bang && !this->inletsConnected[0]){
-                    bang = true;
-                }
+        if(state == SmartButtonState_Released || !bang){
+            currentColor = releaseColor;
+            if(bang && !this->inletsConnected[0]){
+                bang = false;
+                isBangFinished = true;
             }
-
-            if(state == SmartButtonState_Released || !bang){
-                currentColor = releaseColor;
-                if(bang && !this->inletsConnected[0]){
-                    bang = false;
-                    isBangFinished = true;
-                }
-            }
-
-
         }
 
         _nodeCanvas.EndNodeContent();

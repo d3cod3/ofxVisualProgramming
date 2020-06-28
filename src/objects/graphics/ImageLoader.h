@@ -35,10 +35,9 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
 #include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 class ImageLoader : public PatchObject {
 
@@ -61,6 +60,7 @@ public:
     ofImage             *img;
     string              imgName;
     string              imgRes;
+    string              imgPath;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
     bool                isFileLoaded;

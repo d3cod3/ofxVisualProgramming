@@ -79,14 +79,14 @@ void BPMExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         }
     }
 
-    bpmPlot = new ofxHistoryPlot(NULL, "BPM", this->width, false);
+    /*bpmPlot = new ofxHistoryPlot(NULL, "BPM", this->width, false);
     bpmPlot->setRange(0,200);
     bpmPlot->setColor(ofColor(255,255,255));
     bpmPlot->setRespectBorders(true);
     bpmPlot->setShowNumericalInfo(false);
     bpmPlot->setDrawTitle(false);
     bpmPlot->setLineWidth(1);
-    bpmPlot->setBackgroundColor(ofColor(50,50,50,220));
+    bpmPlot->setBackgroundColor(ofColor(50,50,50,220));*/
 
 }
 
@@ -116,7 +116,7 @@ void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
         *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
-        bpmPlot->update(*(float *)&_outletParams[0]);
+        //bpmPlot->update(*(float *)&_outletParams[0]);
         *(float *)&_outletParams[1] = 60000.0f / *(float *)&_outletParams[0];
     }else if(this->inletsConnected[0] && !isConnectionRight){
         ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer object ONLY! Just reconnect it right!",this->getName().c_str());
@@ -128,7 +128,7 @@ void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 void BPMExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     ofEnableAlphaBlending();
-    bpmPlot->draw(0,0,this->width,this->height);
+    //bpmPlot->draw(0,0,this->width,this->height);
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     ofDisableAlphaBlending();
 }

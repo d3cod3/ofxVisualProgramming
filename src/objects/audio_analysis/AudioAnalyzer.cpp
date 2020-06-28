@@ -35,7 +35,7 @@
 #include "AudioAnalyzer.h"
 
 //--------------------------------------------------------------
-AudioAnalyzer::AudioAnalyzer() : PatchObject(){
+AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -46,10 +46,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
-    isAudioINObject     = true;
+    isAudioINObject                 = true;
 
     smoothingValue                  = 0.0f;
     audioInputLevel                 = 1.0f;
@@ -65,7 +62,8 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"analysisData");
 
@@ -75,38 +73,11 @@ void AudioAnalyzer::newObject(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    // GUI
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &AudioAnalyzer::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    gui->addBreak();
-
-    inputLevel = gui->addSlider("Level",0.0f,1.0f,1.0f);
-    inputLevel->setUseCustomMouse(true);
-    inputLevel->setValue(this->getCustomVar("INPUT_LEVEL"));
-    smoothing = gui->addSlider("Smooth.",0.0f,0.8f,0.0f);
-    smoothing->setUseCustomMouse(true);
-    smoothing->setValue(this->getCustomVar("SMOOTHING"));
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
+    loadAudioSettings();
 }
 
 //--------------------------------------------------------------
 void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    inputLevel->update();
-    smoothing->update();
 
     if(this->inletsConnected[0]){
         if(!isConnected){
@@ -151,31 +122,23 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
             int index = 0;
 
-            waveform.clear();
-            for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
-                float sample = lastBuffer.getSample(i,0);
-                float x = ofMap(i, 0, lastBuffer.getNumFrames(), 0, this->width);
-                float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-                waveform.addVertex(x, y);
-
-                // SIGNAL BUFFER
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = sample;
-            }
 
             index += lastBuffer.getNumFrames();
             // SPECTRUM
             for(int i=0;i<static_cast<int>(spectrum.size());i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(spectrum[i],DB_MIN,DB_MAX,0.0,1.0,true);
+                // inv log100 scale
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = (pow(100,ofMap(spectrum[i], DB_MIN, DB_MAX, 0.000001f, 1.0f,true))-1.0f)/99.0f;
             }
             index += spectrum.size();
             // MELBANDS
             for(int i=0;i<static_cast<int>(melBands.size());i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(melBands[i], DB_MIN, DB_MAX, 0.0, 1.0, true);
+                // inv log100 scale
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = (pow(100,ofMap(melBands[i], DB_MIN, DB_MAX, 0.000001f, 1.0f, true))-1.0f)/99.0f;
             }
             index += melBands.size();
             // MFCC
             for(int i=0;i<static_cast<int>(mfcc.size());i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0, 1.0, true);
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0f, 1.0f, true);
             }
             index += mfcc.size();
             // HPCP
@@ -208,8 +171,8 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(!isLoaded){
         isLoaded = true;
-        smoothing->setValue(this->getCustomVar("SMOOTHING"));
-        inputLevel->setValue(this->getCustomVar("INPUT_LEVEL"));
+        audioInputLevel = this->getCustomVar("INPUT_LEVEL");
+        smoothingValue = this->getCustomVar("SMOOTHING");
     }
 
 }
@@ -217,10 +180,53 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void AudioAnalyzer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    waveform.draw();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            if(ImGui::SliderFloat("LEVEL",&audioInputLevel,0.0f, 1.0f)){
+                this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
+            }
+            ImGui::PushItemWidth(130);
+            if(ImGui::SliderFloat("SMOOTHNESS",&smoothingValue,0.0f, 1.0f)){
+                this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "This object is an audio analysis station which transmits a vector with all the analyzed data. Each type of audio data is available in the different extractor objects inside the same category.",
+                        "https://mosaic.d3cod3.org/reference.php?r=audio-analyzer");
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw waveform
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
+
+        // draw signal RMS amplitude
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -235,6 +241,14 @@ void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
         lastBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
 
         lastBuffer *= audioInputLevel;
+
+        for(size_t i = 0; i < lastBuffer.getNumFrames(); i++) {
+            //float sample = lastBuffer.getSample(i,0);
+            plot_data[i] = hardClip(lastBuffer.getSample(i,0));
+
+            // SIGNAL BUFFER
+            static_cast<vector<float> *>(_outletParams[0])->at(i) = lastBuffer.getSample(i,0);
+        }
 
         // ESSENTIA Analyze Audio
         lastBuffer.copyTo(monoBuffer, lastBuffer.getNumFrames(), 1, 0);
@@ -274,6 +288,7 @@ void AudioAnalyzer::loadAudioSettings(){
         // SIGNAL BUFFER
         for(int i=0;i<bufferSize;i++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            plot_data[i] = 0.0f;
         }
         // SPECTRUM
         for(int i=0;i<(bufferSize/2)+1;i++){
@@ -298,57 +313,6 @@ void AudioAnalyzer::loadAudioSettings(){
         // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
         for(int i=0;i<11;i++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void AudioAnalyzer::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    smoothing->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputLevel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || smoothing->hitTest(_m-this->getPos()) || inputLevel->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void AudioAnalyzer::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        smoothing->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputLevel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void AudioAnalyzer::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == smoothing){
-            smoothingValue = static_cast<float>(smoothing->getValue());
-            this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
-        }else if(e.target == inputLevel){
-            audioInputLevel = static_cast<float>(inputLevel->getValue());
-            this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
         }
     }
 }

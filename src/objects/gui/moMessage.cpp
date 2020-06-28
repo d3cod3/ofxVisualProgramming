@@ -35,7 +35,7 @@
 #include "moMessage.h"
 
 //--------------------------------------------------------------
-moMessage::moMessage() : PatchObject(){
+moMessage::moMessage() : PatchObject("message"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -51,16 +51,16 @@ moMessage::moMessage() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     actualMessage   = "";
+
+    this->setIsResizable(true);
 
 }
 
 //--------------------------------------------------------------
 void moMessage::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_STRING,"message");
     this->addOutlet(VP_LINK_STRING,"message");
@@ -68,37 +68,20 @@ void moMessage::newObject(){
 
 //--------------------------------------------------------------
 void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width/3 * 2);
-    gui->onButtonEvent(this, &moMessage::onButtonEvent);
-    gui->onTextInputEvent(this, &moMessage::onTextInputEvent);
 
-    sendButton = gui->addButton("SEND");
-    sendButton->setUseCustomMouse(true);
-
-    message = gui->addTextInput("","");
-    message->setUseCustomMouse(true);
-
-    gui->setPosition(this->width/3 + 1,this->height - (sendButton->getHeight()*2));
 }
 
 //--------------------------------------------------------------
 void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    sendButton->update();
-    message->update();
 
     if(this->inletsConnected[0] && *(float *)&_inletParams[0] >= 1.0){
         if(this->inletsConnected[1]){
             *static_cast<string *>(_outletParams[0]) = "";
             *static_cast<string *>(_outletParams[0]) = *static_cast<string *>(_inletParams[1]);
-            actualMessage = ofToUpper(*static_cast<string *>(_inletParams[1]));
+            actualMessage = *static_cast<string *>(_inletParams[1]);
         }else{
             *static_cast<string *>(_outletParams[0]) = "";
-            *static_cast<string *>(_outletParams[0]) = message->getText();
-            actualMessage = ofToUpper(message->getText());
+            *static_cast<string *>(_outletParams[0]) = actualMessage;
         }
 
     }
@@ -107,10 +90,52 @@ void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 //--------------------------------------------------------------
 void moMessage::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw(actualMessage,this->fontSize,this->width - (strlen(actualMessage.c_str())*this->fontSize),this->headerHeight*2.3);
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "A basic text string sending object. Useful to use with string command controlled objects.",
+                        "https://mosaic.d3cod3.org/reference.php?r=message");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 40)); // Padding top
+        ImGui::PushItemWidth(-24);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, VHS_DGRAY);
+        ImGui::InputText("##source", &actualMessage);
+        ImGui::PopStyleColor(1);
+        ImGui::PopItemWidth();
+        ImGui::SameLine(); ImGuiEx::HelpMarker("Always check objects reference for UPPERCASE/LOWERCASE messages.");
+
+        ImGui::Spacing();
+        if(ImGui::Button("SEND",ImVec2(-1,20))){
+            *static_cast<string *>(_outletParams[0]) = "";
+            *static_cast<string *>(_outletParams[0]) = actualMessage;
+        }
+
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -118,50 +143,6 @@ void moMessage::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void moMessage::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    sendButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    message->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = sendButton->hitTest(_m-this->getPos()) || message->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void moMessage::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        sendButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        message->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void moMessage::onButtonEvent(ofxDatGuiButtonEvent e){
-    if (e.target == sendButton){
-        *static_cast<string *>(_outletParams[0]) = "";
-        *static_cast<string *>(_outletParams[0]) = message->getText();
-        actualMessage = ofToUpper(message->getText());
-    }
-}
-
-//--------------------------------------------------------------
-void moMessage::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    // cout << "From Event Object: " << e.text << endl;
-}
 
 OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI)
 

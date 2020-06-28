@@ -367,7 +367,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
 
             this->numInlets++;
 
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
         }else if(e.target == addOSCText){
             _inletParams[this->numInlets] = new string();  // control
             *static_cast<string *>(_inletParams[this->numInlets]) = "";
@@ -386,7 +386,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
 
             this->numInlets++;
 
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
         }else if(e.target == addOSCVector){
             _inletParams[this->numInlets] = new vector<float>();
             this->addInlet(VP_LINK_ARRAY,"vector");
@@ -404,7 +404,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
 
             this->numInlets++;
 
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
         }else if(e.target == addOSCTexture){
             _inletParams[this->numInlets] = new ofTexture();
             this->addInlet(VP_LINK_TEXTURE,"image");
@@ -422,7 +422,7 @@ void OscSender::onButtonEvent(ofxDatGuiButtonEvent e){
 
             this->numInlets++;
 
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
         }
     }
 }
@@ -449,7 +449,7 @@ void OscSender::onTextInputEvent(ofxDatGuiTextInputEvent e){
                 this->substituteCustomVar(osc_labels.at(i),e.text);
                 osc_labels.at(i) = e.text;
 
-                this->saveConfig(false,this->nId);
+                this->saveConfig(false);
             }
         }
     }

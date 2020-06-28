@@ -104,7 +104,7 @@ void moTimeline::customReset(){
     timeline->setName("timeline"+ofToString(this->nId));
     timeline->saveTracksToFolder(this->filepath);
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
@@ -599,7 +599,7 @@ void moTimeline::loadTimelineData(string folder){
 
     timelineLoaded = false;
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
@@ -610,7 +610,7 @@ void moTimeline::saveTimelineData(string folder){
     timeline->setName("timeline"+ofToString(this->nId));
     timeline->saveTracksToFolder(this->filepath);
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------

@@ -369,7 +369,7 @@ void ProcessingScript::loadScript(string scriptFile){
     watcher.removeAllPaths();
     watcher.addPath(filepath);
     ofLog(OF_LOG_NOTICE,"[verbose] processing/java script: %s loaded & running!",filepath.c_str());
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 
     if(currentScriptFile.getFileName().size() > 22){
         scriptName->setLabel(currentScriptFile.getFileName().substr(0,21)+"...");

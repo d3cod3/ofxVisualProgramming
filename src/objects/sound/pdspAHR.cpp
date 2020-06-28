@@ -35,26 +35,28 @@
 #include "pdspAHR.h"
 
 //--------------------------------------------------------------
-pdspAHR::pdspAHR() : PatchObject(){
+pdspAHR::pdspAHR() : PatchObject("AHR envelope"){
 
-    this->numInlets  = 3;
+    this->numInlets  = 5;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
     _inletParams[1] = new float();          // bang
     *(float *)&_inletParams[1] = 0.0f;
-    _inletParams[2] = new float();          // duration
+    _inletParams[2] = new float();          // A
     *(float *)&_inletParams[2] = 0.0f;
+    _inletParams[3] = new float();          // H
+    *(float *)&_inletParams[3] = 0.0f;
+    _inletParams[4] = new float();          // R
+    *(float *)&_inletParams[4] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
     this->initInletsState();
 
     this->width *= 2;
-
-    isGUIObject             = true;
-    this->isOverGUI         = true;
+    this->height *= 1.7f;
 
     isAudioINObject         = true;
     isAudioOUTObject        = true;
@@ -62,65 +64,37 @@ pdspAHR::pdspAHR() : PatchObject(){
 
     loaded                  = false;
 
-    attackDuration          = 0.05f;
-    holdDuration            = 0.45f;
-    releaseDuration         = 0.5f;
+    attackDuration          = 0.0f;
+    holdDuration            = 50.0f;
+    releaseDuration         = 50.0f;
 
-    envelopeDuration        = 100;
-
-    rect.set(120,this->headerHeight+10,this->width-130,this->height-this->headerHeight-40);
+    attackHardness          = 0.0f;
+    releaseHardness         = 1.0f;
 
 }
 
 //--------------------------------------------------------------
 void pdspAHR::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"bang");
-    this->addInlet(VP_LINK_NUMERIC,"duration");
+    this->addInlet(VP_LINK_NUMERIC,"A");
+    this->addInlet(VP_LINK_NUMERIC,"H");
+    this->addInlet(VP_LINK_NUMERIC,"R");
     this->addOutlet(VP_LINK_AUDIO,"envelopedSignal");
 
-    this->setCustomVar(static_cast<float>(envelopeDuration),"DURATION");
-    this->setCustomVar(1.0f,"ATTACK_CURVE");
-    this->setCustomVar(1.0f,"RELEASE_CURVE");
+    this->setCustomVar(attackHardness,"ATTACK_CURVE");
+    this->setCustomVar(releaseHardness,"RELEASE_CURVE");
 
-    this->setCustomVar(120.0f,"ATTACK_X");
-    this->setCustomVar(this->headerHeight+10,"ATTACK_Y");
-    this->setCustomVar(120.0f+(this->width-130)/2,"HOLD_X");
-    this->setCustomVar(this->headerHeight+10,"HOLD_Y");
-    this->setCustomVar(120.0f+(this->width-130),"RELEASE_X");
-    this->setCustomVar(this->headerHeight+10+(this->height-this->headerHeight-40),"RELEASE_Y");
+    this->setCustomVar(attackDuration,"ATTACK");
+    this->setCustomVar(holdDuration,"HOLD");
+    this->setCustomVar(releaseDuration,"RELEASE");
 }
 
 //--------------------------------------------------------------
 void pdspAHR::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    controlPoints.push_back(DraggableVertex(this->getCustomVar("ATTACK_X"),this->getCustomVar("ATTACK_Y"))); // A
-    controlPoints.push_back(DraggableVertex(this->getCustomVar("HOLD_X"),this->getCustomVar("HOLD_Y"))); // H
-    controlPoints.push_back(DraggableVertex(this->getCustomVar("RELEASE_X"),this->getCustomVar("RELEASE_Y"))); // R
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onTextInputEvent(this,&pdspAHR::onTextInputEvent);
-    gui->onSliderEvent(this, &pdspAHR::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    duration = gui->addTextInput("DURATION (MS)","");
-    duration->setUseCustomMouse(true);
-    duration->setText(ofToString(this->getCustomVar("DURATION")));
-    attackHardness = gui->addSlider("Attack Curve", 0,1,this->getCustomVar("ATTACK_CURVE"));
-    attackHardness->setUseCustomMouse(true);
-    releaseHardness = gui->addSlider("Release Curve", 0,1,this->getCustomVar("RELEASE_CURVE"));
-    releaseHardness->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
 }
 
@@ -137,17 +111,10 @@ void pdspAHR::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    duration->update();
-    attackHardness->update();
-    releaseHardness->update();
 
-    attackDuration          = (controlPoints.at(0).x-rect.x)/rect.width;
-    holdDuration            = (((controlPoints.at(1).x-rect.x)/rect.width * 100)-((controlPoints.at(0).x-rect.x)/rect.width * 100))/100;
-    releaseDuration         = (((controlPoints.at(2).x-rect.x)/rect.width * 100)-((controlPoints.at(1).x-rect.x)/rect.width * 100))/100;
-
-    env.set(attackDuration*this->getCustomVar("DURATION"),holdDuration*this->getCustomVar("DURATION"),releaseDuration*this->getCustomVar("DURATION"));
+    env.set(attackDuration,holdDuration,releaseDuration);
+    env.setAttackCurve(attackHardness);
+    env.setReleaseCurve(releaseHardness);
 
     // bang --> trigger envelope
     if(this->inletsConnected[1]){
@@ -156,51 +123,91 @@ void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         gate_ctrl.off();
     }
 
-    // duration
+    // A
     if(this->inletsConnected[2]){
-        duration->setText(ofToString(static_cast<int>(floor(abs(*(float *)&_inletParams[2])))));
-        this->setCustomVar(*(float *)&_inletParams[2],"DURATION");
+        attackDuration = ofClamp(*(float *)&_inletParams[2],0.0f,std::numeric_limits<float>::max());
+        this->setCustomVar(attackDuration,"ATTACK");
     }
+
+    // H
+    if(this->inletsConnected[3]){
+        holdDuration = ofClamp(*(float *)&_inletParams[3],0.0f,std::numeric_limits<float>::max());
+        this->setCustomVar(holdDuration,"HOLD");
+    }
+
+    // R
+    if(this->inletsConnected[4]){
+        releaseDuration = ofClamp(*(float *)&_inletParams[4],0.0f,std::numeric_limits<float>::max());
+        this->setCustomVar(releaseDuration,"RELEASE");
+    }
+
 
     if(!loaded){
         loaded = true;
-        duration->setText(ofToString(static_cast<int>(floor(this->getCustomVar("DURATION")))));
-        attackHardness->setValue(this->getCustomVar("ATTACK_CURVE"));
-        releaseHardness->setValue(this->getCustomVar("RELEASE_CURVE"));
+        attackDuration = this->getCustomVar("ATTACK");
+        holdDuration = this->getCustomVar("HOLD");
+        releaseDuration = this->getCustomVar("RELEASE");
+        attackHardness = this->getCustomVar("ATTACK_CURVE");
+        releaseHardness = this->getCustomVar("RELEASE_CURVE");
     }
 }
 
 //--------------------------------------------------------------
 void pdspAHR::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    for(size_t i=0;i<controlPoints.size();i++){
-        if(controlPoints.at(i).bOver){
-            ofDrawCircle(controlPoints.at(i).x,controlPoints.at(i).y,6);
-        }else{
-            ofDrawCircle(controlPoints.at(i).x,controlPoints.at(i).y,4);
+
+}
+
+//--------------------------------------------------------------
+void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Standard AHR envelope.",
+                        "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop");
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
+        ImGuiEx::EnvelopeEditor(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y*0.3, &attackDuration, &holdDuration, &releaseDuration, &releaseDuration, ImGuiEnvelopeEditorType_AHR);
+
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "A", &attackDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(attackDuration,"ATTACK");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "H", &holdDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(holdDuration,"HOLD");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(releaseDuration,"RELEASE");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "A. H.", &attackHardness, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(attackHardness,"ATTACK_CURVE");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R. H.", &releaseHardness, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(releaseHardness,"RELEASE_CURVE");
         }
 
     }
-    ofDrawLine(rect.getBottomLeft().x,rect.getBottomLeft().y,controlPoints.at(0).x,controlPoints.at(0).y);
-    ofDrawLine(controlPoints.at(0).x,controlPoints.at(0).y,controlPoints.at(1).x,controlPoints.at(1).y);
-    ofDrawLine(controlPoints.at(1).x,controlPoints.at(1).y,controlPoints.at(2).x,controlPoints.at(2).y);
 
-    ofSetColor(160,160,160);
-    font->draw("A:",this->fontSize,rect.getBottomLeft().x+6,rect.getBottomLeft().y+8);
-    font->draw("H:",this->fontSize,rect.getCenter().x-30,rect.getBottomLeft().y+8);
-    font->draw("R:",this->fontSize,rect.getBottomRight().x-70,rect.getBottomLeft().y+8);
-    ofSetColor(255,255,120);
-    string tempStr = ofToString(attackDuration * 100,1)+"%";
-    font->draw(tempStr,this->fontSize,rect.getBottomLeft().x+20,rect.getBottomLeft().y+8);
-    tempStr = ofToString(holdDuration * 100,1)+"%";
-    font->draw(tempStr,this->fontSize,rect.getCenter().x-16,rect.getBottomLeft().y+8);
-    tempStr = ofToString(releaseDuration * 100,1)+"%";
-    font->draw(tempStr,this->fontSize,rect.getBottomRight().x-56,rect.getBottomLeft().y+8);
 
-    gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
@@ -222,10 +229,6 @@ void pdspAHR::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
-            /*for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
-            }*/
-
             XML.popTag();
         }
     }
@@ -235,91 +238,6 @@ void pdspAHR::loadAudioSettings(){
 void pdspAHR::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
-}
-
-//--------------------------------------------------------------
-void pdspAHR::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    duration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    attackHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    releaseHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    for(int j=0;j<static_cast<int>(controlPoints.size());j++){
-        controlPoints.at(j).over(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || duration->hitTest(_m-this->getPos()) || attackHardness->hitTest(_m-this->getPos()) || releaseHardness->hitTest(_m-this->getPos()) || controlPoints.at(0).bOver || controlPoints.at(1).bOver || controlPoints.at(2).bOver;
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || controlPoints.at(0).bOver || controlPoints.at(1).bOver || controlPoints.at(2).bOver;
-    }
-
-}
-
-//--------------------------------------------------------------
-void pdspAHR::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        duration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        attackHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        releaseHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-        for(int j=0;j<static_cast<int>(controlPoints.size());j++){
-            if(static_cast<int>(_m.x - this->getPos().x) >= rect.getLeft() && static_cast<int>(_m.x - this->getPos().x) <= rect.getRight()){
-                controlPoints.at(j).drag(static_cast<int>(_m.x - this->getPos().x),controlPoints.at(j).y);
-            }
-
-        }
-        this->setCustomVar(controlPoints.at(0).x,"ATTACK_X");
-        this->setCustomVar(controlPoints.at(0).y,"ATTACK_Y");
-        this->setCustomVar(controlPoints.at(1).x,"HOLD_X");
-        this->setCustomVar(controlPoints.at(1).y,"HOLD_Y");
-        this->setCustomVar(controlPoints.at(2).x,"RELEASE_X");
-        this->setCustomVar(controlPoints.at(2).y,"RELEASE_Y");
-
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspAHR::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == duration){
-            if(isInteger(e.text)){
-                envelopeDuration = ofToInt(e.text);
-                this->setCustomVar(ofToFloat(e.text),"DURATION");
-            }else{
-                duration->setText(ofToString(envelopeDuration));
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspAHR::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == attackHardness){
-            env.setAttackCurve(static_cast<float>(e.value));
-            this->setCustomVar(static_cast<float>(e.value),"ATTACK_CURVE");
-        }else if(e.target == releaseHardness){
-            env.setReleaseCurve(static_cast<float>(e.value));
-            this->setCustomVar(static_cast<float>(e.value),"RELEASE_CURVE");
-        }
-    }
 }
 
 OBJECT_REGISTER( pdspAHR, "AHR envelope", OFXVP_OBJECT_CAT_SOUND)

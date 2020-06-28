@@ -63,6 +63,7 @@ moSignalViewer::moSignalViewer() :
 //--------------------------------------------------------------
 void moSignalViewer::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -100,47 +101,38 @@ void moSignalViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRe
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    // Menu
+    // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        ImGui::MenuItem("Menu From User code !");
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Audio signal display, also byapass it through its outlets, plus the data buffer and the RMS amplitude.",
+                        "https://mosaic.d3cod3.org/reference.php?r=signal-viewer");
+
+            ImGui::EndMenu();
+        }
+
         _nodeCanvas.EndNodeMenu();
     }
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::TextWrapped("Signal Viewer.");
+        // draw waveform
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
 
-        _nodeCanvas.EndNodeContent();
-    }
-
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-
-        // parameters view
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-
-        }
-        // visualize view
-        else {
-            ImGui::PlotConfig conf;
-            conf.values.ys = plot_data;
-            conf.values.count = 1024;
-            conf.values.color = IM_COL32(255,255,120,255);
-            conf.scale.min = -1;
-            conf.scale.max = 1;
-            conf.tooltip.show = false;
-            conf.tooltip.format = "x=%.2f, y=%.2f";
-            conf.grid_x.show = false;
-            conf.grid_y.show = false;
-            conf.frame_size = ImVec2(this->width*0.98f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
-            conf.line_thickness = 1.3f;
-
-            ImGui::Plot("plot", conf);
-        }
+        // draw signal RMS amplitude
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
 
         _nodeCanvas.EndNodeContent();
     }
+
 }
 
 //--------------------------------------------------------------
@@ -159,6 +151,7 @@ void moSignalViewer::loadAudioSettings(){
 
             for(int i=0;i<bufferSize;i++){
                 static_cast<vector<float> *>(_outletParams[2])->push_back(0.0f);
+                plot_data[i] = 0.0f;
             }
 
             XML.popTag();

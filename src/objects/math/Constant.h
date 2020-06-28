@@ -50,5 +50,7 @@ public:
 
     ofxVPObjectParameter<float> inputValueNew;
 
+    bool            loaded;
+
     OBJECT_FACTORY_PROPS
 };

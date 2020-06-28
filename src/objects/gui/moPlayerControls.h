@@ -35,6 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "IconsFontAwesome5.h"
 
 class moPlayerControls : public PatchObject {
 
@@ -42,28 +43,25 @@ public:
 
     moPlayerControls();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    ofxDatGui*          gui;
-    ofxDatGuiButton*    playButton;
-    ofxDatGuiButton*    stopButton;
-    ofxDatGuiToggle*    pauseButton;
-    ofxDatGuiToggle*    loopButton;
     
     bool                bang;
-    bool                loaded;
+
+    bool                pause;
+    bool                loop;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

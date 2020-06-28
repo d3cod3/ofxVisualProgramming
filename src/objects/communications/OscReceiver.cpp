@@ -332,7 +332,7 @@ void OscReceiver::onTextInputEvent(ofxDatGuiTextInputEvent e){
                 this->substituteCustomVar(osc_labels.at(i),e.text);
                 osc_labels.at(i) = e.text;
 
-                this->saveConfig(false,this->nId);
+                this->saveConfig(false);
             }
         }
     }
@@ -465,7 +465,7 @@ void OscReceiver::resetOutlets(){
         XML.saveFile();
     }
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------

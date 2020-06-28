@@ -140,11 +140,11 @@
 // scripting
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "objects/scripting/BashScript.h"
+#include "objects/scripting/ProcessingScript.h"
+#include "objects/scripting/PythonScript.h"
 #endif
 
 #include "objects/scripting/LuaScript.h"
-#include "objects/scripting/ProcessingScript.h"
-#include "objects/scripting/PythonScript.h"
 #include "objects/scripting/ShaderObject.h"
 
 // sound objects
@@ -155,9 +155,6 @@
 #include "objects/sound/Mixer.h"
 #include "objects/sound/NoteToFrequency.h"
 #include "objects/sound/Oscillator.h"
-#include "objects/sound/OscTriangle.h"
-#include "objects/sound/OscSaw.h"
-#include "objects/sound/OscPulse.h"
 #include "objects/sound/Panner.h"
 #include "objects/sound/PDPatch.h"
 #include "objects/sound/QuadPanner.h"
@@ -177,11 +174,11 @@
 #include "objects/sound/pdspDelay.h"
 #include "objects/sound/pdspDucker.h"
 #include "objects/sound/pdspHiCut.h"
+#include "objects/sound/pdspKick.h"
 #include "objects/sound/pdspLFO.h"
 #include "objects/sound/pdspLowCut.h"
 #include "objects/sound/pdspResonant2PoleFilter.h"
 #include "objects/sound/pdspReverb.h"
-#include "objects/sound/pdspWhiteNoise.h"
 
 // video objects
 #include "objects/video/KinectGrabber.h"

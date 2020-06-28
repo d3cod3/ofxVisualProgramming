@@ -294,7 +294,7 @@ private:
 
     pdsp::Amp           amp;
     pdsp::VAOscillator  osc;
-    pdsp::VAFilter     filter;
+    pdsp::VAFilter      filter;
     pdsp::ADSR          ampEnv;
     pdsp::ADSR          filterEnv;
     pdsp::Saturator1    drive;

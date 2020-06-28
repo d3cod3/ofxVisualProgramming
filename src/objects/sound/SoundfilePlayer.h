@@ -35,10 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
-#include "imgui_plot.h"
 #include "ImGuiFileBrowser.h"
 #include "IconsFontAwesome5.h"
 
@@ -70,7 +67,7 @@ public:
     ofSoundBuffer       monoBuffer;
     short               *shortBuffer;
     float               volume;
-    double              speed;
+    float               speed;
     bool                loop;
     bool                isNewObject;
     bool                isFileLoaded;

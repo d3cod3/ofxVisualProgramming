@@ -110,6 +110,8 @@
 #define OFXVP_OBJECT_CAT_WINDOWING      "windowing"
 
 // ImGui colors
+#define VHS_DGRAY       ImVec4(58/255.0f,58/255.0f,58/255.0f,1.0f)
+#define VHS_DGRAY_OVER  ImVec4(58/255.0f,58/255.0f,58/255.0f,0.7f)
 #define VHS_GRAY        ImVec4(82/255.0f,99/255.0f,106/255.0f,1.0f)
 #define VHS_GRAY_OVER   ImVec4(82/255.0f,99/255.0f,106/255.0f,0.7f)
 #define VHS_LGRAY       ImVec4(121/255.0f,135/255.0f,140/255.0f,1.0f)

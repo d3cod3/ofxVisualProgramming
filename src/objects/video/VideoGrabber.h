@@ -36,9 +36,6 @@
 
 #include "PatchObject.h"
 
-#include "ofxImGui.h"
-#include "imgui_node_canvas.h"
-
 #include "ofxOpenCv.h"
 
 #define CAM_MAX_WIDTH        1920
@@ -61,36 +58,34 @@ public:
     void            loadCameraSettings();
     void            resetCameraSettings(int devID);
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
-
     ofVideoGrabber*         vidGrabber;
     ofxCvColorImage*        colorImage;
     vector<ofVideoDevice>   wdevices;
     vector<string>          devicesVector;
     vector<int>             devicesID;
+
     int                     camWidth, camHeight;
     int                     temp_width, temp_height;
+    string                  deviceName;
     int                     deviceID;
+
     bool                    needReset;
     bool                    isOneDeviceAvailable;
 
-    float               posX, posY, drawW, drawH;
-    bool                isNewObject;
+    bool                    hMirror, vMirror;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     deviceName;
-    ofxDatGuiMatrix*    deviceSelector;
-    ofxDatGuiToggle*    mirrorH;
-    ofxDatGuiToggle*    mirrorV;
-    ofxDatGuiTextInput* guiTexWidth;
-    ofxDatGuiTextInput* guiTexHeight;
-    ofxDatGuiButton*    applyButton;
+    float                   posX, posY, drawW, drawH;
+    bool                    isNewObject;
+
+
+protected:
+
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

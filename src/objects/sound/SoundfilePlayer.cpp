@@ -58,9 +58,6 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     isAudioOUTObject    = true;
 
     isNewObject         = true;
@@ -71,7 +68,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
     loop                = false;
     volume              = 1.0f;
-    speed               = 1.0;
+    speed               = 1.0f;
     sampleRate          = 44100.0;
     bufferSize          = 256;
 
@@ -98,6 +95,7 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addInlet(VP_LINK_NUMERIC,"bang");
+
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
@@ -190,15 +188,11 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
         }
         // speed
         if(this->inletsConnected[2]){
-            speed = static_cast<double>(ofClamp(*(float *)&_inletParams[2],-10.0f,10.0f));
-        }else{
-            speed = 1.0;
+            speed = ofClamp(*(float *)&_inletParams[2],-10.0f,10.0f);
         }
         // volume
         if(this->inletsConnected[3]){
             volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
-        }else{
-            volume = 1.0f;
         }
 
         // trigger
@@ -228,9 +222,6 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
@@ -248,15 +239,16 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
+            ImGui::Spacing();
             ImGui::Text("Loaded File:");
             if(filepath == "none"){
                 ImGui::Text("%s",filepath.c_str());
             }else{
                 ImGui::Text("%s",tempFilename.getFileName().c_str());
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-                ImGuiEx::drawTimecode(static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
+                ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
             }
-            if(ImGui::Button("OPEN",ImVec2(180,20))){
+            if(ImGui::Button(ICON_FA_FILE,ImVec2(180,26))){
                 loadSoundfileFlag = true;
             }
 
@@ -267,14 +259,14 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56,20))){
+            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56,26))){
                 isPlaying = true;
                 playhead = 0.0;
                 audioWasPlaying = true;
                 finishSemaphore = true;
             }
             ImGui::SameLine();
-            if(ImGui::Button(ICON_FA_STOP,ImVec2(56,20))){
+            if(ImGui::Button(ICON_FA_STOP,ImVec2(56,26))){
                 isPlaying = false;
                 playhead = 0.0;
                 audioWasPlaying = false;
@@ -284,25 +276,23 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56,20))){
+            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56,26))){
                 isPlaying = !isPlaying;
             }
             ImGui::PopStyleColor(3);
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Checkbox(ICON_FA_REDO " LOOP",&loop);
 
             ImGui::Spacing();
-            ImGui::Separator();
+            ImGui::PushItemWidth(130);
+            ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
+            ImGui::PushItemWidth(130);
+            ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
             ImGui::Spacing();
-            if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
-                ImGui::TextWrapped("Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.");
-                ImGui::Spacing();
-                if(ImGui::Button("Reference")){
-                    ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=soundfile-player");
-                }
-            }
+            ImGui::Spacing();
+            ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
+
+            ImGuiEx::ObjectInfo(
+                        "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
+                        "https://mosaic.d3cod3.org/reference.php?r=soundfile-player");
 
             ImGui::EndMenu();
         }
@@ -314,49 +304,32 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(isFileLoaded && audiofile.loaded()){
             ImVec2 window_pos = ImGui::GetWindowPos();
             ImVec2 window_size = ImGui::GetWindowSize();
-            ImVec2 ph_pos = ImVec2(window_pos.x + 30, window_pos.y + 20);
+            ImVec2 ph_pos = ImVec2(window_pos.x + 20, window_pos.y + 20);
 
             // draw Audiofile Waveform plot
-            ImGui::PlotConfig conf;
-            conf.values.ys = plot_data;
-            conf.values.count = 1024;
-            conf.values.color = IM_COL32(255,255,120,255);
-            conf.scale.min = -1;
-            conf.scale.max = 1;
-            conf.tooltip.show = false;
-            conf.tooltip.format = "Time=%.2f, Amplitude=%.2f";
-            conf.grid_x.show = false;
-            conf.grid_y.show = false;
-            conf.frame_size = ImVec2(this->width*0.98f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
-            conf.line_thickness = 1.1f;
-
-            ImGui::Plot("plot", conf);
-
-            /*for( int x=0; x<this->width; ++x){
-                int n = ofMap( x, 0, this->width, 0, audiofile.length(), true );
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+window_size,IM_COL32_BLACK);
+            for( int x=0; x<window_size.x-30; ++x){
+                int n = ofMap( x, 0, window_size.x-30, 0, audiofile.length(), true );
                 float val = audiofile.sample( n, 0 );
-                ImGui::GetForegroundDrawList()->AddLine(ImVec2(ph_pos.x + x, ph_pos.y + ((this->height-36)*0.5)+30 - (val*((this->height-36)*0.5))),ImVec2(ph_pos.x + x, ph_pos.y + (((this->height-36)*0.5)+30) + (val*((this->height-36)*0.5))),IM_COL32(255,255,120,255), 1.0f);
-            }*/
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + x, ph_pos.y + window_size.y - (72*_nodeCanvas.GetCanvasScale()) - (val*(window_size.y*0.5))),ImVec2(ph_pos.x + x, ph_pos.y + window_size.y - (72*_nodeCanvas.GetCanvasScale()) + (val*(window_size.y*0.5))),IM_COL32(255,255,120,180), 1.0f);
+            }
 
             // draw position (timecode)
-            ImGuiEx::drawTimecode(static_cast<int>(ceil(static_cast<int>(floor(playhead))/audiofile.samplerate())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
-
-            // draw filename
-            //ImGui::GetForegroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize()*_nodeCanvas.GetCanvasScale(), ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())), IM_COL32_WHITE,tempFilename.getFileName().c_str(), NULL, 0.0f);
+            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(static_cast<int>(floor(playhead))/audiofile.samplerate())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
 
             // draw player state
             if(isPlaying){ // play
-                ImGui::GetForegroundDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 90));
+                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
             }else if(!isPlaying && playhead > 0.0){ // pause
-                ImGui::GetForegroundDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 90));
-                ImGui::GetForegroundDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 90));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }else if(!isPlaying && playhead == 0.0){ // stop
-                ImGui::GetForegroundDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 90));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }
 
             // draw playhead
-            float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, conf.frame_size.x-41 );
-            ImGui::GetForegroundDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
+            float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-31 );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
 
         }else if(loadingFile){
             ImGui::Text("LOADING FILE...");
@@ -481,7 +454,7 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
 
     playhead = 0.0;
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 
     isFileLoaded = false;
     loadingFile = false;

@@ -266,7 +266,7 @@ void DataToTexture::resetResolution(){
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
             this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
 
             ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),this->output_width,this->output_height);
         }

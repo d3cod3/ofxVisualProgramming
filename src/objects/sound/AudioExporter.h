@@ -35,11 +35,10 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
 #include "imgui_plot.h"
 #include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 #include "ofxFFmpegRecorder.h"
 
@@ -69,8 +68,8 @@ public:
 
     imgui_addons::ImGuiFileBrowser  fileDialog;
 
+    bool                bang;
     bool                exportAudioFlag;
-    bool                audioSaved;
 
     int                 bufferSize;
     int                 sampleRate;

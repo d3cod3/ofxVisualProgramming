@@ -156,6 +156,12 @@ void PatchObject::draw(ofxFontStash *font){
     if(willErase) return;
 
     // Draw the specific object content ()
+
+    // TRANSITIONING TO IMGUI COMPLETELY RESPONSIBLE FOR INTERNAL OBJECT DRAWINGS
+    // STILL NEEDED THOUGH DUE TO SOME OF BUGS IN CO-RUN AUDIO AND VIDEO ROUTINES AT THE SAME TIME, SO WE'LL NEED
+    // TO MAINTAIN BOTH updateObjectContent in the update thread and drawObjectContent in the draw thread
+    // maybe change the function name?
+
     ofPushStyle();
     ofPushMatrix();
     ofTranslate(box->getPosition().x,box->getPosition().y);
@@ -171,7 +177,14 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
+
     if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable() )){
+
+        // save node state on click
+        if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)){
+            //ofLog(OF_LOG_NOTICE, "Clicked object with id %i", this->nId);
+            saveConfig(false);
+        }
 
         // Check menu state
         if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DeleteNode) ){
@@ -223,7 +236,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 // if compatible type, connect
                 if(getInletType(connectData.toInletPinID) == patchObjects[connectData.fromObjectID]->getOutletType(connectData.fromOutletPinID)){
                     connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toInletPinID,getInletType(connectData.toInletPinID));
-                    saveConfig(true,connectData.fromObjectID);
+                    patchObjects[connectData.fromObjectID]->saveConfig(true);
                 }
             }else if(connectData.connectType == 2){ // re-connect
                 // disconnect from elsewhere ( if another object have this connection )
@@ -235,13 +248,12 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 // if compatible type, connect
                 if(getInletType(connectData.toInletPinID) == patchObjects[connectData.fromObjectID]->getOutletType(connectData.fromOutletPinID)){
                     connectTo(patchObjects,connectData.fromObjectID,connectData.fromOutletPinID,connectData.toInletPinID,getInletType(connectData.toInletPinID));
-                    saveConfig(true,connectData.fromObjectID);
+                    patchObjects[connectData.fromObjectID]->saveConfig(true);
                 }
 
             }else if(connectData.connectType == 3){ // disconnect
                 // disconnect link
                 disconnectLink(patchObjects,connectData.linkID);
-                saveConfig(true,connectData.fromObjectID);
             }
 
         }
@@ -314,31 +326,6 @@ void PatchObject::move(int _x, int _y){
 
     box->setPosition(px,py);
     headerBox->setPosition(px,py);
-}
-
-//--------------------------------------------------------------
-void PatchObject::fixCollisions(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->first != getId()){
-            if(getPos().x >= it->second->getPos().x && getPos().x < it->second->getPos().x + it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
-                if(isRetina){
-                    move((it->second->getPos().x+it->second->getObjectWidth()+20)/2,getPos().y/2);
-                }else{
-                    move(it->second->getPos().x+it->second->getObjectWidth()+10,getPos().y);
-                }
-                break;
-            }else if(getPos().x+getObjectWidth() >= it->second->getPos().x && getPos().x+getObjectWidth() < it->second->getPos().x+it->second->getObjectWidth() && getPos().y >= it->second->getPos().y-it->second->getObjectHeight() && getPos().y < it->second->getPos().y+it->second->getObjectHeight()){
-                if(isRetina){
-                    move((it->second->getPos().x-getObjectWidth()-20)/2,getPos().y/2);
-                }else{
-                    move(it->second->getPos().x-getObjectWidth()-10,getPos().y);
-                }
-                break;
-            }
-        }
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -450,7 +437,7 @@ void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects,
                     if(!tempEraseLinks[s]){
                         tempBuffer.push_back(it->second->outPut[s]);
                     }else{
-                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
+                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
                         this->inletsConnected[objectInlet] = false;
                         if(this->getIsPDSPPatchableObject()){
                             this->pdspIn[objectInlet].disconnectIn();
@@ -491,7 +478,7 @@ void PatchObject::disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects,
                     if(!tempEraseLinks[s]){
                         tempBuffer.push_back(it->second->outPut[s]);
                     }else{
-                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID);
+                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
                         if(patchObjects[it->second->outPut[j]->toObjectID] != nullptr){
                             patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
                             if(patchObjects[it->second->outPut[j]->toObjectID]->getIsPDSPPatchableObject()){
@@ -579,7 +566,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
 }
 
 //--------------------------------------------------------------
-bool PatchObject::saveConfig(bool newConnection,int objID){
+bool PatchObject::saveConfig(bool newConnection){
     ofxXmlSettings XML;
     bool saved = false;
 
@@ -600,7 +587,6 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
                 }
 
                 freeId = maxId+1;
-                //freeId = objID;
 
                 if(freeId >= 0){
                     nId = freeId;
@@ -742,7 +728,7 @@ bool PatchObject::saveConfig(bool newConnection,int objID){
 }
 
 //--------------------------------------------------------------
-bool PatchObject::removeLinkFromConfig(int outlet){
+bool PatchObject::removeLinkFromConfig(int outlet, int toObjectID, int toInletID){
     ofxXmlSettings XML;
     bool saved = false;
 
@@ -755,8 +741,17 @@ bool PatchObject::removeLinkFromConfig(int outlet){
                         if(XML.pushTag("outlets")){
                             if(XML.pushTag("link", outlet)){
                                 int totalTo = XML.getNumTags("to");
+                                int linkToRemove = -1;
                                 for(int z=0;z<totalTo;z++){
-                                    XML.removeTag("to",z);
+                                    if(XML.pushTag("to", z)){
+                                        if(XML.getValue("id", -1) == toObjectID && XML.getValue("inlet", -1) == toInletID){
+                                            linkToRemove = z;
+                                        }
+                                        XML.popTag();
+                                    }
+                                }
+                                if(linkToRemove != -1){
+                                    XML.removeTag("to",linkToRemove);
                                 }
                                 XML.popTag();
                             }
@@ -973,7 +968,7 @@ void PatchObject::setPatchfile(string pf) {
             this->customReset();
         }
 
-        saveConfig(false,nId);
+        saveConfig(false);
     }
 }
 
@@ -1044,7 +1039,7 @@ void PatchObject::mouseReleased(float mx, float my,map<int,shared_ptr<PatchObjec
 
             fixCollisions(patchObjects);
 
-            saveConfig(false,nId);
+            saveConfig(false);
         }
 
     }*/

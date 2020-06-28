@@ -35,7 +35,7 @@
 #include "FftExtractor.h"
 
 //--------------------------------------------------------------
-FftExtractor::FftExtractor() : PatchObject(){
+FftExtractor::FftExtractor() : PatchObject("fft extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -51,6 +51,7 @@ FftExtractor::FftExtractor() : PatchObject(){
 
     isNewConnection   = false;
     isConnectionRight = false;
+
 }
 
 //--------------------------------------------------------------
@@ -118,16 +119,41 @@ void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void FftExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
+}
 
-    float bin_w = (float) this->width / spectrumSize;
-    for (int i = 0; i < static_cast<int>(spectrumSize); i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawLine(i*bin_w, this->height, i*bin_w, bin_h + this->height);
+//--------------------------------------------------------------
+void FftExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Extracts the FFT (Fast Fourier Transform) from the audio analysis data vector",
+                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor");
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw FFT
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_outletParams[0]));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------

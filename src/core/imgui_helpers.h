@@ -36,6 +36,7 @@
 #include "ofxImGui.h"
 #include "ImGuiFileBrowser.h"
 #include "imgui_node_canvas.h"
+#include "imgui_plot.h"
 
 
 namespace ImGuiEx {
@@ -84,7 +85,7 @@ inline bool getFileDialog(imgui_addons::ImGuiFileBrowser& fileDialog, bool show,
 }
 
 //--------------------------------------------------------------
-inline void drawTimecode(int seconds, std::string pre="", bool onDrawList=false, ImVec2 pos=ImVec2(0,0), float fontScale=1.0f){
+inline void drawTimecode(ImDrawList* drawList, int seconds, std::string pre="", bool onDrawList=false, ImVec2 pos=ImVec2(0,0), float fontScale=1.0f){
     int _hours   = static_cast<int>(ceil(seconds)/3600);
     int _minutes = static_cast<int>(ceil(seconds)/60);
     int _seconds = static_cast<int>(round(seconds))%60;
@@ -112,11 +113,72 @@ inline void drawTimecode(int seconds, std::string pre="", bool onDrawList=false,
     if(onDrawList){
         char temp[256];
         sprintf(temp,"%s %s:%s:%s", pre.c_str(), _sh.c_str(), _sm.c_str(), _ss.c_str());
-        ImGui::GetForegroundDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize()*fontScale, pos, IM_COL32_WHITE,temp, NULL, 0.0f);
+        drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize()*fontScale, pos, IM_COL32_WHITE,temp, NULL, 0.0f);
     }else{
         ImGui::Text("%s %s:%s:%s", pre.c_str(), _sh.c_str(), _sm.c_str(), _ss.c_str());
     }
 
+}
+
+//--------------------------------------------------------------
+inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int dataSize, float thickness, ImU32 color){
+    // draw signal background
+    drawList->AddRectFilled(ImGui::GetWindowPos(),ImGui::GetWindowPos()+dim,IM_COL32_BLACK);
+
+    // draw signal plot
+    ImGuiEx::PlotConfig conf;
+    conf.values.ys = data;
+    conf.values.count = dataSize;
+    conf.values.color = color;
+    conf.scale.min = -1;
+    conf.scale.max = 1;
+    conf.tooltip.show = false;
+    conf.tooltip.format = "x=%.2f, y=%.2f";
+    conf.grid_x.show = false;
+    conf.grid_y.show = false;
+    conf.frame_size = ImVec2(dim.x - 20, dim.y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT));
+    conf.line_thickness = thickness;
+
+    ImGuiEx::Plot("plot", conf);
+}
+
+//--------------------------------------------------------------
+inline void plotValue(float value, float min, float max){
+    ImGuiEx::PlotVarConfig conf;
+    conf.value = value;
+    conf.frame_size = ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT));
+    conf.scale.min = min;
+    conf.scale.max = max;
+    conf.buffer_size = 256;
+
+    ImGuiEx::PlotVar("", conf);
+}
+
+//--------------------------------------------------------------
+static void HelpMarker(const char* desc){
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered()){
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+}
+
+//--------------------------------------------------------------
+static void ObjectInfo(const char* desc, const char* url){
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::InvisibleButton("empty",ImVec2(160,1));  // fix widget width
+    if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
+        ImGui::TextWrapped("%s",desc);
+        ImGui::Spacing();
+        if(ImGui::Button("Reference")){
+            ofLaunchBrowser(url);
+        }
+    }
 }
 
 }

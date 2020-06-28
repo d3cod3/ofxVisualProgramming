@@ -227,7 +227,7 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
                 this->substituteCustomVar(prevExternalsFolder,temp.c_str());
                 prevExternalsFolder = lastExternalsFolder;
                 ofLog(OF_LOG_NOTICE,"PD External set to: %s",temp.c_str());
-                this->saveConfig(false,this->nId);
+                this->saveConfig(false);
             }
         }
     }

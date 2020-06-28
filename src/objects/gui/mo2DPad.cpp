@@ -35,7 +35,7 @@
 #include "mo2DPad.h"
 
 //--------------------------------------------------------------
-mo2DPad::mo2DPad() : PatchObject(){
+mo2DPad::mo2DPad() : PatchObject("2d pad"){
 
     this->numInlets  = 2;
     this->numOutlets = 2;
@@ -52,81 +52,94 @@ mo2DPad::mo2DPad() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     loaded              = false;
+
+    _x = 0.5f;
+    _y = 0.5f;
 
 }
 
 //--------------------------------------------------------------
 void mo2DPad::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addOutlet(VP_LINK_NUMERIC,"padX");
     this->addOutlet(VP_LINK_NUMERIC,"padY");
 
-    this->setCustomVar(static_cast<float>(0),"XPOS");
-    this->setCustomVar(static_cast<float>(0),"YPOS");
+    this->setCustomVar(static_cast<float>(_x),"XPOS");
+    this->setCustomVar(static_cast<float>(_y),"YPOS");
 }
 
 //--------------------------------------------------------------
 void mo2DPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->on2dPadEvent(this, &mo2DPad::on2dPadEvent);
 
-    pad = gui->add2dPad("");
-    pad->setUseCustomMouse(true);
-    pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
-
-    gui->setPosition(0,this->box->getHeight()-pad->getHeight());
 }
 
 //--------------------------------------------------------------
 void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    pad->update();
+
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] == 0.0){
-            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[0] == 1.0){
-            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(*(float *)&_inletParams[0]*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
-        }
+        _x = *(float *)&_inletParams[0];
     }
 
     if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] == 0.0){
-            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[1] == 1.0){
-            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[1]*pad->getBounds().height,pad->getPoint().z));
-        }
+        _y = *(float *)&_inletParams[1];
     }
 
     if(!loaded){
         loaded = true;
-        pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
+        _x = this->getCustomVar("XPOS");
+        _y = this->getCustomVar("YPOS");
     }
 
-    *(float *)&_outletParams[0] = static_cast<float>(pad->getPoint().x/pad->getBounds().width);
-    *(float *)&_outletParams[1] = static_cast<float>(pad->getPoint().y/pad->getBounds().height);
+    *(float *)&_outletParams[0] = _x;
+    *(float *)&_outletParams[1] = _y;
 
 }
 
 //--------------------------------------------------------------
 void mo2DPad::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Simultaneously adjust two float values XY (with a range from 0.0 to 1.0) by moving the pad point.",
+                        "https://mosaic.d3cod3.org/reference.php?r=2d-pad");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::Pad2D(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26,&_x,&_y)){
+            this->setCustomVar(static_cast<float>(_x),"XPOS");
+            this->setCustomVar(static_cast<float>(_y),"YPOS");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -134,40 +147,6 @@ void mo2DPad::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void mo2DPad::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = pad->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void mo2DPad::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void mo2DPad::on2dPadEvent(ofxDatGui2dPadEvent e){
-    this->setCustomVar(static_cast<float>(e.x),"XPOS");
-    this->setCustomVar(static_cast<float>(e.y),"YPOS");
-}
 
 OBJECT_REGISTER( mo2DPad, "2d pad", OFXVP_OBJECT_CAT_GUI)
 

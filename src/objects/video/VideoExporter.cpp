@@ -40,10 +40,13 @@ VideoExporter::VideoExporter() :
 
 {
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
     _inletParams[0] = new ofTexture(); // input
+
+    _inletParams[1] = new float();  // bang
+    *(float *)&_inletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -51,9 +54,9 @@ VideoExporter::VideoExporter() :
 
     posX = posY = drawW = drawH = 0.0f;
 
+    bang                = false;
     needToGrab          = false;
     exportVideoFlag     = false;
-    videoSaved          = false;
 
     codecsList = {"hevc","libx264","jpeg2000","mjpeg","mpeg4"};
     selectedCodec = 4;
@@ -66,6 +69,7 @@ void VideoExporter::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_TEXTURE,"input");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
 }
 
 //--------------------------------------------------------------
@@ -86,11 +90,25 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(videoSaved){
-        videoSaved = false;
-        recorder.setOutputPath(filepath);
-        recorder.setBitRate(20000);
-        recorder.startCustomRecord();
+    if(this->inletsConnected[1]){
+        if(*(float *)&_inletParams[1] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
+    }
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
+        if(!recorder.isRecording()){
+            recorder.setBitRate(20000);
+            recorder.startCustomRecord();
+            recButtonLabel = "STOP";
+            ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
+        }else if(recorder.isRecording()){
+            recorder.stop();
+            recButtonLabel = "REC";
+            ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING VIDEO");
+        }
     }
 
 }
@@ -98,8 +116,6 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofSetCircleResolution(50);
-    ofEnableAlphaBlending();
 
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -133,11 +149,12 @@ void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
         needToGrab = false;
     }
 
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    ofFile tempFilename(filepath);
 
     exportVideoFlag = false;
 
@@ -149,16 +166,33 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ofFile tempFilename(filepath);
-            ImGui::Text("Export File:");
-            ImGui::Text("%s",tempFilename.getFileName().c_str());
             ImGui::Spacing();
-            if(ImGui::Button(recButtonLabel.c_str(),ImVec2(-1,20))){
+            ImGui::Text("Export to File:");
+            if(filepath == "none"){
+                ImGui::Text("none");
+            }else{
+                ImGui::Text("%s",tempFilename.getFileName().c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+            }
+            ImGui::Spacing();
+            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84,26))){
+                exportVideoFlag = true;
+            }
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
+            char tmp[256];
+            sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+            if(ImGui::Button(tmp,ImVec2(84,26))){
                 if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
                     ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
+                }else if(filepath == "none"){
+                    ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
                 }else{
                     if(!recorder.isRecording()){
-                        exportVideoFlag = true;
+                        recorder.setBitRate(20000);
+                        recorder.startCustomRecord();
                         recButtonLabel = "STOP";
                         ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
                     }else if(recorder.isRecording()){
@@ -168,6 +202,7 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                     }
                 }
             }
+            ImGui::PopStyleColor(3);
             ImGui::Spacing();
             if(ImGui::BeginCombo("Codec", codecsList.at(selectedCodec).c_str() )){
                 for(int i=0; i < codecsList.size(); ++i){
@@ -181,18 +216,10 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
                 ImGui::EndCombo();
             }
-            ImGui::Spacing();
-            if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
-                ImGui::TextWrapped("Export video from every texture cable (blue ones). You can choose the video codec: mpeg4, mjpeg, jpg2000, libx264, or hevc.");
-                ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.129f, 0.0f, 1.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
-                if(ImGui::Button("Reference")){
-                    ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=video-exporter");
-                }
-                ImGui::PopStyleColor(3);
-            }
+
+            ImGuiEx::ObjectInfo(
+                        "Export video from every texture cable (blue ones). You can choose the video codec: mpeg4, mjpeg, jpg2000, libx264, or hevc.",
+                        "https://mosaic.d3cod3.org/reference.php?r=video-exporter");
 
             ImGui::EndMenu();
         }
@@ -214,39 +241,42 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 window_size = ImGui::GetWindowSize();
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
         if (recorder.isRecording()){
-            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
         }else if(recorder.isPaused() && recorder.isRecording()){
-            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 255, 0, 255), 40);
         }else{
-            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();
     }
 
     // file dialog
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        #if defined(TARGET_WIN32)
-        if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".avi")){
-            filepath = fileDialog.selected_path;
-            // check extension
-            if(fileDialog.ext != "avi"){
-                filepath += ".avi";
-            }
-            videoSaved = true;
+#if defined(TARGET_WIN32)
+    if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".avi")){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "avi"){
+            filepath += ".avi";
         }
-        #else
-        if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp4")){
-            filepath = fileDialog.selected_path;
-            // check extension
-            if(fileDialog.ext != "mp4"){
-                filepath += ".mp4";
-            }
-            videoSaved = true;
-        }
-        #endif
-
+        recorder.setOutputPath(filepath);
+        // prepare blank video file
+        recorder.startCustomRecord();
+        recorder.stop();
     }
+#else
+    if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp4")){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp4"){
+            filepath += ".mp4";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank video file
+        recorder.startCustomRecord();
+        recorder.stop();
+    }
+#endif
 }
 
 //--------------------------------------------------------------

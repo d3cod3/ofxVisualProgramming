@@ -36,8 +36,7 @@
 
 #include "PatchObject.h"
 
-#include "ofxParagraph.h"
-#include "moTextBuffer.h"
+#include "imgui_stdlib.h"
 
 class moComment : public PatchObject {
 
@@ -45,16 +44,14 @@ public:
 
     moComment();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mousePressedObjectContent(ofVec3f _m);
-    void            mouseReleasedObjectContent(ofVec3f _m);
-    void            keyPressedObjectContent(int key);
-    void            keyReleasedObjectContent(int key);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadCommentSetting();
     void            saveCommentSetting();
@@ -62,11 +59,10 @@ public:
     string                      actualComment;
     bool                        bang;
 
-    shared_ptr<ofxSmartFont>    label;
-    ofxParagraph*               paragraph;
-    moTextBuffer*               textBuffer;
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

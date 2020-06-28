@@ -35,9 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
 #include "imgui_plot.h"
 
 class SimpleRandom : public PatchObject {

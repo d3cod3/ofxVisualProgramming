@@ -60,9 +60,6 @@ ExampleObject::ExampleObject() :
 
     this->initInletsState();
 
-    isGUIObject             = false;
-    this->isOverGUI         = false;
-
     this->setIsResizable(true);
 
 }

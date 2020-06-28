@@ -37,7 +37,6 @@
 #include "PatchObject.h"
 
 #include "ofxAudioAnalyzer.h"
-#include "ofxHistoryPlot.h"
 
 class BPMExtractor : public PatchObject {
 
@@ -50,8 +49,6 @@ public:
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
-
-    ofxHistoryPlot  *bpmPlot;
 
     int             bufferSize;
     int             spectrumSize;

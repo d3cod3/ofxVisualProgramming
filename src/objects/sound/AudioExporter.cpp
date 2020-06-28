@@ -37,17 +37,20 @@
 //--------------------------------------------------------------
 AudioExporter::AudioExporter() : PatchObject("audio exporter"){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
     _inletParams[0] = new ofSoundBuffer(); // input
 
+    _inletParams[1] = new float();  // bang
+    *(float *)&_inletParams[1] = 0.0f;
+
     this->initInletsState();
 
+    bang                = false;
     isAudioINObject     = true;
 
     exportAudioFlag     = false;
-    audioSaved          = false;
 
     audioFPS            = 0.0f;
     audioCounter        = 0;
@@ -61,6 +64,7 @@ void AudioExporter::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_AUDIO,"input");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
 }
 
 //--------------------------------------------------------------
@@ -82,10 +86,24 @@ void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(audioSaved){
-        audioSaved = false;
-        recorder.setOutputPath(filepath);
-        recorder.startCustomAudioRecord();
+    if(this->inletsConnected[1]){
+        if(*(float *)&_inletParams[1] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
+    }
+
+    if(this->inletsConnected[0] && filepath != "none" && bang){
+        if(!recorder.isRecording()){
+            recorder.startCustomAudioRecord();
+            recButtonLabel = "STOP";
+            ofLog(OF_LOG_NOTICE,"START EXPORTING AUDIO");
+        }else if(recorder.isRecording()){
+            recorder.stop();
+            recButtonLabel = "REC";
+            ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING AUDIO");
+        }
     }
 
 }
@@ -93,13 +111,12 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void AudioExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    ofFile tempFilename(filepath);
 
     exportAudioFlag = false;
 
@@ -111,16 +128,32 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ofFile tempFilename(filepath);
-            ImGui::Text("Export File:");
-            ImGui::Text("%s",tempFilename.getFileName().c_str());
             ImGui::Spacing();
-            if(ImGui::Button(recButtonLabel.c_str(),ImVec2(200,20))){
+            ImGui::Text("Export to File:");
+            if(filepath == "none"){
+                ImGui::Text("none");
+            }else{
+                ImGui::Text("%s",tempFilename.getFileName().c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+            }
+            ImGui::Spacing();
+            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84,26))){
+                exportAudioFlag = true;
+            }
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
+            char tmp[256];
+            sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+            if(ImGui::Button(tmp,ImVec2(84,26))){
                 if(!this->inletsConnected[0]){
                     ofLog(OF_LOG_WARNING,"There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!");
+                }else if(filepath == "none"){
+                    ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
                 }else{
                     if(!recorder.isRecording()){
-                        exportAudioFlag = true;
+                        recorder.startCustomAudioRecord();
                         recButtonLabel = "STOP";
                         ofLog(OF_LOG_NOTICE,"START EXPORTING AUDIO");
                     }else if(recorder.isRecording()){
@@ -130,19 +163,11 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                     }
                 }
             }
+            ImGui::PopStyleColor(3);
 
-            ImGui::Spacing();
-            if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
-                ImGui::TextWrapped("Export audio from every sound buffer cable (yellow ones). Export format is fixed to 320 kb mp3.");
-                ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.129f, 0.0f, 1.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
-                if(ImGui::Button("Reference")){
-                    ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=audio-exporter");
-                }
-                ImGui::PopStyleColor(3);
-            }
+            ImGuiEx::ObjectInfo(
+                        "Export audio from every sound buffer cable (yellow ones). Export format is fixed to 320 kb mp3.",
+                        "https://mosaic.d3cod3.org/reference.php?r=audio-exporter");
 
             ImGui::EndMenu();
         }
@@ -154,60 +179,54 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         if(this->inletsConnected[0]){
-            // Waveform plot
-            ImGui::PlotConfig conf;
-            conf.values.ys = plot_data;
-            conf.values.count = 1024;
-            conf.values.color = IM_COL32(255,255,120,255);
-            conf.scale.min = -1;
-            conf.scale.max = 1;
-            conf.tooltip.show = false;
-            conf.tooltip.format = "x=%.2f, y=%.2f";
-            conf.grid_x.show = false;
-            conf.grid_y.show = false;
-            conf.frame_size = ImVec2(this->width*0.98f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
-            conf.line_thickness = 1.3f;
+            // draw waveform
+            ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
 
-            ImGui::Plot("plot", conf);
+            // draw signal RMS amplitude
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
+
         }
 
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
         if (recorder.isRecording()){
-            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
         }else if(recorder.isPaused() && recorder.isRecording()){
-            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 255, 0, 255), 40);
         }else{
-            ImGui::GetForegroundDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();
     }
 
     // file dialog
-    if(this->inletsConnected[0]){
-        #if defined(TARGET_WIN32)
-        if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3")){
-            filepath = fileDialog.selected_path;
-            // check extension
-            if(fileDialog.ext != "mp3"){
-                filepath += ".mp3";
-            }
-            audioSaved = true;
+#if defined(TARGET_WIN32)
+    if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3")){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp3"){
+            filepath += ".mp3";
         }
-        #else
-        if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3")){
-            filepath = fileDialog.selected_path;
-            // check extension
-            if(fileDialog.ext != "mp3"){
-                filepath += ".mp3";
-            }
-            audioSaved = true;
-        }
-        #endif
-
+        recorder.setOutputPath(filepath);
+        // prepare blank audio file
+        recorder.startCustomAudioRecord();
+        recorder.stop();
     }
+#else
+    if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3")){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp3"){
+            filepath += ".mp3";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank audio file
+        recorder.startCustomAudioRecord();
+        recorder.stop();
+    }
+#endif
 
 }
 
@@ -224,6 +243,10 @@ void AudioExporter::loadAudioSettings(){
         if (XML.pushTag("settings")){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
+
+            for(int i=0;i<bufferSize;i++){
+                plot_data[i] = 0.0f;
+            }
 
             XML.popTag();
         }

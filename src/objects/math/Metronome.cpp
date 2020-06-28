@@ -114,41 +114,34 @@ void Metronome::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRendere
 //--------------------------------------------------------------
 void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    // Menu
+    // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        //ImGui::MenuItem("Menu From User code !");
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            ImGui::DragInt("time (ms)", &timeSetting.get());
+
+            ImGuiEx::ObjectInfo(
+                        "Sends a bang with the time periodicity you specify in milliseconds.",
+                        "https://mosaic.d3cod3.org/reference.php?r=metronome");
+
+            ImGui::EndMenu();
+        }
+
         _nodeCanvas.EndNodeMenu();
     }
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::TextWrapped("Sends a bang with the time periodicity you specify in milliseconds.");
-
-
-        _nodeCanvas.EndNodeContent();
-    }
-
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-
-        // parameters view
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-            ImGui::DragInt("time (ms)", &timeSetting.get());
-            //lastMinRange.drawGui();
-        }
-        // visualize view
-        else {
-            ImGui::PlotVarConfig conf;
-            conf.value = *(float *)&_outletParams[0];
-            conf.frame_size = ImVec2(this->width*0.8f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
-            conf.scale.min = 0.f;
-            conf.scale.max = 1.f;
-            conf.buffer_size = 256;
-
-            ImGui::PlotVar("", conf);
-
-        }
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f);
 
         _nodeCanvas.EndNodeContent();
     }

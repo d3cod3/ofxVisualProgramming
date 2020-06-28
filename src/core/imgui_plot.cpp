@@ -13,7 +13,28 @@
 #endif
 #include "imgui_internal.h"
 
-namespace ImGui {
+float imMap(float value, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp){
+
+    if (fabs(inputMin - inputMax) < FLT_EPSILON){
+        return outputMin;
+    } else {
+        float outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
+
+        if( clamp ){
+            if(outputMax < outputMin){
+                if( outVal < outputMax )outVal = outputMax;
+                else if( outVal > outputMin )outVal = outputMin;
+            }else{
+                if( outVal > outputMax )outVal = outputMax;
+                else if( outVal < outputMin )outVal = outputMin;
+            }
+        }
+        return outVal;
+    }
+
+}
+
+namespace ImGuiEx {
 
 // [0..1] -> [0..1]
 static float rescale(float t, float min, float max, PlotConfig::Scale::Type type) {
@@ -60,7 +81,7 @@ void plotvar_flush_old_entries() {
 PlotStatus Plot(const char* label, const PlotConfig& conf) {
     PlotStatus status = PlotStatus::nothing;
 
-    ImGuiWindow* window = GetCurrentWindow();
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return status;
 
@@ -78,21 +99,21 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
     const ImGuiID id = window->GetID(label);
 
     const ImRect frame_bb(
-                window->DC.CursorPos,
-                window->DC.CursorPos + conf.frame_size);
+                window->DC.CursorPos-ImVec2(10,0),
+                window->DC.CursorPos-ImVec2(10,0) + conf.frame_size);
     const ImRect inner_bb(
                 frame_bb.Min + style.FramePadding,
                 frame_bb.Max - style.FramePadding);
     const ImRect total_bb = frame_bb;
-    ItemSize(total_bb, style.FramePadding.y);
-    if (!ItemAdd(total_bb, 0, &frame_bb))
+    ImGui::ItemSize(total_bb, style.FramePadding.y);
+    if (!ImGui::ItemAdd(total_bb, 0, &frame_bb))
         return status;
-    const bool hovered = ItemHoverable(frame_bb, id);
+    const bool hovered = ImGui::ItemHoverable(frame_bb, id);
 
-    RenderFrame(
+    ImGui::RenderFrame(
                 frame_bb.Min,
                 frame_bb.Max,
-                GetColorU32(ImGuiCol_FrameBg),
+                ImGui::GetColorU32(ImGuiCol_Border),
                 true,
                 style.FrameRounding);
 
@@ -119,7 +140,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
             const size_t data_idx = conf.values.offset + (v_idx % conf.values.count);
             const float x0 = conf.values.xs ? conf.values.xs[data_idx] : v_idx;
             const float y0 = ys_list[0][data_idx]; // TODO: tooltip is only shown for the first y-value!
-            SetTooltip(conf.tooltip.format, x0, y0);
+            ImGui::SetTooltip(conf.tooltip.format, x0, y0);
             v_hovered = v_idx;
         }
 
@@ -177,13 +198,13 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
             }
         }
 
-        const ImU32 col_hovered = GetColorU32(ImGuiCol_PlotLinesHovered);
-        ImU32 col_base = GetColorU32(ImGuiCol_PlotLines);
+        const ImU32 col_hovered = ImGui::GetColorU32(ImGuiCol_PlotLinesHovered);
+        ImU32 col_base = ImGui::GetColorU32(ImGuiCol_PlotLines);
 
         for (int i = 0; i < ys_count; ++i) {
             if (colors) {
                 if (colors[i]) col_base = colors[i];
-                else col_base = GetColorU32(ImGuiCol_PlotLines);
+                else col_base = ImGui::GetColorU32(ImGuiCol_PlotLines);
             }
             float v0 = ys_list[i][conf.values.offset];
             float t0 = 0.0f;
@@ -232,8 +253,8 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
         if (conf.selection.show) {
             if (hovered) {
                 if (g.IO.MouseClicked[0]) {
-                    SetActiveID(id, window);
-                    FocusWindow(window);
+                    ImGui::SetActiveID(id, window);
+                    ImGui::FocusWindow(window);
 
                     const int v_idx = cursor_to_idx(g.IO.MousePos, inner_bb, conf, x_min, x_max);
                     uint32_t start = conf.values.offset + (v_idx % conf.values.count);
@@ -262,7 +283,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                         }
                     }
                 } else {
-                    ClearActiveID();
+                    ImGui::ClearActiveID();
                 }
             }
             float fSelectionStep = 1.0 / item_count;
@@ -277,7 +298,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
 
     // Text overlay
     if (conf.overlay_text)
-        RenderTextClipped(ImVec2(frame_bb.Min.x, frame_bb.Min.y + style.FramePadding.y), frame_bb.Max, conf.overlay_text, NULL, NULL, ImVec2(0.5f,0.0f));
+        ImGui::RenderTextClipped(ImVec2(frame_bb.Min.x, frame_bb.Min.y + style.FramePadding.y), frame_bb.Max, conf.overlay_text, NULL, NULL, ImVec2(0.5f,0.0f));
 
     return status;
 }
@@ -290,8 +311,8 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf) {
 
     assert(conf.buffer_size > 0);
 
-    PushID(label);
-    ImGuiID id = GetID("");
+    ImGui::PushID(label);
+    ImGuiID id = ImGui::GetID("");
 
     // Lookup O(log N)
     PlotVarData& pvd = g_PlotVarsMap[id];
@@ -313,12 +334,12 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf) {
         pvd.Data[pvd.DataInsertIdx++] = conf.value;
 
     // Draw
-    int current_frame = GetFrameCount();
+    int current_frame = ImGui::GetFrameCount();
     if (pvd.LastFrame != current_frame)
     {
         //char overlay[32];
         //sprintf(overlay, "%-3.4f", pvd.Data[display_idx]);
-        PlotLines("##plot", &pvd.Data[0], conf.buffer_size, pvd.DataInsertIdx, NULL, conf.scale.min, conf.scale.max, ImVec2(conf.frame_size.x, conf.frame_size.y));
+        ImGui::PlotLines("##plot", &pvd.Data[0], conf.buffer_size, pvd.DataInsertIdx, NULL, conf.scale.min, conf.scale.max, ImVec2(conf.frame_size.x, conf.frame_size.y));
         //ImGui::SameLine();
         //ImGui::Text("%s\n%-3.4f", label, pvd.Data[display_idx]);	// Display last value in buffer
         pvd.LastFrame = current_frame;
@@ -329,9 +350,58 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf) {
     // flush old entries
     plotvar_flush_old_entries();
 
-    PopID();
+    ImGui::PopID();
 
     return status;
+}
+
+void VUMeter(ImDrawList* drawList, float width, float height,float _vol){
+
+    // visuals
+    enum { SUBDIVISIONS = 14 };
+
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    ImGui::ItemSize(bb);
+
+    int numRect = static_cast<int>(floor(imMap(_vol,0.0f,1.0f,0,SUBDIVISIONS)));
+
+    if(Canvas.x >= SUBDIVISIONS){
+        for(int i=0;i<numRect;i++){
+            if(i < 10){
+                drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(64,255,1,220));
+            }else if(i >= 10 && i < 12){
+                drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(255,254,65,220));
+            }else if(i >= 12 && i < 14){
+                drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(255,64,1,220));
+            }
+        }
+    }
+
+}
+
+void PlotBands(ImDrawList* drawList, float width, float height, std::vector<float> *data){
+
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    ImGui::ItemSize(bb);
+
+    float bin_w = Canvas.x / data->size();
+
+    for(int i=0;i<data->size();i++){
+        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(1.0f-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i), bb.Max.y-1),IM_COL32(255,255,120,255));
+    }
+
 }
 
 }

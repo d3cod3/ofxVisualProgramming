@@ -38,7 +38,8 @@
 
 #include "ofxAudioAnalyzer.h"
 #include "ofxBTrack.h"
-#include "ofxHistoryPlot.h"
+
+#include "imgui_plot.h"
 
 class AudioAnalyzer : public PatchObject {
 
@@ -46,37 +47,34 @@ public:
 
     AudioAnalyzer();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            audioInObject(ofSoundBuffer &inputBuffer);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
 
     void            loadAudioSettings();
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
     // GUI vars
-    ofxDatGui*                              gui;
-    ofxDatGuiHeader*                        header;
-    ofxDatGuiSlider*                        inputLevel;
-    ofxDatGuiSlider*                        smoothing;
     float                                   smoothingValue;
     float                                   audioInputLevel;
 
     // Audio Input Signal variables
     ofSoundBuffer                           lastBuffer;
     ofSoundBuffer                           monoBuffer;
-    ofPolyline                              waveform;
     std::mutex                              audioMutex;
 
     // Analysis variables
     ofxAudioAnalyzer                        audioAnalyzer;
     ofxBTrack                               *beatTrack;
+    float                                   plot_data[1024];
     vector<float>                           spectrum;
     vector<float>                           melBands;
     vector<float>                           mfcc;
@@ -106,7 +104,10 @@ public:
     bool                                    newConnection;
     size_t                                  waitTime;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

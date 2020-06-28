@@ -356,7 +356,7 @@ void PythonScript::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
 
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
     }else{
         script = ofxPythonObject::_None();
     }

@@ -109,41 +109,38 @@ void SimpleRandom::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 //--------------------------------------------------------------
 void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    // Menu
+    // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        //ImGui::MenuItem("Menu From User code !");
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            ImGui::DragFloat("min", &lastMinRange.get());
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            ImGui::DragFloat("max", &lastMaxRange.get());
+
+            ImGuiEx::ObjectInfo(
+                        "Standard Range controlled random number generator.",
+                        "https://mosaic.d3cod3.org/reference.php?r=simple-random");
+
+
+            ImGui::EndMenu();
+        }
+
         _nodeCanvas.EndNodeMenu();
     }
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::TextWrapped("Standard Range controlled random number generator.");
-
-        _nodeCanvas.EndNodeContent();
-    }
-
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-
-        // parameters view
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-            ImGui::DragFloat("min", &lastMinRange.get());
-            //lastMinRange.drawGui();
-            ImGui::DragFloat("max", &lastMaxRange.get());
-            //lastMaxRange.drawGui();
-        }
-        // visualize view
-        else {
-            ImGui::PlotVarConfig conf;
-            conf.value = *(float *)&_outletParams[0];
-            conf.frame_size = ImVec2(this->width*0.8f*_nodeCanvas.GetCanvasScale(), this->height*0.7f*_nodeCanvas.GetCanvasScale());
-            conf.scale.min = lastMinRange.get();
-            conf.scale.max = lastMaxRange.get();
-            conf.buffer_size = 256;
-
-            ImGui::PlotVar("", conf);
-        }
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get());
 
         _nodeCanvas.EndNodeContent();
     }

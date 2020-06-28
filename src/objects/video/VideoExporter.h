@@ -35,10 +35,9 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
 #include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 #include "ofxFFmpegRecorder.h"
 #include "ofxFastFboReader.h"
@@ -65,6 +64,7 @@ public:
     ofFbo               captureFbo;
     ofPixels            capturePix;
 
+    bool                bang;
     bool                needToGrab;
 
     float               posX, posY, drawW, drawH;
@@ -73,7 +73,6 @@ public:
     imgui_addons::ImGuiFileBrowser  fileDialog;
 
     bool                exportVideoFlag;
-    bool                videoSaved;
 
 protected:
 

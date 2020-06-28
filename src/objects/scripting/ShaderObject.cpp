@@ -519,7 +519,7 @@ void ShaderObject::doFragmentShader(){
 
     ofNotifyEvent(this->resetEvent, this->nId);
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 
     // Compile the shader and load it to the GPU
     shader->unload();
@@ -568,7 +568,7 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
 
         this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
         this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
 
         fbo = new ofFbo();
         fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
@@ -697,7 +697,7 @@ void ShaderObject::onSliderEvent(ofxDatGuiSliderEvent e){
                 sliderName = "GUI_FLOAT_"+sliderName;
             }
             this->setCustomVar(static_cast<float>(shaderSliders.at(i)->getValue()),sliderName);
-            this->saveConfig(false,this->nId);
+            this->saveConfig(false);
         }
     }
 }

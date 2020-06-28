@@ -35,28 +35,30 @@
 #include "pdspDucker.h"
 
 //--------------------------------------------------------------
-pdspDucker::pdspDucker() : PatchObject(){
+pdspDucker::pdspDucker() : PatchObject("sidechain compressor"){
 
-    this->numInlets  = 4;
+    this->numInlets  = 6;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
     _inletParams[1] = new float();          // bang
     *(float *)&_inletParams[1] = 0.0f;
-    _inletParams[2] = new float();          // duration
+    _inletParams[2] = new float();          // ducking
     *(float *)&_inletParams[2] = 0.0f;
-    _inletParams[3] = new float();          // ducking
+    _inletParams[3] = new float();          // A
     *(float *)&_inletParams[3] = 0.0f;
+    _inletParams[4] = new float();          // H
+    *(float *)&_inletParams[4] = 0.0f;
+    _inletParams[5] = new float();          // R
+    *(float *)&_inletParams[5] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
     this->initInletsState();
 
     this->width *= 2;
-
-    isGUIObject             = true;
-    this->isOverGUI         = true;
+    this->height *= 2.9f;
 
     isAudioINObject         = true;
     isAudioOUTObject        = true;
@@ -64,71 +66,42 @@ pdspDucker::pdspDucker() : PatchObject(){
 
     loaded                  = false;
 
-    attackDuration          = 0.05f;
-    holdDuration            = 0.45f;
-    releaseDuration         = 0.5f;
+    ducking                 = -20.0f;
 
-    envelopeDuration        = 100;
+    attackDuration          = 50.0f;
+    holdDuration            = 0.0f;
+    releaseDuration         = 100.0f;
 
-    rect.set(120,this->headerHeight+10,this->width-130,this->height-this->headerHeight-40);
+    attackHardness          = 0.0f;
+    releaseHardness         = 1.0f;
+
 
 }
 
 //--------------------------------------------------------------
 void pdspDucker::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"bang");
-    this->addInlet(VP_LINK_NUMERIC,"duration");
     this->addInlet(VP_LINK_NUMERIC,"ducking");
+    this->addInlet(VP_LINK_NUMERIC,"A");
+    this->addInlet(VP_LINK_NUMERIC,"H");
+    this->addInlet(VP_LINK_NUMERIC,"R");
+
     this->addOutlet(VP_LINK_AUDIO,"duckedSignal");
 
-    this->setCustomVar(static_cast<float>(envelopeDuration),"DURATION");
-    this->setCustomVar(-20.0f,"DUCKING");
-    this->setCustomVar(1.0f,"ATTACK_CURVE");
-    this->setCustomVar(1.0f,"RELEASE_CURVE");
-
-    this->setCustomVar(120.0f,"ATTACK_X");
-    this->setCustomVar(this->headerHeight+10,"ATTACK_Y");
-    this->setCustomVar(120.0f+(this->width-130)/2,"HOLD_X");
-    this->setCustomVar(this->headerHeight+10,"HOLD_Y");
-    this->setCustomVar(120.0f+(this->width-130),"RELEASE_X");
-    this->setCustomVar(this->headerHeight+10+(this->height-this->headerHeight-40),"RELEASE_Y");
+    this->setCustomVar(ducking,"DUCKING");
+    this->setCustomVar(attackDuration,"ATTACK");
+    this->setCustomVar(holdDuration,"HOLD");
+    this->setCustomVar(releaseDuration,"RELEASE");
+    this->setCustomVar(attackHardness,"ATTACK_CURVE");
+    this->setCustomVar(releaseHardness,"RELEASE_CURVE");
 }
 
 //--------------------------------------------------------------
 void pdspDucker::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    controlPoints.push_back(DraggableVertex(this->getCustomVar("ATTACK_X"),this->getCustomVar("ATTACK_Y"))); // A
-    controlPoints.push_back(DraggableVertex(this->getCustomVar("HOLD_X"),this->getCustomVar("HOLD_Y"))); // H
-    controlPoints.push_back(DraggableVertex(this->getCustomVar("RELEASE_X"),this->getCustomVar("RELEASE_Y"))); // R
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onTextInputEvent(this,&pdspDucker::onTextInputEvent);
-    gui->onSliderEvent(this, &pdspDucker::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    duration = gui->addTextInput("DURATION (MS)","");
-    duration->setUseCustomMouse(true);
-    duration->setText(ofToString(this->getCustomVar("DURATION")));
-    gui->addBreak();
-    ducking = gui->addSlider("Ducking", 0,1,this->getCustomVar("DUCKING"));
-    ducking->setUseCustomMouse(true);
-    attackHardness = gui->addSlider("Attack Curve", 0,1,this->getCustomVar("ATTACK_CURVE"));
-    attackHardness->setUseCustomMouse(true);
-    releaseHardness = gui->addSlider("Release Curve", 0,1,this->getCustomVar("RELEASE_CURVE"));
-    releaseHardness->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
 }
 
 //--------------------------------------------------------------
@@ -137,19 +110,19 @@ void pdspDucker::setupAudioOutObjectContent(pdsp::Engine &engine){
     gate_ctrl.out_trig() >> ducker.in_trig();
 
     duck_ctrl >> ducker.in_ducking(); // -48.0 - 0.0
-    duck_ctrl.set(-20.0f);
+    duck_ctrl.set(ducking);
     duck_ctrl.enableSmoothing(50.0f);
 
     attack_ctrl >> ducker.in_attack();
-    attack_ctrl.set(50.0f);
+    attack_ctrl.set(attackDuration);
     attack_ctrl.enableSmoothing(50.0f);
 
     hold_ctrl >> ducker.in_hold();
-    hold_ctrl.set(0.0f);
+    hold_ctrl.set(holdDuration);
     hold_ctrl.enableSmoothing(50.0f);
 
     release_ctrl >> ducker.in_release();
-    release_ctrl.set(100.0f);
+    release_ctrl.set(releaseDuration);
     release_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> ducker >> this->pdspOut[0];
@@ -159,20 +132,9 @@ void pdspDucker::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    duration->update();
-    ducking->update();
-    attackHardness->update();
-    releaseHardness->update();
 
-    attackDuration          = (controlPoints.at(0).x-rect.x)/rect.width;
-    holdDuration            = (((controlPoints.at(1).x-rect.x)/rect.width * 100)-((controlPoints.at(0).x-rect.x)/rect.width * 100))/100;
-    releaseDuration         = (((controlPoints.at(2).x-rect.x)/rect.width * 100)-((controlPoints.at(1).x-rect.x)/rect.width * 100))/100;
-
-    attack_ctrl.set(attackDuration*envelopeDuration);
-    hold_ctrl.set(holdDuration*envelopeDuration);
-    release_ctrl.set(releaseDuration*envelopeDuration);
+    ducker.setAttackCurve(attackHardness);
+    ducker.setReleaseCurve(releaseHardness);
 
     // bang --> trigger ducker (sidechain compressor)
     if(this->inletsConnected[1]){
@@ -181,59 +143,110 @@ void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         gate_ctrl.off();
     }
 
-    // duration
-    if(this->inletsConnected[2]){
-        duration->setText(ofToString(static_cast<int>(floor(abs(*(float *)&_inletParams[2])))));
-        this->setCustomVar(*(float *)&_inletParams[2],"DURATION");
+    // ducking
+    if(this->inletsConnected[2] && ducking != *(float *)&_inletParams[2]){
+        ducking = ofClamp(*(float *)&_inletParams[2],-48.0f,0.0f);
+        duck_ctrl.set(ducking);
+        this->setCustomVar(ducking,"DUCKER");
     }
 
-    // ducking
-    if(this->inletsConnected[3]){
-        ducking->setValue(ofClamp(static_cast<float>(*(float *)&_inletParams[3]),0.0f,1.0f));
-        duck_ctrl.set(ofMap(ofClamp(static_cast<float>(*(float *)&_inletParams[3]),0.0f,1.0f),0.0f,1.0f,-48.0f,0.0f,true));
-        this->setCustomVar(ofClamp(static_cast<float>(*(float *)&_inletParams[3]),0.0f,1.0f),"DUCKER");
+    // A
+    if(this->inletsConnected[3] && attackDuration != *(float *)&_inletParams[3]){
+        attackDuration = ofClamp(*(float *)&_inletParams[3],0.0f,std::numeric_limits<float>::max());
+        attack_ctrl.set(attackDuration);
+        this->setCustomVar(attackDuration,"ATTACK");
+    }
+
+    // H
+    if(this->inletsConnected[4] && holdDuration != *(float *)&_inletParams[4]){
+        holdDuration = ofClamp(*(float *)&_inletParams[4],0.0f,std::numeric_limits<float>::max());
+        hold_ctrl.set(holdDuration);
+        this->setCustomVar(holdDuration,"HOLD");
+    }
+
+    // R
+    if(this->inletsConnected[5] && releaseDuration != *(float *)&_inletParams[5]){
+        releaseDuration = ofClamp(*(float *)&_inletParams[5],0.0f,std::numeric_limits<float>::max());
+        release_ctrl.set(releaseDuration);
+        this->setCustomVar(releaseDuration,"RELEASE");
     }
 
     if(!loaded){
         loaded = true;
-        duration->setText(ofToString(static_cast<int>(floor(this->getCustomVar("DURATION")))));
-        ducking->setValue(this->getCustomVar("DUCKING"));
-        attackHardness->setValue(this->getCustomVar("ATTACK_CURVE"));
-        releaseHardness->setValue(this->getCustomVar("RELEASE_CURVE"));
+        ducking = this->getCustomVar("DUCKING");
+        attackDuration = this->getCustomVar("ATTACK");
+        holdDuration = this->getCustomVar("HOLD");
+        releaseDuration = this->getCustomVar("RELEASE");
+        attackHardness = this->getCustomVar("ATTACK_CURVE");
+        releaseHardness = this->getCustomVar("RELEASE_CURVE");
     }
 }
 
 //--------------------------------------------------------------
 void pdspDucker::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    for(size_t i=0;i<controlPoints.size();i++){
-        if(controlPoints.at(i).bOver){
-            ofDrawCircle(controlPoints.at(i).x,controlPoints.at(i).y,6);
-        }else{
-            ofDrawCircle(controlPoints.at(i).x,controlPoints.at(i).y,4);
+
+}
+
+//--------------------------------------------------------------
+void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "A sidechain compression effect",
+                        "https://mosaic.d3cod3.org/reference.php?r=ducker");
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
+        ImGuiEx::EnvelopeEditor(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y*0.3, &attackDuration, &holdDuration, &releaseDuration, &releaseDuration, ImGuiEnvelopeEditorType_AHR);
+
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "duck (db)", &ducking, -48.0f, 0.0f, 960.0f)){
+            duck_ctrl.set(ducking);
+            this->setCustomVar(ducking,"DUCKING");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "A", &attackDuration, 0.0f, 1000.0f, 1000.0f)){
+            attack_ctrl.set(attackDuration);
+            this->setCustomVar(attackDuration,"ATTACK");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "H", &holdDuration, 0.0f, 1000.0f, 1000.0f)){
+            hold_ctrl.set(holdDuration);
+            this->setCustomVar(holdDuration,"HOLD");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+            release_ctrl.set(releaseDuration);
+            this->setCustomVar(releaseDuration,"RELEASE");
+        }
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8));
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "A. H.", &attackHardness, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(attackHardness,"ATTACK_CURVE");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R. H.", &releaseHardness, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(releaseHardness,"RELEASE_CURVE");
         }
 
     }
-    ofDrawLine(rect.getBottomLeft().x,rect.getBottomLeft().y,controlPoints.at(0).x,controlPoints.at(0).y);
-    ofDrawLine(controlPoints.at(0).x,controlPoints.at(0).y,controlPoints.at(1).x,controlPoints.at(1).y);
-    ofDrawLine(controlPoints.at(1).x,controlPoints.at(1).y,controlPoints.at(2).x,controlPoints.at(2).y);
 
-    ofSetColor(160,160,160);
-    font->draw("A:",this->fontSize,rect.getBottomLeft().x+6,rect.getBottomLeft().y+8);
-    font->draw("H:",this->fontSize,rect.getCenter().x-30,rect.getBottomLeft().y+8);
-    font->draw("R:",this->fontSize,rect.getBottomRight().x-70,rect.getBottomLeft().y+8);
-    ofSetColor(255,255,120);
-    string tempStr = ofToString(attackDuration * 100,1)+"%";
-    font->draw(tempStr,this->fontSize,rect.getBottomLeft().x+20,rect.getBottomLeft().y+8);
-    tempStr = ofToString(holdDuration * 100,1)+"%";
-    font->draw(tempStr,this->fontSize,rect.getCenter().x-16,rect.getBottomLeft().y+8);
-    tempStr = ofToString(releaseDuration * 100,1)+"%";
-    font->draw(tempStr,this->fontSize,rect.getBottomRight().x-56,rect.getBottomLeft().y+8);
 
-    gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
@@ -266,96 +279,7 @@ void pdspDucker::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspDucker::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    duration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    ducking->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    attackHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    releaseHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    for(int j=0;j<static_cast<int>(controlPoints.size());j++){
-        controlPoints.at(j).over(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || duration->hitTest(_m-this->getPos()) || ducking->hitTest(_m-this->getPos()) || attackHardness->hitTest(_m-this->getPos()) || releaseHardness->hitTest(_m-this->getPos()) || controlPoints.at(0).bOver || controlPoints.at(1).bOver || controlPoints.at(2).bOver;
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || controlPoints.at(0).bOver || controlPoints.at(1).bOver || controlPoints.at(2).bOver;
-    }
-
-}
-
-//--------------------------------------------------------------
-void pdspDucker::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        duration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        ducking->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        attackHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        releaseHardness->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-        for(int j=0;j<static_cast<int>(controlPoints.size());j++){
-            if(static_cast<int>(_m.x - this->getPos().x) >= rect.getLeft() && static_cast<int>(_m.x - this->getPos().x) <= rect.getRight()){
-                controlPoints.at(j).drag(static_cast<int>(_m.x - this->getPos().x),controlPoints.at(j).y);
-            }
-
-        }
-        this->setCustomVar(controlPoints.at(0).x,"ATTACK_X");
-        this->setCustomVar(controlPoints.at(0).y,"ATTACK_Y");
-        this->setCustomVar(controlPoints.at(1).x,"HOLD_X");
-        this->setCustomVar(controlPoints.at(1).y,"HOLD_Y");
-        this->setCustomVar(controlPoints.at(2).x,"RELEASE_X");
-        this->setCustomVar(controlPoints.at(2).y,"RELEASE_Y");
-
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspDucker::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == duration){
-            if(isInteger(e.text)){
-                envelopeDuration = ofToInt(e.text);
-                this->setCustomVar(ofToFloat(e.text),"DURATION");
-            }else{
-                duration->setText(ofToString(envelopeDuration));
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspDucker::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == attackHardness){
-            ducker.setAttackCurve(static_cast<float>(e.value));
-            this->setCustomVar(static_cast<float>(e.value),"ATTACK_CURVE");
-        }else if(e.target == releaseHardness){
-            ducker.setReleaseCurve(static_cast<float>(e.value));
-            this->setCustomVar(static_cast<float>(e.value),"RELEASE_CURVE");
-        }else if(e.target == ducking){
-            duck_ctrl.set(ofMap(ofClamp(static_cast<float>(e.value),0.0f,1.0f),0.0f,1.0f,-48.0f,0.0f,true));
-            this->setCustomVar(ofClamp(static_cast<float>(e.value),0.0f,1.0f),"DUCKER");
-        }
-    }
-}
-
-OBJECT_REGISTER( pdspDucker, "ducker", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspDucker, "sidechain compressor", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

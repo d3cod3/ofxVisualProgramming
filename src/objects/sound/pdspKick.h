@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -30,23 +30,63 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
-#include "ofMain.h"
+#include "PatchObject.h"
 
-#define DRAG_SIZE 5
+#include "imgui_controls.h"
 
-class DraggableVertex : public ofVec3f{
+class pdspKick : public PatchObject{
 
 public:
-    DraggableVertex(float x=0, float y=0);
 
-    void over(float x, float y);
-    void drag(float x, float y);
-    void move(float x, float y);
-    void draw(float x, float y);
+    pdspKick();
 
-    bool bOver;
-    ofRectangle r;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
+
+
+    void            loadAudioSettings();
+
+
+
+    pdsp::Amp               amp;
+    pdsp::FMOperator        osc;
+    pdsp::Saturator2        drive;
+    pdsp::VAFilter          filter;
+    pdsp::ADSR              ampEnv;
+    pdsp::ADSR              modEnv;
+
+    pdsp::ValueControl      filter_freq_ctrl;
+
+    pdsp::Scope             scope;
+    pdsp::TriggerControl    gate_ctrl;
+
+    float                   filterFreq;
+
+    int                     bufferSize;
+    int                     sampleRate;
+
+    bool                    loaded;
+
+protected:
+
+
+private:
+
+    OBJECT_FACTORY_PROPS
 
 };
+
+#endif

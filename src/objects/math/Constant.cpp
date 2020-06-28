@@ -55,6 +55,8 @@ Constant::Constant() :
 
     this->initInletsState();
 
+    loaded              = false;
+
     this->height        /= 2;
 
 }
@@ -73,8 +75,6 @@ void Constant::newObject(){
 //--------------------------------------------------------------
 void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    inputValueNew = this->getCustomVar("NUMBER");
-
 }
 
 //--------------------------------------------------------------
@@ -87,43 +87,51 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
     *static_cast<string *>(_outletParams[1]) = ofToString( inputValueNew.get() );
 
+    if(!loaded){
+        loaded = true;
+        inputValueNew = this->getCustomVar("NUMBER");
+    }
+
 }
 
 //--------------------------------------------------------------
 void Constant::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
 void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    // Menu
+    // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
-        ImGui::MenuItem("Menu From User code !");
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Single numeric value controller.",
+                        "https://mosaic.d3cod3.org/reference.php?r=constant");
+
+            ImGui::EndMenu();
+        }
+
         _nodeCanvas.EndNodeMenu();
     }
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Text("info View : %d", _nodeCanvas.GetNodeData().viewName );
-        _nodeCanvas.EndNodeContent();
-    }
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
+        ImGui::PushItemWidth(-1);
+        if(ImGui::DragFloat("", &inputValueNew.get())){
+            this->setCustomVar(static_cast<float>(inputValueNew.get()),"NUMBER");
+        }
+        ImGui::PopItemWidth();
 
-    else if( _nodeCanvas.BeginNodeContent() ){
-        // Parameters view
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-            ImGui::DragFloat("", &inputValueNew.get()); // inputValueNew.getDisplayName().c_str()
-            //inputValueNew.drawGui();
-        }
-        // visualize view
-        else {
-            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding top
-            ImGui::DragFloat("", &inputValueNew.get());
-        }
         _nodeCanvas.EndNodeContent();
     }
 

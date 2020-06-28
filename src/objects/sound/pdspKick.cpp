@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2019 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -32,68 +32,136 @@
 
 #ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
-#include "pdspWhiteNoise.h"
+#include "pdspKick.h"
 
 //--------------------------------------------------------------
-pdspWhiteNoise::pdspWhiteNoise() : PatchObject(){
+pdspKick::pdspKick() : PatchObject("kick"){
 
-    this->numInlets  = 0;
-    this->numOutlets = 2;
+    this->numInlets  = 1;
+    this->numOutlets = 1;
+
+    _inletParams[0] = new float();          // bang
+    *(float *)&_inletParams[0] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
-    _outletParams[1] = new vector<float>(); // audio buffer
 
     this->initInletsState();
+
+    this->width *= 2;
+    this->height *= 1.7f;
 
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    loaded                  = false;
+
+    filterFreq              = 0.1f;
+
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::newObject(){
-    this->setName(this->objectName);
-    this->addOutlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
+void pdspKick::newObject(){
+    PatchObject::setName( this->objectName );
+
+    this->addInlet(VP_LINK_NUMERIC,"bang");
+
+    this->addOutlet(VP_LINK_AUDIO,"envelopedSignal");
+
+
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void pdspKick::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-}
-
-//--------------------------------------------------------------
-void pdspWhiteNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
-
-    noise >> this->pdspOut[0];
-    noise >> scope >> engine.blackhole();
-}
-
-//--------------------------------------------------------------
-void pdspWhiteNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(0);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    waveform.draw();
+void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
+
+    filter_freq_ctrl >> filter.in_reso();
+    filter_freq_ctrl.set(filterFreq);
+    filter_freq_ctrl.enableSmoothing(50.0f);
+
+    pdsp::f2p(150) >> filter.in_pitch();
+    pdsp::VAFilter::LowPass12 >> filter.in_mode();
+
+    osc >> amp;
+    gate_ctrl.out_trig() >> ampEnv.set(0.0f,50.0f,0.0f,100.0f) >> amp.in_mod();
+    gate_ctrl.out_trig() >> modEnv.set(0.0f,0.0f,0.0f,50.0f) * pdsp::f2p(48.0f) >> osc.in_pitch();
+                                                               pdsp::f2p(48.0f) >> osc.in_pitch();
+
+    amp >> filter >> drive >> this->pdspOut[0];
+    amp >> filter >> drive >> scope >> engine.blackhole();
+
+}
+
+//--------------------------------------------------------------
+void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+
+    // bang --> trigger envelope
+    if(this->inletsConnected[0]){
+        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
+    }else{
+        gate_ctrl.off();
+    }
+
+
+    if(!loaded){
+        loaded = true;
+    }
+}
+
+//--------------------------------------------------------------
+void pdspKick::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::removeObjectContent(bool removeFileFromData){
+void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Kick synth.",
+                        "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop");
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "RES", &filterFreq, 0.0f, 1.0f, 100.0f)){
+            filter_freq_ctrl.set(filterFreq);
+        }
+        ImGui::SameLine();
+
+    }
+
+
+}
+
+//--------------------------------------------------------------
+void pdspKick::removeObjectContent(bool removeFileFromData){
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::loadAudioSettings(){
+void pdspKick::loadAudioSettings(){
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -101,32 +169,17 @@ void pdspWhiteNoise::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
-            for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
-            }
-
             XML.popTag();
         }
     }
 }
 
 //--------------------------------------------------------------
-void pdspWhiteNoise::audioOutObject(ofSoundBuffer &outputBuffer){
-    waveform.clear();
-    for(size_t i = 0; i < scope.getBuffer().size(); i++) {
-        float sample = scope.getBuffer().at(i);
-        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
-
-        // SIGNAL BUFFER DATA
-        static_cast<vector<float> *>(_outletParams[1])->at(i) = sample;
-    }
-
+void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( pdspWhiteNoise, "white noise", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspKick, "kick", OFXVP_OBJECT_CAT_SOUND)
 
 #endif

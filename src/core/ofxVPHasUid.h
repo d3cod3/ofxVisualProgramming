@@ -39,7 +39,7 @@ public:
 
     // "DisplayName" is the initially requested name, not guaranteed to be unique.
     std::string getDisplayName() const{
-        return myUID;
+        return displayName;
     }
 
     static bool registerUniqueIdentifier(std::string& _name, ofxVPHasUID* _instance) {

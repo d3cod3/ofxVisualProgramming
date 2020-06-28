@@ -35,9 +35,9 @@
 #include "moSlider.h"
 
 //--------------------------------------------------------------
-moSlider::moSlider() : PatchObject(){
+moSlider::moSlider() : PatchObject("slider"){
 
-    this->numInlets  = 3;
+    this->numInlets  = 1;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // value
@@ -51,102 +51,86 @@ moSlider::moSlider() : PatchObject(){
 
     this->height        /= 2;
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     loaded              = false;
+    value               = 0.0f;
 
 }
 
 //--------------------------------------------------------------
 void moSlider::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC,"value");
 
-    this->setCustomVar(0.0f,"VALUE");
+    this->setCustomVar(value,"VALUE");
 }
 
 //--------------------------------------------------------------
 void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &moSlider::onSliderEvent);
 
-    gui->addBreak();
-    slider = gui->addSlider("", 0,1,0);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
 void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    slider->update();
+
 
     if(this->inletsConnected[0]){
-        slider->setValue(*(float *)&_inletParams[0]);
+        value = *(float *)&_inletParams[0];
     }
 
-    *(float *)&_outletParams[0] = static_cast<float>(slider->getValue());
+    *(float *)&_outletParams[0] = value;
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("VALUE"));
+        value = this->getCustomVar("VALUE");
     }
+
+    this->setCustomVar(static_cast<float>(value),"VALUE");
 }
 
 //--------------------------------------------------------------
 void moSlider::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void moSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Basic slider. Interactively adjust a numeric float value (with a range from 0.0 to 1.0) to send it to other objects.",
+                        "https://mosaic.d3cod3.org/reference.php?r=slider");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
+        ImGui::PushItemWidth(-1);
+        ImGui::SliderFloat("",&value,0.0f, 1.0f);
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------
 void moSlider::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void moSlider::mouseMovedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[2]){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    this->isOverGUI = slider->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void moSlider::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI && !this->inletsConnected[2]){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void moSlider::onSliderEvent(ofxDatGuiSliderEvent e){
-    //*(float *)&_outletParams[0] = static_cast<float>(e.value);
-    this->setCustomVar(static_cast<float>(e.value),"VALUE");
 }
 
 OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI)

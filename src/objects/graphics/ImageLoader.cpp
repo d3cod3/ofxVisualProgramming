@@ -55,6 +55,7 @@ ImageLoader::ImageLoader() : PatchObject("image loader"){
     posX = posY = drawW = drawH = 0.0f;
 
     imgName = "";
+    imgPath = "";
 
 }
 
@@ -140,25 +141,24 @@ void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
+            ImGui::Spacing();
             ImGui::Text("Loaded File:");
-            ImGui::Text("%s",imgName.c_str());
+            if(imgName == ""){
+                ImGui::Text("none");
+            }else{
+                ImGui::Text("%s",imgName.c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",imgPath.c_str());
+            }
+            ImGui::Spacing();
             ImGui::Text("Resolution: %s",imgRes.c_str());
-            if(ImGui::Button("OPEN",ImVec2(200,20))){
+            ImGui::Spacing();
+            if(ImGui::Button(ICON_FA_FILE,ImVec2(180,26))){
                 loadImgFlag = true;
             }
 
-            ImGui::Spacing();
-            if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
-                ImGui::TextWrapped("Simple object for loading image files. Compatible formats are jpg, png, gif and tif.");
-                ImGui::Spacing();
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.129f, 0.0f, 1.0f, 1.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.25f, 0.5f, 1.0f, 1.0f));
-                if(ImGui::Button("Reference")){
-                    ofLaunchBrowser("https://mosaic.d3cod3.org/reference.php?r=image-loader");
-                }
-                ImGui::PopStyleColor(3);
-            }
+            ImGuiEx::ObjectInfo(
+                        "Simple object for loading image files. Compatible formats are jpg, png, gif and tif.",
+                        "https://mosaic.d3cod3.org/reference.php?r=image-loader");
 
             ImGui::EndMenu();
         }
@@ -206,15 +206,13 @@ void ImageLoader::loadImageFile(){
         img->load(filepath);
 
         ofFile tempFile(filepath);
-        if(tempFile.getFileName().size() > 22){
-            imgName = tempFile.getFileName().substr(0,21)+"...";
-        }else{
-            imgName = tempFile.getFileName();
-        }
+
+        imgName = tempFile.getFileName();
+        imgPath = tempFile.getAbsolutePath();
 
         imgRes = ofToString(img->getWidth())+"x"+ofToString(img->getHeight());
 
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
     }
 }
 

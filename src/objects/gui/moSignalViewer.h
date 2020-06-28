@@ -35,9 +35,6 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
-
-#include "imgui_node_canvas.h"
 #include "imgui_plot.h"
 
 class moSignalViewer : public PatchObject {
@@ -51,8 +48,9 @@ public:
     void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
     void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadAudioSettings();
@@ -60,10 +58,10 @@ public:
     void            audioInObject(ofSoundBuffer &inputBuffer) override;
     void            audioOutObject(ofSoundBuffer &outBuffer) override;
 
-    float                   plot_data[1024];
+    float           plot_data[1024];
 
-    int                     bufferSize;
-    int                     sampleRate;
+    int             bufferSize;
+    int             sampleRate;
 
 private:
 

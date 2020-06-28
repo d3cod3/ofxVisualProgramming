@@ -189,28 +189,50 @@ void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    ofFile tempFilename(filepath);
+
     loadHaarConfigFlag = false;
 
-    // Info view
-    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Info) ){
-        ImGui::Text("Loaded Haar:");
-        ImGui::Text("%s",haarfileName.c_str());
-        _nodeCanvas.EndNodeContent();
-    }
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
 
-    // Any other view
-    else if( _nodeCanvas.BeginNodeContent() ){
-        if(_nodeCanvas.GetNodeData().viewName == ImGuiExNodeView_Params){
-            if(ImGui::Button("open file",ImVec2(-1,20))){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
+            ImGui::Text("Loaded File:");
+            if(filepath == "none"){
+                ImGui::Text("%s",filepath.c_str());
+            }else{
+                ImGui::Text("%s",tempFilename.getFileName().c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+            }
+            if(ImGui::Button("OPEN",ImVec2(180,20))){
                 loadHaarConfigFlag = true;
             }
-        }
-        else {
-            float _tw = this->width*_nodeCanvas.GetCanvasScale();
-            float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
 
-            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+            ImGuiEx::ObjectInfo(
+                        "Detects shapes with specific characteristics or structures within images or video frames.",
+                        "https://mosaic.d3cod3.org/reference.php?r=haar-tracking");
+
+
+            ImGui::EndMenu();
         }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        float _tw = this->width*_nodeCanvas.GetCanvasScale();
+        float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+        ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+
         _nodeCanvas.EndNodeContent();
     }
 

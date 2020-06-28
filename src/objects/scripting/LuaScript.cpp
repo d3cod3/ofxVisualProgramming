@@ -485,7 +485,7 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 
         this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
         this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
 
         fbo = new ofFbo();
         fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
@@ -579,7 +579,7 @@ void LuaScript::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
     }
     if(static_cast<LiveCoding *>(_outletParams[1])->hide){
         static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);

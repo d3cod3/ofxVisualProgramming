@@ -5,67 +5,116 @@
 #endif
 #include "imgui_internal.h"
 
-namespace ImGui {
+namespace ImGuiEx {
 
-int EnvelopeEditor(float width, float height, float P[6], int type){
+bool EnvelopeEditor(ImDrawList* drawList, float width, float height, float *_a, float *_h, float *_s, float *_r, int type){
     // visuals
     enum { LINE_WIDTH = 3 }; // handlers: small lines width
     enum { GRAB_RADIUS = 6 }; // handlers: circle radius
-    enum { AREA_CONSTRAINED = true }; // should grabbers be constrained to grid area?
 
+    float _d = *_a + *_h + *_r;
 
-    ImVec2 Q_AHR[4] = { { 0, 1 }, { P[0], P[1] }, { P[2], P[3] }, { 1, 1 }};
-    ImVec2 Q_ADSR[5] = { { 0, 1 }, { P[0], P[1] }, { P[2], P[3] }, { P[4], P[5] }, { 1, 1 } };
+    ImVec2 Q_AHR[4] = { { 0, 1 }, { *_a / _d, 0.0f }, { (*_a + *_h) / _d, 0.5f }, { 1, 1 }};
+    ImVec2 Q_ADSR[5] = { { 0, 1 }, { *_a / _d, 0.0f }, { (*_a + *_h) / _d, 1.0f-*_s }, { (*_a + *_h + (*_r/2)) / _d, 1.0f-*_s }, { 1, 1 } };
 
-    const ImGuiStyle& Style = GetStyle();
-    const ImGuiIO& IO = GetIO();
-    ImDrawList* DrawList = GetWindowDrawList();
-    ImGuiWindow* Window = GetCurrentWindow();
-    if (Window->SkipItems)
-        return false;
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
 
     // prepare canvas
-    const float avail = GetContentRegionAvailWidth();
-    const float dim = width > 0 ? width : avail;
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
     ImVec2 Canvas(dim, height);
 
     ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
-    ItemSize(bb);
-
-    RenderFrame(bb.Min, bb.Max, GetColorU32(ImGuiCol_FrameBg, 1), true, Style.FrameRounding);
+    ImGui::ItemSize(bb);
 
     // background grid
-    for (int i = 0; i <= Canvas.x; i += (Canvas.x / 4)) {
-        DrawList->AddLine(
-                    ImVec2(bb.Min.x + i, bb.Min.y),
-                    ImVec2(bb.Min.x + i, bb.Max.y),
-                    GetColorU32(ImGuiCol_TextDisabled));
+    if(Canvas.x >= 4){
+        for (int i = 0; i <= Canvas.x; i += static_cast<int>((Canvas.x / 4))) {
+            drawList->AddLine(
+                        ImVec2(bb.Min.x + i, bb.Min.y),
+                        ImVec2(bb.Min.x + i, bb.Max.y - 1),
+                        IM_COL32(255,255,255,20));
+        }
     }
-    for (int i = 0; i <= Canvas.y; i += (Canvas.y / 4)) {
-        DrawList->AddLine(
-                    ImVec2(bb.Min.x, bb.Min.y + i),
-                    ImVec2(bb.Max.x, bb.Min.y + i),
-                    GetColorU32(ImGuiCol_TextDisabled));
+
+    if(Canvas.y >= 4){
+        for (int i = 0; i <= Canvas.y; i += static_cast<int>((Canvas.y / 4))) {
+            drawList->AddLine(
+                        ImVec2(bb.Min.x, bb.Min.y + i),
+                        ImVec2(bb.Max.x - 1, bb.Min.y + i),
+                        IM_COL32(255,255,255,20));
+        }
     }
 
     // draw lines and grabbers
-    float luma = IsItemActive() || IsItemHovered() ? 0.5f : 1.0f;
-    ImVec4 line_white(GetStyle().Colors[ImGuiCol_Text]);
-    ImVec4 grab_white(1.0f, 1.0f, 1.0f, luma);
+    ImVec4 env_color(1.0f, 1.0f, 120.0f/255.0f, 1.0f);
+
+    bool changed = false;
+
+    //ImVec2 prevCursorPos = ImGui::GetCursorScreenPos();
 
     if(type == ImGuiEnvelopeEditorType_AHR){
-        ImVec2 p1 = Q_AHR[0] * (bb.Max - bb.Min) + bb.Min;
+        ImVec2 p1 = Q_AHR[0] * ((bb.Max-ImVec2(1,1)) - bb.Min) + bb.Min;
         ImVec2 p2 = Q_AHR[1] * (bb.Max - bb.Min) + bb.Min;
         ImVec2 p3 = Q_AHR[2] * (bb.Max - bb.Min) + bb.Min;
-        ImVec2 p4 = Q_AHR[3] * (bb.Max - bb.Min) + bb.Min;
+        ImVec2 p4 = Q_AHR[3] * ((bb.Max-ImVec2(1,1)) - bb.Min) + bb.Min;
 
-        DrawList->AddLine(p1, p2, ImColor(line_white), LINE_WIDTH);
-        DrawList->AddLine(p2, p3, ImColor(line_white), LINE_WIDTH);
-        DrawList->AddLine(p3, p4, ImColor(line_white), LINE_WIDTH);
+        drawList->AddLine(p1, p2, ImColor(env_color), LINE_WIDTH);
+        drawList->AddLine(p2, p3, ImColor(env_color), LINE_WIDTH);
+        drawList->AddLine(p3, p4, ImColor(env_color), LINE_WIDTH);
 
-        DrawList->AddCircleFilled(p2, GRAB_RADIUS, ImColor(grab_white), 6);
-        DrawList->AddCircleFilled(p3, GRAB_RADIUS, ImColor(grab_white), 6);
+        /*ImGui::SetCursorScreenPos( ImVec2(p2.x - 4, p2.y - 8) );
+        ImGui::InvisibleButton( "circleGripP2", ImVec2( 8, 16 )  );
 
+        if(ImGui::IsItemHovered()){
+            drawList->AddCircleFilled(p2, GRAB_RADIUS, ImColor(env_color), 6);
+        }
+
+        static bool isDraggingCircleP2 = false;
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+            if(!isDraggingCircleP2){
+                isDraggingCircleP2=true;
+            }
+
+            ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,0.0f),ImVec2(0.0f,0.0f),ImVec2(*_h,1.0f));
+            p2.x = _pos.x;
+            *_a = _pos.x;
+
+            changed = true;
+        }
+        else if(ImGui::IsItemDeactivated()){
+            if(isDraggingCircleP2) isDraggingCircleP2 = false;
+        }*/
+
+        drawList->AddCircleFilled(p2, GRAB_RADIUS, ImColor(env_color), 6);
+
+        /*ImGui::SetCursorScreenPos( ImVec2(p3.x - 4, p3.y - 8) );
+        ImGui::InvisibleButton( "circleGripP3", ImVec2( 8, 16 )  );
+
+        if(ImGui::IsItemHovered()){
+            drawList->AddCircleFilled(p3, GRAB_RADIUS, ImColor(env_color), 6);
+        }
+
+        static bool isDraggingCircleP3 = false;
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+            if(!isDraggingCircleP3){
+                isDraggingCircleP3=true;
+            }
+
+            ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,0.0f),ImVec2(*_a,0.0f),ImVec2(1.0f,1.0f));
+            p3.x = _pos.x;
+            *_h = _pos.x;
+
+            changed = true;
+        }
+        else if(ImGui::IsItemDeactivated()){
+            if(isDraggingCircleP3) isDraggingCircleP3 = false;
+        }*/
+
+        drawList->AddCircleFilled(p3, GRAB_RADIUS, ImColor(env_color), 6);
+
+        //ImGui::SetCursorScreenPos(prevCursorPos);
+
+        //ImGui::Text("A %.2f%s\tH %.2f%s\tR %.2f%s", *_a, "%", *_h-*_a, "%", 1.0f-*_h, "%");
 
     }else if(type == ImGuiEnvelopeEditorType_ADSR){
         ImVec2 p1 = Q_ADSR[0] * (bb.Max - bb.Min) + bb.Min;
@@ -74,29 +123,177 @@ int EnvelopeEditor(float width, float height, float P[6], int type){
         ImVec2 p4 = Q_ADSR[3] * (bb.Max - bb.Min) + bb.Min;
         ImVec2 p5 = Q_ADSR[4] * (bb.Max - bb.Min) + bb.Min;
 
-        DrawList->AddLine(p1, p2, ImColor(line_white), LINE_WIDTH);
-        DrawList->AddLine(p2, p3, ImColor(line_white), LINE_WIDTH);
-        DrawList->AddLine(p3, p4, ImColor(line_white), LINE_WIDTH);
-        DrawList->AddLine(p4, p5, ImColor(line_white), LINE_WIDTH);
+        drawList->AddLine(p1, p2, ImColor(env_color), LINE_WIDTH);
+        drawList->AddLine(p2, p3, ImColor(env_color), LINE_WIDTH);
+        drawList->AddLine(p3, p4, ImColor(env_color), LINE_WIDTH);
+        drawList->AddLine(p4, p5, ImColor(env_color), LINE_WIDTH);
 
-        DrawList->AddCircleFilled(p2, GRAB_RADIUS, ImColor(grab_white), 6);
-        DrawList->AddCircleFilled(p3, GRAB_RADIUS, ImColor(grab_white), 6);
-        DrawList->AddCircleFilled(p4, GRAB_RADIUS, ImColor(grab_white), 6);
+        /*ImGui::SetCursorScreenPos( ImVec2(p2.x - 4, p2.y - 8) );
+        ImGui::InvisibleButton( "circleGripP2", ImVec2( 8, 16 )  );
+
+        if(ImGui::IsItemHovered()){
+            drawList->AddCircleFilled(p2, GRAB_RADIUS, ImColor(env_color), 6);
+        }
+
+        static bool isDraggingCircleP2 = false;
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+            if(!isDraggingCircleP2){
+                isDraggingCircleP2=true;
+            }
+
+            ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,0.0f),ImVec2(0.0f,0.0f),ImVec2(*_h,1.0f));
+            p2.x = _pos.x;
+            *_a = _pos.x;
+
+            changed = true;
+        }
+        else if(ImGui::IsItemDeactivated()){
+            if(isDraggingCircleP2) isDraggingCircleP2 = false;
+        }*/
+
+        drawList->AddCircleFilled(p2, GRAB_RADIUS, ImColor(env_color), 6);
+
+        /*ImGui::SetCursorScreenPos( ImVec2(p3.x - 4, p3.y - 8) );
+        ImGui::InvisibleButton( "circleGripP3", ImVec2( 8, 16 )  );
+
+        if(ImGui::IsItemHovered()){
+            drawList->AddCircleFilled(p3, GRAB_RADIUS, ImColor(env_color), 6);
+        }
+
+        static bool isDraggingCircleP3 = false;
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+            if(!isDraggingCircleP3){
+                isDraggingCircleP3=true;
+            }
+
+            ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,0.0f),ImVec2(*_a,0.0f),ImVec2(*_r,1.0f));
+            p3.x = _pos.x;
+            *_h = _pos.x;
+
+            changed = true;
+        }
+        else if(ImGui::IsItemDeactivated()){
+            if(isDraggingCircleP3) isDraggingCircleP3 = false;
+        }*/
+
+        drawList->AddCircleFilled(p3, GRAB_RADIUS, ImColor(env_color), 6);
+
+        /*ImGui::SetCursorScreenPos( ImVec2(p4.x - 4, p4.y - 8) );
+        ImGui::InvisibleButton( "circleGripP4", ImVec2( 8, 16 )  );
+
+        if(ImGui::IsItemHovered()){
+            drawList->AddCircleFilled(p4, GRAB_RADIUS, ImColor(env_color), 6);
+        }
+
+        static bool isDraggingCircleP4 = false;
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+            if(!isDraggingCircleP4){
+                isDraggingCircleP4=true;
+            }
+
+            ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,0.0f),ImVec2(*_h,0.0f),ImVec2(1.0f,1.0f));
+            p4.x = _pos.x;
+            *_r = _pos.x;
+
+            changed = true;
+        }
+        else if(ImGui::IsItemDeactivated()){
+            if(isDraggingCircleP4) isDraggingCircleP4 = false;
+        }*/
+
+        drawList->AddCircleFilled(p4, GRAB_RADIUS, ImColor(env_color), 6);
+
+
+        //ImGui::SetCursorScreenPos(prevCursorPos);
+
+        //ImGui::Text("A %.2f%s\tD %.2f%s\tS %.2f%s\tR %.2f%s", *_a, "%", *_h-*_a, "%", *_r-*_h, "%", 1.0f-*_r, "%");
+
     }
 
-    return 0;
+    return changed;
+
 }
 
-bool KnobFloat(const char* label, float* p_value, float v_min, float v_max,float v_step) {
-    //@ocornut https://github.com/ocornut/imgui/issues/942
+bool Pad2D(ImDrawList* drawList, float width, float height,float *_x, float *_y){
+
+    // visuals
+    enum { LINE_WIDTH = 2 }; // handlers: small lines width
+    enum { GRAB_RADIUS = 6 }; // handlers: circle radius
+
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    ImGui::ItemSize(bb);
+
+    // background grid
+    if(Canvas.x >= 4){
+        for (int i = 0; i <= Canvas.x; i += static_cast<int>((Canvas.x / 4))) {
+            drawList->AddLine(
+                        ImVec2(bb.Min.x + i, bb.Min.y),
+                        ImVec2(bb.Min.x + i, bb.Max.y - 1),
+                        IM_COL32(255,255,255,20));
+        }
+    }
+
+    if(Canvas.y >= 4){
+        for (int i = 0; i <= Canvas.y; i += static_cast<int>((Canvas.y / 4))) {
+            drawList->AddLine(
+                        ImVec2(bb.Min.x, bb.Min.y + i),
+                        ImVec2(bb.Max.x - 1, bb.Min.y + i),
+                        IM_COL32(255,255,255,20));
+        }
+    }
+
+    drawList->AddLine(ImVec2(bb.Min.x + (Canvas.x* *_x), bb.Min.y),ImVec2(bb.Min.x + (Canvas.x* *_x), bb.Max.y - 1),ImGui::GetColorU32(ImGuiCol_TextDisabled),LINE_WIDTH);
+    drawList->AddLine(ImVec2(bb.Min.x, bb.Min.y + (Canvas.y* *_y)),ImVec2(bb.Max.x - 1, bb.Min.y + (Canvas.y* *_y)),ImGui::GetColorU32(ImGuiCol_TextDisabled),LINE_WIDTH);
+
+
+    // DRAG from circle
+    bool changed = false;
+
+    ImVec2 prevCursorPos = ImGui::GetCursorScreenPos();
+
+    ImGui::SetCursorScreenPos( ImVec2(bb.Min.x + (Canvas.x* *_x) - 4, bb.Min.y + (Canvas.y* *_y) - 4) );
+    ImGui::InvisibleButton( "circleGripBtn", ImVec2( 8, 8 )  );
+
+    static bool isDraggingCircle = false;
+    if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+        if(!isDraggingCircle){
+            isDraggingCircle=true;
+        }
+
+        ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,(ImGui::GetMousePos().y - bb.Min.y) / Canvas.y),ImVec2(0.0f,0.0f),ImVec2(1.0f,1.0f));
+        *_x = _pos.x;
+        *_y = _pos.y;
+
+        changed = true;
+    }
+    else if(ImGui::IsItemDeactivated()){
+        if(isDraggingCircle) isDraggingCircle = false;
+    }
+
+    drawList->AddCircleFilled(ImVec2(bb.Min.x + (Canvas.x* *_x),bb.Min.y + (Canvas.y* *_y)), GRAB_RADIUS, IM_COL32(255,255,255,245), 6);
+
+    ImGui::SetCursorScreenPos(prevCursorPos);
+
+    return changed;
+
+}
+
+bool KnobFloat(ImDrawList* draw_list, float width, ImU32 color, const char* label, float* p_value, float v_min, float v_max,float v_step) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuiStyle& style = ImGui::GetStyle();
 
-    float radius_outer = 20.0f;
+    float gap = width/6.0f;
+    float radius_outer = width;
+    float labelGap = width/1.15f;
     ImVec2 pos = ImGui::GetCursorScreenPos();
-    ImVec2 center = ImVec2(pos.x + radius_outer, pos.y + radius_outer);
+    ImVec2 center = ImVec2(pos.x + radius_outer + gap, pos.y + labelGap + radius_outer);
     float line_height = ImGui::GetTextLineHeight();
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
     float ANGLE_MIN = 3.141592f * 0.75f;
     float ANGLE_MAX = 3.141592f * 2.25f;
@@ -120,129 +317,42 @@ bool KnobFloat(const char* label, float* p_value, float v_min, float v_max,float
     }
 
     float t = (*p_value - v_min) / (v_max - v_min);
+    if(*p_value >= v_max){
+        t = 1.0f;
+    }
     float angle = ANGLE_MIN + (ANGLE_MAX - ANGLE_MIN) * t;
     float angle_cos = cosf(angle), angle_sin = sinf(angle);
     float radius_inner = radius_outer*0.40f;
-    draw_list->AddCircleFilled(center, radius_outer, ImGui::GetColorU32(ImGuiCol_FrameBg), 16);
-    draw_list->AddLine(ImVec2(center.x + angle_cos*radius_inner, center.y + angle_sin*radius_inner), ImVec2(center.x + angle_cos*(radius_outer-2), center.y + angle_sin*(radius_outer-2)), ImGui::GetColorU32(ImGuiCol_SliderGrabActive), 2.0f);
-    draw_list->AddCircleFilled(center, radius_inner, ImGui::GetColorU32(is_active ? ImGuiCol_FrameBgActive : is_hovered ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg), 16);
-    draw_list->AddText(ImVec2(pos.x, pos.y + radius_outer * 2 + style.ItemInnerSpacing.y), ImGui::GetColorU32(ImGuiCol_Text), label);
+    float radius_inner_medium = radius_outer*0.82f;
+    float line_width = width/5.0f;
 
-    if (is_active || is_hovered)    {
-        ImGui::SetNextWindowPos(ImVec2(pos.x - style.WindowPadding.x, pos.y - line_height - style.ItemInnerSpacing.y - style.WindowPadding.y));
+    draw_list->AddText(ImVec2(pos.x + gap + (((radius_outer*2)-ImGui::CalcTextSize(label).x)/2.0f), pos.y + style.ItemInnerSpacing.y), ImGui::GetColorU32(ImGuiCol_Text), label);
+
+    draw_list->AddCircleFilled(center, radius_outer, IM_COL32(28,28,28,255), 32);
+
+    draw_list->PathArcTo(center, radius_outer-4, ANGLE_MIN, angle,32);
+    draw_list->PathArcTo(center, radius_inner_medium, angle, ANGLE_MIN,32);
+    draw_list->PathStroke(color,true,line_width);
+
+    draw_list->AddCircleFilled(center, radius_inner, is_active ? ImGui::GetColorU32(ImGuiCol_FrameBgActive) : is_hovered ? ImGui::GetColorU32(ImGuiCol_FrameBgHovered) : IM_COL32(28,28,28,255), 32);
+    draw_list->AddLine(ImVec2(center.x + angle_cos*radius_inner, center.y + angle_sin*radius_inner), ImVec2(center.x + angle_cos*(radius_outer-line_width+1), center.y + angle_sin*(radius_outer-line_width+1)), color, line_width);
+
+    char buffer[64];
+    snprintf(buffer, sizeof buffer, "%.2f", *p_value);
+    draw_list->AddText(ImVec2(pos.x + gap + (((radius_outer*2)-ImGui::CalcTextSize(buffer).x)/2.0f), pos.y + labelGap + radius_outer * 2 + style.ItemInnerSpacing.y), ImGui::GetColorU32(ImGuiCol_Text), buffer);
+
+    /*if (is_active || is_hovered)
+    {
+        ImGui::SetNextWindowPos(ImVec2(pos.x + gap - style.WindowPadding.x, pos.y + labelGap + radius_outer));
         ImGui::BeginTooltip();
-        ImGui::Text("%.3f", *p_value);
+        ImGui::PushItemWidth(radius_outer*2);
+        ImGui::DragFloat("",p_value);
+        ImGui::PopItemWidth();
         ImGui::EndTooltip();
-    }
+    }*/
+
 
     return value_changed;
-}
-
-// Posted by @alexsr here: https://github.com/ocornut/imgui/issues/1901
-// Sligthly modified to provide default behaviour with default args
-void LoadingIndicatorCircle(const char* label, float indicatorRadiusFactor,
-                            const ImVec4* pOptionalMainColor, const ImVec4* pOptionalBackdropColor,
-                            int circle_count,const float speed) {
-    ImGuiWindow* window = GetCurrentWindow();
-    if (window->SkipItems) {
-        return;
-    }
-
-    ImGuiContext& g = *GImGui;
-    const ImGuiID id = window->GetID(label);
-    const ImGuiStyle& style = GetStyle();
-
-    if (circle_count<=0) circle_count = 12;
-    if (indicatorRadiusFactor<=0.f) indicatorRadiusFactor = 1.f;
-    if (!pOptionalMainColor)        pOptionalMainColor = &style.Colors[ImGuiCol_Button];
-    if (!pOptionalBackdropColor)    pOptionalBackdropColor = &style.Colors[ImGuiCol_ButtonHovered];
-
-    const float lineHeight = GetTextLineHeight(); // or GetTextLineHeight() or GetTextLineHeightWithSpacing() ?
-    float indicatorRadiusPixels = indicatorRadiusFactor*lineHeight*0.5f;
-
-    const ImVec2 pos = window->DC.CursorPos;
-    const float circle_radius = indicatorRadiusPixels / 8.f;
-    indicatorRadiusPixels-= 2.0f*circle_radius;
-    const ImRect bb(pos, ImVec2(pos.x + indicatorRadiusPixels*2.f+4.f*circle_radius,
-                                pos.y + indicatorRadiusPixels*2.f+4.f*circle_radius));
-    ItemSize(bb, style.FramePadding.y);
-    if (!ItemAdd(bb, id)) {
-        return;
-    }
-    const float base_num_segments = circle_radius*1.f;
-    const double t = g.Time;
-    const float degree_offset = 2.0f * IM_PI / circle_count;
-    for (int i = 0; i < circle_count; ++i) {
-        const float sinx = -ImSin(degree_offset * i);
-        const float cosx = ImCos(degree_offset * i);
-        const float growth = ImMax(0.0f, ImSin((float)(t*(double)(speed*3.0f)-(double)(i*degree_offset))));
-        ImVec4 color;
-        color.x = pOptionalMainColor->x * growth + pOptionalBackdropColor->x * (1.0f - growth);
-        color.y = pOptionalMainColor->y * growth + pOptionalBackdropColor->y * (1.0f - growth);
-        color.z = pOptionalMainColor->z * growth + pOptionalBackdropColor->z * (1.0f - growth);
-        color.w = 1.0f;
-        float grown_circle_radius = circle_radius*(1.0f + growth);
-        int num_segments = (int)(base_num_segments*grown_circle_radius);
-        if (num_segments<4) num_segments=4;
-        window->DrawList->AddCircleFilled(ImVec2(pos.x+2.f*circle_radius + indicatorRadiusPixels*(1.0f+sinx),
-                                                 pos.y+2.f*circle_radius + indicatorRadiusPixels*(1.0f+cosx)),
-                                          grown_circle_radius,
-                                          GetColorU32(color),num_segments);
-    }
-}
-
-// Posted by @zfedoran here: https://github.com/ocornut/imgui/issues/1901
-// Sligthly modified to provide default behaviour with default args
-void LoadingIndicatorCircle2(const char* label,float indicatorRadiusFactor, float indicatorRadiusThicknessFactor, const ImVec4* pOptionalColor) {
-    ImGuiWindow* window = GetCurrentWindow();
-    if (window->SkipItems)
-        return;
-
-    ImGuiContext& g = *GImGui;
-    const ImGuiStyle& style = g.Style;
-    const ImGuiID id = window->GetID(label);
-
-    if (indicatorRadiusFactor<=0.f) indicatorRadiusFactor = 1.f;
-    if (indicatorRadiusThicknessFactor<=0.f) indicatorRadiusThicknessFactor = 1.f;
-    if (!pOptionalColor)    pOptionalColor = &style.Colors[ImGuiCol_Button];
-    const ImU32 color = GetColorU32(*pOptionalColor);
-
-    const float lineHeight = GetTextLineHeight(); // or GetTextLineHeight() or GetTextLineHeightWithSpacing() ?
-    float indicatorRadiusPixels = indicatorRadiusFactor*lineHeight*0.5f;
-    float indicatorThicknessPixels = indicatorRadiusThicknessFactor*indicatorRadiusPixels*0.6f;
-    if (indicatorThicknessPixels>indicatorThicknessPixels*0.4f) indicatorThicknessPixels=indicatorThicknessPixels*0.4f;
-    indicatorRadiusPixels-=indicatorThicknessPixels;
-
-    ImVec2 pos = window->DC.CursorPos;
-    ImVec2 size(indicatorRadiusPixels*2.f, (indicatorRadiusPixels + style.FramePadding.y)*2.f);
-
-    const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
-    ItemSize(bb, style.FramePadding.y);
-    if (!ItemAdd(bb, id))
-        return;
-
-    // Render
-    window->DrawList->PathClear();
-
-    //int num_segments = indicatorRadiusPixels/8.f;
-    //if (num_segments<4) num_segments=4;
-
-    int num_segments = 30;
-
-    int start = abs(ImSin(g.Time*1.8f)*(num_segments-5));
-
-    const float a_min = IM_PI*2.0f * ((float)start) / (float)num_segments;
-    const float a_max = IM_PI*2.0f * ((float)num_segments-3) / (float)num_segments;
-
-    const ImVec2 centre = ImVec2(pos.x+indicatorRadiusPixels, pos.y+indicatorRadiusPixels+style.FramePadding.y);
-
-    for (int i = 0; i < num_segments; i++) {
-        const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
-        window->DrawList->PathLineTo(ImVec2(centre.x + ImCos(a+g.Time*8) * indicatorRadiusPixels,
-                                            centre.y + ImSin(a+g.Time*8) * indicatorRadiusPixels));
-    }
-
-    window->DrawList->PathStroke(color, false, indicatorThicknessPixels);
 }
 
 SmartButtonState SmartButton(const char* label, ImVec2 size) {
@@ -260,7 +370,7 @@ SmartButtonState BangButton(const char* label, ImVec4& color, ImVec2 size) {
     ImGui::PushStyleColor(ImGuiCol_Button, color);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, color);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, color);
-    state = ImGui::SmartButton(label, size);
+    state = ImGuiEx::SmartButton(label, size);
     ImGui::PopStyleColor(3);
 
     return state;

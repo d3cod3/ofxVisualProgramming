@@ -16,20 +16,16 @@ enum SmartButtonState_ {
     SmartButtonState_Released   = 3
 };
 
-namespace ImGui {
+//--------------------------------------------------
 
-IMGUI_API int EnvelopeEditor(float width, float height, float points[6], int type=ImGuiEnvelopeEditorType_ADSR);
+namespace ImGuiEx {
 
-// Minimal implementation from: https://github.com/ocornut/imgui/issues/942
-IMGUI_API bool KnobFloat(const char* label, float* p_value, float v_min, float v_max, float v_step=50.f);
+bool EnvelopeEditor(ImDrawList* drawList, float width, float height, float *_a, float *_h, float *_s, float *_r, int type=ImGuiEnvelopeEditorType_ADSR);
 
-// Posted by @alexsr here: https://github.com/ocornut/imgui/issues/1901
-// Sligthly modified to provide default behaviour with default args
-IMGUI_API void LoadingIndicatorCircle(const char* label, float indicatorRadiusFactor=1.f,const ImVec4* pOptionalMainColor=NULL, const ImVec4* pOptionalBackdropColor=NULL,int circle_count=8, const float speed=1.f);
+bool Pad2D(ImDrawList* drawList, float width, float height,float *_x, float *_y);
 
-// Posted by @zfedoran here: https://github.com/ocornut/imgui/issues/1901
-// Sligthly modified to provide default behaviour with default args
-void LoadingIndicatorCircle2(const char* label, float indicatorRadiusFactor=1.f, float indicatorRadiusThicknessFactor=1.f, const ImVec4* pOptionalColor=NULL);
+// Minimal implementation modified from: https://github.com/ocornut/imgui/issues/942
+bool KnobFloat(ImDrawList* draw_list, float width, ImU32 color, const char* label, float* p_value, float v_min, float v_max, float v_step=50.f);
 
 SmartButtonState SmartButton(const char* label, ImVec2 size = {0, 0});
 

@@ -12,7 +12,9 @@
 
 #include "imgui.h"
 
-namespace ImGui {
+float imMap(float value, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp=true);
+
+namespace ImGuiEx {
 
 // Use this structure to pass the plot data and settings into the Plot function
 struct PlotConfig {
@@ -105,8 +107,14 @@ struct PlotVarData{
 
 static std::map<ImGuiID, PlotVarData>	g_PlotVarsMap;
 
+//--------------------------------------------------
+
 IMGUI_API PlotStatus Plot(const char* label, const PlotConfig& conf);
 
 IMGUI_API PlotStatus PlotVar(const char* label, const PlotVarConfig& conf);
+
+void VUMeter(ImDrawList* drawList, float width, float height,float _vol);
+
+void PlotBands(ImDrawList* drawList, float width, float height, std::vector<float> *data);
 
 }

@@ -35,57 +35,56 @@
 #include "moSonogram.h"
 
 //--------------------------------------------------------------
-moSonogram::moSonogram() : PatchObject(){
+moSonogram::moSonogram() : PatchObject("sonogram"){
 
     this->numInlets  = 1;
-    this->numOutlets = 0;
+    this->numOutlets = 1;
 
     _inletParams[0] = new vector<float>();  // fft
 
+    _outletParams[0] = new ofTexture();  // texture
+
     this->initInletsState();
 
-    this->width             *= 2;
-    this->height            *= 2;
+     // 16:9 proportion
+    this->width             = 428;
+    this->height            = 240;
+
 
     sonogram                = new ofFbo();
+    pixels                  = new ofPixels;
 
-    isGUIObject             = true;
-    this->isOverGUI         = false;
+    posX = posY = drawW = drawH = 0.0f;
 
     timePosition            = 0;
     resetTime               = ofGetElapsedTimeMillis();
     wait                    = 40;
 
-    resizeQuad.set(this->width-20,this->height-20,20,20);
+    this->setIsResizable(true);
+
+    prevW                   = 0.0f;
+    prevH                   = 0.0f;
+
+    loaded                  = false;
 
 }
 
 //--------------------------------------------------------------
 void moSonogram::newObject(){
-    this->setName(this->objectName);
-    this->addInlet(VP_LINK_ARRAY,"fft");
+    PatchObject::setName( this->objectName );
 
-    this->setCustomVar(static_cast<float>(this->width),"WIDTH");
-    this->setCustomVar(static_cast<float>(this->height),"HEIGHT");
+    this->addInlet(VP_LINK_ARRAY,"fft");
+    this->addOutlet(VP_LINK_TEXTURE,"sonogramTexture");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+
 }
 
 //--------------------------------------------------------------
 void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->width = static_cast<int>(floor(this->getCustomVar("WIDTH")));
-    this->height = static_cast<int>(floor(this->getCustomVar("HEIGHT")));
 
-    box->setWidth(this->width);
-    box->setHeight(this->height);
-
-    headerBox->setWidth(this->width);
-
-    resizeQuad.set(this->width-20,this->height-20,20,20);
-
-    sonogram->allocate(this->width,this->height,GL_RGBA);
-
-    sonogram->begin();
-    ofClear(0,0,0,255);
-    sonogram->end();
+    resetTextures();
 
     colors.push_back(ofColor(0,0,0,240));           // BLACK
     colors.push_back(ofColor(0,0,180,240));         // BLUE
@@ -101,18 +100,30 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     if(this->inletsConnected[0]){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
             resetTime = ofGetElapsedTimeMillis();
-            if(timePosition >= this->width){
+            if(timePosition >= static_cast<ofTexture *>(_outletParams[0])->getWidth()){
                 timePosition = 0;
             }else{
                 timePosition++;
             }
         }
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            sonogram->getTexture().readToPixels(*pixels);
+            static_cast<ofTexture *>(_outletParams[0])->loadData(*pixels);
+        }
+    }
+
+    if(!loaded){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
     }
 }
 
 //--------------------------------------------------------------
 void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofEnableAlphaBlending();
     if(this->inletsConnected[0]){
         sonogram->begin();
         glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -121,15 +132,14 @@ void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
         ofPushStyle();
         ofPushMatrix();
         ofSetColor(0,0,0,0);
-        ofDrawRectangle(0,0,this->width,this->height);
+        ofDrawRectangle(0,0,static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
         for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
-            float valueDB = static_cast<vector<float> *>(_inletParams[0])->at(s);
-            int colorIndex = static_cast<int>(floor(ofMap(valueDB,0,1,0,colors.size()-1,true)));
+            float valueDB = log10(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(s),0.0f,1.0f,1.0f,10.0f,true));
+            int colorIndex = static_cast<int>(floor(ofMap(valueDB,0.0f,1.0f,0,colors.size()-1,true)));
             ofSetColor(0);
-            ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),this->height,0,true),1,1);
-            //ofSetColor(ofMap(valueDB,0.4,0.8,0,255,true),ofMap(valueDB,0.8,1,0,255,true),ofMap(valueDB,0.0,0.4,0,255,true),255*static_cast<vector<float> *>(_inletParams[0])->at(s));
+            ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
             ofSetColor(colors.at(colorIndex),255*valueDB);
-            ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),this->height,0,true),1,1);
+            ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
         }
         ofPopMatrix();
         ofPopStyle();
@@ -137,18 +147,52 @@ void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
         glPopAttrib();
         sonogram->end();
     }
-    ofSetColor(255,255,255);
-    sonogram->draw(0,0);
+}
 
-    ofSetColor(255,255,255,70);
-    if(this->isOverGUI){
-        ofFill();
-    }else{
-        ofNoFill();
+//--------------------------------------------------------------
+void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Basic sonogram. A visual representation display of spectrum frequencies of a sound signal (FFT), showing how it changes over time.",
+                        "https://mosaic.d3cod3.org/reference.php?r=sonogram");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDrawRectangle(resizeQuad);
-    ofFill();
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(this->inletsConnected[0] && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            float _tw = this->width*_nodeCanvas.GetCanvasScale();
+            float _th = this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
+
+            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+        }
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------
@@ -157,44 +201,27 @@ void moSonogram::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void moSonogram::mouseMovedObjectContent(ofVec3f _m){
-    this->isOverGUI = resizeQuad.inside(_m-this->getPos());
-}
+void moSonogram::resetTextures(){
 
-//--------------------------------------------------------------
-void moSonogram::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        this->width =  _m.x - this->getPos().x;
-        this->height =  _m.y - this->getPos().y;
+    sonogram                = new ofFbo();
+    pixels                  = new ofPixels;
+    _outletParams[0]        = new ofTexture();
 
-        box->setWidth(_m.x - this->getPos().x);
-        box->setHeight(_m.y - this->getPos().y);
+    sonogram->allocate(this->width,this->height,GL_RGBA);
+    pixels->allocate(this->width,this->height,OF_IMAGE_COLOR_ALPHA);
 
-        headerBox->setWidth(_m.x - this->getPos().x);
+    sonogram->begin();
+    ofClear(0,0,0,255);
+    sonogram->end();
 
-        resizeQuad.set(this->width-20,this->height-20,20,20);
-
-        this->setCustomVar(static_cast<float>(this->width),"WIDTH");
-        this->setCustomVar(static_cast<float>(this->height),"HEIGHT");
-
-        sonogram->allocate(this->width,this->height,GL_RGBA);
-        sonogram->begin();
-        ofClear(0,0,0,255);
-        sonogram->end();
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
+    ofTextureData texData;
+    texData.width = sonogram->getWidth();
+    texData.height = sonogram->getHeight();
+    texData.textureTarget = GL_TEXTURE_2D;
+    texData.bFlipTexture = true;
+    static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+    sonogram->getTexture().readToPixels(*pixels);
+    static_cast<ofTexture *>(_outletParams[0])->loadData(*pixels);
 }
 
 OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI)
