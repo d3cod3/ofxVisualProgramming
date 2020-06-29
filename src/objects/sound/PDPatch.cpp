@@ -30,6 +30,10 @@
 
 ==============================================================================*/
 
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
+
 #include "PDPatch.h"
 
 //--------------------------------------------------------------
@@ -637,3 +641,5 @@ void PDPatch::receiveMidiByte(const int port, const int byte) {
 }
 
 OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,6 +30,10 @@
 
 ==============================================================================*/
 
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
+
 #pragma once
 
 #include "PatchObject.h"
@@ -37,9 +41,7 @@
 #include "PathWatcher.h"
 
 #include "ofxPd.h"
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    #include "ofxPdExternals.h"
-#endif
+#include "ofxPdExternals.h"
 
 
 using namespace pd;
@@ -143,3 +145,5 @@ protected:
 
     OBJECT_FACTORY_PROPS
 };
+
+#endif
