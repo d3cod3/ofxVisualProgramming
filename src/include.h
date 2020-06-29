@@ -159,7 +159,9 @@
 #include "objects/sound/OscSaw.h"
 #include "objects/sound/OscPulse.h"
 #include "objects/sound/Panner.h"
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "objects/sound/PDPatch.h"
+#endif
 #include "objects/sound/QuadPanner.h"
 #include "objects/sound/SigMult.h"
 #include "objects/sound/SignalTrigger.h"
