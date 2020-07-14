@@ -75,10 +75,16 @@ public:
     bool                    deviceLoaded;
 
     ofImage                 *bg;
-    ofTexture               *bg_tex;
     float                   posX, posY, drawW, drawH;
 
+    float                   scaledObjW, scaledObjH;
+    float                   objOriginX, objOriginY;
+    float                   canvasZoom;
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -32,27 +32,22 @@
 
 #ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
-#include "moVideoViewer.h"
+#include "moDataViewer.h"
 
 //--------------------------------------------------------------
-moVideoViewer::moVideoViewer() : PatchObject("video viewer"){
+moDataViewer::moDataViewer() : PatchObject("data viewer"){
 
     this->numInlets  = 1;
-    this->numOutlets = 1;
+    this->numOutlets = 0;
 
-    _inletParams[0] = new ofTexture();  // texture
-
-    _outletParams[0] = new ofTexture();  // texture
-
-    posX = posY = drawW = drawH = 0.0f;
-
-    this->width             *= 2;
-    this->height            *= 2;
+    _inletParams[0] = new vector<float>();  // RAW Data
 
     this->initInletsState();
 
+    max   = 1.0f;
+    color = ImVec4(1.0f,1.0f,1.0f,1.0f);
+
     this->setIsResizable(true);
-    this->setIsTextureObj(true);
 
     prevW                   = this->width;
     prevH                   = this->height;
@@ -62,49 +57,53 @@ moVideoViewer::moVideoViewer() : PatchObject("video viewer"){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::newObject(){
+void moDataViewer::newObject(){
     PatchObject::setName( this->objectName );
 
-    this->addInlet(VP_LINK_TEXTURE,"texture");
-    this->addOutlet(VP_LINK_TEXTURE,"texture");
+    this->addInlet(VP_LINK_ARRAY,"data");
+
+    this->setCustomVar(max,"MAX");
+    this->setCustomVar(1.0f,"RED");
+    this->setCustomVar(1.0f,"GREEN");
+    this->setCustomVar(1.0f,"BLUE");
+    this->setCustomVar(1.0f,"ALPHA");
 
     this->setCustomVar(static_cast<float>(prevW),"WIDTH");
     this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
-}
-
-//--------------------------------------------------------------
-void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
-    }
+void moDataViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+}
+
+//--------------------------------------------------------------
+void moDataViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded = true;
+        max = this->getCustomVar("MAX");
         prevW = this->getCustomVar("WIDTH");
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
+        color = ImVec4(this->getCustomVar("RED"),this->getCustomVar("GREEN"),this->getCustomVar("BLUE"),this->getCustomVar("ALPHA"));
     }
+
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    if(this->width > 118.0f){
-        // draw node texture preview with OF
-        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
-    }
+void moDataViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    ofSetColor(255);
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+void moDataViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
+
         ImGui::Separator();
         ImGui::Separator();
         ImGui::Separator();
@@ -112,46 +111,47 @@ void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
+            ImGui::Spacing();
+            if(ImGui::InputFloat("Max",&max)){
+                this->setCustomVar(max,"MAX");
+            }
+            ImGui::Spacing();
+            if(ImGui::ColorEdit4( "Color", (float*)&color )){
+                this->setCustomVar(color.x,"RED");
+                this->setCustomVar(color.y,"GREEN");
+                this->setCustomVar(color.z,"BLUE");
+                this->setCustomVar(color.w,"ALPHA");
+            }
+
             ImGuiEx::ObjectInfo(
-                        "A basic video viewer, the object visualizes it, and bypasses it by its outlet.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-viewer");
+                        "A basic data vector visualizer",
+                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor");
+
 
             ImGui::EndMenu();
         }
+
         _nodeCanvas.EndNodeMenu();
     }
 
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
-
-        if(this->width != prevW){
-            prevW = this->width;
-            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
-        }
-        if(this->width != prevH){
-            prevH = this->height;
-            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        // draw data
+        if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+            ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_inletParams[0]), max, IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255));
         }
 
         _nodeCanvas.EndNodeContent();
     }
 
-    // get imgui canvas zoom
-    canvasZoom = _nodeCanvas.GetCanvasScale();
-
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::removeObjectContent(bool removeFileFromData){
-    
+void moDataViewer::removeObjectContent(bool removeFileFromData){
+
 }
 
-OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moDataViewer , "data viewer", OFXVP_OBJECT_CAT_GUI)
 
 #endif

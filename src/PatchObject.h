@@ -82,7 +82,7 @@ public:
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
-    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine);
     void                    draw(ofxFontStash *font);
     void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
 
@@ -95,6 +95,7 @@ public:
     virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) {}
+    virtual void            updateAudioObjectContent(pdsp::Engine &engine) {}
     virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
@@ -102,7 +103,6 @@ public:
     virtual void            mouseMovedObjectContent(ofVec3f _m) {}
     virtual void            mousePressedObjectContent(ofVec3f _m) {}
     virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
-    virtual void            keyPressedObjectContent(int key) {}
 
     virtual void            dragGUIObject(ofVec3f _m) {}
 
@@ -152,11 +152,13 @@ public:
     ofPoint                 getPos() const { return ofPoint(x,y); }
     string                  getName() const { return name; }
     bool                    getIsResizable() const { return isResizable; }
+    bool                    getIsRetina() const { return isRetina; }
     bool                    getIsSystemObject() const { return isSystemObject; }
     bool                    getIsActive() const { return bActive; }
     bool                    getIsAudioINObject() const { return isAudioINObject; }
     bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
     bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
+    bool                    getIsTextureObject() const { return isTextureObject; }
     int                     getInletType(int iid) const { return inletsType[iid]; }
     string                  getInletTypeName(const int& iid) const;
     ofColor                 getInletColor(const int& iid) const;
@@ -184,6 +186,7 @@ public:
 
     void                    setPatchfile(string pf);
 
+    void                    setIsTextureObj(bool it) { isTextureObject = it; }
     void                    setIsResizable(bool ir) { isResizable = ir; }
     void                    setIsRetina(bool ir) { isRetina = ir; }
     void                    setIsActive(bool ia) { bActive = ia; }
@@ -252,6 +255,7 @@ protected:
     bool                    isAudioINObject;
     bool                    isAudioOUTObject;
     bool                    isPDSPPatchableObject;
+    bool                    isTextureObject;
     bool                    isResizable;
     bool                    willErase;
 

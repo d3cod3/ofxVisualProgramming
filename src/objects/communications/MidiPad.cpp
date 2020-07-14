@@ -35,10 +35,10 @@
 #include "MidiPad.h"
 
 //--------------------------------------------------------------
-MidiPad::MidiPad() : PatchObject(){
+MidiPad::MidiPad() : PatchObject("midi pad"){
 
     this->numInlets  = 3;
-    this->numOutlets = 2;
+    this->numOutlets = 3;
 
     _inletParams[0] = new float();  // pitch (index)
     *(float *)&_inletParams[0] = 0.0f;
@@ -47,87 +47,133 @@ MidiPad::MidiPad() : PatchObject(){
     _inletParams[2] = new float();  // velocity
     *(float *)&_inletParams[2] = 0.0f;
 
-    _outletParams[0] = new float(); // value
+    _outletParams[0] = new float(); // bang
     *(float *)&_outletParams[0] = 0.0f;
-    _outletParams[1] = new float(); // velocity
+    _outletParams[1] = new float(); // value
     *(float *)&_outletParams[1] = 0.0f;
+    _outletParams[2] = new float(); // velocity
+    *(float *)&_outletParams[2] = 0.0f;
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
+    lastPitch       = 0;
+    savedPitch      = 0;
+    onebang         = false;
+    lockReadings    = false;
+
+    loaded          = false;
 
 }
 
 //--------------------------------------------------------------
 void MidiPad::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"velocity");
-    this->addOutlet(VP_LINK_NUMERIC,"value");
+
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
+    this->addOutlet(VP_LINK_NUMERIC,"pressure");
     this->addOutlet(VP_LINK_NUMERIC,"velocity");
 
-    this->setCustomVar(0.0f,"INDEX");
+    this->setCustomVar(static_cast<float>(savedPitch),"INDEX");
 }
 
 //--------------------------------------------------------------
 void MidiPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setTheme(new ofxDatGuiThemeCharcoal());
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &MidiPad::onTextInputEvent);
-
-    inputNumber = gui->addTextInput("","0");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("INDEX")));
-
-    gui->setPosition(0,this->headerHeight);
 
 }
 
 //--------------------------------------------------------------
 void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    inputNumber->update();
-
     if(this->inletsConnected[0]){
-        if(static_cast<int>(floor(*(float *)&_inletParams[0])) != 0){
-            lastPitch = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        }
-        if(this->inletsConnected[1]){
-            if(lastPitch == static_cast<int>(floor(this->getCustomVar("INDEX")))){
-                *(float *)&_outletParams[0] = *(float *)&_inletParams[1]/127.0f;
+        if(static_cast<int>(floor(*(float *)&_inletParams[0])) == savedPitch){
+            if(!lockReadings){
+                lockReadings = true;
             }
-        }
-        if(this->inletsConnected[2]){
-            if(lastPitch == static_cast<int>(floor(this->getCustomVar("INDEX")))){
-                *(float *)&_outletParams[1] = *(float *)&_inletParams[2]/127.0f;
+            if(!onebang){
+                onebang = true;
+                *(float *)&_outletParams[0] = 1.0f;
+            }else{
+                *(float *)&_outletParams[0] = 0.0f;
             }
+        }else{
+            *(float *)&_outletParams[0] = 0.0f;
+            onebang = false;
         }
 
+        if(lockReadings){
+            if(this->inletsConnected[1]){
+                *(float *)&_outletParams[1] = *(float *)&_inletParams[1];
+            }
+            if(this->inletsConnected[2]){
+                *(float *)&_outletParams[2] = *(float *)&_inletParams[2];
+            }
+        }
+        // velocity
+        if(*(float *)&_outletParams[1] == 0.0f && *(float *)&_outletParams[2] == 0.0f){
+            *(float *)&_outletParams[0] = 0.0f;
+            onebang = false;
+            lockReadings = false;
+        }
     }else{
         *(float *)&_outletParams[0] = 0.0f;
+        *(float *)&_outletParams[1] = 0.0f;
+        *(float *)&_outletParams[2] = 0.0f;
+        onebang = false;
+        lockReadings = false;
+    }
+
+    if(!loaded){
+        loaded = true;
+        lastPitch  = static_cast<int>(this->getCustomVar("INDEX"));
+        savedPitch = lastPitch;
     }
 
 }
 
 //--------------------------------------------------------------
 void MidiPad::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(30,31,36);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && this->inletsConnected[1]){
-        ofSetColor(250,250,5,*(float *)&_outletParams[0]*255);
-        ofDrawRectangle(0,0,this->width,this->height);
+
+}
+
+//--------------------------------------------------------------
+void MidiPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "This object is used linked to the midi receiver object to map a pad on a midi device",
+                        "https://mosaic.d3cod3.org/reference.php?r=midi-pad");
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 40)); // Padding top
+
+        if(ImGui::InputInt("PITCH",&lastPitch)){
+            savedPitch = lastPitch;
+            this->setCustomVar(static_cast<float>(savedPitch),"INDEX");
+
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -135,44 +181,6 @@ void MidiPad::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void MidiPad::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void MidiPad::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void MidiPad::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"INDEX");
-        }
-
-    }
-}
 
 OBJECT_REGISTER( MidiPad, "midi pad", OFXVP_OBJECT_CAT_COMMUNICATIONS)
 

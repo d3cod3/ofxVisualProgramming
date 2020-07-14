@@ -68,12 +68,16 @@ public:
     pdsp::ADSR              ampEnv;
     pdsp::ADSR              modEnv;
 
+    pdsp::ValueControl      osc_freq_ctrl;
     pdsp::ValueControl      filter_freq_ctrl;
+    pdsp::ValueControl      filter_res_ctrl;
 
     pdsp::Scope             scope;
     pdsp::TriggerControl    gate_ctrl;
 
+    float                   oscFreq;
     float                   filterFreq;
+    float                   filterRes;
 
     int                     bufferSize;
     int                     sampleRate;

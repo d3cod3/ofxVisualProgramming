@@ -42,23 +42,29 @@ public:
 
     MidiPad();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     inputNumber;
 
     int                     lastPitch;
+    int                     savedPitch;
+    bool                    onebang;
+    bool                    lockReadings;
+
+    bool                    loaded;
+
+protected:
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

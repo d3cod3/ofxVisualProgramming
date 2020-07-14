@@ -68,6 +68,11 @@ public:
     bool                needToGrab;
 
     float               posX, posY, drawW, drawH;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
     bool                isNewObject;
 
     imgui_addons::ImGuiFileBrowser  fileDialog;

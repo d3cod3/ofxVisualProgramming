@@ -55,30 +55,22 @@ AudioDevice::AudioDevice() : PatchObject("audio device"){
     deviceLoaded        = false;
 
     bg                  = new ofImage();
-    bg_tex              = new ofTexture();
     posX = posY = drawW = drawH = 0.0f;
+
+    this->setIsTextureObj(true);
     
 }
 
 //--------------------------------------------------------------
 void AudioDevice::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
 }
 
 //--------------------------------------------------------------
 void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadDeviceInfo();
 
-    bg->setUseTexture(false);
     bg->load("images/audioDevice_bg.jpg");
-
-    ofTextureData texData;
-    texData.width = bg->getWidth();
-    texData.height = bg->getHeight();
-    texData.textureTarget = GL_TEXTURE_2D;
-    texData.bFlipTexture = true;
-    bg_tex->allocate(texData);
-    bg_tex->loadData(bg->getPixels());
 
 }
 
@@ -113,7 +105,8 @@ void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
 //--------------------------------------------------------------
 void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    // draw node texture preview with OF
+    drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
 }
 
 //--------------------------------------------------------------
@@ -140,13 +133,18 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        float _tw = this->width*_nodeCanvas.GetCanvasScale();
-        float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
-
-        ImGuiEx::drawOFTexture(bg_tex,_tw,_th,posX,posY,drawW,drawH);
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
 }
 
 //--------------------------------------------------------------
@@ -247,12 +245,12 @@ void AudioDevice::resetSystemObject(){
         this->inletsNames.clear();
 
         for( int i = 0; i < out_channels; i++){
-            this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
+            this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
         }
 
         this->outletsType.clear();
         for( int i = 0; i < in_channels; i++){
-            this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
+            this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
         }
 
         this->inletsConnected.clear();
@@ -388,13 +386,13 @@ void AudioDevice::loadDeviceInfo(){
         this->inletsNames.clear();
 
         for( int i = 0; i < out_channels; i++){
-            this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
+            this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
         }
 
         if(isNewObject){
             this->outletsType.clear();
             for( int i = 0; i < in_channels; i++){
-                this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
+                this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
             }
         }
 

@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,24 +36,34 @@
 
 #include "PatchObject.h"
 
-class BeatExtractor : public PatchObject {
+#include "imgui_plot.h"
+
+class moDataViewer : public PatchObject {
 
 public:
 
-    BeatExtractor();
+    moDataViewer();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    bool            beat;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    bool            isNewConnection;
-    bool            isConnectionRight;
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    float           max;
+    ImVec4          color;
+
+    float           prevW, prevH;
+
+    bool            loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

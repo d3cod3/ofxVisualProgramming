@@ -35,7 +35,7 @@
 #include "MFCCExtractor.h"
 
 //--------------------------------------------------------------
-MFCCExtractor::MFCCExtractor() : PatchObject(){
+MFCCExtractor::MFCCExtractor() : PatchObject("mfcc extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -58,8 +58,10 @@ MFCCExtractor::MFCCExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void MFCCExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_ARRAY,"melFrequencyCepstrumCoefficents");
 }
 
@@ -123,16 +125,42 @@ void MFCCExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void MFCCExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
 
-    float bin_w = (float) this->width / DCT_COEFF_NUM;
-    for (int i = 0; i < DCT_COEFF_NUM; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
+}
+
+//--------------------------------------------------------------
+void MFCCExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Extracts 13 data in a dynamic vector of MFCC (Mel Frequency Cepstral Coeﬃcients) from the audio analysis data vector.",
+                        "https://mosaic.d3cod3.org/reference.php?r=mfcc-extractor");
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw FFT
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_outletParams[0]));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------

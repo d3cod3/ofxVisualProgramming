@@ -62,8 +62,8 @@ moSonogram::moSonogram() : PatchObject("sonogram"){
 
     this->setIsResizable(true);
 
-    prevW                   = 0.0f;
-    prevH                   = 0.0f;
+    prevW                   = this->width;
+    prevH                   = this->height;
 
     loaded                  = false;
 

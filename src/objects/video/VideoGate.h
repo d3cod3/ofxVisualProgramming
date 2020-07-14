@@ -42,19 +42,35 @@ public:
 
     VideoGate();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            initInlets();
+    void            resetInletsSettings();
 
     ofImage         *kuro;
-    bool            isOpen;
+    ofTextureData   texData;
+    ofTexture       *kuroTex;
+
     int             openInlet;
 
-    float           posX, posY, drawW, drawH;
+    int             dataInlets;
+    bool            needReset;
+    bool            loaded;
+
+    float           prevW, prevH;
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

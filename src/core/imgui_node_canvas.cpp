@@ -269,7 +269,7 @@ void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
 
 
 // always use EndNode() even if returns false. Like ImGui Windows.
-bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize ){
+bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode ){
     // Check callstack
     IM_ASSERT(isDrawingCanvas == true);  // forgot to End();
     IM_ASSERT(canDrawNode == true); // Don't call if Begin() returned false
@@ -319,7 +319,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
 
 
     // Remove pins space from innerContentBox
-    if( _numLeftPins > 0 ){ // Has left pins
+    //if( _numLeftPins > 0 ){ // Has left pins
         pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_NORMAL;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Left;
         curNodeData.leftPins.region.Max.x += pinsWidth;
@@ -328,8 +328,8 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         curNodeData.leftPins.numPins = _numLeftPins;
         curNodeData.leftPins.pinSpace = ImVec2(curNodeData.leftPins.region.GetSize().x, curNodeData.leftPins.region.GetSize().y / _numLeftPins);
         curNodeData.leftPins.curDrawPos = curNodeData.leftPins.region.Min;
-    }
-    if( _numRightPins > 0 ){ // Has right pins
+    //}
+    //if( _numRightPins > 0 ){ // Has right pins
         pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_SMALL;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Right;
         curNodeData.rightPins.region.Min.x -= pinsWidth;
@@ -338,7 +338,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         curNodeData.rightPins.numPins = _numRightPins;
         curNodeData.rightPins.pinSpace = ImVec2(curNodeData.rightPins.region.GetSize().x, curNodeData.rightPins.region.GetSize().y / _numRightPins);
         curNodeData.rightPins.curDrawPos = ImVec2(curNodeData.rightPins.region.Max.x, curNodeData.rightPins.region.Min.y);
-    }
+    //}
 
 #if __IMGUI_EX_NODECANVAS_DEBUG__
     // For debugging, draw all parts of node
@@ -379,7 +379,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
     // Draw Outer region
     {
         // Node BG fill
-        nodeDrawList->AddRectFilled( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max, ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f));//ImGui::GetColorU32(ImGuiCol_WindowBg) );
+        if(curNodeData.zoomName < ImGuiExNodeZoom_Small || !isTextureNode){
+            nodeDrawList->AddRectFilled( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max, ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f));
+        }else{
+            nodeDrawList->AddRectFilled( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max, IM_COL32(0,0,0,0));
+            nodeDrawList->AddRectFilled( curNodeData.outerContentBox.Min, ImVec2(curNodeData.outerContentBox.Min.x+curNodeData.leftPins.region.GetSize().x,curNodeData.outerContentBox.Max.y), ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f));
+            nodeDrawList->AddRectFilled( curNodeData.rightPins.region.Min, curNodeData.outerContentBox.Max, ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f));
+        }
 
         // Draw HeaderBar BG
         nodeDrawList->AddRectFilled(

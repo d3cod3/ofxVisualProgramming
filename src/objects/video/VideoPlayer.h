@@ -82,6 +82,10 @@ public:
 
     bool                loadVideoFlag;
 
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
 protected:
     bool                needToLoadVideo;
 

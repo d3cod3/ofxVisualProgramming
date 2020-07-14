@@ -303,7 +303,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
     return status;
 }
 
-PlotStatus PlotVar(const char* label, const PlotVarConfig& conf) {
+PlotStatus PlotVar(const char* label, const PlotVarConfig& conf, ImU32 color) {
 
     PlotStatus status = PlotStatus::nothing;
 
@@ -339,7 +339,9 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf) {
     {
         //char overlay[32];
         //sprintf(overlay, "%-3.4f", pvd.Data[display_idx]);
+        ImGui::PushStyleColor(ImGuiCol_PlotLines, color);
         ImGui::PlotLines("##plot", &pvd.Data[0], conf.buffer_size, pvd.DataInsertIdx, NULL, conf.scale.min, conf.scale.max, ImVec2(conf.frame_size.x, conf.frame_size.y));
+        ImGui::PopStyleColor(1);
         //ImGui::SameLine();
         //ImGui::Text("%s\n%-3.4f", label, pvd.Data[display_idx]);	// Display last value in buffer
         pvd.LastFrame = current_frame;
@@ -385,7 +387,7 @@ void VUMeter(ImDrawList* drawList, float width, float height,float _vol){
 
 }
 
-void PlotBands(ImDrawList* drawList, float width, float height, std::vector<float> *data){
+void PlotBands(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max, ImU32 color){
 
     ImGuiWindow* Window = ImGui::GetCurrentWindow();
 
@@ -399,7 +401,7 @@ void PlotBands(ImDrawList* drawList, float width, float height, std::vector<floa
     float bin_w = Canvas.x / data->size();
 
     for(int i=0;i<data->size();i++){
-        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(1.0f-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i), bb.Max.y-1),IM_COL32(255,255,120,255));
+        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(max-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i) + bin_w, bb.Max.y),color);
     }
 
 }

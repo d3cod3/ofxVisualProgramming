@@ -35,7 +35,7 @@
 #include "MidiReceiver.h"
 
 //--------------------------------------------------------------
-MidiReceiver::MidiReceiver() : PatchObject(){
+MidiReceiver::MidiReceiver() : PatchObject("midi receiver"){
 
     this->numInlets  = 0;
     this->numOutlets = 5;
@@ -53,16 +53,16 @@ MidiReceiver::MidiReceiver() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     midiDeviceID        = 0;
+
+    loaded              = false;
 
 }
 
 //--------------------------------------------------------------
 void MidiReceiver::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_NUMERIC,"channel");
     this->addOutlet(VP_LINK_NUMERIC,"control");
     this->addOutlet(VP_LINK_NUMERIC,"value");
@@ -75,64 +75,13 @@ void MidiReceiver::newObject(){
 //--------------------------------------------------------------
 void MidiReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setTheme(new ofxDatGuiThemeCharcoal());
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onMatrixEvent(this, &MidiReceiver::onMatrixEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    midiDeviceName = gui->addLabel("");
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
     midiIn.listInPorts();
     midiDevicesList = midiIn.getInPortList();
-
-    if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(midiDevicesList.size())){
-        midiDeviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
-    }else{
-        midiDeviceID = 0;
-        this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
-    }
-    
-    // open port by number
-    if(midiDevicesList.size() > 0){
-        midiIn.openPort(midiDeviceID);
-        midiDeviceName->setLabel(midiIn.getInPortName(midiDeviceID));
-
-        deviceSelector = gui->addMatrix("DEVICE",midiDevicesList.size(),true);
-        deviceSelector->setUseCustomMouse(true);
-        deviceSelector->setRadioMode(true);
-        deviceSelector->getChildAt(midiDeviceID)->setSelected(true);
-        deviceSelector->onMatrixEvent(this, &MidiReceiver::onMatrixEvent);
-    
-        // don't ignore sysex, timing, & active sense messages,
-        midiIn.ignoreTypes(false, false, false);
-        midiIn.addListener(this);
-        midiIn.setVerbose(true);
-    }else{
-        ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi receiver object!");
-    }
 
 }
 
 //--------------------------------------------------------------
 void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        if(midiDevicesList.size() > 0){
-            deviceSelector->update();
-        }
-    }
 
     if(midiDevicesList.size() > 0){
         if(midiIn.isOpen()){
@@ -150,31 +99,87 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         }
     }
 
+    if(!loaded){
+        loaded = true;
+
+        if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(midiDevicesList.size())){
+            midiDeviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
+        }else{
+            midiDeviceID = 0;
+            this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
+        }
+
+        // open port by number
+        if(midiDevicesList.size() > 0){
+            midiIn.openPort(midiDeviceID);
+
+            // don't ignore sysex, timing, & active sense messages,
+            midiIn.ignoreTypes(false, false, false);
+            midiIn.addListener(this);
+            midiIn.setVerbose(true);
+        }else{
+            ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi receiver object!");
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void MidiReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(30,31,36);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    string temp = "";
-    for(int i=0;i<this->numOutlets;i++){
-        if(i==0){
-            temp = "Channel ";
-        }else if(i==1){
-            temp = "Control ";
-        }else if(i==2){
-            temp = "Value ";
-        }else if(i==3){
-            temp = "Pitch ";
-        }else if(i==4){
-            temp = "Velocity ";
+
+}
+
+//--------------------------------------------------------------
+void MidiReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            //ImGui::Spacing();
+            //ImGui::Text("%s",midiDevicesList.at(midiDeviceID).c_str());
+
+            ImGui::Spacing();
+            if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
+                for(int i=0; i < midiDevicesList.size(); ++i){
+                    bool is_selected = (midiDeviceID == i );
+                    if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
+                        resetMIDISettings(i);
+                    }
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+
+            ImGuiEx::ObjectInfo(
+                        "Receive data from a physical midi interface",
+                        "https://mosaic.d3cod3.org/reference.php?r=midi-receiver");
+
+            ImGui::EndMenu();
         }
-        font->draw(temp+ofToString(static_cast<int>(floor(*(float *)&_outletParams[i]))),this->fontSize,this->width/2,this->headerHeight*2.3 + (i*this->fontSize*1.15));
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Spacing();
+        ImGui::PushStyleColor(ImGuiCol_Text, VHS_GRAY);
+        ImGui::Text("%s",midiDevicesList.at(midiDeviceID).c_str());
+        ImGui::PopStyleColor(1);
+        ImGui::Spacing();
+        ImGui::Text("Channel\nControl\nValue\nPitch\nVelocity"); ImGui::SameLine();
+        ImGui::Text("%i\n%i\n%i\n%i\n%i",static_cast<int>(floor(*(float *)&_outletParams[0])),static_cast<int>(floor(*(float *)&_outletParams[1])),static_cast<int>(floor(*(float *)&_outletParams[2])),static_cast<int>(floor(*(float *)&_outletParams[3])),static_cast<int>(floor(*(float *)&_outletParams[4])));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -188,78 +193,24 @@ void MidiReceiver::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void MidiReceiver::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    if(midiDevicesList.size() > 0){
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    if(!header->getIsCollapsed()){
-        if(midiDevicesList.size() > 0){
-            this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
-        }else{
-            this->isOverGUI = header->hitTest(_m-this->getPos());
-        }
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
-
-//--------------------------------------------------------------
-void MidiReceiver::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        if(midiDevicesList.size() > 0){
-            deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void MidiReceiver::resetMIDISettings(int devID){
 
     if(devID!=midiDeviceID){
         ofLog(OF_LOG_NOTICE,"Changing MIDI Device to: %s", midiIn.getInPortName(devID).c_str());
 
         midiDeviceID = devID;
-        if(midiIn.getInPortName(devID).size() > 22){
-            midiDeviceName->setLabel(midiIn.getInPortName(devID).substr(0,21)+"...");
-        }else{
-            midiDeviceName->setLabel(midiIn.getInPortName(devID));
-        }
+
         this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
 
         midiIn.closePort();
         midiIn.openPort(midiDeviceID);
 
-    }
-
-}
-
-//--------------------------------------------------------------
-void MidiReceiver::onMatrixEvent(ofxDatGuiMatrixEvent e){
-    if(!header->getIsCollapsed()){
-        if(midiDevicesList.size() > 0){
-            if(e.target == deviceSelector){
-                resetMIDISettings(e.child);
-            }
+        if(midiIn.isOpen()){
+            ofLog(OF_LOG_NOTICE,"MIDI device %s connected!", midiIn.getInPortName(devID).c_str());
         }
+
     }
+
 }
 
 //--------------------------------------------------------------

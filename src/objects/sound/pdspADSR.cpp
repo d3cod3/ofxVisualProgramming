@@ -209,7 +209,7 @@ void pdspADSR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         ImGui::SameLine();
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "S", &sustainLevel, 0.0f, 1.0f, 100.0f)){
-            this->setCustomVar(releaseDuration,"SUSTAIN");
+            this->setCustomVar(sustainLevel,"SUSTAIN");
         }
         ImGui::SameLine();
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){

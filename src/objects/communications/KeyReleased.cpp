@@ -35,7 +35,7 @@
 #include "KeyReleased.h"
 
 //--------------------------------------------------------------
-KeyReleased::KeyReleased() : PatchObject(){
+KeyReleased::KeyReleased() : PatchObject("key released"){
 
     this->numInlets  = 0;
     this->numOutlets = 1;
@@ -45,45 +45,31 @@ KeyReleased::KeyReleased() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
+    requiredKey         = -1;
     lastKey             = -1;
     persistentKey       = -1;
+
+    loaded              = false;
 
 }
 
 //--------------------------------------------------------------
 void KeyReleased::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
-    this->setCustomVar(static_cast<float>(lastKey),"KEY");
+    this->setCustomVar(static_cast<float>(requiredKey),"KEY");
 }
 
 //--------------------------------------------------------------
 void KeyReleased::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &KeyReleased::onTextInputEvent);
-
-    inputNumber = gui->addTextInput("KEY","-1");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("KEY")));
-
-    gui->setPosition(0,this->headerHeight);
 
     ofAddListener(mainWindow->events().keyReleased,this,&KeyReleased::objectKeyReleased);
 }
 
 //--------------------------------------------------------------
 void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    inputNumber->update();
 
     if(lastKey == static_cast<int>(floor(this->getCustomVar("KEY"))) && lastKey != -1){
         lastKey = -1;
@@ -92,15 +78,55 @@ void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         *(float *)&_outletParams[0] = 0.0f;
     }
 
+    if(!loaded){
+        loaded = true;
+        requiredKey = static_cast<int>(this->getCustomVar("KEY"));
+    }
+
 }
 
 //--------------------------------------------------------------
 void KeyReleased::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw("Last Key: "+ofToString(persistentKey),this->fontSize,this->width/3,this->height/2);
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void KeyReleased::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Sends a bang when the selected key has been released. To know the key ascii code, press it and its number appears next to Last Key:",
+                        "https://mosaic.d3cod3.org/reference.php?r=key-released");
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 40)); // Padding top
+
+        if(ImGui::InputInt("KEY",&requiredKey)){
+            this->setCustomVar(static_cast<float>(requiredKey),"KEY");
+        }
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Text("Last Key: %i",persistentKey);
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -109,49 +135,11 @@ void KeyReleased::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void KeyReleased::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void KeyReleased::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void KeyReleased::objectKeyReleased(ofKeyEventArgs &e){
     lastKey         = e.key;
     persistentKey   = e.key;
 }
 
-//--------------------------------------------------------------
-void KeyReleased::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"KEY");
-        }
-
-    }
-}
 
 OBJECT_REGISTER( KeyReleased, "key released", OFXVP_OBJECT_CAT_COMMUNICATIONS)
 

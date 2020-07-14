@@ -35,7 +35,7 @@
 #include "BangMultiplexer.h"
 
 //--------------------------------------------------------------
-BangMultiplexer::BangMultiplexer() : PatchObject(){
+BangMultiplexer::BangMultiplexer() : PatchObject("bang multiplexer"){
 
     this->numInlets  = 6;
     this->numOutlets = 1;
@@ -56,51 +56,201 @@ BangMultiplexer::BangMultiplexer() : PatchObject(){
     _outletParams[0] = new float();  // output
     *(float *)&_outletParams[0] = 0.0f;
 
+    floatInlets     = 6;
+
+    needReset       = false;
+    loaded          = false;
+
     this->initInletsState();
+
+    this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 
 }
 
 //--------------------------------------------------------------
 void BangMultiplexer::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"f1");
     this->addInlet(VP_LINK_NUMERIC,"f2");
     this->addInlet(VP_LINK_NUMERIC,"f3");
     this->addInlet(VP_LINK_NUMERIC,"f4");
     this->addInlet(VP_LINK_NUMERIC,"f5");
     this->addInlet(VP_LINK_NUMERIC,"f6");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
+
+    this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
 void BangMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+
 }
 
 //--------------------------------------------------------------
 void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[i];
-            if(*(float *)&_inletParams[i] != 0){
+            if(*(float *)&_inletParams[i] > 0.0){
+                *(float *)&_outletParams[0] = 1.0f;
                 break;
+            }else{
+                *(float *)&_outletParams[0] = 0;
             }
         }
+    }
+
+    if(needReset){
+        needReset = false;
+        resetInletsSettings();
+    }
+
+    if(!loaded){
+        loaded  = true;
+        initInlets();
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
     }
 }
 
 //--------------------------------------------------------------
 void BangMultiplexer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    for(int i=0;i<this->numInlets;i++){
-        font->draw(ofToString(*(float *)&_inletParams[i]),this->fontSize,this->width/2,this->headerHeight*2.3 + (i*this->fontSize*1.15));
+
+}
+
+//--------------------------------------------------------------
+void BangMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::InputInt("Inlets",&floatInlets)){
+                if(floatInlets > MAX_INLETS){
+                    floatInlets = MAX_INLETS;
+                }
+            }
+            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+            ImGui::Spacing();
+            if(ImGui::Button("APPLY",ImVec2(224,20))){
+                this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
+                needReset = true;
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "receive up to 32 bangs, and process them as a shared transmission medium (multiple socket)",
+                        "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float pinDistance = (window_size.y-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/this->numInlets;
+
+        char temp[32];
+        for(int i=0;i<this->numInlets;i++){
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + 50,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + 90,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),IM_COL32(60,60,60,255),2.0f);
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + 90,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+IMGUI_EX_NODE_HEADER_HEIGHT+((window_size.y-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/2)),IM_COL32(60,60,60,255),2.0f);
+            sprintf(temp,"%.2f",*(float *)&_inletParams[i]);
+            _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(window_pos.x+20,window_pos.y - 7 + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i), IM_COL32_WHITE, temp, NULL, 0.0f);
+        }
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
 void BangMultiplexer::removeObjectContent(bool removeFileFromData){
+
+}
+
+//--------------------------------------------------------------
+void BangMultiplexer::initInlets(){
+    floatInlets = this->getCustomVar("NUM_INLETS");
+
+    this->numInlets = floatInlets;
+
+    resetInletsSettings();
+}
+
+//--------------------------------------------------------------
+void BangMultiplexer::resetInletsSettings(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
+    this->numInlets = floatInlets;
+
+    for(size_t i=0;i<floatInlets;i++){
+        _inletParams[i] = new float();
+        *(float *)&_inletParams[i] = 0.0f;
+    }
+
+    this->inletsType.clear();
+    this->inletsNames.clear();
+
+    for(size_t i=0;i<floatInlets;i++){
+        this->addInlet(VP_LINK_NUMERIC,"f"+ofToString(i+1));
+    }
+
+    this->inletsConnected.clear();
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }else{
+            this->inletsConnected.push_back(false);
+        }
+    }
+
+    ofNotifyEvent(this->resetEvent, this->nId);
+
+    this->saveConfig(false);
 
 }
 

@@ -40,6 +40,7 @@
 #include "ofxBTrack.h"
 
 #include "imgui_plot.h"
+#include "imgui_controls.h"
 
 class AudioAnalyzer : public PatchObject {
 

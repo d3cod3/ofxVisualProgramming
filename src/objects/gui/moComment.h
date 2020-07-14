@@ -59,6 +59,10 @@ public:
     string                      actualComment;
     bool                        bang;
 
+    float                       prevW, prevH;
+
+    bool                        loaded;
+
 private:
 
     OBJECT_FACTORY_PROPS

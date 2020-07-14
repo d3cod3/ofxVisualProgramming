@@ -84,6 +84,9 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
     preloadFirstFrame   = false;
 
+    this->setIsResizable(true);
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
@@ -144,17 +147,11 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 
         if(video->getWidth() != static_cast<ofTexture *>(_outletParams[0])->getWidth() || video->getHeight() != static_cast<ofTexture *>(_outletParams[0])->getHeight()){
             _outletParams[0] = new ofTexture();
-            ofTextureData texData;
-            texData.width = video->getWidth();
-            texData.height = video->getHeight();
-            texData.textureTarget = GL_TEXTURE_2D;
-            texData.bFlipTexture = true;
-            static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-            static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+            static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
             static_cast<ofTexture *>(_outletParams[0])->clear();
-
         }else{
             static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+            //*static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
         }
 
         // listen to message control (_inletParams[0])
@@ -237,6 +234,10 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 
             }
 
+            // draw node texture preview with OF
+            if(this->width > 118.0f){
+                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
+            }
         }
 
 
@@ -340,10 +341,11 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImVec2 window_size = ImGui::GetWindowSize();
             ImVec2 ph_pos = ImVec2(window_pos.x + 20, window_pos.y + 20);
 
-            float _tw = this->width*_nodeCanvas.GetCanvasScale();
-            float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
-
-            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
+            // get imgui node translated/scaled position/dimension for drawing textures in OF
+            objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+            objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+            scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
+            scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
 
             // draw position (timecode)
             ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
@@ -363,6 +365,9 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
         }
     }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".mov,.mp4,.mpg,.mpeg,.avi")){
@@ -400,14 +405,6 @@ void VideoPlayer::loadVideoFile(){
         videoName = tempFile.getFileName();
         videoPath = tempFile.getAbsolutePath();
         videoRes = ofToString(video->getWidth())+"x"+ofToString(video->getHeight());
-
-        ofTextureData texData;
-        texData.width = video->getWidth();
-        texData.height = video->getHeight();
-        texData.textureTarget = GL_TEXTURE_2D;
-        texData.bFlipTexture = true;
-        static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-        static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
 
         this->saveConfig(false);
     }

@@ -42,22 +42,34 @@ public:
 
     AudioGate();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    ofPolyline      waveform;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    bool            isOpen;
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
+
+    void            initInlets();
+    void            resetInletsSettings();
+
     int             openInlet;
     bool            changedOpenInlet;
 
+    int             dataInlets;
+    bool            needReset;
+    bool            loaded;
+
+    float           prevW, prevH;
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

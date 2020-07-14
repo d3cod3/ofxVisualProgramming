@@ -47,15 +47,18 @@ pdspKick::pdspKick() : PatchObject("kick"){
 
     this->initInletsState();
 
-    this->width *= 2;
-    this->height *= 1.7f;
 
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
     loaded                  = false;
 
-    filterFreq              = 0.1f;
+    oscFreq                 = 44.0f;
+    filterFreq              = 120.0f;
+    filterRes               = 0.168f;
+
+    this->width *= 2.0f;
+    this->height *= 2.0f;
 
 }
 
@@ -79,17 +82,23 @@ void pdspKick::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
 
-    filter_freq_ctrl >> filter.in_reso();
-    filter_freq_ctrl.set(filterFreq);
+    osc_freq_ctrl >> osc.in_pitch();
+    osc_freq_ctrl.set(pdsp::f2p(oscFreq));
+    osc_freq_ctrl.enableSmoothing(50.0f);
+
+    filter_freq_ctrl >> filter.in_pitch();
+    filter_freq_ctrl.set(pdsp::f2p(filterFreq));
     filter_freq_ctrl.enableSmoothing(50.0f);
 
-    pdsp::f2p(150) >> filter.in_pitch();
+    filter_res_ctrl >> filter.in_reso();
+    filter_res_ctrl.set(filterRes);
+    filter_res_ctrl.enableSmoothing(50.0f);
+
     pdsp::VAFilter::LowPass12 >> filter.in_mode();
 
     osc >> amp;
-    gate_ctrl.out_trig() >> ampEnv.set(0.0f,50.0f,0.0f,100.0f) >> amp.in_mod();
-    gate_ctrl.out_trig() >> modEnv.set(0.0f,0.0f,0.0f,50.0f) * pdsp::f2p(48.0f) >> osc.in_pitch();
-                                                               pdsp::f2p(48.0f) >> osc.in_pitch();
+    gate_ctrl.out_trig() >> ampEnv.set(0.0f,240.0f,0.0f,0.0f) >> amp.in_mod();
+    gate_ctrl.out_trig() >> modEnv.set(0.0f,15.0f,0.0f,0.0f) * osc_freq_ctrl.get() >> osc.in_pitch();
 
     amp >> filter >> drive >> this->pdspOut[0];
     amp >> filter >> drive >> scope >> engine.blackhole();
@@ -143,10 +152,22 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "RES", &filterFreq, 0.0f, 1.0f, 100.0f)){
-            filter_freq_ctrl.set(filterFreq);
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "FREQ", &oscFreq, 0.0f, 100.0f, 100.0f)){
+            osc_freq_ctrl.set(pdsp::f2p(oscFreq));
         }
         ImGui::SameLine();
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "F. FREQ", &filterFreq, 0.0f, 8260.0f, 2065.0f)){
+            filter_freq_ctrl.set(pdsp::f2p(filterFreq));
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "F. RES", &filterRes, 0.0f, 1.0f, 100.0f)){
+            filter_res_ctrl.set(filterRes);
+        }
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8));
+
+
 
     }
 

@@ -63,12 +63,12 @@
 #define OBJECT_WIDTH            OBJECT_STANDARD_WIDTH
 #define OBJECT_HEIGHT           OBJECT_STANDARD_HEIGHT
 #define HEADER_HEIGHT           16
-#define MAX_INLETS              24
-#define MAX_OUTLETS             24
+#define MAX_INLETS              32
+#define MAX_OUTLETS             32
 
 #define COLOR_NUMERIC_LINK      ofColor(210,210,210,255)
 #define COLOR_STRING_LINK       ofColor(200,180,255,255)
-#define COLOR_ARRAY_LINK        ofColor(120,255,120,255)
+#define COLOR_ARRAY_LINK        ofColor(120,180,120,255)
 #define COLOR_PIXELS_LINK       ofColor(0,180,140,255)
 #define COLOR_TEXTURE_LINK      ofColor(120,255,255,255)
 #define COLOR_AUDIO_LINK        ofColor(255,255,120,255)
@@ -76,7 +76,7 @@
 
 #define COLOR_NUMERIC           ofColor(210,210,210,255)
 #define COLOR_STRING            ofColor(200,180,255,255)
-#define COLOR_ARRAY             ofColor(120,255,120,255)
+#define COLOR_ARRAY             ofColor(120,180,120,255)
 #define COLOR_PIXELS            ofColor(0,180,140,255)
 #define COLOR_TEXTURE           ofColor(120,255,255,255)
 #define COLOR_AUDIO             ofColor(255,255,120,255)

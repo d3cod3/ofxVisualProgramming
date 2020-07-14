@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -32,27 +32,34 @@
 
 #ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
-#include "moComment.h"
+#include "moValuePlotter.h"
 
 //--------------------------------------------------------------
-moComment::moComment() : PatchObject("comment"){
+moValuePlotter::moValuePlotter() :
+        PatchObject("value plotter"),
 
-    this->numInlets  = 2;
+        // define default values
+        lastMinRange(0.f,"min"),
+        lastMaxRange(1.f,"max")
+
+{
+
+    this->numInlets  = 3;
     this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // bang
+    _inletParams[0] = new float();  // value
     *(float *)&_inletParams[0] = 0.0f;
-    _inletParams[1] = new string();  // comment
-    *static_cast<string *>(_inletParams[1]) = "";
 
-    _outletParams[0] = new string(); // output string
-    *static_cast<string *>(_outletParams[0]) = "";
+    *(float *)&_inletParams[1] = lastMinRange.get();
+    *(float *)&_inletParams[2] = lastMaxRange.get();
+
+    _outletParams[0] = new float(); // value
+    *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
-    bang            = false;
-
-    this->width             *= 2;
+    name = "";
+    color = ImVec4(1.0f,1.0f,1.0f,1.0f);
 
     this->setIsResizable(true);
 
@@ -60,47 +67,47 @@ moComment::moComment() : PatchObject("comment"){
     prevH                   = this->height;
 
     loaded                  = false;
+
 }
 
 //--------------------------------------------------------------
-void moComment::newObject(){
+void moValuePlotter::newObject(){
     PatchObject::setName( this->objectName );
 
-    this->addInlet(VP_LINK_NUMERIC,"bang");
-    this->addInlet(VP_LINK_STRING,"text");
-    this->addOutlet(VP_LINK_STRING,"text");
+    this->addInlet(VP_LINK_NUMERIC,"value");
+    this->addInlet(VP_LINK_NUMERIC,"min");
+
+    this->addInlet(VP_LINK_NUMERIC,"max");
+    this->addOutlet(VP_LINK_NUMERIC,"value");
+
+    this->setCustomVar(lastMinRange.get(),"MIN");
+    this->setCustomVar(lastMaxRange.get(),"MAX");
+    this->setCustomVar(1.0f,"RED");
+    this->setCustomVar(1.0f,"GREEN");
+    this->setCustomVar(1.0f,"BLUE");
+    this->setCustomVar(1.0f,"ALPHA");
 
     this->setCustomVar(static_cast<float>(prevW),"WIDTH");
     this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
-void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    actualComment = "Comment your patches and share!";
-    loadCommentSetting();
-
+void moValuePlotter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    loadVariableName();
 }
 
 //--------------------------------------------------------------
-void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moValuePlotter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-        }else{
-            bang = true;
+    if(this->inletsConnected[1] || this->inletsConnected[2]){
+        if(lastMinRange.get() != *(float *)&_inletParams[1] || lastMaxRange.get() != *(float *)&_inletParams[2]){
+            lastMinRange.get()    = *(float *)&_inletParams[1];
+            lastMaxRange.get()    = *(float *)&_inletParams[2];
         }
     }
 
-    if(this->inletsConnected[1]){
-        actualComment = "";
-        actualComment.append(*static_cast<string *>(_inletParams[1]));
-    }
-
-    if(bang){
-        *static_cast<string *>(_outletParams[0]) = actualComment;
-    }
+    // bypass value
+    *(float *)&_outletParams[0] = *(float *)&_inletParams[0];
 
 
     if(!loaded){
@@ -109,18 +116,21 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
+        lastMinRange.set(this->getCustomVar("MIN"));
+        lastMaxRange.set(this->getCustomVar("MAX"));
+        color = ImVec4(this->getCustomVar("RED"),this->getCustomVar("GREEN"),this->getCustomVar("BLUE"),this->getCustomVar("ALPHA"));
     }
 
 }
 
 //--------------------------------------------------------------
-void moComment::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moValuePlotter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }
 
 //--------------------------------------------------------------
-void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -131,10 +141,32 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            if(ImGui::InputText("Label",&name)){
+                saveVariableName();
+            }
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            if(ImGui::DragFloat("min", &lastMinRange.get())){
+                this->setCustomVar(lastMinRange.get(),"MIN");
+            }
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130);
+            if(ImGui::DragFloat("max", &lastMaxRange.get())){
+                this->setCustomVar(lastMaxRange.get(),"MAX");
+            }
+            ImGui::Spacing();
+            if(ImGui::ColorEdit4( "Color", (float*)&color )){
+                this->setCustomVar(color.x,"RED");
+                this->setCustomVar(color.y,"GREEN");
+                this->setCustomVar(color.z,"BLUE");
+                this->setCustomVar(color.w,"ALPHA");
+            }
 
             ImGuiEx::ObjectInfo(
-                        "A simple comment object.",
-                        "https://mosaic.d3cod3.org/reference.php?r=comment");
+                        "A customizable numeric value plotter.",
+                        "https://mosaic.d3cod3.org/reference.php?r=value-plotter");
 
             ImGui::EndMenu();
         }
@@ -144,11 +176,12 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
 
-        if(ImGui::InputTextMultiline("##source", &actualComment, ImVec2(ImGui::GetWindowSize().x-30, ImGui::GetWindowSize().y-24), ImGuiInputTextFlags_AllowTabInput)){
-            saveCommentSetting();
-        }
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255));
 
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize()*_nodeCanvas.GetCanvasScale(), ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())), IM_COL32_WHITE, name.c_str(), NULL, 0.0f);
 
         if(this->width != prevW){
             prevW = this->width;
@@ -165,12 +198,12 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 }
 
 //--------------------------------------------------------------
-void moComment::removeObjectContent(bool removeFileFromData){
-    
+void moValuePlotter::removeObjectContent(bool removeFileFromData){
+
 }
 
 //--------------------------------------------------------------
-void moComment::loadCommentSetting(){
+void moValuePlotter::loadVariableName(){
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -178,7 +211,7 @@ void moComment::loadCommentSetting(){
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
                 if(XML.getValue("id", -1) == this->nId){
-                    actualComment = XML.getValue("text","none");
+                    name = XML.getValue("varname","none");
                 }
                 XML.popTag();
             }
@@ -187,7 +220,7 @@ void moComment::loadCommentSetting(){
 }
 
 //--------------------------------------------------------------
-void moComment::saveCommentSetting(){
+void moValuePlotter::saveVariableName(){
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -195,7 +228,7 @@ void moComment::saveCommentSetting(){
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
                 if(XML.getValue("id", -1) == this->nId){
-                    XML.setValue("text",actualComment);
+                    XML.setValue("varname",name);
                 }
                 XML.popTag();
             }
@@ -204,6 +237,6 @@ void moComment::saveCommentSetting(){
     }
 }
 
-OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moValuePlotter, "value plotter", OFXVP_OBJECT_CAT_GUI)
 
 #endif

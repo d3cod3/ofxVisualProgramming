@@ -55,6 +55,7 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     isAudioINObject         = false;
     isAudioOUTObject        = false;
     isPDSPPatchableObject   = false;
+    isTextureObject         = false;
     isResizable             = false;
     willErase               = false;
 
@@ -131,7 +132,7 @@ void PatchObject::setupDSP(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine){
 
     if(willErase) return;
 
@@ -148,6 +149,10 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects){
     }
     updateObjectContent(patchObjects);
 
+    if(this->isPDSPPatchableObject){
+        updateAudioObjectContent(engine);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -156,18 +161,8 @@ void PatchObject::draw(ofxFontStash *font){
     if(willErase) return;
 
     // Draw the specific object content ()
-
-    // TRANSITIONING TO IMGUI COMPLETELY RESPONSIBLE FOR INTERNAL OBJECT DRAWINGS
-    // STILL NEEDED THOUGH DUE TO SOME OF BUGS IN CO-RUN AUDIO AND VIDEO ROUTINES AT THE SAME TIME, SO WE'LL NEED
-    // TO MAINTAIN BOTH updateObjectContent in the update thread and drawObjectContent in the draw thread
-    // maybe change the function name?
-
-    ofPushStyle();
-    ofPushMatrix();
-    ofTranslate(box->getPosition().x,box->getPosition().y);
     drawObjectContent(font,(shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer());
-    ofPopMatrix();
-    ofPopStyle();
+
 }
 
 //--------------------------------------------------------------
@@ -178,7 +173,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
 
-    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable() )){
+    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() )){
 
         // save node state on click
         if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)){
@@ -972,7 +967,7 @@ void PatchObject::setPatchfile(string pf) {
     }
 }
 
-//---------------------------------------------------------------------------------- MOUSE EVENTS
+//---------------------------------------------------------------------------------- MOUSE EVENTS ( TO REMOVE, NOW MANAGED BY IMGUI )
 //--------------------------------------------------------------
 void PatchObject::mouseMoved(float mx, float my){
     /*if(!willErase){
@@ -1049,9 +1044,6 @@ void PatchObject::mouseReleased(float mx, float my,map<int,shared_ptr<PatchObjec
 //--------------------------------------------------------------
 void PatchObject::keyPressed(int key,map<int,shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
-        if(isMouseOver){
-            keyPressedObjectContent(key);
-        }
         if(key == OF_KEY_BACKSPACE){
             for (int j=0;j<linksToDisconnect.size();j++){
                 disconnectLink(patchObjects,linksToDisconnect.at(j));
@@ -1059,7 +1051,6 @@ void PatchObject::keyPressed(int key,map<int,shared_ptr<PatchObject>> &patchObje
             linksToDisconnect.clear();
         }
     }
-
 }
 
 //--------------------------------------------------------------

@@ -38,7 +38,7 @@
 #include "GLFW/glfw3.h"
 
 //--------------------------------------------------------------
-OutputWindow::OutputWindow() : PatchObject(){
+OutputWindow::OutputWindow() : PatchObject("output window"){
 
     this->numInlets  = 2;
     this->numOutlets = 0;
@@ -51,7 +51,6 @@ OutputWindow::OutputWindow() : PatchObject(){
     isFullscreen                        = false;
     thposX = thposY = thdrawW = thdrawH = 0.0f;
     isNewScriptConnected                = false;
-    inletScriptType                     = 0;        // 0 -> LUA, 1 -> PYTHON, .....
 
     this->output_width      = STANDARD_TEXTURE_WIDTH;
     this->output_height     = STANDARD_TEXTURE_HEIGHT;
@@ -62,38 +61,47 @@ OutputWindow::OutputWindow() : PatchObject(){
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
 
-    finalTexture        = new ofFbo();
+    warpedTexture           = new ofFbo();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
+    useMapping              = false;
+    edgesLuminance          = 0.5f;
+    edgesGamma              = 1.0f;
+    edgesExponent           = 1.0f;
+    edgeL = edgeR = edgeT = edgeB = 0.5f;
 
     needReset           = false;
     isWarpingLoaded     = false;
 
-    lastWarpingConfig   = "";
     loadWarpingFlag     = false;
     saveWarpingFlag     = false;
-    warpingConfigLoaded = false;
 
     loaded              = false;
 
     autoRemove          = false;
+
+    this->setIsTextureObj(true);
 }
 
 //--------------------------------------------------------------
 void OutputWindow::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"projector");
     this->addInlet(VP_LINK_SPECIAL,"script");
 
+    this->setCustomVar(static_cast<float>(isFullscreen),"FULLSCREEN");
     this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
-    this->setCustomVar(static_cast<float>(0.0),"USE_MAPPING");
-    this->setCustomVar(1.0f,"EDGES_EXPONENT");
-    this->setCustomVar(0.5f,"EDGE_LEFT");
-    this->setCustomVar(0.5f,"EDGE_RIGHT");
-    this->setCustomVar(0.5f,"EDGE_TOP");
-    this->setCustomVar(0.5f,"EDGE_BOTTOM");
+    this->setCustomVar(0.0f,"OUTPUT_POSX");
+    this->setCustomVar(0.0f,"OUTPUT_POSY");
+    this->setCustomVar(static_cast<float>(useMapping),"USE_MAPPING");
+    this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
+    this->setCustomVar(edgesGamma,"EDGES_GAMMA");
+    this->setCustomVar(edgesExponent,"EDGES_EXPONENT");
+    this->setCustomVar(edgeL,"EDGE_LEFT");
+    this->setCustomVar(edgeR,"EDGE_RIGHT");
+    this->setCustomVar(edgeT,"EDGE_TOP");
+    this->setCustomVar(edgeB,"EDGE_BOTTOM");
 }
 
 //--------------------------------------------------------------
@@ -121,6 +129,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
     window->setWindowTitle("Projector"+ofToString(this->getId()));
     window->setVerticalSync(true);
+    window->setWindowPosition(this->getCustomVar("OUTPUT_POSX"),this->getCustomVar("OUTPUT_POSY"));
 
     glfwSetWindowCloseCallback(window->getGLFWWindow(),GL_FALSE);
 
@@ -135,7 +144,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofAddListener(window->events().windowResized ,this,&OutputWindow::windowResized);
 
     static_cast<ofTexture *>(_inletParams[0])->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB);
-    finalTexture->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB,4);
+    warpedTexture->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB,4);
 
     if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),this->output_width,this->output_height);
@@ -143,103 +152,16 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // setup drawing  dimensions
     asRatio = reduceToAspectRatio(this->output_width,this->output_height);
+    window_asRatio = reduceToAspectRatio(window->getWidth(),window->getHeight());
     scaleTextureToWindow(window->getWidth(),window->getHeight());
 
-    // GUI
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onToggleEvent(this, &OutputWindow::onToggleEvent);
-    gui->onButtonEvent(this, &OutputWindow::onButtonEvent);
-    gui->onTextInputEvent(this, &OutputWindow::onTextInputEvent);
-    gui->onSliderEvent(this, &OutputWindow::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    guiTexWidth = gui->addTextInput("WIDTH",ofToString(this->output_width));
-    guiTexWidth->setUseCustomMouse(true);
-    guiTexHeight = gui->addTextInput("HEIGHT",ofToString(this->output_height));
-    guiTexHeight->setUseCustomMouse(true);
-    applyButton = gui->addButton("APPLY");
-    applyButton->setUseCustomMouse(true);
-    applyButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->addBreak();
-    useMapping = gui->addToggle("WARPING",static_cast<int>(floor(this->getCustomVar("USE_MAPPING"))));
-    useMapping->setUseCustomMouse(true);
-    gui->addBreak();
-    edgesExponent = gui->addSlider("Exponent",0.8f,1.2f,this->getCustomVar("EDGES_EXPONENT"));
-    edgesExponent->setUseCustomMouse(true);
-    edgeL = gui->addSlider("Edge Left",0.0f,1.0f,this->getCustomVar("EDGE_LEFT"));
-    edgeL->setUseCustomMouse(true);
-    edgeR = gui->addSlider("Edge Right",0.0f,1.0f,this->getCustomVar("EDGE_RIGHT"));
-    edgeR->setUseCustomMouse(true);
-    edgeT = gui->addSlider("Edge Top",0.0f,1.0f,this->getCustomVar("EDGE_TOP"));
-    edgeT->setUseCustomMouse(true);
-    edgeB = gui->addSlider("Edge Bottom",0.0f,1.0f,this->getCustomVar("EDGE_BOTTOM"));
-    edgeB->setUseCustomMouse(true);
-    gui->addBreak();
-    loadWarping = gui->addButton("LOAD WARPING");
-    loadWarping->setUseCustomMouse(true);
-    loadWarping->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    saveWarping = gui->addButton("SAVE WARPING");
-    saveWarping->setUseCustomMouse(true);
-    saveWarping->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    header->update();
-    guiTexWidth->update();
-    guiTexHeight->update();
-    applyButton->update();
-    useMapping->update();
-    edgesExponent->update();
-    edgeL->update();
-    edgeR->update();
-    edgeT->update();
-    edgeB->update();
-    loadWarping->update();
-    saveWarping->update();
-
-    if(loadWarpingFlag){
-        loadWarpingFlag = false;
-        //fd.openFile("open warp config"+ofToString(this->getId()),"Select a warping config file");
-    }
-
-    if(warpingConfigLoaded){
-        warpingConfigLoaded = false;
-        ofFile file (lastWarpingConfig);
-        if (file.exists()){
-            string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "JSON") {
-                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                //filepath = file.getAbsolutePath();
-                warpController->loadSettings(filepath);
-                edgesExponent->setValue(this->getCustomVar("EDGES_EXPONENT"));
-                edgeL->setValue(this->getCustomVar("EDGE_LEFT"));
-                edgeR->setValue(this->getCustomVar("EDGE_RIGHT"));
-                edgeT->setValue(this->getCustomVar("EDGE_TOP"));
-                edgeB->setValue(this->getCustomVar("EDGE_BOTTOM"));
-            }
-        }
-    }
-
-    if(saveWarpingFlag){
-        saveWarpingFlag = false;
-        //fd.saveFile("save warp config"+ofToString(this->getId()),"Save warping settings as","warpSettings.json");
-    }
-
     if(needReset){
         needReset = false;
-        resetResolution();
+        resetOutputResolution();
         if(this->inletsConnected[0]){
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
@@ -263,7 +185,6 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                     if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
                         if(it->second->getName() == "lua script"){
-                            inletScriptType         = 0;
                             _inletParams[1] = new LiveCoding();
                         }else{
                             _inletParams[1] = nullptr;
@@ -279,14 +200,20 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(!loaded){
         loaded = true;
-        guiTexWidth->setText(ofToString(this->getCustomVar("OUTPUT_WIDTH")));
-        guiTexHeight->setText(ofToString(this->getCustomVar("OUTPUT_HEIGHT")));
-        useMapping->setChecked(static_cast<int>(floor(this->getCustomVar("USE_MAPPING"))));
-        edgesExponent->setValue(this->getCustomVar("EDGES_EXPONENT"));
-        edgeL->setValue(this->getCustomVar("EDGE_LEFT"));
-        edgeR->setValue(this->getCustomVar("EDGE_RIGHT"));
-        edgeT->setValue(this->getCustomVar("EDGE_TOP"));
-        edgeB->setValue(this->getCustomVar("EDGE_BOTTOM"));
+        temp_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
+        temp_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
+        useMapping = static_cast<int>(floor(this->getCustomVar("USE_MAPPING")));
+        edgesLuminance = this->getCustomVar("EDGES_LUMINANCE");
+        edgesGamma = this->getCustomVar("EDGES_GAMMA");
+        edgesExponent = this->getCustomVar("EDGES_EXPONENT");
+        edgeL = this->getCustomVar("EDGE_LEFT");
+        edgeR = this->getCustomVar("EDGE_RIGHT");
+        edgeT = this->getCustomVar("EDGE_TOP");
+        edgeB = this->getCustomVar("EDGE_BOTTOM");
+        if(static_cast<bool>(floor(this->getCustomVar("FULLSCREEN"))) != isFullscreen){
+            window->setWindowPosition(this->getCustomVar("OUTPUT_POSX"),this->getCustomVar("OUTPUT_POSY"));
+            toggleWindowFullscreen();
+        }
     }
 
     // auto remove
@@ -300,27 +227,159 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void OutputWindow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-            thdrawW           = this->width;
-            thdrawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            thposX            = 0;
-            thposY            = (this->height-thdrawH)/2.0f;
-        }else{ // vertical texture
-            thdrawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            thdrawH           = this->height;
-            thposX            = (this->width-thdrawW)/2.0f;
-            thposY            = 0;
-        }
-        static_cast<ofTexture *>(_inletParams[0])->draw(thposX,thposY,thdrawW,thdrawH);
-    }else{
-        ofSetColor(0);
-        ofDrawRectangle(0,0,this->width,this->height);
+    // draw node texture preview with OF
+    if(this->inletsConnected[0]){
+        drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    loadWarpingFlag = false;
+    saveWarpingFlag = false;
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::InputInt("Width",&temp_width)){
+                if(temp_width > OUTPUT_TEX_MAX_WIDTH){
+                    temp_width = this->output_width;
+                }
+            }
+            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set the output resolution WxH (limited for now at max. 4800x4800)");
+
+            if(ImGui::InputInt("Height",&temp_height)){
+                if(temp_height > OUTPUT_TEX_MAX_HEIGHT){
+                    temp_height = this->output_height;
+                }
+            }
+            ImGui::Spacing();
+            if(ImGui::Button("APPLY",ImVec2(224,20))){
+                needReset = true;
+            }
+
+            ImGui::Separator();
+
+            ImGui::Spacing();
+            if(ImGui::Checkbox("WARPING",&useMapping)){
+                this->setCustomVar(useMapping,"USE_MAPPING");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("Luminance",&edgesLuminance,0.0f,1.0f)){
+                this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setLuminance(edgesLuminance);
+                }
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("Gamma",&edgesGamma,0.5f,1.0f)){
+                this->setCustomVar(edgesGamma,"EDGES_GAMMA");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setGamma(edgesGamma);
+                }
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("Exponent",&edgesExponent,0.0f,2.0f)){
+                this->setCustomVar(edgesExponent,"EDGES_EXPONENT");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setExponent(edgesExponent);
+                }
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("Edge Left",&edgeL,0.0f,1.0f)){
+                this->setCustomVar(edgeL,"EDGE_LEFT");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                }
+            }
+            if(ImGui::SliderFloat("Edge Right",&edgeR,0.0f,1.0f)){
+                this->setCustomVar(edgeR,"EDGE_RIGHT");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                }
+            }
+            if(ImGui::SliderFloat("Edge Top",&edgeT,0.0f,1.0f)){
+                this->setCustomVar(edgeT,"EDGE_TOP");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                }
+            }
+            if(ImGui::SliderFloat("Edge Bottom",&edgeB,0.0f,1.0f)){
+                this->setCustomVar(edgeB,"EDGE_BOTTOM");
+                if(warpController->getNumWarps() > 0){
+                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                }
+            }
+
+            ImGui::Separator();
+
+            ImGui::Spacing();
+            if(ImGui::Button("LOAD WARPING",ImVec2(224,20))){
+                loadWarpingFlag = true;
+            }
+            ImGui::Spacing();
+            if(ImGui::Button("SAVE WARPING",ImVec2(224,20))){
+                saveWarpingFlag = true;
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "This object creates a output window projector. (cmd/ctrl) + F focusing the window = activate/deactivate fullscreen. With warping option active and fullscreen you can adjust the projection surface.",
+                        "https://mosaic.d3cod3.org/reference.php?r=output-window");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a warping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".json")){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            warpController->loadSettings(filepath);
+            edgesLuminance = this->getCustomVar("EDGES_LUMINANCE");
+            edgesGamma = this->getCustomVar("EDGES_GAMMA");
+            edgesExponent = this->getCustomVar("EDGES_EXPONENT");
+            edgeL = this->getCustomVar("EDGE_LEFT");
+            edgeR = this->getCustomVar("EDGE_RIGHT");
+            edgeT = this->getCustomVar("EDGE_TOP");
+            edgeB = this->getCustomVar("EDGE_BOTTOM");
+        }
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save warping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".json")){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "json"){
+            filepath += ".json";
+        }
+        warpController->saveSettings(filepath);
+    }
 }
 
 //--------------------------------------------------------------
@@ -329,76 +388,6 @@ void OutputWindow::removeObjectContent(bool removeFileFromData){
         window->setWindowShouldClose();
     }
 }
-
-//--------------------------------------------------------------
-void OutputWindow::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    useMapping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    edgesExponent->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    edgeL->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    edgeR->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    edgeT->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    edgeB->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    saveWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiTexWidth->hitTest(_m-this->getPos()) || guiTexHeight->hitTest(_m-this->getPos())
-                        || edgesExponent->hitTest(_m-this->getPos()) || edgeL->hitTest(_m-this->getPos()) || edgeR->hitTest(_m-this->getPos()) || edgeT->hitTest(_m-this->getPos()) || edgeB->hitTest(_m-this->getPos())
-                        || applyButton->hitTest(_m-this->getPos()) || useMapping->hitTest(_m-this->getPos()) || loadWarping->hitTest(_m-this->getPos()) || saveWarping->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void OutputWindow::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTexWidth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTexHeight->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        applyButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        useMapping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        edgesExponent->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        edgeL->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        edgeR->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        edgeT->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        edgeB->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        saveWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-/*void OutputWindow::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "open warp config"+ofToString(this->getId())){
-        warpingConfigLoaded = true;
-        lastWarpingConfig = response.filepath;
-    }else if(response.id == "save warp config"+ofToString(this->getId())){
-        ofFile newFile (response.filepath);
-        filepath = newFile.getAbsolutePath();
-        warpController->saveSettings(filepath);
-    }
-}*/
 
 //--------------------------------------------------------------
 glm::vec2 OutputWindow::reduceToAspectRatio(int _w, int _h){
@@ -425,61 +414,20 @@ glm::vec2 OutputWindow::reduceToAspectRatio(int _w, int _h){
 
 //--------------------------------------------------------------
 void OutputWindow::scaleTextureToWindow(int theScreenW, int theScreenH){
-    if(this->output_width >= this->output_height){   // horizontal texture
-        if(isFullscreen){
-            if(drawW >= theScreenW){
-                drawW           = theScreenW;
-                drawH           = drawW*asRatio.y / asRatio.x;
-                posX            = 0;
-                posY            = (theScreenH-drawH)/2.0f;
-            }else{
-                drawW           = (this->output_width*theScreenH)/this->output_height;
-                drawH           = theScreenH;
-                posX            = (theScreenW-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{
-            if(this->output_width >= theScreenW){
-                drawW           = theScreenW;
-                drawH           = drawW*asRatio.y / asRatio.x;
-                posX            = 0;
-                posY            = (theScreenH-drawH)/2.0f;
-            }else{
-                drawW           = (this->output_width*theScreenH)/this->output_height;
-                drawH           = theScreenH;
-                posX            = (theScreenW-drawW)/2.0f;
-                posY            = 0;
-            }
-        }
-
-
-    }else{                              // vertical texture
-        if(isFullscreen){
-            if(drawH >= theScreenH){
-                drawW           = (this->output_width*theScreenH)/this->output_height;
-                drawH           = theScreenH;
-                posX            = (theScreenW-drawW)/2.0f;
-                posY            = 0;
-            }else{
-                drawW           = theScreenW;
-                drawH           = drawW*asRatio.y / asRatio.x;
-                posX            = 0;
-                posY            = (theScreenH-drawH)/2.0f;
-            }
-        }else{
-            if(output_height >= theScreenH){
-                drawW           = (this->output_width*theScreenH)/this->output_height;
-                drawH           = theScreenH;
-                posX            = (theScreenW-drawW)/2.0f;
-                posY            = 0;
-            }else{
-                drawW           = theScreenW;
-                drawH           = drawW*asRatio.y / asRatio.x;
-                posX            = 0;
-                posY            = (theScreenH-drawH)/2.0f;
-            }
-        }
+    // wider texture than screen
+    if(asRatio.x/asRatio.y >= window_asRatio.x/window_asRatio.y){
+        thdrawW           = theScreenW;
+        thdrawH           = (this->output_height*theScreenW) / this->output_width;
+        thposX            = 0;
+        thposY            = (theScreenH-thdrawH)/2.0f;
+    // wider screen than texture
+    }else{
+        thdrawW           = (this->output_width*theScreenH) / this->output_height;
+        thdrawH           = theScreenH;
+        thposX            = (theScreenW-thdrawW)/2.0f;
+        thposY            = 0;
     }
+    //ofLog(OF_LOG_NOTICE,"Window: %ix%i, Texture; %fx%f at %f,%f",theScreenW,theScreenH,thdrawW,thdrawH,thposX,thposY);
 }
 
 //--------------------------------------------------------------
@@ -487,9 +435,11 @@ void OutputWindow::toggleWindowFullscreen(){
     isFullscreen = !isFullscreen;
     window->toggleFullscreen();
 
+    this->setCustomVar(static_cast<float>(isFullscreen),"FULLSCREEN");
+
     if(!isFullscreen){
         window->setWindowShape(window_actual_width, window_actual_height);
-        scaleTextureToWindow(window->getWidth(),window->getHeight());
+        scaleTextureToWindow(window_actual_width, window_actual_height);
     }else{
         scaleTextureToWindow(window->getScreenSize().x,window->getScreenSize().y);
         if(!isWarpingLoaded){
@@ -502,45 +452,36 @@ void OutputWindow::toggleWindowFullscreen(){
                 shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
                 warp->setSize(window->getScreenSize().x,window->getScreenSize().y);
                 warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+                warp->setLuminance(this->getCustomVar("EDGES_LUMINANCE"));
+                warp->setGamma(this->getCustomVar("EDGES_GAMMA"));
                 warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
             }
         }
     }
+
+    this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
+    this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
 }
 
 //--------------------------------------------------------------
 void OutputWindow::drawInWindow(ofEventArgs &e){
-    finalTexture->begin();
-    ofClear(0,0,0,255);
-    static_cast<ofTexture *>(_inletParams[0])->draw(0,0,this->output_width,this->output_height);
-    finalTexture->end();
-
     ofBackground(0);
 
     ofPushStyle();
     ofSetColor(255);
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-#ifdef TARGET_LINUX
-        if(isFullscreen){
-            if(useMapping->getChecked()){
-                warpController->getWarp(0)->draw(*static_cast<ofTexture *>(_inletParams[0]));
-            }else{
-                static_cast<ofTexture *>(_inletParams[0])->draw(posX, posY, drawW, drawH);
-            }
+
+        warpedTexture->begin();
+        ofClear(0,0,0,255);
+        // vertical mirror NEEDED
+        static_cast<ofTexture *>(_inletParams[0])->draw(0,this->output_height,this->output_width,-this->output_height);
+        warpedTexture->end();
+
+        if(useMapping && isFullscreen){
+            warpController->getWarp(0)->draw(warpedTexture->getTexture());
         }else{
-            static_cast<ofTexture *>(_inletParams[0])->draw(posX, posY, drawW, drawH);
+            warpedTexture->draw(thposX, thposY, thdrawW, thdrawH);
         }
-#else
-        if(isFullscreen){
-            if(useMapping->getChecked()){
-                warpController->getWarp(0)->draw(finalTexture->getTexture());
-            }else{
-                finalTexture->draw(posX, posY, drawW, drawH);
-            }
-        }else{
-            finalTexture->draw(posX, posY, drawW, drawH);
-        }
-#endif
     }else{
         ofSetColor(0);
         ofDrawRectangle(posX, posY, drawW, drawH);
@@ -559,7 +500,7 @@ void OutputWindow::loadWindowSettings(){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::resetResolution(){
+void OutputWindow::resetOutputResolution(){
 
     if(this->output_width != temp_width || this->output_height != temp_height){
         this->output_width = temp_width;
@@ -568,12 +509,11 @@ void OutputWindow::resetResolution(){
         _inletParams[0] = new ofTexture();
         static_cast<ofTexture *>(_inletParams[0])->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB);
 
-        finalTexture = new ofFbo();
-        finalTexture->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB,4);
-
-        finalTexture->begin();
+        warpedTexture           = new ofFbo();
+        warpedTexture->allocate(this->output_width,this->output_height,GL_RGBA32F_ARB,4);
+        warpedTexture->begin();
         ofClear(0,0,0,255);
-        finalTexture->end();
+        warpedTexture->end();
 
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
@@ -581,9 +521,12 @@ void OutputWindow::resetResolution(){
             this->saveConfig(false);
 
             asRatio = reduceToAspectRatio(this->output_width,this->output_height);
+
             if(!isFullscreen){
+                window_asRatio = reduceToAspectRatio(window->getWidth(),window->getHeight());
                 scaleTextureToWindow(window->getWidth(),window->getHeight());
             }else{
+                window_asRatio = reduceToAspectRatio(window->getScreenSize().x,window->getScreenSize().y);
                 scaleTextureToWindow(window->getScreenSize().x,window->getScreenSize().y);
             }
 
@@ -591,6 +534,8 @@ void OutputWindow::resetResolution(){
             shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
             warp->setSize(this->output_width,this->output_height);
             warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+            warp->setLuminance(this->getCustomVar("EDGES_LUMINANCE"));
+            warp->setGamma(this->getCustomVar("EDGES_GAMMA"));
             warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
 
             ofLog(OF_LOG_NOTICE,"%s: RESOLUTION CHANGED TO %ix%i",this->name.c_str(),this->output_width,this->output_height);
@@ -601,6 +546,22 @@ void OutputWindow::resetResolution(){
 
 //--------------------------------------------------------------
 void OutputWindow::keyPressed(ofKeyEventArgs &e){
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+        warpController->onKeyPressed(e.key);
+    }
+
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(static_cast<LiveCoding *>(_inletParams[1])->hide){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
+        }else{
+            static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void OutputWindow::keyReleased(ofKeyEventArgs &e){
     // OSX: CMD-F, WIN/LINUX: CTRL-F    (FULLSCREEN)
     if(e.hasModifier(MOD_KEY) && e.keycode == 70){
         toggleWindowFullscreen();
@@ -622,31 +583,12 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
     }
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
-        warpController->onKeyPressed(e.key);
-    }
-
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->hide){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
-            }else{
-                static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void OutputWindow::keyReleased(ofKeyEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onKeyReleased(e.key);
     }
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyReleased(e.key);
-            }
+        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyReleased(e.key);
         }
     }
 }
@@ -659,10 +601,8 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
-            }
+        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
         }
     }
 }
@@ -674,10 +614,8 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
-            }
+        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
 }
@@ -689,10 +627,8 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
-            }
+        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
 }
@@ -704,10 +640,8 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
-            }
+        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
 }
@@ -716,87 +650,25 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
 void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
-        if(inletScriptType == 0){
-            if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-                static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
-            }
+        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
+            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
         }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::windowResized(ofResizeEventArgs &e){
+    window_asRatio = reduceToAspectRatio(window->getWidth(),window->getHeight());
     scaleTextureToWindow(window->getWidth(),window->getHeight());
+
+    this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
+    this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
+
     if(this->inletsConnected[2]){
         static_cast<ofxEditor *>(_inletParams[2])->resize(window->getWidth(),window->getHeight());
     }
 }
 
-//--------------------------------------------------------------
-void OutputWindow::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == useMapping){
-            this->setCustomVar(static_cast<float>(e.checked),"USE_MAPPING");
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void OutputWindow::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == applyButton){
-            needReset = true;
-        }else if(e.target == loadWarping){
-            loadWarpingFlag = true;
-        }else if(e.target == saveWarping){
-            saveWarpingFlag = true;
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void OutputWindow::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        int tempInValue = ofToInt(e.text);
-        if(e.target == guiTexWidth){
-            if(tempInValue <= OUTPUT_TEX_MAX_WIDTH){
-                temp_width = tempInValue;
-            }else{
-                temp_width = this->output_width;
-            }
-        }else if(e.target == guiTexHeight){
-            if(tempInValue <= OUTPUT_TEX_MAX_HEIGHT){
-                temp_height = tempInValue;
-            }else{
-                temp_height = this->output_height;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void OutputWindow::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == edgesExponent){
-            this->setCustomVar(static_cast<float>(e.value),"EDGES_EXPONENT");
-        }else if(e.target == edgeL){
-            this->setCustomVar(static_cast<float>(e.value),"EDGE_LEFT");
-        }else if(e.target == edgeR){
-            this->setCustomVar(static_cast<float>(e.value),"EDGE_RIGHT");
-        }else if(e.target == edgeT){
-            this->setCustomVar(static_cast<float>(e.value),"EDGE_TOP");
-        }else if(e.target == edgeB){
-            this->setCustomVar(static_cast<float>(e.value),"EDGE_BOTTOM");
-        }
-
-        if(isFullscreen && warpController->getNumWarps() > 0){
-            warpController->getWarp(0)->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
-            warpController->getWarp(0)->setExponent(this->getCustomVar("EDGES_EXPONENT"));
-        }
-
-    }
-}
 
 OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING)
 

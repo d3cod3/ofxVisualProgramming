@@ -53,6 +53,9 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    pdsp::Function          systemBPM;
+    bool                    bpmMetro;
+
     size_t                  resetTime;
     size_t                  metroTime;
 

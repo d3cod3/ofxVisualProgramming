@@ -59,6 +59,11 @@ public:
     unique_ptr<ofImage> img;
     ofPixels            capturePix;
     float               posX, posY, drawW, drawH;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
     bool                isNewObject;
 
     imgui_addons::ImGuiFileBrowser  fileDialog;

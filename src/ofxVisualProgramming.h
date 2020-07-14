@@ -34,7 +34,6 @@
 
 #include "ofMain.h"
 
-#include "include.h"
 #include "config.h"
 
 #include "ofxInfiniteCanvas.h"
@@ -45,6 +44,9 @@
 
 #include "Kernel.h"
 #include "PatchObject.h"
+
+
+#define OFXVP_DEBUG 0
 
 
 class ofxVisualProgramming : public pdsp::Wrapper {
@@ -84,8 +86,6 @@ public:
     void            duplicateObject(int &id);
 
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
-    void            disconnectSelected(int objID, int objLink);
-    void            disconnectLink(int linkID);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);
@@ -96,9 +96,8 @@ public:
     void            newTempPatchFromFile(string patchFile);
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
+    void            reloadPatch();
     void            savePatchAs(string patchFile);
-    void            openLastPatch();
-    void            savePatchAsLast();
     void            setPatchVariable(string var, int value);
 
     void            setAudioInDevice(int ind);
@@ -184,6 +183,7 @@ public:
     int                     audioGUIOUTIndex;
     int                     audioSampleRate;
     int                     audioBufferSize;
+    int                     bpm;
     bool                    dspON;
 
     // MEMORY

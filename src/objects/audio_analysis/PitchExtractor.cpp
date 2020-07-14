@@ -35,7 +35,7 @@
 #include "PitchExtractor.h"
 
 //--------------------------------------------------------------
-PitchExtractor::PitchExtractor() : PatchObject(){
+PitchExtractor::PitchExtractor() : PatchObject("pitch extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -58,8 +58,10 @@ PitchExtractor::PitchExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void PitchExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_NUMERIC,"pitch");
 }
 
@@ -76,23 +78,10 @@ void PitchExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
         }
     }
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-
-    rPlotter = gui->addValuePlotter("",0.0f,4186.0f);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
-
-    gui->setPosition(0,this->height-rPlotter->getHeight());
-
 }
 
 //--------------------------------------------------------------
 void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    rPlotter->setValue(*(float *)&_outletParams[0]);
-
     if(this->inletsConnected[0]){
         if(!isNewConnection){
             isNewConnection = true;
@@ -125,10 +114,39 @@ void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 //--------------------------------------------------------------
 void PitchExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void PitchExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Extracts the pitch data of the audio signal as a float value (between 0.0 and 4186.0).",
+                        "https://mosaic.d3cod3.org/reference.php?r=pitch-extractor");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 4186.f,IM_COL32(255,255,120,255));
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------

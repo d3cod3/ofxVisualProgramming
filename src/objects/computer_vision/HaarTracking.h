@@ -64,9 +64,13 @@ public:
 
     float                       posX, posY, drawW, drawH;
 
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
+
     imgui_addons::ImGuiFileBrowser  fileDialog;
 
-    bool                        loadHaarConfigFlag;
+    bool                            loadHaarConfigFlag;
 
 protected:
 

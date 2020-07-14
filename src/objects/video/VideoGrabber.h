@@ -77,6 +77,12 @@ public:
     float                   posX, posY, drawW, drawH;
     bool                    isNewObject;
 
+    float                   scaledObjW, scaledObjH;
+    float                   objOriginX, objOriginY;
+    float                   canvasZoom;
+
+    bool                    loaded;
+
 
 protected:
 

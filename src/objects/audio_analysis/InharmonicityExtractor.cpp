@@ -35,7 +35,7 @@
 #include "InharmonicityExtractor.h"
 
 //--------------------------------------------------------------
-InharmonicityExtractor::InharmonicityExtractor() : PatchObject(){
+InharmonicityExtractor::InharmonicityExtractor() : PatchObject("inharmonicity extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -58,8 +58,10 @@ InharmonicityExtractor::InharmonicityExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void InharmonicityExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_NUMERIC,"inharmonicity");
 }
 
@@ -76,23 +78,10 @@ void InharmonicityExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mai
         }
     }
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-
-    rPlotter = gui->addValuePlotter("",0.0f,1.0f);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
-
-    gui->setPosition(0,this->height-rPlotter->getHeight());
-
 }
 
 //--------------------------------------------------------------
 void InharmonicityExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    rPlotter->setValue(*(float *)&_outletParams[0]);
-
     if(this->inletsConnected[0]){
         if(!isNewConnection){
             isNewConnection = true;
@@ -125,10 +114,39 @@ void InharmonicityExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>
 //--------------------------------------------------------------
 void InharmonicityExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void InharmonicityExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Extracts the inharmonicity of a sound signal. The discordance range is from 0 (pure harmonic signal) to 1 (discordant signal).",
+                        "https://mosaic.d3cod3.org/reference.php?r=inharmonicity-extractor");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255));
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------

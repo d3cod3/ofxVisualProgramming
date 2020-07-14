@@ -56,8 +56,10 @@ FftExtractor::FftExtractor() : PatchObject("fft extractor"){
 
 //--------------------------------------------------------------
 void FftExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_ARRAY,"fft");
 }
 

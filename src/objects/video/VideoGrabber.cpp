@@ -67,6 +67,11 @@ VideoGrabber::VideoGrabber() :
 
     needReset               = false;
     isOneDeviceAvailable    = false;
+
+    loaded                  = false;
+
+    this->setIsResizable(true);
+    this->setIsTextureObj(true);
 }
 
 //--------------------------------------------------------------
@@ -98,16 +103,6 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
         }
     }
-
-    if(isOneDeviceAvailable){
-
-        loadCameraSettings();
-
-        vidGrabber->setDeviceID(deviceID);
-        vidGrabber->setup(camWidth, camHeight);
-        resetCameraSettings(deviceID);
-
-    }
     
 }
 
@@ -116,6 +111,24 @@ void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(needReset && isOneDeviceAvailable){
         resetCameraSettings(deviceID);
+    }
+
+    if(!loaded){
+        loaded = true;
+        camWidth = static_cast<int>(floor(this->getCustomVar("CAM_WIDTH")));
+        camHeight = static_cast<int>(floor(this->getCustomVar("CAM_HEIGHT")));
+        deviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
+        hMirror = static_cast<bool>(floor(this->getCustomVar("MIRROR_H")));
+        vMirror = static_cast<bool>(floor(this->getCustomVar("MIRROR_V")));
+        if(isOneDeviceAvailable){
+
+            loadCameraSettings();
+
+            vidGrabber->setDeviceID(deviceID);
+            vidGrabber->setup(camWidth, camHeight);
+            resetCameraSettings(deviceID);
+
+        }
     }
 
 }
@@ -130,8 +143,16 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
             colorImage->mirror(vMirror,hMirror);
             colorImage->updateTexture();
 
-            // IMPORTANT - Needed for OF <--> imgui texture sharing
-            static_cast<ofTexture *>(_outletParams[0])->loadData(colorImage->getPixels());
+            *static_cast<ofTexture *>(_outletParams[0]) = colorImage->getTexture();
+        }
+    }
+
+    if(isOneDeviceAvailable){
+        if(vidGrabber->isInitialized() && !needReset){
+            if(this->width > 118.0f){
+                // draw node texture preview with OF
+                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
+            }
         }
     }
 
@@ -205,19 +226,17 @@ void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(isOneDeviceAvailable){
-            if(vidGrabber->isInitialized() && !needReset){
-                float _tw = this->width*_nodeCanvas.GetCanvasScale();
-                float _th = (this->height*_nodeCanvas.GetCanvasScale()) - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
-
-                ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
-            }
-        }else{
-            ImGui::Text("NO DEVICE AVAILABLE!");
-        }
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
 
 }
 
@@ -238,16 +257,8 @@ void VideoGrabber::loadCameraSettings(){
         colorImage    = new ofxCvColorImage();
         colorImage->allocate(camWidth,camHeight);
 
-
-        // IMPORTANT - Needed for OF <--> imgui texture sharing
-        ofTextureData texData;
-        texData.width = camWidth;
-        texData.height = camHeight;
-        texData.textureTarget = GL_TEXTURE_2D;
-        texData.bFlipTexture = true;
-
-        static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-        static_cast<ofTexture *>(_outletParams[0])->loadData(colorImage->getPixels());
+        _outletParams[0] = new ofTexture();
+        static_cast<ofTexture *>(_outletParams[0])->allocate(camWidth,camHeight,GL_RGB);
 
     }
 
@@ -290,13 +301,9 @@ void VideoGrabber::resetCameraSettings(int devID){
             colorImage    = new ofxCvColorImage();
             colorImage->allocate(camWidth,camHeight);
 
-            ofTextureData texData;
-            texData.width = camWidth;
-            texData.height = camHeight;
-            texData.textureTarget = GL_TEXTURE_2D;
-            texData.bFlipTexture = true;
-            static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-            static_cast<ofTexture *>(_outletParams[0])->loadData(colorImage->getPixels());
+            _outletParams[0] = new ofTexture();
+            static_cast<ofTexture *>(_outletParams[0])->allocate(camWidth,camHeight,GL_RGB);
+
         }
 
         if(vidGrabber->isInitialized()){

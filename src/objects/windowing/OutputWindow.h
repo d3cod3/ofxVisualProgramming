@@ -36,6 +36,8 @@
 
 #include "PatchObject.h"
 
+#include "ImGuiFileBrowser.h"
+
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
 #include "ofxPython.h"
 #endif
@@ -48,21 +50,24 @@ public:
 
     OutputWindow();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
 
     glm::vec2       reduceToAspectRatio(int _w, int _h);
     void            scaleTextureToWindow(int theScreenW, int theScreenH);
     void            toggleWindowFullscreen();
+
     void            drawInWindow(ofEventArgs &e);
 
     void            loadWindowSettings();
-    void            resetResolution();
+    void            resetOutputResolution();
 
     void            keyPressed(ofKeyEventArgs &e);
     void            keyReleased(ofKeyEventArgs &e);
@@ -73,51 +78,45 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
-
 
     shared_ptr<ofAppGLFWWindow>             window;
     bool                                    isFullscreen;
     bool                                    isNewScriptConnected;
-    int                                     inletScriptType;
 
     int                                     temp_width, temp_height;
     int                                     window_actual_width, window_actual_height;
     float                                   posX, posY, drawW, drawH;
     glm::vec2                               asRatio;
+    glm::vec2                               window_asRatio;
     float                                   thposX, thposY, thdrawW, thdrawH;
     bool                                    needReset;
 
     ofxWarpController                       *warpController;
-    ofFbo                                   *finalTexture;
+    ofFbo                                   *warpedTexture;
     bool                                    isWarpingLoaded;
 
-    ofxDatGui*                              gui;
-    ofxDatGuiHeader*                        header;
-    ofxDatGuiTextInput*                     guiTexWidth;
-    ofxDatGuiTextInput*                     guiTexHeight;
-    ofxDatGuiButton*                        applyButton;
-    ofxDatGuiToggle*                        useMapping;
-    ofxDatGuiSlider*                        edgesExponent;
-    ofxDatGuiSlider*                        edgeL;
-    ofxDatGuiSlider*                        edgeR;
-    ofxDatGuiSlider*                        edgeT;
-    ofxDatGuiSlider*                        edgeB;
-    ofxDatGuiButton*                        loadWarping;
-    ofxDatGuiButton*                        saveWarping;
-
-    string                                  lastWarpingConfig;
+    imgui_addons::ImGuiFileBrowser          fileDialog;
     bool                                    loadWarpingFlag;
     bool                                    saveWarpingFlag;
-    bool                                    warpingConfigLoaded;
+
+    bool                                    useMapping;
+
+    float                                   edgesLuminance;
+    float                                   edgesGamma;
+    float                                   edgesExponent;
+    float                                   edgeL, edgeR, edgeT, edgeB;
+
+    float                                   scaledObjW, scaledObjH;
+    float                                   objOriginX, objOriginY;
+    float                                   canvasZoom;
 
     bool                                    loaded;
     bool                                    autoRemove;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

@@ -231,23 +231,6 @@ inline std::string execCmd(const char* cmd){
 }
 
 //--------------------------------------------------------------
-inline bool checkFilenameError(std::string fn){
-    #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_./ ") != std::string::npos){
-        return true;
-    }else{
-        return false;
-    }
-    #else
-    if(fn.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890ñáàèéíìóòùúÀÁÈÉÌÍÒÓÙÚ@#$%()^*{}[]-=!?¿_.\/ ") != std::string::npos){
-        return true;
-    }else{
-        return false;
-    }
-    #endif
-}
-
-//--------------------------------------------------------------
 inline std::string checkFileExtension(std::string filename, std::string ext, std::string extNeeded){
     std::string fileExtension = ofToUpper(ext);
     std::string newFilename = filename;
@@ -343,4 +326,45 @@ inline std::string forceCheckMosaicDataPath(std::string filepath){
             return filepath;
         }
     }
+}
+
+//--------------------------------------------------------------
+inline void drawNodeOFTexture(ofTexture &tex, float &px, float &py, float &w, float &h, float originX, float originY, float scaledW, float scaledH, float zoom, float footerH){
+
+    if(tex.isAllocated()){
+        if(tex.getWidth()/tex.getHeight() >= scaledW/scaledH){
+            if(tex.getWidth() > tex.getHeight()){   // horizontal texture
+                w           = scaledW;
+                h           = (scaledW/tex.getWidth())*tex.getHeight();
+                px          = 0;
+                py          = (scaledH-h)/2.0f;
+            }else{ // vertical texture
+                w           = (tex.getWidth()*scaledH)/tex.getHeight();
+                h           = scaledH;
+                px          = (scaledW-w)/2.0f;
+                py          = 0;
+            }
+        }else{ // always considered vertical texture
+            w               = (tex.getWidth()*scaledH)/tex.getHeight();
+            h               = scaledH;
+            px              = (scaledW-w)/2.0f;
+            py              = 0;
+        }
+
+        if(scaledW*zoom >= 90.0f){
+            // background
+            ofSetColor(34,34,34);
+            ofDrawRectangle(originX,originY,scaledW-2,scaledH+(footerH/zoom));
+            // texture
+            ofSetColor(255);
+            tex.draw(px+originX,py+originY,w-2,h);
+        }
+    }else{
+        if(scaledW*zoom >= 90.0f){
+            // background
+            ofSetColor(34,34,34);
+            ofDrawRectangle(originX,originY,scaledW-2,scaledH+(footerH/zoom));
+        }
+    }
+
 }

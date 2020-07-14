@@ -36,21 +36,33 @@
 
 #include "PatchObject.h"
 
-class MidiScore : public PatchObject {
+enum Vector_Operator { Vec_Operator_ADD, Vec_Operator_SUBTRACT, Vec_Operator_MULTIPLY, Vec_Operator_DIVIDE, Vec_Operator_COUNT };
+
+class VectorOperator : public PatchObject {
 
 public:
 
-    MidiScore();
+    VectorOperator();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    bool            isTrigger;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+
+    vector<string>  operators_string;
+    int             _operator;
+    float           number;
+    bool            loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

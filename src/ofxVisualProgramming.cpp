@@ -76,6 +76,9 @@ ofxVisualProgramming::ofxVisualProgramming(){
     newFileCounter          = 0;
 
     audioSampleRate         = 44100;
+    audioGUIINIndex         = -1;
+    audioGUIOUTIndex        = -1;
+    bpm                     = 120;
     dspON                   = false;
 
     inited                  = false;
@@ -155,7 +158,7 @@ void ofxVisualProgramming::update(){
     // canvas init
     if(!inited){
         inited = true;
-        canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight());
+        canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
 
         // RETINA FIX
         if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
@@ -216,7 +219,7 @@ void ofxVisualProgramming::update(){
         pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
         pt[i].startTime = ofGetElapsedTimef();
         pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
-        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects);
+        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
         pt[i].endTime = ofGetElapsedTimef();
 
         // update scripts objects files map
@@ -250,10 +253,15 @@ void ofxVisualProgramming::draw(){
     // Init canvas
     nodeCanvas.SetTransform( canvas.getTranslation(), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
 
-    // tmp, visualise viewport
-    //    ofSetColor(0,255,255,126);
-    //    ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
-    //    ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 10);
+    // DEBUG
+    if(OFXVP_DEBUG){
+        ofSetColor(0,255,255,236);
+        ofNoFill();
+        ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
+        ofFill();
+        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 6);
+    }
+
 
     canvas.begin(canvasViewport);
 
@@ -275,16 +283,9 @@ void ofxVisualProgramming::draw(){
     ofxVPGui->begin();
 
     // DEBUG
-    //ImGui::ShowMetricsWindow();
-
-    // TESTING ENVELOPE EDITOR
-    /*if(ImGui::Begin("ENVELOPE EDITOR"))
-    {
-        //ImGui::EnvelopeEditor(256, 80, &_a, &_h, &_r, ImGuiEnvelopeEditorType_AHR);
-        ImGui::EnvelopeEditor(0, 80, &_a, &_h, &_r, ImGuiEnvelopeEditorType_ADSR);
+    if(OFXVP_DEBUG){
+        ImGui::ShowMetricsWindow();
     }
-    ImGui::End();*/
-
 
     // PROFILER
     if(profilerActive){
@@ -338,16 +339,6 @@ void ofxVisualProgramming::draw(){
     // Draw Bottom Bar
     ofSetColor(0,0,0,60);
     ofDrawRectangle(0,ofGetHeight() - (18*scaleFactor),ofGetWidth(),(18*scaleFactor));
-
-    // DSP flag
-    if(dspON){
-        ofSetColor(ofColor::fromHex(0xFFD00B));
-        font->draw("DSP ON",fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
-    }else{
-        ofSetColor(ofColor::fromHex(0x777777));
-        font->draw("DSP OFF",fontSize,10*scaleFactor,ofGetHeight() - (6*scaleFactor));
-    }
-
 
     ofDisableAlphaBlending();
 
@@ -464,9 +455,7 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
         return;
 
-    //if(!isHoverMenu && !isHoverLogger && !isHoverCodeEditor){
-        canvas.mouseDragged(e);
-    //}
+    canvas.mouseDragged(e);
 
 }
 
@@ -496,9 +485,7 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())// | ImGui::IsAnyWindowHovered() )
         return;
 
-    //if(!isHoverLogger && !isHoverMenu && !isHoverCodeEditor){
-        canvas.mouseScrolled(e);
-    //}
+    canvas.mouseScrolled(e);
 }
 
 //--------------------------------------------------------------
@@ -507,11 +494,9 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
     if(ImGui::IsAnyItemActive())
         return;
 
-    //if(!isHoverCodeEditor){
-        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-            patchObjects[leftToRightIndexOrder[i].second]->keyPressed(e.key,patchObjects);
-        }
-    //}
+    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        patchObjects[leftToRightIndexOrder[i].second]->keyPressed(e.key,patchObjects);
+    }
 }
 
 //--------------------------------------------------------------
@@ -951,91 +936,6 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::disconnectSelected(int objID, int objLink){
-
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-            if(it->second->outPut[j]->toObjectID == objID && it->second->outPut[j]->toInletID == objLink){
-                // remove link
-                vector<bool> tempEraseLinks;
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(it->second->outPut[s]->toObjectID == objID && it->second->outPut[s]->toInletID == objLink){
-                        tempEraseLinks.push_back(true);
-                    }else{
-                        tempEraseLinks.push_back(false);
-                    }
-                }
-
-                vector<shared_ptr<PatchLink>> tempBuffer;
-                tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
-
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(!tempEraseLinks[s]){
-                        tempBuffer.push_back(it->second->outPut[s]);
-                    }else{
-                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
-                        if(patchObjects[objID] != nullptr){
-                            patchObjects[objID]->inletsConnected[objLink] = false;
-                            if(patchObjects[objID]->getIsPDSPPatchableObject()){
-                                patchObjects[objID]->pdspIn[objLink].disconnectIn();
-                            }
-                        }
-                    }
-                }
-
-                it->second->outPut = tempBuffer;
-
-                break;
-            }
-
-        }
-
-    }
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::disconnectLink(int linkID){
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-            if(it->second->outPut[j]->id == linkID){
-                // remove link
-                vector<bool> tempEraseLinks;
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(it->second->outPut[s]->id == linkID){
-                        tempEraseLinks.push_back(true);
-                    }else{
-                        tempEraseLinks.push_back(false);
-                    }
-                }
-
-                vector<shared_ptr<PatchLink>> tempBuffer;
-                tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
-
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(!tempEraseLinks[s]){
-                        tempBuffer.push_back(it->second->outPut[s]);
-                    }else{
-                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
-                        if(patchObjects[it->second->outPut[j]->toObjectID] != nullptr){
-                            patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
-                            if(patchObjects[it->second->outPut[j]->toObjectID]->getIsPDSPPatchableObject()){
-                                patchObjects[it->second->outPut[j]->toObjectID]->pdspIn[it->second->outPut[j]->toInletID].disconnectIn();
-                            }
-                        }
-                    }
-                }
-
-                it->second->outPut = tempBuffer;
-
-                break;
-            }
-
-        }
-
-    }
-}
-
-//--------------------------------------------------------------
 void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int linkType){
     if(patchObjects[fromID]->getName() == "lua script"){
         if((patchObjects[toID]->getName() == "shader object" || patchObjects[toID]->getName() == "output window") && linkType == VP_LINK_TEXTURE){
@@ -1150,9 +1050,7 @@ void ofxVisualProgramming::openPatch(string patchFile){
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         it->second->removeObjectContent();
     }
-    /*for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        delete it->second;
-    }*/
+
     patchObjects.clear();
 
     // load new patch
@@ -1178,6 +1076,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioINDev = XML.getValue("audio_in_device",0);
             audioOUTDev = XML.getValue("audio_out_device",0);
             audioBufferSize = XML.getValue("buffer_size",0);
+            bpm = XML.getValue("bpm",0);
+            // pre 0.4.0 patches auto fix
+            if(bpm == 0){
+                bpm = 120;
+                XML.setValue("bpm",bpm);
+            }
 
             audioDevices = soundStreamIN.getDeviceList();
             audioDevicesStringIN.clear();
@@ -1189,17 +1093,13 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(audioDevices[i].inputChannels > 0){
                     audioDevicesStringIN.push_back("  "+audioDevices[i].name);
                     audioDevicesID_IN.push_back(i);
+                    //ofLog(OF_LOG_NOTICE,"INPUT Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
 
                 }
                 if(audioDevices[i].outputChannels > 0){
                     audioDevicesStringOUT.push_back("  "+audioDevices[i].name);
                     audioDevicesID_OUT.push_back(i);
-                }
-                if(audioINDev == i){
-                   audioGUIINIndex = audioDevicesID_IN.size()-1;
-                }
-                if(audioOUTDev == i){
-                   audioGUIOUTIndex = audioDevicesID_OUT.size()-1;
+                    //ofLog(OF_LOG_NOTICE,"OUTPUT Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
                 }
                 string tempSR = "";
                 for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
@@ -1210,6 +1110,31 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     }
                 }
                 ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
+            }
+
+            // check audio devices index
+            audioGUIINIndex         = -1;
+            audioGUIOUTIndex        = -1;
+
+            for(size_t i=0;i<audioDevicesID_IN.size();i++){
+                if(audioDevicesID_IN.at(i) == audioINDev){
+                    audioGUIINIndex = i;
+                    break;
+                }
+            }
+            if(audioGUIINIndex == -1){
+                audioGUIINIndex = 0;
+                audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
+            }
+            for(size_t i=0;i<audioDevicesID_OUT.size();i++){
+                if(audioDevicesID_OUT.at(i) == audioOUTDev){
+                    audioGUIOUTIndex = i;
+                    break;
+                }
+            }
+            if(audioGUIOUTIndex == -1){
+                audioGUIOUTIndex = 0;
+                audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
             }
 
             audioSampleRate = audioDevices[audioOUTDev].sampleRates[0];
@@ -1240,6 +1165,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
                 engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
                 engine->setup(audioSampleRate, audioBufferSize, 3);
+                engine->sequencer.setTempo(bpm);
 
                 ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
                 ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
@@ -1322,6 +1248,21 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::reloadPatch(){
+    bLoadingNewPatch = true;
+
+    // clear previous patch
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        it->second->removeObjectContent();
+    }
+
+    patchObjects.clear();
+
+    // load new patch
+    loadPatch(currentPatchFile);
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::savePatchAs(string patchFile){
 
     // Mosaic patch folder structure:
@@ -1367,19 +1308,6 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::openLastPatch(){
-    newTempPatchFromFile("last_patch.xml");
-}
-
-//--------------------------------------------------------------
-void ofxVisualProgramming::savePatchAsLast(){
-    string newFileName = "last_patch.xml";
-    ofFile fileToRead(currentPatchFile);
-    ofFile newPatchFile(newFileName);
-    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
-}
-
-//--------------------------------------------------------------
 void ofxVisualProgramming::setPatchVariable(string var, int value){
     ofxXmlSettings XML;
 
@@ -1408,34 +1336,11 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
         ofLog(OF_LOG_WARNING,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
         return;
     }else{
-        delete engine;
-        engine = nullptr;
-        engine = new pdsp::Engine();
-
         setPatchVariable("audio_in_device",index);
-        audioINDev = index;
-
         setPatchVariable("sample_rate_in",audioSampleRate);
         setPatchVariable("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
 
-        if(dspON){
-            engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
-            this->setChannels(audioDevices[audioINDev].inputChannels,0);
-
-            for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-                engine->audio_in(in) >> this->in(in);
-            }
-            this->out_silent() >> engine->blackhole();
-
-            ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Selected Device");
-            ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
-
-            resetSpecificSystemObjects("audio device");
-
-            engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-            engine->setup(audioSampleRate, audioBufferSize, 3);
-        }
+        reloadPatch();
     }
 
 }
@@ -1445,51 +1350,16 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 
     int index = audioDevicesID_OUT.at(ind);
 
-    setPatchVariable("audio_out_device",index);
-    audioOUTDev = index;
-
     audioSampleRate = audioDevices[audioOUTDev].sampleRates[0];
     if(audioSampleRate < 44100){
         audioSampleRate = 44100;
     }
 
-    delete engine;
-    engine = nullptr;
-    engine = new pdsp::Engine();
-
+    setPatchVariable("audio_out_device",index);
     setPatchVariable("sample_rate_out",audioSampleRate);
     setPatchVariable("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
 
-    if(dspON){
-        engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
-        this->setChannels(audioDevices[audioINDev].inputChannels,0);
-
-        for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
-            engine->audio_in(in) >> this->in(in);
-        }
-        this->out_silent() >> engine->blackhole();
-
-        ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Selected Device");
-        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
-
-        resetSpecificSystemObjects("audio device");
-
-        engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-        engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-        engine->setup(audioSampleRate, audioBufferSize, 3);
-
-        bool found = false;
-        for(int i=0;i<audioDevices[audioINDev].sampleRates.size();i++){
-            if(audioDevices[audioINDev].sampleRates[i] == audioSampleRate){
-                found = true;
-            }
-        }
-
-        if(!found){
-            ofLog(OF_LOG_NOTICE,"------------------- INCOMPATIBLE INPUT DEVICE Sample Rate: %i", audioDevices[audioINDev].sampleRates[0]);
-            ofLog(OF_LOG_NOTICE,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
-        }
-    }
+    reloadPatch();
 
 }
 
@@ -1515,6 +1385,7 @@ void ofxVisualProgramming::activateDSP(){
         engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
         engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
         engine->setup(audioSampleRate, audioBufferSize, 3);
+        engine->sequencer.setTempo(bpm);
 
         bool found = weAlreadyHaveObject("audio device");
 

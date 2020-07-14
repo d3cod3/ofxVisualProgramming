@@ -143,7 +143,7 @@ inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int data
 }
 
 //--------------------------------------------------------------
-inline void plotValue(float value, float min, float max){
+inline void plotValue(float value, float min, float max, ImU32 color=IM_COL32(255,255,255,255)){
     ImGuiEx::PlotVarConfig conf;
     conf.value = value;
     conf.frame_size = ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT));
@@ -151,7 +151,7 @@ inline void plotValue(float value, float min, float max){
     conf.scale.max = max;
     conf.buffer_size = 256;
 
-    ImGuiEx::PlotVar("", conf);
+    ImGuiEx::PlotVar("", conf,color);
 }
 
 //--------------------------------------------------------------

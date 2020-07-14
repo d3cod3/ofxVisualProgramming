@@ -39,9 +39,9 @@
 #include "ofxLua.h"
 #include "ofxEditor.h"
 #include "PathWatcher.h"
-#include "ThreadedCommand.h"
 
-#include <atomic>
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 struct LiveCoding{
     ofxLua          lua;
@@ -56,32 +56,32 @@ public:
 
     LuaScript();
 
-    void            autoloadFile(string _fp);
-    void            autosaveNewFile(string fromFile);
+    void            autoloadFile(string _fp) override;
+    void            autosaveNewFile(string fromFile) override;
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            resetResolution(int fromID, int newWidth, int newHeight);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            resetResolution(int fromID, int newWidth, int newHeight) override;
 
     void            initResolution();
 
-    void            unloadScript();
+    void            openScript(string scriptFile);
+    void            saveScript(string scriptFile);
     void            loadScript(string scriptFile);
+    void            unloadScript();
     void            clearScript();
     void            reloadScriptThreaded();
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
 
     // ofxLua error callback
-    void            errorReceived(std::string& msg);
+    void            errorReceived(std::string& msg) override;
 
     ofxEditorSyntax         liveEditorSyntax;
     ofxEditorColorScheme    liveEditorColors;
@@ -89,21 +89,12 @@ public:
     PathWatcher         watcher;
     ofFile              currentScriptFile;
     bool                scriptLoaded;
-    bool                nameLabelLoaded;
     bool                isNewObject;
     bool                isError;
     bool                setupTrigger;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     scriptName;
-    ofxDatGuiButton*    newButton;
-    ofxDatGuiButton*    loadButton;
-    ofxDatGuiButton*    editButton;
-    ofxDatGuiButton*    clearButton;
-    ofxDatGuiButton*    reloadButton;
-
     ofFbo               *fbo;
+    ofPixels            *fboPixels;
     ofImage             *kuro;
     float               posX, posY, drawW, drawH;
 
@@ -111,23 +102,28 @@ public:
     string              luaTablename;
     string              tempstring;
 
-    string              lastLuaScript;
-    string              newFileFromFilepath;
-    bool                loadLuaScriptFlag;
-    bool                saveLuaScriptFlag;
-    bool                luaScriptLoaded;
-    bool                luaScriptSaved;
-    bool                loaded;
-    size_t              loadTime;
+    imgui_addons::ImGuiFileBrowser          fileDialog;
+    string                                  lastLuaScript;
+    string                                  newFileFromFilepath;
+    bool                                    loadLuaScriptFlag;
+    bool                                    saveLuaScriptFlag;
+    bool                                    luaScriptLoaded;
+    bool                                    luaScriptSaved;
+    bool                                    loaded;
+    size_t                                  loadTime;
 
-    bool                modalInfo;
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
 
 protected:
-    ThreadedCommand         tempCommand;
+
     bool                    needToLoadScript;
-    bool                    threadLoaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

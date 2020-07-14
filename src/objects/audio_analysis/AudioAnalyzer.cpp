@@ -37,10 +37,15 @@
 //--------------------------------------------------------------
 AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
 
-    this->numInlets  = 1;
+    this->numInlets  = 3;
     this->numOutlets = 2;
 
     _inletParams[0] = new ofSoundBuffer();  // Audio stream
+
+    _inletParams[1] = new float();  // level
+    _inletParams[2] = new float();  // smooth
+    *(float *)&_inletParams[1] = 1.0f;
+    *(float *)&_inletParams[2] = 0.0f;
 
     _outletParams[0] = new vector<float>();  // Analysis Data
 
@@ -58,6 +63,9 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
     newConnection                   = false;
 
     isLoaded                        = false;
+
+    this->width     *= 1.3f;
+    this->height    *= 1.8f;
 }
 
 //--------------------------------------------------------------
@@ -65,6 +73,9 @@ void AudioAnalyzer::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_AUDIO,"signal");
+    this->addInlet(VP_LINK_NUMERIC,"level");
+    this->addInlet(VP_LINK_NUMERIC,"smooth");
+
     this->addOutlet(VP_LINK_ARRAY,"analysisData");
 
     this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
@@ -169,6 +180,16 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         isConnected     = false;
     }
 
+    // LEVEL
+    if(this->inletsConnected[1]){
+        audioInputLevel = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+    }
+
+    // SMOOTH
+    if(this->inletsConnected[2]){
+        smoothingValue = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+    }
+
     if(!isLoaded){
         isLoaded = true;
         audioInputLevel = this->getCustomVar("INPUT_LEVEL");
@@ -194,15 +215,6 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130);
-            if(ImGui::SliderFloat("LEVEL",&audioInputLevel,0.0f, 1.0f)){
-                this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
-            }
-            ImGui::PushItemWidth(130);
-            if(ImGui::SliderFloat("SMOOTHNESS",&smoothingValue,0.0f, 1.0f)){
-                this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
-            }
 
             ImGuiEx::ObjectInfo(
                         "This object is an audio analysis station which transmits a vector with all the analyzed data. Each type of audio data is available in the different extractor objects inside the same category.",
@@ -219,10 +231,25 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
 
         // draw signal RMS amplitude
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y*0.5f),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y *0.5f * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
+
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/7, IM_COL32(255,255,120,255), "level", &audioInputLevel, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/7, IM_COL32(255,255,120,255), "smooth", &smoothingValue, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

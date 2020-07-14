@@ -127,7 +127,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
         ImGui::PushItemWidth(-1);
-        if(ImGui::DragFloat("", &inputValueNew.get())){
+        if(ImGui::DragFloat("", &inputValueNew.get(),0.01f)){
             this->setCustomVar(static_cast<float>(inputValueNew.get()),"NUMBER");
         }
         ImGui::PopItemWidth();

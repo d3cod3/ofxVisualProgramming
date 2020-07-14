@@ -90,11 +90,10 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     }
 
     if(this->inletsConnected[1] || this->inletsConnected[2]){
-        if(lastMinRange != *(float *)&_inletParams[1] || lastMaxRange != *(float *)&_inletParams[2]){
-            lastMinRange    = *(float *)&_inletParams[1];
-            lastMaxRange    = *(float *)&_inletParams[2];
+        if(lastMinRange.get() != *(float *)&_inletParams[1] || lastMaxRange.get() != *(float *)&_inletParams[2]){
+            lastMinRange.get()    = *(float *)&_inletParams[1];
+            lastMaxRange.get()    = *(float *)&_inletParams[2];
         }
-
     }
 }
 

@@ -219,7 +219,7 @@ struct NodeCanvas {
 
     // Draw Child windows (aka Nodes) on the canvas.
     // position and size may change be updated after function call.
-    bool BeginNode( const char* id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize );
+    bool BeginNode( const char* id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode );
     void EndNode();
 
     // Adds an inlet and sets its position on screen so you can do more graphic stuff with it.
@@ -275,6 +275,9 @@ struct NodeCanvas {
         IM_ASSERT(nodeDrawList != nullptr);
         return nodeDrawList;
     }
+
+    // Returns selected nodes
+    std::vector<int> getSelectedNodes(){ return selected_nodes; }
 
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }

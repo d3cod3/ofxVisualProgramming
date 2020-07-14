@@ -43,15 +43,18 @@ Metronome::Metronome() :
 {
 
     this->numInlets  = 2;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     *(float *)&_inletParams[0] = timeSetting.get();
 
     _inletParams[1] = new float(); // bang
     *(float *)&_inletParams[1] = 0.0f;
 
-    _outletParams[0] = new float(); // output
+    _outletParams[0] = new float(); // bang
     *(float *)&_outletParams[0] = 0.0f;
+
+    _outletParams[1] = new float(); // system bpm bang
+    *(float *)&_outletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -60,14 +63,19 @@ Metronome::Metronome() :
 
     sync                = false;
 
+    bpmMetro            = false;
+
 }
 
 //--------------------------------------------------------------
 void Metronome::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"sync");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
+    this->addOutlet(VP_LINK_NUMERIC,"system bpm bang");
 
     this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
 }
@@ -75,6 +83,10 @@ void Metronome::newObject(){
 //--------------------------------------------------------------
 void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    systemBPM.code = [&]() noexcept {
+        // BPM metronome
+        if(systemBPM.frame()%4==0) bpmMetro = true;
+    };
 }
 
 //--------------------------------------------------------------
@@ -102,6 +114,13 @@ void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         *(float *)&_outletParams[0] = 0.0f;
     }
 
+    if(bpmMetro){
+        bpmMetro = false;
+        *(float *)&_outletParams[1] = 1.0f;
+    }else{
+        *(float *)&_outletParams[1] = 0.0f;
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -126,7 +145,9 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGui::Spacing();
             ImGui::PushItemWidth(130);
-            ImGui::DragInt("time (ms)", &timeSetting.get());
+            if(ImGui::DragInt("time (ms)", &timeSetting.get())){
+                this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
+            }
 
             ImGuiEx::ObjectInfo(
                         "Sends a bang with the time periodicity you specify in milliseconds.",

@@ -35,7 +35,7 @@
 #include "VectorGate.h"
 
 //--------------------------------------------------------------
-VectorGate::VectorGate() : PatchObject(){
+VectorGate::VectorGate() : PatchObject("vector gate"){
 
     this->numInlets  = 6;
     this->numOutlets = 1;
@@ -49,25 +49,42 @@ VectorGate::VectorGate() : PatchObject(){
     _inletParams[4] = new vector<float>();  // vector4
     _inletParams[5] = new vector<float>();  // vector5
 
-    _outletParams[0] = new vector<float>(); // output numeric
+    _outletParams[0] = new vector<float>(); // output
+
+    dataInlets      = 6;
+
+    needReset       = false;
+    loaded          = false;
+
+    openInlet   = 0;
 
     this->initInletsState();
 
-    isOpen      = false;
-    openInlet   = 0;
+    this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 
 }
 
 //--------------------------------------------------------------
 void VectorGate::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"open");
     this->addInlet(VP_LINK_ARRAY,"v1");
     this->addInlet(VP_LINK_ARRAY,"v2");
     this->addInlet(VP_LINK_ARRAY,"v3");
     this->addInlet(VP_LINK_ARRAY,"v4");
     this->addInlet(VP_LINK_ARRAY,"v5");
+
     this->addOutlet(VP_LINK_ARRAY,"output");
+
+    this->setCustomVar(static_cast<float>(openInlet),"OPEN");
+    this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -80,20 +97,28 @@ void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     static_cast<vector<float> *>(_outletParams[0])->clear();
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            isOpen = false;
-        }else{
-            isOpen = true;
+        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+    }
+
+    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
+        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[openInlet])->size());s++){
+            static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[openInlet])->at(s));
         }
     }
 
-    if(isOpen){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        if(openInlet >= 1 && openInlet <= this->numInlets && this->inletsConnected[openInlet]){
-            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[openInlet])->size());s++){
-                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[openInlet])->at(s));
-            }
-        }
+    if(needReset){
+        needReset = false;
+        resetInletsSettings();
+    }
+
+    if(!loaded){
+        loaded  = true;
+        initInlets();
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+        openInlet = this->getCustomVar("OPEN");
     }
 
 }
@@ -101,12 +126,142 @@ void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void VectorGate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void VectorGate::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::InputInt("Open",&openInlet)){
+                if(openInlet < 0){
+                    openInlet = 0;
+                }else if(openInlet > dataInlets){
+                    openInlet = dataInlets;
+                }
+                this->setCustomVar(static_cast<float>(openInlet),"OPEN");
+            }
+            if(ImGui::InputInt("Data Inlets",&dataInlets)){
+                if(dataInlets > MAX_INLETS-1){
+                    dataInlets = MAX_INLETS-1;
+                }
+            }
+            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
+            ImGui::Spacing();
+            if(ImGui::Button("APPLY",ImVec2(224,20))){
+                this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+                needReset = true;
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Receives up to 31 vectors, and transmits only the one indicated in its first inlet: open.",
+                        "https://mosaic.d3cod3.org/reference.php?r=vector-gate");
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float pinDistance = (window_size.y-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/this->numInlets;
+
+        for(int i=1;i<this->numInlets;i++){
+            if(i == openInlet){
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + 90,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),IM_COL32(120,255,120,60),2.0f);
+            }
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + 90,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+IMGUI_EX_NODE_HEADER_HEIGHT+((window_size.y-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/2)),IM_COL32(120,255,120,60),2.0f);
+        }
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
 void VectorGate::removeObjectContent(bool removeFileFromData){
+
+}
+
+//--------------------------------------------------------------
+void VectorGate::initInlets(){
+    dataInlets = this->getCustomVar("NUM_INLETS");
+
+    this->numInlets = dataInlets;
+
+    resetInletsSettings();
+}
+
+//--------------------------------------------------------------
+void VectorGate::resetInletsSettings(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
+    this->numInlets = dataInlets+1;
+
+    _inletParams[0] = new float();  // open
+    *(float *)&_inletParams[0] = 0.0f;
+
+    for(size_t i=1;i<this->numInlets;i++){
+        _inletParams[i] = new vector<float>();
+    }
+
+    this->inletsType.clear();
+    this->inletsNames.clear();
+
+    this->addInlet(VP_LINK_NUMERIC,"open");
+
+    for(size_t i=1;i<this->numInlets;i++){
+        this->addInlet(VP_LINK_ARRAY,"v"+ofToString(i));
+    }
+
+    this->inletsConnected.clear();
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }else{
+            this->inletsConnected.push_back(false);
+        }
+    }
+
+    ofNotifyEvent(this->resetEvent, this->nId);
+
+    this->saveConfig(false);
 
 }
 

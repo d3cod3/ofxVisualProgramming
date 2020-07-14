@@ -53,6 +53,14 @@ public:
 
     float           posX, posY, drawW, drawH;
 
+    float           prevW, prevH;
+
+    float           scaledObjW, scaledObjH;
+    float           objOriginX, objOriginY;
+    float           canvasZoom;
+
+    bool            loaded;
+
 private:
 
     OBJECT_FACTORY_PROPS

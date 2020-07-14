@@ -32,88 +32,85 @@
 
 #ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
-#include "BangToFloat.h"
+#include "VectorOperator.h"
 
 //--------------------------------------------------------------
-BangToFloat::BangToFloat() : PatchObject("bang to float"){
+VectorOperator::VectorOperator() : PatchObject("vector operator"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
-
-    _inletParams[1] = new float();  // number
+    _inletParams[0] = new vector<float>();  // input data
+    _inletParams[1] = new float();  // multiplier
     *(float *)&_inletParams[1] = 0.0f;
 
-    _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    _outletParams[0] = new vector<float>(); // output
 
     this->initInletsState();
 
+    _operator           = Vec_Operator_ADD;
     number              = 0.0f;
-    bang                = false;
     loaded              = false;
-
-    this->height        *= 0.5f;
-
 }
 
 //--------------------------------------------------------------
-void BangToFloat::newObject(){
+void VectorOperator::newObject(){
     PatchObject::setName( this->objectName );
 
-    this->addInlet(VP_LINK_NUMERIC,"bang");
-    this->addInlet(VP_LINK_NUMERIC,"number");
+    this->addInlet(VP_LINK_ARRAY,"data");
+    this->addInlet(VP_LINK_NUMERIC,"value");
 
-    this->addOutlet(VP_LINK_NUMERIC,"number");
+    this->addOutlet(VP_LINK_ARRAY,"result");
 
+    this->setCustomVar(_operator,"OPERATOR");
     this->setCustomVar(number,"NUMBER");
-}
-
-//--------------------------------------------------------------
-void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){    
 
 }
 
 //--------------------------------------------------------------
-void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VectorOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    operators_string.push_back("+");
+    operators_string.push_back("-");
+    operators_string.push_back("*");
+    operators_string.push_back("/");
+}
 
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-        }else{
-            bang = true;
-        }
-    }
-
-    if(this->inletsConnected[1]){
-      number = *(float *)&_inletParams[1];
-    }
-
-    if(bang && this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
-    }else if(bang && !this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = number;
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
-    }
+//--------------------------------------------------------------
+void VectorOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded = true;
+        _operator = this->getCustomVar("OPERATOR");
         number = this->getCustomVar("NUMBER");
     }
 
+    if(this->inletsConnected[1]){
+        number = *(float *)&_inletParams[1];
+    }
+
+    static_cast<vector<float> *>(_outletParams[0])->clear();
+    if(this->inletsConnected[0]){
+        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+            if(_operator == Vec_Operator_ADD){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)+number);
+            }else if(_operator == Vec_Operator_SUBTRACT){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)-number);
+            }else if(_operator == Vec_Operator_MULTIPLY){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)*number);
+            }else if(_operator == Vec_Operator_DIVIDE){
+                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)/number);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
-void BangToFloat::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VectorOperator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-
 }
 
 //--------------------------------------------------------------
-void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -126,8 +123,8 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         {
 
             ImGuiEx::ObjectInfo(
-                        "This object only sends the configured numerical value after receiving a bang",
-                        "https://mosaic.d3cod3.org/reference.php?r=bang-to-float");
+                        "Operates on all the values of a float vector, with selected operator and value",
+                        "https://mosaic.d3cod3.org/reference.php?r=vector-multiply");
 
             ImGui::EndMenu();
         }
@@ -138,7 +135,22 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 46)); // Padding top
+
+        ImGui::PushItemWidth(-50);
+        if(ImGui::BeginCombo("operator", operators_string.at(_operator).c_str() )){
+            for(int i=0; i < operators_string.size(); ++i){
+                bool is_selected = (_operator == i );
+                if (ImGui::Selectable(operators_string.at(i).c_str(), is_selected)){
+                    _operator = i;
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::Spacing();
+
         ImGui::PushItemWidth(-1);
         if(ImGui::DragFloat("", &number,0.1f)){
             this->setCustomVar(number,"NUMBER");
@@ -151,11 +163,10 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 }
 
 //--------------------------------------------------------------
-void BangToFloat::removeObjectContent(bool removeFileFromData){
+void VectorOperator::removeObjectContent(bool removeFileFromData){
 
 }
 
-
-OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( VectorOperator, "vector operator", OFXVP_OBJECT_CAT_DATA)
 
 #endif
