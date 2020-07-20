@@ -551,6 +551,8 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
                 XML.popTag();
             }
 
+            XML.popTag(); // if(XML.pushTag("object", oTag))
+
             loaded = true;
 
         }
@@ -1066,5 +1068,3 @@ void PatchObject::audioOut(ofSoundBuffer &outputBuffer){
         audioOutObject(outputBuffer);
     }
 }
-
-

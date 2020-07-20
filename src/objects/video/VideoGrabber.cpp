@@ -103,7 +103,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
         }
     }
-    
+
 }
 
 //--------------------------------------------------------------
