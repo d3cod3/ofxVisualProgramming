@@ -329,7 +329,7 @@ void ofxVisualProgramming::draw(){
     }
 
     // Close canvas
-    nodeCanvas.End();
+    if ( isCanvasVisible ) nodeCanvas.End();
 
     // We're done drawing to IMGUI
     ofxVPGui->end();

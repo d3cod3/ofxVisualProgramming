@@ -364,6 +364,7 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             float phx = ofMap( ofClamp(video->getPosition(),0.0f,1.0f), 0.0f, 1.0f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-31 );
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
         }
+        _nodeCanvas.EndNodeContent();
     }
 
     // get imgui canvas zoom
