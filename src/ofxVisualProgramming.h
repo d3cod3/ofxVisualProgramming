@@ -41,6 +41,8 @@
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
 #include "imgui_profiler.h"
+#include "FileBrowser/ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 #include "Kernel.h"
 #include "PatchObject.h"
