@@ -100,24 +100,12 @@ public:
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
-    virtual void            mouseMovedObjectContent(ofVec3f _m) {}
-    virtual void            mousePressedObjectContent(ofVec3f _m) {}
-    virtual void            mouseReleasedObjectContent(ofVec3f _m) {}
-
-    virtual void            dragGUIObject(ofVec3f _m) {}
-
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
     virtual void            audioOutObject(ofSoundBuffer &outputBuffer) {}
 
     virtual void            customReset() {}
     virtual void            resetSystemObject() {}
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
-
-    // Mouse Events
-    void                    mouseMoved(float mx, float my);
-    void                    mouseDragged(float mx, float my);
-    void                    mousePressed(float mx, float my);
-    void                    mouseReleased(float mx, float my,map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Keyboard Events
     void                    keyPressed(int key,map<int,shared_ptr<PatchObject>> &patchObjects);
@@ -188,7 +176,7 @@ public:
 
     void                    setIsTextureObj(bool it) { isTextureObject = it; }
     void                    setIsResizable(bool ir) { isResizable = ir; }
-    void                    setIsRetina(bool ir) { isRetina = ir; }
+    void                    setIsRetina(bool ir) { isRetina = ir; if(isRetina) scaleFactor = 2.0f; }
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
@@ -221,12 +209,11 @@ protected:
     int                     output_width, output_height;
 
     // Drawing vars
-    ofRectangle             *box;
-    ofRectangle             *headerBox;
     float                   x, y, width, height, headerHeight;
     int                     fontSize;
     ImVec2                  canvasTranslation;
     float                   canvasScale;
+    float                   scaleFactor;
 
     // Core vars
     string                  name;
@@ -247,7 +234,6 @@ protected:
     int                     nId;
     bool                    isSystemObject;
     bool                    bActive;
-    bool                    isMouseOver;
     bool                    isObjectSelected;
     bool                    isOverGUI;
     bool                    isRetina;

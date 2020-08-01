@@ -50,9 +50,6 @@ public:
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
     void            initOutlets();
     void            resetOutlets();
     string          getLocalIP();

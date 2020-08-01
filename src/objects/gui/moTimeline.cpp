@@ -725,7 +725,6 @@ void moTimeline::resetOutlets(){
     if(this->numOutlets > 12){
         this->height          *= 2;
     }
-    this->box->setHeight(this->height);
 
     saveOutletConfig();
 

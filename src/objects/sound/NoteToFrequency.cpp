@@ -163,35 +163,6 @@ void NoteToFrequency::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void NoteToFrequency::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNote->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = inputNote->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void NoteToFrequency::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNote->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void NoteToFrequency::onTextInputEvent(ofxDatGuiTextInputEvent e){
     if(e.target == inputNote){
         if(isInteger(e.text) && !this->inletsConnected[0]){

@@ -54,8 +54,8 @@ public:
     void            audioInObject(ofSoundBuffer &inputBuffer);
     void            audioOutObject(ofSoundBuffer &outputBuffer);
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    
+    
 
     void            onSliderEvent(ofxDatGuiSliderEvent e);
 

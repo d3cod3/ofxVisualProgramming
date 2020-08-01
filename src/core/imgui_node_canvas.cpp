@@ -414,7 +414,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min );
         //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-curTabsWidth, IMGUI_EX_NODE_HEADER_HEIGHT )  );
-        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT, IMGUI_EX_NODE_HEADER_HEIGHT )  );
+        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT, IMGUI_EX_NODE_HEADER_HEIGHT+ImGui::GetStyle().FramePadding.y )  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
 
@@ -473,10 +473,12 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
 
             // Node Menu Toggle
             ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-18, curNodeData.outerContentBox.Min.y + 1));
-            ImGui::Button("#");
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(4,2));
+            ImGui::Button("#",ImVec2(IMGUI_EX_NODE_HEADER_HEIGHT,IMGUI_EX_NODE_HEADER_HEIGHT-1));
             if(ImGui::IsItemActivated()){
                 nodeMenuIsOpen = true;
             }
+            ImGui::PopStyleVar();
 
             curNodeData.viewName = ImGuiExNodeView_Visualise;
 

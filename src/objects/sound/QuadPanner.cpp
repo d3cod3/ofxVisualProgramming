@@ -96,7 +96,6 @@ void QuadPanner::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     pad->setUseCustomMouse(true);
     pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
 
-    gui->setPosition(0,this->box->getHeight()-pad->getHeight());
 }
 
 //--------------------------------------------------------------
@@ -217,36 +216,6 @@ void QuadPanner::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scope2.getBuffer().data(), bufferSize, 1, sampleRate);
     static_cast<ofSoundBuffer *>(_outletParams[2])->copyFrom(scope3.getBuffer().data(), bufferSize, 1, sampleRate);
     static_cast<ofSoundBuffer *>(_outletParams[3])->copyFrom(scope4.getBuffer().data(), bufferSize, 1, sampleRate);
-}
-
-//--------------------------------------------------------------
-void QuadPanner::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = pad->hitTest(_m-this->getPos());
-
-}
-
-//--------------------------------------------------------------
-void QuadPanner::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
 }
 
 //--------------------------------------------------------------

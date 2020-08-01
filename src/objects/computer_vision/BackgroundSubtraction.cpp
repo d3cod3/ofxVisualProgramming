@@ -271,60 +271,6 @@ void BackgroundSubtraction::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    resetButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    bgTechLabel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    bgSubTechSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    brightnessValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    contrastValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    blurValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    adaptiveButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    erodeButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    dilateButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || bgTechLabel->hitTest(_m-this->getPos()) || resetButton->hitTest(_m-this->getPos()) || thresholdValue->hitTest(_m-this->getPos()) || bgSubTechSelector->hitTest(_m-this->getPos()) || brightnessValue->hitTest(_m-this->getPos()) || contrastValue->hitTest(_m-this->getPos()) || blurValue->hitTest(_m-this->getPos()) || adaptiveButton->hitTest(_m-this->getPos()) || erodeButton->hitTest(_m-this->getPos()) || dilateButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void BackgroundSubtraction::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        resetButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        bgTechLabel->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        bgSubTechSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        brightnessValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        contrastValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        blurValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        adaptiveButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        erodeButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        dilateButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void BackgroundSubtraction::resetTextures(int w, int h){
 
     pix         = new ofPixels();

@@ -338,51 +338,6 @@ void ShaderObject::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
-    int testingOver = 0;
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    for(size_t i=0;i<shaderSliders.size();i++){
-        shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        if(shaderSliders.at(i)->hitTest(_m-this->getPos())){
-            testingOver++;
-        }
-    }
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || testingOver>0;
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ShaderObject::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        for(size_t i=0;i<shaderSliders.size();i++){
-            shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void ShaderObject::doFragmentShader(){
 
     // Looks how many textures we need to inject from fragment shader

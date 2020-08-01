@@ -125,7 +125,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 28)); // Padding top
         ImGui::PushItemWidth(-1);
         if(ImGui::DragFloat("", &inputValueNew.get(),0.01f)){
             this->setCustomVar(static_cast<float>(inputValueNew.get()),"NUMBER");

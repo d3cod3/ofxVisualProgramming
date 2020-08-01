@@ -52,8 +52,8 @@ public:
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
     void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    
+    
 
     float           noteToFrequency(int _note);
     float           noteToHarmonicFrequency(int _note);

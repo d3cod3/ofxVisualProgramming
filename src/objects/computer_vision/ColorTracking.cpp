@@ -339,58 +339,6 @@ void ColorTracking::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void ColorTracking::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    minAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    maxAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    bgColor->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-    redValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-    greenValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-    blueValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) 
-                            || thresholdValue->hitTest(_m-this->getPos()) || minAreaRadius->hitTest(_m-this->getPos()) 
-                            || maxAreaRadius->hitTest(_m-this->getPos()) 
-                            || bgColor->hitTest(_m-this->getPos()) || redValue->hitTest(_m-this->getPos())
-                            || greenValue->hitTest(_m-this->getPos()) || blueValue->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ColorTracking::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        thresholdValue->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        minAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        maxAreaRadius->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        bgColor->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-        redValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-        greenValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-        blueValue->setCustomMousePos(static_cast<float>(_m.x - this->getPos().x),static_cast<float>(_m.y - this->getPos().y));
-    }else{
-        
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            // (outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            // (outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void ColorTracking::updateBGColor(){
     std::stringstream ss;
     ofColor temp = ofColor(redValue->getValue()*255,greenValue->getValue()*255,blueValue->getValue()*255);

@@ -47,7 +47,6 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
 
     isSystemObject          = false;
     bActive                 = false;
-    isMouseOver             = false;
     isObjectSelected        = false;
     isOverGUI               = false;
     isRetina                = false;
@@ -67,11 +66,7 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     fontSize    = 12;
 
     canvasScale         = 1;
-
-    // Dynamically allocate pointers
-    // so we'll be able to call delete on them
-    box                 = new ofRectangle();
-    headerBox           = new ofRectangle();
+    scaleFactor         = 1.0f;
 
     output_width        = 320;
     output_height       = 240;
@@ -81,12 +76,6 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
 //--------------------------------------------------------------
 PatchObject::~PatchObject(){
 
-    // free memory and point lost pointer to null
-    delete box;
-    delete headerBox;
-
-    box = nullptr;
-    headerBox = nullptr;
 }
 
 //--------------------------------------------------------------
@@ -98,9 +87,6 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
         headerHeight    *= 2;
         fontSize         = 16;
     }
-
-    box->set(x,y,width,height);
-    headerBox->set(x,y,width,headerHeight);
 
     this->width       = std::max((ImGui::CalcTextSize(this->name.c_str()).x+IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH+16)*1.f,this->width*1.f);
 
@@ -300,9 +286,6 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     if( imSize.y != this->height )
         this->height = imSize.y;
 
-    box->setPosition(this->x,this->y);
-    headerBox->setPosition(this->x,this->y);
-
     canvasTranslation   = _nodeCanvas.GetCanvasTranslation();
     canvasScale         = _nodeCanvas.GetCanvasScale();
 
@@ -319,9 +302,6 @@ void PatchObject::move(int _x, int _y){
 
     this->x = px;
     this->y = py;
-
-    box->setPosition(px,py);
-    headerBox->setPosition(px,py);
 }
 
 //--------------------------------------------------------------
@@ -968,80 +948,6 @@ void PatchObject::setPatchfile(string pf) {
 
         saveConfig(false);
     }
-}
-
-//---------------------------------------------------------------------------------- MOUSE EVENTS ( TO REMOVE, NOW MANAGED BY IMGUI )
-//--------------------------------------------------------------
-void PatchObject::mouseMoved(float mx, float my){
-    /*if(!willErase){
-        ofVec3f m = ofVec3f(mx, my,0);
-        mouseMovedObjectContent(m);
-        if(!isGUIObject){
-            if(isOver(m) && bActive){
-                isMouseOver = true;
-            }else{
-                isMouseOver = false;
-            }
-        }else{
-            if((isOver(m) || isOverGUI) && bActive){
-                isMouseOver = true;
-            }else{
-                isMouseOver = false;
-            }
-        }
-
-    }*/
-}
-
-//--------------------------------------------------------------
-void PatchObject::mouseDragged(float mx, float my){
-    /*if(!willErase){
-        ofVec3f m = ofVec3f(mx,my,0);
-        if (isMouseOver && !isGUIObject){
-
-
-            box->setFromCenter(m.x, m.y,box->getWidth(),box->getHeight());
-            headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-            x = box->getPosition().x;
-            y = box->getPosition().y;
-
-        }else if(isMouseOver && isGUIObject){
-            dragGUIObject(m);
-        }
-
-    }*/
-
-}
-
-//--------------------------------------------------------------
-void PatchObject::mousePressed(float mx, float my){
-    /*if(!willErase){
-        ofVec3f m = ofVec3f(mx, my,0);
-        if(box->inside(m)){
-            mousePressedObjectContent(m);
-        }
-    }*/
-}
-
-//--------------------------------------------------------------
-void PatchObject::mouseReleased(float mx, float my,map<int,shared_ptr<PatchObject>> &patchObjects){
-    /*if(!willErase){
-        ofVec3f m = ofVec3f(mx, my,0);
-
-        if (box->inside(m)){
-            mouseReleasedObjectContent(m);
-
-            //x = box->getPosition().x;
-            //y = box->getPosition().y;
-
-            fixCollisions(patchObjects);
-
-            saveConfig(false);
-        }
-
-    }*/
-
 }
 
 //--------------------------------------------------------------

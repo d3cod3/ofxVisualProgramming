@@ -51,8 +51,8 @@ public:
     void            drawTextureCropInsideRect(ofTexture *texture,float x, float y, float w, float h,ofRectangle &bounds);
     ofRectangle     getIntersection(ofRectangle &r1,ofRectangle &r2);
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    
+    
 
     void            on2dPadEvent(ofxDatGui2dPadEvent e);
     void            onSliderEvent(ofxDatGuiSliderEvent e);

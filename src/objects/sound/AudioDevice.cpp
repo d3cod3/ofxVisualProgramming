@@ -265,7 +265,6 @@ void AudioDevice::resetSystemObject(){
         if(this->numInlets > 12 || this->numOutlets > 12){
             this->height          *= 2;
         }
-        this->box->setHeight(this->height);
 
         // Save new object config
         for(int i=0;i<totalObjects;i++){
@@ -408,7 +407,6 @@ void AudioDevice::loadDeviceInfo(){
         if(this->numInlets > 12 || this->numOutlets > 12){
             this->height          *= 2;
         }
-        this->box->setHeight(this->height);
 
         deviceLoaded      = true;
     }
