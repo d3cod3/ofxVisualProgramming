@@ -50,9 +50,6 @@ ofxVisualProgramming::ofxVisualProgramming(){
     ofAddListener(ofEvents().keyPressed, this, &ofxVisualProgramming::keyPressed);
 
     // System
-    glVersion           = "OpenGL "+ofToString(glGetString(GL_VERSION));
-    glShadingVersion    = "Shading Language "+ofToString(glGetString(GL_SHADING_LANGUAGE_VERSION));
-
     engine                  = new pdsp::Engine();
 
     font                    = new ofxFontStash();

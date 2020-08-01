@@ -152,8 +152,6 @@ public:
 
     // SYSTEM
     shared_ptr<ofAppGLFWWindow>     mainWindow;
-    string                          glVersion;
-    string                          glShadingVersion;
     bool                            profilerActive;
     bool                            inited;
 
