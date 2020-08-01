@@ -128,7 +128,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
     window->setWindowTitle("Projector"+ofToString(this->getId()));
-    window->setVerticalSync(true);
+    window->setVerticalSync(false);
     window->setWindowPosition(this->getCustomVar("OUTPUT_POSX"),this->getCustomVar("OUTPUT_POSY"));
 
     glfwSetWindowCloseCallback(window->getGLFWWindow(),GL_FALSE);
@@ -473,8 +473,7 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
 
         warpedTexture->begin();
         ofClear(0,0,0,255);
-        // vertical mirror NEEDED
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,this->output_height,this->output_width,-this->output_height);
+        static_cast<ofTexture *>(_inletParams[0])->draw(0,0,this->output_width,this->output_height);
         warpedTexture->end();
 
         if(useMapping && isFullscreen){
