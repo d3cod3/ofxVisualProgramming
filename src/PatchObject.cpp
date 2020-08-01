@@ -285,9 +285,10 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
         // Let objects draw their own Gui
         this->drawObjectNodeGui( _nodeCanvas );
 
-        // Close Node
-        _nodeCanvas.EndNode();
     }
+
+    // Close Node
+    _nodeCanvas.EndNode();
 
     // Update pos & size
     if( imPos.x != this->x )

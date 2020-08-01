@@ -74,6 +74,11 @@ inline void drawOFTexture(ofTexture* tex, float& _tw, float& _th, float& posX, f
 }
 
 //--------------------------------------------------------------
+inline void drawOFTextureFromImGui(ofTexture* tex, float& _tw, float& _th, float& posX, float& posY, float& drawW, float& drawH , void (*drawTexture)(ofTexture*,float&,float&,float&,float&,float&,float&)){
+    drawTexture(tex,_tw,_th,posX,posY,drawW,drawH);
+}
+
+//--------------------------------------------------------------
 inline bool getFileDialog(imgui_addons::ImGuiFileBrowser& fileDialog, bool show, std::string text, imgui_addons::ImGuiFileBrowser::DialogMode mode, std::string valid_types){
     if(show) ImGui::OpenPopup(text.c_str());
 

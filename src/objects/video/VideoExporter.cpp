@@ -243,6 +243,7 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
 
 
+
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
