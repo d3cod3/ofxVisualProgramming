@@ -150,8 +150,8 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
             static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
             static_cast<ofTexture *>(_outletParams[0])->clear();
         }else{
-            static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
-            //*static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
+            //static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+            *static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
         }
 
         // listen to message control (_inletParams[0])
@@ -236,11 +236,16 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 
             // draw node texture preview with OF
             if(this->width > 118.0f){
-                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
+                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT*this->scaleFactor);
             }
         }
 
-
+    }else{
+        // background
+        if(this->width > 118.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX, objOriginY,scaledObjW-(2*this->scaleFactor),scaledObjH + ((IMGUI_EX_NODE_FOOTER_HEIGHT*this->scaleFactor)/canvasZoom) );
+        }
     }
 
     ///////////////////////////////////////////
@@ -269,8 +274,15 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
                 ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
             }
-            if(ImGui::Button(ICON_FA_FILE,ImVec2(180,26))){
+            if(ImGui::Button(ICON_FA_FILE,ImVec2(184*this->scaleFactor,26*this->scaleFactor))){
                 loadVideoFlag = true;
+            }
+            if (ImGui::IsItemHovered()){
+                ImGui::BeginTooltip();
+                ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+                ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg");
+                ImGui::PopTextWrapPos();
+                ImGui::EndTooltip();
             }
 
             ImGui::Spacing();
@@ -280,13 +292,13 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56,26))){
+            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
                 video->firstFrame();
                 video->play();
                 videoWasPlaying = true;
             }
             ImGui::SameLine();
-            if(ImGui::Button(ICON_FA_STOP,ImVec2(56,26))){
+            if(ImGui::Button(ICON_FA_STOP,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
                 video->stop();
                 videoWasPlaying = false;
             }
@@ -295,7 +307,7 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56,26))){
+            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
                 isPaused = !isPaused;
                 video->setPaused(isPaused);
                 if(!isPaused){
@@ -307,11 +319,11 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PopStyleColor(3);
 
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
+            ImGui::PushItemWidth(130*this->scaleFactor);
             if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
                 video->setSpeed(speed);
             }
-            ImGui::PushItemWidth(130);
+            ImGui::PushItemWidth(130*this->scaleFactor);
             if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
                 video->setVolume(volume);
             }
@@ -336,33 +348,35 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            ImVec2 window_pos = ImGui::GetWindowPos();
-            ImVec2 window_size = ImGui::GetWindowSize();
-            ImVec2 ph_pos = ImVec2(window_pos.x + 20, window_pos.y + 20);
 
-            // get imgui node translated/scaled position/dimension for drawing textures in OF
-            objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-            objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-            scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
-            scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 ph_pos = ImVec2(window_pos.x + (20*this->scaleFactor), window_pos.y + (20*this->scaleFactor));
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 
             // draw position (timecode)
-            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
+            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*this->scaleFactor*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*this->scaleFactor*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
 
             // draw player state
             if(video->isPlaying()){ // play
-                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
             }else if(!video->isPlaying() && video->isPaused() && video->getCurrentFrame() > 1){ // pause
-                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
-                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }else if(!video->isPlaying() && video->getCurrentFrame() <= 1){ // stop
-                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }
 
             // draw playhead
-            float phx = ofMap( ofClamp(video->getPosition(),0.0f,1.0f), 0.0f, 1.0f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-31 );
-            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
+            float phx = ofMap( ofClamp(video->getPosition(),0.0f,1.0f), 0.0f, 1.0f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 255, 255, 160), 2.0f);
         }
         _nodeCanvas.EndNodeContent();
     }
@@ -399,7 +413,7 @@ void VideoPlayer::loadVideoFile(){
     if(filepath != "none"){
         filepath = forceCheckMosaicDataPath(filepath);
         isNewObject = false;
-        video->setUseTexture(false);
+        //video->setUseTexture(false);
         video->load(filepath);
 
         ofFile tempFile(filepath);

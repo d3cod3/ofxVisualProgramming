@@ -167,19 +167,19 @@ struct NodeLayoutData {
     ImGuiExNodeMenuActionFlags menuActions;
 
     NodeLayoutData() = default;
-    NodeLayoutData(const ImVec2& _origin, const ImVec2& _size, const float _scale) :
+    NodeLayoutData(const ImVec2& _origin, const ImVec2& _size, const float _scale, const float sf) :
         outerContentBox(ImFloor(_origin), ImFloor(_origin+_size)),
         innerContentBox(
-            ImFloor(ImVec2(_origin.x,_origin.y+IMGUI_EX_NODE_HEADER_HEIGHT)),
-            ImFloor(ImVec2(outerContentBox.Max - ImVec2(0, IMGUI_EX_NODE_FOOTER_HEIGHT)))
+            ImFloor(ImVec2(_origin.x,_origin.y+(IMGUI_EX_NODE_HEADER_HEIGHT*sf))),
+            ImFloor(ImVec2(outerContentBox.Max - ImVec2(0, (IMGUI_EX_NODE_FOOTER_HEIGHT*sf))))
         ),
         leftPins(
-            ImFloor(ImVec2(outerContentBox.Min.x,outerContentBox.Min.y+IMGUI_EX_NODE_HEADER_HEIGHT)),
-            ImFloor(ImVec2(outerContentBox.Min.x,outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT)),
+            ImFloor(ImVec2(outerContentBox.Min.x,outerContentBox.Min.y+(IMGUI_EX_NODE_HEADER_HEIGHT*sf))),
+            ImFloor(ImVec2(outerContentBox.Min.x,outerContentBox.Max.y-(IMGUI_EX_NODE_FOOTER_HEIGHT*sf))),
             0),
         rightPins(
-            ImFloor(ImVec2(outerContentBox.Max.x,outerContentBox.Min.y+IMGUI_EX_NODE_HEADER_HEIGHT)),
-            ImFloor(ImVec2(outerContentBox.Max.x,outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT)),
+            ImFloor(ImVec2(outerContentBox.Max.x,outerContentBox.Min.y+(IMGUI_EX_NODE_HEADER_HEIGHT*sf))),
+            ImFloor(ImVec2(outerContentBox.Max.x,outerContentBox.Max.y-(IMGUI_EX_NODE_FOOTER_HEIGHT*sf))),
             0),
         scale(_scale),
         pinsFlags(ImGuiExNodePinsFlags_None)
@@ -246,6 +246,14 @@ struct NodeCanvas {
     void SetTransform(const ImVec2& _origin, float _scale);
     //void SetDisplayRect(const ImRect& _rect);
 
+    // Retina stuff
+    void setRetina(bool retina){
+        isRetina = retina;
+        if(retina){
+            scaleFactor = 2.0f;
+        }
+    }
+
     // Query GUI if any nodes are hovered
     bool isAnyNodeHovered() const {
         //IM_ASSERT(isDrawingCanvas == true);  // dont call while drawing !
@@ -306,6 +314,10 @@ private:
     std::vector<int> selected_links; // for delete links (one or multiple)          -- IMPLEMENTED
     std::string activePin;
     std::string activePinType;
+
+    // retina stuff
+    bool isRetina = false;
+    float scaleFactor = 1.0f;
 
 };
 

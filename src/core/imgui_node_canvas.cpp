@@ -205,7 +205,7 @@ bool ImGuiEx::NodeCanvas::Begin(const char* _id){
     ImGui::PopStyleVar();
 
     // Allow tinier windows for nodes.
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(IMGUI_EX_NODE_MIN_WIDTH, IMGUI_EX_NODE_MIN_HEIGHT) );
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(IMGUI_EX_NODE_MIN_WIDTH*scaleFactor, IMGUI_EX_NODE_MIN_HEIGHT*scaleFactor) );
 
     // Store a common canvas draw buffer.
     canvasDrawList = ImGui::GetWindowDrawList();
@@ -277,7 +277,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
 
     // Precalc some vars
     ImVec2 nodeScale = ImVec2(1,1)*canvasView.scale;
-    curNodeData = NodeLayoutData(canvasView.translation + _pos*nodeScale, _size*nodeScale, canvasView.scale );
+    curNodeData = NodeLayoutData(canvasView.translation + _pos*nodeScale, _size*nodeScale, canvasView.scale, scaleFactor );
     isDrawingNode = true; // to allow End() call
     curNodeData.menuActions = ImGuiExNodeMenuActionFlags_None; // reset menu flags
 
@@ -320,7 +320,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
 
     // Remove pins space from innerContentBox
     //if( _numLeftPins > 0 ){ // Has left pins
-        pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_NORMAL;
+        pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_NORMAL*scaleFactor;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Left;
         curNodeData.leftPins.region.Max.x += pinsWidth;
         curNodeData.innerContentBox.Min.x += pinsWidth;
@@ -330,7 +330,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         curNodeData.leftPins.curDrawPos = curNodeData.leftPins.region.Min;
     //}
     //if( _numRightPins > 0 ){ // Has right pins
-        pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_SMALL;
+        pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_SMALL*scaleFactor;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Right;
         curNodeData.rightPins.region.Min.x -= pinsWidth;
         curNodeData.innerContentBox.Max.x -= pinsWidth;
@@ -390,13 +390,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         // Draw HeaderBar BG
         nodeDrawList->AddRectFilled(
                     curNodeData.outerContentBox.Min,
-                    curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT),
+                    curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
                     ImGui::GetColorU32(ImGuiCol_Header)
                     );
 
         // Draw footer
         nodeDrawList->AddRectFilled(
-                    ImVec2(curNodeData.outerContentBox.Min.x, curNodeData.outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT),
+                    ImVec2(curNodeData.outerContentBox.Min.x, curNodeData.outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT*scaleFactor),
                     curNodeData.outerContentBox.Max,
                     ImGui::GetColorU32(ImGuiCol_Header)
                     );
@@ -405,7 +405,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         nodeDrawList->AddRect( curNodeData.outerContentBox.Min+ImVec2(1,1), curNodeData.outerContentBox.Max-ImVec2(1,1), ImGui::GetColorU32(ImGuiCol_Border) );
 
         // Header info
-        ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min+ImVec2(5, (IMGUI_EX_NODE_HEADER_HEIGHT-ImGui::CalcTextSize("").y)*.5f) );//canvasView.translation+pos+ImVec2(5,4));
+        ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min+ImVec2(5, ((IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor)-ImGui::CalcTextSize("").y)*.5f) );//canvasView.translation+pos+ImVec2(5,4));
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,255,255,255));
         ImGui::Text("%s", name.c_str()); // title
         ImGui::PopStyleColor();
@@ -414,7 +414,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min );
         //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-curTabsWidth, IMGUI_EX_NODE_HEADER_HEIGHT )  );
-        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT, IMGUI_EX_NODE_HEADER_HEIGHT+ImGui::GetStyle().FramePadding.y )  );
+        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor )  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
 
@@ -472,9 +472,9 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
             // NO TABS DESIGN -- TESTING
 
             // Node Menu Toggle
-            ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-18, curNodeData.outerContentBox.Min.y + 1));
+            ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-(18*scaleFactor), curNodeData.outerContentBox.Min.y + 1));
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(4,2));
-            ImGui::Button("#",ImVec2(IMGUI_EX_NODE_HEADER_HEIGHT,IMGUI_EX_NODE_HEADER_HEIGHT-1));
+            ImGui::Button("#",ImVec2(IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor,(IMGUI_EX_NODE_HEADER_HEIGHT-1)*scaleFactor));
             if(ImGui::IsItemActivated()){
                 nodeMenuIsOpen = true;
             }
@@ -486,8 +486,8 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
 
         // Draw footer resize handle
         if(canResize){
-            ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE )  );
-            ImGui::InvisibleButton( "footerGripBtn", ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE )  );
+            ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor )  );
+            ImGui::InvisibleButton( "footerGripBtn", ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor )  );
             static bool isDraggingFooter = false;
             if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
                 if(!isDraggingFooter){
@@ -496,7 +496,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
                 // Constrained size
                 _size = ImMax(
                             (ImGui::GetMousePos()-curNodeData.outerContentBox.Min)*(1.f/canvasView.scale),
-                            ImVec2(IMGUI_EX_NODE_MIN_WIDTH,IMGUI_EX_NODE_MIN_HEIGHT)
+                            ImVec2(IMGUI_EX_NODE_MIN_WIDTH*scaleFactor,IMGUI_EX_NODE_MIN_HEIGHT*scaleFactor)
                             );
             }
             else if(ImGui::IsItemDeactivated()){
@@ -504,9 +504,9 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
             }
 
             nodeDrawList->AddTriangleFilled(
-                        curNodeData.outerContentBox.Max-ImVec2( 0, IMGUI_EX_NODE_FOOTER_HEIGHT*2 ),
+                        curNodeData.outerContentBox.Max-ImVec2( 0, IMGUI_EX_NODE_FOOTER_HEIGHT*2*scaleFactor ),
                         curNodeData.outerContentBox.Max,
-                        curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HEIGHT*2, 0 ),
+                        curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HEIGHT*2*scaleFactor, 0 ),
                         //ImGui::GetColorU32(ImGuiCol_ResizeGrip)
                         ImGui::GetColorU32(ImGui::IsItemActive()?ImGuiCol_ResizeGripActive:ImGui::IsItemHovered()?ImGuiCol_ResizeGripHovered:ImGuiCol_ResizeGrip )
                         );
@@ -731,13 +731,13 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     // add connecting link
                     auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                     connectingColor.w = 0.4f;
-                    const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+                    const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
                     canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                     // add link info
                     std::string _temp = _type+" "+_gui_label;
-                    ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
+                    ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
+                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
                     canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
                 }
                 else if(_pinFlag==ImGuiExNodePinsFlags_Left && _connected && !_linksData.empty()){ // change previously created links ( only from inlets )
@@ -761,7 +761,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     // add link info
                     std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
                     ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
+                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
                     canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
 
                 }
@@ -824,21 +824,21 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
     // Set position of pin so user can draw it.
     //float pinSpace = (ImGui::IsItemHovered()) ? IMGUI_EX_NODE_PIN_WIDTH_HOVERED : IMGUI_EX_NODE_PIN_WIDTH;
-    float pinSpace = IMGUI_EX_NODE_PIN_WIDTH;
+    float pinSpace = IMGUI_EX_NODE_PIN_WIDTH*scaleFactor;
 
     // Draw pin
 
     // Left side (INLETS)
     if( _pinFlag==ImGuiExNodePinsFlags_Left ){
-        _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,0);
+        _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,0);
 
         nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
 
         if(ImGui::GetMousePos().x > _pinPosition.x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < _pinPosition.x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > _pinPosition.y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < _pinPosition.y+(pinLayout.pinSpace.y*.5f)){
             if(activePinType == _type || activePinType == ""){
                 nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
-                ImVec2 tempPos = _pinPosition - ImVec2(pinSpace * .5f + IMGUI_EX_NODE_PIN_WIDTH + 6,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
-                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
+                ImVec2 tempPos = _pinPosition - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
+                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
                 canvasDrawList->AddText( tempPos, _color, _label);
             }
 
@@ -852,7 +852,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
     // right side (OUTLETS)
     else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
-        _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH * -.5f, pinLayout.pinSpace.y * .5f);
+        _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
 
         nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
 
@@ -889,7 +889,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             if(connectType == 0){
                 nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
                 ImVec2 tempPos = _pinPosition + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
-                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH,-IMGUI_EX_NODE_PIN_WIDTH),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH,IMGUI_EX_NODE_PIN_WIDTH),IM_COL32(40,40,40,180) );
+                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
                 canvasDrawList->AddText( tempPos, _color, _label);
             }
         }
@@ -1001,7 +1001,7 @@ void ImGuiEx::NodeCanvas::EndNodeContent(){
         // Only pop these if content is drawn
         if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
             //ImGui::PopItemWidth();
-            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding bottom
+            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor)); // Padding bottom
             ImGui::EndColumns();
             ImGui::PopClipRect(); // Inner space + nodes
         }

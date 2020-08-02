@@ -13,6 +13,8 @@
 #include <cctype>
 #include <algorithm>
 #include <cmath>
+#include <sys/types.h>
+#include <sys/stat.h>
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
 #define OSWIN
 #ifndef NOMINMAX
@@ -49,6 +51,12 @@ namespace imgui_addons
         selected_fn = "";
         selected_path = "";
 
+        input_fn_string = "";
+        newDirName = "";
+
+        isRetina = false;
+        scaleFactor = 1.0f;
+
         #ifdef OSWIN
         current_path = "./";
         #else
@@ -82,6 +90,7 @@ namespace imgui_addons
         selected_ext_idx = 0;
         selected_idx = -1;
 
+        input_fn_string = "";
         input_fn[0] = '\0';  //Hide any text in Input bar for the next time save dialog is opened.
         filter.Clear();     //Clear Filter for the next time open dialog is called.
 
@@ -357,8 +366,10 @@ namespace imgui_addons
                     is_dir = true;
 
                     // If dialog mode is SELECT then copy the selected dir name to the input text bar
-                    if(dialog_mode == DialogMode::SELECT)
+                    if(dialog_mode == DialogMode::SELECT){
                         strcpy(input_fn, filtered_dirs[i]->name.c_str());
+                        input_fn_string = filtered_dirs[i]->name;
+                    }
 
                     if(ImGui::IsMouseDoubleClicked(0))
                     {
@@ -386,6 +397,7 @@ namespace imgui_addons
 
                     // If dialog mode is OPEN/SAVE then copy the selected file name to the input text bar
                     strcpy(input_fn, filtered_files[i]->name.c_str());
+                    input_fn_string = filtered_files[i]->name;
 
                     if(ImGui::IsMouseDoubleClicked(0))
                     {
@@ -433,11 +445,11 @@ namespace imgui_addons
         input_combobox_pos = ImVec2(pw_pos + ImGui::GetCursorPos());
         input_combobox_sz = ImVec2(input_bar_width, 0);
         ImGui::PushItemWidth(input_bar_width);
-        if(ImGui::InputTextWithHint("##FileNameInput", "Type a name...", &input_fn[0], 256, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+        if(ImGui::InputTextWithHint("##FileNameInput", "Type a name...", &input_fn_string, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
         {
-            if(strlen(input_fn) > 0)
+            if(input_fn_string.size() > 0)
             {
-                selected_fn = std::string(input_fn);
+                selected_fn = input_fn_string;
                 validate_file = true;
             }
         }
@@ -456,7 +468,7 @@ namespace imgui_addons
                 inputcb_filter_files.clear();
                 for(int i = 0; i < subfiles.size(); i++)
                 {
-                    if(ImStristr(subfiles[i].name.c_str(), nullptr, input_fn, nullptr) != nullptr)
+                    if(ImStristr(subfiles[i].name.c_str(), nullptr, input_fn_string.c_str(), nullptr) != nullptr)
                         inputcb_filter_files.push_back(std::ref(subfiles[i].name));
                 }
             }
@@ -467,7 +479,7 @@ namespace imgui_addons
                 inputcb_filter_files.clear();
                 for(int i = 0; i < subdirs.size(); i++)
                 {
-                    if(ImStristr(subdirs[i].name.c_str(), nullptr, input_fn, nullptr) != nullptr)
+                    if(ImStristr(subdirs[i].name.c_str(), nullptr, input_fn_string.c_str(), nullptr) != nullptr)
                         inputcb_filter_files.push_back(std::ref(subdirs[i].name));
                 }
             }
@@ -501,13 +513,17 @@ namespace imgui_addons
         float frame_height = ImGui::GetFrameHeight();
         float frame_height_spacing = ImGui::GetFrameHeightWithSpacing();
         float opensave_btn_width = getButtonSize("Open").x;     // Since both Open/Save are 4 characters long, width gonna be same.
-        float selcan_btn_width = getButtonSize("Cancel").x;     // Since both Cacnel/Select have same number of characters, so same width.
+        float selcan_btn_width = getButtonSize("Cancel").x;     // Since both Cancel/Select have same number of characters, so same width.
+        float newFolder_width = getButtonSize("New folder").x;
         float buttons_xpos;
 
-        if (dialog_mode == DialogMode::SELECT)
-            buttons_xpos = pw_size.x - opensave_btn_width - (2.0 * selcan_btn_width) - ( 2.0 * style.ItemSpacing.x) - style.WindowPadding.x;
-        else
+        if (dialog_mode == DialogMode::SAVE){
+            buttons_xpos = pw_size.x - opensave_btn_width - selcan_btn_width - newFolder_width - ( 2.0 * style.ItemSpacing.x) - style.WindowPadding.x;
+        }else if(dialog_mode == DialogMode::OPEN){
             buttons_xpos = pw_size.x - opensave_btn_width - selcan_btn_width - style.ItemSpacing.x - style.WindowPadding.x;
+        }else if(dialog_mode == DialogMode::SELECT){
+            buttons_xpos = pw_size.x - opensave_btn_width - (2.0 * selcan_btn_width) - ( 2.0 * style.ItemSpacing.x) - style.WindowPadding.x;
+        }
 
         ImGui::SetCursorPosY(pw_size.y - frame_height_spacing - style.WindowPadding.y);
 
@@ -526,15 +542,65 @@ namespace imgui_addons
         ImGui::SetCursorPosX(buttons_xpos);
         if(dialog_mode == DialogMode::SAVE)
         {
+
+            // New folder button
+            if (ImGui::Button("New folder")){
+                newDirName = "";
+                ImGui::OpenPopup("New folder");
+            }
+
+            if(ImGui::BeginPopup("New folder")){
+
+                if(ImGui::InputText("##NewDirNameInput", &newDirName,ImGuiInputTextFlags_EnterReturnsTrue)){
+                    if(newDirName != ""){
+                        // create directory
+                        std::string sPath = current_path+newDirName;
+                        #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
+                            _mkdir(sPath.c_str());
+                        #else
+                            mode_t nMode = 0733;
+                            mkdir(sPath.c_str(),nMode);
+                        #endif
+                        // refresh dir list
+                        readDIR(current_path);
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("Ok")){
+                    if(newDirName != ""){
+                        // create directory
+                        std::string sPath = current_path+newDirName;
+                        #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
+                            _mkdir(sPath.c_str());
+                        #else
+                            mode_t nMode = 0733;
+                            mkdir(sPath.c_str(),nMode);
+                        #endif
+                        // refresh dir list
+                        readDIR(current_path);
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("Cancel")){
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+
+            }
+
+            ImGui::SameLine();
+
             // If directory selected and Input Text Bar doesn't have focus, render Open Button
             if(selected_idx != -1 && is_dir && ImGui::GetFocusID() != ImGui::GetID("##FileNameInput"))
             {
                 if (ImGui::Button("Open"))
                     show_error |= !(onDirClick(selected_idx));
             }
-            else if (ImGui::Button("Save") && strlen(input_fn) > 0)
+            else if (ImGui::Button("Save") && input_fn_string.size() > 0)
             {
-                selected_fn = std::string(input_fn);
+                selected_fn = input_fn_string;
                 validate_file = true;
             }
         }
@@ -546,9 +612,9 @@ namespace imgui_addons
                 //Also note that we don't need to access the selected file through "selected_idx" since the if a file is selected, input bar will get populated with that name.
                 if(selected_idx >= 0 && is_dir)
                     show_error |= !(onDirClick(selected_idx));
-                else if(strlen(input_fn) > 0)
+                else if(input_fn_string.size() > 0)
                 {
-                    selected_fn = std::string(input_fn);
+                    selected_fn = input_fn_string;
                     validate_file = true;
                 }
             }
@@ -560,9 +626,9 @@ namespace imgui_addons
                 ImGui::SameLine();
                 if (ImGui::Button("Select"))
                 {
-                    if(strlen(input_fn) > 0)
+                    if(input_fn_string.size() > 0)
                     {
-                        selected_fn = std::string(input_fn);
+                        selected_fn = input_fn_string;
                         validate_file = true;
                     }
                 }
@@ -624,6 +690,7 @@ namespace imgui_addons
                         else
                         {
                             strcpy(input_fn, element.get().c_str());
+                            input_fn_string = element.get();
                             show_inputbar_combobox = false;
                         }
                     }
@@ -651,13 +718,14 @@ namespace imgui_addons
                     selected_ext_idx = i;
                     if(dialog_mode == DialogMode::SAVE)
                     {
-                        std::string name(input_fn);
-                        size_t idx = name.find_last_of(".");
-                        if(idx == std::string::npos)
-                            idx = strlen(input_fn);
-                        for(int j = 0; j < valid_exts[selected_ext_idx].size(); j++)
-                            input_fn[idx++] = valid_exts[selected_ext_idx][j];
-                        input_fn[idx++] = '\0';
+                        std::string::size_type idx = input_fn_string.rfind('.', input_fn_string.length());
+
+                        if (idx != std::string::npos) {
+                            input_fn_string.replace(idx+1, valid_exts[selected_ext_idx].length(), valid_exts[selected_ext_idx]);
+                        }else{
+                            input_fn_string = input_fn_string+valid_exts[selected_ext_idx];
+                        }
+
                     }
                     filterFiles(FilterMode_Files);
                 }

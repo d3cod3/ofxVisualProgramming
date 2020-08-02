@@ -86,9 +86,11 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
         height          *= 2;
         headerHeight    *= 2;
         fontSize         = 16;
-    }
 
-    this->width       = std::max((ImGui::CalcTextSize(this->name.c_str()).x+IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH+16)*1.f,this->width*1.f);
+        this->width       = std::max(ImGui::CalcTextSize(this->name.c_str()).x*1.f,this->width*1.f);
+    }else{
+        this->width       = std::max((ImGui::CalcTextSize(this->name.c_str()).x+IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH+16)*1.f,this->width*1.f);
+    }
 
     setupObjectContent(mainWindow);
 

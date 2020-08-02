@@ -101,6 +101,9 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
         fontSize    = 26;
     }
 
+    nodeCanvas.setRetina(isRetina);
+    profiler.setIsRetina(isRetina);
+
     // Initialise GUI
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();

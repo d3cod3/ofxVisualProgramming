@@ -30,8 +30,10 @@ struct ProfilerTask
 class ProfilerGraph {
 
 public:
-    int frameWidth;
-    int frameSpacing;
+    int     frameWidth;
+    int     frameSpacing;
+    bool    isRetina;
+    float   scalefactor;
 
     uint32_t* colors;
 
@@ -42,6 +44,9 @@ public:
             frame.tasks.reserve(100);
         frameWidth = 3;
         frameSpacing = 1;
+
+        isRetina = false;
+        scalefactor = 1.0f;
 
         colors = new uint32_t[17];
 
@@ -63,6 +68,8 @@ public:
         colors[15] = RGBA_LE(0x16a085ffu);
         colors[16] = RGBA_LE(0xF2F5FAFFu);
     }
+
+    void setIsRetina(bool ir) { isRetina = ir; if(ir) scalefactor = 2.0f; }
 
     void LoadFrameData(const ProfilerTask* tasks, size_t count)
     {
@@ -185,15 +192,15 @@ private:
 
     void RenderLegend(ImDrawList *drawList, glm::vec2 legendPos, glm::vec2 legendSize, size_t frameIndexOffset)
     {
-        float markerLeftRectMargin = 3.0f;
-        float markerLeftRectWidth = 5.0f;
-        float markerMidWidth = 30.0f;
-        float markerRightRectWidth = 10.0f;
-        float markerRigthRectMargin = 3.0f;
-        float markerRightRectHeight = 10.0f;
-        float markerRightRectSpacing = 4.0f;
-        float nameOffset = 30.0f;
-        glm::vec2 textMargin = glm::vec2(5.0f, -3.0f);
+        float markerLeftRectMargin = 3.0*scalefactor;
+        float markerLeftRectWidth = 5.0f*scalefactor;
+        float markerMidWidth = 30.0f*scalefactor;
+        float markerRightRectWidth = 10.0f*scalefactor;
+        float markerRigthRectMargin = 3.0f*scalefactor;
+        float markerRightRectHeight = 10.0f*scalefactor;
+        float markerRightRectSpacing = 4.0f*scalefactor;
+        float nameOffset = 30.0f*scalefactor;
+        glm::vec2 textMargin = glm::vec2(5.0f*scalefactor, -3.0f*scalefactor);
 
         auto &currFrame = frames[(currFrameIndex - frameIndexOffset - 1 + 2 * frames.size()) % frames.size()];
         size_t maxTasksCount = size_t(legendSize.y / (markerRightRectHeight + markerRightRectSpacing));
@@ -316,7 +323,12 @@ public:
         prevFpsFrameTime = std::chrono::system_clock::now();
         fpsFramesCount = 0;
         avgFrameTime = 1.0f;
+        isRetina = false;
+        scaleFactor = 1.0f;
     }
+
+    void setIsRetina(bool ir) { isRetina = ir; if(ir) scaleFactor = 2.0f; cpuGraph.setIsRetina(ir); gpuGraph.setIsRetina(ir); }
+
     void Render()
     {
         fpsFramesCount++;
@@ -331,7 +343,8 @@ public:
             }
         }
 
-        ImGui::SetNextWindowBgAlpha(0.3f);
+        ImGui::SetNextWindowBgAlpha(0.6f);
+        ImGui::SetNextWindowSize(ImVec2(640*scaleFactor,640*scaleFactor), ImGuiCond_Appearing );
 
         std::stringstream title;
         title.precision(2);
@@ -341,10 +354,10 @@ public:
         ImVec2 canvasSize = ImGui::GetContentRegionAvail();
 
         int sizeMargin = int(ImGui::GetStyle().ItemSpacing.y);
-        int maxGraphHeight = 300;
+        int maxGraphHeight = 300*scaleFactor;
         int availableGraphHeight = (int(canvasSize.y) - sizeMargin) / 2;
         int graphHeight = std::min(maxGraphHeight, availableGraphHeight);
-        int legendWidth = 300;
+        int legendWidth = 300*scaleFactor;
         int graphWidth = int(canvasSize.x) - legendWidth;
         gpuGraph.RenderTimings(graphWidth, legendWidth, graphHeight, frameOffset);
         cpuGraph.RenderTimings(graphWidth, legendWidth, graphHeight, frameOffset);
@@ -381,6 +394,10 @@ public:
     TimePoint prevFpsFrameTime;
     size_t fpsFramesCount;
     float avgFrameTime;
+
+    bool isRetina;
+    float scaleFactor;
+
 };
 
 }

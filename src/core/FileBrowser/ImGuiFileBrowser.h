@@ -2,6 +2,8 @@
 #define IMGUIFILEBROWSER_H
 
 #include "imgui.h"
+#include "imgui_stdlib.h"
+
 #include <string>
 #include <vector>
 
@@ -19,6 +21,8 @@ namespace imgui_addons
                 OPEN,   //Open File mode
                 SAVE    //Save File mode.
             };
+
+            void setIsRetina(bool ir) { isRetina = ir; if(isRetina) scaleFactor = 2.0f; col_width = 280.0f*scaleFactor; min_size = ImVec2(500*scaleFactor,300*scaleFactor); }
 
             /* Use this to show an open file dialog. The function takes label for the window,
              * the size, a DialogMode enum value defining in which mode the dialog should operate and optionally the extensions that are valid for opening.
@@ -103,6 +107,8 @@ namespace imgui_addons
             float col_width, ext_box_width;
             bool show_hidden, show_inputbar_combobox, is_dir, is_appearing, filter_dirty, validate_file;
             char input_fn[256];
+            std::string input_fn_string;
+            std::string newDirName;
 
             std::vector<std::string> valid_exts;
             std::vector<std::string> current_dirlist;
@@ -115,6 +121,9 @@ namespace imgui_addons
             std::vector<const Info*> filtered_dirs; // Note: We don't need to call delete. It's just for storing filtered items from subdirs and subfiles so we don't use PassFilter every frame.
             std::vector<const Info*> filtered_files;
             std::vector< std::reference_wrapper<std::string> > inputcb_filter_files;
+
+            bool    isRetina;
+            float   scaleFactor;
     };
 }
 
