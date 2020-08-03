@@ -133,7 +133,7 @@ void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
             captureFbo.begin();
             ofClear(0,0,0,255);
             ofSetColor(255);
-            static_cast<ofTexture *>(_inletParams[0])->draw(0,static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getWidth(),-static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            static_cast<ofTexture *>(_inletParams[0])->draw(0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
             captureFbo.end();
 
             if(recorder.isRecording()) {
