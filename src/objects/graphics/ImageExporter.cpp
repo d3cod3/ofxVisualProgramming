@@ -72,7 +72,7 @@ void ImageExporter::newObject(){
 
 //--------------------------------------------------------------
 void ImageExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    fileDialog.setIsRetina(this->isRetina);
 }
 
 //--------------------------------------------------------------

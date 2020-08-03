@@ -77,6 +77,8 @@ void HaarTracking::newObject(){
 //--------------------------------------------------------------
 void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    fileDialog.setIsRetina(this->isRetina);
+
     if(filepath == "none"){
         ofFile tempHC("haarcascades/haarcascade_frontalface_alt.xml");
         //filepath = tempHC.getAbsolutePath();

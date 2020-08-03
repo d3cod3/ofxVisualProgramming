@@ -77,6 +77,8 @@ void VideoExporter::newObject(){
 //--------------------------------------------------------------
 void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    fileDialog.setIsRetina(this->isRetina);
+
     captureFbo.allocate( STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT, GL_RGB );
     recorder.setup(true, false, glm::vec2(STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT)); // record video only for now
     recorder.setOverWrite(true);

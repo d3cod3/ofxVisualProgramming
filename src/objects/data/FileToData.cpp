@@ -66,6 +66,8 @@ void FileToData::newObject(){
 //--------------------------------------------------------------
 void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    fileDialog.setIsRetina(this->isRetina);
+
     if(filepath != "none"){
         loadDataFile(filepath);
     }

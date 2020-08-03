@@ -69,6 +69,9 @@ void AudioExporter::newObject(){
 
 //--------------------------------------------------------------
 void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    fileDialog.setIsRetina(this->isRetina);
+
     loadAudioSettings();
 
     recorder.setup(true, false, glm::vec2(1280, 720));

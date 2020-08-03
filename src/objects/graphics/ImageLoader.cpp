@@ -78,6 +78,8 @@ void ImageLoader::autoloadFile(string _fp){
 //--------------------------------------------------------------
 void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    fileDialog.setIsRetina(this->isRetina);
+
     if(filepath == "none"){
         isNewObject = true;
     }else{
