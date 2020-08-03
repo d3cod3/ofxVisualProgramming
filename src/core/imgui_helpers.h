@@ -79,10 +79,10 @@ inline void drawOFTextureFromImGui(ofTexture* tex, float& _tw, float& _th, float
 }
 
 //--------------------------------------------------------------
-inline bool getFileDialog(imgui_addons::ImGuiFileBrowser& fileDialog, bool show, std::string text, imgui_addons::ImGuiFileBrowser::DialogMode mode, std::string valid_types){
+inline bool getFileDialog(imgui_addons::ImGuiFileBrowser& fileDialog, bool show, std::string text, imgui_addons::ImGuiFileBrowser::DialogMode mode, std::string valid_types, std::string nameProposal = "", float retinaScale = 1.0f){
     if(show) ImGui::OpenPopup(text.c_str());
 
-    if(fileDialog.showFileDialog(text.c_str(), mode, ImVec2(700,380), valid_types.c_str())){
+    if(fileDialog.showFileDialog(text.c_str(), mode, ImVec2(700*retinaScale,380*retinaScale), valid_types.c_str(), nameProposal)){
         return true;
     }
 
