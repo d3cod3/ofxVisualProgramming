@@ -57,9 +57,6 @@ moBang::moBang() :
     bang            = false;
     isBangFinished  = true;
 
-    this->width         /= 2;
-    this->height        /= 2;
-
 }
 
 //--------------------------------------------------------------
@@ -125,7 +122,7 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Triggers a bang. You can control it manually with the mouse or automate it by its inlet.",
-                        "https://mosaic.d3cod3.org/reference.php?r=bang");
+                        "https://mosaic.d3cod3.org/reference.php?r=bang", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -137,7 +134,7 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // BANG (PD Style) button
-        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(this->width,this->height));
+        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
 
         if (state == SmartButtonState_Pressed || bang){
             currentColor = pressColor;

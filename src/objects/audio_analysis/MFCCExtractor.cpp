@@ -143,7 +143,7 @@ void MFCCExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts 13 data in a dynamic vector of MFCC (Mel Frequency Cepstral Coeﬃcients) from the audio analysis data vector.",
-                        "https://mosaic.d3cod3.org/reference.php?r=mfcc-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=mfcc-extractor", scaleFactor);
 
 
             ImGui::EndMenu();

@@ -124,7 +124,7 @@ void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Operates on all the values of a float vector, with selected operator and value",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-multiply");
+                        "https://mosaic.d3cod3.org/reference.php?r=vector-multiply", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -135,9 +135,9 @@ void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 46)); // Padding top
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (46*scaleFactor))); // Padding top
 
-        ImGui::PushItemWidth(-50);
+        ImGui::PushItemWidth(-50*scaleFactor);
         if(ImGui::BeginCombo("operator", operators_string.at(_operator).c_str() )){
             for(int i=0; i < operators_string.size(); ++i){
                 bool is_selected = (_operator == i );

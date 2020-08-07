@@ -94,7 +94,6 @@ public:
     bool                setupTrigger;
 
     ofFbo               *fbo;
-    ofPixels            *fboPixels;
     ofImage             *kuro;
     float               posX, posY, drawW, drawH;
 

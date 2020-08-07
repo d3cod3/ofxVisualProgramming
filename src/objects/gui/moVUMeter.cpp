@@ -97,7 +97,7 @@ void moVUMeter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Simple VUMeter, shows the audio signal level.",
-                        "https://mosaic.d3cod3.org/reference.php?r=vu-meter");
+                        "https://mosaic.d3cod3.org/reference.php?r=vu-meter", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -108,7 +108,7 @@ void moVUMeter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, RMS);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - (26*scaleFactor), RMS);
 
         _nodeCanvas.EndNodeContent();
     }

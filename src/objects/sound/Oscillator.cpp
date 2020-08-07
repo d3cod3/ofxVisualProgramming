@@ -279,7 +279,7 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Oscillator with antialiased waveforms",
-                        "https://mosaic.d3cod3.org/reference.php?r=oscillator");
+                        "https://mosaic.d3cod3.org/reference.php?r=oscillator", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -290,7 +290,7 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.3f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.3f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         char temp[128];
         sprintf(temp,"%.2f Hz", pdsp::PitchToFreq::eval(pitch_float+detune_float+fine_float));

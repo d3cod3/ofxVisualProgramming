@@ -153,7 +153,7 @@ void MidiPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "This object is used linked to the midi receiver object to map a pad on a midi device",
-                        "https://mosaic.d3cod3.org/reference.php?r=midi-pad");
+                        "https://mosaic.d3cod3.org/reference.php?r=midi-pad", scaleFactor);
 
             ImGui::EndMenu();
         }

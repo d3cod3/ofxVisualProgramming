@@ -52,7 +52,6 @@ moSonogram::moSonogram() : PatchObject("sonogram"){
 
 
     sonogram                = new ofFbo();
-    pixels                  = new ofPixels;
 
     posX = posY = drawW = drawH = 0.0f;
 
@@ -60,12 +59,13 @@ moSonogram::moSonogram() : PatchObject("sonogram"){
     resetTime               = ofGetElapsedTimeMillis();
     wait                    = 40;
 
-    this->setIsResizable(true);
-
     prevW                   = this->width;
     prevH                   = this->height;
 
     loaded                  = false;
+
+    this->setIsResizable(true);
+    this->setIsTextureObj(true);
 
 }
 
@@ -83,6 +83,9 @@ void moSonogram::newObject(){
 
 //--------------------------------------------------------------
 void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    this->width     *= scaleFactor;
+    this->height    *= scaleFactor;
 
     resetTextures();
 
@@ -108,8 +111,7 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         }
 
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            sonogram->getTexture().readToPixels(*pixels);
-            static_cast<ofTexture *>(_outletParams[0])->loadData(*pixels);
+            *static_cast<ofTexture *>(_outletParams[0]) = sonogram->getTexture();
         }
     }
 
@@ -124,6 +126,13 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // background
+    if(scaledObjW*canvasZoom > 90.0f){
+        ofSetColor(34,34,34);
+        ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+    }
+
     if(this->inletsConnected[0]){
         sonogram->begin();
         glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -146,6 +155,13 @@ void moSonogram::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
         ofPopView();
         glPopAttrib();
         sonogram->end();
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            if(scaledObjW*canvasZoom > 90.0f){
+                // draw node texture preview with OF
+                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            }
+        }
     }
 }
 
@@ -163,7 +179,7 @@ void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Basic sonogram. A visual representation display of spectrum frequencies of a sound signal (FFT), showing how it changes over time.",
-                        "https://mosaic.d3cod3.org/reference.php?r=sonogram");
+                        "https://mosaic.d3cod3.org/reference.php?r=sonogram", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -174,12 +190,11 @@ void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            float _tw = this->width*_nodeCanvas.GetCanvasScale();
-            float _th = this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT);
-
-            ImGuiEx::drawOFTexture(static_cast<ofTexture *>(_outletParams[0]),_tw,_th,posX,posY,drawW,drawH);
-        }
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
         if(this->width != prevW){
             prevW = this->width;
@@ -193,6 +208,9 @@ void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
 }
 
 //--------------------------------------------------------------
@@ -204,11 +222,9 @@ void moSonogram::removeObjectContent(bool removeFileFromData){
 void moSonogram::resetTextures(){
 
     sonogram                = new ofFbo();
-    pixels                  = new ofPixels;
     _outletParams[0]        = new ofTexture();
 
     sonogram->allocate(this->width,this->height,GL_RGBA);
-    pixels->allocate(this->width,this->height,OF_IMAGE_COLOR_ALPHA);
 
     sonogram->begin();
     ofClear(0,0,0,255);
@@ -220,8 +236,7 @@ void moSonogram::resetTextures(){
     texData.textureTarget = GL_TEXTURE_2D;
     texData.bFlipTexture = true;
     static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-    sonogram->getTexture().readToPixels(*pixels);
-    static_cast<ofTexture *>(_outletParams[0])->loadData(*pixels);
+    *static_cast<ofTexture *>(_outletParams[0]) = sonogram->getTexture();
 }
 
 OBJECT_REGISTER( moSonogram, "sonogram", OFXVP_OBJECT_CAT_GUI)

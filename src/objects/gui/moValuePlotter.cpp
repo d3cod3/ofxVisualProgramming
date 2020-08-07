@@ -166,7 +166,7 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "A customizable numeric value plotter.",
-                        "https://mosaic.d3cod3.org/reference.php?r=value-plotter");
+                        "https://mosaic.d3cod3.org/reference.php?r=value-plotter", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -179,7 +179,7 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255));
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255), this->scaleFactor);
 
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize()*_nodeCanvas.GetCanvasScale(), ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())), IM_COL32_WHITE, name.c_str(), NULL, 0.0f);
 

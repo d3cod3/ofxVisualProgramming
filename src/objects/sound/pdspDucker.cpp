@@ -201,7 +201,7 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "A sidechain compression effect",
-                        "https://mosaic.d3cod3.org/reference.php?r=ducker");
+                        "https://mosaic.d3cod3.org/reference.php?r=ducker", scaleFactor);
 
             ImGui::EndMenu();
         }

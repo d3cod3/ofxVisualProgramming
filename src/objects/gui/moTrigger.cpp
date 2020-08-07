@@ -50,9 +50,6 @@ moTrigger::moTrigger() : PatchObject("trigger"){
 
     trigger = false;
 
-    this->width         /= 2;
-    this->height        /= 2;
-
 }
 
 //--------------------------------------------------------------
@@ -106,7 +103,7 @@ void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Basic trigger. Useful to keep an action active, or inactive, continuously over time.",
-                        "https://mosaic.d3cod3.org/reference.php?r=trigger");
+                        "https://mosaic.d3cod3.org/reference.php?r=trigger", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -118,7 +115,7 @@ void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // TRIGGER button
-        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(this->width,this->height));
+        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
 
         if (state == SmartButtonState_Released){
             trigger = !trigger;

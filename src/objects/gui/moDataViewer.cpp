@@ -125,7 +125,7 @@ void moDataViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "A basic data vector visualizer",
-                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
 
 
             ImGui::EndMenu();

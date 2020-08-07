@@ -140,14 +140,14 @@ void VectorConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
             ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
             ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224,20))){
+            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
                 this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
                 needReset = true;
             }
 
             ImGuiEx::ObjectInfo(
                         "receive up to 32 data vectors, and concatenates them as a single vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-concat");
+                        "https://mosaic.d3cod3.org/reference.php?r=vector-concat", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -160,17 +160,17 @@ void VectorConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
-        float pinDistance = (window_size.y-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/this->numInlets;
+        float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
 
         for(int i=0;i<this->numInlets;i++){
-            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + 14,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + 114,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),IM_COL32(120,255,120,60),2.0f);
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (14*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(120,255,120,60),2.0f);
             if(i==this->numInlets-1){
-                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + 114,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + 114,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2)),IM_COL32(120,255,120,60),2.0f);
-                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + 114,window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+IMGUI_EX_NODE_HEADER_HEIGHT+((window_size.y-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/2)),IM_COL32(120,255,120,60),2.0f);
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),IM_COL32(120,255,120,60),2.0f);
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + ((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(120,255,120,60),2.0f);
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,10));
+        ImGui::Dummy(ImVec2(-1,10*scaleFactor));
         if(static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()) > 0){
             ImGui::Text("size\nrange");
             ImGui::SameLine();

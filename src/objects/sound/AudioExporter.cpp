@@ -140,7 +140,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
             }
             ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84,26))){
+            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
                 exportAudioFlag = true;
             }
             ImGui::SameLine();
@@ -149,7 +149,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
             char tmp[256];
             sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
-            if(ImGui::Button(tmp,ImVec2(84,26))){
+            if(ImGui::Button(tmp,ImVec2(84*scaleFactor,26*scaleFactor))){
                 if(!this->inletsConnected[0]){
                     ofLog(OF_LOG_WARNING,"There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!");
                 }else if(filepath == "none"){
@@ -170,7 +170,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Export audio from every sound buffer cable (yellow ones). Export format is fixed to 320 kb mp3.",
-                        "https://mosaic.d3cod3.org/reference.php?r=audio-exporter");
+                        "https://mosaic.d3cod3.org/reference.php?r=audio-exporter", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -183,7 +183,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if(this->inletsConnected[0]){
             // draw waveform
-            ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255));
+            ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
             // draw signal RMS amplitude
             _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));

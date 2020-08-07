@@ -54,7 +54,6 @@ LuaScript::LuaScript() : PatchObject("lua script"){
     isNewObject         = false;
 
     fbo = new ofFbo();
-    fboPixels = new ofPixels();
 
     kuro = new ofImage();
 
@@ -246,9 +245,9 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    if(this->width > 118.0f){
+    if(scaledObjW*canvasZoom > 90.0f){
         // draw node texture preview with OF
-        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
+        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
     }
 }
 
@@ -299,7 +298,7 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
-                        "https://mosaic.d3cod3.org/reference.php?r=lua-script");
+                        "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -311,10 +310,10 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
         objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }
@@ -355,8 +354,6 @@ void LuaScript::initResolution(){
 
     fbo = new ofFbo();
     fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
-    fboPixels = new ofPixels();
-    //fboPixels->allocate(output_width,output_height,OF_IMAGE_COLOR_ALPHA);
     fbo->begin();
     ofClear(0,0,0,255);
     fbo->end();
@@ -396,8 +393,6 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 
         fbo = new ofFbo();
         fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
-        fboPixels = new ofPixels();
-        //fboPixels->allocate(output_width,output_height,OF_IMAGE_COLOR_ALPHA);
         fbo->begin();
         ofClear(0,0,0,255);
         fbo->end();
@@ -493,7 +488,6 @@ void LuaScript::loadScript(string scriptFile){
     currentScriptFile.open(filepath);
 
     static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doScript(filepath, true);
 
     // inject incoming data vector to lua
     string tempstring = mosaicTableName+" = {}";
@@ -526,6 +520,13 @@ void LuaScript::loadScript(string scriptFile){
     #endif
 
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    // load lua Mosaic lib
+    tempstring = ofBufferFromFile("livecoding/lua_mosaicLib.lua").getText();
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    // finally load the script
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doScript(filepath, true);
 
     scriptLoaded = static_cast<LiveCoding *>(_outletParams[1])->lua.isValid();
 

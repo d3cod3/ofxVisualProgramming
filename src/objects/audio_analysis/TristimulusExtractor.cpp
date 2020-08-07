@@ -143,7 +143,7 @@ void TristimulusExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas )
 
             ImGuiEx::ObjectInfo(
                         "Extracts a three-element vector that measures the mixture of harmonics from the audio analysis data vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=tristimulus-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=tristimulus-extractor", scaleFactor);
 
 
             ImGui::EndMenu();

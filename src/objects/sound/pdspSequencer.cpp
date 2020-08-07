@@ -354,7 +354,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Up to 64 step sequencer with 5 per-step assignable controls.",
-                        "https://mosaic.d3cod3.org/reference.php?r=secuencer");
+                        "https://mosaic.d3cod3.org/reference.php?r=secuencer", scaleFactor);
 
             ImGui::EndMenu();
         }

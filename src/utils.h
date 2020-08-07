@@ -43,6 +43,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "imgui_node_canvas.h"
+
 //--------------------------------------------------------------
 inline std::string random_string( size_t length ){
 
@@ -85,6 +87,22 @@ inline void stringReplaceChar(std::string& s, std::string x, std::string y){
 inline std::string& sanitizeFilename(std::string& s){
     stringReplaceChar(s,std::string(" "), std::string("_"));
     return s;
+}
+
+//--------------------------------------------------------------
+inline int nthOccurrence(const std::string& str, const std::string& findMe, int nth){
+    size_t  pos = 0;
+    int     cnt = 0;
+
+    while( cnt != nth )
+    {
+        pos+=1;
+        pos = str.find(findMe, pos);
+        if ( pos == std::string::npos )
+            return -1;
+        cnt++;
+    }
+    return pos;
 }
 
 //--------------------------------------------------------------
@@ -329,7 +347,7 @@ inline std::string forceCheckMosaicDataPath(std::string filepath){
 }
 
 //--------------------------------------------------------------
-inline void drawNodeOFTexture(ofTexture &tex, float &px, float &py, float &w, float &h, float originX, float originY, float scaledW, float scaledH, float zoom, float footerH){
+inline void drawNodeOFTexture(ofTexture &tex, float &px, float &py, float &w, float &h, float originX, float originY, float scaledW, float scaledH, float zoom, float retinaScale=1.0f, bool hasInlets=true){
 
     if(tex.isAllocated()){
         if(tex.getWidth()/tex.getHeight() >= scaledW/scaledH){
@@ -351,19 +369,24 @@ inline void drawNodeOFTexture(ofTexture &tex, float &px, float &py, float &w, fl
             py              = 0;
         }
 
-        if(scaledW*zoom >= 90.0f){
-            // background
-            ofSetColor(34,34,34);
-            ofDrawRectangle(originX,originY,scaledW-2,scaledH+(footerH/zoom));
-            // texture
-            ofSetColor(255);
-            tex.draw(px+originX,py+originY,w-2,h);
+        // background
+        ofSetColor(34,34,34);
+        if(hasInlets){
+            ofDrawRectangle(originX-(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*retinaScale/zoom),originY-(IMGUI_EX_NODE_HEADER_HEIGHT*retinaScale/zoom),scaledW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*retinaScale/zoom),scaledH + ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale/zoom) );
+        }else{
+            ofDrawRectangle(originX,originY-(IMGUI_EX_NODE_HEADER_HEIGHT*retinaScale/zoom),scaledW,scaledH + ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale/zoom) );
         }
+
+        // texture
+        ofSetColor(255);
+        tex.draw(px+originX,py+originY,w-(2*retinaScale),h);
     }else{
-        if(scaledW*zoom >= 90.0f){
-            // background
-            ofSetColor(34,34,34);
-            ofDrawRectangle(originX,originY,scaledW-2,scaledH+(footerH/zoom));
+        // background
+        ofSetColor(34,34,34);
+        if(hasInlets){
+            ofDrawRectangle(originX-(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*retinaScale/zoom),originY-(IMGUI_EX_NODE_HEADER_HEIGHT*retinaScale/zoom),scaledW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*retinaScale/zoom),scaledH + ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale/zoom) );
+        }else{
+            ofDrawRectangle(originX,originY-(IMGUI_EX_NODE_HEADER_HEIGHT*retinaScale/zoom),scaledW,scaledH + ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale/zoom) );
         }
     }
 

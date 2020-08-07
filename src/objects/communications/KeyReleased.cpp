@@ -105,7 +105,7 @@ void KeyReleased::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Sends a bang when the selected key has been released. To know the key ascii code, press it and its number appears next to Last Key:",
-                        "https://mosaic.d3cod3.org/reference.php?r=key-released");
+                        "https://mosaic.d3cod3.org/reference.php?r=key-released", scaleFactor);
 
             ImGui::EndMenu();
         }

@@ -121,7 +121,7 @@ void VectorAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts the value at a particular index from a vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-at");
+                        "https://mosaic.d3cod3.org/reference.php?r=vector-at", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -132,7 +132,7 @@ void VectorAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
         ImGui::PushItemWidth(-1);
         if(ImGui::DragInt("", &vectorAt)){
             if(vectorAt < 0){

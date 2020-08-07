@@ -132,7 +132,7 @@ void PitchExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts the pitch data of the audio signal as a float value (between 0.0 and 4186.0).",
-                        "https://mosaic.d3cod3.org/reference.php?r=pitch-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=pitch-extractor", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -143,7 +143,7 @@ void PitchExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 4186.f,IM_COL32(255,255,120,255));
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 4186.f,IM_COL32(255,255,120,255), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

@@ -132,7 +132,7 @@ void RollOffExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts the frequency roll-off value from the audio analysis data vector as a float value (between 0.0 and 1.0).",
-                        "https://mosaic.d3cod3.org/reference.php?r=rolloff-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=rolloff-extractor", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -143,7 +143,7 @@ void RollOffExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255));
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

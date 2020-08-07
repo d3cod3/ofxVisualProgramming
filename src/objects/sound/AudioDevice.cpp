@@ -106,7 +106,9 @@ void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 //--------------------------------------------------------------
 void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     // draw node texture preview with OF
-    drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT*this->scaleFactor);
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
 }
 
 //--------------------------------------------------------------
@@ -120,7 +122,7 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Mosaic system object, which means that it cannot be added/deleted, but appears when you configure the sound system from the Sound menu. The audio device object is a virtual direct connection to the audio hardware.",
-                        "https://mosaic.d3cod3.org/reference.php?r=audio-device");
+                        "https://mosaic.d3cod3.org/reference.php?r=audio-device", scaleFactor);
 
             ImGui::EndMenu();
         }

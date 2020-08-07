@@ -57,6 +57,7 @@ DataToFile::DataToFile() :
     tmpFileName         = "";
 
     recButtonLabel      = "REC";
+
 }
 
 //--------------------------------------------------------------
@@ -136,7 +137,7 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
             }
             ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84,26))){
+            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
                 exportFileFlag = true;
             }
             ImGui::SameLine();
@@ -145,7 +146,7 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
             char tmp[256];
             sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
-            if(ImGui::Button(tmp,ImVec2(84,26))){
+            if(ImGui::Button(tmp,ImVec2(84*scaleFactor,26*scaleFactor))){
                 if(!this->inletsConnected[0]){
                     ofLog(OF_LOG_WARNING,"There is no data cable connected to the object inlet, connect something if you want to export it!");
                 }else if(!fileSaved){
@@ -168,7 +169,7 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Saves the vector data in a .txt file, line by line for each computing frame.",
-                        "https://mosaic.d3cod3.org/reference.php?r=data-to-file");
+                        "https://mosaic.d3cod3.org/reference.php?r=data-to-file", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -179,14 +180,14 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 16)); // Padding top
-        if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(-1,40))){
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (16*scaleFactor))); // Padding top
+        if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(-1,26*scaleFactor))){
             exportFileFlag = true;
         }
 
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*scaleFactor), window_pos.y + (40*scaleFactor));
         if (recordData){
             _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
         }else{

@@ -147,7 +147,7 @@ void MelBandsExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts the 24 MEL BANDS from the audio analysis data vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=mel-bands-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=mel-bands-extractor", scaleFactor);
 
 
             ImGui::EndMenu();

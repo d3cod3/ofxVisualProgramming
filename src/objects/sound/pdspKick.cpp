@@ -140,7 +140,7 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Kick synth.",
-                        "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop");
+                        "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
 
             ImGui::EndMenu();
         }

@@ -138,7 +138,7 @@ void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.",
-                        "https://mosaic.d3cod3.org/reference.php?r=file-to-data");
+                        "https://mosaic.d3cod3.org/reference.php?r=file-to-data", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -149,8 +149,8 @@ void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 16)); // Padding top
-        if(ImGui::Button(ICON_FA_FILE,ImVec2(-1,40))){
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (16*scaleFactor))); // Padding top
+        if(ImGui::Button(ICON_FA_FILE,ImVec2(-1,26*scaleFactor))){
             openFileFlag = true;
         }
 

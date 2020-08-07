@@ -107,7 +107,7 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "A basic text string sending object. Useful to use with string command controlled objects.",
-                        "https://mosaic.d3cod3.org/reference.php?r=message");
+                        "https://mosaic.d3cod3.org/reference.php?r=message", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -118,8 +118,8 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 40)); // Padding top
-        ImGui::PushItemWidth(-24);
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (40*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-24*scaleFactor);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, VHS_DGRAY);
         ImGui::InputText("##source", &actualMessage);
         ImGui::PopStyleColor(1);
@@ -127,7 +127,7 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::SameLine(); ImGuiEx::HelpMarker("Always check objects reference for UPPERCASE/LOWERCASE messages.");
 
         ImGui::Spacing();
-        if(ImGui::Button("SEND",ImVec2(-1,20))){
+        if(ImGui::Button("SEND",ImVec2(-1,26*scaleFactor))){
             *static_cast<string *>(_outletParams[0]) = "";
             *static_cast<string *>(_outletParams[0]) = actualMessage;
         }

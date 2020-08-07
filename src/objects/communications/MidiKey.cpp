@@ -139,7 +139,7 @@ void MidiKey::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "This object is used linked to the midi receiver object to map a key on a midi device",
-                        "https://mosaic.d3cod3.org/reference.php?r=midi-key");
+                        "https://mosaic.d3cod3.org/reference.php?r=midi-key", scaleFactor);
 
             ImGui::EndMenu();
         }

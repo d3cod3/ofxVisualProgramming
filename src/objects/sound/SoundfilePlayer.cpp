@@ -294,7 +294,7 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
-                        "https://mosaic.d3cod3.org/reference.php?r=soundfile-player");
+                        "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
 
             ImGui::EndMenu();
         }

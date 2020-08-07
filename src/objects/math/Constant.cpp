@@ -114,7 +114,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Single numeric value controller.",
-                        "https://mosaic.d3cod3.org/reference.php?r=constant");
+                        "https://mosaic.d3cod3.org/reference.php?r=constant", scaleFactor);
 
             ImGui::EndMenu();
         }

@@ -46,6 +46,8 @@ OutputWindow::OutputWindow() : PatchObject("output window"){
     _inletParams[0] = new ofTexture();  // projector
     _inletParams[1] = new LiveCoding(); // script reference
 
+    this->specialLinkTypeName = "LiveCoding";
+
     this->initInletsState();
 
     isFullscreen                        = false;
@@ -229,7 +231,14 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 void OutputWindow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     // draw node texture preview with OF
     if(this->inletsConnected[0]){
-        drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        }
+    }else{
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
 }
 
@@ -263,7 +272,7 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 }
             }
             ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224,20))){
+            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
                 needReset = true;
             }
 
@@ -323,17 +332,17 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::Separator();
 
             ImGui::Spacing();
-            if(ImGui::Button("LOAD WARPING",ImVec2(224,20))){
+            if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
                 loadWarpingFlag = true;
             }
             ImGui::Spacing();
-            if(ImGui::Button("SAVE WARPING",ImVec2(224,20))){
+            if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
                 saveWarpingFlag = true;
             }
 
             ImGuiEx::ObjectInfo(
                         "This object creates a output window projector. (cmd/ctrl) + F focusing the window = activate/deactivate fullscreen. With warping option active and fullscreen you can adjust the projection surface.",
-                        "https://mosaic.d3cod3.org/reference.php?r=output-window");
+                        "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -345,10 +354,10 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
         objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }
@@ -599,7 +608,7 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
     }
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
         }
@@ -612,7 +621,7 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
         warpController->onMouseDragged(window->events().getMouseX(),window->events().getMouseY());
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
@@ -625,7 +634,7 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
         warpController->onMousePressed(window->events().getMouseX(),window->events().getMouseY());
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
@@ -638,7 +647,7 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
         warpController->onMouseReleased(window->events().getMouseX(),window->events().getMouseY());
     }
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
@@ -648,7 +657,7 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-posX)/drawW * this->output_width),((window->events().getMouseY()-posY)/drawH * this->output_height));
+        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
         }

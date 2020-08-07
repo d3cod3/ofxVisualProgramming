@@ -206,7 +206,7 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Feed-forward compressor.",
-                        "https://mosaic.d3cod3.org/reference.php?r=compressor");
+                        "https://mosaic.d3cod3.org/reference.php?r=compressor", scaleFactor);
 
             ImGui::EndMenu();
         }

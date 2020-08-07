@@ -57,11 +57,14 @@ public:
 
 
     ofFbo           *sonogram;
-    ofPixels        *pixels;
     vector<ofColor> colors;
 
     float           posX, posY, drawW, drawH;
     float           prevW, prevH;
+
+    float           scaledObjW, scaledObjH;
+    float           objOriginX, objOriginY;
+    float           canvasZoom;
 
     int             timePosition;
     size_t          resetTime;

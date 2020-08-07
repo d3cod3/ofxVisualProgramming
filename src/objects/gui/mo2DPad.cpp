@@ -121,7 +121,7 @@ void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Simultaneously adjust two float values XY (with a range from 0.0 to 1.0) by moving the pad point.",
-                        "https://mosaic.d3cod3.org/reference.php?r=2d-pad");
+                        "https://mosaic.d3cod3.org/reference.php?r=2d-pad", scaleFactor);
 
             ImGui::EndMenu();
         }

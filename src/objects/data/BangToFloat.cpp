@@ -127,7 +127,7 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "This object only sends the configured numerical value after receiving a bang",
-                        "https://mosaic.d3cod3.org/reference.php?r=bang-to-float");
+                        "https://mosaic.d3cod3.org/reference.php?r=bang-to-float", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -138,7 +138,7 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 26)); // Padding top
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
         ImGui::PushItemWidth(-1);
         if(ImGui::DragFloat("", &number,0.1f)){
             this->setCustomVar(number,"NUMBER");

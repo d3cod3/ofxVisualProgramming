@@ -102,7 +102,9 @@ void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void ImageExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     // draw node texture preview with OF
-    drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT);
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
 }
 
 //--------------------------------------------------------------
@@ -130,14 +132,14 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
             }
             ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84,26))){
+            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
                 saveImgFlag = true;
             }
             ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
-            if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(84,26))){
+            if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(84*scaleFactor,26*scaleFactor))){
                 if(!this->inletsConnected[0]){
                     ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
                 }else if(lastImageFile == ""){
@@ -150,7 +152,7 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Export an image or image sequence (using ### for auto-numeration) from every texture cable (blue ones).",
-                        "https://mosaic.d3cod3.org/reference.php?r=image-exporter");
+                        "https://mosaic.d3cod3.org/reference.php?r=image-exporter", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -162,10 +164,10 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1 - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
         objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)/_nodeCanvas.GetCanvasScale());
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }

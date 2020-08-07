@@ -132,7 +132,7 @@ void HFCExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts the HFC (High Frequency Content) coefficient from high frequencies of sound spectrum.",
-                        "https://mosaic.d3cod3.org/reference.php?r=hfc-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=hfc-extractor", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -143,7 +143,7 @@ void HFCExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 100.f,IM_COL32(255,255,120,255));
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 100.f,IM_COL32(255,255,120,255), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

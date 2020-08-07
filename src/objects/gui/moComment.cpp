@@ -134,7 +134,7 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "A simple comment object.",
-                        "https://mosaic.d3cod3.org/reference.php?r=comment");
+                        "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
 
             ImGui::EndMenu();
         }

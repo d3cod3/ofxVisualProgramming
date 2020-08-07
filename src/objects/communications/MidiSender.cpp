@@ -161,21 +161,26 @@ void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         {
 
             ImGui::Spacing();
-            if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
-                for(int i=0; i < midiDevicesList.size(); ++i){
-                    bool is_selected = (midiDeviceID == i );
-                    if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
-                        resetMIDISettings(i);
+            if(midiDevicesList.size() > 0){
+                if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
+                    for(int i=0; i < midiDevicesList.size(); ++i){
+                        bool is_selected = (midiDeviceID == i );
+                        if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
+                            resetMIDISettings(i);
+                        }
+                        if (is_selected) ImGui::SetItemDefaultFocus();
                     }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
+            }else{
+                ImGui::Text("No MIDI devices found!");
             }
+
 
 
             ImGuiEx::ObjectInfo(
                         "Send data to a physical midi interface",
-                        "https://mosaic.d3cod3.org/reference.php?r=midi-sender");
+                        "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -185,13 +190,15 @@ void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Spacing();
-        ImGui::PushStyleColor(ImGuiCol_Text, VHS_GRAY);
-        ImGui::Text("%s",midiDevicesList.at(midiDeviceID).c_str());
-        ImGui::PopStyleColor(1);
-        ImGui::Spacing();
-        ImGui::Text("Channel\nNote\nVelocity"); ImGui::SameLine();
-        ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*(float *)&_outletParams[1])),static_cast<int>(floor(*(float *)&_outletParams[2])),static_cast<int>(floor(*(float *)&_outletParams[3])));
+        if(midiDevicesList.size() > 0){
+            ImGui::Spacing();
+            ImGui::PushStyleColor(ImGuiCol_Text, VHS_GRAY);
+            ImGui::Text("%s",midiDevicesList.at(midiDeviceID).c_str());
+            ImGui::PopStyleColor(1);
+            ImGui::Spacing();
+            ImGui::Text("Channel\nNote\nVelocity"); ImGui::SameLine();
+            ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*(float *)&_outletParams[1])),static_cast<int>(floor(*(float *)&_outletParams[2])),static_cast<int>(floor(*(float *)&_outletParams[3])));
+        }
 
         _nodeCanvas.EndNodeContent();
     }

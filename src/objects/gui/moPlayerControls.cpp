@@ -135,7 +135,7 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Control the status of other objects, such as video player, soundfile player, or timeline. Useful for syncronize play/stop.",
-                        "https://mosaic.d3cod3.org/reference.php?r=player-controls");
+                        "https://mosaic.d3cod3.org/reference.php?r=player-controls", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -155,11 +155,11 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-        if(ImGui::Button(ICON_FA_PLAY,ImVec2(56,26))){
+        if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*scaleFactor,26*scaleFactor))){
             *static_cast<string *>(_outletParams[0]) = "play";
         }
         ImGui::SameLine();
-        if(ImGui::Button(ICON_FA_STOP,ImVec2(56,26))){
+        if(ImGui::Button(ICON_FA_STOP,ImVec2(56*scaleFactor,26*scaleFactor))){
             *static_cast<string *>(_outletParams[0]) = "stop";
         }
         ImGui::PopStyleColor(3);
@@ -167,7 +167,7 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-        if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56,26))){
+        if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*scaleFactor,26*scaleFactor))){
             pause = !pause;
             if(pause){
                 *static_cast<string *>(_outletParams[0]) = "pause";

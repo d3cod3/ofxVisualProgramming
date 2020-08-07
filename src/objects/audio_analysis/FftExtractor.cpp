@@ -138,7 +138,7 @@ void FftExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Extracts the FFT (Fast Fourier Transform) from the audio analysis data vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor");
+                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
 
 
             ImGui::EndMenu();

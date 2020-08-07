@@ -151,7 +151,7 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Sends a bang with the time periodicity you specify in milliseconds.",
-                        "https://mosaic.d3cod3.org/reference.php?r=metronome");
+                        "https://mosaic.d3cod3.org/reference.php?r=metronome", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -162,7 +162,7 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(255,255,255,255), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

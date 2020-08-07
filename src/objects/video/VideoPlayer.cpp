@@ -237,16 +237,16 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
             }
 
             // draw node texture preview with OF
-            if(this->width > 118.0f){
-                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, IMGUI_EX_NODE_FOOTER_HEIGHT*this->scaleFactor);
+            if(scaledObjW*canvasZoom > 90.0f){
+                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             }
         }
 
     }else{
         // background
-        if(this->width > 118.0f){
+        if(scaledObjW*canvasZoom > 90.0f){
             ofSetColor(34,34,34);
-            ofDrawRectangle(objOriginX, objOriginY,scaledObjW-(2*this->scaleFactor),scaledObjH + ((IMGUI_EX_NODE_FOOTER_HEIGHT*this->scaleFactor)/canvasZoom) );
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
         }
     }
 
@@ -341,7 +341,7 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             ImGuiEx::ObjectInfo(
                         "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-player");
+                        "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -364,16 +364,16 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 
             // draw position (timecode)
-            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*this->scaleFactor*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*this->scaleFactor*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
+            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale()/this->scaleFactor);
 
             // draw player state
             if(video->isPlaying()){ // play
-                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
             }else if(!video->isPlaying() && video->isPaused() && video->getCurrentFrame() > 1){ // pause
-                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
-                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }else if(!video->isPlaying() && video->getCurrentFrame() <= 1){ // stop
-                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*this->scaleFactor*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*this->scaleFactor*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }
 
             // draw playhead

@@ -126,7 +126,7 @@ inline void drawTimecode(ImDrawList* drawList, int seconds, std::string pre="", 
 }
 
 //--------------------------------------------------------------
-inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int dataSize, float thickness, ImU32 color){
+inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int dataSize, float thickness, ImU32 color, float retinaScale=1.0f){
     // draw signal background
     drawList->AddRectFilled(ImGui::GetWindowPos(),ImGui::GetWindowPos()+dim,IM_COL32_BLACK);
 
@@ -141,17 +141,17 @@ inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int data
     conf.tooltip.format = "x=%.2f, y=%.2f";
     conf.grid_x.show = false;
     conf.grid_y.show = false;
-    conf.frame_size = ImVec2(dim.x - 20, dim.y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT));
+    conf.frame_size = ImVec2(dim.x - (20*retinaScale), dim.y - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale));
     conf.line_thickness = thickness;
 
     ImGuiEx::Plot("plot", conf);
 }
 
 //--------------------------------------------------------------
-inline void plotValue(float value, float min, float max, ImU32 color=IM_COL32(255,255,255,255)){
+inline void plotValue(float value, float min, float max, ImU32 color=IM_COL32(255,255,255,255), float retinaScale=1.0f){
     ImGuiEx::PlotVarConfig conf;
     conf.value = value;
-    conf.frame_size = ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT));
+    conf.frame_size = ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale));
     conf.scale.min = min;
     conf.scale.max = max;
     conf.buffer_size = 256;
@@ -172,11 +172,11 @@ static void HelpMarker(const char* desc){
 }
 
 //--------------------------------------------------------------
-static void ObjectInfo(const char* desc, const char* url){
+static void ObjectInfo(const char* desc, const char* url, float retinaScale=1.0f){
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
-    ImGui::InvisibleButton("empty",ImVec2(160,1));  // fix widget width
+    ImGui::InvisibleButton("empty",ImVec2(160*retinaScale,1));  // fix widget width
     if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
         ImGui::TextWrapped("%s",desc);
         ImGui::Spacing();
