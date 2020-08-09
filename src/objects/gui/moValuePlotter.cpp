@@ -142,20 +142,20 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
+            ImGui::PushItemWidth(180*scaleFactor);
             if(ImGui::InputText("Label",&name)){
                 saveVariableName();
             }
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
             if(ImGui::DragFloat("min", &lastMinRange.get())){
                 this->setCustomVar(lastMinRange.get(),"MIN");
             }
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
             if(ImGui::DragFloat("max", &lastMaxRange.get())){
                 this->setCustomVar(lastMaxRange.get(),"MAX");
             }
+            ImGui::PopItemWidth();
+
             ImGui::Spacing();
             if(ImGui::ColorEdit4( "Color", (float*)&color )){
                 this->setCustomVar(color.x,"RED");
