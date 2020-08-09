@@ -124,7 +124,9 @@ namespace imgui_addons
         ImGui::SetNextWindowPos(io.DisplaySize * 0.5f, ImGuiCond_Appearing, ImVec2(0.5f,0.5f));
         ImGui::SetNextWindowSize(ImVec2(std::max(sz_xy.x, min_size.x), std::max(sz_xy.y, min_size.y)), ImGuiCond_Appearing);
 
-        input_fn_string = nameProposal;
+        if(mode == DialogMode::SAVE){
+            input_fn_string = nameProposal;
+        }
 
         //Set Proper Filter Mode.
         if(mode == DialogMode::SELECT)
