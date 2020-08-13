@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifdef OFXVP_BUILD_WITH_DEBUG_OBJECTS
+
 #include "ExampleObject.h"
 
 //--------------------------------------------------------------
@@ -192,3 +194,5 @@ void ExampleObject::removeObjectContent(bool removeFileFromData){
 
 // REGISTER OBJECT ON COMPILATION TIME
 OBJECT_REGISTER( ExampleObject, "example object", OFXVP_OBJECT_CAT_GRAPHICS)
+
+#endif

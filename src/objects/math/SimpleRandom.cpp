@@ -119,10 +119,10 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         {
 
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
+            ImGui::PushItemWidth(130*scaleFactor);
             ImGui::DragFloat("min", &lastMinRange.get());
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
+            ImGui::PushItemWidth(130*scaleFactor);
             ImGui::DragFloat("max", &lastMaxRange.get());
 
             ImGuiEx::ObjectInfo(

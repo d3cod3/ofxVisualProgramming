@@ -36,31 +36,33 @@
 
 #include "PatchObject.h"
 
-class Subtract : public PatchObject {
+enum Number_Operator { Num_Operator_ADD, Num_Operator_SUBTRACT, Num_Operator_MULTIPLY, Num_Operator_DIVIDE, Num_Operator_MODULE, Num_Operator_COUNT };
+
+class NumberOperator : public PatchObject {
 
 public:
 
-    Subtract();
+    NumberOperator();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    
-    
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiTextInput*     numberBox;
 
+    vector<string>          operators_string;
+    int                     _operator;
     float                   number;
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

@@ -370,16 +370,16 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // gate leds
-            ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-40)/16 * (i+1),window_pos.y + 32);
+            ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + (32*scaleFactor));
             if((i + (chapter*CHAPTER_STEPS)) == step && seqSteps[i + (chapter*CHAPTER_STEPS)] > 0.0f){
-                _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5, IM_COL32(255, 255, 120, 140), 40);
+                _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5*scaleFactor, IM_COL32(255, 255, 120, 140), 40);
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf(temp,"S %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-46)/37, IM_COL32(255,255,120,255), temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(seqSteps[i + (chapter*CHAPTER_STEPS)],"S_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -387,10 +387,10 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf(temp,"A %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-46)/37, IM_COL32(255,255,120,255), temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl1Steps[i + (chapter*CHAPTER_STEPS)],"A_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -398,10 +398,10 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf(temp,"B %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-46)/37, IM_COL32(255,255,120,255), temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl2Steps[i + (chapter*CHAPTER_STEPS)],"B_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -409,10 +409,10 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf(temp,"C %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-46)/37, IM_COL32(255,255,120,255), temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl3Steps[i + (chapter*CHAPTER_STEPS)],"C_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -420,10 +420,10 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf(temp,"D %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-46)/37, IM_COL32(255,255,120,255), temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl4Steps[i + (chapter*CHAPTER_STEPS)],"D_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -433,19 +433,19 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // step leds
-            ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-40)/16 * (i+1),window_pos.y + window_size.y - 40);
+            ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + window_size.y - (40*scaleFactor));
             if((i + (chapter*CHAPTER_STEPS)) == step){
-                _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 6, IM_COL32(182, 30, 41, 255), 40);
+                _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 6*scaleFactor, IM_COL32(182, 30, 41, 255), 40);
             }else{
-                _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5, IM_COL32(50, 50, 50, 255), 40);
+                _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5*scaleFactor, IM_COL32(50, 50, 50, 255), 40);
             }
         }
 
         // BPM
         /*if(metro){
             metro = false;
-            ImVec2 pos = ImVec2(window_pos.x + window_size.x - 30, window_pos.y + 40);
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 6, IM_COL32(255, 255, 120, 255), 40);
+            ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*scaleFactor), window_pos.y + (40*scaleFactor));
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
         }*/
 
     }

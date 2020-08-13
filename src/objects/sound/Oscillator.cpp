@@ -294,7 +294,7 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         char temp[128];
         sprintf(temp,"%.2f Hz", pdsp::PitchToFreq::eval(pitch_float+detune_float+fine_float));
-        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(ImGui::GetWindowPos().x + (40*_nodeCanvas.GetCanvasScale()), ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y*0.24)), IM_COL32_WHITE,temp, NULL, 0.0f);
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(ImGui::GetWindowPos().x + ((40*scaleFactor)*_nodeCanvas.GetCanvasScale()), ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y*0.24)), IM_COL32_WHITE,temp, NULL, 0.0f);
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -303,53 +303,53 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Spacing();
         ImGui::Spacing();
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "pitch", &pitch_float, 0.0f, 127.0f, 1270.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pitch", &pitch_float, 0.0f, 127.0f, 1270.0f)){
             this->setCustomVar(pitch_float,"PITCH");
             pitch_ctrl.set(pitch_float);
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "level", &level_float, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "level", &level_float, 0.0f, 1.0f, 100.0f)){
             level_ctrl.set(level_float);
             this->setCustomVar(level_float,"LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "detune", &detune_float, -12.0f, 12.0f, 240.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "detune", &detune_float, -12.0f, 12.0f, 240.0f)){
             detuneCoarse_ctrl.set(detune_float);
             this->setCustomVar(detune_float,"DETUNE_COARSE");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "fine", &fine_float, -1.0f, 1.0f, 2000.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "fine", &fine_float, -1.0f, 1.0f, 2000.0f)){
             detuneFine_ctrl.set(fine_float);
             this->setCustomVar(fine_float,"DETUNE_FINE");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "pw", &pw_float, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pw", &pw_float, 0.0f, 1.0f, 100.0f)){
             pw_ctrl.set(pw_float);
             this->setCustomVar(pw_float,"PULSE_WIDTH");
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8));
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "sine", &sine_float, 0.0f, 1.0f, 100.0f)){
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "sine", &sine_float, 0.0f, 1.0f, 100.0f)){
             sine_ctrl.set(sine_float);
             this->setCustomVar(sine_float,"SINE_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "triangle", &triangle_float, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "triangle", &triangle_float, 0.0f, 1.0f, 100.0f)){
             triangle_ctrl.set(triangle_float);
             this->setCustomVar(triangle_float,"TRIANGLE_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "saw", &saw_float, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "saw", &saw_float, 0.0f, 1.0f, 100.0f)){
             saw_ctrl.set(saw_float);
             this->setCustomVar(saw_float,"SAW_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "pulse", &pulse_float, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pulse", &pulse_float, 0.0f, 1.0f, 100.0f)){
             pulse_ctrl.set(pulse_float);
             this->setCustomVar(pulse_float,"PULSE_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "noise", &noise_float, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "noise", &noise_float, 0.0f, 1.0f, 100.0f)){
             noise_ctrl.set(noise_float);
             this->setCustomVar(noise_float,"NOISE_LEVEL");
         }

@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,27 +36,34 @@
 
 #include "PatchObject.h"
 
-class BiggerThan : public PatchObject {
+enum Conditional_Operator { Conditional_Operator_EQUAL, Conditional_Operator_NOTEQUAL, Conditional_Operator_LESSTHAN, Conditional_Operator_BIGGERTHAN, Conditional_Operator_COUNT };
+
+class Conditional : public PatchObject {
 
 public:
 
-    BiggerThan();
+    Conditional();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     inputNumber;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    float                   inputValue;
-    float                   equalsTo;
+    vector<string>          operators_string;
+    int                     _operator;
+
+    float                   number;
+
+    bool                    loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

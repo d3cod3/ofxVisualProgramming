@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2020 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,30 +36,34 @@
 
 #include "PatchObject.h"
 
-class Equality : public PatchObject {
+enum Boolean_Operator { Bool_Operator_AND, Bool_Operator_OR, Bool_Operator_COUNT };
+
+class BooleanOperator : public PatchObject {
 
 public:
 
-    Equality();
+    BooleanOperator();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
 
+    vector<string>          operators_string;
+    int                     _operator;
 
+    bool            bang;
+    bool            loaded;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     inputNumber;
-
-    float                   inputValue;
-    float                   equalsTo;
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

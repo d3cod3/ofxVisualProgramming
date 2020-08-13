@@ -282,50 +282,54 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             if(ImGui::Checkbox("WARPING",&useMapping)){
                 this->setCustomVar(useMapping,"USE_MAPPING");
             }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("Luminance",&edgesLuminance,0.0f,1.0f)){
-                this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setLuminance(edgesLuminance);
+            ImGui::SameLine(); ImGuiEx::HelpMarker("Warping can be visulized/edited on fullscreen mode only!");
+
+            if(useMapping && isFullscreen){
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("Luminance",&edgesLuminance,0.0f,1.0f)){
+                    this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setLuminance(edgesLuminance);
+                    }
                 }
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("Gamma",&edgesGamma,0.5f,1.0f)){
-                this->setCustomVar(edgesGamma,"EDGES_GAMMA");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setGamma(edgesGamma);
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("Gamma",&edgesGamma,0.5f,1.0f)){
+                    this->setCustomVar(edgesGamma,"EDGES_GAMMA");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setGamma(edgesGamma);
+                    }
                 }
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("Exponent",&edgesExponent,0.0f,2.0f)){
-                this->setCustomVar(edgesExponent,"EDGES_EXPONENT");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setExponent(edgesExponent);
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("Exponent",&edgesExponent,0.0f,2.0f)){
+                    this->setCustomVar(edgesExponent,"EDGES_EXPONENT");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setExponent(edgesExponent);
+                    }
                 }
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("Edge Left",&edgeL,0.0f,1.0f)){
-                this->setCustomVar(edgeL,"EDGE_LEFT");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("Edge Left",&edgeL,0.0f,1.0f)){
+                    this->setCustomVar(edgeL,"EDGE_LEFT");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                    }
                 }
-            }
-            if(ImGui::SliderFloat("Edge Right",&edgeR,0.0f,1.0f)){
-                this->setCustomVar(edgeR,"EDGE_RIGHT");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                if(ImGui::SliderFloat("Edge Right",&edgeR,0.0f,1.0f)){
+                    this->setCustomVar(edgeR,"EDGE_RIGHT");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                    }
                 }
-            }
-            if(ImGui::SliderFloat("Edge Top",&edgeT,0.0f,1.0f)){
-                this->setCustomVar(edgeT,"EDGE_TOP");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                if(ImGui::SliderFloat("Edge Top",&edgeT,0.0f,1.0f)){
+                    this->setCustomVar(edgeT,"EDGE_TOP");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                    }
                 }
-            }
-            if(ImGui::SliderFloat("Edge Bottom",&edgeB,0.0f,1.0f)){
-                this->setCustomVar(edgeB,"EDGE_BOTTOM");
-                if(warpController->getNumWarps() > 0){
-                    warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                if(ImGui::SliderFloat("Edge Bottom",&edgeB,0.0f,1.0f)){
+                    this->setCustomVar(edgeB,"EDGE_BOTTOM");
+                    if(warpController->getNumWarps() > 0){
+                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+                    }
                 }
             }
 

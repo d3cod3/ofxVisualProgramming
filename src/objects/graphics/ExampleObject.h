@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifdef OFXVP_BUILD_WITH_DEBUG_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -81,3 +83,5 @@ private:
 
     OBJECT_FACTORY_PROPS
 };
+
+#endif

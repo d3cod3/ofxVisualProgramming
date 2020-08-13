@@ -150,22 +150,22 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2*scaleFactor));
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "FREQ", &oscFreq, 0.0f, 100.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ", &oscFreq, 0.0f, 100.0f, 100.0f)){
             osc_freq_ctrl.set(pdsp::f2p(oscFreq));
         }
         ImGui::SameLine();
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "F. FREQ", &filterFreq, 0.0f, 8260.0f, 2065.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. FREQ", &filterFreq, 0.0f, 8260.0f, 2065.0f)){
             filter_freq_ctrl.set(pdsp::f2p(filterFreq));
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "F. RES", &filterRes, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. RES", &filterRes, 0.0f, 1.0f, 100.0f)){
             filter_res_ctrl.set(filterRes);
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
 
 

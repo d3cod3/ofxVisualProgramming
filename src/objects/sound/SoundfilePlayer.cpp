@@ -250,7 +250,7 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
                 ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
             }
-            if(ImGui::Button(ICON_FA_FILE,ImVec2(180,26))){
+            if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
                 loadSoundfileFlag = true;
             }
 
@@ -261,14 +261,14 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56,26))){
+            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*scaleFactor,26*scaleFactor))){
                 isPlaying = true;
                 playhead = 0.0;
                 audioWasPlaying = true;
                 finishSemaphore = true;
             }
             ImGui::SameLine();
-            if(ImGui::Button(ICON_FA_STOP,ImVec2(56,26))){
+            if(ImGui::Button(ICON_FA_STOP,ImVec2(56*scaleFactor,26*scaleFactor))){
                 isPlaying = false;
                 playhead = 0.0;
                 audioWasPlaying = false;
@@ -278,16 +278,16 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56,26))){
+            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*scaleFactor,26*scaleFactor))){
                 isPlaying = !isPlaying;
             }
             ImGui::PopStyleColor(3);
 
             ImGui::Spacing();
-            ImGui::PushItemWidth(130);
+            ImGui::PushItemWidth(130*scaleFactor);
             ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
-            ImGui::PushItemWidth(130);
             ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
+            ImGui::PopItemWidth();
             ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
@@ -306,18 +306,23 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(isFileLoaded && audiofile.loaded()){
             ImVec2 window_pos = ImGui::GetWindowPos();
             ImVec2 window_size = ImGui::GetWindowSize();
-            ImVec2 ph_pos = ImVec2(window_pos.x + 20, window_pos.y + 20);
+            ImVec2 ph_pos = ImVec2(window_pos.x + (20*scaleFactor), window_pos.y + (20*scaleFactor));
+
+            objOriginX = ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor);
+            objOriginY = ImGui::GetWindowPos().y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor);
+            scaledObjW = window_size.x - IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor;
+            scaledObjH = window_size.y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor;
 
             // draw Audiofile Waveform plot
-            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+window_size,IM_COL32_BLACK);
-            for( int x=0; x<window_size.x-30; ++x){
-                int n = ofMap( x, 0, window_size.x-30, 0, audiofile.length(), true );
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(objOriginX,objOriginY),ImVec2(objOriginX+scaledObjW,objOriginY+scaledObjH),IM_COL32_BLACK);
+            for( int x=objOriginX; x<objOriginX+scaledObjW; ++x ){
+                int n = ofMap( x, objOriginX, objOriginX+scaledObjW, 0, audiofile.length(), true );
                 float val = audiofile.sample( n, 0 );
-                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + x, ph_pos.y + window_size.y - (72*_nodeCanvas.GetCanvasScale()) - (val*(window_size.y*0.5))),ImVec2(ph_pos.x + x, ph_pos.y + window_size.y - (72*_nodeCanvas.GetCanvasScale()) + (val*(window_size.y*0.5))),IM_COL32(255,255,120,180), 1.0f);
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(x, objOriginY + scaledObjH/2 - (val*(scaledObjH*0.5)) ),ImVec2(x, objOriginY + scaledObjH/2 + (val*(scaledObjH*0.5))),IM_COL32(255,255,120,180), 1.0f);
             }
 
             // draw position (timecode)
-            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(static_cast<int>(floor(playhead))/audiofile.samplerate())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale());
+            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(static_cast<int>(floor(playhead))/audiofile.samplerate())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale()/this->scaleFactor);
 
             // draw player state
             if(isPlaying){ // play
@@ -330,8 +335,8 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
 
             // draw playhead
-            float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-31 );
-            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-26),IM_COL32(255, 255, 255, 160), 2.0f);
+            float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 255, 255, 160), 2.0f);
 
         }else if(loadingFile){
             ImGui::Text("LOADING FILE...");

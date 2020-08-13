@@ -124,10 +124,6 @@ namespace imgui_addons
         ImGui::SetNextWindowPos(io.DisplaySize * 0.5f, ImGuiCond_Appearing, ImVec2(0.5f,0.5f));
         ImGui::SetNextWindowSize(ImVec2(std::max(sz_xy.x, min_size.x), std::max(sz_xy.y, min_size.y)), ImGuiCond_Appearing);
 
-        if(mode == DialogMode::SAVE){
-            input_fn_string = nameProposal;
-        }
-
         //Set Proper Filter Mode.
         if(mode == DialogMode::SELECT)
             filter_mode = FilterMode_Dirs;
@@ -147,6 +143,10 @@ namespace imgui_addons
                 {
                     this->valid_types = valid_types;
                     setValidExtTypes(valid_types);
+                }
+
+                if(mode == DialogMode::SAVE){
+                    input_fn_string = nameProposal;
                 }
 
                 /* If current path is empty (can happen on Windows if user closes dialog while inside MyComputer.

@@ -96,6 +96,9 @@ public:
     bool                loadSoundfileFlag;
     bool                soundfileLoaded;
 
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+
 protected:
 
 

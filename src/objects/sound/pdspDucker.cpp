@@ -211,36 +211,36 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2*scaleFactor));
         ImGuiEx::EnvelopeEditor(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y*0.3, &attackDuration, &holdDuration, &releaseDuration, &releaseDuration, ImGuiEnvelopeEditorType_AHR);
 
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "duck (db)", &ducking, -48.0f, 0.0f, 960.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "duck (db)", &ducking, -48.0f, 0.0f, 960.0f)){
             duck_ctrl.set(ducking);
             this->setCustomVar(ducking,"DUCKING");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "A", &attackDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "A", &attackDuration, 0.0f, 1000.0f, 1000.0f)){
             attack_ctrl.set(attackDuration);
             this->setCustomVar(attackDuration,"ATTACK");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "H", &holdDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "H", &holdDuration, 0.0f, 1000.0f, 1000.0f)){
             hold_ctrl.set(holdDuration);
             this->setCustomVar(holdDuration,"HOLD");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
             release_ctrl.set(releaseDuration);
             this->setCustomVar(releaseDuration,"RELEASE");
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8));
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "A. H.", &attackHardness, 0.0f, 1.0f, 100.0f)){
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "A. H.", &attackHardness, 0.0f, 1.0f, 100.0f)){
             this->setCustomVar(attackHardness,"ATTACK_CURVE");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/11, IM_COL32(255,255,120,255), "R. H.", &releaseHardness, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "R. H.", &releaseHardness, 0.0f, 1.0f, 100.0f)){
             this->setCustomVar(releaseHardness,"RELEASE_CURVE");
         }
 

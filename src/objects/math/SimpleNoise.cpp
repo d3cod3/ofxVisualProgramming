@@ -35,7 +35,7 @@
 #include "SimpleNoise.h"
 
 //--------------------------------------------------------------
-SimpleNoise::SimpleNoise() : PatchObject(){
+SimpleNoise::SimpleNoise() : PatchObject("simple noise"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -48,46 +48,84 @@ SimpleNoise::SimpleNoise() : PatchObject(){
 
     this->initInletsState();
 
-    timePosition = ofRandom(10000);
+    step         = 0.001f;
+
+    loaded      = false;
 }
 
 //--------------------------------------------------------------
 void SimpleNoise::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"step");
+
     this->addOutlet(VP_LINK_NUMERIC,"noise");
+
+    this->setCustomVar(step,"STEP");
 }
 
 //--------------------------------------------------------------
 void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
+    ofSeedRandom(ofGetElapsedTimeMillis());
 
-    noisePlotter = gui->addValuePlotter("",0.0f,1.0f);
-    noisePlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    noisePlotter->setSpeed(0.6);
-
-    gui->setPosition(0,this->height-noisePlotter->getHeight());
+    timePosition = ofRandom(10000);
 }
 
 //--------------------------------------------------------------
 void SimpleNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     *(float *)&_outletParams[0] = ofNoise(timePosition);
 
-    gui->update();
-    noisePlotter->setValue(*(float *)&_outletParams[0]);
+    if(this->inletsConnected[0]){
+        step = fabs(*(float *)&_inletParams[0]);
+    }
 
-    timePosition += *(float *)&_inletParams[0];
+    timePosition += step;
 }
 
 //--------------------------------------------------------------
 void SimpleNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void SimpleNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130*scaleFactor);
+            if(ImGui::DragFloat("step", &step,0.0001f,0.0f,100.0f,"%.4f")){
+                this->setCustomVar(step,"STEP");
+            }
+            ImGui::PopItemWidth();
+
+            ImGuiEx::ObjectInfo(
+                        "Standard 1D Perlin noise generator.",
+                        "https://mosaic.d3cod3.org/reference.php?r=simple-noise", scaleFactor);
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.0f, 1.0f, IM_COL32(255,255,255,255), this->scaleFactor);
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------

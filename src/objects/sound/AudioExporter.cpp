@@ -192,13 +192,13 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 pos = ImVec2(window_pos.x + window_size.x - 20, window_pos.y + 40);
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*this->scaleFactor), window_pos.y + (40*this->scaleFactor));
         if (recorder.isRecording()){
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(255, 0, 0, 255), 40);
         }else if(recorder.isPaused() && recorder.isRecording()){
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(255, 255, 0, 255), 40);
         }else{
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(0, 255, 0, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();
