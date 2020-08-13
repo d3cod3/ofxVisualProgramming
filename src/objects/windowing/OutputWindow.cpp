@@ -281,10 +281,27 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::Spacing();
             if(ImGui::Checkbox("WARPING",&useMapping)){
                 this->setCustomVar(useMapping,"USE_MAPPING");
+                if(useMapping){
+                    if(!isWarpingLoaded){
+                        isWarpingLoaded = true;
+                        // setup warping (warping first load)
+                        warpController = new ofxWarpController();
+                        if(filepath != "none"){
+                            warpController->loadSettings(filepath);
+                        }else{
+                            shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
+                            warp->setSize(window->getScreenSize().x,window->getScreenSize().y);
+                            warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+                            warp->setLuminance(this->getCustomVar("EDGES_LUMINANCE"));
+                            warp->setGamma(this->getCustomVar("EDGES_GAMMA"));
+                            warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
+                        }
+                    }
+                }
             }
             ImGui::SameLine(); ImGuiEx::HelpMarker("Warping can be visulized/edited on fullscreen mode only!");
 
-            if(useMapping && isFullscreen){
+            if(useMapping && isWarpingLoaded){
                 ImGui::Spacing();
                 if(ImGui::SliderFloat("Luminance",&edgesLuminance,0.0f,1.0f)){
                     this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
