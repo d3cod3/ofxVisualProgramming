@@ -42,17 +42,12 @@ public:
 
     Counter();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     start;
-    ofxDatGuiTextInput*     end;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     bool                    bang;
     int                     _st;
@@ -62,7 +57,10 @@ public:
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

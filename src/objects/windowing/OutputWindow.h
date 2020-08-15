@@ -79,11 +79,9 @@ public:
     void            windowResized(ofResizeEventArgs &e);
 
 
-    ofxImGui::Gui                           rightClickMenu;
     shared_ptr<ofAppGLFWWindow>             window;
     bool                                    isFullscreen;
     bool                                    isNewScriptConnected;
-    bool                                    showRightClickMenu;
 
     int                                     temp_width, temp_height;
     int                                     window_actual_width, window_actual_height;

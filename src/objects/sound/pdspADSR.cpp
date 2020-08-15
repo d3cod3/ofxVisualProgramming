@@ -216,7 +216,7 @@ void pdspADSR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(releaseDuration,"RELEASE");
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "A. H.", &attackHardness, 0.0f, 1.0f, 100.0f)){
             this->setCustomVar(attackHardness,"ATTACK_CURVE");
         }

@@ -299,7 +299,7 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                     }
                 }
             }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Warping can be visulized/edited on fullscreen mode only!");
+            ImGui::SameLine(); ImGuiEx::HelpMarker("Warping can be visualized/edited only in fullscreen mode!");
 
             if(useMapping && isWarpingLoaded){
                 ImGui::Spacing();

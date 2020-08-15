@@ -35,7 +35,7 @@
 #include "Counter.h"
 
 //--------------------------------------------------------------
-Counter::Counter() : PatchObject(){
+Counter::Counter() : PatchObject("counter"){
 
     this->numInlets  = 3;
     this->numOutlets = 1;
@@ -54,9 +54,6 @@ Counter::Counter() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     bang                = false;
     _st                 = 0;
     _en                 = 1;
@@ -68,10 +65,12 @@ Counter::Counter() : PatchObject(){
 
 //--------------------------------------------------------------
 void Counter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"start");
     this->addInlet(VP_LINK_NUMERIC,"end");
+
     this->addOutlet(VP_LINK_NUMERIC,"count");
 
     this->setCustomVar(static_cast<float>(_st),"START");
@@ -80,31 +79,12 @@ void Counter::newObject(){
 
 //--------------------------------------------------------------
 void Counter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->addBreak();
-    gui->onTextInputEvent(this, &Counter::onTextInputEvent);
 
-    start = gui->addTextInput("","0");
-    start->setUseCustomMouse(true);
-    start->setText(ofToString(static_cast<int>(floor(this->getCustomVar("START")))));
-    gui->addBreak();
-    end = gui->addTextInput("","1");
-    end->setUseCustomMouse(true);
-    end->setText(ofToString(static_cast<int>(floor(this->getCustomVar("END")))));
-
-    gui->setPosition(0,this->headerHeight + start->getHeight());
 
 }
 
 //--------------------------------------------------------------
 void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    start->update();
-    end->update();
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -140,7 +120,7 @@ void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
     }
 
     if(this->inletsConnected[1]){
-        start->setText(ofToString(*(float *)&_inletParams[1]));
+        _st = *(float *)&_inletParams[1];
         if(!startConnect){
             startConnect = true;
             *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
@@ -149,15 +129,13 @@ void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         startConnect = false;
     }
     if(this->inletsConnected[2]){
-        end->setText(ofToString(*(float *)&_inletParams[2]));
+        _en = *(float *)&_inletParams[2];
     }
 
     if(!loaded){
         loaded = true;
         _st = static_cast<int>(floor(this->getCustomVar("START")));
         _en = static_cast<int>(floor(this->getCustomVar("END")));
-        start->setText(ofToString(static_cast<int>(floor(this->getCustomVar("START")))));
-        end->setText(ofToString(static_cast<int>(floor(this->getCustomVar("END")))));
     }
 
 }
@@ -165,10 +143,55 @@ void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 //--------------------------------------------------------------
 void Counter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void Counter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Basic counter for iterative structures.",
+                        "https://mosaic.d3cod3.org/reference.php?r=counter", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,6*scaleFactor)); // Padding top
+
+        ImGui::Dummy(ImVec2(this->width/3.5f,1)); ImGui::SameLine(); ImGui::Text("%i",static_cast<int>(floor(*(float *)&_outletParams[0])));
+
+        ImGui::Dummy(ImVec2(-1,6*scaleFactor));
+
+        ImGui::PushItemWidth(-1);
+        ImGui::Spacing();
+        if(ImGui::DragInt("###start", &_st)){
+            this->setCustomVar(static_cast<float>(_st),"START");
+            resetCounter        = true;
+        }
+        ImGui::Spacing();
+        if(ImGui::DragInt("###end", &_en)){
+            this->setCustomVar(static_cast<float>(_en),"END");
+        }
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -176,21 +199,6 @@ void Counter::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void Counter::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == start){
-        if(isInteger(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"START");
-            _st = ofToInt(e.text);
-            resetCounter        = true;
-        }
-    }else if(e.target == end){
-        if(isInteger(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"END");
-            _en = ofToInt(e.text);
-        }
-    }
-}
 
 OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC)
 

@@ -56,7 +56,7 @@ pdspAHR::pdspAHR() : PatchObject("AHR envelope"){
     this->initInletsState();
 
     this->width *= 2;
-    this->height *= 1.7f;
+    this->height *= 2.9f;
 
     isAudioINObject         = true;
     isAudioOUTObject        = true;
@@ -196,7 +196,8 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
             this->setCustomVar(releaseDuration,"RELEASE");
         }
-        ImGui::SameLine();
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "A. H.", &attackHardness, 0.0f, 1.0f, 100.0f)){
             this->setCustomVar(attackHardness,"ATTACK_CURVE");
         }
