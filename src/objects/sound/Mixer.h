@@ -42,27 +42,42 @@ public:
 
     Mixer();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadAudioSettings();
+    void            initInlets();
+    void            resetInletsSettings();
 
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
 
     pdsp::PatchNode         mix;
+    pdsp::Amp*              levels;
+    pdsp::ValueControl*     levels_ctrl;
+    float*                  levels_float;
+
     pdsp::Scope             scope;
-    ofPolyline              waveform;
 
     int                     bufferSize;
     int                     sampleRate;
 
+    int                     signalInlets;
+    bool                    needReset;
+    bool                    loaded;
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

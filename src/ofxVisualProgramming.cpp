@@ -606,6 +606,10 @@ void ofxVisualProgramming::resetObject(int &id){
                     if(it->second->outPut[j]->toObjectID == id){
                         if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
                             tempBuffer.push_back(it->second->outPut[j]);
+                            if(it->second->outPut[j]->type == VP_LINK_AUDIO){
+                                // reconnect dsp link
+                                patchObjects[it->first]->pdspOut[it->second->outPut[j]->fromOutletID] >> patchObjects[id]->pdspIn[it->second->outPut[j]->toInletID];
+                            }
                         }
                     }else{
                         tempBuffer.push_back(it->second->outPut[j]);

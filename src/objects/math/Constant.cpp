@@ -41,11 +41,13 @@ Constant::Constant() :
         inputValueNew(0.f, "")
 {
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 2;
 
     // Bind Inlets to values
-    *(float *)&_inletParams[0] = inputValueNew.get();
+    *(float *)&_inletParams[0] = 0.0f; // bang
+
+    *(float *)&_inletParams[1] = inputValueNew.get(); // value
 
     // Bind outlets to values
     *(float *)&_outletParams[0] = inputValueNew.get(); // float output
@@ -55,6 +57,8 @@ Constant::Constant() :
 
     this->initInletsState();
 
+    bang                = false;
+    nextFrame           = true;
     loaded              = false;
 
     this->height        /= 2;
@@ -65,6 +69,7 @@ Constant::Constant() :
 void Constant::newObject(){
     PatchObject::setName( this->objectName );
 
+    this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_STRING,"numberString");
@@ -79,13 +84,29 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+
     if(this->inletsConnected[0]){
-      inputValueNew = *(float *)&_inletParams[0];
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
     }
 
-    *(float *)&_outletParams[0] = inputValueNew;
+    if(this->inletsConnected[1]){
+      inputValueNew = *(float *)&_inletParams[1]; 
+    }
 
-    *static_cast<string *>(_outletParams[1]) = ofToString( inputValueNew.get() );
+    if(!nextFrame){
+        nextFrame = true;
+        *(float *)&_outletParams[0] = inputValueNew;
+    }
+
+    if(bang){
+        nextFrame = false;
+        *(float *)&_outletParams[0] = inputValueNew+0.00001f;
+        *static_cast<string *>(_outletParams[1]) = ofToString( inputValueNew.get() );
+    }
 
     if(!loaded){
         loaded = true;

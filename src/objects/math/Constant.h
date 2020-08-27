@@ -49,6 +49,8 @@ public:
 
 
     ofxVPObjectParameter<float> inputValueNew;
+    bool                        bang;
+    bool                        nextFrame;
 
     bool            loaded;
 

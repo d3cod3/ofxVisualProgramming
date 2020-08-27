@@ -357,30 +357,51 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf, ImU32 color) {
     return status;
 }
 
-void VUMeter(ImDrawList* drawList, float width, float height,float _vol){
+void VUMeter(ImDrawList* drawList, float width, float height,float _vol, bool horizontal){
 
     // visuals
     enum { SUBDIVISIONS = 14 };
 
     ImGuiWindow* Window = ImGui::GetCurrentWindow();
 
-    // prepare canvas
-    const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
-    ImVec2 Canvas(dim, height);
-
-    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
-    ImGui::ItemSize(bb);
-
     int numRect = static_cast<int>(floor(imMap(_vol,0.0f,1.0f,0,SUBDIVISIONS)));
 
-    if(Canvas.x >= SUBDIVISIONS){
-        for(int i=0;i<numRect;i++){
-            if(i < 10){
-                drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(64,255,1,220));
-            }else if(i >= 10 && i < 12){
-                drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(255,254,65,220));
-            }else if(i >= 12 && i < 14){
-                drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(255,64,1,220));
+    if(horizontal){
+        // prepare canvas
+        const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
+        ImVec2 Canvas(dim, height);
+
+        ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+        ImGui::ItemSize(bb);
+
+        if(Canvas.x >= SUBDIVISIONS){
+            for(int i=0;i<numRect;i++){
+                if(i < 10){
+                    drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(64,255,1,220));
+                }else if(i >= 10 && i < 12){
+                    drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(255,254,65,220));
+                }else if(i >= 12 && i < 14){
+                    drawList->AddRectFilled(ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i), bb.Min.y),ImVec2(bb.Min.x + ((Canvas.x / SUBDIVISIONS)*i) + ((Canvas.x / SUBDIVISIONS)-2), bb.Max.y - 1),IM_COL32(255,64,1,220));
+                }
+            }
+        }
+    }else{
+        // prepare canvas
+        const float dim = height > 0 ? height : ImGui::GetContentRegionAvail().y;
+        ImVec2 Canvas(width, dim);
+
+        ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+        ImGui::ItemSize(bb);
+
+        if(Canvas.y >= SUBDIVISIONS){
+            for(int i=0;i<numRect;i++){
+                if(i < 10){
+                    drawList->AddRectFilled(ImVec2(bb.Min.x, bb.Max.y - ((Canvas.y / SUBDIVISIONS)*i)),ImVec2(bb.Max.x - 1, bb.Max.y - ((Canvas.y / SUBDIVISIONS)*i) - ((Canvas.y / SUBDIVISIONS)-2)),IM_COL32(64,255,1,220));
+                }else if(i >= 10 && i < 12){
+                    drawList->AddRectFilled(ImVec2(bb.Min.x, bb.Max.y - ((Canvas.y / SUBDIVISIONS)*i)),ImVec2(bb.Max.x - 1, bb.Max.y - ((Canvas.y / SUBDIVISIONS)*i) - ((Canvas.y / SUBDIVISIONS)-2)),IM_COL32(255,254,65,220));
+                }else if(i >= 12 && i < 14){
+                    drawList->AddRectFilled(ImVec2(bb.Min.x, bb.Max.y - ((Canvas.y / SUBDIVISIONS)*i)),ImVec2(bb.Max.x - 1, bb.Max.y - ((Canvas.y / SUBDIVISIONS)*i) - ((Canvas.y / SUBDIVISIONS)-2)),IM_COL32(255,64,1,220));
+                }
             }
         }
     }

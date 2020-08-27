@@ -80,6 +80,11 @@ void SimpleNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
     }
 
     timePosition += step;
+
+    if(!loaded){
+        loaded = true;
+        step = this->getCustomVar("STEP");
+    }
 }
 
 //--------------------------------------------------------------

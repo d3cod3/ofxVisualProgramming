@@ -131,6 +131,7 @@ public:
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; saveConfig(false); }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
+    float                   existsCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return true; }else{ return false; } }
     void                    substituteCustomVar(string oldName, string newName) { if ( customVars.find(oldName) != customVars.end() ) { customVars[newName] = customVars[oldName]; customVars.erase(oldName); } }
     bool                    clearCustomVars();
     map<string,float>       loadCustomVars();

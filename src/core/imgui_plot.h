@@ -113,7 +113,7 @@ IMGUI_API PlotStatus Plot(const char* label, const PlotConfig& conf);
 
 IMGUI_API PlotStatus PlotVar(const char* label, const PlotVarConfig& conf, ImU32 color);
 
-void VUMeter(ImDrawList* drawList, float width, float height,float _vol);
+void VUMeter(ImDrawList* drawList, float width, float height,float _vol, bool horizontal=true);
 
 void PlotBands(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max=1.0f, ImU32 color=IM_COL32(255,255,120,255));
 
