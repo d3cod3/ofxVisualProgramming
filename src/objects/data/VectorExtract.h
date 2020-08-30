@@ -36,23 +36,31 @@
 
 #include "PatchObject.h"
 
-class Select : public PatchObject {
+class VectorExtract : public PatchObject {
 
 public:
 
-    Select();
+    VectorExtract();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    int             selector;
-    int             lastValue;
-    vector<bool>    bangs;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+
+    bool            loaded;
+
+    int             start, end;
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

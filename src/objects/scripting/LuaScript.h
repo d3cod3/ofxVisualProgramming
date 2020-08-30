@@ -97,6 +97,8 @@ public:
     ofImage             *kuro;
     float               posX, posY, drawW, drawH;
 
+    float               prevW, prevH;
+
     string              mosaicTableName;
     string              luaTablename;
     string              tempstring;

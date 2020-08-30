@@ -54,7 +54,7 @@ VideoReceiver::VideoReceiver() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoReceiver::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addOutlet(VP_LINK_TEXTURE,"textureReceived");
 }
 
@@ -98,7 +98,7 @@ void VideoReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
         }
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

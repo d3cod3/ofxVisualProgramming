@@ -100,9 +100,6 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void SimpleRandom::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

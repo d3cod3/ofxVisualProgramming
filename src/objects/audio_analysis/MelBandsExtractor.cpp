@@ -120,16 +120,7 @@ void MelBandsExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 //--------------------------------------------------------------
 void MelBandsExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    /*ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
 
-    float bin_w = (float) this->width / MELBANDS_BANDS_NUM;
-    for (int i = 0; i < MELBANDS_BANDS_NUM; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
-    }
-    ofDisableAlphaBlending();*/
 }
 
 //--------------------------------------------------------------

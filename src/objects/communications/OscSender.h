@@ -44,37 +44,35 @@ public:
 
     OscSender();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            initInlets();
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
-    ofxOscSender            osc_sender;
-    string                  osc_host;
-    int                     osc_port;
-    vector<string>          osc_labels;
-
-    ofxDatGui*                      gui;
-    ofxDatGuiHeader*                header;
-    ofxDatGuiTextInput*             host;
-    ofxDatGuiTextInput*             port;
-    vector<ofxDatGuiTextInput*>     labels;
-    ofxDatGuiButton*                addOSCNumber;
-    ofxDatGuiButton*                addOSCText;
-    ofxDatGuiButton*                addOSCVector;
-    ofxDatGuiButton*                addOSCTexture;
+    ofxOscSender                    osc_sender;
+    string                          osc_host;
+    int                             osc_port;
+    string                          osc_port_string;
+    vector<string>                  osc_labels;
+    vector<string>                  prev_osc_labels;
+    vector<int>                     osc_labels_type;
 
     ofPixels                        *_tempPixels;
     ofImage                         *_tempImage;
     ofBuffer                        *_tempBuffer;
 
+    bool                            loaded;
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

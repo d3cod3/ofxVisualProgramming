@@ -35,7 +35,7 @@
 #include "Inverter.h"
 
 //--------------------------------------------------------------
-Inverter::Inverter() : PatchObject(){
+Inverter::Inverter() : PatchObject("inverter"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -54,14 +54,18 @@ Inverter::Inverter() : PatchObject(){
 
 //--------------------------------------------------------------
 void Inverter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"invertedTrigger");
 }
 
 //--------------------------------------------------------------
 void Inverter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
+
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
@@ -80,27 +84,52 @@ void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 //--------------------------------------------------------------
 void Inverter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(trigger){
-        ofSetLineWidth(6);
-        ofSetColor(250,250,5);
-        if(this->isRetina){
-            ofDrawLine(0,this->headerHeight,this->width,this->height-12);
-            ofDrawLine(this->width,this->headerHeight,0,this->height-12);
-        }else{
-            ofDrawLine(0,this->headerHeight,this->width,this->height-6);
-            ofDrawLine(this->width,this->headerHeight,0,this->height-6);
+
+}
+
+//--------------------------------------------------------------
+void Inverter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Invert the value transmitted by a trigger or bang object.",
+                        "https://mosaic.d3cod3.org/reference.php?r=inverter", scaleFactor);
+
+            ImGui::EndMenu();
         }
 
-        ofSetLineWidth(1);
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // TRIGGER button
+        ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if(trigger){
+            currentColor = pressColor;
+        }else{
+            currentColor = releaseColor;
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
 }
 
 //--------------------------------------------------------------
 void Inverter::removeObjectContent(bool removeFileFromData){
     
 }
+
 
 OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC)
 

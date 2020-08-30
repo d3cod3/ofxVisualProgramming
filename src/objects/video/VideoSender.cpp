@@ -60,7 +60,7 @@ VideoSender::VideoSender() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoSender::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
 }
 
@@ -169,8 +169,7 @@ void VideoSender::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
         }
         ofDrawCircle(ofPoint(this->width-20, 30), 10);
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

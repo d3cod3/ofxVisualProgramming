@@ -67,7 +67,7 @@ BackgroundSubtraction::BackgroundSubtraction() : PatchObject(){
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"reset");
     this->addOutlet(VP_LINK_TEXTURE,"output");
@@ -262,7 +262,6 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofB
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
     gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

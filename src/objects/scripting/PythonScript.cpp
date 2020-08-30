@@ -73,7 +73,7 @@ PythonScript::PythonScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void PythonScript::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_ARRAY,"_mosaic_data_outlet");
 }
@@ -242,9 +242,7 @@ void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
     ofSetColor(255);
     ofEnableAlphaBlending();
     pythonIcon->draw(this->width/2,this->headerHeight*1.8f,((this->height/2.2f)/pythonIcon->getHeight())*pythonIcon->getWidth(),this->height/2.2f);
-    // GUI
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

@@ -61,7 +61,7 @@ pdspBitCruncher::pdspBitCruncher() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspBitCruncher::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"in");
     this->addInlet(VP_LINK_NUMERIC,"bits");
     this->addOutlet(VP_LINK_AUDIO,"out");
@@ -127,9 +127,7 @@ void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 //--------------------------------------------------------------
 void pdspBitCruncher::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

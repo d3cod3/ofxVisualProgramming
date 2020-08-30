@@ -80,7 +80,7 @@ Spigot::Spigot() : PatchObject(){
 
 //--------------------------------------------------------------
 void Spigot::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"state");
     this->addInlet(VP_LINK_NUMERIC,"float");
     this->addInlet(VP_LINK_STRING,"string");
@@ -145,7 +145,6 @@ void Spigot::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>&
         ofDrawLine(this->headerHeight*4,this->height/2 + this->headerHeight,this->width-this->headerHeight,this->height/2 + this->headerHeight);
     }
     ofSetLineWidth(1);
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

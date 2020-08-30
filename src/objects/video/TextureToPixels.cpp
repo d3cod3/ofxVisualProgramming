@@ -52,7 +52,7 @@ TextureToPixels::TextureToPixels() : PatchObject(){
 
 //--------------------------------------------------------------
 void TextureToPixels::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_PIXELS,"pixels");
 }
@@ -96,7 +96,7 @@ void TextureToPixels::drawObjectContent(ofxFontStash *font){
         }
         static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
     }
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

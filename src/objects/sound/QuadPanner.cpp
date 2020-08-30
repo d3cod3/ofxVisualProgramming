@@ -69,7 +69,7 @@ QuadPanner::QuadPanner() : PatchObject(){
 
 //--------------------------------------------------------------
 void QuadPanner::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan X");
     this->addInlet(VP_LINK_NUMERIC,"pan Y");
@@ -176,9 +176,7 @@ void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void QuadPanner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

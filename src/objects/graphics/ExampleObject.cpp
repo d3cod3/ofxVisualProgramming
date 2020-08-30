@@ -68,7 +68,7 @@ ExampleObject::ExampleObject() :
 
 //--------------------------------------------------------------
 void ExampleObject::newObject(){
-    //this->setName(this->objectName);
+    //PatchObject::setName( this->objectName );
     PatchObject::setName( this->objectName );
     //ofxVisualProgrammingObjects::factory::RegistryEntry<ExampleObject>;
     //ofxVisualProgrammingObjects::factory::objectName;
@@ -96,7 +96,6 @@ void ExampleObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
 //    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 //        static_cast<ofTexture *>(_outletParams[0])->draw(0,0,this->width,this->height);
 //    }
@@ -104,7 +103,6 @@ void ExampleObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 
     //ofDrawEllipse(glm::vec2(this->getPos().x, this->getPos().y), this->getObjectWidth(), this->getObjectHeight());
 
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

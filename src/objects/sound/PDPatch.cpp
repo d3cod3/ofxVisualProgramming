@@ -83,7 +83,7 @@ PDPatch::PDPatch() : PatchObject(){
 
 //--------------------------------------------------------------
 void PDPatch::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"audio in 1");
     this->addInlet(VP_LINK_AUDIO,"audio in 2");
     this->addInlet(VP_LINK_AUDIO,"audio in 3");
@@ -275,10 +275,7 @@ void PDPatch::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>
     ofSetColor(255);
     waveformIN.draw();
     waveformOUT.draw();
-    // GUI
-    ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

@@ -35,7 +35,7 @@
 #include "DelayBang.h"
 
 //--------------------------------------------------------------
-DelayBang::DelayBang() : PatchObject(){
+DelayBang::DelayBang() : PatchObject("delay bang"){
 
     this->numInlets  = 2;
     this->numOutlets = 2;
@@ -54,24 +54,25 @@ DelayBang::DelayBang() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     bang                = false;
     delayBang           = false;
 
     loadStart           = false;
 
-    wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
+    wait                = 1000;
     startTime           = ofGetElapsedTimeMillis();
+
+    loaded              = false;
 
 }
 
 //--------------------------------------------------------------
 void DelayBang::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
 
@@ -81,30 +82,18 @@ void DelayBang::newObject(){
 //--------------------------------------------------------------
 void DelayBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &DelayBang::onTextInputEvent);
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
 
-    inputNumber = gui->addTextInput("","1000");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("MS")));
+    currentColor = releaseColor;
 
-    wait = this->getCustomVar("MS");
-
-    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
 void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[1]){
-      wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
-      inputNumber->setText(ofToString(wait));
+        wait                = static_cast<int>(floor(*(float *)&_inletParams[1]));
     }
-
-    gui->update();
-    inputNumber->update();
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] == 1.0 && !bang){
@@ -129,18 +118,65 @@ void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         *static_cast<string *>(_outletParams[1]) = "";
     }
 
+    if(!loaded){
+        loaded = true;
+        wait = static_cast<int>(floor(this->getCustomVar("MS")));
+    }
+
 }
 
 //--------------------------------------------------------------
 void DelayBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
+}
+
+//--------------------------------------------------------------
+void DelayBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::InputInt("Delay",&wait)){
+                if(wait < 0){
+                    wait = 0;
+                }
+                this->setCustomVar(static_cast<float>(wait),"MS");
+            }
+            ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
+
+            ImGuiEx::ObjectInfo(
+                        "Time delayed bang.",
+                        "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // BANG (PD Style) button
+        ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if (bang){
+            currentColor = pressColor;
+        }else{
+            currentColor = releaseColor;
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -148,18 +184,6 @@ void DelayBang::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void DelayBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"MS");
-            wait        = ofToInt(e.text);
-        }else{
-            inputNumber->setText(ofToString(wait));
-        }
-
-    }
-}
 
 OBJECT_REGISTER( DelayBang, "delay bang", OFXVP_OBJECT_CAT_LOGIC)
 

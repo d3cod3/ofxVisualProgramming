@@ -60,7 +60,7 @@ ChromaKey::ChromaKey() : PatchObject(){
 
 //--------------------------------------------------------------
 void ChromaKey::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_TEXTURE,"mask");
     this->addOutlet(VP_LINK_TEXTURE,"output");
@@ -191,7 +191,6 @@ void ChromaKey::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRendere
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
     gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

@@ -51,7 +51,7 @@ PixelsToTexture::PixelsToTexture() : PatchObject(){
 
 //--------------------------------------------------------------
 void PixelsToTexture::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_PIXELS,"pixels");
     this->addOutlet(VP_LINK_TEXTURE,"texture");
 }
@@ -73,9 +73,7 @@ void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 //--------------------------------------------------------------
 void PixelsToTexture::drawObjectContent(ofxFontStash *font){
     ofSetColor(255);
-    ofEnableAlphaBlending();
 
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

@@ -266,12 +266,12 @@ void Mixer::resetInletsSettings(){
 
     this->numInlets = signalInlets+1;
 
-    this->width = 20*scaleFactor + signalInlets*42*scaleFactor + 42  *scaleFactor + 10*scaleFactor; // inlets gap + sliders + vumeter + outlets gap
+    this->width = 20 + signalInlets*42 + 42 + 10; // inlets gap + sliders + vumeter + outlets gap
 
     if(signalInlets <= 8){
-        this->height = OBJECT_HEIGHT*scaleFactor;
+        this->height = OBJECT_HEIGHT;
     }else if(signalInlets > 8 && this->numInlets <= 32){
-        this->height = OBJECT_HEIGHT*scaleFactor*2;
+        this->height = OBJECT_HEIGHT*2;
     }
 
     _inletParams[0] = new vector<float>();

@@ -35,7 +35,7 @@
 #include "DelayFloat.h"
 
 //--------------------------------------------------------------
-DelayFloat::DelayFloat() : PatchObject(){
+DelayFloat::DelayFloat() : PatchObject("delay float"){
 
     this->numInlets  = 3;
     this->numOutlets = 1;
@@ -54,9 +54,6 @@ DelayFloat::DelayFloat() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     bang                = false;
     delayBang           = false;
     number              = 0.0f;
@@ -64,52 +61,32 @@ DelayFloat::DelayFloat() : PatchObject(){
     loadStart           = false;
     loaded              = false;
 
-    wait                = static_cast<size_t>(floor(*(float *)&_inletParams[2]));
+    wait                = 1000;
     startTime           = ofGetElapsedTimeMillis();
 
 }
 
 //--------------------------------------------------------------
 void DelayFloat::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addInlet(VP_LINK_NUMERIC,"ms");
+
     this->addOutlet(VP_LINK_NUMERIC,"number");
 
-    this->setCustomVar(0,"NUMBER");
+    this->setCustomVar(number,"NUMBER");
     this->setCustomVar(static_cast<float>(wait),"MS");
 }
 
 //--------------------------------------------------------------
 void DelayFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->onTextInputEvent(this, &DelayFloat::onTextInputEvent);
-
-    numberBox = gui->addTextInput("","0");
-    numberBox->setUseCustomMouse(true);
-    numberBox->setText(ofToString(this->getCustomVar("NUMBER")));
-
-    number = this->getCustomVar("NUMBER");
-
-    inputNumber = gui->addTextInput("","1000");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("MS")));
-
-    wait = this->getCustomVar("MS");
-
-    gui->setPosition(0,this->headerHeight + inputNumber->getHeight() + 6);
 }
 
 //--------------------------------------------------------------
 void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    numberBox->update();
-    inputNumber->update();
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] == 1.0 && !bang){
@@ -120,13 +97,11 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(this->inletsConnected[1]){
-      number = *(float *)&_inletParams[1];
-      numberBox->setText(ofToString(number));
+        number = *(float *)&_inletParams[1];
     }
 
     if(this->inletsConnected[2]){
-      wait                = static_cast<size_t>(floor(*(float *)&_inletParams[2]));
-      inputNumber->setText(ofToString(wait));
+        wait                = static_cast<size_t>(floor(*(float *)&_inletParams[2]));
     }
 
     if(!loadStart && (ofGetElapsedTimeMillis()-startTime > wait)){
@@ -137,16 +112,14 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         delayBang   = false;
     }
 
-    if(delayBang && this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
-    }else if(delayBang && !this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = static_cast<float>(ofToFloat(numberBox->getText()));
+    if(delayBang){
+        *(float *)&_outletParams[0] = number;
     }
 
     if(!loaded){
         loaded = true;
-        numberBox->setText(ofToString(this->getCustomVar("NUMBER")));
-        inputNumber->setText(ofToString(this->getCustomVar("MS")));
+        number = this->getCustomVar("NUMBER");
+        wait = static_cast<int>(floor(this->getCustomVar("MS")));
     }
 
 }
@@ -154,13 +127,62 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void DelayFloat::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
+
+}
+
+//--------------------------------------------------------------
+void DelayFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::InputInt("Delay",&wait)){
+                if(wait < 0){
+                    wait = 0;
+                }
+                this->setCustomVar(static_cast<float>(wait),"MS");
+            }
+            ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
+
+            ImGuiEx::ObjectInfo(
+                        "Time delayed number transmission.",
+                        "https://mosaic.d3cod3.org/reference.php?r=delay-float", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (28*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        if(ImGui::DragFloat("", &number,0.01f)){
+            this->setCustomVar(number,"NUMBER");
+        }
+        ImGui::PopItemWidth();
+
+        if(bang){
+            float percentage = static_cast<float>(ofGetElapsedTimeMillis()-startTime) / static_cast<float>(wait);
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x, window_pos.y + window_size.y - (26*this->scaleFactor)),ImVec2(window_pos.x + (window_size.x*percentage),window_pos.y + window_size.y - (26*this->scaleFactor)),IM_COL32(60,60,60,255),8.0f);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -168,23 +190,6 @@ void DelayFloat::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void DelayFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"MS");
-            wait        = ofToInt(e.text);
-        }else{
-            inputNumber->setText(ofToString(wait));
-        }
-
-    }else if(e.target == numberBox){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"NUMBER");
-            number = ofToFloat(e.text);
-        }
-    }
-}
 
 OBJECT_REGISTER( DelayFloat, "delay float", OFXVP_OBJECT_CAT_LOGIC)
 

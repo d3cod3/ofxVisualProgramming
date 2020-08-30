@@ -63,7 +63,7 @@ pdspDataOscillator::pdspDataOscillator() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_AUDIO,"signal");
@@ -172,10 +172,7 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 //--------------------------------------------------------------
 void pdspDataOscillator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    waveform.draw();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

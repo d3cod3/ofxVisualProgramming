@@ -93,28 +93,12 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
     if(!isFileLoaded && img->isAllocated()){
         isFileLoaded = true;
-        if(img->isAllocated()){
-            ofTextureData texData;
-            texData.width = img->getWidth();
-            texData.height = img->getHeight();
-            texData.textureTarget = GL_TEXTURE_2D;
-            texData.bFlipTexture = true;
-
-            _outletParams[0] = new ofTexture();
-            static_cast<ofTexture *>(_outletParams[0])->clear();
-            static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-            static_cast<ofTexture *>(_outletParams[0])->loadData(img->getPixels());
-            ofLog(OF_LOG_NOTICE,"[verbose] image file loaded: %s",filepath.c_str());
-        }else{
-            if(!isNewObject){
-                ofLog(OF_LOG_ERROR,"image file: %s NOT FOUND!",filepath.c_str());
-            }
-            filepath = "none";
-        }
+        static_cast<ofTexture *>(_outletParams[0])->allocate(img->getPixels());
+        ofLog(OF_LOG_NOTICE,"[verbose] image file loaded: %s",filepath.c_str());
     }
 
     if(img->isAllocated()){
-        static_cast<ofTexture *>(_outletParams[0])->loadData(img->getPixels());
+        *static_cast<ofTexture *>(_outletParams[0]) = img->getTexture();
     }
 
     if(isImageLoaded){
@@ -126,9 +110,18 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
 //--------------------------------------------------------------
 void ImageLoader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    ofSetColor(255);
+    ofEnableAlphaBlending(); // make sure is enabled here for transparent png
     // draw node texture preview with OF
-    if(scaledObjW*canvasZoom > 90.0f){
-        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        }
+    }else{
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
 }
 

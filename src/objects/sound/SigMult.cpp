@@ -61,7 +61,7 @@ SigMult::SigMult() : PatchObject(){
 
 //--------------------------------------------------------------
 void SigMult::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"gain");
     this->addOutlet(VP_LINK_AUDIO,"amplifiedSignal");
@@ -131,13 +131,7 @@ void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 //--------------------------------------------------------------
 void SigMult::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    waveform.draw();
-    ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

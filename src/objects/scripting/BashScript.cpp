@@ -71,7 +71,7 @@ BashScript::BashScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void BashScript::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_STRING,"control");
     this->addOutlet(VP_LINK_STRING,"scriptSTDOutput");
 }
@@ -190,10 +190,7 @@ void BashScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
     ofSetColor(255,150);
     ofEnableAlphaBlending();
     bashIcon->draw(this->width/2,this->headerHeight,((this->height/2.2f)/bashIcon->getHeight())*bashIcon->getWidth(),this->height/2.2f);
-    // GUI
-    ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

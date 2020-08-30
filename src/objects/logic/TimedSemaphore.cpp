@@ -65,7 +65,7 @@ TimedSemaphore::TimedSemaphore() : PatchObject(){
 
 //--------------------------------------------------------------
 void TimedSemaphore::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -136,7 +136,6 @@ void TimedSemaphore::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRe
         ofDrawCircle(this->width-20,this->height-20,10);
     }
     gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

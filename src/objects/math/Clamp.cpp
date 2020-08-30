@@ -56,7 +56,7 @@ Clamp::Clamp() : PatchObject(){
 
 //--------------------------------------------------------------
 void Clamp::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addInlet(VP_LINK_NUMERIC,"value");
@@ -90,7 +90,6 @@ void Clamp::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& 
     ofSetColor(255);
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

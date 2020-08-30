@@ -64,7 +64,7 @@ pdspLowCut::pdspLowCut() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspLowCut::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"freq");
     this->addOutlet(VP_LINK_AUDIO,"filteredSignal");
@@ -137,8 +137,7 @@ void pdspLowCut::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
     ofSetLineWidth(1);
     ofSetColor(255);
     freqINFO->draw(0,this->height/2);
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

@@ -66,7 +66,7 @@ pdspChorusEffect::pdspChorusEffect() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspChorusEffect::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"depth");
@@ -164,9 +164,7 @@ void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 //--------------------------------------------------------------
 void pdspChorusEffect::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

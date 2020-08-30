@@ -142,6 +142,8 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
         preloadFirstFrame = true;
 
         ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
+        //ofLog(OF_LOG_NOTICE,"Internal texture data type: %i",video->getTexture().getTextureData().glInternalFormat);
+
         isFileLoaded = true;
     }
 

@@ -130,22 +130,7 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void MidiSender::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    /*ofSetColor(30,31,36);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    string temp = "";
-    for(int i=1;i<this->numInlets;i++){
-        if(i==1){
-            temp = "Channel ";
-        }else if(i==2){
-            temp = "Note ";
-        }else if(i==3){
-            temp = "Velocity ";
-        }
-        font->draw(temp+ofToString(static_cast<int>(floor(*(float *)&_inletParams[i]))),this->fontSize,this->width/2,this->headerHeight*2.3 + (i*this->fontSize*1.15));
-    }
-    ofDisableAlphaBlending();*/
+
 }
 
 //--------------------------------------------------------------

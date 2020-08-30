@@ -35,7 +35,7 @@
 #include "VideoDelay.h"
 
 //--------------------------------------------------------------
-VideoDelay::VideoDelay() : PatchObject(){
+VideoDelay::VideoDelay() : PatchObject("video feedback"){
 
     this->numInlets  = 5;
     this->numOutlets = 1;
@@ -54,73 +54,51 @@ VideoDelay::VideoDelay() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
+    posX = posY = drawW = drawH = 0.0f;
 
     backBufferTex   = new ofTexture();
     delayFbo        = new ofFbo();
 
+    _x              = 0.0f;
+    _y              = 0.0f;
+
     alpha           = 0.0f;
     alphaTo         = 1.0f;
-    scale           = 1;
-    scaleTo         = 1;
+    scale           = 1.0f;
+    scaleTo         = 1.0f;
     needToGrab      = false;
 
     loaded          = false;
+
+    this->setIsTextureObj(true);
 
 }
 
 //--------------------------------------------------------------
 void VideoDelay::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addInlet(VP_LINK_NUMERIC,"scale");
     this->addInlet(VP_LINK_NUMERIC,"alpha");
+
     this->addOutlet(VP_LINK_TEXTURE,"feedbackOutput");
 
-    this->setCustomVar(0.0f,"POSX");
-    this->setCustomVar(0.0f,"POSY");
+    this->setCustomVar(_x,"POSX");
+    this->setCustomVar(_y,"POSY");
     this->setCustomVar(static_cast<float>(scaleTo),"SCALE");
     this->setCustomVar(static_cast<float>(alphaTo),"ALPHA");
 }
 
 //--------------------------------------------------------------
 void VideoDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->on2dPadEvent(this, &VideoDelay::on2dPadEvent);
-    gui->onSliderEvent(this, &VideoDelay::onSliderEvent);
 
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    gui->addBreak();
-    gui->addBreak();
-    pad = gui->add2dPad("POS");
-    pad->setUseCustomMouse(true);
-    pad->setPoint(ofPoint(this->getCustomVar("POSX"),this->getCustomVar("POSY"),0));
-    slider = gui->addSlider("Scale", 0.0,1.0,1.0);
-    slider->setUseCustomMouse(true);
-    sliderA = gui->addSlider("Alpha", 0.0,1.0,1.0);
-    sliderA->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    header->update();
-    pad->update();
-    slider->update();
-    sliderA->update();
 
     alpha       = .995 * alpha + .005 * alphaTo;
     scale       = .95 * scale + .05 * scaleTo;
@@ -144,7 +122,7 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         glColor4f(1.0f,1.0f,1.0f,alpha);
         glPushMatrix();
 
-        bounds.set((pad->getPoint().x/pad->getBounds().width)*static_cast<ofTexture *>(_inletParams[0])->getWidth(),(pad->getPoint().y/pad->getBounds().height)*static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        bounds.set(_x,_y,static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight());
         backBufferTex->draw(bounds.x, bounds.y, static_cast<ofTexture *>(_inletParams[0])->getWidth() * scale, static_cast<ofTexture *>(_inletParams[0])->getHeight() * scale );
         backBufferTex = static_cast<ofTexture *>(_inletParams[0]);
 
@@ -158,40 +136,27 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(*(float *)&_inletParams[1] == 0.0){
-            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[1] == static_cast<ofTexture *>(_inletParams[0])->getWidth()){
-            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(ofClamp(*(float *)&_inletParams[1],0,static_cast<ofTexture *>(_inletParams[0])->getWidth())/static_cast<ofTexture *>(_inletParams[0])->getWidth()*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
-        }
+        _x = ofClamp(*(float *)&_inletParams[1],-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
     }
 
     if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(*(float *)&_inletParams[2] == 0.0){
-            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[2] == static_cast<ofTexture *>(_inletParams[0])->getHeight()){
-            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(pad->getPoint().x,ofClamp(*(float *)&_inletParams[2],0,static_cast<ofTexture *>(_inletParams[0])->getHeight())/static_cast<ofTexture *>(_inletParams[0])->getHeight()*pad->getBounds().height,pad->getPoint().z));
-        }
+        _y = ofClamp(*(float *)&_inletParams[2],-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
     }
 
     if(this->inletsConnected[3]){
         scaleTo = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
-        slider->setValue(scaleTo);
     }
 
     if(this->inletsConnected[4]){
         alphaTo = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
-        sliderA->setValue(alphaTo);
     }
 
-    if(!loaded){
+    if(!loaded && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         loaded = true;
-        pad->setPoint(ofPoint(this->getCustomVar("POSX"),this->getCustomVar("POSY"),0));
-        slider->setValue(this->getCustomVar("SCALE"));
-        sliderA->setValue(this->getCustomVar("ALPHA"));
+        _x = ofClamp(this->getCustomVar("POSX"),-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _y = ofClamp(this->getCustomVar("POSY"),-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        scaleTo = this->getCustomVar("SCALE");
+        alphaTo = this->getCustomVar("ALPHA");
     }
     
 }
@@ -199,55 +164,76 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void VideoDelay::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    }else{
+        // background
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void VideoDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            ImGui::PushItemWidth(130*this->scaleFactor);
+            if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+                if(ImGui::SliderFloat("POS X",&_x, -static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth())){
+                    this->setCustomVar(_x,"XPOS");
+                }
+                if(ImGui::SliderFloat("POS Y",&_y, -static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight())){
+                    this->setCustomVar(_y,"YPOS");
+                }
+            }
+            if(ImGui::SliderFloat("SCALE",&scaleTo, 0.0f, 1.0f)){
+                this->setCustomVar(scaleTo,"WIDTH");
+            }
+            if(ImGui::SliderFloat("ALPHA",&alphaTo, 0.0f, 1.0f)){
+                this->setCustomVar(alphaTo,"ALPHA");
+            }
+            ImGui::PopItemWidth();
+
+            ImGuiEx::ObjectInfo(
+                        "With this object you can make a texture feedback. The action is visualized by scaling and/or moving the texture, showing the trace of its edges in the path.",
+                        "https://mosaic.d3cod3.org/reference.php?r=video-feedback", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
 }
 
 //--------------------------------------------------------------
 void VideoDelay::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void VideoDelay::on2dPadEvent(ofxDatGui2dPadEvent e){
-    this->setCustomVar(static_cast<float>(e.x),"POSX");
-    this->setCustomVar(static_cast<float>(e.y),"POSY");
-}
-
-//--------------------------------------------------------------
-void VideoDelay::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == slider){
-            this->setCustomVar(static_cast<float>(e.value),"SCALE");
-            scaleTo = ofClamp(static_cast<float>(e.value),0.0f,1.0f);
-        }else if(e.target == sliderA){
-            this->setCustomVar(static_cast<float>(e.value),"ALPHA");
-            alphaTo = ofClamp(static_cast<float>(e.value),0.0f,1.0f);
-        }
-    }
-
 }
 
 OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_VIDEO)

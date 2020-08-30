@@ -64,6 +64,7 @@ void moBang::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_NUMERIC,"bang");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
 }

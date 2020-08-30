@@ -68,7 +68,7 @@ ColorTracking::ColorTracking() : PatchObject(){
 
 //--------------------------------------------------------------
 void ColorTracking::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"blobsData");
@@ -330,7 +330,6 @@ void ColorTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
     gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

@@ -65,7 +65,7 @@ OpticalFlow::OpticalFlow() : PatchObject(){
 
 //--------------------------------------------------------------
 void OpticalFlow::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"opticalFlowData");
@@ -224,7 +224,6 @@ void OpticalFlow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
     gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

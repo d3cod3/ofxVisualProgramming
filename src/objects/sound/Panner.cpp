@@ -62,7 +62,7 @@ Panner::Panner() : PatchObject(){
 
 //--------------------------------------------------------------
 void Panner::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan");
     this->addOutlet(VP_LINK_AUDIO,"left");
@@ -131,9 +131,6 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 //--------------------------------------------------------------
 void Panner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

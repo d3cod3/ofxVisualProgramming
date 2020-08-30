@@ -60,7 +60,7 @@ pdspBitNoise::pdspBitNoise() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspBitNoise::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
@@ -123,13 +123,7 @@ void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void pdspBitNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    waveform.draw();
-    ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

@@ -58,7 +58,7 @@ VideoStreaming::VideoStreaming() : PatchObject(){
 
 //--------------------------------------------------------------
 void VideoStreaming::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 }
@@ -185,8 +185,7 @@ void VideoStreaming::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRe
         }
         ofDrawCircle(ofPoint(this->width-20, 30), 10);
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

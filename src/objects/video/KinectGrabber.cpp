@@ -66,7 +66,7 @@ KinectGrabber::KinectGrabber() : PatchObject(){
 
 //--------------------------------------------------------------
 void KinectGrabber::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addOutlet(VP_LINK_TEXTURE,"kinectImage");
     this->addOutlet(VP_LINK_TEXTURE,"kinectDepth");
 
@@ -216,8 +216,7 @@ void KinectGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
         }
         static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

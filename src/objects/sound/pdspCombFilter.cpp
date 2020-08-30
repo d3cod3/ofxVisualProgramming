@@ -66,7 +66,7 @@ pdspCombFilter::pdspCombFilter() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspCombFilter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"damping");
@@ -164,9 +164,7 @@ void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 //--------------------------------------------------------------
 void pdspCombFilter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

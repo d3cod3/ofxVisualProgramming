@@ -57,7 +57,7 @@ Smooth::Smooth() : PatchObject(){
 
 //--------------------------------------------------------------
 void Smooth::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"smoothedValue");
 
@@ -112,9 +112,7 @@ void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 //--------------------------------------------------------------
 void Smooth::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

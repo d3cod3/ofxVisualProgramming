@@ -158,7 +158,7 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 pos = ImVec2(window_pos.x + window_size.x - 50, window_pos.y + window_size.y/2);
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (50*scaleFactor), window_pos.y + window_size.y/2);
 
         char temp[32];
         sprintf(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
@@ -166,7 +166,7 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if(*(float *)&_outletParams[0] > 0){
             // draw beat
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x - 10,pos.y + 8), 6, IM_COL32(255, 255, 120, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x - (10*scaleFactor),pos.y + (8*scaleFactor)), 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();

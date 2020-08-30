@@ -80,10 +80,10 @@ float _harmCorrection[NOTES] = {0.17f, -0.08f, 0.07f, 0.18f, -0.08f, 0.29f, -0.2
                                 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f};
 
 //--------------------------------------------------------------
-NoteToFrequency::NoteToFrequency() : PatchObject(){
+NoteToFrequency::NoteToFrequency() : PatchObject("note to frequency"){
 
     this->numInlets  = 1;
-    this->numOutlets = 3;
+    this->numOutlets = 1;
 
     _inletParams[0] = new float();  // midi [0 - 127]
     *(float *)&_inletParams[0] = 0.0f;
@@ -91,85 +91,107 @@ NoteToFrequency::NoteToFrequency() : PatchObject(){
     _outletParams[0] = new float(); // frequency
     *(float *)&_outletParams[0] = 0.0f;
 
-    _outletParams[1] = new float(); // pitch
-    *(float *)&_outletParams[1] = 0.0f;
-
-    _outletParams[2] = new string(); // pitch
-    *static_cast<string *>(_outletParams[2]) = "";
-
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     lastNote            = 69; // A4 (central octave) = LA = 440 Hz
+
+    loaded              = false;
+
+    this->width         *= 1.4f;
 }
 
 //--------------------------------------------------------------
 void NoteToFrequency::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"midi note");
+
     this->addOutlet(VP_LINK_NUMERIC,"frequency");
-    this->addOutlet(VP_LINK_NUMERIC,"midiPitch");
-    this->addOutlet(VP_LINK_STRING,"englishNotation");
+
+    this->setCustomVar(static_cast<float>(lastNote),"MIDI_NOTE");
 }
 
 //--------------------------------------------------------------
 void NoteToFrequency::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &NoteToFrequency::onTextInputEvent);
-
-    inputNote = gui->addTextInput("",ofToString(lastNote));
-    inputNote->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
 void NoteToFrequency::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    inputNote->update();
-
     if(this->inletsConnected[0]){
       lastNote = ofClamp(ofToInt(ofToString(*(float *)&_inletParams[0])),0,127);
-      inputNote->setText(ofToString(lastNote));
     }
 
     *(float *)&_outletParams[0] = noteToFrequency(static_cast<int>(lastNote));
-    *(float *)&_outletParams[1] = frequencyToPitch(*(float *)&_outletParams[0]);
-    *static_cast<string *>(_outletParams[2]) = notation[static_cast<int>(lastNote)];
+
+    if(!loaded){
+        loaded = true;
+        lastNote = static_cast<int>(floor(this->getCustomVar("MIDI_NOTE")));
+    }
 
 }
 
 //--------------------------------------------------------------
 void NoteToFrequency::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw("Frequency: "+ofToString(*(float *)&_outletParams[0],2),this->fontSize,this->width/3 + 4,this->headerHeight*4);
-    font->draw("Pitch: "+ofToString(*(float *)&_outletParams[1]),this->fontSize,this->width/3 + 4,this->headerHeight*5);
-    font->draw("Note: "+*static_cast<string *>(_outletParams[2]),this->fontSize,this->width/3 + 4,this->headerHeight*6);
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void NoteToFrequency::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Convert a MIDI note to his correspondent frequency",
+                        "https://mosaic.d3cod3.org/reference.php?r=note-to-frequency", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
+
+        ImGui::PushItemWidth(90*scaleFactor);
+        if(ImGui::InputInt("midi note",&lastNote)){
+            if(lastNote < 0 ){
+                lastNote = 0;
+            }
+            if(lastNote > 127 ){
+                lastNote = 127;
+            }
+            this->setCustomVar(static_cast<float>(lastNote),"MIDI_NOTE");
+        }
+        ImGui::PopItemWidth();
+        ImGui::SameLine(); ImGuiEx::HelpMarker("MIDI notes range: [0 - 127]");
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Text("Frequency: %s", ofToString(*(float *)&_outletParams[0],2).c_str());
+        ImGui::Spacing();
+        ImGui::Text("Notation: %s", notation[static_cast<int>(lastNote)].c_str());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
 void NoteToFrequency::removeObjectContent(bool removeFileFromData){
 
-}
-
-//--------------------------------------------------------------
-void NoteToFrequency::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNote){
-        if(isInteger(e.text) && !this->inletsConnected[0]){
-            lastNote = ofClamp(ofToInt(e.text),0,127);
-            inputNote->setText(ofToString(lastNote));
-        }
-    }
 }
 
 //--------------------------------------------------

@@ -84,6 +84,9 @@ LuaScript::LuaScript() : PatchObject("lua script"){
 
     this->setIsResizable(true);
     this->setIsTextureObj(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 }
 
 //--------------------------------------------------------------
@@ -98,6 +101,9 @@ void LuaScript::newObject(){
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -239,15 +245,28 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
     if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
         loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
         reloadScriptThreaded();
     }
 }
 
 //--------------------------------------------------------------
 void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    if(scaledObjW*canvasZoom > 90.0f){
+    ofSetColor(255);
+    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF
-        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        }
+    }else{
+        // background
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
 }
 
@@ -314,6 +333,15 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

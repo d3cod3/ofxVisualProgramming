@@ -66,7 +66,7 @@ pdspResonant2PoleFilter::pdspResonant2PoleFilter() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"cutoff");
@@ -182,9 +182,7 @@ void pdspResonant2PoleFilter::updateObjectContent(map<int,shared_ptr<PatchObject
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

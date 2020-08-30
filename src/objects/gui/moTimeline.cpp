@@ -376,7 +376,6 @@ void moTimeline::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
     font->draw(ofToString(timeline->getCurrentFrame()),static_cast<int>(floor(this->fontSize*1.3)),this->width/3 + 8,this->headerHeight*5);
     font->draw(ofToString(timeline->getDurationInFrames()),static_cast<int>(floor(this->fontSize*1.3)),this->width/3 + 8,this->headerHeight*6);
 
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

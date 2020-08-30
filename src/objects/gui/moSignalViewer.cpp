@@ -93,9 +93,7 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofEnableAlphaBlending();
 
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

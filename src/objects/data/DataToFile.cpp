@@ -85,7 +85,6 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(fileSaved && !recordData && bang){
-        fileSaved = false;
         // start recording data to file
         recordData = true;
         ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
@@ -154,7 +153,6 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 }else{
                     if(fileSaved && !recordData){
                         recButtonLabel = "STOP";
-                        fileSaved = false;
                         // start recording data to file
                         recordData = true;
                         ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");

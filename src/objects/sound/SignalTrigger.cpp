@@ -64,7 +64,7 @@ SignalTrigger::SignalTrigger() : PatchObject(){
 
 //--------------------------------------------------------------
 void SignalTrigger::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"thresh");
     this->addOutlet(VP_LINK_NUMERIC,"bang");
@@ -136,14 +136,12 @@ void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void SignalTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
+
     if(bang){
         ofSetColor(250,250,5);
         ofDrawRectangle(0,0,this->width,this->height);
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

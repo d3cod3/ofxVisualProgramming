@@ -35,7 +35,7 @@
 #include "LivePatching.h"
 
 //--------------------------------------------------------------
-LivePatching::LivePatching() : PatchObject(){
+LivePatching::LivePatching() : PatchObject("live patching"){
 
     this->numInlets  = 1;
     this->numOutlets = 0;
@@ -46,11 +46,14 @@ LivePatching::LivePatching() : PatchObject(){
 
     posX = posY = drawW = drawH = 0.0f;
 
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
 void LivePatching::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"texture");
 }
 
@@ -61,30 +64,61 @@ void LivePatching::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void LivePatching::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
-    }
 }
 
 //--------------------------------------------------------------
 void LivePatching::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
+    // draw node texture preview with OF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
-            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
+    }else{
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void LivePatching::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Displays real-time texture in the background patch, with alpha so you can work with the objects, for live sessions.",
+                        "https://mosaic.d3cod3.org/reference.php?r=live-patching", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
 }
 
 //--------------------------------------------------------------

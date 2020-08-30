@@ -169,7 +169,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                         if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                            if(it->second->getName() == "lua script" || it->second->getName() == "shader object"){
+                            if(it->second->getName() == "lua script" || it->second->getName() == "glsl shader"){
                                 it->second->resetResolution(this->getId(),this->output_width,this->output_height);
                                 break;
                             }
@@ -229,8 +229,9 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void OutputWindow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    ofSetColor(255);
     // draw node texture preview with OF
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(scaledObjW*canvasZoom > 90.0f){
             drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }

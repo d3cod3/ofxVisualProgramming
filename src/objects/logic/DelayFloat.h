@@ -42,17 +42,15 @@ public:
 
     DelayFloat();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     numberBox;
-    ofxDatGuiTextInput*     inputNumber;
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
 
     bool                    bang;
     bool                    delayBang;
@@ -60,10 +58,13 @@ public:
 
     bool                    loaded;
     bool                    loadStart;
-    size_t                  wait;
+    int                     wait;
     size_t                  startTime;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

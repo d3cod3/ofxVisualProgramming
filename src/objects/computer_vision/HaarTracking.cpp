@@ -186,7 +186,6 @@ void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
         outputFBO->end();
 
     }
-    ofDisableAlphaBlending();
 
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){

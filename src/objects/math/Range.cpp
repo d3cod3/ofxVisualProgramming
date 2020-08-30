@@ -63,7 +63,7 @@ Range::Range() : PatchObject(){
 
 //--------------------------------------------------------------
 void Range::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"n1");
     this->addInlet(VP_LINK_NUMERIC,"n2");
     this->addOutlet(VP_LINK_NUMERIC,"min");
@@ -124,9 +124,6 @@ void Range::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 //--------------------------------------------------------------
 void Range::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

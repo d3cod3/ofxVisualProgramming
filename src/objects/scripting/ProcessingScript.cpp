@@ -69,7 +69,7 @@ ProcessingScript::ProcessingScript() : PatchObject(){
 
 //--------------------------------------------------------------
 void ProcessingScript::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_ARRAY,"data");
     this->addOutlet(VP_LINK_TEXTURE,"processingTexture");
     this->addOutlet(VP_LINK_ARRAY,"processingData");
@@ -277,9 +277,7 @@ void ProcessingScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGL
         }
     }
     ///////////////////////////////////////////
-    // GUI
-    gui->draw();
-    ofDisableAlphaBlending();
+
 }
 
 //--------------------------------------------------------------

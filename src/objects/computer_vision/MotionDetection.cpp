@@ -63,7 +63,7 @@ MotionDetection::MotionDetection() : PatchObject(){
 
 //--------------------------------------------------------------
 void MotionDetection::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_NUMERIC,"motionQuantity");
 
@@ -170,7 +170,6 @@ void MotionDetection::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLR
     gui->draw();
     gui2->draw();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

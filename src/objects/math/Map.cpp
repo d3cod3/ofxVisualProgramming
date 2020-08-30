@@ -70,7 +70,7 @@ Map::Map() : PatchObject(){
 
 //--------------------------------------------------------------
 void Map::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"in min");
     this->addInlet(VP_LINK_NUMERIC,"in max");
@@ -168,7 +168,6 @@ void Map::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& gl
     ofEnableAlphaBlending();
     font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
     gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

@@ -942,11 +942,11 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 //--------------------------------------------------------------
 void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int linkType){
     if(patchObjects[fromID]->getName() == "lua script"){
-        if((patchObjects[toID]->getName() == "shader object" || patchObjects[toID]->getName() == "output window") && linkType == VP_LINK_TEXTURE){
+        if((patchObjects[toID]->getName() == "glsl shader" || patchObjects[toID]->getName() == "output window") && linkType == VP_LINK_TEXTURE){
             patchObjects[fromID]->resetResolution(toID,patchObjects[toID]->getOutputWidth(),patchObjects[toID]->getOutputHeight());
         }
     }
-    if(patchObjects[fromID]->getName() == "shader object"){
+    if(patchObjects[fromID]->getName() == "glsl shader"){
         if(patchObjects[toID]->getName() == "output window" && linkType == VP_LINK_TEXTURE){
             patchObjects[fromID]->resetResolution(toID,patchObjects[toID]->getOutputWidth(),patchObjects[toID]->getOutputHeight());
         }

@@ -61,7 +61,7 @@ pdspDecimator::pdspDecimator() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDecimator::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"freq");
     this->addOutlet(VP_LINK_AUDIO,"decimatedSignal");
@@ -135,9 +135,6 @@ void pdspDecimator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
     ofEnableAlphaBlending();
     ofSetColor(255,255,120);
     waveform.draw();
-    ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------

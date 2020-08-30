@@ -44,37 +44,35 @@ public:
 
     OscReceiver();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            initOutlets();
     void            resetOutlets();
     string          getLocalIP();
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
 
-    ofxOscReceiver          osc_receiver;
-    int                     osc_port;
-    string                  local_ip;
-    vector<string>          osc_labels;
-
-    ofxDatGui*                      gui;
-    ofxDatGuiHeader*                header;
-    ofxDatGuiLabel*                 localIP;
-    ofxDatGuiTextInput*             port;
-    vector<ofxDatGuiTextInput*>     labels;
-    ofxDatGuiButton*                addOSCNumber;
-    ofxDatGuiButton*                addOSCText;
-    ofxDatGuiButton*                addOSCVector;
-    ofxDatGuiButton*                addOSCTexture;
+    ofxOscReceiver                  osc_receiver;
+    int                             osc_port;
+    string                          osc_port_string;
+    string                          local_ip;
+    vector<string>                  osc_labels;
+    vector<string>                  prev_osc_labels;
+    vector<int>                     osc_labels_type;
 
     ofImage                         *_tempImage;
 
+    bool                            loaded;
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

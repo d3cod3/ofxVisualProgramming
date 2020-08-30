@@ -147,6 +147,7 @@ void BooleanOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 bool is_selected = (_operator == i );
                 if (ImGui::Selectable(operators_string.at(i).c_str(), is_selected)){
                     _operator = i;
+                    this->setCustomVar(_operator,"OPERATOR");
                 }
                 if (is_selected) ImGui::SetItemDefaultFocus();
             }

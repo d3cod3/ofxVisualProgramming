@@ -374,11 +374,11 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
 
         // check special connections
         if(patchObjects[fromObjectID]->getName() == "lua script"){
-            if((this->getName() == "shader object" || this->getName() == "output window") && linkType == VP_LINK_TEXTURE){
+            if((this->getName() == "glsl shader" || this->getName() == "output window") && linkType == VP_LINK_TEXTURE){
                 patchObjects[fromObjectID]->resetResolution(this->getId(),this->getOutputWidth(),this->getOutputHeight());
             }
         }
-        if(patchObjects[fromObjectID]->getName() == "shader object"){
+        if(patchObjects[fromObjectID]->getName() == "glsl shader"){
             if(this->getName() == "output window" && linkType == VP_LINK_TEXTURE){
                 patchObjects[fromObjectID]->resetResolution(this->getId(),this->getOutputWidth(),this->getOutputHeight());
             }
