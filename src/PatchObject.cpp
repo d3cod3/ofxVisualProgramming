@@ -81,6 +81,14 @@ PatchObject::~PatchObject(){
 //--------------------------------------------------------------
 void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    // init vars
+    for(int i=0;i<static_cast<int>(inletsType.size());i++){
+        inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
+    }
+    for(int i=0;i<static_cast<int>(outletsType.size());i++){
+        outletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
+    }
+
     // previously set with setIsRetina()
     if(isRetina){
         width           *= 2;
@@ -204,7 +212,9 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), inletsPositions[i], tempLinkData, getInletTypeName(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), tempLinkData, getInletTypeName(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+
+            inletsPositions[i] = _nodeCanvas.getInletPosition(nId,i);
 
             // check for inbound connections
             if(connectData.connectType == 1){ // connect new
@@ -261,8 +271,9 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), outletsPositions[i], tempLinkData, getOutletTypeName(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
+            _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), tempLinkData, getOutletTypeName(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
 
+            outletsPositions[i] = _nodeCanvas.getOutletPosition(nId,i);
         }
 
         // Refresh links to eventually disconnect (backspace key or right click menu)
@@ -505,6 +516,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
 
             if(XML.pushTag("inlets")){
                 int totalInlets = XML.getNumTags("link");
+                inletsPositions.clear();
                 for (int i=0;i<totalInlets;i++){
                     if(XML.pushTag("link",i)){
                         inletsType.push_back(XML.getValue("type", 0));
@@ -521,6 +533,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
 
             if(XML.pushTag("outlets")){
                 int totalOutlets = XML.getNumTags("link");
+                outletsPositions.clear();
                 for (int i=0;i<totalOutlets;i++){
                     if(XML.pushTag("link",i)){
                         outletsType.push_back(XML.getValue("type", 0));

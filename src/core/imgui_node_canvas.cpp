@@ -654,7 +654,15 @@ void ImGuiEx::NodeCanvas::SetTransform(const ImVec2& _origin, float _scale){
 //    //curPinFlags = ImGuiExNodePinsFlags_Left; // resets
 //}
 
-ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, const int pinID, const char* _label, ImVec2& _pinPosition, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
+ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
+
+    /*if(_pinFlag == ImGuiExNodePinsFlags_Left){
+        // set data
+        inletPinsPositions[nodeID][pinID] = ImVec2(0,0);
+    }else if(_pinFlag == ImGuiExNodePinsFlags_Right){
+        // set data
+        outletPinsPositions[nodeID][pinID] = ImVec2(0,0);
+    }*/
 
     ImGuiEx::NodeConnectData connectData;
     connectData.connectType = -1;
@@ -830,14 +838,15 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
     // Left side (INLETS)
     if( _pinFlag==ImGuiExNodePinsFlags_Left ){
-        _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,0);
 
-        nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
+        inletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,0);
 
-        if(ImGui::GetMousePos().x > _pinPosition.x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < _pinPosition.x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > _pinPosition.y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < _pinPosition.y+(pinLayout.pinSpace.y*.5f)){
+        nodeDrawList->AddCircleFilled(inletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
+
+        if(ImGui::GetMousePos().x > inletPinsPositions[nodeID][pinID].x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < inletPinsPositions[nodeID][pinID].x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > inletPinsPositions[nodeID][pinID].y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < inletPinsPositions[nodeID][pinID].y+(pinLayout.pinSpace.y*.5f)){
             if(activePinType == _type || activePinType == ""){
-                nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
-                ImVec2 tempPos = _pinPosition - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
+                nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                ImVec2 tempPos = inletPinsPositions[nodeID][pinID] - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
                 canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
                 canvasDrawList->AddText( tempPos, _color, _label);
             }
@@ -845,20 +854,21 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
         }
 
         if(_connected){
-            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+            nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
         }
 
     }
 
     // right side (OUTLETS)
     else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
-        _pinPosition = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
 
-        nodeDrawList->AddCircleFilled(_pinPosition, pinSpace * .5f, _color, 6);
+        outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
+
+        nodeDrawList->AddCircleFilled(outletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
 
         // draw links (OUTLETS to INLETS ONLY)
         for(int i=0;i<_linksData.size();i++){
-            const LinkBezierData link_data = get_link_renderable(_pinPosition, canvasView.translation+(_linksData.at(i)._toPinPosition*canvasView.scale), IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+            const LinkBezierData link_data = get_link_renderable(outletPinsPositions[nodeID][pinID], canvasView.translation+(_linksData.at(i)._toPinPosition*canvasView.scale), IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
 
             const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
 
@@ -885,10 +895,10 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
         }
 
         // draw labels
-        if(ImGui::GetMousePos().x > _pinPosition.x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < _pinPosition.x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > _pinPosition.y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < _pinPosition.y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
+        if(ImGui::GetMousePos().x > outletPinsPositions[nodeID][pinID].x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < outletPinsPositions[nodeID][pinID].x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > outletPinsPositions[nodeID][pinID].y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < outletPinsPositions[nodeID][pinID].y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
             if(connectType == 0){
-                nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
-                ImVec2 tempPos = _pinPosition + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
+                nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                ImVec2 tempPos = outletPinsPositions[nodeID][pinID] + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
                 canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
                 canvasDrawList->AddText( tempPos, _color, _label);
             }
@@ -896,7 +906,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
         // draw pin connected
         if(_connected){
-            nodeDrawList->AddCircle(_pinPosition,pinSpace * 0.9f, _color, 6);
+            nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
         }
 
 

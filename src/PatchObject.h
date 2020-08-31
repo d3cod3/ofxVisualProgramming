@@ -122,7 +122,7 @@ public:
     void                    disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID);
 
     // LOAD/SAVE
-    bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow,pdsp::Engine &engine,int oTag, string &configFile);
+    bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile);
     bool                    saveConfig(bool newConnection);
     bool                    removeLinkFromConfig(int outlet, int toObjectID, int toInletID);
 

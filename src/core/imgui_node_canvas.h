@@ -52,6 +52,8 @@
 # include <imgui.h>
 # include <imgui_internal.h> // Access to more advanced ImGui variables.
 
+#include <map>
+
 // Default values. You can override them in imconfig.h
 // Everything below is in screen pixels, actual size, non scaled.
 # define IMGUI_EX_NODE_MIN_WIDTH 40 // Minimum width. Items cannot be smaller.
@@ -226,7 +228,7 @@ struct NodeCanvas {
     // Always call EndNodePins, only draw when it returns true.
     //void BeginNodePins( const int& _numPins, const ImGuiExNodePinsFlags& _pinFlags = ImGuiExNodePinsFlags_Left );
     //void EndNodePins();
-    NodeConnectData AddNodePin(const int nodeID, const int pinID, const char* _label, ImVec2& _pinPosition, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
+    NodeConnectData AddNodePin(const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
 
     // To extend the menu
     bool BeginNodeMenu();
@@ -290,10 +292,34 @@ struct NodeCanvas {
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
 
+    ImVec2 getInletPosition(int objID, int pinID) {
+        for(std::map<int,std::map<int,ImVec2>>::iterator it = inletPinsPositions.begin(); it != inletPinsPositions.end(); it++ ){
+            if(it->first == objID){
+                return it->second[pinID];
+            }
+        }
+        return ImVec2(0,0);
+    }
+
+    ImVec2 getOutletPosition(int objID, int pinID) {
+        for(std::map<int,std::map<int,ImVec2>>::iterator it = outletPinsPositions.begin(); it != outletPinsPositions.end(); it++ ){
+            if(it->first == objID){
+                return it->second[pinID];
+            }
+        }
+        return ImVec2(0,0);
+    }
+
+    void setContext(ImGuiContext* _c){ context = _c; }
+    ImGuiContext* getContext() { return context; }
+
 private:
 //    void pushNodeWorkRect();
 //    void popNodeWorkRect();
 //    ImRect canvasWorkRectBackup;
+
+    // context
+    ImGuiContext* context;
 
     // state management bools
     bool isDrawingCanvas = false;
@@ -310,6 +336,8 @@ private:
     ImDrawList* nodeDrawList = nullptr;
 
     // Patch Control data
+    std::map<int,std::map<int,ImVec2>>  inletPinsPositions;
+    std::map<int,std::map<int,ImVec2>>  outletPinsPositions;
     std::vector<int> selected_nodes; // for group actions (copy, duplicate, delete) -- TO IMPLEMENT
     std::vector<int> selected_links; // for delete links (one or multiple)          -- IMPLEMENTED
     std::string activePin;

@@ -94,9 +94,17 @@ void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void moVideoViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    if(scaledObjW*canvasZoom > 90.0f){
-        // draw node texture preview with OF
-        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    ofSetColor(255);
+    // draw node texture preview with OF
+    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        }
+    }else{
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
 }
 

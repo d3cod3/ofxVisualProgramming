@@ -118,6 +118,8 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
         //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
 
+    nodeCanvas.setContext(ImGui::GetCurrentContext());
+
     // Set pan-zoom canvas
     canvas.disableMouseInput();
     canvas.setbMouseInputEnabled(true);
@@ -131,7 +133,6 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
     plugins_kernel.add_server(PatchObject::server_name(), PatchObject::version);
     // list plugin directory
     ofDirectory pluginsDir;
-    pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
 #ifdef TARGET_LINUX
     pluginsDir.allowExt("so");
 #elif defined(TARGET_OSX)
@@ -139,6 +140,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
 #elif defined(TARGET_WIN32)
     pluginsDir.allowExt("dll");
 #endif
+    pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
     pluginsDir.sort();
 
     // load all plugins
