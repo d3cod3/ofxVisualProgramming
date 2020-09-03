@@ -246,6 +246,6 @@ void ImageExporter::saveImageFile(){
 
 }
 
-OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_GRAPHICS)
+OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

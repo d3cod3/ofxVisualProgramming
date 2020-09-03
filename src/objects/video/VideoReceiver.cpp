@@ -143,6 +143,6 @@ void VideoReceiver::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

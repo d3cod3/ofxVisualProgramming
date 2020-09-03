@@ -215,6 +215,6 @@ void ImageLoader::loadImageFile(){
     }
 }
 
-OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_GRAPHICS)
+OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

@@ -236,6 +236,6 @@ void VideoDelay::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

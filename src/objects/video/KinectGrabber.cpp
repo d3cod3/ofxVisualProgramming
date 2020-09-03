@@ -338,6 +338,6 @@ void KinectGrabber::resetKinectImage(bool ir){
 }
 
 
-OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

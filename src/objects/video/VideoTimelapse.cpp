@@ -211,6 +211,6 @@ void VideoTimelapse::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

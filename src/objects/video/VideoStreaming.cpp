@@ -242,6 +242,6 @@ void VideoStreaming::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

@@ -303,6 +303,6 @@ void VideoExporter::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

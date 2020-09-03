@@ -295,6 +295,6 @@ void VideoTransform::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoTransform, "texture transform", OFXVP_OBJECT_CAT_GRAPHICS)
+OBJECT_REGISTER( VideoTransform, "texture transform", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

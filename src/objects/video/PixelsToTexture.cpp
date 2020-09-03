@@ -117,6 +117,6 @@ void PixelsToTexture::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( PixelsToTexture, "pixels to texture", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( PixelsToTexture, "pixels to texture", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

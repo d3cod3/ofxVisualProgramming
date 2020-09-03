@@ -349,6 +349,6 @@ void VideoGrabber::resetCameraSettings(int devID){
     needReset = false;
 }
 
-OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

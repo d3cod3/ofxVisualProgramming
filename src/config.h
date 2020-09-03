@@ -106,6 +106,7 @@
 #define OFXVP_OBJECT_CAT_MATH           "math"
 #define OFXVP_OBJECT_CAT_SCRIPTING      "scripting"
 #define OFXVP_OBJECT_CAT_SOUND          "sound"
+#define OFXVP_OBJECT_CAT_TEXTURE        "texture"
 #define OFXVP_OBJECT_CAT_VIDEO          "video"
 #define OFXVP_OBJECT_CAT_WINDOWING      "windowing"
 
