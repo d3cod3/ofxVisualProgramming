@@ -73,10 +73,10 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
-        ADDON_DEPENDENCIES += ofxJava ofxPd ofxPdExternals ofxPython ofxNDI
+        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/ProcessingScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxJava ofxPd ofxPdExternals ofxPython ofxNDI
+        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI

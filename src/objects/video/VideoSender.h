@@ -36,6 +36,8 @@
 
 #include "PatchObject.h"
 
+#include "IconsFontAwesome5.h"
+
 #include "ofxNDISender.h"
 #include "ofxFastFboReader.h"
 
@@ -46,16 +48,16 @@ public:
 
     VideoSender();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     
-    
-
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
 
     ofxNDISender        ndiSender;
     ofxFastFboReader    reader;
@@ -63,15 +65,23 @@ public:
     ofPixels            capturePix;
 
     bool                needToGrab;
+    bool                isSending;
 
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiToggle*    recButton;
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
+protected:
+
+    string                  recButtonLabel;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

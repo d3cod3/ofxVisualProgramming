@@ -35,7 +35,7 @@
 #include "SimpleNoise.h"
 
 //--------------------------------------------------------------
-SimpleNoise::SimpleNoise() : PatchObject("simple noise"){
+SimpleNoise::SimpleNoise() : PatchObject("1D noise"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -138,6 +138,6 @@ void SimpleNoise::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( SimpleNoise, "simple noise", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( SimpleNoise, "1D noise", OFXVP_OBJECT_CAT_MATH)
 
 #endif

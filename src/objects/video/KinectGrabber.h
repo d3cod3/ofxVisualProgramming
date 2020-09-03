@@ -48,47 +48,49 @@ public:
 
     KinectGrabber();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    
-    
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadKinectSettings();
     void            resetKinectSettings(int devID);
     void            resetKinectImage(bool ir);
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
-
-    vector<string>      devicesVector;
-    int                 kinectWidth, kinectHeight;
-    int                 deviceID;
-    bool                isIR;
-    bool                needReset;
-    bool                weHaveKinect;
-
-
-    float               posX, posY, drawW, drawH;
-    bool                isNewObject;
 
     ofxCvColorImage     colorCleanImage;
     ofxCvGrayscaleImage	cleanImage;
     ofxCvGrayscaleImage grayThreshNear;
     ofxCvGrayscaleImage grayThreshFar;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     deviceName;
-    ofxDatGuiMatrix*    deviceSelector;
-    ofxDatGuiToggle*    irButton;
-    ofxDatGuiSlider*    nearThreshold;
-    ofxDatGuiSlider*    farThreshold;
+    vector<string>      devicesVector;
+    vector<int>         devicesID;
+    int                 kinectWidth, kinectHeight;
+    int                 deviceID;
+    bool                isIR;
+    float               nearThreshold;
+    float               farThreshold;
+    bool                needReset;
+    bool                weHaveKinect;
+
+    float               posX, posY, drawW, drawH;
+    bool                isNewObject;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
+    float               prevW, prevH;
+
+    bool                loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

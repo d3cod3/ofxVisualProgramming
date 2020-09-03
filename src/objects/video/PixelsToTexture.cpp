@@ -35,7 +35,7 @@
 #include "PixelsToTexture.h"
 
 //--------------------------------------------------------------
-PixelsToTexture::PixelsToTexture() : PatchObject(){
+PixelsToTexture::PixelsToTexture() : PatchObject("pixels to texture"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -46,13 +46,16 @@ PixelsToTexture::PixelsToTexture() : PatchObject(){
 
     this->initInletsState();
 
+    this->height     /= 2;
 
 }
 
 //--------------------------------------------------------------
 void PixelsToTexture::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_PIXELS,"pixels");
+
     this->addOutlet(VP_LINK_TEXTURE,"texture");
 }
 
@@ -65,14 +68,47 @@ void PixelsToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        static_cast<ofTexture *>(_outletParams[0])->loadData(*static_cast<ofPixels *>(_inletParams[0]));
+        if(static_cast<ofPixels *>(_inletParams[0])->getWidth() > 0 && static_cast<ofPixels *>(_inletParams[0])->getHeight() > 0){
+            static_cast<ofTexture *>(_outletParams[0])->loadData(*static_cast<ofPixels *>(_inletParams[0]));
+        }
     }
 
 }
 
 //--------------------------------------------------------------
-void PixelsToTexture::drawObjectContent(ofxFontStash *font){
+void PixelsToTexture::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
+
+}
+
+//--------------------------------------------------------------
+void PixelsToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Transforms the signal from a pixels cable (emerald green) into a texture signal (blue cable). Texture data is processed on GPU while pixel data on CPU",
+                        "https://mosaic.d3cod3.org/reference.php?r=pixel-to-texture", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+
+
+        _nodeCanvas.EndNodeContent();
+    }
 
 }
 

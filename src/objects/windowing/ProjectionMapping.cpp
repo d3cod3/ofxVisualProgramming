@@ -88,6 +88,8 @@ void ProjectionMapping::newObject(){
 //--------------------------------------------------------------
 void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    fileDialog.setIsRetina(this->isRetina);
+
     ofGLFWWindowSettings settings;
     settings.setGLVersion(2,1);
     settings.shareContextWith = mainWindow;

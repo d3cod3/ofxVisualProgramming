@@ -106,6 +106,9 @@ void ShaderObject::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    fileDialog.setIsRetina(this->isRetina);
+
     initResolution();
 
     // load kuro

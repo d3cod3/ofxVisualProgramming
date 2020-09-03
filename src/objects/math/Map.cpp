@@ -35,7 +35,7 @@
 #include "Map.h"
 
 //--------------------------------------------------------------
-Map::Map() : PatchObject(){
+Map::Map() : PatchObject("map"){
 
     this->numInlets  = 5;
     this->numOutlets = 1;
@@ -56,9 +56,6 @@ Map::Map() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     inMin = 0;
     inMax = 1;
     outMin = 0;
@@ -71,11 +68,13 @@ Map::Map() : PatchObject(){
 //--------------------------------------------------------------
 void Map::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"in min");
     this->addInlet(VP_LINK_NUMERIC,"in max");
     this->addInlet(VP_LINK_NUMERIC,"out min");
     this->addInlet(VP_LINK_NUMERIC,"out max");
+
     this->addOutlet(VP_LINK_NUMERIC,"mapped value");
 
     this->setCustomVar(static_cast<float>(inMin),"IN_MIN");
@@ -87,65 +86,24 @@ void Map::newObject(){
 
 //--------------------------------------------------------------
 void Map::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &Map::onTextInputEvent);
 
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    inputMin = gui->addTextInput("IN MIN","0");
-    inputMin->setUseCustomMouse(true);
-    inputMin->setText(ofToString(this->getCustomVar("IN_MIN")));
-    inputMax = gui->addTextInput("IN MAX","1");
-    inputMax->setUseCustomMouse(true);
-    inputMax->setText(ofToString(this->getCustomVar("IN_MAX")));
-    outputMin = gui->addTextInput("OUT MIN","0");
-    outputMin->setUseCustomMouse(true);
-    outputMin->setText(ofToString(this->getCustomVar("OUT_MIN")));
-    outputMax = gui->addTextInput("OUT MAX","1");
-    outputMax->setUseCustomMouse(true);
-    outputMax->setText(ofToString(this->getCustomVar("OUT_MAX")));
-
-    inMin = this->getCustomVar("IN_MIN");
-    inMax = this->getCustomVar("IN_MAX");
-    outMin = this->getCustomVar("OUT_MIN");
-    outMax = this->getCustomVar("OUT_MAX");
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void Map::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    inputMin->update();
-    inputMax->update();
-    outputMin->update();
-    outputMax->update();
-
     if(this->inletsConnected[0]){
       if(this->inletsConnected[1]){
           inMin = *(float *)&_inletParams[1];
-          inputMin->setText(ofToString(inMin));
       }
       if(this->inletsConnected[2]){
           inMax = *(float *)&_inletParams[2];
-          inputMax->setText(ofToString(inMax));
       }
       if(this->inletsConnected[3]){
           outMin = *(float *)&_inletParams[3];
-          outputMin->setText(ofToString(outMin));
       }
       if(this->inletsConnected[4]){
           outMax = *(float *)&_inletParams[4];
-          outputMax->setText(ofToString(outMax));
       }
       *(float *)&_outletParams[0] = ofMap(*(float *)&_inletParams[0],inMin, inMax, outMin, outMax,true);
     }else{
@@ -154,10 +112,10 @@ void Map::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded = true;
-        inputMin->setText(ofToString(this->getCustomVar("IN_MIN")));
-        inputMax->setText(ofToString(this->getCustomVar("IN_MAX")));
-        outputMin->setText(ofToString(this->getCustomVar("OUT_MIN")));
-        outputMax->setText(ofToString(this->getCustomVar("OUT_MAX")));
+        inMin = this->getCustomVar("IN_MIN");
+        inMax = this->getCustomVar("IN_MAX");
+        outMin = this->getCustomVar("OUT_MIN");
+        outMax = this->getCustomVar("OUT_MAX");
     }
 
 }
@@ -165,9 +123,67 @@ void Map::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 //--------------------------------------------------------------
 void Map::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    gui->draw();
+}
+
+//--------------------------------------------------------------
+void Map::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::DragFloat("Input Min",&inMin,0.01f)){
+                this->setCustomVar(static_cast<float>(inMin),"IN_MIN");
+            }
+            ImGui::Spacing();
+            if(ImGui::DragFloat("Input Max",&inMax,0.01f)){
+                this->setCustomVar(static_cast<float>(inMax),"IN_MAX");
+            }
+            ImGui::Spacing();
+            if(ImGui::DragFloat("Output Min",&outMin,0.01f)){
+                this->setCustomVar(static_cast<float>(outMin),"OUT_MIN");
+            }
+            ImGui::Spacing();
+            if(ImGui::DragFloat("Output Max",&outMax,0.01f)){
+                this->setCustomVar(static_cast<float>(outMax),"OUT_MAX");
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Map a number range to another one.",
+                        "https://mosaic.d3cod3.org/reference.php?r=map", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
+        float valuePercentage = ofMap(*(float *)&_outletParams[0],outMin,outMax,0.0f,1.0f,true);
+
+        // vertical ranges
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*1)),ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*3)),IM_COL32(60,60,60,255),2.0f);
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*4)),IM_COL32(60,60,60,255),2.0f);
+
+        // value
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),IM_COL32(90,90,90,255),2.0f);
+
+        _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),4*scaleFactor,IM_COL32(160,160,160,255),40);
+        _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),4*scaleFactor,IM_COL32(160,160,160,255),40);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -175,32 +191,6 @@ void Map::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void Map::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == inputMin){
-            if(isInteger(e.text) || isFloat(e.text)){
-                this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"IN_MIN");
-                inMin = ofToFloat(e.text);
-            }
-        }else if(e.target == inputMax){
-            if(isInteger(e.text) || isFloat(e.text)){
-                this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"IN_MAX");
-                inMax = ofToFloat(e.text);
-            }
-        }else if(e.target == outputMin){
-            if(isInteger(e.text) || isFloat(e.text)){
-                this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"OUT_MIN");
-                outMin = ofToFloat(e.text);
-            }
-        }else if(e.target == outputMax){
-            if(isInteger(e.text) || isFloat(e.text)){
-                this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"OUT_MAX");
-                outMax = ofToFloat(e.text);
-            }
-        }
-    }
-}
 
 OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH)
 

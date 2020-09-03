@@ -35,7 +35,7 @@
 #include "KinectGrabber.h"
 
 //--------------------------------------------------------------
-KinectGrabber::KinectGrabber() : PatchObject(){
+KinectGrabber::KinectGrabber() : PatchObject("kinect grabber"){
 
     this->numInlets  = 0;
     this->numOutlets = 2;
@@ -45,9 +45,6 @@ KinectGrabber::KinectGrabber() : PatchObject(){
     _outletParams[2] = new ofxKinect(); // kinect reference
 
     this->initInletsState();
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     isNewObject         = false;
 
@@ -59,100 +56,55 @@ KinectGrabber::KinectGrabber() : PatchObject(){
     deviceID            = 0;
     isIR                = false;
 
+    nearThreshold       = 230.0f;
+    farThreshold        = 70.0f;
+
     needReset           = false;
 
     weHaveKinect        = false;
+
+    loaded                  = false;
+
+    this->setIsResizable(true);
+    this->setIsTextureObj(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 }
 
 //--------------------------------------------------------------
 void KinectGrabber::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_TEXTURE,"kinectImage");
     this->addOutlet(VP_LINK_TEXTURE,"kinectDepth");
 
     this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
     this->setCustomVar(static_cast<float>(isIR),"INFRARED");
-    this->setCustomVar(static_cast<float>(230.0),"NEAR_THRESH");
-    this->setCustomVar(static_cast<float>(70.0),"FAR_THRESH");
+    this->setCustomVar(nearThreshold,"NEAR_THRESH");
+    this->setCustomVar(farThreshold,"FAR_THRESH");
+
+    this->setCustomVar(prevW,"OBJ_WIDTH");
+    this->setCustomVar(prevH,"OBJ_HEIGHT");
 }
 
 //--------------------------------------------------------------
 void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
     int numKinects = ofxKinect::numAvailableDevices();
     if(numKinects > 0){
         ofLog(OF_LOG_NOTICE,"KINECT devices available: %i",numKinects);
         for(int i=0;i<numKinects;i++){
-            devicesVector.push_back(ofToString(i));
+            devicesVector.push_back("Kinect Device "+ofToString(i));
+            devicesID.push_back(i);
         }
         weHaveKinect = true;
-    }
-
-    if(weHaveKinect){
-        deviceName = gui->addLabel("Kinect Device "+ofToString(deviceID));
-        deviceSelector = gui->addMatrix("DEVICE",devicesVector.size(),true);
-        deviceSelector->setUseCustomMouse(true);
-        deviceSelector->setRadioMode(true);
-        deviceSelector->getChildAt(deviceID)->setSelected(true);
-        deviceSelector->onMatrixEvent(this, &KinectGrabber::onMatrixEvent);
-        gui->addBreak();
-
-        irButton = gui->addToggle("INFRARED",false);
-        irButton->setUseCustomMouse(true);
-        irButton->setChecked(isIR);
-
-        nearThreshold = gui->addSlider("NEAR",0,255,0);
-        nearThreshold->setUseCustomMouse(true);
-        farThreshold = gui->addSlider("FAR",0,255,0);
-        farThreshold->setUseCustomMouse(true);
-
-        loadKinectSettings();
-
-    }
-
-    gui->onToggleEvent(this, &KinectGrabber::onToggleEvent);
-    gui->onSliderEvent(this, &KinectGrabber::onSliderEvent);
-    gui->onMatrixEvent(this, &KinectGrabber::onMatrixEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
-    // SETUP KINECT
-    if(weHaveKinect){
-        static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-        static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
-        static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
-        static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
-
-        colorCleanImage.allocate(kinectWidth, kinectHeight);
-        cleanImage.allocate(kinectWidth, kinectHeight);
-        grayThreshNear.allocate(kinectWidth, kinectHeight);
-        grayThreshFar.allocate(kinectWidth, kinectHeight);
     }
     
 }
 
 //--------------------------------------------------------------
 void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed() && weHaveKinect){
-        deviceSelector->update();
-        irButton->update();
-        nearThreshold->update();
-        farThreshold->update();
-    }
 
     if(needReset){
         needReset = false;
@@ -172,8 +124,8 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
             grayThreshNear = cleanImage;
             grayThreshFar = cleanImage;
-            grayThreshNear.threshold(nearThreshold->getValue(), true);
-            grayThreshFar.threshold(farThreshold->getValue());
+            grayThreshNear.threshold(nearThreshold, true);
+            grayThreshFar.threshold(farThreshold);
 
             grayThreshNear.updateTexture();
             grayThreshFar.updateTexture();
@@ -189,33 +141,127 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }
     }
 
+    if(!loaded){
+        loaded = true;
+        if(weHaveKinect){
+
+            colorCleanImage.allocate(kinectWidth, kinectHeight);
+            cleanImage.allocate(kinectWidth, kinectHeight);
+            grayThreshNear.allocate(kinectWidth, kinectHeight);
+            grayThreshFar.allocate(kinectWidth, kinectHeight);
+
+            loadKinectSettings();
+
+            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
+            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
+            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
+            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
+
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void KinectGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+    // background
+    if(scaledObjW*canvasZoom > 90.0f){
+        ofSetColor(34,34,34);
+        if(this->numInlets>0){
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }else{
+            ofDrawRectangle(objOriginX, objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW,scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
+
+    // kinect image
+    if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        ofSetColor(255);
+        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+}
+
+//--------------------------------------------------------------
+void KinectGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            if(weHaveKinect){
+                ImGui::Spacing();
+                ImGui::Text("Kinect motion sensing input device (Xbox 360 model)");
+                ImGui::Text("Format: %ix%i",kinectWidth, kinectHeight);
+                ImGui::Spacing();
+                if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
+                    for(int i=0; i < devicesVector.size(); ++i){
+                        bool is_selected = (deviceID == i );
+                        if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
+                            resetKinectSettings(i);
+                        }
+                        if (is_selected) ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                ImGui::Spacing();
+                if(ImGui::Checkbox("Infrared",&isIR)){
+                    this->setCustomVar(static_cast<float>(isIR),"INFRARED");
+                    resetKinectImage(isIR);
+                }
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("Near Threshold",&nearThreshold,0,255)){
+                    this->setCustomVar(nearThreshold,"NEAR_THRESH");
+                }
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("Far Threshold",&farThreshold,0,255)){
+                    this->setCustomVar(farThreshold,"FAR_THRESH");
+                }
+            }else{
+                ImGui::Spacing();
+                ImGui::Text("No Kinect sensor found!");
+            }
+
+
+            ImGuiEx::ObjectInfo(
+                        "Opens a compatible Kinect sensor device",
+                        "https://mosaic.d3cod3.org/reference.php?r=kinect-grabber", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(prevW,"OBJ_WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(prevH,"OBJ_HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
 
 }
 
@@ -241,8 +287,8 @@ void KinectGrabber::loadKinectSettings(){
         this->setCustomVar(static_cast<float>(isIR),"INFRARED");
     }
 
-    nearThreshold->setValue(static_cast<double>(this->getCustomVar("NEAR_THRESH")));
-    farThreshold->setValue(static_cast<double>(this->getCustomVar("FAR_THRESH")));
+    nearThreshold = this->getCustomVar("NEAR_THRESH");
+    farThreshold = this->getCustomVar("FAR_THRESH");
 
 }
 
@@ -251,10 +297,9 @@ void KinectGrabber::resetKinectSettings(int devID){
 
     if(devID!=deviceID){
 
-        ofLog(OF_LOG_NOTICE,"Changing Device to: %i",ofToInt(devicesVector[devID]));
+        ofLog(OF_LOG_NOTICE,"Changing Device to: %s",devicesVector[devID].c_str());
 
         deviceID = devID;
-        deviceName->setLabel("Kinect Device "+ofToString(deviceID));
         this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
 
 
@@ -292,37 +337,6 @@ void KinectGrabber::resetKinectImage(bool ir){
 
 }
 
-//--------------------------------------------------------------
-void KinectGrabber::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == irButton){
-            resetKinectImage(e.checked);
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void KinectGrabber::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == nearThreshold){
-            this->setCustomVar(static_cast<float>(e.value),"NEAR_THRESH");
-
-        }else if(e.target == farThreshold){
-            this->setCustomVar(static_cast<float>(e.value),"FAR_THRESH");
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void KinectGrabber::onMatrixEvent(ofxDatGuiMatrixEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == deviceSelector){
-            resetKinectSettings(e.child);
-        }
-    }
-}
 
 OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_VIDEO)
 

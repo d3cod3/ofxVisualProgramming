@@ -35,7 +35,7 @@
 #include "Clamp.h"
 
 //--------------------------------------------------------------
-Clamp::Clamp() : PatchObject(){
+Clamp::Clamp() : PatchObject("clamp"){
 
     this->numInlets  = 3;
     this->numOutlets = 1;
@@ -52,15 +52,25 @@ Clamp::Clamp() : PatchObject(){
 
     this->initInletsState();
 
+    min     = 0.0f;
+    max     = 1.0f;
+
+    loaded  = false;
+
 }
 
 //--------------------------------------------------------------
 void Clamp::newObject(){
     PatchObject::setName( this->objectName );
+
+    this->addInlet(VP_LINK_NUMERIC,"value");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
-    this->addInlet(VP_LINK_NUMERIC,"value");
+
     this->addOutlet(VP_LINK_NUMERIC,"result");
+
+    this->setCustomVar(static_cast<float>(min),"MIN");
+    this->setCustomVar(static_cast<float>(max),"MAX");
 
 }
 
@@ -71,25 +81,69 @@ void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void Clamp::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[2]){
-      float _min = 0.0f, _max = 1000000000.0f;
-      if(this->inletsConnected[0]){
-        _min = *(float *)&_inletParams[0];
-      }
-      if(this->inletsConnected[0]){
-        _max = *(float *)&_inletParams[1];
-      }
-      *(float *)&_outletParams[0] = ofClamp(*(float *)&_inletParams[2],_min,_max);
+    if(this->inletsConnected[0]){
+      *(float *)&_outletParams[0] = ofClamp(*(float *)&_inletParams[0],min,max);
     }else{
       *(float *)&_outletParams[0] = 0.0f;
+    }
+
+    if(this->inletsConnected[1]){
+      min = *(float *)&_inletParams[1];
+    }
+    if(this->inletsConnected[2]){
+      max = *(float *)&_inletParams[2];
+    }
+
+    if(!loaded){
+        loaded = true;
+        min = this->getCustomVar("MIN");
+        max = this->getCustomVar("MAX");
     }
 }
 
 //--------------------------------------------------------------
 void Clamp::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
+}
+
+//--------------------------------------------------------------
+void Clamp::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Force the numerical input between the configured range.",
+                        "https://mosaic.d3cod3.org/reference.php?r=clamp", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+
+        if(ImGui::DragFloat("Min",&min,0.01f)){
+            this->setCustomVar(static_cast<float>(min),"MIN");
+        }
+        ImGui::Spacing();
+        if(ImGui::DragFloat("Max",&max,0.01f)){
+            this->setCustomVar(static_cast<float>(max),"MAX");
+        }
+
+    }
+
 }
 
 //--------------------------------------------------------------

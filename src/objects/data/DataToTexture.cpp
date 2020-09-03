@@ -137,15 +137,8 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
         scaledPix->allocate(this->output_width,this->output_height,OF_PIXELS_RGB);
 
-        ofTextureData texData;
-        texData.width = this->output_width;
-        texData.height = this->output_height;
-        texData.textureTarget = GL_TEXTURE_2D;
-        texData.bFlipTexture = true;
-
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-        static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
+        static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
     }
 
 }
@@ -238,16 +231,8 @@ void DataToTexture::resetResolution(){
         scaledPix = new ofPixels();
         scaledPix->allocate(this->output_width,this->output_height,OF_PIXELS_RGB);
 
-        // IMPORTANT - Needed for OF <--> imgui texture sharing
-        ofTextureData texData;
-        texData.width = this->output_width;
-        texData.height = this->output_height;
-        texData.textureTarget = GL_TEXTURE_2D;
-        texData.bFlipTexture = true;
-
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-        static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
+        static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
 
 
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

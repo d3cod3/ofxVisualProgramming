@@ -35,9 +35,8 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "ofxImGui.h"
 
-#include "imgui_node_canvas.h"
+#include "IconsFontAwesome5.h"
 
 #include "ofxTimeline.h"
 
@@ -99,7 +98,7 @@ public:
     int                                     sameNameAvoider;
     int                                     durationInSeconds;
     int                                     fps;
-    float                                   bpm;
+    int                                     bpm;
     int                                     lastTrackID;
     bool                                    timelineLoaded;
     bool                                    resetTimelineOutlets;
@@ -115,6 +114,11 @@ public:
 
     bool                                    loadedObjectFromXML;
     bool                                    autoRemove;
+    bool                                    retinaScreen;
+    bool                                    showBPMGrid;
+    bool                                    isPaused;
+    bool                                    isLoop;
+
     bool                                    loaded;
     size_t                                  startTime;
     size_t                                  waitTime;

@@ -36,33 +36,40 @@
 
 #include "PatchObject.h"
 
+#include "imgui_controls.h"
+
 class TimedSemaphore : public PatchObject {
 
 public:
 
     TimedSemaphore();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    
-    
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiTextInput*     inputNumber;
+
+    ImVec4                  currentColor;
+    ImVec4                  pressColor;
+    ImVec4                  releaseColor;
 
     bool                    bang;
 
     bool                    loadStart;
-    size_t                  wait;
+    int                     wait;
     size_t                  startTime;
 
+    bool                    loaded;
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

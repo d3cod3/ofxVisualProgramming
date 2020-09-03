@@ -119,6 +119,9 @@ void LuaScript::autosaveNewFile(string fromFile){
 
 //--------------------------------------------------------------
 void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    fileDialog.setIsRetina(this->isRetina);
+
     initResolution();
 
     // load kuro

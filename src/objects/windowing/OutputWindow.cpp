@@ -108,6 +108,9 @@ void OutputWindow::newObject(){
 
 //--------------------------------------------------------------
 void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    fileDialog.setIsRetina(this->isRetina);
+
     loadWindowSettings();
 
     ofGLFWWindowSettings settings;

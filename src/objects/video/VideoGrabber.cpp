@@ -72,6 +72,9 @@ VideoGrabber::VideoGrabber() :
 
     this->setIsResizable(true);
     this->setIsTextureObj(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 }
 
 //--------------------------------------------------------------
@@ -85,6 +88,9 @@ void VideoGrabber::newObject(){
     this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
     this->setCustomVar(static_cast<float>(0.0),"MIRROR_H");
     this->setCustomVar(static_cast<float>(0.0),"MIRROR_V");
+
+    this->setCustomVar(prevW,"OBJ_WIDTH");
+    this->setCustomVar(prevH,"OBJ_HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -120,6 +126,10 @@ void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         deviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
         hMirror = static_cast<bool>(floor(this->getCustomVar("MIRROR_H")));
         vMirror = static_cast<bool>(floor(this->getCustomVar("MIRROR_V")));
+        prevW = this->getCustomVar("OBJ_WIDTH");
+        prevH = this->getCustomVar("OBJ_HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
         if(isOneDeviceAvailable){
 
             loadCameraSettings();
@@ -161,6 +171,7 @@ void VideoGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
         if(vidGrabber->isInitialized() && !needReset){
             if(scaledObjW*canvasZoom > 90.0f){
                 // draw node texture preview with OF
+                ofSetColor(255);
                 drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             }
         }
@@ -241,6 +252,16 @@ void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(prevW,"OBJ_WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(prevH,"OBJ_HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

@@ -35,7 +35,7 @@
 #include "Smooth.h"
 
 //--------------------------------------------------------------
-Smooth::Smooth() : PatchObject(){
+Smooth::Smooth() : PatchObject("smooth"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -50,61 +50,53 @@ Smooth::Smooth() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
+    minRange    = 0.0f;
+    maxRange    = 1.0f;
+    smoothing   = 1.0f;
+
+    loaded = false;
 
 }
 
 //--------------------------------------------------------------
 void Smooth::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"number");
+    this->addInlet(VP_LINK_NUMERIC,"smoothing");
+
     this->addOutlet(VP_LINK_NUMERIC,"smoothedValue");
 
-    this->setCustomVar(1.0f,"SMOOTHING");
+    this->setCustomVar(smoothing,"SMOOTHING");
 }
 
 //--------------------------------------------------------------
 void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onSliderEvent(this, &Smooth::onSliderEvent);
-    slider = gui->addSlider("", 0.0f, 1.0f,this->getCustomVar("SMOOTHING"));
-    slider->setUseCustomMouse(true);
-    gui->addBreak();
-    rPlotter = gui->addValuePlotter("",0.0,1.0);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
-
-
-    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
 void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
-        *(float *)&_outletParams[0] = *(float *)&_outletParams[0]*(1-slider->getValue()) + *(float *)&_inletParams[0]*slider->getValue();
-        if(*(float *)&_inletParams[0] > rPlotter->getMax()){
-            rPlotter->setRange(0.0,*(float *)&_inletParams[0]);
-        }else if(*(float *)&_inletParams[0] < rPlotter->getMin()){
-            rPlotter->setRange(*(float *)&_inletParams[0],0.0);
+        *(float *)&_outletParams[0] = *(float *)&_outletParams[0]*(1.0f-smoothing) + *(float *)&_inletParams[0]*smoothing;
+        if(*(float *)&_inletParams[0] > maxRange){
+            maxRange = *(float *)&_inletParams[0];
+        }else if(*(float *)&_inletParams[0] < minRange){
+            minRange = *(float *)&_inletParams[0];
         }
     }else{
         *(float *)&_outletParams[0] = 0.0f;
-        rPlotter->setRange(0.0,1.0);
+        minRange    = 0.0f;
+        maxRange    = 1.0f;
     }
 
-    gui->update();
-    slider->update();
-
-    rPlotter->setValue(*(float *)&_outletParams[0]);
+    if(this->inletsConnected[1]){
+        smoothing = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+    }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("SMOOTHING"));
+        smoothing = this->getCustomVar("SMOOTHING");
     }
 
 }
@@ -116,14 +108,49 @@ void Smooth::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>&
 }
 
 //--------------------------------------------------------------
-void Smooth::removeObjectContent(bool removeFileFromData){
+void Smooth::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
+            ImGui::PushItemWidth(180*scaleFactor);
+            if(ImGui::SliderFloat("Smoothing",&smoothing,0.0f,1.0f)){
+                this->setCustomVar(smoothing,"SMOOTHING");
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Apply interpolation smoothing filter to received numerical data flow.",
+                        "https://mosaic.d3cod3.org/reference.php?r=smooth", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], minRange, maxRange, IM_COL32(255,255,255,255), this->scaleFactor);
+
+
+        _nodeCanvas.EndNodeContent();
+    }
 
 }
 
 //--------------------------------------------------------------
-void Smooth::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"SMOOTHING");
+void Smooth::removeObjectContent(bool removeFileFromData){
+
 }
+
 
 OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH)
 
