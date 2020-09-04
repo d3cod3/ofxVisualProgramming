@@ -160,6 +160,7 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         setupTrigger = false;
     }
 
+    // path watcher
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
     }

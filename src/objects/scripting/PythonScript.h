@@ -39,11 +39,11 @@
 #include "PatchObject.h"
 
 #include "ofxPython.h"
-
 #include "PathWatcher.h"
-#include "ThreadedCommand.h"
 
-#include <atomic>
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
+
 
 class PythonScript : public PatchObject {
 
@@ -51,20 +51,17 @@ public:
 
     PythonScript();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
     
-    
-
     void            loadScript(string scriptFile);
     void            clearScript();
-    void            reloadScriptThreaded();
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            reloadScript();
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
@@ -79,19 +76,16 @@ public:
 
     PathWatcher         watcher;
     ofFile              currentScriptFile;
-    bool                nameLabelLoaded;
     bool                isNewObject;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     scriptName;
-    ofxDatGuiButton*    newButton;
-    ofxDatGuiButton*    loadButton;
-    ofxDatGuiButton*    editButton;
-    ofxDatGuiButton*    clearButton;
-    ofxDatGuiButton*    reloadButton;
+    imgui_addons::ImGuiFileBrowser          fileDialog;
 
     ofImage             *pythonIcon;
+    float               posX, posY, drawW, drawH;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
 
     string              mosaicTableName;
     string              pythonTableName;
@@ -100,17 +94,16 @@ public:
     string              lastPythonScript;
     bool                loadPythonScriptFlag;
     bool                savePythonScriptFlag;
-    bool                pythonScriptLoaded;
-    bool                pythonScriptSaved;
-
-    bool                modalInfo;
 
 
 protected:
-    ThreadedCommand         tempCommand;
+
     bool                    needToLoadScript;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

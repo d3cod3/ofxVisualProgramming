@@ -141,7 +141,7 @@ void VectorExtract::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             }
 
             ImGuiEx::ObjectInfo(
-                        "receive up to 32 data vectors, and concatenates them as a single vector",
+                        "Extract a subsection of a data vector.",
                         "https://mosaic.d3cod3.org/reference.php?r=vector-extract", scaleFactor);
 
             ImGui::EndMenu();
