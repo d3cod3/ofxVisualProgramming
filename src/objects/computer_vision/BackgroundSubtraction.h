@@ -45,20 +45,18 @@ public:
 
     BackgroundSubtraction();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            resetTextures(int w, int h);
     void            loadBackgroundImage(int w, int h);
     void            saveBackgroundImage();
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
 
     ofPixels                    *pix;
@@ -67,27 +65,34 @@ public:
     ofxCvGrayscaleImage         *grayBg;
     ofxCvGrayscaleImage         *grayThresh;
 
-    int                         bgSubTech;
-
-
     float                       posX, posY, drawW, drawH;
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
+
     bool                        newConnection;
     bool                        bLearnBackground;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiButton*            resetButton;
-    ofxDatGuiLabel*             bgTechLabel;
-    ofxDatGuiMatrix*            bgSubTechSelector;
-    ofxDatGuiSlider*            thresholdValue;
-    ofxDatGuiSlider*            blurValue;
-    ofxDatGuiToggle*            adaptiveButton;
-    ofxDatGuiToggle*            erodeButton;
-    ofxDatGuiToggle*            dilateButton;
-    ofxDatGuiSlider*            brightnessValue;
-    ofxDatGuiSlider*            contrastValue;
+    vector<string>              bgSubTechVector;
+    int                         bgSubTech;
+
+    float                       threshold;
+    float                       brightness;
+    float                       contrast;
+    float                       blur;
+    float                       adaptSpeed;
+    bool                        adaptive;
+    bool                        erode;
+    bool                        dilate;
+
+
+    bool                        loaded;
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

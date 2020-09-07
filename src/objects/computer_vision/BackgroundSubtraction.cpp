@@ -38,7 +38,7 @@ using namespace ofxCv;
 using namespace cv;
 
 //--------------------------------------------------------------
-BackgroundSubtraction::BackgroundSubtraction() : PatchObject(){
+BackgroundSubtraction::BackgroundSubtraction() : PatchObject("background subtraction"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -55,116 +55,77 @@ BackgroundSubtraction::BackgroundSubtraction() : PatchObject(){
 
     bgSubTech           = 0; // 0 abs, 1 lighter than, 2 darker than
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     posX = posY = drawW = drawH = 0.0f;
 
     newConnection       = false;
     bLearnBackground    = false;
+
+    bgSubTech           = 0;
+
+    threshold           = 80.0f;
+    brightness          = 0.0f;
+    contrast            = 0.0f;
+    blur                = 1.0f;
+    adaptSpeed          = 0.01f;
+    adaptive            = false;
+    erode               = false;
+    dilate              = false;
+
+    loaded              = false;
+
+    this->setIsTextureObj(true);
 
 }
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"reset");
+
     this->addOutlet(VP_LINK_TEXTURE,"output");
 
-    this->setCustomVar(static_cast<float>(80.0),"THRESHOLD");
+    this->setCustomVar(threshold,"THRESHOLD");
     this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");
-    this->setCustomVar(static_cast<float>(0.0),"BRIGHTNESS");
-    this->setCustomVar(static_cast<float>(0.0),"CONTRAST");
-    this->setCustomVar(static_cast<float>(1.0),"BLUR");
-    this->setCustomVar(static_cast<float>(0.0),"ADAPTIVE");
-    this->setCustomVar(static_cast<float>(0.0),"ERODE");
-    this->setCustomVar(static_cast<float>(0.0),"DILATE");
+    this->setCustomVar(brightness,"BRIGHTNESS");
+    this->setCustomVar(contrast,"CONTRAST");
+    this->setCustomVar(blur,"BLUR");
+    this->setCustomVar(adaptSpeed,"ADAPT_SPEED");
+    this->setCustomVar(static_cast<float>(adaptive),"ADAPTIVE");
+    this->setCustomVar(static_cast<float>(erode),"ERODE");
+    this->setCustomVar(static_cast<float>(dilate),"DILATE");
 }
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
+    bgSubTechVector.push_back("B&W ABS");
+    bgSubTechVector.push_back("LIGHTER THAN");
+    bgSubTechVector.push_back("DARKER THAN");
 
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    resetButton = gui->addButton("RESET BACKGROUND");
-    resetButton->setUseCustomMouse(true);
-
-    thresholdValue = gui->addSlider("THRESH",0,255);
-    thresholdValue->setUseCustomMouse(true);
-    thresholdValue->setValue(static_cast<double>(this->getCustomVar("THRESHOLD")));
-    vector<int> techs = {0,1,2};
-    bgTechLabel = gui->addLabel("B&W ABS");
-    bgTechLabel->setUseCustomMouse(true);
-    bgSubTechSelector = gui->addMatrix("TECH",techs.size(),true);
-    bgSubTechSelector->setUseCustomMouse(true);
-    bgSubTechSelector->setRadioMode(true);
-    bgSubTech = static_cast<int>(floor(this->getCustomVar("SUBTRACTION_TECHNIQUE")));
-
-    if(bgSubTech == 0){
-        bgTechLabel->setLabel("B&W ABS");
-    }else if(bgSubTech == 1){
-        bgTechLabel->setLabel("LIGHTER THAN");
-    }else if(bgSubTech == 2){
-        bgTechLabel->setLabel("DARKER THAN");
-    }
-
-    bgSubTechSelector->getChildAt(bgSubTech)->setSelected(true);
-    gui->addBreak();
-    adaptiveButton = gui->addToggle("ADAPTIVE",static_cast<int>(floor(this->getCustomVar("ADAPTIVE"))));
-    adaptiveButton->setUseCustomMouse(true);
-    gui->addBreak();
-    brightnessValue = gui->addSlider("BRIGTH",-1.0,3.0);
-    brightnessValue->setUseCustomMouse(true);
-    brightnessValue->setValue(static_cast<double>(this->getCustomVar("BRIGHTNESS")));
-    contrastValue = gui->addSlider("CONTRAST",0.0,1.0);
-    contrastValue->setUseCustomMouse(true);
-    contrastValue->setValue(static_cast<double>(this->getCustomVar("CONTRAST")));
-    blurValue = gui->addSlider("BLUR",0,33);
-    blurValue->setUseCustomMouse(true);
-    blurValue->setValue(static_cast<double>(this->getCustomVar("BLUR")));
-    erodeButton = gui->addToggle("ERODE",static_cast<int>(floor(this->getCustomVar("ERODE"))));
-    erodeButton->setUseCustomMouse(true);
-    dilateButton = gui->addToggle("DILATE",static_cast<int>(floor(this->getCustomVar("DILATE"))));
-    dilateButton->setUseCustomMouse(true);
-
-    gui->onButtonEvent(this, &BackgroundSubtraction::onButtonEvent);
-    gui->onToggleEvent(this, &BackgroundSubtraction::onToggleEvent);
-    gui->onSliderEvent(this, &BackgroundSubtraction::onSliderEvent);
-    gui->onMatrixEvent(this, &BackgroundSubtraction::onMatrixEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        resetButton->update();
-        thresholdValue->update();
-        bgTechLabel->update();
-        bgSubTechSelector->update();
-        brightnessValue->update();
-        contrastValue->update();
-        blurValue->update();
-        adaptiveButton->update();
-        erodeButton->update();
-        dilateButton->update();
-    }
 
     // External background reset (BANG)
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
         bLearnBackground = true;
+    }
+
+    if(!loaded){
+        loaded = true;
+
+        bgSubTech = static_cast<int>(floor(this->getCustomVar("SUBTRACTION_TECHNIQUE")));
+        threshold = this->getCustomVar("THRESHOLD");
+        brightness = this->getCustomVar("BRIGHTNESS");
+        contrast = this->getCustomVar("CONTRAST");
+        blur = this->getCustomVar("BLUR");
+        adaptSpeed = this->getCustomVar("ADAPT_SPEED");
+        adaptive = static_cast<bool>(floor(this->getCustomVar("ADAPTIVE")));
+        erode = static_cast<bool>(floor(this->getCustomVar("ERODE")));
+        dilate = static_cast<bool>(floor(this->getCustomVar("DILATE")));
     }
 }
 
@@ -185,7 +146,7 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofB
 
         *grayImg = *colorImg;
         grayImg->updateTexture();
-        grayImg->brightnessContrast(brightnessValue->getValue(),contrastValue->getValue());
+        grayImg->brightnessContrast(brightness,contrast);
 
         if(bgSubTech == 0){ // B&W ABS
             grayThresh->absDiff(*grayBg, *grayImg);
@@ -197,17 +158,17 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofB
             *grayThresh -= *grayImg;
         }
 
-        grayThresh->threshold(thresholdValue->getValue());
-        if(erodeButton->getChecked()){
+        grayThresh->threshold(threshold);
+        if(erode){
             grayThresh->erode();
         }
-        if(dilateButton->getChecked()){
+        if(dilate){
             grayThresh->dilate();
         }
-        if(static_cast<int>(floor(blurValue->getValue()))%2 == 0){
-            grayThresh->blur(static_cast<int>(floor(blurValue->getValue()))+1);
+        if(static_cast<int>(floor(blur))%2 == 0){
+            grayThresh->blur(static_cast<int>(floor(blur))+1);
         }else{
-            grayThresh->blur(static_cast<int>(floor(blurValue->getValue())));
+            grayThresh->blur(static_cast<int>(floor(blur)));
         }
         grayThresh->updateTexture();
 
@@ -228,9 +189,9 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofB
     }
 
     // adaptive
-    if(adaptiveButton->getChecked()){
+    if(adaptive){
         Mat temp = toCv(*grayBg);
-        temp = toCv(*grayBg)*0.999 + toCv(*grayImg)*0.001;
+        temp = toCv(*grayBg)*(1.0f-adaptSpeed) + toCv(*grayImg)*adaptSpeed;
         toOf(temp,grayBg->getPixels());
         grayBg->updateTexture();
     }
@@ -238,30 +199,116 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofB
 
 
     // DRAW STUFF
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        ofSetColor(255);
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    }else{
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    gui->draw();
+
+}
+
+//--------------------------------------------------------------
+void BackgroundSubtraction::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
+            if(ImGui::Button("RESET BACKGROUND",ImVec2(-1,26*scaleFactor))){
+                bLearnBackground = true;
+            }
+            ImGui::Spacing();
+            if(ImGui::Checkbox("ADAPTIVE",&adaptive)){
+                this->setCustomVar(static_cast<float>(adaptive),"ADAPTIVE");
+                bLearnBackground = true;
+            }
+            if(ImGui::SliderFloat("adapt speed",&adaptSpeed,0.001f,0.01f)){
+                this->setCustomVar(adaptSpeed,"ADAPT_SPEED");
+            }
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            if(ImGui::BeginCombo("Subtraction algorithm", bgSubTechVector.at(bgSubTech).c_str() )){
+                for(int i=0; i < bgSubTechVector.size(); ++i){
+                    bool is_selected = (bgSubTech == i );
+                    if (ImGui::Selectable(bgSubTechVector.at(i).c_str(), is_selected)){
+                        bgSubTech = i;
+                        this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");
+                    }
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
+                this->setCustomVar(threshold,"THRESHOLD");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("brightness",&brightness,-1.0f,3.0f)){
+                this->setCustomVar(brightness,"BRIGHTNESS");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("contrast",&contrast,0.0f,1.0f)){
+                this->setCustomVar(contrast,"CONTRAST");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("blur",&blur,0.0f,33.0f)){
+                this->setCustomVar(blur,"BLUR");
+            }
+            ImGui::Spacing();
+            if(ImGui::Checkbox("ERODE",&erode)){
+                this->setCustomVar(static_cast<float>(erode),"ERODE");
+            }
+            ImGui::Spacing();
+            if(ImGui::Checkbox("DILATE",&dilate)){
+                this->setCustomVar(static_cast<float>(dilate),"DILATE");
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Static and adaptive background subtraction.",
+                        "https://mosaic.d3cod3.org/reference.php?r=background-subtraction", scaleFactor);
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
 }
 
 //--------------------------------------------------------------
@@ -285,61 +332,6 @@ void BackgroundSubtraction::resetTextures(int w, int h){
     grayThresh->allocate(w,h);
 }
 
-//--------------------------------------------------------------
-void BackgroundSubtraction::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == resetButton){
-            bLearnBackground = true;
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void BackgroundSubtraction::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == erodeButton){
-            this->setCustomVar(static_cast<float>(e.checked),"ERODE");
-        }else if(e.target == dilateButton){
-            this->setCustomVar(static_cast<float>(e.checked),"DILATE");
-        }else if(e.target == adaptiveButton){
-            this->setCustomVar(static_cast<float>(e.checked),"ADAPTIVE");
-        }
-
-    }
-}
-
-//--------------------------------------------------------------
-void BackgroundSubtraction::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == thresholdValue){
-            this->setCustomVar(static_cast<float>(e.value),"THRESHOLD");
-        }else if(e.target == brightnessValue){
-            this->setCustomVar(static_cast<float>(e.value),"BRIGHTNESS");
-        }else if(e.target == contrastValue){
-            this->setCustomVar(static_cast<float>(e.value),"CONTRAST");
-        }else if(e.target == blurValue){
-            this->setCustomVar(static_cast<float>(e.value),"BLUR");
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void BackgroundSubtraction::onMatrixEvent(ofxDatGuiMatrixEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == bgSubTechSelector){
-            bgSubTech = e.child;
-            this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");
-            if(bgSubTech == 0){
-                bgTechLabel->setLabel("B&W ABS");
-            }else if(bgSubTech == 1){
-                bgTechLabel->setLabel("LIGHTER THAN");
-            }else if(bgSubTech == 2){
-                bgTechLabel->setLabel("DARKER THAN");
-            }
-        }
-    }
-}
 
 OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV)
 

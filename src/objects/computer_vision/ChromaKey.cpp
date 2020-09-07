@@ -38,7 +38,7 @@ using namespace ofxCv;
 using namespace cv;
 
 //--------------------------------------------------------------
-ChromaKey::ChromaKey() : PatchObject(){
+ChromaKey::ChromaKey() : PatchObject("chroma key"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -49,118 +49,76 @@ ChromaKey::ChromaKey() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     posX = posY = drawW = drawH = 0.0f;
 
     isInputConnected    = false;
+
+    chromaBgColor       = ofFloatColor(0.0f, 0.694117f, 0.250980f, 1.0f); // green screen by default
+    baseMaskStrength    = 0.5f;
+    chromaMaskStrength  = 0.487f;
+    greenSpillStrength  = 0.3857f;
+    chromaBlur          = 1408.0f;
+    multiplyFilterHue   = 0.2625f;
+
+    loaded              = false;
+
+    this->setIsTextureObj(true);
 
 }
 
 //--------------------------------------------------------------
 void ChromaKey::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
-    this->addInlet(VP_LINK_TEXTURE,"mask");
+    this->addInlet(VP_LINK_TEXTURE,"background");
+
     this->addOutlet(VP_LINK_TEXTURE,"output");
 
-    this->setCustomVar(static_cast<float>(0.0),"RED");
-    this->setCustomVar(static_cast<float>(0.0),"GREEN");
-    this->setCustomVar(static_cast<float>(0.0),"BLUE");
-    this->setCustomVar(static_cast<float>(0.37),"STRENGTH");
-    this->setCustomVar(static_cast<float>(0.5),"MSTRENGTH");
-    this->setCustomVar(static_cast<float>(0.39),"SPILL");
-    this->setCustomVar(static_cast<float>(0.244),"BLUR");
-    this->setCustomVar(static_cast<float>(0.28),"OFFSET");
+    this->setCustomVar(chromaBgColor.r,"RED");
+    this->setCustomVar(chromaBgColor.g,"GREEN");
+    this->setCustomVar(chromaBgColor.b,"BLUE");
+    this->setCustomVar(baseMaskStrength,"BASE_MASK_STRENGTH");
+    this->setCustomVar(chromaMaskStrength,"CHROMA_MASK_STRENGTH");
+    this->setCustomVar(greenSpillStrength,"GREEN_SPILL_STRENGTH");
+    this->setCustomVar(chromaBlur,"CHROMA_BLUR");
+    this->setCustomVar(multiplyFilterHue,"MULT_FILTER_HUE");
 }
 
 //--------------------------------------------------------------
 void ChromaKey::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    bgColor = gui->addTextInput("BG","000000");
-    bgColor->setUseCustomMouse(true);
-    bgColor->setInputType(ofxDatGuiInputType::COLORPICKER);
-
-    redValue = gui->addSlider("RED",0.0,1.0,0);
-    redValue->setUseCustomMouse(true);
-    redValue->setValue(this->getCustomVar("RED"));
-    greenValue = gui->addSlider("GREEN",0.0,1.0,0);
-    greenValue->setUseCustomMouse(true);
-    greenValue->setValue(this->getCustomVar("GREEN"));
-    blueValue = gui->addSlider("BLUE",0.0,1.0,0);
-    blueValue->setUseCustomMouse(true);
-    blueValue->setValue(this->getCustomVar("BLUE"));
-    gui->addBreak();
-
-    updateBGColor();
-
-    thresholdValue = gui->addSlider("STRENGTH",0.0,1.0);
-    thresholdValue->setUseCustomMouse(true);
-    thresholdValue->setValue(this->getCustomVar("STRENGTH"));
-    maskStrengthValue = gui->addSlider("MSTRENGTH",0.0,1.0);
-    maskStrengthValue->setUseCustomMouse(true);
-    maskStrengthValue->setValue(this->getCustomVar("MSTRENGTH"));
-    spillStrengthValue = gui->addSlider("SPILL",0.0,1.0);
-    spillStrengthValue->setUseCustomMouse(true);
-    spillStrengthValue->setValue(this->getCustomVar("SPILL"));
-    blurValue = gui->addSlider("BLUR",0.0,1.0);
-    blurValue->setUseCustomMouse(true);
-    blurValue->setValue(this->getCustomVar("BLUR"));
-    offsetValue = gui->addSlider("OFFSET",0.0,1.0);
-    offsetValue->setUseCustomMouse(true);
-    offsetValue->setValue(this->getCustomVar("OFFSET"));
-
-    gui->onButtonEvent(this, &ChromaKey::onButtonEvent);
-    gui->onSliderEvent(this, &ChromaKey::onSliderEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
 }
 
 //--------------------------------------------------------------
 void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        bgColor->update();
-        redValue->update();
-        greenValue->update();
-        blueValue->update();
-        thresholdValue->update();
-        maskStrengthValue->update();
-        spillStrengthValue->update();
-        blurValue->update();
-        offsetValue->update();
-    }
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!isInputConnected){
             isInputConnected = true;
             chromakey = new ofxChromaKeyShader(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-            updateBGColor();
             updateChromaVars();
         }
 
         if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-            chromakey->updateChromakeyMask(*static_cast<ofTexture *>(_inletParams[0]));
-            *static_cast<ofTexture *>(_outletParams[0]) = chromakey->getFinalMask(*static_cast<ofTexture *>(_inletParams[1]));
+            chromakey->updateChromakeyMask(*static_cast<ofTexture *>(_inletParams[0]),*static_cast<ofTexture *>(_inletParams[1]));
+            *static_cast<ofTexture *>(_outletParams[0]) = chromakey->fbo_final.getTexture();
         }else{
             *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
         }
     }else{
         isInputConnected = false;
+    }
+
+    if(!loaded){
+        loaded = true;
+        chromaBgColor.set(this->getCustomVar("RED"),this->getCustomVar("GREEN"),this->getCustomVar("BLUE"));
+        baseMaskStrength    = this->getCustomVar("BASE_MASK_STRENGTH");
+        chromaMaskStrength  = this->getCustomVar("CHROMA_MASK_STRENGTH");
+        greenSpillStrength  = this->getCustomVar("GREEN_SPILL_STRENGTH");
+        chromaBlur          = this->getCustomVar("CHROMA_BLUR");
+        multiplyFilterHue   = this->getCustomVar("MULT_FILTER_HUE");
     }
     
 }
@@ -168,29 +126,99 @@ void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 //--------------------------------------------------------------
 void ChromaKey::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
-        }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
     }
-    gui->draw();
+}
+
+//--------------------------------------------------------------
+void ChromaKey::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
+                if(static_cast<ofTexture *>(_inletParams[0])->getWidth() != static_cast<ofTexture *>(_inletParams[1])->getWidth() || static_cast<ofTexture *>(_inletParams[0])->getHeight() != static_cast<ofTexture *>(_inletParams[1])->getHeight()){
+                    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,0,0,255));
+                    ImGui::Text("Input inlet texture Resolution: %.0fx%.0f",static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+                    ImGui::Text("Background inlet texture Resolution: %.0fx%.0f",static_cast<ofTexture *>(_inletParams[1])->getWidth(),static_cast<ofTexture *>(_inletParams[1])->getHeight());
+                    ImGui::PopStyleColor(1);
+                    ImGui::SameLine(); ImGuiEx::HelpMarker("Inlet texture resolutions MUST be the same!");
+                }
+            }
+
+            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+                ImGui::Spacing();
+                ImVec4 color = ImVec4(chromaBgColor.r,chromaBgColor.g,chromaBgColor.b,1.0f);
+                if(ImGui::ColorEdit4( "Chroma BG Color", (float*)&color )){
+                    this->setCustomVar(color.x,"RED");
+                    this->setCustomVar(color.y,"GREEN");
+                    this->setCustomVar(color.z,"BLUE");
+
+                    chromaBgColor.set(color.x,color.y,color.z,1.0f);
+                    chromakey->setbgColor(chromaBgColor);
+                }
+
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("base mask strength",&baseMaskStrength,0.0f,1.0f)){
+                    this->setCustomVar(baseMaskStrength,"BASE_MASK_STRENGTH");
+                    chromakey->setbaseMaskStrength(baseMaskStrength);
+                }
+                ImGui::Spacing();
+                if(ImGui::SliderFloat("chroma mask strength",&chromaMaskStrength,0.0f,1.0f)){
+                    this->setCustomVar(chromaMaskStrength,"CHROMA_MASK_STRENGTH");
+                    chromakey->setchromaMaskStrength(chromaMaskStrength);
+                }
+                if(ImGui::SliderFloat("green spill strength",&greenSpillStrength,0.0f,1.0f)){
+                    this->setCustomVar(greenSpillStrength,"GREEN_SPILL_STRENGTH");
+                    chromakey->setgreenSpillStrength(greenSpillStrength);
+                }
+                if(ImGui::SliderFloat("chroma blur",&chromaBlur,0.0f,4096.0f)){
+                    this->setCustomVar(chromaBlur,"CHROMA_BLUR");
+                    chromakey->setblurValue(chromaBlur);
+                }
+                if(ImGui::SliderFloat("multiply filter hue",&multiplyFilterHue,0.0f,1.0f)){
+                    this->setCustomVar(multiplyFilterHue,"MULT_FILTER_HUE");
+                    chromakey->setmultiplyFilterHueOffset(multiplyFilterHue);
+                }
+            }
+
+
+            ImGuiEx::ObjectInfo(
+                        "Standard chromakey effect with source and background mask.",
+                        "https://mosaic.d3cod3.org/reference.php?r=chroma-key", scaleFactor);
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
 }
 
 //--------------------------------------------------------------
@@ -199,80 +227,16 @@ void ChromaKey::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void ChromaKey::updateBGColor(){
-    std::stringstream ss;
-    ofColor temp = ofColor(redValue->getValue()*255,greenValue->getValue()*255,blueValue->getValue()*255);
-    ss << std::hex << temp.getHex();
-    std::string res ( ss.str() );
-    while(res.size() < 6) res+="0";
-    bgColor->setText(ofToUpper(res));
-    bgColor->setBackgroundColor(temp);
-    double a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b)/255;
-    bgColor->setTextInactiveColor(a < 0.5 ? ofColor::black : ofColor::white);
-
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        chromakey->setbgColor(temp);
-    }
-}
-
-//--------------------------------------------------------------
 void ChromaKey::updateChromaVars(){
-    chromakey->setbaseMaskStrength(static_cast<float>(thresholdValue->getValue()));
-    chromakey->setchromaMaskStrength(static_cast<float>(maskStrengthValue->getValue()));
-    chromakey->setgreenSpillStrength(static_cast<float>(spillStrengthValue->getValue()));
-    chromakey->setblurValue(static_cast<float>(blurValue->getValue())*4096.0f);
-    chromakey->setmultiplyFilterHueOffset(static_cast<float>(offsetValue->getValue()));
+    chromakey->setbgColor(chromaBgColor);
+    chromakey->setbaseMaskStrength(baseMaskStrength);
+    chromakey->setchromaMaskStrength(chromaMaskStrength);
+    chromakey->setgreenSpillStrength(greenSpillStrength);
+    chromakey->setblurValue(chromaBlur);
+    chromakey->setmultiplyFilterHueOffset(multiplyFilterHue);
 }
 
-//--------------------------------------------------------------
-void ChromaKey::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
 
-    }
-
-}
-
-//--------------------------------------------------------------
-void ChromaKey::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == redValue || e.target == greenValue || e.target == blueValue){
-            updateBGColor();
-            if(e.target == redValue){
-                this->setCustomVar(static_cast<float>(e.value),"RED");
-            }else if(e.target == greenValue){
-                this->setCustomVar(static_cast<float>(e.value),"GREEN");
-            }else if(e.target == blueValue){
-                this->setCustomVar(static_cast<float>(e.value),"BLUE");
-            }
-        }else if(e.target == thresholdValue){
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-                chromakey->setbaseMaskStrength(e.value);
-                this->setCustomVar(static_cast<float>(e.value),"STRENGTH");
-            }
-        }else if(e.target == maskStrengthValue){
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-                chromakey->setchromaMaskStrength(e.value);
-                this->setCustomVar(static_cast<float>(e.value),"MSTRENGTH");
-            }
-        }else if(e.target == spillStrengthValue){
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-                chromakey->setgreenSpillStrength(e.value);
-                this->setCustomVar(static_cast<float>(e.value),"SPILL");
-            }
-        }else if(e.target == blurValue){
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-                chromakey->setblurValue(e.value*4096.0f);
-                this->setCustomVar(static_cast<float>(e.value),"BLUR");
-            }
-        }else if(e.target == offsetValue){
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-                chromakey->setmultiplyFilterHueOffset(e.value);
-                this->setCustomVar(static_cast<float>(e.value),"OFFSET");
-            }
-        }
-    }
-
-}
 
 OBJECT_REGISTER( ChromaKey, "chroma key", OFXVP_OBJECT_CAT_CV)
 

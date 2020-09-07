@@ -38,7 +38,7 @@ using namespace ofxCv;
 using namespace cv;
 
 //--------------------------------------------------------------
-OpticalFlow::OpticalFlow() : PatchObject(){
+OpticalFlow::OpticalFlow() : PatchObject("optical flow"){
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -50,9 +50,6 @@ OpticalFlow::OpticalFlow() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     posX = posY = drawW = drawH = 0.0f;
 
     pix                 = new ofPixels();
@@ -61,81 +58,46 @@ OpticalFlow::OpticalFlow() : PatchObject(){
 
     isFBOAllocated      = false;
 
+    fbUseGaussian       = false;
+    fbPyrScale          = 0.25f;
+    fbPolySigma         = 1.5f;
+    fbLevels            = 4.0f;
+    fbIterations        = 2.0f;
+    fbPolyN             = 7.0f;
+    fbWinSize           = 32.0f;
+
+    loaded              = false;
+
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
 void OpticalFlow::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
+
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"opticalFlowData");
 
-    this->setCustomVar(static_cast<float>(0.0),"FB_USE_GAUSSIAN");
-    this->setCustomVar(static_cast<float>(0.25),"FB_PYR_SCALE");
-    this->setCustomVar(static_cast<float>(1.5),"FB_POLY_SIGMA");
-    this->setCustomVar(static_cast<float>(4.0),"FB_LEVELS");
-    this->setCustomVar(static_cast<float>(2.0),"FB_ITERATIONS");
-    this->setCustomVar(static_cast<float>(7.0),"FB_POLY_N");
-    this->setCustomVar(static_cast<float>(32.0),"FB_WIN_SIZE");
+    this->setCustomVar(static_cast<float>(fbUseGaussian),"FB_USE_GAUSSIAN");
+    this->setCustomVar(fbPyrScale,"FB_PYR_SCALE");
+    this->setCustomVar(fbPolySigma,"FB_POLY_SIGMA");
+    this->setCustomVar(fbLevels,"FB_LEVELS");
+    this->setCustomVar(fbIterations,"FB_ITERATIONS");
+    this->setCustomVar(fbPolyN,"FB_POLY_N");
+    this->setCustomVar(fbWinSize,"FB_WIN_SIZE");
 
 }
 
 //--------------------------------------------------------------
 void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    fbUseGaussian = gui->addToggle("GAUSS.",static_cast<int>(floor(this->getCustomVar("FB_USE_GAUSSIAN"))));
-    fbUseGaussian->setUseCustomMouse(true);
-    fbPyrScale = gui->addSlider("PSCALE",0.0,0.5);
-    fbPyrScale->setUseCustomMouse(true);
-    fbPyrScale->setValue(static_cast<double>(this->getCustomVar("FB_PYR_SCALE")));
-    fbLevels = gui->addSlider("LEVELS",1,8);
-    fbLevels->setUseCustomMouse(true);
-    fbLevels->setValue(static_cast<double>(this->getCustomVar("FB_LEVELS")));
-    fbWinSize = gui->addSlider("SIZE",16,64);
-    fbWinSize->setUseCustomMouse(true);
-    fbWinSize->setValue(static_cast<double>(this->getCustomVar("FB_WIN_SIZE")));
-    fbIterations = gui->addSlider("ITER.",1,3);
-    fbIterations->setUseCustomMouse(true);
-    fbIterations->setValue(static_cast<double>(this->getCustomVar("FB_ITERATIONS")));
-    fbPolyN = gui->addSlider("POLYN",5,10);
-    fbPolyN->setUseCustomMouse(true);
-    fbPolyN->setValue(static_cast<double>(this->getCustomVar("FB_POLY_N")));
-    fbPolySigma = gui->addSlider("POLYS",1.1,2);
-    fbPolySigma->setUseCustomMouse(true);
-    fbPolySigma->setValue(static_cast<double>(this->getCustomVar("FB_POLY_SIGMA")));
-
-    gui->onToggleEvent(this, &OpticalFlow::onToggleEvent);
-    gui->onSliderEvent(this, &OpticalFlow::onSliderEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
 }
 
 //--------------------------------------------------------------
 void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        fbUseGaussian->update();
-        fbPyrScale->update();
-        fbLevels->update();
-        fbWinSize->update();
-        fbIterations->update();
-        fbPolyN->update();
-        fbPolySigma->update();
-        fbUseGaussian->update();
-    }
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         
@@ -147,13 +109,13 @@ void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
             outputFBO->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),GL_RGB,1);
         }
 
-        fb.setPyramidScale(fbPyrScale->getValue());
-        fb.setNumLevels(static_cast<int>(floor(fbLevels->getValue())));
-        fb.setWindowSize(static_cast<int>(floor(fbWinSize->getValue())));
-        fb.setNumIterations(static_cast<int>(floor(fbIterations->getValue())));
-        fb.setPolyN(static_cast<int>(floor(fbPolyN->getValue())));
-        fb.setPolySigma(fbPolySigma->getValue());
-        fb.setUseGaussian(fbUseGaussian->getChecked());
+        fb.setPyramidScale(fbPyrScale);
+        fb.setNumLevels(static_cast<int>(floor(fbLevels)));
+        fb.setWindowSize(static_cast<int>(floor(fbWinSize)));
+        fb.setNumIterations(static_cast<int>(floor(fbIterations)));
+        fb.setPolyN(static_cast<int>(floor(fbPolyN)));
+        fb.setPolySigma(fbPolySigma);
+        fb.setUseGaussian(fbUseGaussian);
 
         static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
 
@@ -183,12 +145,22 @@ void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         isFBOAllocated = false;
     }
 
+    if(!loaded){
+        loaded = true;
+
+        fbUseGaussian = static_cast<bool>(floor(this->getCustomVar("FB_USE_GAUSSIAN")));
+        fbPyrScale = this->getCustomVar("FB_PYR_SCALE");
+        fbLevels = this->getCustomVar("FB_LEVELS");
+        fbWinSize = this->getCustomVar("FB_WIN_SIZE");
+        fbIterations = this->getCustomVar("FB_ITERATIONS");
+        fbPolyN = this->getCustomVar("FB_POLY_N");
+        fbPolySigma = this->getCustomVar("FB_POLY_SIGMA");
+    }
+
 }
 
 //--------------------------------------------------------------
 void OpticalFlow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 
         outputFBO->begin();
@@ -198,32 +170,88 @@ void OpticalFlow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
         ofSetColor(255);
         static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
 
-        ofSetColor(yellowPrint);
+        ofSetColor(ofColor::yellowGreen);
         fb.draw(0,0,static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
 
         outputFBO->end();
-
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
-        }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
     }
-    gui->draw();
+
+    ofSetColor(255);
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+}
+
+//--------------------------------------------------------------
+void OpticalFlow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            if(ImGui::Checkbox("GAUSSIAN",&fbUseGaussian)){
+                this->setCustomVar(static_cast<float>(fbUseGaussian),"FB_USE_GAUSSIAN");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("pyramid scale",&fbPyrScale,0.0f,0.5f)){
+                this->setCustomVar(fbPyrScale,"FB_PYR_SCALE");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("num levels",&fbLevels,1.0f,8.0f)){
+                this->setCustomVar(fbLevels,"FB_LEVELS");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("window size",&fbWinSize,16.0f,64.0f)){
+                this->setCustomVar(fbWinSize,"FB_WIN_SIZE");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("num iterations",&fbIterations,1.0f,3.0f)){
+                this->setCustomVar(fbIterations,"FB_ITERATIONS");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("poly N",&fbPolyN,5.0f,10.0f)){
+                this->setCustomVar(fbPolyN,"FB_POLY_N");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("poly sigma",&fbPolySigma,1.1f,2.0f)){
+                this->setCustomVar(fbPolySigma,"FB_POLY_SIGMA");
+            }
+
+
+            ImGuiEx::ObjectInfo(
+                        "Optical flow Farneback algorithm.",
+                        "https://mosaic.d3cod3.org/reference.php?r=optical-flow", scaleFactor);
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
 }
 
 //--------------------------------------------------------------
@@ -231,34 +259,7 @@ void OpticalFlow::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void OpticalFlow::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == fbUseGaussian){
-            this->setCustomVar(static_cast<float>(e.checked),"FB_USE_GAUSSIAN");
-        }
-    }
-}
 
-//--------------------------------------------------------------
-void OpticalFlow::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == fbPyrScale){
-            this->setCustomVar(static_cast<float>(e.value),"FB_PYR_SCALE");
-        }else if(e.target == fbLevels){
-            this->setCustomVar(static_cast<float>(e.value),"FB_LEVELS");
-        }else if(e.target == fbWinSize){
-            this->setCustomVar(static_cast<float>(e.value),"FB_WIN_SIZE");
-        }else if(e.target == fbIterations){
-            this->setCustomVar(static_cast<float>(e.value),"FB_ITERATIONS");
-        }else if(e.target == fbPolyN){
-            this->setCustomVar(static_cast<float>(e.value),"FB_POLY_N");
-        }else if(e.target == fbPolySigma){
-            this->setCustomVar(static_cast<float>(e.value),"FB_POLY_SIGMA");
-        }
-    }
-
-}
 
 OBJECT_REGISTER( OpticalFlow, "optical flow", OFXVP_OBJECT_CAT_CV)
 

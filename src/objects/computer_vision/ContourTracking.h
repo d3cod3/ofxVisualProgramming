@@ -44,14 +44,15 @@ public:
 
     ContourTracking();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
 
 
     ofxCv::ContourFinder        *contourFinder;
@@ -60,15 +61,21 @@ public:
     bool                        isFBOAllocated;
 
     float                       posX, posY, drawW, drawH;
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiToggle*            invertBW; // find black instead of white
-    ofxDatGuiSlider*            thresholdValue;
-    ofxDatGuiSlider*            minAreaRadius;
-    ofxDatGuiSlider*            maxAreaRadius;
+    bool                        invertBW; // find black instead of white
+    float                       threshold;
+    float                       minAreaRadius;
+    float                       maxAreaRadius;
+
+    bool                        loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

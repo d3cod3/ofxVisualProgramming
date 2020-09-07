@@ -44,16 +44,14 @@ public:
 
     ColorTracking();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            updateBGColor();
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
 
     ofxCv::ContourFinder        *contourFinder;
@@ -62,18 +60,18 @@ public:
     bool                        isFBOAllocated;
 
     float                       posX, posY, drawW, drawH;
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
 
-    ofColor                     targetColor;
+    ofFloatColor                targetColor;
+    float                       threshold;
+    float                       minAreaRadius;
+    float                       maxAreaRadius;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiSlider*            thresholdValue;
-    ofxDatGuiSlider*            minAreaRadius;
-    ofxDatGuiSlider*            maxAreaRadius;
-    ofxDatGuiTextInput*         bgColor;
-    ofxDatGuiSlider*            redValue;
-    ofxDatGuiSlider*            greenValue;
-    ofxDatGuiSlider*            blueValue;
+    bool                        loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
 };

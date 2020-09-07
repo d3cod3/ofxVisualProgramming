@@ -38,7 +38,7 @@ using namespace ofxCv;
 using namespace cv;
 
 //--------------------------------------------------------------
-ColorTracking::ColorTracking() : PatchObject(){
+ColorTracking::ColorTracking() : PatchObject("color tracking"){
 
     this->numInlets  = 1;
     this->numOutlets = 4;
@@ -55,111 +55,78 @@ ColorTracking::ColorTracking() : PatchObject(){
     pix             = new ofPixels();
     outputFBO       = new ofFbo();
 
-    targetColor.set(255,255,0);
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     posX = posY = drawW = drawH = 0.0f;
 
+    targetColor         = ofFloatColor(0.0f, 0.694117f, 0.250980f, 1.0f); // chroma green by default
+    threshold           = 128.0f;
+    minAreaRadius       = 10.0f;
+    maxAreaRadius       = 200.0f;
+
     isFBOAllocated      = false;
+
+    loaded              = false;
+
+    this->setIsTextureObj(true);
 
 }
 
 //--------------------------------------------------------------
 void ColorTracking::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"blobsData");
     this->addOutlet(VP_LINK_ARRAY,"contourData");
     this->addOutlet(VP_LINK_ARRAY,"convexHullData");
 
-    this->setCustomVar(static_cast<float>(128.0),"THRESHOLD");
-    this->setCustomVar(static_cast<float>(10.0),"MIN_AREA_RADIUS");
-    this->setCustomVar(static_cast<float>(200.0),"MAX_AREA_RADIUS");
-    this->setCustomVar(static_cast<float>(0.0),"RED");
-    this->setCustomVar(static_cast<float>(0.0),"GREEN");
-    this->setCustomVar(static_cast<float>(0.0),"BLUE");
+    this->setCustomVar(threshold,"THRESHOLD");
+    this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
+    this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
+    this->setCustomVar(targetColor.r,"RED");
+    this->setCustomVar(targetColor.g,"GREEN");
+    this->setCustomVar(targetColor.b,"BLUE");
 }
 
 //--------------------------------------------------------------
 void ColorTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    thresholdValue = gui->addSlider("THRESH",0,255);
-    thresholdValue->setUseCustomMouse(true);
-    thresholdValue->setValue(static_cast<double>(this->getCustomVar("THRESHOLD")));
-    minAreaRadius = gui->addSlider("MIN.AREA",4,100);
-    minAreaRadius->setUseCustomMouse(true);
-    minAreaRadius->setValue(static_cast<double>(this->getCustomVar("MIN_AREA_RADIUS")));
-    maxAreaRadius = gui->addSlider("MAX.AREA",101,500);
-    maxAreaRadius->setUseCustomMouse(true);
-    maxAreaRadius->setValue(static_cast<double>(this->getCustomVar("MAX_AREA_RADIUS")));
-    gui->addBreak();
-    bgColor = gui->addTextInput("COLOR","000000");
-    bgColor->setUseCustomMouse(true);
-    bgColor->setInputType(ofxDatGuiInputType::COLORPICKER);
-
-    redValue = gui->addSlider("RED",0.0,1.0,0);
-    redValue->setUseCustomMouse(true);
-    redValue->setValue(this->getCustomVar("RED"));
-    greenValue = gui->addSlider("GREEN",0.0,1.0,0);
-    greenValue->setUseCustomMouse(true);
-    greenValue->setValue(this->getCustomVar("GREEN"));
-    blueValue = gui->addSlider("BLUE",0.0,1.0,0);
-    blueValue->setUseCustomMouse(true);
-    blueValue->setValue(this->getCustomVar("BLUE"));
-
-    updateBGColor();
-
-    gui->onSliderEvent(this, &ColorTracking::onSliderEvent);
-    gui->onTextInputEvent(this, &ColorTracking::onTextInputEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
-    contourFinder->setMinAreaRadius(minAreaRadius->getValue());
-    contourFinder->setMaxAreaRadius(maxAreaRadius->getValue());
-    contourFinder->setThreshold(thresholdValue->getValue());
-    contourFinder->setFindHoles(false);
-    // set color
-    contourFinder->setTargetColor(targetColor, TRACK_COLOR_HS);
-    // wait for half a second before forgetting something
-    contourFinder->getTracker().setPersistence(15);
-    // an object can move up to 32 pixels per frame
-    contourFinder->getTracker().setMaximumDistance(32);
 
 }
 
 //--------------------------------------------------------------
 void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        thresholdValue->update();
-        minAreaRadius->update();
-        maxAreaRadius->update();
-        bgColor->update();
-        redValue->update();
-        greenValue->update();
-        blueValue->update();
-    }
 
+    if(!loaded){
+        loaded = true;
+
+        threshold = this->getCustomVar("THRESHOLD");
+        minAreaRadius = this->getCustomVar("MIN_AREA_RADIUS");
+        maxAreaRadius = this->getCustomVar("MAX_AREA_RADIUS");
+
+        contourFinder->setMinAreaRadius(minAreaRadius);
+        contourFinder->setMaxAreaRadius(maxAreaRadius);
+        contourFinder->setThreshold(threshold);
+        contourFinder->setFindHoles(false);
+        // set color
+        contourFinder->setTargetColor(targetColor, TRACK_COLOR_HS);
+        // wait for half a second before forgetting something
+        contourFinder->getTracker().setPersistence(60);
+        // an object can move up to 32 pixels per frame
+        contourFinder->getTracker().setMaximumDistance(64);
+    }
+    
+}
+
+//--------------------------------------------------------------
+void ColorTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
-        contourFinder->setMinAreaRadius(minAreaRadius->getValue());
-        contourFinder->setMaxAreaRadius(maxAreaRadius->getValue());
-        contourFinder->setThreshold(thresholdValue->getValue());
+        // UPDATE STUFF
+        contourFinder->setMinAreaRadius(minAreaRadius);
+        contourFinder->setMaxAreaRadius(maxAreaRadius);
+        contourFinder->setThreshold(threshold);
 
         contourFinder->setTargetColor(targetColor, TRACK_COLOR_HS);
 
@@ -262,74 +229,122 @@ void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
             }
 
+            outputFBO->begin();
+
+            ofClear(0,0,0,255);
+
+            ofSetColor(255);
+            static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+
+            ofSetLineWidth(2);
+            ofSetColor(ofColor::aquamarine);
+            contourFinder->draw();
+
+            for(int i = 0; i < contourFinder->size(); i++) {
+                ofNoFill();
+
+                // convex hull of the contour
+                ofSetColor(ofColor::yellowGreen);
+                ofPolyline convexHull = toOf(contourFinder->getConvexHull(i));
+                convexHull.draw();
+
+                // blobs labels
+                ofSetLineWidth(1);
+                ofFill();
+                ofPoint center = toOf(contourFinder->getCenter(i));
+                ofPushMatrix();
+                ofTranslate(center.x, center.y);
+                int label = contourFinder->getLabel(i);
+                string msg = ofToString(label) + ":" + ofToString(contourFinder->getTracker().getAge(label));
+                ofSetColor(255,255,255);
+                font->draw(msg,fontSize,0,0);
+                ofPopMatrix();
+            }
+
+            outputFBO->end();
+
+        }
+
+        // DRAW STUFF
+        ofSetColor(255);
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
 
     }else{
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
+
         isFBOAllocated = false;
     }
-    
+
 }
 
 //--------------------------------------------------------------
-void ColorTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+void ColorTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-        outputFBO->begin();
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
 
-        ofClear(0,0,0,255);
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
 
-        ofSetColor(255);
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+            ImGui::Spacing();
+            ImVec4 color = ImVec4(targetColor.r,targetColor.g,targetColor.b,1.0f);
+            if(ImGui::ColorEdit4( "Target Color", (float*)&color )){
+                this->setCustomVar(color.x,"RED");
+                this->setCustomVar(color.y,"GREEN");
+                this->setCustomVar(color.z,"BLUE");
 
-        ofSetLineWidth(2);
-        contourFinder->draw();
-
-        for(int i = 0; i < contourFinder->size(); i++) {
-            ofNoFill();
-
-            // convex hull of the contour
-            ofSetColor(yellowPrint);
-            ofPolyline convexHull = toOf(contourFinder->getConvexHull(i));
-            convexHull.draw();
-
-            // blobs labels
-            ofSetLineWidth(1);
-            ofFill();
-            ofPoint center = toOf(contourFinder->getCenter(i));
-            ofPushMatrix();
-            ofTranslate(center.x, center.y);
-            int label = contourFinder->getLabel(i);
-            string msg = ofToString(label) + ":" + ofToString(contourFinder->getTracker().getAge(label));
-            ofSetColor(255,255,255);
-            font->draw(msg,fontSize,0,0);
-            ofPopMatrix();
-        }
-
-        outputFBO->end();
-
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
+                targetColor.set(color.x,color.y,color.z,1.0f);
             }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
+                this->setCustomVar(threshold,"THRESHOLD");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("min. area radius",&minAreaRadius,4.0f,99.0f)){
+                this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
+            }
+            ImGui::Spacing();
+            if(ImGui::SliderFloat("max aera radius",&maxAreaRadius,100.0f,500.0f)){
+                this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
+            }
+
+
+            ImGuiEx::ObjectInfo(
+                        "Contour tracking over selected color. Extract blobs, contours and convex hulls.",
+                        "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
+
+
+            ImGui::EndMenu();
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
 }
 
 //--------------------------------------------------------------
@@ -337,59 +352,6 @@ void ColorTracking::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void ColorTracking::updateBGColor(){
-    std::stringstream ss;
-    ofColor temp = ofColor(redValue->getValue()*255,greenValue->getValue()*255,blueValue->getValue()*255);
-    ss << std::hex << temp.getHex();
-    std::string res ( ss.str() );
-    while(res.size() < 6) res+="0";
-    bgColor->setText(ofToUpper(res));
-    bgColor->setBackgroundColor(temp);
-    double a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b)/255;
-    bgColor->setTextInactiveColor(a < 0.5 ? ofColor::black : ofColor::white);
-
-    targetColor.set(temp);
-}
-
-//--------------------------------------------------------------
-void ColorTracking::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == redValue || e.target == greenValue || e.target == blueValue){
-            updateBGColor();
-            if(e.target == redValue){
-                this->setCustomVar(static_cast<float>(e.value),"RED");
-            }else if(e.target == greenValue){
-                this->setCustomVar(static_cast<float>(e.value),"GREEN");
-            }else if(e.target == blueValue){
-                this->setCustomVar(static_cast<float>(e.value),"BLUE");
-            }
-        }else if(e.target == thresholdValue){
-            this->setCustomVar(static_cast<float>(e.value),"THRESHOLD");
-        }else if(e.target == minAreaRadius){
-            this->setCustomVar(static_cast<float>(e.value),"MIN_AREA_RADIUS");
-        }else if(e.target == maxAreaRadius){
-            this->setCustomVar(static_cast<float>(e.value),"MAX_AREA_RADIUS");
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void ColorTracking::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == bgColor){
-        std::string res ( bgColor->getText() );
-        while(res.size() < 6) res+="0";
-
-        ofColor temp = ofColor(strtol(res.substr(0,2).c_str(),nullptr,16),strtol(res.substr(2,2).c_str(),nullptr,16),strtol(res.substr(4,2).c_str(),nullptr,16));
-        bgColor->setBackgroundColor(temp);
-
-        double a = 1 - ( 0.299 * temp.r + 0.587 * temp.g + 0.114 * temp.b)/255;
-        bgColor->setTextInactiveColor(a < 0.5 ? ofColor::black : ofColor::white);
-
-        targetColor.set(temp);
-    }
-}
 
 OBJECT_REGISTER( ColorTracking, "color tracking", OFXVP_OBJECT_CAT_CV)
 
