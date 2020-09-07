@@ -65,7 +65,7 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
     nameLabelLoaded     = false;
 
     loop                = false;
-    volume              = 1.0f;
+    volume              = 0.0f;
     speed               = 1.0f;
 
     posX = posY = drawW = drawH = 0.0f;
@@ -138,6 +138,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 
     if(!isFileLoaded && video->isLoaded() && video->isInitialized()){
         video->setLoopState(OF_LOOP_NONE);
+        video->setVolume(0);
         video->play();
         preloadFirstFrame = true;
 
@@ -277,7 +278,10 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
                 ImGui::Text("%s",tempFilename.getFileName().c_str());
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
                 ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
+                ImGui::Text("Resolution %.0fx%.0f",video->getWidth(),video->getHeight());
             }
+
+            ImGui::Spacing();
             if(ImGui::Button(ICON_FA_FILE,ImVec2(184*this->scaleFactor,26*this->scaleFactor))){
                 loadVideoFlag = true;
             }
