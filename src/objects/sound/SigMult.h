@@ -42,39 +42,37 @@ public:
 
     SigMult();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadAudioSettings();
 
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
-
-    
-    
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
 
     pdsp::Scope             scope;
     pdsp::Amp               gain;
-    ofPolyline              waveform;
     pdsp::ValueControl      gain_ctrl;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiSlider*        slider;
+    float                   gainValue;
 
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

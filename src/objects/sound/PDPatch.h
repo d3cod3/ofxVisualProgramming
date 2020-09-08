@@ -37,8 +37,9 @@
 #pragma once
 
 #include "PatchObject.h"
-
 #include "PathWatcher.h"
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 #include "ofxPd.h"
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
@@ -54,45 +55,43 @@ public:
 
     PDPatch();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
 
-    
-    
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
     void            loadAudioSettings();
     void            loadPatch(string scriptFile);
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
 
     // pd message receiver callbacks
-    void            print(const std::string& message);
+    void            print(const std::string& message) override;
 
-    void            receiveBang(const std::string& dest);
-    void            receiveFloat(const std::string& dest, float value);
-    void            receiveSymbol(const std::string& dest, const std::string& symbol);
-    void            receiveList(const std::string& dest, const List& list);
-    void            receiveMessage(const std::string& dest, const std::string& msg, const List& list);
+    void            receiveBang(const std::string& dest) override;
+    void            receiveFloat(const std::string& dest, float value) override;
+    void            receiveSymbol(const std::string& dest, const std::string& symbol) override;
+    void            receiveList(const std::string& dest, const List& list) override;
+    void            receiveMessage(const std::string& dest, const std::string& msg, const List& list) override;
 
     // pd midi receiver callbacks
-    void            receiveNoteOn(const int channel, const int pitch, const int velocity);
-    void            receiveControlChange(const int channel, const int controller, const int value);
-    void            receiveProgramChange(const int channel, const int value);
-    void            receivePitchBend(const int channel, const int value);
-    void            receiveAftertouch(const int channel, const int value);
-    void            receivePolyAftertouch(const int channel, const int pitch, const int value);
-    void            receiveMidiByte(const int port, const int byte);
+    void            receiveNoteOn(const int channel, const int pitch, const int velocity) override;
+    void            receiveControlChange(const int channel, const int controller, const int value) override;
+    void            receiveProgramChange(const int channel, const int value) override;
+    void            receivePitchBend(const int channel, const int value) override;
+    void            receiveAftertouch(const int channel, const int value) override;
+    void            receivePolyAftertouch(const int channel, const int pitch, const int value) override;
+    void            receiveMidiByte(const int port, const int byte) override;
 
 
     ofxPd               pd;
@@ -112,23 +111,20 @@ public:
     ofSoundBuffer       lastOutputBuffer3;
     ofSoundBuffer       lastOutputBuffer4;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     patchName;
-    ofxDatGuiButton*    newButton;
-    ofxDatGuiButton*    loadButton;
-    ofxDatGuiButton*    setExternalPath;
-
-    ofImage             *pdIcon;
+    ofImage*            pdIcon;
+    float               posX, posY, drawW, drawH;
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
 
     pdsp::ExternalInput ch1IN, ch2IN, ch3IN, ch4IN;
     pdsp::ExternalInput ch1OUT, ch2OUT, ch3OUT, ch4OUT;
     pdsp::PatchNode     mixIN, mixOUT;
-    pdsp::Scope         scopeIN, scopeOUT;
-    ofPolyline          waveformIN, waveformOUT;
 
     int                 bufferSize;
     int                 sampleRate;
+
+    imgui_addons::ImGuiFileBrowser          fileDialog;
 
     string              lastLoadedPatch;
     string              prevExternalsFolder;
@@ -139,12 +135,15 @@ public:
     bool                patchLoaded;
     bool                patchSaved;
     bool                externalPathSaved;
+
+
     bool                loading;
+    bool                loaded;
 
 protected:
 
-
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

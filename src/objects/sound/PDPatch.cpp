@@ -56,19 +56,17 @@ PDPatch::PDPatch() : PatchObject(){
 
     this->initInletsState();
 
-    pdIcon            = new ofImage();
+    pdIcon              = new ofImage();
+    posX = posY = drawW = drawH = 0.0f;
 
     isNewObject         = false;
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     isAudioINObject     = true;
     isAudioOUTObject    = true;
 
     lastLoadedPatch     = "";
     prevExternalsFolder = "/path_to_pd_externals";
-    lastExternalsFolder = "";
+    lastExternalsFolder = "SET PD EXTERNAL FOLDER!";
     loadPatchFlag       = false;
     savePatchFlag       = false;
     setExternalFlag     = false;
@@ -78,6 +76,10 @@ PDPatch::PDPatch() : PatchObject(){
     loading             = true;
 
     isPDSPPatchableObject   = true;
+
+    loaded              = false;
+
+    this->setIsTextureObj(true);
 
 }
 
@@ -114,33 +116,6 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // GUI
     pdIcon->load("images/pd.png");
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &PDPatch::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    patchName = gui->addLabel("NONE");
-    gui->addBreak();
-
-    newButton = gui->addButton("NEW");
-    newButton->setUseCustomMouse(true);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    gui->addBreak();
-    setExternalPath = gui->addButton("SET EXTERNALS PATH");
-    setExternalPath->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
     // Load patch
     watcher.start();
     if(filepath == "none"){
@@ -165,30 +140,10 @@ void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
     ch3OUT.out_signal() >> this->pdspOut[2] >> mixOUT;
     ch4OUT.out_signal() >> this->pdspOut[3] >> mixOUT;
 
-    mixIN >> scopeIN >> engine.blackhole();
-    mixOUT >> scopeOUT >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
 void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    // GUI
-    gui->update();
-    header->update();
-    newButton->update();
-    loadButton->update();
-    setExternalPath->update();
-
-    if(loadPatchFlag){
-        loadPatchFlag = false;
-        //fd.openFile("load pd patch"+ofToString(this->getId()),"Select a PD patch");
-    }
-
-    if(savePatchFlag){
-        savePatchFlag = false;
-        string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
-        //fd.saveFile("save pd patch"+ofToString(this->getId()),"Save new PD patch as",newFileName);
-    }
 
     if(patchLoaded){
         patchLoaded = false;
@@ -199,6 +154,7 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
                 filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
                 //filepath = file.getAbsolutePath();
                 loadPatch(filepath);
+                this->saveConfig(false);
             }
         }
     }
@@ -212,11 +168,7 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         filepath = checkFileExtension(newPDFile.getAbsolutePath(), ofToUpper(newPDFile.getExtension()), "PD");
         filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
         loadPatch(filepath);
-    }
-
-    if(setExternalFlag){
-        setExternalFlag = false;
-        //fd.openFolder("load pd external folder"+ofToString(this->getId()),"Select your PD external folder");
+        this->saveConfig(false);
     }
 
     if(externalPathSaved){
@@ -228,8 +180,15 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
                 pd.addToSearchPath(temp);
                 this->substituteCustomVar(prevExternalsFolder,temp.c_str());
                 prevExternalsFolder = lastExternalsFolder;
-                ofLog(OF_LOG_NOTICE,"PD External set to: %s",temp.c_str());
+                ofLog(OF_LOG_NOTICE,"PD Externals Folder set to: %s",temp.c_str());
                 this->saveConfig(false);
+                // load externals
+                #if defined(TARGET_LINUX) || defined(TARGET_OSX)
+                if(lastExternalsFolder != "SET PD EXTERNAL FOLDER!"){
+                    cyclone_setup();
+                    zexy_setup();
+                }
+                #endif
             }
         }
     }
@@ -246,21 +205,8 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         pathChanged(watcher.nextEvent());
     }
 
-    // update waveforms
-    waveformIN.clear();
-    for(size_t i = 0; i < scopeIN.getBuffer().size(); i++) {
-        float sample = scopeIN.getBuffer().at(i);
-        float x = ofMap(i, 0, scopeIN.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height/2);
-        waveformIN.addVertex(x, y);
-    }
-
-    waveformOUT.clear();
-    for(size_t i = 0; i < scopeOUT.getBuffer().size(); i++) {
-        float sample = scopeOUT.getBuffer().at(i);
-        float x = ofMap(i, 0, scopeOUT.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, this->height/2, this->height);
-        waveformOUT.addVertex(x, y);
+    if(!loaded){
+        loaded = true;
     }
 
 }
@@ -268,13 +214,97 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 //--------------------------------------------------------------
 void PDPatch::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,100);
-    pdIcon->draw(this->width/2,this->headerHeight,((this->height/2.2f)/pdIcon->getHeight())*pdIcon->getWidth(),this->height/2.2f);
-    // Scopes
-    ofSetColor(255);
-    waveformIN.draw();
-    waveformOUT.draw();
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(pdIcon->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+
+}
+
+//--------------------------------------------------------------
+void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    ofFile tempFilename(filepath);
+
+    loadPatchFlag   = false;
+    savePatchFlag   = false;
+    setExternalFlag = false;
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGui::Spacing();
+            ImGui::Text("Loaded PD Patch:");
+            if(filepath == "none"){
+                ImGui::Text("%s",filepath.c_str());
+            }else{
+                ImGui::Text("%s",tempFilename.getFileName().c_str());
+                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+            }
+            ImGui::Spacing();
+            ImGui::Text("%s",lastExternalsFolder.c_str());
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+                savePatchFlag = true;
+            }
+            ImGui::Spacing();
+            if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+                loadPatchFlag = true;
+            }
+            ImGui::Spacing();
+            if(ImGui::Button("Set Externals Path",ImVec2(180*scaleFactor,26*scaleFactor))){
+                setExternalFlag = true;
+            }
+
+            ImGuiEx::ObjectInfo(
+                        "Pure Data ( Vainilla ) patch container with inlets and outlets. As for live coding, with this object you can live patching, passing in real time and in both directions audio and data cables.",
+                        "https://mosaic.d3cod3.org/reference.php?r=491", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+    string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
+    if(ImGuiEx::getFileDialog(fileDialog, savePatchFlag, "Save new PD patch as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".pd", newFileName, scaleFactor)){
+        lastLoadedPatch = fileDialog.selected_path;
+        patchSaved = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadPatchFlag, "Select a PD patch", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".pd", "", scaleFactor)){
+        lastLoadedPatch = fileDialog.selected_path;
+        patchLoaded = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, setExternalFlag, "Select your PD external folder", imgui_addons::ImGuiFileBrowser::DialogMode::SELECT, "", "", scaleFactor)){
+        lastExternalsFolder = fileDialog.selected_path;
+        externalPathSaved = true;
+    }
 
 }
 
@@ -293,20 +323,6 @@ void PDPatch::removeObjectContent(bool removeFileFromData){
         removeFile(filepath);
     }
 }
-
-//--------------------------------------------------------------
-/*void PDPatch::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load pd patch"+ofToString(this->getId())){
-        lastLoadedPatch = response.filepath;
-        patchLoaded = true;
-    }else if(response.id == "save pd patch"+ofToString(this->getId())){
-        lastLoadedPatch = response.filepath;
-        patchSaved = true;
-    }else if(response.id == "load pd external folder"+ofToString(this->getId())){
-        lastExternalsFolder = response.filepath;
-        externalPathSaved = true;
-    }
-}*/
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
@@ -393,7 +409,8 @@ void PDPatch::loadAudioSettings(){
                         for (int t=0;t<totalVars;t++){
                             if(XML.pushTag("var",t)){
                                 prevExternalsFolder = XML.getValue("name","");
-                                //ofLog(OF_LOG_NOTICE,"%s",prevExternalsFolder.c_str());
+                                lastExternalsFolder = prevExternalsFolder;
+                                ofLog(OF_LOG_NOTICE,"Externals folder: %s",lastExternalsFolder.c_str());
                                 XML.popTag();
                             }
                         }
@@ -421,8 +438,10 @@ void PDPatch::loadAudioSettings(){
     pd.init(4,4,sampleRate,bufferSize/ofxPd::blockSize(),false);
     // load externals
 #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    cyclone_setup();
-    zexy_setup();
+    if(lastExternalsFolder != "SET PD EXTERNAL FOLDER!"){
+        cyclone_setup();
+        zexy_setup();
+    }
 #endif
 
 
@@ -475,30 +494,12 @@ void PDPatch::loadPatch(string scriptFile){
     pd.start();
 
     if(currentPatch.isValid()){
-        if(currentPatchFile.getFileName().size() > 22){
-            patchName->setLabel(currentPatchFile.getFileName().substr(0,21)+"...");
-        }else{
-            patchName->setLabel(currentPatchFile.getFileName());
-        }
         watcher.removeAllPaths();
         watcher.addPath(filepath);
 
         ofLog(OF_LOG_NOTICE,"[verbose] PD patch: %s loaded & running!",filepath.c_str());
     }
 
-}
-
-//--------------------------------------------------------------
-void PDPatch::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == newButton){
-            savePatchFlag = true;
-        }else if(e.target == loadButton){
-            loadPatchFlag = true;
-        }else if(e.target == setExternalPath){
-            setExternalFlag = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------
