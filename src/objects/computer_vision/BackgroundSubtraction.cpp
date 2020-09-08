@@ -172,7 +172,10 @@ void BackgroundSubtraction::drawObjectContent(ofxFontStash *font, shared_ptr<ofB
         }
         grayThresh->updateTexture();
 
-        *static_cast<ofTexture *>(_outletParams[0]) = grayThresh->getTexture();
+        *finalBackground = *grayThresh;
+        finalBackground->updateTexture();
+
+        *static_cast<ofTexture *>(_outletParams[0]) = finalBackground->getTexture();
 
     }else if(!this->inletsConnected[0]){
         newConnection = false;
@@ -319,17 +322,19 @@ void BackgroundSubtraction::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void BackgroundSubtraction::resetTextures(int w, int h){
 
-    pix         = new ofPixels();
-    colorImg    = new ofxCvColorImage();
-    grayImg     = new ofxCvGrayscaleImage();
-    grayBg      = new ofxCvGrayscaleImage();
-    grayThresh  = new ofxCvGrayscaleImage();
+    pix             = new ofPixels();
+    colorImg        = new ofxCvColorImage();
+    grayImg         = new ofxCvGrayscaleImage();
+    grayBg          = new ofxCvGrayscaleImage();
+    grayThresh      = new ofxCvGrayscaleImage();
+    finalBackground = new ofxCvColorImage();
 
     pix->allocate(static_cast<size_t>(w),static_cast<size_t>(h),1);
     colorImg->allocate(w,h);
     grayImg->allocate(w,h);
     grayBg->allocate(w,h);
     grayThresh->allocate(w,h);
+    finalBackground->allocate(w,h);
 }
 
 

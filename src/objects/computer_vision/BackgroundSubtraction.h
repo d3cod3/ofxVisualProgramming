@@ -55,8 +55,6 @@ public:
     void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            resetTextures(int w, int h);
-    void            loadBackgroundImage(int w, int h);
-    void            saveBackgroundImage();
 
 
     ofPixels                    *pix;
@@ -64,6 +62,7 @@ public:
     ofxCvGrayscaleImage         *grayImg;
     ofxCvGrayscaleImage         *grayBg;
     ofxCvGrayscaleImage         *grayThresh;
+    ofxCvColorImage             *finalBackground;
 
     float                       posX, posY, drawW, drawH;
     float                       scaledObjW, scaledObjH;
