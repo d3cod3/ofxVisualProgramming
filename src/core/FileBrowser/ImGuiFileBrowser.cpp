@@ -400,8 +400,10 @@ namespace imgui_addons
                     is_dir = false;
 
                     // If dialog mode is OPEN/SAVE then copy the selected file name to the input text bar
-                    strcpy(input_fn, filtered_files[i]->name.c_str());
-                    input_fn_string = filtered_files[i]->name;
+                    if(dialog_mode != DialogMode::SELECT){
+                        strcpy(input_fn, filtered_files[i]->name.c_str());
+                        input_fn_string = filtered_files[i]->name;
+                    }
 
                     if(ImGui::IsMouseDoubleClicked(0))
                     {
