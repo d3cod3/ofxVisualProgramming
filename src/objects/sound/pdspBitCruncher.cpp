@@ -35,25 +35,24 @@
 #include "pdspBitCruncher.h"
 
 //--------------------------------------------------------------
-pdspBitCruncher::pdspBitCruncher() : PatchObject(){
+pdspBitCruncher::pdspBitCruncher() : PatchObject("bit cruncher"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
 
     _inletParams[0] = new ofSoundBuffer();  // audio in
     _inletParams[1] = new float();          // bits
-    *(float *)&_inletParams[1] = 4.0f;
+    *(float *)&_inletParams[1] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
+
+    bits                    = 4.0f;
 
     loaded                  = false;
 
@@ -62,32 +61,18 @@ pdspBitCruncher::pdspBitCruncher() : PatchObject(){
 //--------------------------------------------------------------
 void pdspBitCruncher::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"in");
     this->addInlet(VP_LINK_NUMERIC,"bits");
+
     this->addOutlet(VP_LINK_AUDIO,"out");
 
-    this->setCustomVar(static_cast<float>(4),"BITS");
+    this->setCustomVar(bits,"BITS");
 }
 
 //--------------------------------------------------------------
 void pdspBitCruncher::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspBitCruncher::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("Bits", 1,8,4);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
@@ -107,19 +92,14 @@ void pdspBitCruncher::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    slider->update();
-
     if(this->inletsConnected[1]){
-        bits_ctrl.set(ofClamp(*(float *)&_inletParams[1],1.0f,8.0f));
-        slider->setValue(bits_ctrl.get());
+        bits = ofClamp(*(float *)&_inletParams[1],1.0f,8.0f);
+        bits_ctrl.set(bits);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("BITS"));
-        bits_ctrl.set(ofClamp(slider->getValue(),1.0f,8.0f));
+        bits_ctrl.set(ofClamp(this->getCustomVar("BITS"),1.0f,8.0f));
     }
 
 }
@@ -127,6 +107,49 @@ void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 //--------------------------------------------------------------
 void pdspBitCruncher::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
+}
+
+//--------------------------------------------------------------
+void pdspBitCruncher::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Lo-Fi audio effect, reducing the bit for the signal amplitude.",
+                        "https://mosaic.d3cod3.org/reference.php?r=bit-cruncher", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
+        if(ImGui::SliderFloat("",&bits,1.0f, 8.0f)){
+            bits_ctrl.set(bits);
+            this->setCustomVar(bits,"BITS");
+        }
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
 
 }
 
@@ -164,11 +187,7 @@ void pdspBitCruncher::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspBitCruncher::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"BITS");
-    bits_ctrl.set(ofClamp(static_cast<float>(e.value),1.0f,8.0f));
-}
+
 
 OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND)
 

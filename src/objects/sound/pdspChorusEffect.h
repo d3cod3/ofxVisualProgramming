@@ -36,28 +36,30 @@
 
 #include "PatchObject.h"
 
+#include "imgui_controls.h"
+
 class pdspChorusEffect : public PatchObject{
 
 public:
 
     pdspChorusEffect();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
     void            loadAudioSettings();
 
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
 
-    
-    
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     pdsp::DimensionChorus   chorus;
@@ -66,18 +68,20 @@ public:
     pdsp::ValueControl      depth_ctrl;
     pdsp::ValueControl      delay_ctrl;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiSlider*        speed;
-    ofxDatGuiSlider*        depth;
-    ofxDatGuiSlider*        delay;
+
+    float                   speed;
+    float                   depth;
+    float                   delay;
 
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

@@ -35,87 +35,106 @@
 #include "pdspBitNoise.h"
 
 //--------------------------------------------------------------
-pdspBitNoise::pdspBitNoise() : PatchObject(){
+pdspBitNoise::pdspBitNoise() : PatchObject("bit noise"){
 
-    this->numInlets  = 1;
-    this->numOutlets = 2;
+    this->numInlets  = 3;
+    this->numOutlets = 3;
 
     _inletParams[0] = new float();          // pitch
     *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new float();          // decimation
+    *(float *)&_inletParams[1] = 0.0f;
+    _inletParams[2] = new float();          // bits
+    *(float *)&_inletParams[2] = 0.0f;
 
-    _outletParams[0] = new ofSoundBuffer(); // audio output
-    _outletParams[1] = new vector<float>(); // audio buffer
+    _outletParams[0] = new ofSoundBuffer(); // audio output L
+    _outletParams[1] = new ofSoundBuffer(); // audio output R
+    _outletParams[2] = new vector<float>(); // audio buffer
 
     this->initInletsState();
-
-    isGUIObject             = true;
-    this->isOverGUI         = true;
 
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    pitch                   = -100.0f;
+    decimation              = 151.0f;
+    bits                    = 8.0f;
+
     loaded                  = false;
+
+    this->width *= 2.0f;
 
 }
 
 //--------------------------------------------------------------
 void pdspBitNoise::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"pitch");
-    this->addOutlet(VP_LINK_AUDIO,"signal");
+    this->addInlet(VP_LINK_NUMERIC,"decimation");
+    this->addInlet(VP_LINK_NUMERIC,"bits");
+
+    this->addOutlet(VP_LINK_AUDIO,"signalL");
+    this->addOutlet(VP_LINK_AUDIO,"signalR");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 
-    this->setCustomVar(static_cast<float>(-100),"PITCH");
+    this->setCustomVar(pitch,"PITCH");
+    this->setCustomVar(decimation,"DECIMATION");
+    this->setCustomVar(bits,"BITS");
 }
 
 //--------------------------------------------------------------
 void pdspBitNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspBitNoise::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    pitch = gui->addSlider("Pitch", -100,150,this->getCustomVar("PITCH"));
-    pitch->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void pdspBitNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
 
     pitch_ctrl >> noise.in_pitch();
-    pitch_ctrl.set(-100.0f);
+    pitch_ctrl.set(pitch);
     pitch_ctrl.enableSmoothing(50.0f);
 
-    noise.ch_noise(0) >> this->pdspOut[0];
-    noise.ch_noise(0) >> scope >> engine.blackhole();
+    decimation_ctrl >> noise.in_decimation();
+    decimation_ctrl.set(decimation);
+    decimation_ctrl.enableSmoothing(50.0f);
+
+    bits_ctrl >> noise.in_bits();
+    bits_ctrl.set(bits);
+    bits_ctrl.enableSmoothing(50.0f);
+
+    noise.ch(0) >> this->pdspOut[0];
+    noise.ch(1) >> this->pdspOut[1];
+    noise.ch(0) >> scopeL >> engine.blackhole();
+    noise.ch(1) >> scopeR >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
 void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    pitch->update();
-
     if(this->inletsConnected[0]){
-        pitch_ctrl.set(ofClamp(*(float *)&_inletParams[0],-100,150));
-        pitch->setValue(pitch_ctrl.get());
+        pitch = ofClamp(*(float *)&_inletParams[0],-100,150);
+        pitch_ctrl.set(pitch);
+    }
+
+    if(this->inletsConnected[1]){
+        decimation = ofClamp(*(float *)&_inletParams[1],1,200);
+        decimation_ctrl.set(decimation);
+    }
+
+    if(this->inletsConnected[2]){
+        bits = ofClamp(*(float *)&_inletParams[2],0.0f,8.0f);
+        bits_ctrl.set(bits);
     }
 
     if(!loaded){
         loaded = true;
-        pitch->setValue(this->getCustomVar("PITCH"));
-        pitch_ctrl.set(ofClamp(pitch->getValue(),-100,150));
+        pitch = ofClamp(this->getCustomVar("PITCH"),-100,150);
+        pitch_ctrl.set(pitch);
+        decimation = ofClamp(this->getCustomVar("DECIMATION"),1,200);
+        decimation_ctrl.set(decimation);
+        bits = ofClamp(this->getCustomVar("BITS"),0.0f,8.0f);
+        bits_ctrl.set(bits);
     }
 
 }
@@ -123,6 +142,49 @@ void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void pdspBitNoise::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
+
+}
+
+//--------------------------------------------------------------
+void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            ImGuiEx::ObjectInfo(
+                        "Stereo Digital noise generator",
+                        "https://mosaic.d3cod3.org/reference.php?r=bit-noise", scaleFactor);
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pitch", &pitch, -100.0f, 150.0f, 1000.0f)){
+            pitch_ctrl.set(pitch);
+            this->setCustomVar(pitch,"PITCH");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "decimation", &decimation, 1.0f, 200.0f, 1000.0f)){
+            decimation_ctrl.set(decimation);
+            this->setCustomVar(decimation,"DECIMATION");
+
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "bits", &bits, 0.0f, 8.0f, 320.0f)){
+            bits_ctrl.set(bits);
+            this->setCustomVar(bits,"BITS");
+        }
+
+    }
 
 }
 
@@ -143,7 +205,7 @@ void pdspBitNoise::loadAudioSettings(){
             bufferSize = XML.getValue("buffer_size",0);
 
             for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
+                static_cast<vector<float> *>(_outletParams[2])->push_back(0.0f);
             }
 
             XML.popTag();
@@ -153,27 +215,17 @@ void pdspBitNoise::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspBitNoise::audioOutObject(ofSoundBuffer &outputBuffer){
-    waveform.clear();
-    for(size_t i = 0; i < scope.getBuffer().size(); i++) {
-        float sample = scope.getBuffer().at(i);
-        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
+    for(size_t i = 0; i < scopeL.getBuffer().size(); i++) {
+        float sample = (scopeL.getBuffer().at(i) + scopeR.getBuffer().at(i))/2;
 
         // SIGNAL BUFFER DATA
-        static_cast<vector<float> *>(_outletParams[1])->at(i) = sample;
+        static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
     }
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspBitNoise::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(e.target == pitch){
-        this->setCustomVar(static_cast<float>(e.value),"PITCH");
-        pitch_ctrl.set(static_cast<float>(e.value));
-    }
-}
 
 OBJECT_REGISTER( pdspBitNoise, "bit noise", OFXVP_OBJECT_CAT_SOUND)
 
