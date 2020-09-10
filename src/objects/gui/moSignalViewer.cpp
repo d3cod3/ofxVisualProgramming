@@ -135,7 +135,12 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void moSignalViewer::removeObjectContent(bool removeFileFromData){
-    
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
+        it->second.disconnectAll();
+    }
+    for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
+        it->second.disconnectAll();
+    }
 }
 
 //--------------------------------------------------------------
