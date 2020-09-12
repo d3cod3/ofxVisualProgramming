@@ -192,9 +192,6 @@ void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
-    ofFile tempFilename(filepath);
-
-    loadHaarConfigFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -205,22 +202,7 @@ void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            if(ImGui::Button("OPEN",ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadHaarConfigFlag = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Detects shapes with specific characteristics or structures within images or video frames.",
-                        "https://mosaic.d3cod3.org/reference.php?r=haar-tracking", scaleFactor);
-
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -255,6 +237,29 @@ void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
     }
 
+}
+
+//--------------------------------------------------------------
+void HaarTracking::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadHaarConfigFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    if(ImGui::Button("OPEN",ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadHaarConfigFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Detects shapes with specific characteristics or structures within images or video frames.",
+                "https://mosaic.d3cod3.org/reference.php?r=haar-tracking", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -145,27 +145,8 @@ void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(midiDevicesList.size() > 0){
-                if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
-                    for(int i=0; i < midiDevicesList.size(); ++i){
-                        bool is_selected = (midiDeviceID == i );
-                        if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
-                            resetMIDISettings(i);
-                        }
-                        if (is_selected) ImGui::SetItemDefaultFocus();
-                    }
-                    ImGui::EndCombo();
-                }
-            }else{
-                ImGui::Text("No MIDI devices found!");
-            }
+            drawObjectNodeConfig();
 
-
-
-            ImGuiEx::ObjectInfo(
-                        "Send data to a physical midi interface",
-                        "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -188,6 +169,31 @@ void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void MidiSender::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(midiDevicesList.size() > 0){
+        if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
+            for(int i=0; i < midiDevicesList.size(); ++i){
+                bool is_selected = (midiDeviceID == i );
+                if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
+                    resetMIDISettings(i);
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+    }else{
+        ImGui::Text("No MIDI devices found!");
+    }
+
+
+
+    ImGuiEx::ObjectInfo(
+                "Send data to a physical midi interface",
+                "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -307,10 +307,7 @@ void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
-    ofFile tempFilename(filepath);
 
-    loadShaderScriptFlag = false;
-    saveShaderScriptFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -322,56 +319,7 @@ void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
-            if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
-                saveShaderScriptFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadShaderScriptFlag = true;
-            }
-
-            if(shaderSliders.size() > 0){
-
-                ImGui::Spacing();
-                ImGui::Spacing();
-                ImGui::Separator();
-                ImGui::Spacing();
-                ImGui::Spacing();
-
-                ImGui::PushItemWidth(180*scaleFactor);
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
-                ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
-                ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
-                ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(120,255,255,160));
-                for(size_t i=0;i<shaderSliders.size();i++){
-                    if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
-                        ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,10.0f);
-                        this->setCustomVar(shaderSliders.at(i),"GUI_FLOAT_"+shaderSlidersLabel.at(i));
-                    }else if(shaderSlidersType.at(i) == ShaderSliderType_INT){
-                        ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,30.0f,"%.0f");
-                        this->setCustomVar(static_cast<float>(static_cast<int>(floor(shaderSliders.at(i)))),"GUI_INT_"+shaderSlidersLabel.at(i));
-                    }
-                }
-                ImGui::PopStyleColor(4);
-                ImGui::PopItemWidth();
-
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
-                        "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -415,6 +363,65 @@ void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         shaderScriptLoaded = true;
     }
 
+}
+
+//--------------------------------------------------------------
+void ShaderObject::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadShaderScriptFlag = false;
+    saveShaderScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+        saveShaderScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadShaderScriptFlag = true;
+    }
+
+    if(shaderSliders.size() > 0){
+
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        ImGui::PushItemWidth(180*scaleFactor);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(120,255,255,160));
+        for(size_t i=0;i<shaderSliders.size();i++){
+            if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
+                ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,10.0f);
+                this->setCustomVar(shaderSliders.at(i),"GUI_FLOAT_"+shaderSlidersLabel.at(i));
+            }else if(shaderSlidersType.at(i) == ShaderSliderType_INT){
+                ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,30.0f,"%.0f");
+                this->setCustomVar(static_cast<float>(static_cast<int>(floor(shaderSliders.at(i)))),"GUI_INT_"+shaderSlidersLabel.at(i));
+            }
+        }
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
+                "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
 }
 
 //--------------------------------------------------------------

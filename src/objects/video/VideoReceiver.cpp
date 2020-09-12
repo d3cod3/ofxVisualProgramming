@@ -110,9 +110,7 @@ void VideoReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Receive broadcast (local network) video from the video sender object through the NDI (Network Device Interface)communication protocol.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-sender", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -136,6 +134,13 @@ void VideoReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void VideoReceiver::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Receive broadcast (local network) video from the video sender object through the NDI (Network Device Interface)communication protocol.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------

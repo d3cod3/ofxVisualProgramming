@@ -141,9 +141,8 @@ void HPCPExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the HPCP (Harmonic Pitch Class Profile) data as a dynamic vector of 12 float values",
-                        "https://mosaic.d3cod3.org/reference.php?r=hpcp-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
 
             ImGui::EndMenu();
@@ -161,6 +160,13 @@ void HPCPExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void HPCPExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the HPCP (Harmonic Pitch Class Profile) data as a dynamic vector of 12 float values",
+                "https://mosaic.d3cod3.org/reference.php?r=hpcp-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

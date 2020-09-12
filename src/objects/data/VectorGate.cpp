@@ -142,30 +142,7 @@ void VectorGate::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Open",&openInlet)){
-                if(openInlet < 0){
-                    openInlet = 0;
-                }else if(openInlet > dataInlets){
-                    openInlet = dataInlets;
-                }
-                this->setCustomVar(static_cast<float>(openInlet),"OPEN");
-            }
-            if(ImGui::InputInt("Data Inlets",&dataInlets)){
-                if(dataInlets > MAX_INLETS-1){
-                    dataInlets = MAX_INLETS-1;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
-                needReset = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Receives up to 31 vectors, and transmits only the one indicated in its first inlet: open.",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-gate", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -200,6 +177,34 @@ void VectorGate::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void VectorGate::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Open",&openInlet)){
+        if(openInlet < 0){
+            openInlet = 0;
+        }else if(openInlet > dataInlets){
+            openInlet = dataInlets;
+        }
+        this->setCustomVar(static_cast<float>(openInlet),"OPEN");
+    }
+    if(ImGui::InputInt("Data Inlets",&dataInlets)){
+        if(dataInlets > MAX_INLETS-1){
+            dataInlets = MAX_INLETS-1;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Receives up to 31 vectors, and transmits only the one indicated in its first inlet: open.",
+                "https://mosaic.d3cod3.org/reference.php?r=vector-gate", scaleFactor);
 }
 
 //--------------------------------------------------------------

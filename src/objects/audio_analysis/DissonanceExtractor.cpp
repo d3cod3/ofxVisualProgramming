@@ -130,9 +130,8 @@ void DissonanceExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts sensory dissonance (not musical or aesthetic) by measuring the sound’s perceptual roughness.",
-                        "https://mosaic.d3cod3.org/reference.php?r=dissonance-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -147,6 +146,13 @@ void DissonanceExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void DissonanceExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts sensory dissonance (not musical or aesthetic) by measuring the sound’s perceptual roughness.",
+                "https://mosaic.d3cod3.org/reference.php?r=dissonance-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

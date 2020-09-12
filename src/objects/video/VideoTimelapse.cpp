@@ -167,22 +167,7 @@ void VideoTimelapse::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-
-            if(ImGui::InputInt("Frames",&nDelayFrames)){
-                capturedFrame   = 0;
-                delayFrame      = 0;
-
-                resetTime       = ofGetElapsedTimeMillis();
-                wait            = 1000/static_cast<int>(ofGetFrameRate());
-
-                videoBuffer->setup(nDelayFrames);
-                this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Delay the playback of a video file or live video.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-timedelay", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -203,6 +188,26 @@ void VideoTimelapse::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::drawObjectNodeConfig(){
+    ImGui::Spacing();
+
+    if(ImGui::InputInt("Frames",&nDelayFrames)){
+        capturedFrame   = 0;
+        delayFrame      = 0;
+
+        resetTime       = ofGetElapsedTimeMillis();
+        wait            = 1000/static_cast<int>(ofGetFrameRate());
+
+        videoBuffer->setup(nDelayFrames);
+        this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Delay the playback of a video file or live video.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-timedelay", scaleFactor);
 }
 
 //--------------------------------------------------------------

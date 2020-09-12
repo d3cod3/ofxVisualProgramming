@@ -227,36 +227,7 @@ void VideoTransform::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*this->scaleFactor);
-            if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
-                this->setCustomVar(_x,"XPOS");
-            }
-            if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
-                this->setCustomVar(_y,"YPOS");
-            }
-            if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
-                this->setCustomVar(_w,"WIDTH");
-            }
-            if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
-                this->setCustomVar(_h,"HEIGHT");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("ANGLE X",&angleX, 0.0f, 360.0f)){
-                this->setCustomVar(angleX,"ANGLEX");
-            }
-            if(ImGui::SliderFloat("ANGLE Y",&angleY, 0.0f, 360.0f)){
-                this->setCustomVar(angleY,"ANGLEY");
-            }
-            if(ImGui::SliderFloat("ANGLE Z",&angleZ, 0.0f, 360.0f)){
-                this->setCustomVar(angleZ,"ANGLEZ");
-            }
-
-            ImGui::PopItemWidth();
-
-            ImGuiEx::ObjectInfo(
-                        "This object allows you to scale and rotate a texture.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-transform", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -287,6 +258,40 @@ void VideoTransform::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void VideoTransform::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*this->scaleFactor);
+    if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
+        this->setCustomVar(_x,"XPOS");
+    }
+    if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
+        this->setCustomVar(_y,"YPOS");
+    }
+    if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
+        this->setCustomVar(_w,"WIDTH");
+    }
+    if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
+        this->setCustomVar(_h,"HEIGHT");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("ANGLE X",&angleX, 0.0f, 360.0f)){
+        this->setCustomVar(angleX,"ANGLEX");
+    }
+    if(ImGui::SliderFloat("ANGLE Y",&angleY, 0.0f, 360.0f)){
+        this->setCustomVar(angleY,"ANGLEY");
+    }
+    if(ImGui::SliderFloat("ANGLE Z",&angleZ, 0.0f, 360.0f)){
+        this->setCustomVar(angleZ,"ANGLEZ");
+    }
+
+    ImGui::PopItemWidth();
+
+    ImGuiEx::ObjectInfo(
+                "This object allows you to scale and rotate a texture.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-transform", scaleFactor);
 }
 
 //--------------------------------------------------------------

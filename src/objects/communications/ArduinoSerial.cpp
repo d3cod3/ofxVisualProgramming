@@ -187,37 +187,8 @@ void ArduinoSerial::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("%s",deviceNameList.at(serialDeviceID).c_str());
+            drawObjectNodeConfig();
 
-            ImGui::Spacing();
-            if(ImGui::BeginCombo("Device", deviceNameList.at(serialDeviceID).c_str() )){
-                for(int i=0; i < deviceNameList.size(); ++i){
-                    bool is_selected = (serialDeviceID == i );
-                    if (ImGui::Selectable(deviceNameList.at(i).c_str(), is_selected)){
-                        resetSERIALSettings(i,baudRateID);
-                    }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::Spacing();
-            if(ImGui::BeginCombo("Baudrate", baudrateList.at(baudRateID).c_str() )){
-                for(int i=0; i < baudrateList.size(); ++i){
-                    bool is_selected = (baudRateID == i );
-                    if (ImGui::Selectable(baudrateList.at(i).c_str(), is_selected)){
-                        resetSERIALSettings(serialDeviceID,i);
-                    }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "This object communicates with Arduino for both sending and receiving data. This template MosaicConnector.ino must be used as Arduino template file",
-                        "https://mosaic.d3cod3.org/reference.php?r=arduino-serial", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -239,6 +210,40 @@ void ArduinoSerial::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void ArduinoSerial::drawObjectNodeConfig(){
+    //ImGui::Spacing();
+    //ImGui::Text("%s",deviceNameList.at(serialDeviceID).c_str());
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Device", deviceNameList.at(serialDeviceID).c_str() )){
+        for(int i=0; i < deviceNameList.size(); ++i){
+            bool is_selected = (serialDeviceID == i );
+            if (ImGui::Selectable(deviceNameList.at(i).c_str(), is_selected)){
+                resetSERIALSettings(i,baudRateID);
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Baudrate", baudrateList.at(baudRateID).c_str() )){
+        for(int i=0; i < baudrateList.size(); ++i){
+            bool is_selected = (baudRateID == i );
+            if (ImGui::Selectable(baudrateList.at(i).c_str(), is_selected)){
+                resetSERIALSettings(serialDeviceID,i);
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object communicates with Arduino for both sending and receiving data. This template MosaicConnector.ino must be used as Arduino template file",
+                "https://mosaic.d3cod3.org/reference.php?r=arduino-serial", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -204,9 +204,7 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Feed-forward compressor.",
-                        "https://mosaic.d3cod3.org/reference.php?r=compressor", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -244,7 +242,13 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspCompressor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Feed-forward compressor.",
+                "https://mosaic.d3cod3.org/reference.php?r=compressor", scaleFactor);
 }
 
 //--------------------------------------------------------------

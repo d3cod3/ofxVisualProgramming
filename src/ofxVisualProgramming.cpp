@@ -78,6 +78,10 @@ ofxVisualProgramming::ofxVisualProgramming(){
     bpm                     = 120;
     dspON                   = false;
 
+    profilerActive          = false;
+    inspectorActive         = false;
+    inspectorTitle          = "";
+
     inited                  = false;
 
 }
@@ -328,6 +332,13 @@ void ofxVisualProgramming::draw(){
         }
 
         profiler.gpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
+
+        // INSPECTOR
+        if(inspectorActive){
+            if(isCanvasVisible){
+                drawInspector();
+            }
+        }
     }
 
     // Close canvas
@@ -357,6 +368,27 @@ void ofxVisualProgramming::draw(){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::drawInspector(){
+
+    ImGui::SetNextWindowSize(ImVec2(320*scaleFactor,ofGetWindowHeight()-(26*scaleFactor)), ImGuiCond_Always );
+    ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-320*scaleFactor,26*scaleFactor), ImGuiCond_Always);
+
+    if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
+        inspectorTitle = "Inspector | "+patchObjects[nodeCanvas.getActiveNode()]->getDisplayName()+" | id: "+ofToString(nodeCanvas.getActiveNode());
+    }else{
+        inspectorTitle = "Inspector";
+    }
+    ImGui::Begin(inspectorTitle.c_str(), 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+
+    // if object id exists
+    if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
+        patchObjects[nodeCanvas.getActiveNode()]->drawImGuiNodeConfig();
+    }
+
+    ImGui::End();
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::drawLivePatchingSession(){
     if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1){
         if(patchObjects[livePatchingObiID]->inletsConnected[0] && static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->isAllocated()){
@@ -372,7 +404,7 @@ void ofxVisualProgramming::drawLivePatchingSession(){
                 lpPosX            = (ofGetWidth()-lpDrawW)/2.0f;
                 lpPosY            = 0;
             }
-            ofSetColor(255,127);
+            ofSetColor(255,*(float *)&patchObjects[livePatchingObiID]->_outletParams[0]);
             static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->draw(lpPosX,lpPosY,lpDrawW,lpDrawH);
         }
     }
@@ -579,6 +611,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     if(saved){
         patchObjects[tempObj->getId()] = tempObj;
         lastAddedObjectID = tempObj->getId();
+        nodeCanvas.setActiveNode(lastAddedObjectID);
     }
 
     bLoadingNewObject       = false;

@@ -177,9 +177,7 @@ void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic sonogram. A visual representation display of spectrum frequencies of a sound signal (FFT), showing how it changes over time.",
-                        "https://mosaic.d3cod3.org/reference.php?r=sonogram", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -211,6 +209,13 @@ void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void moSonogram::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic sonogram. A visual representation display of spectrum frequencies of a sound signal (FFT), showing how it changes over time.",
+                "https://mosaic.d3cod3.org/reference.php?r=sonogram", scaleFactor);
 }
 
 //--------------------------------------------------------------

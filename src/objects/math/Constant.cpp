@@ -45,7 +45,8 @@ Constant::Constant() :
     this->numOutlets = 2;
 
     // Bind Inlets to values
-    *(float *)&_inletParams[0] = 0.0f; // bang
+    _inletParams[0] = new float();  // bang
+    *(float *)&_inletParams[0] = 0.0f;
 
     *(float *)&_inletParams[1] = inputValueNew.get(); // value
 
@@ -133,9 +134,7 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Single numeric value controller.",
-                        "https://mosaic.d3cod3.org/reference.php?r=constant", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -156,6 +155,13 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Constant::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Single numeric value controller.",
+                "https://mosaic.d3cod3.org/reference.php?r=constant", scaleFactor);
 }
 
 //--------------------------------------------------------------

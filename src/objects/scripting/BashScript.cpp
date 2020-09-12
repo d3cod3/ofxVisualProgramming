@@ -138,11 +138,6 @@ void BashScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 //--------------------------------------------------------------
 void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(filepath);
-
-    loadScriptFlag = false;
-    saveScriptFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
         ImGui::Separator();
@@ -152,27 +147,7 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
-                saveScriptFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadScriptFlag = true;
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with the default code editor on your computer.",
-                        "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -211,6 +186,36 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         reloadScript();
     }
 
+}
+
+//--------------------------------------------------------------
+void BashScript::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadScriptFlag = false;
+    saveScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+        saveScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadScriptFlag = true;
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with the default code editor on your computer.",
+                "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
 }
 
 //--------------------------------------------------------------

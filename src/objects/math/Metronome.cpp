@@ -141,15 +141,7 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130);
-            if(ImGui::DragInt("time (ms)", &timeSetting.get())){
-                this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Sends a bang with the time periodicity you specify in milliseconds.",
-                        "https://mosaic.d3cod3.org/reference.php?r=metronome", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -164,6 +156,19 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void Metronome::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130);
+    if(ImGui::DragInt("time (ms)", &timeSetting.get())){
+        this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Sends a bang with the time periodicity you specify in milliseconds.",
+                "https://mosaic.d3cod3.org/reference.php?r=metronome", scaleFactor);
 }
 
 //--------------------------------------------------------------

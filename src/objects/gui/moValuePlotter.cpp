@@ -141,32 +141,8 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::PushItemWidth(180*scaleFactor);
-            if(ImGui::InputText("Label",&name)){
-                saveVariableName();
-            }
-            ImGui::Spacing();
-            if(ImGui::DragFloat("min", &lastMinRange.get())){
-                this->setCustomVar(lastMinRange.get(),"MIN");
-            }
-            ImGui::Spacing();
-            if(ImGui::DragFloat("max", &lastMaxRange.get())){
-                this->setCustomVar(lastMaxRange.get(),"MAX");
-            }
-            ImGui::PopItemWidth();
 
-            ImGui::Spacing();
-            if(ImGui::ColorEdit4( "Color", (float*)&color )){
-                this->setCustomVar(color.x,"RED");
-                this->setCustomVar(color.y,"GREEN");
-                this->setCustomVar(color.z,"BLUE");
-                this->setCustomVar(color.w,"ALPHA");
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "A customizable numeric value plotter.",
-                        "https://mosaic.d3cod3.org/reference.php?r=value-plotter", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -195,6 +171,36 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moValuePlotter::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(180*scaleFactor);
+    if(ImGui::InputText("Label",&name)){
+        saveVariableName();
+    }
+    ImGui::Spacing();
+    if(ImGui::DragFloat("min", &lastMinRange.get())){
+        this->setCustomVar(lastMinRange.get(),"MIN");
+    }
+    ImGui::Spacing();
+    if(ImGui::DragFloat("max", &lastMaxRange.get())){
+        this->setCustomVar(lastMaxRange.get(),"MAX");
+    }
+    ImGui::PopItemWidth();
+
+    ImGui::Spacing();
+    if(ImGui::ColorEdit4( "Color", (float*)&color )){
+        this->setCustomVar(color.x,"RED");
+        this->setCustomVar(color.y,"GREEN");
+        this->setCustomVar(color.z,"BLUE");
+        this->setCustomVar(color.w,"ALPHA");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "A customizable numeric value plotter.",
+                "https://mosaic.d3cod3.org/reference.php?r=value-plotter", scaleFactor);
 }
 
 //--------------------------------------------------------------

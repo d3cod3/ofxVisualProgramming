@@ -120,9 +120,7 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Mosaic system object, which means that it cannot be added/deleted, but appears when you configure the sound system from the Sound menu. The audio device object is a virtual direct connection to the audio hardware.",
-                        "https://mosaic.d3cod3.org/reference.php?r=audio-device", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -144,6 +142,13 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void AudioDevice::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Mosaic system object, which means that it cannot be added/deleted, but appears when you configure the sound system from the Sound menu. The audio device object is a virtual direct connection to the audio hardware.",
+                "https://mosaic.d3cod3.org/reference.php?r=audio-device", scaleFactor);
 }
 
 //--------------------------------------------------------------

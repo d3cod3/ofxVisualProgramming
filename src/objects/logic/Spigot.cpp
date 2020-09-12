@@ -194,18 +194,7 @@ void Spigot::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            for(int i=0;i<5;i++){
-                if(ImGui::Checkbox(labels.at(i).c_str(),&isOpen[i])){
-                    this->setCustomVar(static_cast<float>(isOpen[i]),"IS_OPEN_"+ofToString(i));
-                }
-                ImGui::Spacing();
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Multiple switch of different cable types.",
-                        "https://mosaic.d3cod3.org/reference.php?r=spigot", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -243,6 +232,22 @@ void Spigot::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Spigot::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    for(int i=0;i<5;i++){
+        if(ImGui::Checkbox(labels.at(i).c_str(),&isOpen[i])){
+            this->setCustomVar(static_cast<float>(isOpen[i]),"IS_OPEN_"+ofToString(i));
+        }
+        ImGui::Spacing();
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Multiple switch of different cable types.",
+                "https://mosaic.d3cod3.org/reference.php?r=spigot", scaleFactor);
 }
 
 //--------------------------------------------------------------

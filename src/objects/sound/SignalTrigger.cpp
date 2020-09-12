@@ -35,7 +35,7 @@
 #include "SignalTrigger.h"
 
 //--------------------------------------------------------------
-SignalTrigger::SignalTrigger() : PatchObject(){
+SignalTrigger::SignalTrigger() : PatchObject("signal trigger"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -49,12 +49,11 @@ SignalTrigger::SignalTrigger() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
+
+    thresh                  = 0.5f;
 
     loaded                  = false;
 
@@ -65,39 +64,30 @@ SignalTrigger::SignalTrigger() : PatchObject(){
 //--------------------------------------------------------------
 void SignalTrigger::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"thresh");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
-    this->setCustomVar(0.5f,"THRESHOLD");
+    this->setCustomVar(thresh,"THRESHOLD");
 }
 
 //--------------------------------------------------------------
 void SignalTrigger::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &SignalTrigger::onSliderEvent);
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
 
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("Thresh", 0,1,0);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
 void SignalTrigger::setupAudioOutObjectContent(pdsp::Engine &engine){
 
     thresh_ctrl >> toTrigger.in_threshold();
-    thresh_ctrl.set(0.5f);
+    thresh_ctrl.set(thresh);
     thresh_ctrl.enableSmoothing(10.0f);
 
     this->pdspIn[0] >> peakDetector >> follower.out_signal() >> toTrigger.out_trig() >> engine.blackhole();
@@ -107,13 +97,9 @@ void SignalTrigger::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    slider->update();
-
     if(this->inletsConnected[1]){
-        thresh_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
-        slider->setValue(thresh_ctrl.get());
+        thresh = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        thresh_ctrl.set(thresh);
     }
 
     if(toTrigger.meter_gate() > 0.0f){
@@ -128,8 +114,8 @@ void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("THRESHOLD"));
-        thresh_ctrl.set(ofClamp(slider->getValue(),0.0f,1.0f));
+        thresh = ofClamp(this->getCustomVar("THRESHOLD"),0.0f,1.0f);
+        thresh_ctrl.set(thresh);
     }
 
 }
@@ -137,11 +123,57 @@ void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void SignalTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
-    if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
+}
+
+//--------------------------------------------------------------
+void SignalTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
 
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // BANG (PD Style) button
+        ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if (bang){
+            currentColor = pressColor;
+        }else{
+            currentColor = releaseColor;
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void SignalTrigger::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("Threshold",&thresh,0.0f,1.0f)){
+        thresh_ctrl.set(thresh);
+        this->setCustomVar(thresh,"THRESHOLD");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Triggers a bang when the sound signal level exceeds the threshold.",
+                "https://mosaic.d3cod3.org/reference.php?r=signal-trigger", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -174,11 +206,6 @@ void SignalTrigger::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-//--------------------------------------------------------------
-void SignalTrigger::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"THRESHOLD");
-    thresh_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
-}
 
 OBJECT_REGISTER( SignalTrigger, "signal trigger", OFXVP_OBJECT_CAT_SOUND)
 

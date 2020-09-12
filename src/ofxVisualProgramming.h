@@ -62,6 +62,7 @@ public:
     void            update();
     void            updateCanvasViewport();
     void            draw();
+    void            drawInspector();
     void            drawLivePatchingSession();
     void            resetTempFolder();
     void            cleanPatchDataFolder();
@@ -153,9 +154,11 @@ public:
     // SYSTEM
     shared_ptr<ofAppGLFWWindow>     mainWindow;
     bool                            profilerActive;
+    bool                            inspectorActive;
     bool                            inited;
 
     // GUI
+    string                          inspectorTitle;
     bool                            isHoverMenu;
     bool                            isHoverLogger;
     bool                            isHoverCodeEditor;

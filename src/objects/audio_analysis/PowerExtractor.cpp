@@ -130,9 +130,8 @@ void PowerExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the average power from the audio analysis data vector as a float value (between 0.0 and 1.0).",
-                        "https://mosaic.d3cod3.org/reference.php?r=power-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -147,6 +146,13 @@ void PowerExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void PowerExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the average power from the audio analysis data vector as a float value (between 0.0 and 1.0).",
+                "https://mosaic.d3cod3.org/reference.php?r=power-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

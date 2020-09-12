@@ -101,9 +101,7 @@ void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic trigger. Useful to keep an action active, or inactive, continuously over time.",
-                        "https://mosaic.d3cod3.org/reference.php?r=trigger", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -128,6 +126,13 @@ void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void moTrigger::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic trigger. Useful to keep an action active, or inactive, continuously over time.",
+                "https://mosaic.d3cod3.org/reference.php?r=trigger", scaleFactor);
 }
 
 //--------------------------------------------------------------

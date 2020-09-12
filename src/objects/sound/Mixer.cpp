@@ -161,25 +161,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Inlets",&signalInlets)){
-                if(signalInlets > MAX_INLETS){
-                    signalInlets = MAX_INLETS;
-                }
-                if(signalInlets < 2){
-                    signalInlets = 2;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                this->setCustomVar(static_cast<float>(signalInlets),"NUM_INLETS");
-                needReset = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Line mixer, mix up to 32 audio signals",
-                        "https://mosaic.d3cod3.org/reference.php?r=mixer", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -219,6 +201,29 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Mixer::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Inlets",&signalInlets)){
+        if(signalInlets > MAX_INLETS){
+            signalInlets = MAX_INLETS;
+        }
+        if(signalInlets < 2){
+            signalInlets = 2;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(signalInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Line mixer, mix up to 32 audio signals",
+                "https://mosaic.d3cod3.org/reference.php?r=mixer", scaleFactor);
 }
 
 //--------------------------------------------------------------

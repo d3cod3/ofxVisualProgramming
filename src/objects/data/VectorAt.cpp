@@ -119,9 +119,7 @@ void VectorAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the value at a particular index from a vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-at", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -147,6 +145,13 @@ void VectorAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void VectorAt::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the value at a particular index from a vector",
+                "https://mosaic.d3cod3.org/reference.php?r=vector-at", scaleFactor);
 }
 
 //--------------------------------------------------------------

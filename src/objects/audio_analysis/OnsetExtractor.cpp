@@ -131,9 +131,8 @@ void OnsetExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Get the onset of an audio signal as a float value (0 or 1)",
-                        "https://mosaic.d3cod3.org/reference.php?r=onset-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
 
             ImGui::EndMenu();
@@ -153,6 +152,13 @@ void OnsetExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void OnsetExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Get the onset of an audio signal as a float value (0 or 1)",
+                "https://mosaic.d3cod3.org/reference.php?r=onset-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

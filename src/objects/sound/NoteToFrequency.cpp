@@ -150,9 +150,7 @@ void NoteToFrequency::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Convert a MIDI note to his correspondent frequency",
-                        "https://mosaic.d3cod3.org/reference.php?r=note-to-frequency", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -187,6 +185,13 @@ void NoteToFrequency::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void NoteToFrequency::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Convert a MIDI note to his correspondent frequency",
+                "https://mosaic.d3cod3.org/reference.php?r=note-to-frequency", scaleFactor);
 }
 
 //--------------------------------------------------------------

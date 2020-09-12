@@ -35,7 +35,7 @@
 #include "pdspDataOscillator.h"
 
 //--------------------------------------------------------------
-pdspDataOscillator::pdspDataOscillator() : PatchObject(){
+pdspDataOscillator::pdspDataOscillator() : PatchObject("data oscillator"){
 
     this->numInlets  = 2;
     this->numOutlets = 2;
@@ -50,49 +50,34 @@ pdspDataOscillator::pdspDataOscillator() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    pitch                   = 72.0f;
+
     loaded                  = false;
     reinitDataTable         = false;
+
+    this->height            *= 1.5f;
 
 }
 
 //--------------------------------------------------------------
 void pdspDataOscillator::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
 
-    this->setCustomVar(static_cast<float>(30),"PITCH");
+    this->setCustomVar(pitch,"PITCH");
 }
 
 //--------------------------------------------------------------
 void pdspDataOscillator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspDataOscillator::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    oscInfo = gui->addLabel("0 Hz");
-    gui->addBreak();
-    slider = gui->addSlider("Pitch",0,127,30);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
@@ -101,7 +86,7 @@ void pdspDataOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
     20.0f >> leakDC.in_freq();
 
     pitch_ctrl >> osc.in_pitch();
-    pitch_ctrl.set(72.0f);
+    pitch_ctrl.set(pitch);
     pitch_ctrl.enableSmoothing(50.0f);
 
     datatable.setup(256,256);
@@ -115,15 +100,11 @@ void pdspDataOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    slider->update();
-
     // PITCH
     if(this->inletsConnected[0]){
-        pitch_ctrl.set(ofClamp(*(float *)&_inletParams[0],0,127));
-        slider->setValue(pitch_ctrl.get());
-        oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(*(float *)&_inletParams[0],0,127))) + " Hz");
+        pitch = ofClamp(*(float *)&_inletParams[0],0,127);
+        pitch_ctrl.set(pitch);
+        //oscInfo->setLabel(ofToString() + " Hz");
     }
 
     // DATA
@@ -162,9 +143,8 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("PITCH"));
-        oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(this->getCustomVar("PITCH"),0,127))) + " Hz");
-        pitch_ctrl.set(ofClamp(slider->getValue(),0,127));
+        pitch = ofClamp(this->getCustomVar("PITCH"),0,127);
+        pitch_ctrl.set(pitch);
     }
 
 }
@@ -173,6 +153,55 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 void pdspDataOscillator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
+}
+
+//--------------------------------------------------------------
+void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw waveform
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+
+        char temp[128];
+        sprintf(temp,"%.2f Hz", pdsp::PitchToFreq::eval(ofClamp(pitch,0,127)));
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(ImGui::GetWindowPos().x + ((40*scaleFactor)*_nodeCanvas.GetCanvasScale()), ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y*0.34)), IM_COL32_WHITE,temp, NULL, 0.0f);
+
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/6, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 127.0f, 1270.0f)){
+            this->setCustomVar(pitch,"PITCH");
+            pitch_ctrl.set(pitch);
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspDataOscillator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Data table based oscillator",
+                "https://mosaic.d3cod3.org/reference.php?r=data-oscillator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -193,6 +222,7 @@ void pdspDataOscillator::loadAudioSettings(){
 
             for(int i=0;i<bufferSize;i++){
                 static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
+                plot_data[i] = 0.0f;
             }
 
             XML.popTag();
@@ -202,12 +232,10 @@ void pdspDataOscillator::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
-    waveform.clear();
+
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {
         float sample = scope.getBuffer().at(i);
-        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
+        plot_data[i] = hardClip(sample);
 
         // SIGNAL BUFFER DATA
         static_cast<vector<float> *>(_outletParams[1])->at(i) = sample;
@@ -216,12 +244,6 @@ void pdspDataOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspDataOscillator::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"PITCH");
-    pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0,127));
-    oscInfo->setLabel(ofToString(pdsp::PitchToFreq::eval(ofClamp(static_cast<float>(e.value),0,127))) + " Hz");
-}
 
 OBJECT_REGISTER( pdspDataOscillator, "data oscillator", OFXVP_OBJECT_CAT_SOUND)
 

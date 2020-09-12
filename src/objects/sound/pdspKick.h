@@ -51,6 +51,7 @@ public:
 
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
@@ -64,6 +65,8 @@ public:
     pdsp::Amp               amp;
     pdsp::FMOperator        osc;
     pdsp::Saturator2        drive;
+    pdsp::Compressor        compressor;
+    pdsp::LowShelfEQ        eq;
     pdsp::VAFilter          filter;
     pdsp::ADSR              ampEnv;
     pdsp::ADSR              modEnv;

@@ -82,11 +82,11 @@ void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 
     if(this->inletsConnected[0]){
-        _x = *(float *)&_inletParams[0];
+        _x = ofClamp(*(float *)&_inletParams[0],0.0f,1.0f);
     }
 
     if(this->inletsConnected[1]){
-        _y = *(float *)&_inletParams[1];
+        _y = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
     }
 
     if(!loaded){
@@ -119,9 +119,7 @@ void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Simultaneously adjust two float values XY (with a range from 0.0 to 1.0) by moving the pad point.",
-                        "https://mosaic.d3cod3.org/reference.php?r=2d-pad", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -140,6 +138,13 @@ void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void mo2DPad::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Simultaneously adjust two float values XY (with a range from 0.0 to 1.0) by moving the pad point.",
+                "https://mosaic.d3cod3.org/reference.php?r=2d-pad", scaleFactor);
 }
 
 //--------------------------------------------------------------

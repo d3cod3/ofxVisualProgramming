@@ -138,22 +138,8 @@ void FloatsToVector::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Inlets",&floatInlets)){
-                if(floatInlets > MAX_INLETS){
-                    floatInlets = MAX_INLETS;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
-                needReset = true;
-            }
+            drawObjectNodeConfig();
 
-            ImGuiEx::ObjectInfo(
-                        "Concatenates up to 32 float data in a vector. It can be used in cascade, with the addition of vector concat object, to obtain data vectors larger than 32 in size.",
-                        "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -189,6 +175,26 @@ void FloatsToVector::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void FloatsToVector::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Inlets",&floatInlets)){
+        if(floatInlets > MAX_INLETS){
+            floatInlets = MAX_INLETS;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Concatenates up to 32 float data in a vector. It can be used in cascade, with the addition of vector concat object, to obtain data vectors larger than 32 in size.",
+                "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector", scaleFactor);
 }
 
 //--------------------------------------------------------------

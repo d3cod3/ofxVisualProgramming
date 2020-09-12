@@ -109,9 +109,7 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Audio signal display, also byapass it through its outlets, plus the data buffer and the RMS amplitude.",
-                        "https://mosaic.d3cod3.org/reference.php?r=signal-viewer", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -131,6 +129,13 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moSignalViewer::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Audio signal display, also byapass it through its outlets, plus the data buffer and the RMS amplitude.",
+                "https://mosaic.d3cod3.org/reference.php?r=signal-viewer", scaleFactor);
 }
 
 //--------------------------------------------------------------

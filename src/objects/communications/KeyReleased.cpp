@@ -103,9 +103,8 @@ void KeyReleased::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Sends a bang when the selected key has been released. To know the key ascii code, press it and its number appears next to Last Key:",
-                        "https://mosaic.d3cod3.org/reference.php?r=key-released", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -127,6 +126,13 @@ void KeyReleased::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void KeyReleased::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Sends a bang when the selected key has been released. To know the key ascii code, press it and its number appears next to Last Key:",
+                "https://mosaic.d3cod3.org/reference.php?r=key-released", scaleFactor);
 }
 
 //--------------------------------------------------------------

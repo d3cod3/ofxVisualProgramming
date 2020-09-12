@@ -138,26 +138,7 @@ void Map::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::DragFloat("Input Min",&inMin,0.01f)){
-                this->setCustomVar(static_cast<float>(inMin),"IN_MIN");
-            }
-            ImGui::Spacing();
-            if(ImGui::DragFloat("Input Max",&inMax,0.01f)){
-                this->setCustomVar(static_cast<float>(inMax),"IN_MAX");
-            }
-            ImGui::Spacing();
-            if(ImGui::DragFloat("Output Min",&outMin,0.01f)){
-                this->setCustomVar(static_cast<float>(outMin),"OUT_MIN");
-            }
-            ImGui::Spacing();
-            if(ImGui::DragFloat("Output Max",&outMax,0.01f)){
-                this->setCustomVar(static_cast<float>(outMax),"OUT_MAX");
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Map a number range to another one.",
-                        "https://mosaic.d3cod3.org/reference.php?r=map", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -184,6 +165,30 @@ void Map::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),4*scaleFactor,IM_COL32(160,160,160,255),40);
     }
 
+}
+
+//--------------------------------------------------------------
+void Map::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::DragFloat("Input Min",&inMin,0.01f)){
+        this->setCustomVar(static_cast<float>(inMin),"IN_MIN");
+    }
+    ImGui::Spacing();
+    if(ImGui::DragFloat("Input Max",&inMax,0.01f)){
+        this->setCustomVar(static_cast<float>(inMax),"IN_MAX");
+    }
+    ImGui::Spacing();
+    if(ImGui::DragFloat("Output Min",&outMin,0.01f)){
+        this->setCustomVar(static_cast<float>(outMin),"OUT_MIN");
+    }
+    ImGui::Spacing();
+    if(ImGui::DragFloat("Output Max",&outMax,0.01f)){
+        this->setCustomVar(static_cast<float>(outMax),"OUT_MAX");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Map a number range to another one.",
+                "https://mosaic.d3cod3.org/reference.php?r=map", scaleFactor);
 }
 
 //--------------------------------------------------------------

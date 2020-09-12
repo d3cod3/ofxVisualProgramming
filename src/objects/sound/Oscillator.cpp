@@ -277,9 +277,7 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Oscillator with antialiased waveforms",
-                        "https://mosaic.d3cod3.org/reference.php?r=oscillator", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -357,7 +355,13 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void Oscillator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Oscillator with antialiased waveforms",
+                "https://mosaic.d3cod3.org/reference.php?r=oscillator", scaleFactor);
 }
 
 //--------------------------------------------------------------

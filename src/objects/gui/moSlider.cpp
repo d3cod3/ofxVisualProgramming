@@ -106,9 +106,7 @@ void moSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic slider. Interactively adjust a numeric float value (with a range from 0.0 to 1.0) to send it to other objects.",
-                        "https://mosaic.d3cod3.org/reference.php?r=slider", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -126,6 +124,13 @@ void moSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void moSlider::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic slider. Interactively adjust a numeric float value (with a range from 0.0 to 1.0) to send it to other objects.",
+                "https://mosaic.d3cod3.org/reference.php?r=slider", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -109,9 +109,7 @@ void SignalOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Signal operator",
-                        "https://mosaic.d3cod3.org/reference.php?r=signal-operator", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -140,6 +138,13 @@ void SignalOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void SignalOperator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Signal operator",
+                "https://mosaic.d3cod3.org/reference.php?r=signal-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------

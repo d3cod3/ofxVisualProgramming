@@ -134,9 +134,7 @@ void NumberOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic numerical operator",
-                        "https://mosaic.d3cod3.org/reference.php?r=numerical-operator", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -173,6 +171,13 @@ void NumberOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void NumberOperator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic numerical operator",
+                "https://mosaic.d3cod3.org/reference.php?r=numerical-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------

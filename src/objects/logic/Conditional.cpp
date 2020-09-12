@@ -142,9 +142,7 @@ void Conditional::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Conditional operator",
-                        "https://mosaic.d3cod3.org/reference.php?r=conditional-operator", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -181,6 +179,13 @@ void Conditional::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Conditional::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Conditional operator",
+                "https://mosaic.d3cod3.org/reference.php?r=conditional-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------

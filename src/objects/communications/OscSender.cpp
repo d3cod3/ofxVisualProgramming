@@ -157,108 +157,8 @@ void OscSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("Sending OSC data @ %s:%s", osc_host.c_str(), osc_port_string.c_str());
+            drawObjectNodeConfig();
 
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            if(ImGui::Button("ADD OSC NUMBER",ImVec2(224*scaleFactor,26*scaleFactor))){
-                _inletParams[this->numInlets] = new float();
-                *(float *)&_inletParams[this->numInlets] = 0.0f;
-                this->addInlet(VP_LINK_NUMERIC,"number");
-                this->inletsConnected.push_back(false);
-
-                osc_labels.push_back("/numberlabel");
-                osc_labels_type.push_back(VP_LINK_NUMERIC);
-                this->setCustomVar(0.0f,"/numberlabel");
-
-                this->numInlets++;
-                this->saveConfig(false);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD OSC TEXT",ImVec2(224*scaleFactor,26*scaleFactor))){
-                _inletParams[this->numInlets] = new string();  // control
-                *static_cast<string *>(_inletParams[this->numInlets]) = "";
-                this->addInlet(VP_LINK_STRING,"text");
-                this->inletsConnected.push_back(false);
-
-                osc_labels.push_back("/textlabel");
-                osc_labels_type.push_back(VP_LINK_STRING);
-                this->setCustomVar(0.0f,"/textlabel");
-
-                this->numInlets++;
-                this->saveConfig(false);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD OSC VECTOR",ImVec2(224*scaleFactor,26*scaleFactor))){
-                _inletParams[this->numInlets] = new vector<float>();
-                this->addInlet(VP_LINK_ARRAY,"vector");
-                this->inletsConnected.push_back(false);
-
-                osc_labels.push_back("/vectorlabel");
-                osc_labels_type.push_back(VP_LINK_ARRAY);
-                this->setCustomVar(0.0f,"/vectorlabel");
-
-                this->numInlets++;
-                this->saveConfig(false);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD OSC TEXTURE",ImVec2(224*scaleFactor,26*scaleFactor))){
-                _inletParams[this->numInlets] = new ofTexture();
-                this->addInlet(VP_LINK_TEXTURE,"texture");
-                this->inletsConnected.push_back(false);
-
-                osc_labels.push_back("/texturelabel");
-                osc_labels_type.push_back(VP_LINK_TEXTURE);
-                this->setCustomVar(0.0f,"/texturelabel");
-
-                this->numInlets++;
-                this->saveConfig(false);
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("UNSTABLE (limited by the small OSC max. send buffer size) Use it at your own risk!");
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            prev_osc_labels = osc_labels;
-
-            for(int i=0;i<osc_labels.size();i++){
-                ImGui::PushID(i);
-                if(osc_labels_type.at(i) == VP_LINK_STRING){
-                    ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(200,180,255,30));
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(200,180,255,60));
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(200,180,255,60));
-                }else if(osc_labels_type.at(i) == VP_LINK_ARRAY){
-                    ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,120,30));
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,120,60));
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,120,60));
-                }else if(osc_labels_type.at(i) == VP_LINK_TEXTURE){
-                    ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
-                }else{
-                    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImGui::GetStyle().Colors[ImGuiCol_FrameBgHovered]);
-                    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImGui::GetStyle().Colors[ImGuiCol_FrameBgActive]);
-                }
-                if(ImGui::InputText("###label",&osc_labels.at(i))){
-                    this->substituteCustomVar(prev_osc_labels.at(i),osc_labels.at(i));
-                    this->saveConfig(false);
-                }
-                ImGui::PopStyleColor(3);
-                ImGui::PopID();
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Send data via OSC protocol as numeric type (float), text (string), vector<float> or texture. Texture send is limited by the maximum buffer size permitted, so you have max 1280x720 for grayscale texture, 640x480 for RGB and 640x360 for RGBA",
-                        "https://mosaic.d3cod3.org/reference.php?r=osc-sender", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -290,6 +190,112 @@ void OscSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void OscSender::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::Text("Sending OSC data @ %s:%s", osc_host.c_str(), osc_port_string.c_str());
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    if(ImGui::Button("ADD OSC NUMBER",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _inletParams[this->numInlets] = new float();
+        *(float *)&_inletParams[this->numInlets] = 0.0f;
+        this->addInlet(VP_LINK_NUMERIC,"number");
+        this->inletsConnected.push_back(false);
+
+        osc_labels.push_back("/numberlabel");
+        osc_labels_type.push_back(VP_LINK_NUMERIC);
+        this->setCustomVar(0.0f,"/numberlabel");
+
+        this->numInlets++;
+        this->saveConfig(false);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD OSC TEXT",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _inletParams[this->numInlets] = new string();  // control
+        *static_cast<string *>(_inletParams[this->numInlets]) = "";
+        this->addInlet(VP_LINK_STRING,"text");
+        this->inletsConnected.push_back(false);
+
+        osc_labels.push_back("/textlabel");
+        osc_labels_type.push_back(VP_LINK_STRING);
+        this->setCustomVar(0.0f,"/textlabel");
+
+        this->numInlets++;
+        this->saveConfig(false);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD OSC VECTOR",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _inletParams[this->numInlets] = new vector<float>();
+        this->addInlet(VP_LINK_ARRAY,"vector");
+        this->inletsConnected.push_back(false);
+
+        osc_labels.push_back("/vectorlabel");
+        osc_labels_type.push_back(VP_LINK_ARRAY);
+        this->setCustomVar(0.0f,"/vectorlabel");
+
+        this->numInlets++;
+        this->saveConfig(false);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD OSC TEXTURE",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _inletParams[this->numInlets] = new ofTexture();
+        this->addInlet(VP_LINK_TEXTURE,"texture");
+        this->inletsConnected.push_back(false);
+
+        osc_labels.push_back("/texturelabel");
+        osc_labels_type.push_back(VP_LINK_TEXTURE);
+        this->setCustomVar(0.0f,"/texturelabel");
+
+        this->numInlets++;
+        this->saveConfig(false);
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("UNSTABLE (limited by the small OSC max. send buffer size) Use it at your own risk!");
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    prev_osc_labels = osc_labels;
+
+    for(int i=0;i<osc_labels.size();i++){
+        ImGui::PushID(i);
+        if(osc_labels_type.at(i) == VP_LINK_STRING){
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(200,180,255,30));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(200,180,255,60));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(200,180,255,60));
+        }else if(osc_labels_type.at(i) == VP_LINK_ARRAY){
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,120,30));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,120,60));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,120,60));
+        }else if(osc_labels_type.at(i) == VP_LINK_TEXTURE){
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
+        }else{
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImGui::GetStyle().Colors[ImGuiCol_FrameBgHovered]);
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImGui::GetStyle().Colors[ImGuiCol_FrameBgActive]);
+        }
+        if(ImGui::InputText("###label",&osc_labels.at(i))){
+            this->substituteCustomVar(prev_osc_labels.at(i),osc_labels.at(i));
+            this->saveConfig(false);
+        }
+        ImGui::PopStyleColor(3);
+        ImGui::PopID();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Send data via OSC protocol as numeric type (float), text (string), vector<float> or texture. Texture send is limited by the maximum buffer size permitted, so you have max 1280x720 for grayscale texture, 640x480 for RGB and 640x360 for RGBA",
+                "https://mosaic.d3cod3.org/reference.php?r=osc-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------

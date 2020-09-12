@@ -167,7 +167,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
 
-    if(_nodeCanvas.BeginNode( PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() )){
+    if(_nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() )){
 
         // save node state on click
         if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)){
@@ -300,6 +300,11 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     canvasTranslation   = _nodeCanvas.GetCanvasTranslation();
     canvasScale         = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void PatchObject::drawImGuiNodeConfig(){
+    drawObjectNodeConfig();
 }
 
 //--------------------------------------------------------------

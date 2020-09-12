@@ -119,15 +119,8 @@ void Smooth::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::PushItemWidth(180*scaleFactor);
-            if(ImGui::SliderFloat("Smoothing",&smoothing,0.0f,1.0f)){
-                this->setCustomVar(smoothing,"SMOOTHING");
-            }
 
-            ImGuiEx::ObjectInfo(
-                        "Apply interpolation smoothing filter to received numerical data flow.",
-                        "https://mosaic.d3cod3.org/reference.php?r=smooth", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -144,6 +137,19 @@ void Smooth::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Smooth::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(180*scaleFactor);
+    if(ImGui::SliderFloat("Smoothing",&smoothing,0.0f,1.0f)){
+        this->setCustomVar(smoothing,"SMOOTHING");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Apply interpolation smoothing filter to received numerical data flow.",
+                "https://mosaic.d3cod3.org/reference.php?r=smooth", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -119,9 +119,7 @@ void Clamp::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Force the numerical input between the configured range.",
-                        "https://mosaic.d3cod3.org/reference.php?r=clamp", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -144,6 +142,13 @@ void Clamp::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void Clamp::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Force the numerical input between the configured range.",
+                "https://mosaic.d3cod3.org/reference.php?r=clamp", scaleFactor);
 }
 
 //--------------------------------------------------------------

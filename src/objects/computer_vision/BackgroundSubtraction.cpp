@@ -229,66 +229,8 @@ void BackgroundSubtraction::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas 
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            if(ImGui::Button("RESET BACKGROUND",ImVec2(-1,26*scaleFactor))){
-                bLearnBackground = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Checkbox("ADAPTIVE",&adaptive)){
-                this->setCustomVar(static_cast<float>(adaptive),"ADAPTIVE");
-                bLearnBackground = true;
-            }
-            if(ImGui::SliderFloat("adapt speed",&adaptSpeed,0.001f,0.01f)){
-                this->setCustomVar(adaptSpeed,"ADAPT_SPEED");
-            }
+            drawObjectNodeConfig();
 
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            if(ImGui::BeginCombo("Subtraction algorithm", bgSubTechVector.at(bgSubTech).c_str() )){
-                for(int i=0; i < bgSubTechVector.size(); ++i){
-                    bool is_selected = (bgSubTech == i );
-                    if (ImGui::Selectable(bgSubTechVector.at(i).c_str(), is_selected)){
-                        bgSubTech = i;
-                        this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");
-                    }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::EndCombo();
-            }
-
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
-                this->setCustomVar(threshold,"THRESHOLD");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("brightness",&brightness,-1.0f,3.0f)){
-                this->setCustomVar(brightness,"BRIGHTNESS");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("contrast",&contrast,0.0f,1.0f)){
-                this->setCustomVar(contrast,"CONTRAST");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("blur",&blur,0.0f,33.0f)){
-                this->setCustomVar(blur,"BLUR");
-            }
-            ImGui::Spacing();
-            if(ImGui::Checkbox("ERODE",&erode)){
-                this->setCustomVar(static_cast<float>(erode),"ERODE");
-            }
-            ImGui::Spacing();
-            if(ImGui::Checkbox("DILATE",&dilate)){
-                this->setCustomVar(static_cast<float>(dilate),"DILATE");
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Static and adaptive background subtraction.",
-                        "https://mosaic.d3cod3.org/reference.php?r=background-subtraction", scaleFactor);
 
 
             ImGui::EndMenu();
@@ -312,6 +254,70 @@ void BackgroundSubtraction::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void BackgroundSubtraction::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::Button("RESET BACKGROUND",ImVec2(-1,26*scaleFactor))){
+        bLearnBackground = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("ADAPTIVE",&adaptive)){
+        this->setCustomVar(static_cast<float>(adaptive),"ADAPTIVE");
+        bLearnBackground = true;
+    }
+    if(ImGui::SliderFloat("adapt speed",&adaptSpeed,0.001f,0.01f)){
+        this->setCustomVar(adaptSpeed,"ADAPT_SPEED");
+    }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    if(ImGui::BeginCombo("Subtraction algorithm", bgSubTechVector.at(bgSubTech).c_str() )){
+        for(int i=0; i < bgSubTechVector.size(); ++i){
+            bool is_selected = (bgSubTech == i );
+            if (ImGui::Selectable(bgSubTechVector.at(i).c_str(), is_selected)){
+                bgSubTech = i;
+                this->setCustomVar(static_cast<float>(bgSubTech),"SUBTRACTION_TECHNIQUE");
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
+        this->setCustomVar(threshold,"THRESHOLD");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("brightness",&brightness,-1.0f,3.0f)){
+        this->setCustomVar(brightness,"BRIGHTNESS");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("contrast",&contrast,0.0f,1.0f)){
+        this->setCustomVar(contrast,"CONTRAST");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("blur",&blur,0.0f,33.0f)){
+        this->setCustomVar(blur,"BLUR");
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("ERODE",&erode)){
+        this->setCustomVar(static_cast<float>(erode),"ERODE");
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("DILATE",&dilate)){
+        this->setCustomVar(static_cast<float>(dilate),"DILATE");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Static and adaptive background subtraction.",
+                "https://mosaic.d3cod3.org/reference.php?r=background-subtraction", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -224,50 +224,13 @@ void PDPatch::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>
 //--------------------------------------------------------------
 void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(filepath);
-
-    loadPatchFlag   = false;
-    savePatchFlag   = false;
-    setExternalFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("Loaded PD Patch:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            ImGui::Text("%s",lastExternalsFolder.c_str());
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
-                savePatchFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadPatchFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Set Externals Path",ImVec2(180*scaleFactor,26*scaleFactor))){
-                setExternalFlag = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Pure Data ( Vainilla ) patch container with inlets and outlets. As for live coding, with this object you can live patching, passing in real time and in both directions audio and data cables.",
-                        "https://mosaic.d3cod3.org/reference.php?r=491", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -306,6 +269,48 @@ void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         externalPathSaved = true;
     }
 
+}
+
+//--------------------------------------------------------------
+void PDPatch::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadPatchFlag   = false;
+    savePatchFlag   = false;
+    setExternalFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded PD Patch:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    ImGui::Text("%s",lastExternalsFolder.c_str());
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+        savePatchFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadPatchFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Set Externals Path",ImVec2(180*scaleFactor,26*scaleFactor))){
+        setExternalFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Pure Data ( Vainilla ) patch container with inlets and outlets. As for live coding, with this object you can live patching, passing in real time and in both directions audio and data cables.",
+                "https://mosaic.d3cod3.org/reference.php?r=491", scaleFactor);
 }
 
 //--------------------------------------------------------------

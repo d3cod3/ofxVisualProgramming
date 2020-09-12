@@ -141,9 +141,8 @@ void TristimulusExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas )
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts a three-element vector that measures the mixture of harmonics from the audio analysis data vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=tristimulus-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
 
             ImGui::EndMenu();
@@ -161,6 +160,13 @@ void TristimulusExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas )
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void TristimulusExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts a three-element vector that measures the mixture of harmonics from the audio analysis data vector",
+                "https://mosaic.d3cod3.org/reference.php?r=tristimulus-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

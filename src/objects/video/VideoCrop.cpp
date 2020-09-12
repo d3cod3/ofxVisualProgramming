@@ -186,25 +186,7 @@ void VideoCrop::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*this->scaleFactor);
-            if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
-                this->setCustomVar(_x,"XPOS");
-            }
-            if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
-                this->setCustomVar(_y,"YPOS");
-            }
-            if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
-                this->setCustomVar(_w,"WIDTH");
-            }
-            if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
-                this->setCustomVar(_h,"HEIGHT");
-            }
-            ImGui::PopItemWidth();
-
-            ImGuiEx::ObjectInfo(
-                        "Basic texture crop.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-crop", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -235,6 +217,29 @@ void VideoCrop::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void VideoCrop::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*this->scaleFactor);
+    if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
+        this->setCustomVar(_x,"XPOS");
+    }
+    if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
+        this->setCustomVar(_y,"YPOS");
+    }
+    if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
+        this->setCustomVar(_w,"WIDTH");
+    }
+    if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
+        this->setCustomVar(_h,"HEIGHT");
+    }
+    ImGui::PopItemWidth();
+
+    ImGuiEx::ObjectInfo(
+                "Basic texture crop.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-crop", scaleFactor);
 }
 
 //--------------------------------------------------------------

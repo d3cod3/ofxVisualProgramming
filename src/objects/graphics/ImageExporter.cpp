@@ -118,10 +118,6 @@ void ImageExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 //--------------------------------------------------------------
 void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(lastImageFile);
-
-    saveImgFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
 
@@ -131,36 +127,7 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Export to File:");
-            if(lastImageFile == ""){
-                ImGui::Text("none");
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
-                saveImgFlag = true;
-            }
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
-            if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(84*scaleFactor,26*scaleFactor))){
-                if(!this->inletsConnected[0]){
-                    ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
-                }else if(lastImageFile == ""){
-                    ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
-                }else{
-                    saveImageFile();
-                }
-            }
-            ImGui::PopStyleColor(3);
-
-            ImGuiEx::ObjectInfo(
-                        "Export an image or image sequence (using ### for auto-numeration) from every texture cable (blue ones).",
-                        "https://mosaic.d3cod3.org/reference.php?r=image-exporter", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -190,7 +157,44 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         isImageSaved= true;
     }
 
+}
 
+//--------------------------------------------------------------
+void ImageExporter::drawObjectNodeConfig(){
+    ofFile tempFilename(lastImageFile);
+
+    saveImgFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Export to File:");
+    if(lastImageFile == ""){
+        ImGui::Text("none");
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
+        saveImgFlag = true;
+    }
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
+    if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(84*scaleFactor,26*scaleFactor))){
+        if(!this->inletsConnected[0]){
+            ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
+        }else if(lastImageFile == ""){
+            ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
+        }else{
+            saveImageFile();
+        }
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGuiEx::ObjectInfo(
+                "Export an image or image sequence (using ### for auto-numeration) from every texture cable (blue ones).",
+                "https://mosaic.d3cod3.org/reference.php?r=image-exporter", scaleFactor);
 }
 
 //--------------------------------------------------------------

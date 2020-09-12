@@ -138,10 +138,7 @@ void ToGrayScaleTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "RGB to Grayscale texture conversion.",
-                        "https://mosaic.d3cod3.org/reference.php?r=to-grayscale-texture", scaleFactor);
-
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -164,6 +161,13 @@ void ToGrayScaleTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void ToGrayScaleTexture::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "RGB to Grayscale texture conversion.",
+                "https://mosaic.d3cod3.org/reference.php?r=to-grayscale-texture", scaleFactor);
 }
 
 //--------------------------------------------------------------

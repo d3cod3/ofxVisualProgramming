@@ -122,9 +122,7 @@ void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Operates on all the values of a float vector, with selected operator and value",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-multiply", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -161,6 +159,13 @@ void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void VectorOperator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Operates on all the values of a float vector, with selected operator and value",
+                "https://mosaic.d3cod3.org/reference.php?r=vector-multiply", scaleFactor);
 }
 
 //--------------------------------------------------------------

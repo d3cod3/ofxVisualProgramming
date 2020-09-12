@@ -110,10 +110,6 @@ void FileToData::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 //--------------------------------------------------------------
 void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(filepath);
-
-    openFileFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
 
@@ -123,22 +119,8 @@ void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Reading data from:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
-                openFileFlag = true;
-            }
+            drawObjectNodeConfig();
 
-            ImGuiEx::ObjectInfo(
-                        "Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.",
-                        "https://mosaic.d3cod3.org/reference.php?r=file-to-data", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -165,6 +147,30 @@ void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         filepath = file.getAbsolutePath();
         loadDataFile(filepath);
     }
+}
+
+//--------------------------------------------------------------
+void FileToData::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    openFileFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Reading data from:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
+        openFileFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.",
+                "https://mosaic.d3cod3.org/reference.php?r=file-to-data", scaleFactor);
 }
 
 //--------------------------------------------------------------

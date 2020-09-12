@@ -35,7 +35,7 @@
 #include "QuadPanner.h"
 
 //--------------------------------------------------------------
-QuadPanner::QuadPanner() : PatchObject(){
+QuadPanner::QuadPanner() : PatchObject("quad panner"){
 
     this->numInlets  = 3;
     this->numOutlets = 4;
@@ -56,9 +56,6 @@ QuadPanner::QuadPanner() : PatchObject(){
     padX                    = 0.5f;
     padY                    = 0.5f;
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
@@ -70,32 +67,23 @@ QuadPanner::QuadPanner() : PatchObject(){
 //--------------------------------------------------------------
 void QuadPanner::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan X");
     this->addInlet(VP_LINK_NUMERIC,"pan Y");
+
     this->addOutlet(VP_LINK_AUDIO,"channel1");
     this->addOutlet(VP_LINK_AUDIO,"channel2");
     this->addOutlet(VP_LINK_AUDIO,"channel3");
     this->addOutlet(VP_LINK_AUDIO,"channel4");
 
-    this->setCustomVar(static_cast<float>(0),"XPOS");
-    this->setCustomVar(static_cast<float>(0),"YPOS");
+    this->setCustomVar(padX,"XPOS");
+    this->setCustomVar(padY,"YPOS");
 }
 
 //--------------------------------------------------------------
 void QuadPanner::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->on2dPadEvent(this, &QuadPanner::on2dPadEvent);
-
-    pad = gui->add2dPad("");
-    pad->setUseCustomMouse(true);
-    pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
-
 }
 
 //--------------------------------------------------------------
@@ -131,44 +119,26 @@ void QuadPanner::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    pad->update();
-
     if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] == 0.0){
-            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[1] == 1.0){
-            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(*(float *)&_inletParams[1]*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
-        }
         padX    = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
     }
     if(this->inletsConnected[2]){
-        if(*(float *)&_inletParams[2] == 0.0){
-            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[2] == 1.0){
-            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(pad->getPoint().x,*(float *)&_inletParams[2]*pad->getBounds().height,pad->getPoint().z));
-        }
         padY    = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
     }
 
     gain_ctrl1.set(ofClamp(ofMap(padY,0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(padX,0.0,1.0,1.0,0.0),0.0f,1.0f));
     gain_ctrl2.set(ofClamp(ofMap(padY,0.0,1.0,1.0,0.0),0.0f,1.0f) * padX);
-    gain_ctrl3.set(ofClamp(padY,0.0f,1.0f) * ofClamp(ofMap(padX,0.0,1.0,1.0,0.0),0.0f,1.0f));
-    gain_ctrl4.set(ofClamp(padY,0.0f,1.0f) * padX);
+    gain_ctrl3.set(ofClamp(padY,0.0f,1.0f) * padX);
+    gain_ctrl4.set(ofClamp(padY,0.0f,1.0f) * ofClamp(ofMap(padX,0.0,1.0,1.0,0.0),0.0f,1.0f));
 
     if(!loaded){
         loaded = true;
-        pad->setPoint(ofPoint(this->getCustomVar("XPOS"),this->getCustomVar("YPOS"),0));
-        padX                    = this->getCustomVar("XPOS")/pad->getBounds().width;
-        padY                    = this->getCustomVar("YPOS")/pad->getBounds().height;
-        gain_ctrl1.set(ofClamp(ofMap(this->getCustomVar("YPOS")/pad->getBounds().height,0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(this->getCustomVar("XPOS")/pad->getBounds().width,0.0,1.0,1.0,0.0),0.0f,1.0f));
-        gain_ctrl2.set(ofClamp(ofMap(this->getCustomVar("YPOS")/pad->getBounds().height,0.0,1.0,1.0,0.0),0.0f,1.0f) * this->getCustomVar("XPOS")/pad->getBounds().width);
-        gain_ctrl3.set(ofClamp(this->getCustomVar("YPOS")/pad->getBounds().height,0.0f,1.0f) * ofClamp(ofMap(this->getCustomVar("XPOS")/pad->getBounds().width,0.0,1.0,1.0,0.0),0.0f,1.0f));
-        gain_ctrl4.set(ofClamp(this->getCustomVar("YPOS")/pad->getBounds().height,0.0f,1.0f) * this->getCustomVar("XPOS")/pad->getBounds().width);
+        padX   = this->getCustomVar("XPOS");
+        padY   = this->getCustomVar("YPOS");
+        gain_ctrl1.set(ofClamp(ofMap(this->getCustomVar("YPOS"),0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(this->getCustomVar("XPOS"),0.0,1.0,1.0,0.0),0.0f,1.0f));
+        gain_ctrl2.set(ofClamp(ofMap(this->getCustomVar("YPOS"),0.0,1.0,1.0,0.0),0.0f,1.0f) * this->getCustomVar("XPOS"));
+        gain_ctrl3.set(ofClamp(this->getCustomVar("YPOS"),0.0f,1.0f) * this->getCustomVar("XPOS"));
+        gain_ctrl4.set(ofClamp(this->getCustomVar("YPOS"),0.0f,1.0f) * ofClamp(ofMap(this->getCustomVar("XPOS"),0.0,1.0,1.0,0.0),0.0f,1.0f));
     }
 
 }
@@ -176,7 +146,47 @@ void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void QuadPanner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
+}
 
+//--------------------------------------------------------------
+void QuadPanner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::Pad2D(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26,&padX,&padY)){
+            this->setCustomVar(padX,"XPOS");
+            this->setCustomVar(padY,"YPOS");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void QuadPanner::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A quadraphonic panning controlled by 2D pad interface. Channels order is clockwise starting from top left (ch 1), top right (ch 2), bottom right (ch 3) and bottom left (ch 4).",
+                "https://mosaic.d3cod3.org/reference.php?r=quad-panner", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -216,19 +226,6 @@ void QuadPanner::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[3])->copyFrom(scope4.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void QuadPanner::on2dPadEvent(ofxDatGui2dPadEvent e){
-    this->setCustomVar(static_cast<float>(e.x),"XPOS");
-    this->setCustomVar(static_cast<float>(e.y),"YPOS");
-
-    padX                    = static_cast<float>(e.x/pad->getBounds().width);
-    padY                    = static_cast<float>(e.y/pad->getBounds().height);
-
-    gain_ctrl1.set(ofClamp(ofMap(static_cast<float>(e.y/pad->getBounds().height),0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(static_cast<float>(e.x/pad->getBounds().width),0.0,1.0,1.0,0.0),0.0f,1.0f));
-    gain_ctrl2.set(ofClamp(ofMap(static_cast<float>(e.y/pad->getBounds().height),0.0,1.0,1.0,0.0),0.0f,1.0f) * static_cast<float>(e.x/pad->getBounds().width));
-    gain_ctrl3.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * ofClamp(ofMap(static_cast<float>(e.x/pad->getBounds().width),0.0,1.0,1.0,0.0),0.0f,1.0f));
-    gain_ctrl4.set(ofClamp(static_cast<float>(e.y/pad->getBounds().height),0.0f,1.0f) * static_cast<float>(e.x/pad->getBounds().width));
-}
 
 OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND)
 

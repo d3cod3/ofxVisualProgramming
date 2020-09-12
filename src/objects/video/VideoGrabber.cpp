@@ -191,53 +191,7 @@ void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("%s",deviceName.c_str());
-            ImGui::Text("Format: %ix%i",camWidth,camHeight);
-
-            ImGui::Spacing();
-            if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
-                for(int i=0; i < devicesVector.size(); ++i){
-                    bool is_selected = (deviceID == i );
-                    if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
-                        resetCameraSettings(i);
-                    }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::EndCombo();
-            }
-
-            ImGui::Spacing();
-            if(ImGui::Checkbox("HORIZONTAL MIRROR",&hMirror)){
-                this->setCustomVar(static_cast<float>(hMirror),"MIRROR_H");
-            }
-            ImGui::Spacing();
-            if(ImGui::Checkbox("VERTICAL MIRROR",&vMirror)){
-                this->setCustomVar(static_cast<float>(vMirror),"MIRROR_V");
-            }
-
-            ImGui::Spacing();
-            if(ImGui::InputInt("Width",&temp_width)){
-                if(temp_width > CAM_MAX_WIDTH){
-                    temp_width = camWidth;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set a supported resolution WxH (limited for now at max. 1920x1080)");
-
-            if(ImGui::InputInt("Height",&temp_height)){
-                if(temp_height > CAM_MAX_HEIGHT){
-                    temp_height = camHeight;
-                }
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                needReset = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Opens a compatible video input/webcam device",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-grabber", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -269,6 +223,57 @@ void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void VideoGrabber::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::Text("%s",deviceName.c_str());
+    ImGui::Text("Format: %ix%i",camWidth,camHeight);
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
+        for(int i=0; i < devicesVector.size(); ++i){
+            bool is_selected = (deviceID == i );
+            if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
+                resetCameraSettings(i);
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGui::Spacing();
+    if(ImGui::Checkbox("HORIZONTAL MIRROR",&hMirror)){
+        this->setCustomVar(static_cast<float>(hMirror),"MIRROR_H");
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("VERTICAL MIRROR",&vMirror)){
+        this->setCustomVar(static_cast<float>(vMirror),"MIRROR_V");
+    }
+
+    ImGui::Spacing();
+    if(ImGui::InputInt("Width",&temp_width)){
+        if(temp_width > CAM_MAX_WIDTH){
+            temp_width = camWidth;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set a supported resolution WxH (limited for now at max. 1920x1080)");
+
+    if(ImGui::InputInt("Height",&temp_height)){
+        if(temp_height > CAM_MAX_HEIGHT){
+            temp_height = camHeight;
+        }
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Opens a compatible video input/webcam device",
+                "https://mosaic.d3cod3.org/reference.php?r=video-grabber", scaleFactor);
 }
 
 //--------------------------------------------------------------

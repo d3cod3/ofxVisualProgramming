@@ -134,78 +134,7 @@ void ColorPalette::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImVec4 color = ImVec4(baseColor.r,baseColor.g,baseColor.b,1.0f);
-            if(ImGui::ColorEdit4( "Base Color", (float*)&color )){
-                this->setCustomVar(color.x,"RED");
-                this->setCustomVar(color.y,"GREEN");
-                this->setCustomVar(color.z,"BLUE");
-
-                baseColor.set(color.x,color.y,color.z,1.0f);
-            }
-
-            ImGui::Spacing();
-            if(ImGui::BeginCombo("Palette Type", generationOptions.at(selectedGeneration).c_str() )){
-                for(int i=0; i < generationOptions.size(); ++i){
-                    bool is_selected = (selectedGeneration == i );
-                    if (ImGui::Selectable(generationOptions.at(i).c_str(), is_selected)){
-                        selectedGeneration = i;
-                        //this->setCustomVar(static_cast<float>(selectedGeneration),"SUBTRACTION_TECHNIQUE");
-                    }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::EndCombo();
-            }
-
-            ImGui::Spacing();
-            if(ImGui::BeginCombo("Color Channel", channelOptions.at(selectedChannel).c_str() )){
-                for(int i=0; i < channelOptions.size(); ++i){
-                    bool is_selected = (selectedChannel == i );
-                    if (ImGui::Selectable(channelOptions.at(i).c_str(), is_selected)){
-                        selectedChannel = i;
-                        //this->setCustomVar(static_cast<float>(selectedGeneration),"SUBTRACTION_TECHNIQUE");
-                    }
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::EndCombo();
-            }
-            ImGui::SameLine();  ImGuiEx::HelpMarker("For MonoChromatic and Complementary palettes only!");
-
-            ImGui::Spacing();
-            if(ImGui::InputInt("Num Colors",&numColors)){
-                if(numColors < 3){
-                    numColors = 3;
-                }
-            }
-
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("spread",&spread,0.0f,1.0f)){
-
-            }
-            ImGui::SameLine();  ImGuiEx::HelpMarker("For Analogous palettes only!");
-
-            ImGui::Spacing();
-            if(ImGui::Button("GENERATE",ImVec2(-1,26*scaleFactor))){
-                if(selectedGeneration == 0){
-                    generateRandom(numColors);
-                }else if(selectedGeneration == 1){
-                    generateMonoChromatic((ColorChannel)selectedChannel,numColors);
-                }else if(selectedGeneration == 2){
-                    generateComplementary((ColorChannel)selectedChannel,numColors);
-                }else if(selectedGeneration == 3){
-                    generateTriad();
-                }else if(selectedGeneration == 4){
-                    generateComplementaryTriad();
-                }else if(selectedGeneration == 5){
-                    generateAnalogous(numColors,spread);
-                }
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Color palette generator.",
-                        "https://mosaic.d3cod3.org/reference.php?r=color-palette", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -227,6 +156,82 @@ void ColorPalette::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void ColorPalette::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImVec4 color = ImVec4(baseColor.r,baseColor.g,baseColor.b,1.0f);
+    if(ImGui::ColorEdit4( "Base Color", (float*)&color )){
+        this->setCustomVar(color.x,"RED");
+        this->setCustomVar(color.y,"GREEN");
+        this->setCustomVar(color.z,"BLUE");
+
+        baseColor.set(color.x,color.y,color.z,1.0f);
+    }
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Palette Type", generationOptions.at(selectedGeneration).c_str() )){
+        for(int i=0; i < generationOptions.size(); ++i){
+            bool is_selected = (selectedGeneration == i );
+            if (ImGui::Selectable(generationOptions.at(i).c_str(), is_selected)){
+                selectedGeneration = i;
+                //this->setCustomVar(static_cast<float>(selectedGeneration),"SUBTRACTION_TECHNIQUE");
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Color Channel", channelOptions.at(selectedChannel).c_str() )){
+        for(int i=0; i < channelOptions.size(); ++i){
+            bool is_selected = (selectedChannel == i );
+            if (ImGui::Selectable(channelOptions.at(i).c_str(), is_selected)){
+                selectedChannel = i;
+                //this->setCustomVar(static_cast<float>(selectedGeneration),"SUBTRACTION_TECHNIQUE");
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+    ImGui::SameLine();  ImGuiEx::HelpMarker("For MonoChromatic and Complementary palettes only!");
+
+    ImGui::Spacing();
+    if(ImGui::InputInt("Num Colors",&numColors)){
+        if(numColors < 3){
+            numColors = 3;
+        }
+    }
+
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("spread",&spread,0.0f,1.0f)){
+
+    }
+    ImGui::SameLine();  ImGuiEx::HelpMarker("For Analogous palettes only!");
+
+    ImGui::Spacing();
+    if(ImGui::Button("GENERATE",ImVec2(-1,26*scaleFactor))){
+        if(selectedGeneration == 0){
+            generateRandom(numColors);
+        }else if(selectedGeneration == 1){
+            generateMonoChromatic((ColorChannel)selectedChannel,numColors);
+        }else if(selectedGeneration == 2){
+            generateComplementary((ColorChannel)selectedChannel,numColors);
+        }else if(selectedGeneration == 3){
+            generateTriad();
+        }else if(selectedGeneration == 4){
+            generateComplementaryTriad();
+        }else if(selectedGeneration == 5){
+            generateAnalogous(numColors,spread);
+        }
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Color palette generator.",
+                "https://mosaic.d3cod3.org/reference.php?r=color-palette", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -143,18 +143,7 @@ void DelayFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Delay",&wait)){
-                if(wait < 0){
-                    wait = 0;
-                }
-                this->setCustomVar(static_cast<float>(wait),"MS");
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
-
-            ImGuiEx::ObjectInfo(
-                        "Time delayed number transmission.",
-                        "https://mosaic.d3cod3.org/reference.php?r=delay-float", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -183,6 +172,22 @@ void DelayFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void DelayFloat::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Delay",&wait)){
+        if(wait < 0){
+            wait = 0;
+        }
+        this->setCustomVar(static_cast<float>(wait),"MS");
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
+
+    ImGuiEx::ObjectInfo(
+                "Time delayed number transmission.",
+                "https://mosaic.d3cod3.org/reference.php?r=delay-float", scaleFactor);
 }
 
 //--------------------------------------------------------------

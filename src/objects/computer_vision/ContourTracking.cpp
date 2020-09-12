@@ -303,27 +303,7 @@ void ContourTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::Checkbox("INVERT",&invertBW)){
-               this->setCustomVar(static_cast<float>(invertBW),"INVERT_BW");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
-                this->setCustomVar(threshold,"THRESHOLD");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("min. area radius",&minAreaRadius,4.0f,99.0f)){
-                this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("max aera radius",&maxAreaRadius,100.0f,500.0f)){
-                this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Contour tracking over background subtraction. Extract blobs, contours and convex hulls.",
-                        "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
+            drawObjectNodeConfig();
 
 
             ImGui::EndMenu();
@@ -347,6 +327,31 @@ void ContourTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void ContourTracking::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::Checkbox("INVERT",&invertBW)){
+       this->setCustomVar(static_cast<float>(invertBW),"INVERT_BW");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
+        this->setCustomVar(threshold,"THRESHOLD");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("min. area radius",&minAreaRadius,4.0f,99.0f)){
+        this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("max aera radius",&maxAreaRadius,100.0f,500.0f)){
+        this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Contour tracking over background subtraction. Extract blobs, contours and convex hulls.",
+                "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
 }
 
 //--------------------------------------------------------------

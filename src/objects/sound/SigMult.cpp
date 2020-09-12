@@ -121,9 +121,7 @@ void SigMult::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Signal amplifier",
-                        "https://mosaic.d3cod3.org/reference.php?r=amp", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -150,6 +148,13 @@ void SigMult::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void SigMult::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Signal amplifier",
+                "https://mosaic.d3cod3.org/reference.php?r=amp", scaleFactor);
 }
 
 //--------------------------------------------------------------

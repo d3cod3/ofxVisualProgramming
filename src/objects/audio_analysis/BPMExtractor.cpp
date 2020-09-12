@@ -142,9 +142,8 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Get the beat, the average bmp over a period of time, and the beat time period in milliseconds",
-                        "https://mosaic.d3cod3.org/reference.php?r=bpm-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
 
             ImGui::EndMenu();
@@ -172,6 +171,13 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void BPMExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Get the beat, the average bmp over a period of time, and the beat time period in milliseconds",
+                "https://mosaic.d3cod3.org/reference.php?r=bpm-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

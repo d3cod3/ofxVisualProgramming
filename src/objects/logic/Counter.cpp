@@ -158,9 +158,7 @@ void Counter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic counter for iterative structures.",
-                        "https://mosaic.d3cod3.org/reference.php?r=counter", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -192,6 +190,13 @@ void Counter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Counter::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic counter for iterative structures.",
+                "https://mosaic.d3cod3.org/reference.php?r=counter", scaleFactor);
 }
 
 //--------------------------------------------------------------

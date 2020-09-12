@@ -249,8 +249,7 @@ void OutputWindow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 //--------------------------------------------------------------
 void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    loadWarpingFlag = false;
-    saveWarpingFlag = false;
+
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -262,112 +261,7 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Width",&temp_width)){
-                if(temp_width > OUTPUT_TEX_MAX_WIDTH){
-                    temp_width = this->output_width;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set the output resolution WxH (limited for now at max. 4800x4800)");
-
-            if(ImGui::InputInt("Height",&temp_height)){
-                if(temp_height > OUTPUT_TEX_MAX_HEIGHT){
-                    temp_height = this->output_height;
-                }
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                needReset = true;
-            }
-
-            ImGui::Separator();
-
-            ImGui::Spacing();
-            if(ImGui::Checkbox("WARPING",&useMapping)){
-                this->setCustomVar(useMapping,"USE_MAPPING");
-                if(useMapping){
-                    if(!isWarpingLoaded){
-                        isWarpingLoaded = true;
-                        // setup warping (warping first load)
-                        warpController = new ofxWarpController();
-                        if(filepath != "none"){
-                            warpController->loadSettings(filepath);
-                        }else{
-                            shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
-                            warp->setSize(window->getScreenSize().x,window->getScreenSize().y);
-                            warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
-                            warp->setLuminance(this->getCustomVar("EDGES_LUMINANCE"));
-                            warp->setGamma(this->getCustomVar("EDGES_GAMMA"));
-                            warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
-                        }
-                    }
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Warping can be visualized/edited only in fullscreen mode!");
-
-            if(useMapping && isWarpingLoaded){
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("Luminance",&edgesLuminance,0.0f,1.0f)){
-                    this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setLuminance(edgesLuminance);
-                    }
-                }
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("Gamma",&edgesGamma,0.5f,1.0f)){
-                    this->setCustomVar(edgesGamma,"EDGES_GAMMA");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setGamma(edgesGamma);
-                    }
-                }
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("Exponent",&edgesExponent,0.0f,2.0f)){
-                    this->setCustomVar(edgesExponent,"EDGES_EXPONENT");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setExponent(edgesExponent);
-                    }
-                }
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("Edge Left",&edgeL,0.0f,1.0f)){
-                    this->setCustomVar(edgeL,"EDGE_LEFT");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
-                    }
-                }
-                if(ImGui::SliderFloat("Edge Right",&edgeR,0.0f,1.0f)){
-                    this->setCustomVar(edgeR,"EDGE_RIGHT");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
-                    }
-                }
-                if(ImGui::SliderFloat("Edge Top",&edgeT,0.0f,1.0f)){
-                    this->setCustomVar(edgeT,"EDGE_TOP");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
-                    }
-                }
-                if(ImGui::SliderFloat("Edge Bottom",&edgeB,0.0f,1.0f)){
-                    this->setCustomVar(edgeB,"EDGE_BOTTOM");
-                    if(warpController->getNumWarps() > 0){
-                        warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
-                    }
-                }
-            }
-
-            ImGui::Separator();
-
-            ImGui::Spacing();
-            if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
-                loadWarpingFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
-                saveWarpingFlag = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "This object creates a output window projector. (cmd/ctrl) + F focusing the window = activate/deactivate fullscreen. With warping option active and fullscreen you can adjust the projection surface.",
-                        "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -414,6 +308,119 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         warpController->saveSettings(filepath);
     }
+}
+
+//--------------------------------------------------------------
+void OutputWindow::drawObjectNodeConfig(){
+    loadWarpingFlag = false;
+    saveWarpingFlag = false;
+
+    ImGui::Spacing();
+    if(ImGui::InputInt("Width",&temp_width)){
+        if(temp_width > OUTPUT_TEX_MAX_WIDTH){
+            temp_width = this->output_width;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set the output resolution WxH (limited for now at max. 4800x4800)");
+
+    if(ImGui::InputInt("Height",&temp_height)){
+        if(temp_height > OUTPUT_TEX_MAX_HEIGHT){
+            temp_height = this->output_height;
+        }
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        needReset = true;
+    }
+
+    ImGui::Separator();
+
+    ImGui::Spacing();
+    if(ImGui::Checkbox("WARPING",&useMapping)){
+        this->setCustomVar(useMapping,"USE_MAPPING");
+        if(useMapping){
+            if(!isWarpingLoaded){
+                isWarpingLoaded = true;
+                // setup warping (warping first load)
+                warpController = new ofxWarpController();
+                if(filepath != "none"){
+                    warpController->loadSettings(filepath);
+                }else{
+                    shared_ptr<ofxWarpPerspectiveBilinear>  warp = warpController->buildWarp<ofxWarpPerspectiveBilinear>();
+                    warp->setSize(window->getScreenSize().x,window->getScreenSize().y);
+                    warp->setEdges(glm::vec4(this->getCustomVar("EDGE_LEFT"), this->getCustomVar("EDGE_TOP"), this->getCustomVar("EDGE_RIGHT"), this->getCustomVar("EDGE_BOTTOM")));
+                    warp->setLuminance(this->getCustomVar("EDGES_LUMINANCE"));
+                    warp->setGamma(this->getCustomVar("EDGES_GAMMA"));
+                    warp->setExponent(this->getCustomVar("EDGES_EXPONENT"));
+                }
+            }
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Warping can be visualized/edited only in fullscreen mode!");
+
+    if(useMapping && isWarpingLoaded){
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("Luminance",&edgesLuminance,0.0f,1.0f)){
+            this->setCustomVar(edgesLuminance,"EDGES_LUMINANCE");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setLuminance(edgesLuminance);
+            }
+        }
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("Gamma",&edgesGamma,0.5f,1.0f)){
+            this->setCustomVar(edgesGamma,"EDGES_GAMMA");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setGamma(edgesGamma);
+            }
+        }
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("Exponent",&edgesExponent,0.0f,2.0f)){
+            this->setCustomVar(edgesExponent,"EDGES_EXPONENT");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setExponent(edgesExponent);
+            }
+        }
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("Edge Left",&edgeL,0.0f,1.0f)){
+            this->setCustomVar(edgeL,"EDGE_LEFT");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+            }
+        }
+        if(ImGui::SliderFloat("Edge Right",&edgeR,0.0f,1.0f)){
+            this->setCustomVar(edgeR,"EDGE_RIGHT");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+            }
+        }
+        if(ImGui::SliderFloat("Edge Top",&edgeT,0.0f,1.0f)){
+            this->setCustomVar(edgeT,"EDGE_TOP");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+            }
+        }
+        if(ImGui::SliderFloat("Edge Bottom",&edgeB,0.0f,1.0f)){
+            this->setCustomVar(edgeB,"EDGE_BOTTOM");
+            if(warpController->getNumWarps() > 0){
+                warpController->getWarp(0)->setEdges(glm::vec4(edgeL, edgeT, edgeR, edgeB));
+            }
+        }
+    }
+
+    ImGui::Separator();
+
+    ImGui::Spacing();
+    if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadWarpingFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+        saveWarpingFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object creates a output window projector. (cmd/ctrl) + F focusing the window = activate/deactivate fullscreen. With warping option active and fullscreen you can adjust the projection surface.",
+                "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
 }
 
 //--------------------------------------------------------------

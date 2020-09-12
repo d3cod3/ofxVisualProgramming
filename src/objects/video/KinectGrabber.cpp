@@ -193,45 +193,7 @@ void KinectGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            if(weHaveKinect){
-                ImGui::Spacing();
-                ImGui::Text("Kinect motion sensing input device (Xbox 360 model)");
-                ImGui::Text("Format: %ix%i",kinectWidth, kinectHeight);
-                ImGui::Spacing();
-                if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
-                    for(int i=0; i < devicesVector.size(); ++i){
-                        bool is_selected = (deviceID == i );
-                        if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
-                            resetKinectSettings(i);
-                        }
-                        if (is_selected) ImGui::SetItemDefaultFocus();
-                    }
-
-                    ImGui::EndCombo();
-                }
-
-                ImGui::Spacing();
-                if(ImGui::Checkbox("Infrared",&isIR)){
-                    this->setCustomVar(static_cast<float>(isIR),"INFRARED");
-                    resetKinectImage(isIR);
-                }
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("Near Threshold",&nearThreshold,0,255)){
-                    this->setCustomVar(nearThreshold,"NEAR_THRESH");
-                }
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("Far Threshold",&farThreshold,0,255)){
-                    this->setCustomVar(farThreshold,"FAR_THRESH");
-                }
-            }else{
-                ImGui::Spacing();
-                ImGui::Text("No Kinect sensor found!");
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Opens a compatible Kinect sensor device",
-                        "https://mosaic.d3cod3.org/reference.php?r=kinect-grabber", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -263,6 +225,49 @@ void KinectGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void KinectGrabber::drawObjectNodeConfig(){
+    if(weHaveKinect){
+        ImGui::Spacing();
+        ImGui::Text("Kinect motion sensing input device (Xbox 360 model)");
+        ImGui::Text("Format: %ix%i",kinectWidth, kinectHeight);
+        ImGui::Spacing();
+        if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
+            for(int i=0; i < devicesVector.size(); ++i){
+                bool is_selected = (deviceID == i );
+                if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
+                    resetKinectSettings(i);
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+
+            ImGui::EndCombo();
+        }
+
+        ImGui::Spacing();
+        if(ImGui::Checkbox("Infrared",&isIR)){
+            this->setCustomVar(static_cast<float>(isIR),"INFRARED");
+            resetKinectImage(isIR);
+        }
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("Near Threshold",&nearThreshold,0,255)){
+            this->setCustomVar(nearThreshold,"NEAR_THRESH");
+        }
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("Far Threshold",&farThreshold,0,255)){
+            this->setCustomVar(farThreshold,"FAR_THRESH");
+        }
+    }else{
+        ImGui::Spacing();
+        ImGui::Text("No Kinect sensor found!");
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Opens a compatible Kinect sensor device",
+                "https://mosaic.d3cod3.org/reference.php?r=kinect-grabber", scaleFactor);
 }
 
 //--------------------------------------------------------------

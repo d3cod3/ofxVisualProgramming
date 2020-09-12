@@ -156,9 +156,7 @@ void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Stereo Digital noise generator",
-                        "https://mosaic.d3cod3.org/reference.php?r=bit-noise", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -186,6 +184,13 @@ void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void pdspBitNoise::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Stereo Digital noise generator",
+                "https://mosaic.d3cod3.org/reference.php?r=bit-noise", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -196,39 +196,7 @@ void OpticalFlow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::Checkbox("GAUSSIAN",&fbUseGaussian)){
-                this->setCustomVar(static_cast<float>(fbUseGaussian),"FB_USE_GAUSSIAN");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("pyramid scale",&fbPyrScale,0.0f,0.5f)){
-                this->setCustomVar(fbPyrScale,"FB_PYR_SCALE");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("num levels",&fbLevels,1.0f,8.0f)){
-                this->setCustomVar(fbLevels,"FB_LEVELS");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("window size",&fbWinSize,16.0f,64.0f)){
-                this->setCustomVar(fbWinSize,"FB_WIN_SIZE");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("num iterations",&fbIterations,1.0f,3.0f)){
-                this->setCustomVar(fbIterations,"FB_ITERATIONS");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("poly N",&fbPolyN,5.0f,10.0f)){
-                this->setCustomVar(fbPolyN,"FB_POLY_N");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("poly sigma",&fbPolySigma,1.1f,2.0f)){
-                this->setCustomVar(fbPolySigma,"FB_POLY_SIGMA");
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Optical flow Farneback algorithm.",
-                        "https://mosaic.d3cod3.org/reference.php?r=optical-flow", scaleFactor);
+            drawObjectNodeConfig();
 
 
             ImGui::EndMenu();
@@ -252,6 +220,43 @@ void OpticalFlow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void OpticalFlow::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::Checkbox("GAUSSIAN",&fbUseGaussian)){
+        this->setCustomVar(static_cast<float>(fbUseGaussian),"FB_USE_GAUSSIAN");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("pyramid scale",&fbPyrScale,0.0f,0.5f)){
+        this->setCustomVar(fbPyrScale,"FB_PYR_SCALE");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("num levels",&fbLevels,1.0f,8.0f)){
+        this->setCustomVar(fbLevels,"FB_LEVELS");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("window size",&fbWinSize,16.0f,64.0f)){
+        this->setCustomVar(fbWinSize,"FB_WIN_SIZE");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("num iterations",&fbIterations,1.0f,3.0f)){
+        this->setCustomVar(fbIterations,"FB_ITERATIONS");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("poly N",&fbPolyN,5.0f,10.0f)){
+        this->setCustomVar(fbPolyN,"FB_POLY_N");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("poly sigma",&fbPolySigma,1.1f,2.0f)){
+        this->setCustomVar(fbPolySigma,"FB_POLY_SIGMA");
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Optical flow Farneback algorithm.",
+                "https://mosaic.d3cod3.org/reference.php?r=optical-flow", scaleFactor);
 }
 
 //--------------------------------------------------------------

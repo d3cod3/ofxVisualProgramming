@@ -130,18 +130,7 @@ void TimedSemaphore::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Time",&wait)){
-                if(wait < 0){
-                    wait = 0;
-                }
-                this->setCustomVar(static_cast<float>(wait),"MS");
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Interrupt time in milliseconds.");
-
-            ImGuiEx::ObjectInfo(
-                        "Interrupts, for a certain time, the continuous data flow to generate a discrete action.",
-                        "https://mosaic.d3cod3.org/reference.php?r=timed-semaphore", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -174,6 +163,22 @@ void TimedSemaphore::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void TimedSemaphore::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Time",&wait)){
+        if(wait < 0){
+            wait = 0;
+        }
+        this->setCustomVar(static_cast<float>(wait),"MS");
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Interrupt time in milliseconds.");
+
+    ImGuiEx::ObjectInfo(
+                "Interrupts, for a certain time, the continuous data flow to generate a discrete action.",
+                "https://mosaic.d3cod3.org/reference.php?r=timed-semaphore", scaleFactor);
 }
 
 //--------------------------------------------------------------

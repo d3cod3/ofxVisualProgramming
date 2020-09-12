@@ -136,9 +136,8 @@ void MelBandsExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the 24 MEL BANDS from the audio analysis data vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=mel-bands-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
 
             ImGui::EndMenu();
@@ -156,6 +155,13 @@ void MelBandsExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void MelBandsExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the 24 MEL BANDS from the audio analysis data vector",
+                "https://mosaic.d3cod3.org/reference.php?r=mel-bands-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

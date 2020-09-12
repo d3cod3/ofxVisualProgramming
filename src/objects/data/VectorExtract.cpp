@@ -119,30 +119,7 @@ void VectorExtract::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Start",&start)){
-                if(start < 0){
-                    start = 0;
-                }
-                if(start > static_cast<vector<float> *>(_inletParams[0])->size()-2){
-                    start = static_cast<vector<float> *>(_inletParams[0])->size()-2;
-                }
-                this->setCustomVar(static_cast<float>(start),"START");
-            }
-            ImGui::Spacing();
-            int prevEnd = end;
-            if(ImGui::InputInt("End",&end)){
-                if(end > start && end <= static_cast<vector<float> *>(_inletParams[0])->size()-1){
-                    this->setCustomVar(static_cast<float>(end),"END");
-                }else{
-                    end = prevEnd;
-                }
-
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Extract a subsection of a data vector.",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-extract", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -164,6 +141,34 @@ void VectorExtract::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void VectorExtract::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Start",&start)){
+        if(start < 0){
+            start = 0;
+        }
+        if(start > static_cast<vector<float> *>(_inletParams[0])->size()-2){
+            start = static_cast<vector<float> *>(_inletParams[0])->size()-2;
+        }
+        this->setCustomVar(static_cast<float>(start),"START");
+    }
+    ImGui::Spacing();
+    int prevEnd = end;
+    if(ImGui::InputInt("End",&end)){
+        if(end > start && end <= static_cast<vector<float> *>(_inletParams[0])->size()-1){
+            this->setCustomVar(static_cast<float>(end),"END");
+        }else{
+            end = prevEnd;
+        }
+
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Extract a subsection of a data vector.",
+                "https://mosaic.d3cod3.org/reference.php?r=vector-extract", scaleFactor);
 }
 
 //--------------------------------------------------------------

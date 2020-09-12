@@ -93,9 +93,7 @@ void PixelsToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Transforms the signal from a pixels cable (emerald green) into a texture signal (blue cable). Texture data is processed on GPU while pixel data on CPU",
-                        "https://mosaic.d3cod3.org/reference.php?r=pixel-to-texture", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -110,6 +108,13 @@ void PixelsToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void PixelsToTexture::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Transforms the signal from a pixels cable (emerald green) into a texture signal (blue cable). Texture data is processed on GPU while pixel data on CPU",
+                "https://mosaic.d3cod3.org/reference.php?r=pixel-to-texture", scaleFactor);
 }
 
 //--------------------------------------------------------------

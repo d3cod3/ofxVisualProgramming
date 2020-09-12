@@ -94,26 +94,29 @@ void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
     filter_res_ctrl.set(filterRes);
     filter_res_ctrl.enableSmoothing(50.0f);
 
-    pdsp::VAFilter::LowPass12 >> filter.in_mode();
+    pdsp::VAFilter::LowPass24 >> filter.in_mode();
+
+    40.0f >> eq.in_freq();
+    2.0f >> eq.in_gain();
+    2.0f >> eq.in_Q();
+
+    8.0f >> compressor.in_ratio();
+    4.16f >> compressor.in_attack();
+    50.0f >> compressor.in_release();
+
+    drive.set(4.57f);
 
     osc >> amp;
     gate_ctrl.out_trig() >> ampEnv.set(0.0f,240.0f,0.0f,0.0f) >> amp.in_mod();
     gate_ctrl.out_trig() >> modEnv.set(0.0f,15.0f,0.0f,0.0f) * osc_freq_ctrl.get() >> osc.in_pitch();
 
-    amp >> filter >> drive >> this->pdspOut[0];
-    amp >> filter >> drive >> scope >> engine.blackhole();
+    amp >> filter >> compressor >> drive >> this->pdspOut[0];
+    amp >> filter >> compressor >> drive >> scope >> engine.blackhole();
 
 }
 
 //--------------------------------------------------------------
 void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    // bang --> trigger envelope
-    if(this->inletsConnected[0]){
-        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
-    }else{
-        gate_ctrl.off();
-    }
 
 
     if(!loaded){
@@ -138,9 +141,7 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Kick synth.",
-                        "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -167,11 +168,15 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-
-
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspKick::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Kick synth.",
+                "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -199,6 +204,13 @@ void pdspKick::loadAudioSettings(){
 void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+
+    // bang --> trigger envelope
+    if(this->inletsConnected[0]){
+        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
+    }else{
+        gate_ctrl.off();
+    }
 }
 
 OBJECT_REGISTER( pdspKick, "kick", OFXVP_OBJECT_CAT_SOUND)

@@ -199,9 +199,7 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "A sidechain compression effect",
-                        "https://mosaic.d3cod3.org/reference.php?r=ducker", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -246,7 +244,13 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspDucker::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A sidechain compression effect",
+                "https://mosaic.d3cod3.org/reference.php?r=ducker", scaleFactor);
 }
 
 //--------------------------------------------------------------

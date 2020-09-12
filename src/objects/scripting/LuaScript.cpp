@@ -276,10 +276,6 @@ void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRendere
 
 //--------------------------------------------------------------
 void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
-    ofFile tempFilename(filepath);
-
-    loadLuaScriptFlag = false;
-    saveLuaScriptFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -291,37 +287,7 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
-                saveLuaScriptFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadLuaScriptFlag = true;
-            }
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Separator();
-            ImGui::Spacing();
-            if(ImGui::Button("Clear Script",ImVec2(180*scaleFactor,26*scaleFactor))){
-                clearScript();
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Reload Script",ImVec2(180*scaleFactor,26*scaleFactor))){
-                reloadScriptThreaded();
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
-                        "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -365,6 +331,46 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         luaScriptLoaded = true;
     }
 
+}
+
+//--------------------------------------------------------------
+void LuaScript::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadLuaScriptFlag = false;
+    saveLuaScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+        saveLuaScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadLuaScriptFlag = true;
+    }
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Separator();
+    ImGui::Spacing();
+    if(ImGui::Button("Clear Script",ImVec2(180*scaleFactor,26*scaleFactor))){
+        clearScript();
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Reload Script",ImVec2(180*scaleFactor,26*scaleFactor))){
+        reloadScriptThreaded();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
+                "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
 }
 
 //--------------------------------------------------------------

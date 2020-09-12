@@ -140,22 +140,8 @@ void FloatMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Inlets",&floatInlets)){
-                if(floatInlets > MAX_INLETS){
-                    floatInlets = MAX_INLETS;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
-                needReset = true;
-            }
+            drawObjectNodeConfig();
 
-            ImGuiEx::ObjectInfo(
-                        "Simultaneously receive up to 32 float values and transmits the last one changed",
-                        "https://mosaic.d3cod3.org/reference.php?r=float-multiplexer", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -191,6 +177,26 @@ void FloatMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void FloatMultiplexer::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Inlets",&floatInlets)){
+        if(floatInlets > MAX_INLETS){
+            floatInlets = MAX_INLETS;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Simultaneously receive up to 32 float values and transmits the last one changed",
+                "https://mosaic.d3cod3.org/reference.php?r=float-multiplexer", scaleFactor);
 }
 
 //--------------------------------------------------------------

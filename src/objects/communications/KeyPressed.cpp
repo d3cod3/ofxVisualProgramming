@@ -102,9 +102,8 @@ void KeyPressed::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "sends a bang when the selected key has been pressed. To know the key ascii code, press it and the number appears next to Last Key:",
-                        "https://mosaic.d3cod3.org/reference.php?r=key-pressed", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -126,6 +125,13 @@ void KeyPressed::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void KeyPressed::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "sends a bang when the selected key has been pressed. To know the key ascii code, press it and the number appears next to Last Key:",
+                "https://mosaic.d3cod3.org/reference.php?r=key-pressed", scaleFactor);
 }
 
 //--------------------------------------------------------------

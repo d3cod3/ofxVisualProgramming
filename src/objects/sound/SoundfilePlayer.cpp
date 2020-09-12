@@ -229,10 +229,6 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLR
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(filepath);
-
-    loadSoundfileFlag   = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
         ImGui::Separator();
@@ -241,60 +237,8 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-                ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
-            }
-            if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadSoundfileFlag = true;
-            }
 
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*scaleFactor,26*scaleFactor))){
-                isPlaying = true;
-                playhead = 0.0;
-                audioWasPlaying = true;
-                finishSemaphore = true;
-            }
-            ImGui::SameLine();
-            if(ImGui::Button(ICON_FA_STOP,ImVec2(56*scaleFactor,26*scaleFactor))){
-                isPlaying = false;
-                playhead = 0.0;
-                audioWasPlaying = false;
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*scaleFactor,26*scaleFactor))){
-                isPlaying = !isPlaying;
-            }
-            ImGui::PopStyleColor(3);
-
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*scaleFactor);
-            ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
-            ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
-            ImGui::PopItemWidth();
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
-
-            ImGuiEx::ObjectInfo(
-                        "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
-                        "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -354,6 +298,68 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             startTime = ofGetElapsedTimeMillis();
         }
     }
+}
+
+//--------------------------------------------------------------
+void SoundfilePlayer::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadSoundfileFlag   = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+        ImGuiEx::drawTimecode(ImGui::GetForegroundDrawList(),static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
+    }
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadSoundfileFlag = true;
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*scaleFactor,26*scaleFactor))){
+        isPlaying = true;
+        playhead = 0.0;
+        audioWasPlaying = true;
+        finishSemaphore = true;
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(56*scaleFactor,26*scaleFactor))){
+        isPlaying = false;
+        playhead = 0.0;
+        audioWasPlaying = false;
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*scaleFactor,26*scaleFactor))){
+        isPlaying = !isPlaying;
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
+    ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
+    ImGui::PopItemWidth();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
+
+    ImGuiEx::ObjectInfo(
+                "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
+                "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
 }
 
 //--------------------------------------------------------------

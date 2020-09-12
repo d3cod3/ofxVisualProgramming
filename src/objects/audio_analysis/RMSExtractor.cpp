@@ -130,9 +130,8 @@ void RMSExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the rms (Root Mean Square) power from the audio analysis data vector as a float value (between 0.0 and 1.0).",
-                        "https://mosaic.d3cod3.org/reference.php?r=rms-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -147,6 +146,13 @@ void RMSExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void RMSExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the rms (Root Mean Square) power from the audio analysis data vector as a float value (between 0.0 and 1.0).",
+                "https://mosaic.d3cod3.org/reference.php?r=rms-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

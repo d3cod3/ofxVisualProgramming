@@ -106,17 +106,7 @@ void SimpleNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*scaleFactor);
-            if(ImGui::DragFloat("step", &step,0.0001f,0.0f,100.0f,"%.4f")){
-                this->setCustomVar(step,"STEP");
-            }
-            ImGui::PopItemWidth();
-
-            ImGuiEx::ObjectInfo(
-                        "Standard 1D Perlin noise generator.",
-                        "https://mosaic.d3cod3.org/reference.php?r=simple-noise", scaleFactor);
-
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -131,6 +121,20 @@ void SimpleNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void SimpleNoise::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    if(ImGui::DragFloat("step", &step,0.0001f,0.0f,100.0f,"%.4f")){
+        this->setCustomVar(step,"STEP");
+    }
+    ImGui::PopItemWidth();
+
+    ImGuiEx::ObjectInfo(
+                "Standard 1D Perlin noise generator.",
+                "https://mosaic.d3cod3.org/reference.php?r=simple-noise", scaleFactor);
 }
 
 //--------------------------------------------------------------

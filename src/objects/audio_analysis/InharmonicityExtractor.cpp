@@ -130,9 +130,8 @@ void InharmonicityExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the inharmonicity of a sound signal. The discordance range is from 0 (pure harmonic signal) to 1 (discordant signal).",
-                        "https://mosaic.d3cod3.org/reference.php?r=inharmonicity-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -147,6 +146,13 @@ void InharmonicityExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void InharmonicityExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the inharmonicity of a sound signal. The discordance range is from 0 (pure harmonic signal) to 1 (discordant signal).",
+                "https://mosaic.d3cod3.org/reference.php?r=inharmonicity-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

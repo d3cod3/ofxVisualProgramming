@@ -132,9 +132,7 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "A simple comment object.",
-                        "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -162,6 +160,13 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moComment::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A simple comment object.",
+                "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
 }
 
 //--------------------------------------------------------------

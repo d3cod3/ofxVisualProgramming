@@ -189,9 +189,7 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Dubby metallic reverb with mono input and stereo output",
-                        "https://mosaic.d3cod3.org/reference.php?r=reverb", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -223,7 +221,13 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspReverb::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Dubby metallic reverb with mono input and stereo output",
+                "https://mosaic.d3cod3.org/reference.php?r=reverb", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -120,9 +120,7 @@ void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "A basic video viewer, the object visualizes it, and bypasses it by its outlet.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-viewer", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -153,6 +151,13 @@ void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void moVideoViewer::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A basic video viewer, the object visualizes it, and bypasses it by its outlet.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-viewer", scaleFactor);
 }
 
 //--------------------------------------------------------------

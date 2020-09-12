@@ -125,9 +125,8 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "This object only sends the configured numerical value after receiving a bang",
-                        "https://mosaic.d3cod3.org/reference.php?r=bang-to-float", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -148,6 +147,13 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void BangToFloat::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "This object only sends the configured numerical value after receiving a bang",
+                "https://mosaic.d3cod3.org/reference.php?r=bang-to-float", scaleFactor);
 }
 
 //--------------------------------------------------------------

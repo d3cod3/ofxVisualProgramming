@@ -129,9 +129,8 @@ void CentroidExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Extracts the center of gravity of the spectral energy, its power.",
-                        "https://mosaic.d3cod3.org/reference.php?r=centroid-extractor", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -146,6 +145,13 @@ void CentroidExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void CentroidExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the center of gravity of the spectral energy, its power.",
+                "https://mosaic.d3cod3.org/reference.php?r=centroid-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

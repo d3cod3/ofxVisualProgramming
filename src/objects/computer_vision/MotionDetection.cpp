@@ -150,18 +150,8 @@ void MotionDetection::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
-                this->setCustomVar(threshold,"THRESHOLD");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("noise compensation",&noise,0.0f,1000.0f)){
-                this->setCustomVar(noise,"NOISE_COMP");
-            }
+            drawObjectNodeConfig();
 
-            ImGuiEx::ObjectInfo(
-                        "Basic motion detection.",
-                        "https://mosaic.d3cod3.org/reference.php?r=motion-detection", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -177,6 +167,22 @@ void MotionDetection::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void MotionDetection::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
+        this->setCustomVar(threshold,"THRESHOLD");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("noise compensation",&noise,0.0f,1000.0f)){
+        this->setCustomVar(noise,"NOISE_COMP");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Basic motion detection.",
+                "https://mosaic.d3cod3.org/reference.php?r=motion-detection", scaleFactor);
 }
 
 //--------------------------------------------------------------

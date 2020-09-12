@@ -115,9 +115,8 @@ void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "This object is used linked to the midi receiver object to map a knob on a midi device",
-                        "https://mosaic.d3cod3.org/reference.php?r=midi-knob", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -141,6 +140,13 @@ void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void MidiKnob::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "This object is used linked to the midi receiver object to map a knob on a midi device",
+                "https://mosaic.d3cod3.org/reference.php?r=midi-knob", scaleFactor);
 }
 
 //--------------------------------------------------------------

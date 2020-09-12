@@ -172,27 +172,8 @@ void DataToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Width",&temp_width)){
-                if(temp_width > OUTPUT_TEX_MAX_WIDTH){
-                    temp_width = this->output_width;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set a supported resolution WxH (limited for now at max. 4800x4800)");
+            drawObjectNodeConfig();
 
-            if(ImGui::InputInt("Height",&temp_height)){
-                if(temp_height > OUTPUT_TEX_MAX_HEIGHT){
-                    temp_height = this->output_height;
-                }
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                needReset = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "This object performs “analog style” video synthesis, with a separate control over RGB channels",
-                        "https://mosaic.d3cod3.org/reference.php?r=data-to-texture", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -214,6 +195,31 @@ void DataToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void DataToTexture::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Width",&temp_width)){
+        if(temp_width > OUTPUT_TEX_MAX_WIDTH){
+            temp_width = this->output_width;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set a supported resolution WxH (limited for now at max. 4800x4800)");
+
+    if(ImGui::InputInt("Height",&temp_height)){
+        if(temp_height > OUTPUT_TEX_MAX_HEIGHT){
+            temp_height = this->output_height;
+        }
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object performs “analog style” video synthesis, with a separate control over RGB channels",
+                "https://mosaic.d3cod3.org/reference.php?r=data-to-texture", scaleFactor);
 }
 
 //--------------------------------------------------------------

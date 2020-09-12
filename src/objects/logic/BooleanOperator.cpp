@@ -126,9 +126,7 @@ void BooleanOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic boolean operator",
-                        "https://mosaic.d3cod3.org/reference.php?r=boolean-operator", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -162,6 +160,13 @@ void BooleanOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void BooleanOperator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic boolean operator",
+                "https://mosaic.d3cod3.org/reference.php?r=boolean-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -133,9 +133,7 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Control the status of other objects, such as video player, soundfile player, or timeline. Useful for syncronize play/stop.",
-                        "https://mosaic.d3cod3.org/reference.php?r=player-controls", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -191,6 +189,13 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moPlayerControls::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Control the status of other objects, such as video player, soundfile player, or timeline. Useful for syncronize play/stop.",
+                "https://mosaic.d3cod3.org/reference.php?r=player-controls", scaleFactor);
 }
 
 //--------------------------------------------------------------

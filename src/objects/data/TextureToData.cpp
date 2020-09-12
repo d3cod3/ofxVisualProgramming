@@ -117,9 +117,8 @@ void TextureToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "This object processes the image or video texture data, and transmits them as a data vector that can generate a custom sound waveform via the data oscillator object",
-                        "https://mosaic.d3cod3.org/reference.php?r=texture-to-data", scaleFactor);
+            drawObjectNodeConfig();
+
 
             ImGui::EndMenu();
         }
@@ -141,6 +140,13 @@ void TextureToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void TextureToData::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "This object processes the image or video texture data, and transmits them as a data vector that can generate a custom sound waveform via the data oscillator object",
+                "https://mosaic.d3cod3.org/reference.php?r=texture-to-data", scaleFactor);
 }
 
 //--------------------------------------------------------------

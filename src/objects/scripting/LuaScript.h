@@ -64,6 +64,8 @@ public:
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
     void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            resetResolution(int fromID, int newWidth, int newHeight) override;

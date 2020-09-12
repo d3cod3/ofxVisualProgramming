@@ -50,6 +50,7 @@ public:
 
     void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
 
 
     ImVec4                  currentColor;

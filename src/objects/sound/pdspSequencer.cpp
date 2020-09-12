@@ -338,23 +338,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            const char* steps_nums[Steps_COUNT] = { "16", "32", "48", "64" };
-            const char* steps_names[Steps_COUNT] = { "1-16", "17-32", "33-48", "49-64" };
-            const char* availablesSteps[maxChapter+1];
-            for(int i=0;i<maxChapter+1;i++){
-                availablesSteps[i] = steps_names[i];
-            }
-            if(ImGui::SliderInt("steps", &maxChapter, 0, Steps_COUNT - 1, steps_nums[maxChapter])){
-                actualSteps = CHAPTER_STEPS*(maxChapter+1);
-                this->setCustomVar(static_cast<float>(maxChapter),"STEPS");
-            }
-            ImGui::Spacing();
-            ImGui::ListBox("sections", &chapter, availablesSteps, IM_ARRAYSIZE(availablesSteps), 4);
-
-            ImGuiEx::ObjectInfo(
-                        "Up to 64 step sequencer with 5 per-step assignable controls.",
-                        "https://mosaic.d3cod3.org/reference.php?r=secuencer", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -450,7 +434,27 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspSequencer::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    const char* steps_nums[Steps_COUNT] = { "16", "32", "48", "64" };
+    const char* steps_names[Steps_COUNT] = { "1-16", "17-32", "33-48", "49-64" };
+    const char* availablesSteps[maxChapter+1];
+    for(int i=0;i<maxChapter+1;i++){
+        availablesSteps[i] = steps_names[i];
+    }
+    if(ImGui::SliderInt("steps", &maxChapter, 0, Steps_COUNT - 1, steps_nums[maxChapter])){
+        actualSteps = CHAPTER_STEPS*(maxChapter+1);
+        this->setCustomVar(static_cast<float>(maxChapter),"STEPS");
+    }
+    ImGui::Spacing();
+    ImGui::ListBox("sections", &chapter, availablesSteps, IM_ARRAYSIZE(availablesSteps), 4);
+
+    ImGuiEx::ObjectInfo(
+                "Up to 64 step sequencer with 5 per-step assignable controls.",
+                "https://mosaic.d3cod3.org/reference.php?r=secuencer", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -111,21 +111,7 @@ void moDataViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputFloat("Max",&max)){
-                this->setCustomVar(max,"MAX");
-            }
-            ImGui::Spacing();
-            if(ImGui::ColorEdit4( "Color", (float*)&color )){
-                this->setCustomVar(color.x,"RED");
-                this->setCustomVar(color.y,"GREEN");
-                this->setCustomVar(color.z,"BLUE");
-                this->setCustomVar(color.w,"ALPHA");
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "A basic data vector visualizer",
-                        "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
+            drawObjectNodeConfig();
 
 
             ImGui::EndMenu();
@@ -145,6 +131,25 @@ void moDataViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moDataViewer::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputFloat("Max",&max)){
+        this->setCustomVar(max,"MAX");
+    }
+    ImGui::Spacing();
+    if(ImGui::ColorEdit4( "Color", (float*)&color )){
+        this->setCustomVar(color.x,"RED");
+        this->setCustomVar(color.y,"GREEN");
+        this->setCustomVar(color.z,"BLUE");
+        this->setCustomVar(color.w,"ALPHA");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "A basic data vector visualizer",
+                "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------

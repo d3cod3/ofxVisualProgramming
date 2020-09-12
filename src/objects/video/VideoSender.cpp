@@ -152,33 +152,7 @@ void VideoSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
-
-            char tmp[256];
-            sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
-            if(ImGui::Button(tmp,ImVec2(180*scaleFactor,26*scaleFactor))){
-                if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-                    ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
-                }else{
-                    if(!isSending){
-                        isSending = true;
-                        recButtonLabel = "STOP";
-                        ofLog(OF_LOG_NOTICE,"START NDI VIDEO SENDER");
-                    }else{
-                        isSending = false;
-                        recButtonLabel = "BROADCAST";
-                        ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
-                    }
-                }
-            }
-            ImGui::PopStyleColor(3);
-
-            ImGuiEx::ObjectInfo(
-                        "Sends a video broadcast (local network) to the video receiver object through the NDI (Network Device Interface) communication protocol.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-sender", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -211,6 +185,36 @@ void VideoSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void VideoSender::drawObjectNodeConfig(){
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
+
+    char tmp[256];
+    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    if(ImGui::Button(tmp,ImVec2(180*scaleFactor,26*scaleFactor))){
+        if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
+        }else{
+            if(!isSending){
+                isSending = true;
+                recButtonLabel = "STOP";
+                ofLog(OF_LOG_NOTICE,"START NDI VIDEO SENDER");
+            }else{
+                isSending = false;
+                recButtonLabel = "BROADCAST";
+                ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
+            }
+        }
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGuiEx::ObjectInfo(
+                "Sends a video broadcast (local network) to the video receiver object through the NDI (Network Device Interface) communication protocol.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------

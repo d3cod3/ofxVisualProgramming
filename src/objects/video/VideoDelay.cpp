@@ -188,27 +188,7 @@ void VideoDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*this->scaleFactor);
-            if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-                if(ImGui::SliderFloat("POS X",&_x, -static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth())){
-                    this->setCustomVar(_x,"XPOS");
-                }
-                if(ImGui::SliderFloat("POS Y",&_y, -static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight())){
-                    this->setCustomVar(_y,"YPOS");
-                }
-            }
-            if(ImGui::SliderFloat("SCALE",&scaleTo, 0.0f, 1.0f)){
-                this->setCustomVar(scaleTo,"WIDTH");
-            }
-            if(ImGui::SliderFloat("ALPHA",&alphaTo, 0.0f, 1.0f)){
-                this->setCustomVar(alphaTo,"ALPHA");
-            }
-            ImGui::PopItemWidth();
-
-            ImGuiEx::ObjectInfo(
-                        "With this object you can make a texture feedback. The action is visualized by scaling and/or moving the texture, showing the trace of its edges in the path.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-feedback", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -229,6 +209,31 @@ void VideoDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void VideoDelay::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*this->scaleFactor);
+    if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(ImGui::SliderFloat("POS X",&_x, -static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth())){
+            this->setCustomVar(_x,"XPOS");
+        }
+        if(ImGui::SliderFloat("POS Y",&_y, -static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight())){
+            this->setCustomVar(_y,"YPOS");
+        }
+    }
+    if(ImGui::SliderFloat("SCALE",&scaleTo, 0.0f, 1.0f)){
+        this->setCustomVar(scaleTo,"WIDTH");
+    }
+    if(ImGui::SliderFloat("ALPHA",&alphaTo, 0.0f, 1.0f)){
+        this->setCustomVar(alphaTo,"ALPHA");
+    }
+    ImGui::PopItemWidth();
+
+    ImGuiEx::ObjectInfo(
+                "With this object you can make a texture feedback. The action is visualized by scaling and/or moving the texture, showing the trace of its edges in the path.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-feedback", scaleFactor);
 }
 
 //--------------------------------------------------------------

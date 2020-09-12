@@ -99,9 +99,7 @@ void Inverter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Invert the value transmitted by a trigger or bang object.",
-                        "https://mosaic.d3cod3.org/reference.php?r=inverter", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -123,6 +121,13 @@ void Inverter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void Inverter::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Invert the value transmitted by a trigger or bang object.",
+                "https://mosaic.d3cod3.org/reference.php?r=inverter", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -128,8 +128,6 @@ void ImageLoader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 //--------------------------------------------------------------
 void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    loadImgFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
         ImGui::Separator();
@@ -138,24 +136,7 @@ void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(imgName == ""){
-                ImGui::Text("none");
-            }else{
-                ImGui::Text("%s",imgName.c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",imgPath.c_str());
-            }
-            ImGui::Spacing();
-            ImGui::Text("Resolution: %s",imgRes.c_str());
-            ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadImgFlag = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Simple object for loading image files. Compatible formats are jpg, png, gif and tif.",
-                        "https://mosaic.d3cod3.org/reference.php?r=image-loader", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -187,6 +168,30 @@ void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
     }
 
+}
+
+//--------------------------------------------------------------
+void ImageLoader::drawObjectNodeConfig(){
+    loadImgFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(imgName == ""){
+        ImGui::Text("none");
+    }else{
+        ImGui::Text("%s",imgName.c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",imgPath.c_str());
+    }
+    ImGui::Spacing();
+    ImGui::Text("Resolution: %s",imgRes.c_str());
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadImgFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Simple object for loading image files. Compatible formats are jpg, png, gif and tif.",
+                "https://mosaic.d3cod3.org/reference.php?r=image-loader", scaleFactor);
 }
 
 //--------------------------------------------------------------

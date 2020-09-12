@@ -85,6 +85,7 @@ public:
     void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine);
     void                    draw(ofxFontStash *font);
     void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    drawImGuiNodeConfig();
 
     // Virtual Methods
     virtual void            newObject() {}
@@ -98,6 +99,7 @@ public:
     virtual void            updateAudioObjectContent(pdsp::Engine &engine) {}
     virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
+    virtual void            drawObjectNodeConfig() {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}
 
     virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}

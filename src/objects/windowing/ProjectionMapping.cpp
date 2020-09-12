@@ -204,20 +204,7 @@ void ProjectionMapping::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Separator();
-
-            ImGui::Spacing();
-            if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
-                loadWarpingFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
-                saveWarpingFlag = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "With warping option active and fullscreen you can adjust the projection surface.",
-                        "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -258,6 +245,24 @@ void ProjectionMapping::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _mapping->saveMappingAs(filepath);
 
     }
+}
+
+//--------------------------------------------------------------
+void ProjectionMapping::drawObjectNodeConfig(){
+    ImGui::Separator();
+
+    ImGui::Spacing();
+    if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadWarpingFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+        saveWarpingFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "With warping option active and fullscreen you can adjust the projection surface.",
+                "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
 }
 
 //--------------------------------------------------------------

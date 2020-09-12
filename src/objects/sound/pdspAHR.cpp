@@ -169,9 +169,7 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Standard AHR envelope.",
-                        "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -208,7 +206,13 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspAHR::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Standard AHR envelope.",
+                "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
 }
 
 //--------------------------------------------------------------

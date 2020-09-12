@@ -36,27 +36,28 @@
 
 #include "PatchObject.h"
 
+#include "imgui_controls.h"
+
 class pdspDataOscillator : public PatchObject{
 
 public:
 
     pdspDataOscillator();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
     void            loadAudioSettings();
-
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
-
-    
-    
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     pdsp::DataOscillator    osc;
@@ -65,20 +66,19 @@ public:
     pdsp::Scope             scope;
     pdsp::ValueControl      pitch_ctrl;
 
-    ofPolyline              waveform;
+    float                   pitch;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiLabel*         oscInfo;
-    ofxDatGuiSlider*        slider;
-
+    float                   plot_data[1024];
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
     bool                    reinitDataTable;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

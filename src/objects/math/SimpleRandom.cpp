@@ -115,17 +115,7 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*scaleFactor);
-            ImGui::DragFloat("min", &lastMinRange.get());
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*scaleFactor);
-            ImGui::DragFloat("max", &lastMaxRange.get());
-
-            ImGuiEx::ObjectInfo(
-                        "Standard Range controlled random number generator.",
-                        "https://mosaic.d3cod3.org/reference.php?r=simple-random", scaleFactor);
-
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -140,6 +130,20 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void SimpleRandom::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    ImGui::DragFloat("min", &lastMinRange.get());
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    ImGui::DragFloat("max", &lastMaxRange.get());
+
+    ImGuiEx::ObjectInfo(
+                "Standard Range controlled random number generator.",
+                "https://mosaic.d3cod3.org/reference.php?r=simple-random", scaleFactor);
 }
 
 //--------------------------------------------------------------

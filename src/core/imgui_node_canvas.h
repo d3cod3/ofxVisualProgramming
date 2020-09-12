@@ -221,7 +221,7 @@ struct NodeCanvas {
 
     // Draw Child windows (aka Nodes) on the canvas.
     // position and size may change be updated after function call.
-    bool BeginNode( const char* id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode );
+    bool BeginNode( int nId, const char* id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode );
     void EndNode();
 
     // Adds an inlet and sets its position on screen so you can do more graphic stuff with it.
@@ -292,6 +292,10 @@ struct NodeCanvas {
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
 
+    // Returns active node
+    int getActiveNode() { return activeNode; }
+    void setActiveNode(int objID) { activeNode = objID; }
+
     ImVec2 getInletPosition(int objID, int pinID) {
         for(std::map<int,std::map<int,ImVec2>>::iterator it = inletPinsPositions.begin(); it != inletPinsPositions.end(); it++ ){
             if(it->first == objID){
@@ -342,6 +346,7 @@ private:
     std::vector<int> selected_links; // for delete links (one or multiple)          -- IMPLEMENTED
     std::string activePin;
     std::string activePinType;
+    int         activeNode = 0; // for node inspector
 
     // retina stuff
     bool isRetina = false;

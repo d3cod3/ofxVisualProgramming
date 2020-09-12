@@ -216,9 +216,8 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "This object is an audio analysis station which transmits a vector with all the analyzed data. Each type of audio data is available in the different extractor objects inside the same category.",
-                        "https://mosaic.d3cod3.org/reference.php?r=audio-analyzer", scaleFactor);
+            drawObjectNodeConfig();
+
 
 
             ImGui::EndMenu();
@@ -254,6 +253,13 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "This object is an audio analysis station which transmits a vector with all the analyzed data. Each type of audio data is available in the different extractor objects inside the same category.",
+                "https://mosaic.d3cod3.org/reference.php?r=audio-analyzer", scaleFactor);
 }
 
 //--------------------------------------------------------------

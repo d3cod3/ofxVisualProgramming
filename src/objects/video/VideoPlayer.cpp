@@ -258,9 +258,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 
 //--------------------------------------------------------------
 void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
-    ofFile tempFilename(filepath);
 
-    loadVideoFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -270,84 +268,8 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-                ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
-                ImGui::Text("Resolution %.0fx%.0f",video->getWidth(),video->getHeight());
-            }
 
-            ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE,ImVec2(184*this->scaleFactor,26*this->scaleFactor))){
-                loadVideoFlag = true;
-            }
-            if (ImGui::IsItemHovered()){
-                ImGui::BeginTooltip();
-                ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-                ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg");
-                ImGui::PopTextWrapPos();
-                ImGui::EndTooltip();
-            }
-
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
-                video->firstFrame();
-                video->play();
-                videoWasPlaying = true;
-            }
-            ImGui::SameLine();
-            if(ImGui::Button(ICON_FA_STOP,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
-                video->stop();
-                videoWasPlaying = false;
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
-                isPaused = !isPaused;
-                video->setPaused(isPaused);
-                if(!isPaused){
-                    if(!videoWasPlaying){
-                        video->stop();
-                    }
-                }
-            }
-            ImGui::PopStyleColor(3);
-
-            ImGui::Spacing();
-            ImGui::PushItemWidth(130*this->scaleFactor);
-            if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
-                video->setSpeed(speed);
-            }
-            ImGui::PushItemWidth(130*this->scaleFactor);
-            if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
-                video->setVolume(volume);
-            }
-            ImGui::Spacing();
-            ImGui::Spacing();
-            if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
-                if(loop){
-                    video->setLoopState(OF_LOOP_NORMAL);
-                }else{
-                    video->setLoopState(OF_LOOP_NONE);
-                }
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
-                        "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -402,6 +324,92 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
     }
 
+}
+
+//--------------------------------------------------------------
+void VideoPlayer::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadVideoFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+        ImGuiEx::drawTimecode(ImGui::GetForegroundDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
+        ImGui::Text("Resolution %.0fx%.0f",video->getWidth(),video->getHeight());
+    }
+
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(184*this->scaleFactor,26*this->scaleFactor))){
+        loadVideoFlag = true;
+    }
+    if (ImGui::IsItemHovered()){
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg");
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+        video->firstFrame();
+        video->play();
+        videoWasPlaying = true;
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+        video->stop();
+        videoWasPlaying = false;
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+        isPaused = !isPaused;
+        video->setPaused(isPaused);
+        if(!isPaused){
+            if(!videoWasPlaying){
+                video->stop();
+            }
+        }
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*this->scaleFactor);
+    if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
+        video->setSpeed(speed);
+    }
+    ImGui::PushItemWidth(130*this->scaleFactor);
+    if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
+        video->setVolume(volume);
+    }
+    ImGui::Spacing();
+    ImGui::Spacing();
+    if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
+        if(loop){
+            video->setLoopState(OF_LOOP_NORMAL);
+        }else{
+            video->setLoopState(OF_LOOP_NONE);
+        }
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
 }
 
 //--------------------------------------------------------------

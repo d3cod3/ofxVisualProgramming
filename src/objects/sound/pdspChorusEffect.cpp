@@ -156,9 +156,7 @@ void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Chorus loosely based on Roland Dimension C-D models",
-                        "https://mosaic.d3cod3.org/reference.php?r=chorus", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -188,6 +186,13 @@ void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void pdspChorusEffect::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Chorus loosely based on Roland Dimension C-D models",
+                "https://mosaic.d3cod3.org/reference.php?r=chorus", scaleFactor);
 }
 
 //--------------------------------------------------------------

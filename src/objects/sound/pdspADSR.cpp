@@ -185,9 +185,7 @@ void pdspADSR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Standard ADSR envelope",
-                        "https://mosaic.d3cod3.org/reference.php?r=adsr-envelope", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -227,7 +225,13 @@ void pdspADSR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspADSR::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Standard ADSR envelope",
+                "https://mosaic.d3cod3.org/reference.php?r=adsr-envelope", scaleFactor);
 }
 
 //--------------------------------------------------------------

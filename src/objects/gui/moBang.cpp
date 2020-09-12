@@ -121,9 +121,7 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Triggers a bang. You can control it manually with the mouse or automate it by its inlet.",
-                        "https://mosaic.d3cod3.org/reference.php?r=bang", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -155,6 +153,13 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moBang::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Triggers a bang. You can control it manually with the mouse or automate it by its inlet.",
+                "https://mosaic.d3cod3.org/reference.php?r=bang", scaleFactor);
 }
 
 //--------------------------------------------------------------

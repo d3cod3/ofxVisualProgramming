@@ -269,7 +269,7 @@ void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
 
 
 // always use EndNode() even if returns false. Like ImGui Windows.
-bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode ){
+bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode ){
     // Check callstack
     IM_ASSERT(isDrawingCanvas == true);  // forgot to End();
     IM_ASSERT(canDrawNode == true); // Don't call if Begin() returned false
@@ -388,11 +388,19 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         }
 
         // Draw HeaderBar BG
-        nodeDrawList->AddRectFilled(
-                    curNodeData.outerContentBox.Min,
-                    curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
-                    ImGui::GetColorU32(ImGuiCol_Header)
-                    );
+        if(nId == activeNode){
+            nodeDrawList->AddRectFilled(
+                        curNodeData.outerContentBox.Min,
+                        curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
+                        IM_COL32(90,90,90,200)
+                        );
+        }else{
+            nodeDrawList->AddRectFilled(
+                        curNodeData.outerContentBox.Min,
+                        curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
+                        ImGui::GetColorU32(ImGuiCol_Header)
+                        );
+        }
 
         // Draw footer
         nodeDrawList->AddRectFilled(
@@ -417,6 +425,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( const char* _id, std::string name, ImVec2& 
         ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor )  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
+
+        if(ImGui::IsItemActive() && ImGui::IsItemClicked(0)){
+            activeNode = nId;
+        }
 
         if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
             if(!isDraggingHeader){

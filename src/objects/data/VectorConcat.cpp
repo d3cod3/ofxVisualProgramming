@@ -132,22 +132,7 @@ void VectorConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Inlets",&dataInlets)){
-                if(dataInlets > MAX_INLETS){
-                    dataInlets = MAX_INLETS;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
-                needReset = true;
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "receive up to 32 data vectors, and concatenates them as a single vector",
-                        "https://mosaic.d3cod3.org/reference.php?r=vector-concat", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -191,6 +176,26 @@ void VectorConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void VectorConcat::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Inlets",&dataInlets)){
+        if(dataInlets > MAX_INLETS){
+            dataInlets = MAX_INLETS;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "receive up to 32 data vectors, and concatenates them as a single vector",
+                "https://mosaic.d3cod3.org/reference.php?r=vector-concat", scaleFactor);
 }
 
 //--------------------------------------------------------------

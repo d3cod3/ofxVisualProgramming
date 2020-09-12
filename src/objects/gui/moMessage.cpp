@@ -105,9 +105,7 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "A basic text string sending object. Useful to use with string command controlled objects.",
-                        "https://mosaic.d3cod3.org/reference.php?r=message", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -136,6 +134,13 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void moMessage::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A basic text string sending object. Useful to use with string command controlled objects.",
+                "https://mosaic.d3cod3.org/reference.php?r=message", scaleFactor);
 }
 
 //--------------------------------------------------------------

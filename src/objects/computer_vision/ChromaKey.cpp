@@ -145,58 +145,7 @@ void ChromaKey::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-                if(static_cast<ofTexture *>(_inletParams[0])->getWidth() != static_cast<ofTexture *>(_inletParams[1])->getWidth() || static_cast<ofTexture *>(_inletParams[0])->getHeight() != static_cast<ofTexture *>(_inletParams[1])->getHeight()){
-                    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,0,0,255));
-                    ImGui::Text("Input inlet texture Resolution: %.0fx%.0f",static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-                    ImGui::Text("Background inlet texture Resolution: %.0fx%.0f",static_cast<ofTexture *>(_inletParams[1])->getWidth(),static_cast<ofTexture *>(_inletParams[1])->getHeight());
-                    ImGui::PopStyleColor(1);
-                    ImGui::SameLine(); ImGuiEx::HelpMarker("Inlet texture resolutions MUST be the same!");
-                }
-            }
-
-            if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-                ImGui::Spacing();
-                ImVec4 color = ImVec4(chromaBgColor.r,chromaBgColor.g,chromaBgColor.b,1.0f);
-                if(ImGui::ColorEdit4( "Chroma BG Color", (float*)&color )){
-                    this->setCustomVar(color.x,"RED");
-                    this->setCustomVar(color.y,"GREEN");
-                    this->setCustomVar(color.z,"BLUE");
-
-                    chromaBgColor.set(color.x,color.y,color.z,1.0f);
-                    chromakey->setbgColor(chromaBgColor);
-                }
-
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("base mask strength",&baseMaskStrength,0.0f,1.0f)){
-                    this->setCustomVar(baseMaskStrength,"BASE_MASK_STRENGTH");
-                    chromakey->setbaseMaskStrength(baseMaskStrength);
-                }
-                ImGui::Spacing();
-                if(ImGui::SliderFloat("chroma mask strength",&chromaMaskStrength,0.0f,1.0f)){
-                    this->setCustomVar(chromaMaskStrength,"CHROMA_MASK_STRENGTH");
-                    chromakey->setchromaMaskStrength(chromaMaskStrength);
-                }
-                if(ImGui::SliderFloat("green spill strength",&greenSpillStrength,0.0f,1.0f)){
-                    this->setCustomVar(greenSpillStrength,"GREEN_SPILL_STRENGTH");
-                    chromakey->setgreenSpillStrength(greenSpillStrength);
-                }
-                if(ImGui::SliderFloat("chroma blur",&chromaBlur,0.0f,4096.0f)){
-                    this->setCustomVar(chromaBlur,"CHROMA_BLUR");
-                    chromakey->setblurValue(chromaBlur);
-                }
-                if(ImGui::SliderFloat("multiply filter hue",&multiplyFilterHue,0.0f,1.0f)){
-                    this->setCustomVar(multiplyFilterHue,"MULT_FILTER_HUE");
-                    chromakey->setmultiplyFilterHueOffset(multiplyFilterHue);
-                }
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Standard chromakey effect with source and background mask.",
-                        "https://mosaic.d3cod3.org/reference.php?r=chroma-key", scaleFactor);
-
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -219,6 +168,61 @@ void ChromaKey::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void ChromaKey::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
+        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() != static_cast<ofTexture *>(_inletParams[1])->getWidth() || static_cast<ofTexture *>(_inletParams[0])->getHeight() != static_cast<ofTexture *>(_inletParams[1])->getHeight()){
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,0,0,255));
+            ImGui::Text("Input inlet texture Resolution: %.0fx%.0f",static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            ImGui::Text("Background inlet texture Resolution: %.0fx%.0f",static_cast<ofTexture *>(_inletParams[1])->getWidth(),static_cast<ofTexture *>(_inletParams[1])->getHeight());
+            ImGui::PopStyleColor(1);
+            ImGui::SameLine(); ImGuiEx::HelpMarker("Inlet texture resolutions MUST be the same!");
+        }
+    }
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        ImGui::Spacing();
+        ImVec4 color = ImVec4(chromaBgColor.r,chromaBgColor.g,chromaBgColor.b,1.0f);
+        if(ImGui::ColorEdit4( "Chroma BG Color", (float*)&color )){
+            this->setCustomVar(color.x,"RED");
+            this->setCustomVar(color.y,"GREEN");
+            this->setCustomVar(color.z,"BLUE");
+
+            chromaBgColor.set(color.x,color.y,color.z,1.0f);
+            chromakey->setbgColor(chromaBgColor);
+        }
+
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("base mask strength",&baseMaskStrength,0.0f,1.0f)){
+            this->setCustomVar(baseMaskStrength,"BASE_MASK_STRENGTH");
+            chromakey->setbaseMaskStrength(baseMaskStrength);
+        }
+        ImGui::Spacing();
+        if(ImGui::SliderFloat("chroma mask strength",&chromaMaskStrength,0.0f,1.0f)){
+            this->setCustomVar(chromaMaskStrength,"CHROMA_MASK_STRENGTH");
+            chromakey->setchromaMaskStrength(chromaMaskStrength);
+        }
+        if(ImGui::SliderFloat("green spill strength",&greenSpillStrength,0.0f,1.0f)){
+            this->setCustomVar(greenSpillStrength,"GREEN_SPILL_STRENGTH");
+            chromakey->setgreenSpillStrength(greenSpillStrength);
+        }
+        if(ImGui::SliderFloat("chroma blur",&chromaBlur,0.0f,4096.0f)){
+            this->setCustomVar(chromaBlur,"CHROMA_BLUR");
+            chromakey->setblurValue(chromaBlur);
+        }
+        if(ImGui::SliderFloat("multiply filter hue",&multiplyFilterHue,0.0f,1.0f)){
+            this->setCustomVar(multiplyFilterHue,"MULT_FILTER_HUE");
+            chromakey->setmultiplyFilterHueOffset(multiplyFilterHue);
+        }
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Standard chromakey effect with source and background mask.",
+                "https://mosaic.d3cod3.org/reference.php?r=chroma-key", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -129,9 +129,7 @@ void Crossfader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "A basic linear crossfader",
-                        "https://mosaic.d3cod3.org/reference.php?r=crossfader", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -155,6 +153,13 @@ void Crossfader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Crossfader::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A basic linear crossfader",
+                "https://mosaic.d3cod3.org/reference.php?r=crossfader", scaleFactor);
 }
 
 //--------------------------------------------------------------

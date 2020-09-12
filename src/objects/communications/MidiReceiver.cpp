@@ -141,29 +141,9 @@ void MidiReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            //ImGui::Spacing();
-            //ImGui::Text("%s",midiDevicesList.at(midiDeviceID).c_str());
-
-            ImGui::Spacing();
-            if(midiDevicesList.size() > 0){
-                if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
-                    for(int i=0; i < midiDevicesList.size(); ++i){
-                        bool is_selected = (midiDeviceID == i );
-                        if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
-                            resetMIDISettings(i);
-                        }
-                        if (is_selected) ImGui::SetItemDefaultFocus();
-                    }
-                    ImGui::EndCombo();
-                }
-            }else{
-                ImGui::Text("No MIDI devices found!");
-            }
+            drawObjectNodeConfig();
 
 
-            ImGuiEx::ObjectInfo(
-                        "Receive data from a physical midi interface",
-                        "https://mosaic.d3cod3.org/reference.php?r=midi-receiver", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -186,6 +166,30 @@ void MidiReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void MidiReceiver::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(midiDevicesList.size() > 0){
+        if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
+            for(int i=0; i < midiDevicesList.size(); ++i){
+                bool is_selected = (midiDeviceID == i );
+                if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
+                    resetMIDISettings(i);
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+    }else{
+        ImGui::Text("No MIDI devices found!");
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Receive data from a physical midi interface",
+                "https://mosaic.d3cod3.org/reference.php?r=midi-receiver", scaleFactor);
 }
 
 //--------------------------------------------------------------

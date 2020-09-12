@@ -283,122 +283,7 @@ void moTimeline::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("%s - %s", timeline->getTimecode().timecodeForFrame(timeline->getCurrentFrame()).c_str(), timeline->getDurationInTimecode().c_str());
-            ImGui::Spacing();
-            ImGui::Text("%s - %s", ofToString(timeline->getCurrentFrame()).c_str(), ofToString(timeline->getDurationInFrames()).c_str());
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-            if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
-                timeline->play();
-            }
-            ImGui::SameLine();
-            if(ImGui::Button(ICON_FA_STOP,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
-                timeline->setCurrentTimeSeconds(0);
-                timeline->stop();
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-            if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
-                isPaused = !isPaused;
-                if(isPaused){
-                    timeline->stop();
-                }else{
-                    timeline->play();
-                }
-
-            }
-            ImGui::PopStyleColor(3);
-            ImGui::Spacing();
-            if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&isLoop)){
-                if(isLoop){
-                    timeline->setLoopType(OF_LOOP_NORMAL);
-                }else{
-                    timeline->setLoopType(OF_LOOP_NONE);
-                }
-            }
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            if(ImGui::Checkbox("Retina Screen",&retinaScreen)){
-                timeline->forceRetina = retinaScreen;
-            }
-            ImGui::Spacing();
-            if(ImGui::InputInt("Duration",&durationInSeconds)){
-                if(durationInSeconds < 1){
-                    durationInSeconds = 1;
-                }
-                this->setCustomVar(static_cast<float>(durationInSeconds),"DURATION");
-                timeline->setDurationInSeconds(durationInSeconds);
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Duration in seconds.");
-            ImGui::Spacing();
-            if(ImGui::InputInt("FPS",&fps)){
-                if(fps < 1){
-                    fps = 1;
-                }
-                this->setCustomVar(static_cast<float>(fps),"FPS");
-                timeline->setFrameRate(fps);
-            }
-            ImGui::Spacing();
-            if(ImGui::InputInt("BPM",&bpm)){
-                if(bpm < 1){
-                    bpm = 1;
-                }
-                this->setCustomVar(static_cast<float>(bpm),"BPM");
-                timeline->setBPM(static_cast<float>(bpm));
-            }
-            ImGui::Spacing();
-            if(ImGui::Checkbox("Toggle BPM grid",&showBPMGrid)){
-                timeline->setShowBPMGrid(showBPMGrid);
-                if(showBPMGrid){
-                    ofLog(OF_LOG_NOTICE,"Zoom IN on your timeline to make BPM Grid appear!");
-                }
-            }
-
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Spacing();
-            ImGui::Spacing();
-
-            ImGui::InputText("Track Name",&actualTrackName);
-
-            ImGui::Spacing();
-            if(ImGui::Button("ADD CURVE TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
-                addTrack(TIMELINE_CURVE_TRACK);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD BANG TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
-                addTrack(TIMELINE_BANG_TRACK);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD SWITCH TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
-                addTrack(TIMELINE_SWITCH_TRACK);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD COLOR TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
-                addTrack(TIMELINE_COLOR_TRACK);
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("ADD LFO TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
-                addTrack(TIMELINE_LFO_TRACK);
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Advanced GUI module, it allows you to visualize/ edit a timeline with different keyframes controlled tracks : curves, bangs, switches, colors, and lfo.",
-                        "https://mosaic.d3cod3.org/reference.php?r=timeline", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -433,6 +318,126 @@ void moTimeline::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.EndNodeContent();
     }
+}
+
+//--------------------------------------------------------------
+void moTimeline::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::Text("%s - %s", timeline->getTimecode().timecodeForFrame(timeline->getCurrentFrame()).c_str(), timeline->getDurationInTimecode().c_str());
+    ImGui::Spacing();
+    ImGui::Text("%s - %s", ofToString(timeline->getCurrentFrame()).c_str(), ofToString(timeline->getDurationInFrames()).c_str());
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+        timeline->play();
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+        timeline->setCurrentTimeSeconds(0);
+        timeline->stop();
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+        isPaused = !isPaused;
+        if(isPaused){
+            timeline->stop();
+        }else{
+            timeline->play();
+        }
+
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::Spacing();
+    if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&isLoop)){
+        if(isLoop){
+            timeline->setLoopType(OF_LOOP_NORMAL);
+        }else{
+            timeline->setLoopType(OF_LOOP_NONE);
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    if(ImGui::Checkbox("Retina Screen",&retinaScreen)){
+        timeline->forceRetina = retinaScreen;
+    }
+    ImGui::Spacing();
+    if(ImGui::InputInt("Duration",&durationInSeconds)){
+        if(durationInSeconds < 1){
+            durationInSeconds = 1;
+        }
+        this->setCustomVar(static_cast<float>(durationInSeconds),"DURATION");
+        timeline->setDurationInSeconds(durationInSeconds);
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Duration in seconds.");
+    ImGui::Spacing();
+    if(ImGui::InputInt("FPS",&fps)){
+        if(fps < 1){
+            fps = 1;
+        }
+        this->setCustomVar(static_cast<float>(fps),"FPS");
+        timeline->setFrameRate(fps);
+    }
+    ImGui::Spacing();
+    if(ImGui::InputInt("BPM",&bpm)){
+        if(bpm < 1){
+            bpm = 1;
+        }
+        this->setCustomVar(static_cast<float>(bpm),"BPM");
+        timeline->setBPM(static_cast<float>(bpm));
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("Toggle BPM grid",&showBPMGrid)){
+        timeline->setShowBPMGrid(showBPMGrid);
+        if(showBPMGrid){
+            ofLog(OF_LOG_NOTICE,"Zoom IN on your timeline to make BPM Grid appear!");
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    ImGui::InputText("Track Name",&actualTrackName);
+
+    ImGui::Spacing();
+    if(ImGui::Button("ADD CURVE TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_CURVE_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD BANG TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_BANG_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD SWITCH TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_SWITCH_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD COLOR TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_COLOR_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD LFO TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_LFO_TRACK);
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Advanced GUI module, it allows you to visualize/ edit a timeline with different keyframes controlled tracks : curves, bangs, switches, colors, and lfo.",
+                "https://mosaic.d3cod3.org/reference.php?r=timeline", scaleFactor);
 }
 
 //--------------------------------------------------------------

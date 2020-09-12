@@ -158,9 +158,7 @@ void pdspDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Delay with feedback damping",
-                        "https://mosaic.d3cod3.org/reference.php?r=delay", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -184,7 +182,13 @@ void pdspDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     }
 
+}
 
+//--------------------------------------------------------------
+void pdspDelay::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Delay with feedback damping",
+                "https://mosaic.d3cod3.org/reference.php?r=delay", scaleFactor);
 }
 
 //--------------------------------------------------------------

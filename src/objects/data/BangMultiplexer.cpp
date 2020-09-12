@@ -142,22 +142,8 @@ void BangMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Inlets",&floatInlets)){
-                if(floatInlets > MAX_INLETS){
-                    floatInlets = MAX_INLETS;
-                }
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
-                this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
-                needReset = true;
-            }
+            drawObjectNodeConfig();
 
-            ImGuiEx::ObjectInfo(
-                        "receive up to 32 bangs, and process them as a shared transmission medium (multiple socket)",
-                        "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -193,6 +179,26 @@ void BangMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void BangMultiplexer::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Inlets",&floatInlets)){
+        if(floatInlets > MAX_INLETS){
+            floatInlets = MAX_INLETS;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(floatInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "receive up to 32 bangs, and process them as a shared transmission medium (multiple socket)",
+                "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector", scaleFactor);
 }
 
 //--------------------------------------------------------------

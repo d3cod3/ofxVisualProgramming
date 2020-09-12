@@ -143,18 +143,7 @@ void DelayBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Delay",&wait)){
-                if(wait < 0){
-                    wait = 0;
-                }
-                this->setCustomVar(static_cast<float>(wait),"MS");
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
-
-            ImGuiEx::ObjectInfo(
-                        "Time delayed bang.",
-                        "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -177,6 +166,22 @@ void DelayBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void DelayBang::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Delay",&wait)){
+        if(wait < 0){
+            wait = 0;
+        }
+        this->setCustomVar(static_cast<float>(wait),"MS");
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
+
+    ImGuiEx::ObjectInfo(
+                "Time delayed bang.",
+                "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
 }
 
 //--------------------------------------------------------------

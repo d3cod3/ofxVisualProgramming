@@ -130,25 +130,7 @@ void LoadBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            if(ImGui::InputInt("Delay",&wait)){
-                if(wait < 0){
-                    wait = 0;
-                }
-
-            }
-            ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
-
-            ImGui::Spacing();
-            if(ImGui::Button("APPLY",ImVec2(-1,26*this->scaleFactor))){
-                this->setCustomVar(static_cast<float>(wait),"TIME");
-                loadStart = false;
-                startTime = ofGetElapsedTimeMillis();
-            }
-
-            ImGuiEx::ObjectInfo(
-                        "Automatically triggered bang on patch load, with configurable delay time.",
-                        "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -182,20 +164,27 @@ void LoadBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 }
 
 //--------------------------------------------------------------
-/*void LoadBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == timeSetting){
-            if(isInteger(e.text)){
-                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-                wait = ofToInt(e.text);
-                loadStart = false;
-                startTime = ofGetElapsedTimeMillis();
-            }else{
-                timeSetting->setText(ofToString(wait));
-            }
+void LoadBang::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Delay",&wait)){
+        if(wait < 0){
+            wait = 0;
         }
+
     }
-}*/
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
+
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(-1,26*this->scaleFactor))){
+        this->setCustomVar(static_cast<float>(wait),"TIME");
+        loadStart = false;
+        startTime = ofGetElapsedTimeMillis();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Automatically triggered bang on patch load, with configurable delay time.",
+                "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
+}
 
 OBJECT_REGISTER( LoadBang, "loadbang", OFXVP_OBJECT_CAT_LOGIC)
 

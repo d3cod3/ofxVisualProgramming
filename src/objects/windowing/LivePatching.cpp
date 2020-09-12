@@ -37,16 +37,25 @@
 //--------------------------------------------------------------
 LivePatching::LivePatching() : PatchObject("live patching"){
 
-    this->numInlets  = 1;
-    this->numOutlets = 0;
+    this->numInlets  = 2;
+    this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // texture
+    _inletParams[1] = new float();  // alpha
+    *(float *)&_inletParams[1] = 0.0f;
+
+    _outletParams[0] = new float();  // alpha
+    *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
     posX = posY = drawW = drawH = 0.0f;
 
     this->setIsTextureObj(true);
+
+    alpha   = 127.0f;
+
+    loaded  = false;
 
 }
 
@@ -55,6 +64,9 @@ void LivePatching::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_TEXTURE,"texture");
+    this->addInlet(VP_LINK_NUMERIC,"alpha");
+
+    this->setCustomVar(alpha,"ALPHA");
 }
 
 //--------------------------------------------------------------
@@ -65,6 +77,16 @@ void LivePatching::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void LivePatching::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    if(this->inletsConnected[1]){
+        alpha = ofClamp(*(float *)&_inletParams[1],0.0f,255.0f);
+    }
+
+    *(float *)&_outletParams[0] = alpha;
+
+    if(!loaded){
+        loaded = true;
+        alpha = this->getCustomVar("ALPHA");
+    }
 }
 
 //--------------------------------------------------------------
@@ -95,9 +117,7 @@ void LivePatching::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Displays real-time texture in the background patch, with alpha so you can work with the objects, for live sessions.",
-                        "https://mosaic.d3cod3.org/reference.php?r=live-patching", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -119,6 +139,19 @@ void LivePatching::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void LivePatching::drawObjectNodeConfig(){
+    ImGui::Spacing();
+
+    if(ImGui::SliderFloat("Alpha",&alpha,0.0f,255.0f)){
+        this->setCustomVar(alpha,"ALPHA");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Displays real-time texture in the background patch, with alpha so you can work with the objects, for live sessions.",
+                "https://mosaic.d3cod3.org/reference.php?r=live-patching", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -114,10 +114,6 @@ void DataToFile::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 //--------------------------------------------------------------
 void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(filepath);
-
-    exportFileFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
 
@@ -127,47 +123,8 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImGui::Text("Saving data to:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
-                exportFileFlag = true;
-            }
-            ImGui::SameLine();
-            ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
-            char tmp[256];
-            sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
-            if(ImGui::Button(tmp,ImVec2(84*scaleFactor,26*scaleFactor))){
-                if(!this->inletsConnected[0]){
-                    ofLog(OF_LOG_WARNING,"There is no data cable connected to the object inlet, connect something if you want to export it!");
-                }else if(!fileSaved){
-                    ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
-                }else{
-                    if(fileSaved && !recordData){
-                        recButtonLabel = "STOP";
-                        // start recording data to file
-                        recordData = true;
-                        ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
-                    }else if(recordData){
-                        recButtonLabel = "REC";
-                        recordData = false;
-                        ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
-                    }
-                }
-            }
-            ImGui::PopStyleColor(3);
+            drawObjectNodeConfig();
 
-            ImGuiEx::ObjectInfo(
-                        "Saves the vector data in a .txt file, line by line for each computing frame.",
-                        "https://mosaic.d3cod3.org/reference.php?r=data-to-file", scaleFactor);
 
             ImGui::EndMenu();
         }
@@ -205,6 +162,55 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         tmpFileName = file.getFileName();
         fileSaved = true;
     }
+}
+
+//--------------------------------------------------------------
+void DataToFile::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    exportFileFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Saving data to:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
+        exportFileFlag = true;
+    }
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
+    char tmp[256];
+    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    if(ImGui::Button(tmp,ImVec2(84*scaleFactor,26*scaleFactor))){
+        if(!this->inletsConnected[0]){
+            ofLog(OF_LOG_WARNING,"There is no data cable connected to the object inlet, connect something if you want to export it!");
+        }else if(!fileSaved){
+            ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
+        }else{
+            if(fileSaved && !recordData){
+                recButtonLabel = "STOP";
+                // start recording data to file
+                recordData = true;
+                ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
+            }else if(recordData){
+                recButtonLabel = "REC";
+                recordData = false;
+                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
+            }
+        }
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGuiEx::ObjectInfo(
+                "Saves the vector data in a .txt file, line by line for each computing frame.",
+                "https://mosaic.d3cod3.org/reference.php?r=data-to-file", scaleFactor);
 }
 
 //--------------------------------------------------------------

@@ -127,9 +127,7 @@ void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGuiEx::ObjectInfo(
-                        "Basic stereo panner",
-                        "https://mosaic.d3cod3.org/reference.php?r=panner", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -156,6 +154,13 @@ void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         _nodeCanvas.EndNodeContent();
     }
 
+}
+
+//--------------------------------------------------------------
+void Panner::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic stereo panner",
+                "https://mosaic.d3cod3.org/reference.php?r=panner", scaleFactor);
 }
 
 //--------------------------------------------------------------

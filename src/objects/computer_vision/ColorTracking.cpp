@@ -295,33 +295,7 @@ void ColorTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (ImGui::BeginMenu("CONFIG"))
         {
-            ImGui::Spacing();
-            ImVec4 color = ImVec4(targetColor.r,targetColor.g,targetColor.b,1.0f);
-            if(ImGui::ColorEdit4( "Target Color", (float*)&color )){
-                this->setCustomVar(color.x,"RED");
-                this->setCustomVar(color.y,"GREEN");
-                this->setCustomVar(color.z,"BLUE");
-
-                targetColor.set(color.x,color.y,color.z,1.0f);
-            }
-
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
-                this->setCustomVar(threshold,"THRESHOLD");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("min. area radius",&minAreaRadius,4.0f,99.0f)){
-                this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
-            }
-            ImGui::Spacing();
-            if(ImGui::SliderFloat("max aera radius",&maxAreaRadius,100.0f,500.0f)){
-                this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Contour tracking over selected color. Extract blobs, contours and convex hulls.",
-                        "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
+            drawObjectNodeConfig();
 
 
             ImGui::EndMenu();
@@ -345,6 +319,37 @@ void ColorTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // get imgui canvas zoom
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
+}
+
+//--------------------------------------------------------------
+void ColorTracking::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImVec4 color = ImVec4(targetColor.r,targetColor.g,targetColor.b,1.0f);
+    if(ImGui::ColorEdit4( "Target Color", (float*)&color )){
+        this->setCustomVar(color.x,"RED");
+        this->setCustomVar(color.y,"GREEN");
+        this->setCustomVar(color.z,"BLUE");
+
+        targetColor.set(color.x,color.y,color.z,1.0f);
+    }
+
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("threshold",&threshold,0.0f,255.0f)){
+        this->setCustomVar(threshold,"THRESHOLD");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("min. area radius",&minAreaRadius,4.0f,99.0f)){
+        this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("max aera radius",&maxAreaRadius,100.0f,500.0f)){
+        this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Contour tracking over selected color. Extract blobs, contours and convex hulls.",
+                "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
 }
 
 //--------------------------------------------------------------

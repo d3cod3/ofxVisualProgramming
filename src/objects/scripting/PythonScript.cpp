@@ -156,11 +156,6 @@ void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 //--------------------------------------------------------------
 void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    ofFile tempFilename(filepath);
-
-    loadPythonScriptFlag = false;
-    savePythonScriptFlag = false;
-
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
         ImGui::Separator();
@@ -170,38 +165,7 @@ void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            ImGui::Spacing();
-            ImGui::Text("Loaded File:");
-            if(filepath == "none"){
-                ImGui::Text("%s",filepath.c_str());
-            }else{
-                ImGui::Text("%s",tempFilename.getFileName().c_str());
-                if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
-                savePythonScriptFlag = true;
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
-                loadPythonScriptFlag = true;
-            }
-            ImGui::Spacing();
-            ImGui::Separator();
-            ImGui::Separator();
-            ImGui::Spacing();
-            if(ImGui::Button("Clear Script",ImVec2(180*scaleFactor,26*scaleFactor))){
-                clearScript();
-            }
-            ImGui::Spacing();
-            if(ImGui::Button("Reload Script",ImVec2(180*scaleFactor,26*scaleFactor))){
-                reloadScript();
-            }
-
-
-            ImGuiEx::ObjectInfo(
-                        "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with the default code editor on your computer.",
-                        "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }
@@ -243,6 +207,47 @@ void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         reloadScript();
     }
 
+}
+
+//--------------------------------------------------------------
+void PythonScript::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadPythonScriptFlag = false;
+    savePythonScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+        savePythonScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+        loadPythonScriptFlag = true;
+    }
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Separator();
+    ImGui::Spacing();
+    if(ImGui::Button("Clear Script",ImVec2(180*scaleFactor,26*scaleFactor))){
+        clearScript();
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Reload Script",ImVec2(180*scaleFactor,26*scaleFactor))){
+        reloadScript();
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with the default code editor on your computer.",
+                "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
 }
 
 //--------------------------------------------------------------
