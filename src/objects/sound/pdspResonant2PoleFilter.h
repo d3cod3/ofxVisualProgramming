@@ -35,6 +35,9 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "imgui_controls.h"
+
+enum Filter_Mode { Filter_Mode_LP, Filter_Mode_BP, Filter_Mode_HP, Filter_Mode_NOTCH, Filter_Mode_COUNT };
 
 class pdspResonant2PoleFilter : public PatchObject{
 
@@ -42,23 +45,21 @@ public:
 
     pdspResonant2PoleFilter();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
     void            loadAudioSettings();
-
-    void            audioInObject(ofSoundBuffer &inputBuffer);
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
-
-    
-    
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
 
     pdsp::SVFilter          filter;
@@ -68,20 +69,21 @@ public:
     pdsp::ValueControl      resonance_ctrl;
     pdsp::ValueControl      mode_ctrl;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiLabel*         filterMode;
-    ofxDatGuiMatrix*        modeSelector;
-    ofxDatGuiSlider*        pitch;
-    ofxDatGuiSlider*        cutoff;
-    ofxDatGuiSlider*        resonance;
+    vector<string>          filterModesString;
+    int                     filterMode;
+    float                   pitch;
+    float                   cutoff;
+    float                   resonance;
 
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

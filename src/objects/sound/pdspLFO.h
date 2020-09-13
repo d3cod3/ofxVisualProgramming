@@ -35,6 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "imgui_controls.h"
 
 class pdspLFO : public PatchObject{
 
@@ -42,21 +43,21 @@ public:
 
     pdspLFO();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
+
 
     void            loadAudioSettings();
-
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
-
-    
-    
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     pdsp::LFO               lfo;
@@ -65,18 +66,18 @@ public:
     pdsp::ValueControl      pitch_ctrl;
     pdsp::ValueControl      phase_ctrl;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiLabel*         oscInfo;
-    ofxDatGuiSlider*        slider;
-    ofxDatGuiSlider*        sliderPhase;
+    float                   pitch;
+    float                   phase;
 
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
 
 #endif

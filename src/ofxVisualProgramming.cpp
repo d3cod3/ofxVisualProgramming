@@ -370,8 +370,8 @@ void ofxVisualProgramming::draw(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawInspector(){
 
-    ImGui::SetNextWindowSize(ImVec2(240*scaleFactor,ofGetWindowHeight()-(26*scaleFactor)), ImGuiCond_Always );
-    ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-240*scaleFactor,26*scaleFactor), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(246*scaleFactor,ofGetWindowHeight()-(26*scaleFactor)), ImGuiCond_Always );
+    ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-246*scaleFactor,26*scaleFactor), ImGuiCond_Always);
 
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
         inspectorTitle = "Inspector | "+patchObjects[nodeCanvas.getActiveNode()]->getDisplayName()+" | id: "+ofToString(nodeCanvas.getActiveNode());

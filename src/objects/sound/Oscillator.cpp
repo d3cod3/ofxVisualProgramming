@@ -359,6 +359,11 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void Oscillator::drawObjectNodeConfig(){
+
+    ImGui::Spacing();
+    ImGui::Text("%.2f Hz", pdsp::PitchToFreq::eval(pitch_float+detune_float+fine_float));
+    ImGui::Spacing();
+
     ImGuiEx::ObjectInfo(
                 "Oscillator with antialiased waveforms",
                 "https://mosaic.d3cod3.org/reference.php?r=oscillator", scaleFactor);

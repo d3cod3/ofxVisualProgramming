@@ -35,7 +35,7 @@
 #include "pdspLFO.h"
 
 //--------------------------------------------------------------
-pdspLFO::pdspLFO() : PatchObject(){
+pdspLFO::pdspLFO() : PatchObject("lfo"){
 
     this->numInlets  = 3;
     this->numOutlets = 5;
@@ -55,55 +55,39 @@ pdspLFO::pdspLFO() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    pitch                   = 0.5f;
+    phase                   = 0.0f;
+
     loaded                  = false;
+
+    this->width             *= 1.3;
 
 }
 
 //--------------------------------------------------------------
 void pdspLFO::newObject(){
     PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"frequency");
     this->addInlet(VP_LINK_NUMERIC,"phase");
+
     this->addOutlet(VP_LINK_AUDIO,"triangle");
     this->addOutlet(VP_LINK_AUDIO,"sine");
     this->addOutlet(VP_LINK_AUDIO,"saw");
     this->addOutlet(VP_LINK_AUDIO,"square");
     this->addOutlet(VP_LINK_AUDIO,"random");
 
-    this->setCustomVar(0.5f,"FREQUENCY");
-    this->setCustomVar(0.0f,"PHASE");
+    this->setCustomVar(pitch,"FREQUENCY");
+    this->setCustomVar(phase,"PHASE");
 }
 
 //--------------------------------------------------------------
 void pdspLFO::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspLFO::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    oscInfo = gui->addLabel("0 Hz");
-    gui->addBreak();
-    slider = gui->addSlider("Freq",0,5,this->getCustomVar("FREQUENCY"));
-    slider->setUseCustomMouse(true);
-    sliderPhase = gui->addSlider("Phase",-1.0f,1.0f,this->getCustomVar("PHASE"));
-    sliderPhase->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
@@ -138,11 +122,6 @@ void pdspLFO::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    slider->update();
-    sliderPhase->update();
-
     // retrig
     if(this->inletsConnected[0]){
         retrig_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
@@ -152,24 +131,22 @@ void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
     // frequency
     if(this->inletsConnected[1]){
-        pitch_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0f,5.0f));
-        slider->setValue(pitch_ctrl.get());
-        oscInfo->setLabel(ofToString(ofClamp(*(float *)&_inletParams[1],0.0f,5.0f)) + " Hz");
+        pitch = ofClamp(*(float *)&_inletParams[1],0.0f,10.0f);
+        pitch_ctrl.set(pitch);
     }
 
     // phase
     if(this->inletsConnected[2]){
-        phase_ctrl.set(ofClamp(*(float *)&_inletParams[2],-1.0f,1.0f));
-        sliderPhase->setValue(phase_ctrl.get());
+        phase = ofClamp(*(float *)&_inletParams[2],-1.0f,1.0f);
+        phase_ctrl.set(phase);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("FREQUENCY"));
-        oscInfo->setLabel(ofToString(ofClamp(this->getCustomVar("FREQUENCY"),0.0f,5.0f)) + " Hz");
-        sliderPhase->setValue(this->getCustomVar("PHASE"));
-        pitch_ctrl.set(ofClamp(slider->getValue(),0.0f,5.0f));
-        phase_ctrl.set(ofClamp(sliderPhase->getValue(),-1.0,1.0));
+        pitch = ofClamp(this->getCustomVar("FREQUENCY"),0.0f,10.0f);
+        phase = ofClamp(this->getCustomVar("PHASE"),-1.0,1.0);
+        pitch_ctrl.set(pitch);
+        phase_ctrl.set(phase);
     }
 
 }
@@ -177,6 +154,54 @@ void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 //--------------------------------------------------------------
 void pdspLFO::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
+}
+
+//--------------------------------------------------------------
+void pdspLFO::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/6.5f, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 10.0f, 1000.0f)){
+            pitch_ctrl.set(pitch);
+            this->setCustomVar(pitch,"FREQUENCY");
+
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(32*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/6.5f, IM_COL32(255,255,120,255), "phase", &phase, -1.0f, 1.0f, 200.0f)){
+            phase_ctrl.set(phase);
+            this->setCustomVar(phase,"PHASE");
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspLFO::drawObjectNodeConfig(){
+
+    ImGui::Spacing();
+    ImGui::Text("%.3f Hz",pitch);
+    ImGui::Spacing();
+
+    ImGuiEx::ObjectInfo(
+                "Low Frequency Oscillator",
+                "https://mosaic.d3cod3.org/reference.php?r=lfo", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -210,20 +235,7 @@ void pdspLFO::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[4])->copyFrom(scope_random.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspLFO::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == slider){
-            this->setCustomVar(static_cast<float>(e.value),"FREQUENCY");
-            pitch_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,5.0f));
-            oscInfo->setLabel(ofToString(ofClamp(static_cast<float>(e.value),0.0f,5.0f)) + " Hz");
-        }else if(e.target == sliderPhase){
-            this->setCustomVar(static_cast<float>(e.value),"PHASE");
-            phase_ctrl.set(ofClamp(static_cast<float>(e.value),-1.0f,1.0f));
-        }
-    }
 
-}
 
 OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND)
 
