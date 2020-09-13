@@ -164,7 +164,7 @@ void FileToData::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(224*scaleFactor,26*scaleFactor))){
         openFileFlag = true;
     }
 

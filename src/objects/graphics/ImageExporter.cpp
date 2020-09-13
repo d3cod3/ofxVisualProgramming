@@ -174,14 +174,14 @@ void ImageExporter::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(108*scaleFactor,26*scaleFactor))){
         saveImgFlag = true;
     }
     ImGui::SameLine();
     ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
-    if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(84*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
             ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
         }else if(lastImageFile == ""){

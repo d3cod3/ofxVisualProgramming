@@ -315,7 +315,7 @@ void SoundfilePlayer::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
         ImGuiEx::drawTimecode(ImGui::GetForegroundDrawList(),static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
     }
-    if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(224*scaleFactor,26*scaleFactor))){
         loadSoundfileFlag = true;
     }
 
@@ -326,14 +326,14 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-    if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = true;
         playhead = 0.0;
         audioWasPlaying = true;
         finishSemaphore = true;
     }
     ImGui::SameLine();
-    if(ImGui::Button(ICON_FA_STOP,ImVec2(56*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = false;
         playhead = 0.0;
         audioWasPlaying = false;
@@ -343,7 +343,7 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = !isPlaying;
     }
     ImGui::PopStyleColor(3);

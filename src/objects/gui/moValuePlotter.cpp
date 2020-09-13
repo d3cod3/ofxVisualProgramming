@@ -176,7 +176,7 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void moValuePlotter::drawObjectNodeConfig(){
     ImGui::Spacing();
-    ImGui::PushItemWidth(180*scaleFactor);
+    ImGui::PushItemWidth(224*scaleFactor);
     if(ImGui::InputText("Label",&name)){
         saveVariableName();
     }

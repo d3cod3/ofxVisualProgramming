@@ -207,7 +207,7 @@ void AudioExporter::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(84*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(108*scaleFactor,26*scaleFactor))){
         exportAudioFlag = true;
     }
     ImGui::SameLine();
@@ -216,7 +216,7 @@ void AudioExporter::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
     char tmp[256];
     sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
-    if(ImGui::Button(tmp,ImVec2(84*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
             ofLog(OF_LOG_WARNING,"There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!");
         }else if(filepath == "none"){

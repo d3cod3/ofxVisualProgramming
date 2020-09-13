@@ -142,7 +142,7 @@ void Smooth::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void Smooth::drawObjectNodeConfig(){
     ImGui::Spacing();
-    ImGui::PushItemWidth(180*scaleFactor);
+    ImGui::PushItemWidth(224*scaleFactor);
     if(ImGui::SliderFloat("Smoothing",&smoothing,0.0f,1.0f)){
         this->setCustomVar(smoothing,"SMOOTHING");
     }

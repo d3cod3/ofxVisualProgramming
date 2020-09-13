@@ -225,22 +225,22 @@ void PythonScript::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         savePythonScriptFlag = true;
     }
     ImGui::Spacing();
-    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadPythonScriptFlag = true;
     }
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Separator();
     ImGui::Spacing();
-    if(ImGui::Button("Clear Script",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Clear Script",ImVec2(224*scaleFactor,26*scaleFactor))){
         clearScript();
     }
     ImGui::Spacing();
-    if(ImGui::Button("Reload Script",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Reload Script",ImVec2(224*scaleFactor,26*scaleFactor))){
         reloadScript();
     }
 

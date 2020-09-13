@@ -296,15 +296,15 @@ void PDPatch::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::Spacing();
 
-    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         savePatchFlag = true;
     }
     ImGui::Spacing();
-    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadPatchFlag = true;
     }
     ImGui::Spacing();
-    if(ImGui::Button("Set Externals Path",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Set Externals Path",ImVec2(224*scaleFactor,26*scaleFactor))){
         setExternalFlag = true;
     }
 

@@ -253,7 +253,7 @@ void HaarTracking::drawObjectNodeConfig(){
         ImGui::Text("%s",tempFilename.getFileName().c_str());
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
-    if(ImGui::Button("OPEN",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("OPEN",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadHaarConfigFlag = true;
     }
 

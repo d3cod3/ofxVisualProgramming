@@ -384,11 +384,11 @@ void ShaderObject::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::Spacing();
     ImGui::Spacing();
-    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveShaderScriptFlag = true;
     }
     ImGui::Spacing();
-    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadShaderScriptFlag = true;
     }
 
@@ -400,7 +400,7 @@ void ShaderObject::drawObjectNodeConfig(){
         ImGui::Spacing();
         ImGui::Spacing();
 
-        ImGui::PushItemWidth(180*scaleFactor);
+        ImGui::PushItemWidth(224*scaleFactor);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
         ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));

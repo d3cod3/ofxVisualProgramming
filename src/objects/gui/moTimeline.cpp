@@ -332,11 +332,11 @@ void moTimeline::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-    if(ImGui::Button(ICON_FA_PLAY,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
         timeline->play();
     }
     ImGui::SameLine();
-    if(ImGui::Button(ICON_FA_STOP,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
         timeline->setCurrentTimeSeconds(0);
         timeline->stop();
     }
@@ -345,7 +345,7 @@ void moTimeline::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(56*this->scaleFactor,26*this->scaleFactor))){
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
         isPaused = !isPaused;
         if(isPaused){
             timeline->stop();

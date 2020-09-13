@@ -185,7 +185,7 @@ void ImageLoader::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::Text("Resolution: %s",imgRes.c_str());
     ImGui::Spacing();
-    if(ImGui::Button(ICON_FA_FILE,ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(224*scaleFactor,26*scaleFactor))){
         loadImgFlag = true;
     }
 

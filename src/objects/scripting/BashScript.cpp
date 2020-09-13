@@ -204,11 +204,11 @@ void BashScript::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    if(ImGui::Button("New",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveScriptFlag = true;
     }
     ImGui::Spacing();
-    if(ImGui::Button("Open",ImVec2(180*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadScriptFlag = true;
     }
 
