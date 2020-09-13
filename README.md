@@ -80,6 +80,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
 
+#### [ofxImGui](https://github.com/d3cod3/ofxImGui)
+
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
 
 #### [ofxLua](https://github.com/d3cod3/ofxLua)
