@@ -26,7 +26,7 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
-        ADDON_DEPENDENCIES += ofxDatGui ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
+        ADDON_DEPENDENCIES += ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
         ADDON_DEPENDENCIES += ofxImGui
 

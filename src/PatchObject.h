@@ -37,7 +37,6 @@
 #include "utils.h"
 
 #include "ofxFontStash.h"
-#include "ofxDatGui.h"
 #include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
 
