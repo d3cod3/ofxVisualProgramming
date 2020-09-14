@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "BangToFloat.h"
 
 //--------------------------------------------------------------
-BangToFloat::BangToFloat() : PatchObject(){
+BangToFloat::BangToFloat() : PatchObject("bang to float"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -49,46 +51,33 @@ BangToFloat::BangToFloat() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     number              = 0.0f;
     bang                = false;
     loaded              = false;
+
+    this->height        *= 0.5f;
 
 }
 
 //--------------------------------------------------------------
 void BangToFloat::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
+
     this->addOutlet(VP_LINK_NUMERIC,"number");
 
-    this->setCustomVar(0,"NUMBER");
+    this->setCustomVar(number,"NUMBER");
 }
 
 //--------------------------------------------------------------
-void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onTextInputEvent(this, &BangToFloat::onTextInputEvent);
+void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){    
 
-    numberBox = gui->addTextInput("","0");
-    numberBox->setUseCustomMouse(true);
-    numberBox->setText(ofToString(this->getCustomVar("NUMBER")));
-
-    number = this->getCustomVar("NUMBER");
-
-    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
-void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-    gui->update();
-    numberBox->update();
+void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -100,20 +89,19 @@ void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
     if(this->inletsConnected[1]){
       number = *(float *)&_inletParams[1];
-      numberBox->setText(ofToString(number));
     }
 
     if(bang && this->inletsConnected[1]){
         *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
     }else if(bang && !this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = static_cast<float>(ofToFloat(numberBox->getText()));
+        *(float *)&_outletParams[0] = number;
     }else{
         *(float *)&_outletParams[0] = 0.0f;
     }
 
     if(!loaded){
         loaded = true;
-        numberBox->setText(ofToString(this->getCustomVar("NUMBER")));
+        number = this->getCustomVar("NUMBER");
     }
 
 }
@@ -121,9 +109,51 @@ void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 //--------------------------------------------------------------
 void BangToFloat::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        if(ImGui::DragFloat("", &number,0.1f)){
+            this->setCustomVar(number,"NUMBER");
+        }
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void BangToFloat::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "This object only sends the configured numerical value after receiving a bang",
+                "https://mosaic.d3cod3.org/reference.php?r=bang-to-float", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -131,46 +161,7 @@ void BangToFloat::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void BangToFloat::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    numberBox->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = numberBox->hitTest(_m-this->getPos());
-
-}
-
-//--------------------------------------------------------------
-void BangToFloat::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        numberBox->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void BangToFloat::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == numberBox){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"NUMBER");
-            number = ofToFloat(e.text);
-        }
-
-    }
-}
-
 
 OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA)
+
+#endif

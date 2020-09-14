@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moVUMeter.h"
 
 //--------------------------------------------------------------
-moVUMeter::moVUMeter() : PatchObject(){
+moVUMeter::moVUMeter() : PatchObject("vu meter"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -45,16 +47,16 @@ moVUMeter::moVUMeter() : PatchObject(){
 
     this->initInletsState();
 
-    this->isBigGuiViewer    = true;
-    this->width             /= 4;
+    this->height            /= 2;
 
-    RMS                     = 0;
+    RMS                     = 0.0f;
 
 }
 
 //--------------------------------------------------------------
 void moVUMeter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addOutlet(VP_LINK_NUMERIC,"RMS");
 }
@@ -65,7 +67,7 @@ void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
 
@@ -78,21 +80,43 @@ void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void moVUMeter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0]){
-        int numRect = static_cast<int>(floor(ofClamp(ofMap(RMS,0.0,1.0,0,14),0,14)));
-        for(int i=0;i<numRect;i++){
-            if(i < 10){
-                ofSetColor(64,255,1);
-            }else if(i >= 10 && i < 12){
-                ofSetColor(255,254,65);
-            }else if(i >= 12 && i < 14){
-                ofSetColor(255,64,1);
-            }
-            ofDrawRectangle(2,this->height - ((i+1)*(this->height-this->headerHeight)/14),this->width - 4,(this->height-this->headerHeight)/16);
+
+}
+
+//--------------------------------------------------------------
+void moVUMeter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - (26*scaleFactor), RMS);
+
+        _nodeCanvas.EndNodeContent();
+    }
+}
+
+//--------------------------------------------------------------
+void moVUMeter::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Simple VUMeter, shows the audio signal level.",
+                "https://mosaic.d3cod3.org/reference.php?r=vu-meter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -101,3 +125,5 @@ void moVUMeter::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI)
+
+#endif

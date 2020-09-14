@@ -30,13 +30,15 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspReverb.h"
 
 //--------------------------------------------------------------
-pdspReverb::pdspReverb() : PatchObject(){
+pdspReverb::pdspReverb() : PatchObject("reverb"){
 
     this->numInlets  = 6;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new ofSoundBuffer();  // audio input
 
@@ -51,145 +53,121 @@ pdspReverb::pdspReverb() : PatchObject(){
     _inletParams[5] = new float();          // mosAmount
     *(float *)&_inletParams[5] = 0.0f;
 
-    _outletParams[0] = new ofSoundBuffer(); // audio output
+    _outletParams[0] = new ofSoundBuffer(); // audio output L
+    _outletParams[1] = new ofSoundBuffer(); // audio output R
 
     this->initInletsState();
-
-    isGUIObject             = true;
-    this->isOverGUI         = true;
 
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    time                    = 0.0f;
+    density                 = 0.5f;
+    damping                 = 0.5f;
+    modSpeed                = 0.2f;
+    modAmount               = 0.8f;
+
     loaded                  = false;
+
+    this->width *= 2.2f;
 
 }
 
 //--------------------------------------------------------------
 void pdspReverb::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"density");
     this->addInlet(VP_LINK_NUMERIC,"damping");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"amount");
-    this->addOutlet(VP_LINK_AUDIO,"reverbSignal");
 
-    this->setCustomVar(static_cast<float>(0),"TIME");
-    this->setCustomVar(static_cast<float>(0.5),"DENSITY");
-    this->setCustomVar(static_cast<float>(0.5),"DAMPING");
-    this->setCustomVar(static_cast<float>(0.2),"MODSPEED");
-    this->setCustomVar(static_cast<float>(0.8),"MODAMOUNT");
+    this->addOutlet(VP_LINK_AUDIO,"reverbSignal L");
+    this->addOutlet(VP_LINK_AUDIO,"reverbSignal R");
+
+    this->setCustomVar(time,"TIME");
+    this->setCustomVar(density,"DENSITY");
+    this->setCustomVar(damping,"DAMPING");
+    this->setCustomVar(modSpeed,"MODSPEED");
+    this->setCustomVar(modAmount,"MODAMOUNT");
 }
 
 //--------------------------------------------------------------
 void pdspReverb::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspReverb::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    time = gui->addSlider("Time", 0,60,0.0);
-    time->setUseCustomMouse(true);
-    density = gui->addSlider("Density", 0,1,0.5);
-    density->setUseCustomMouse(true);
-    damping = gui->addSlider("Damping", 0,2,0.5);
-    damping->setUseCustomMouse(true);
-    modSpeed = gui->addSlider("Speed", 0,20,0.5);
-    modSpeed->setUseCustomMouse(true);
-    modAmount = gui->addSlider("Amount", 0,2,0.5);
-    modAmount->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void pdspReverb::setupAudioOutObjectContent(pdsp::Engine &engine){
 
     time_ctrl >> reverb.in_time();
-    time_ctrl.set(0.0f);
+    time_ctrl.set(time);
     time_ctrl.enableSmoothing(50.0f);
 
     density_ctrl >> reverb.in_density();
-    density_ctrl.set(0.5f);
+    density_ctrl.set(density);
     density_ctrl.enableSmoothing(50.0f);
 
     damping_ctrl >> reverb.in_damping();
-    damping_ctrl.set(0.5f);
+    damping_ctrl.set(damping);
     damping_ctrl.enableSmoothing(50.0f);
 
     modSpeed_ctrl >> reverb.in_mod_freq();
-    modSpeed_ctrl.set(0.5f);
+    modSpeed_ctrl.set(modSpeed);
     modSpeed_ctrl.enableSmoothing(50.0f);
 
     modAmount_ctrl >> reverb.in_mod_amount();
-    modAmount_ctrl.set(0.5f);
+    modAmount_ctrl.set(modAmount);
     modAmount_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> reverb.in_signal();
 
     reverb.ch(0) >> this->pdspOut[0];
-    reverb.ch(0) >> scope >> engine.blackhole();
+    reverb.ch(1) >> this->pdspOut[1];
+    reverb.ch(0) >> scopeL >> engine.blackhole();
+    reverb.ch(1) >> scopeR >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
-void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    time->update();
-    density->update();
-    damping->update();
-    modSpeed->update();
-    modAmount->update();
+void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        time_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0f,60.0f));
-        time->setValue(time_ctrl.get());
+        time = ofClamp(*(float *)&_inletParams[1],0.0f,60.0f);
     }
 
     if(this->inletsConnected[2]){
-        density_ctrl.set(ofClamp(*(float *)&_inletParams[2],0.0f,1.0f));
-        density->setValue(density_ctrl.get());
+        density = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
     }
 
     if(this->inletsConnected[3]){
-        damping_ctrl.set(ofClamp(*(float *)&_inletParams[3],0.0f,2.0f));
-        damping->setValue(damping_ctrl.get());
+        damping = ofClamp(*(float *)&_inletParams[3],0.0f,2.0f);
     }
 
     if(this->inletsConnected[4]){
-        modSpeed_ctrl.set(ofClamp(*(float *)&_inletParams[4],0.0f,20.0f));
-        modSpeed->setValue(modSpeed_ctrl.get());
+        modSpeed = ofClamp(*(float *)&_inletParams[4],0.0f,20.0f);
     }
 
     if(this->inletsConnected[5]){
-        modAmount_ctrl.set(ofClamp(*(float *)&_inletParams[5],0.0f,2.0f));
-        modAmount->setValue(modAmount_ctrl.get());
+        modAmount = ofClamp(*(float *)&_inletParams[5],0.0f,2.0f);
     }
+
+    time_ctrl.set(time);
+    density_ctrl.set(density);
+    damping_ctrl.set(damping);
+    modSpeed_ctrl.set(modSpeed);
+    modAmount_ctrl.set(modAmount);
 
     if(!loaded){
         loaded = true;
-        time->setValue(this->getCustomVar("TIME"));
-        time_ctrl.set(ofClamp(time->getValue(),0.0f,60.0f));
-        density->setValue(this->getCustomVar("DENSITY"));
-        density_ctrl.set(ofClamp(density->getValue(),0.0f,1.0f));
-        damping->setValue(this->getCustomVar("DAMPING"));
-        damping_ctrl.set(ofClamp(damping->getValue(),0.0f,2.0f));
-        modSpeed->setValue(this->getCustomVar("MODSPEED"));
-        modSpeed_ctrl.set(ofClamp(modSpeed->getValue(),0.0f,20.0f));
-        modAmount->setValue(this->getCustomVar("MODAMOUNT"));
-        modAmount_ctrl.set(ofClamp(modAmount->getValue(),0.0f,2.0f));
+        time = ofClamp(this->getCustomVar("TIME"),0.0f,60.0f);
+        density = ofClamp(this->getCustomVar("DENSITY"),0.0f,1.0f);
+        damping = ofClamp(this->getCustomVar("DAMPING"),0.0f,2.0f);
+        modSpeed = ofClamp(this->getCustomVar("MODSPEED"),0.0f,20.0f);
+        modAmount = ofClamp(this->getCustomVar("MODAMOUNT"),0.0f,2.0f);
     }
 
 }
@@ -197,9 +175,59 @@ void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void pdspReverb::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "TIME", &time, 0.0f, 60.0f, 2000.0f)){
+            this->setCustomVar(time,"TIME");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "DENSITY", &density, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(density,"DENSITY");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "DAMPING", &damping, 0.0f, 2.0f, 200.0f)){
+            this->setCustomVar(damping,"DAMPING");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "SPEED", &modSpeed, 0.0f, 20.0f, 1000.0f)){
+            this->setCustomVar(modSpeed,"MODSPEED");
+        }
+        ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "AMOUNT", &modAmount, 0.0f, 2.0f, 200.0f)){
+            this->setCustomVar(modAmount,"MODAMOUNT");
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspReverb::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Dubby metallic reverb with mono input and stereo output",
+                "https://mosaic.d3cod3.org/reference.php?r=reverb", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -232,73 +260,11 @@ void pdspReverb::audioInObject(ofSoundBuffer &inputBuffer){
 
 //--------------------------------------------------------------
 void pdspReverb::audioOutObject(ofSoundBuffer &outputBuffer){
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspReverb::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    time->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    density->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    damping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    modSpeed->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    modAmount->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || damping->hitTest(_m-this->getPos()) || density->hitTest(_m-this->getPos()) || time->hitTest(_m-this->getPos())
-                                                             || modSpeed->hitTest(_m-this->getPos()) || modAmount->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void pdspReverb::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        time->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        density->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        damping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        modSpeed->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        modAmount->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspReverb::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(e.target == time){
-        this->setCustomVar(static_cast<float>(e.value),"TIME");
-        time_ctrl.set(static_cast<float>(e.value));
-    }else if(e.target == density){
-        this->setCustomVar(static_cast<float>(e.value),"DENSITY");
-        density_ctrl.set(static_cast<float>(e.value));
-    }else if(e.target == damping){
-        this->setCustomVar(static_cast<float>(e.value),"DAMPING");
-        damping_ctrl.set(static_cast<float>(e.value));
-    }else if(e.target == modSpeed){
-        this->setCustomVar(static_cast<float>(e.value),"MODSPEED");
-        modSpeed_ctrl.set(static_cast<float>(e.value));
-    }else if(e.target == modAmount){
-        this->setCustomVar(static_cast<float>(e.value),"MODAMOUNT");
-        modAmount_ctrl.set(static_cast<float>(e.value));
-    }
-    
-}
 
 OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

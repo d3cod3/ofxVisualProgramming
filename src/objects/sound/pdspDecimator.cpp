@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspDecimator.h"
 
 //--------------------------------------------------------------
-pdspDecimator::pdspDecimator() : PatchObject(){
+pdspDecimator::pdspDecimator() : PatchObject("decimator"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -46,12 +48,11 @@ pdspDecimator::pdspDecimator() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
+
+    freq                    = 800.0f;
 
     loaded                  = false;
 
@@ -59,39 +60,25 @@ pdspDecimator::pdspDecimator() : PatchObject(){
 
 //--------------------------------------------------------------
 void pdspDecimator::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"freq");
+
     this->addOutlet(VP_LINK_AUDIO,"decimatedSignal");
 
-    this->setCustomVar(0.4f,"FREQUENCY");
+    this->setCustomVar(freq,"FREQUENCY");
 }
 
 //--------------------------------------------------------------
 void pdspDecimator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspDecimator::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("freq", 0.0f,1.0f,0.4f);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
     freq_ctrl >> decimator.in_freq();
-    freq_ctrl.set(0.0f);
+    freq_ctrl.set(freq);
     freq_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> decimator >> this->pdspOut[0];
@@ -99,43 +86,73 @@ void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    slider->update();
-
-    waveform.clear();
-    for(size_t i = 0; i < scope.getBuffer().size(); i++) {
-        float sample = scope.getBuffer().at(i);
-        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
-    }
+void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        freq_ctrl.set(ofMap(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f),0.0f,1.0f,2.0f,1600.0f,true));
-        slider->setValue(freq_ctrl.get());
+        freq = ofClamp(*(float *)&_inletParams[1],2.0f,1600.0f);
+        freq_ctrl.set(freq);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("FREQUENCY"));
-        freq_ctrl.set(ofMap(ofClamp(slider->getValue(),0.0f,1.0f),0.0f,1.0f,2.0f,1600.0f,true));
+        freq = ofClamp(this->getCustomVar("FREQUENCY"),2.0f,1600.0f);
+        freq_ctrl.set(freq);
     }
 
 }
 
 //--------------------------------------------------------------
 void pdspDecimator::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(0);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    waveform.draw();
     ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void pdspDecimator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
+        if(ImGui::SliderFloat("",&freq,2.0f,1600.0f)){
+            freq_ctrl.set(freq);
+            this->setCustomVar(freq,"FREQUENCY");
+        }
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspDecimator::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Sample Rate Decimator, reduce the sample rate of the input signal",
+                "https://mosaic.d3cod3.org/reference.php?r=decimator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -172,45 +189,7 @@ void pdspDecimator::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspDecimator::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
-
-//--------------------------------------------------------------
-void pdspDecimator::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspDecimator::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"GAIN");
-    freq_ctrl.set(ofMap(ofClamp(static_cast<float>(e.value),0.0f,1.0f),0.0f,1.0f,2.0f,1600.0f,true));
-}
 
 OBJECT_REGISTER( pdspDecimator, "decimator", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

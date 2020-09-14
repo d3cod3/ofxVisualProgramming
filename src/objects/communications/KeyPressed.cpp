@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "KeyPressed.h"
 
 //--------------------------------------------------------------
-KeyPressed::KeyPressed() : PatchObject(){
+KeyPressed::KeyPressed() : PatchObject("key pressed"){
 
     this->numInlets  = 0;
     this->numOutlets = 1;
@@ -43,45 +45,31 @@ KeyPressed::KeyPressed() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
+    requiredKey         = -1;
     lastKey             = -1;
     persistentKey       = -1;
+
+    loaded              = false;
 
 }
 
 //--------------------------------------------------------------
 void KeyPressed::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
-    this->setCustomVar(static_cast<float>(lastKey),"KEY");
+    this->setCustomVar(static_cast<float>(requiredKey),"KEY");
 }
 
 //--------------------------------------------------------------
 void KeyPressed::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &KeyPressed::onTextInputEvent);
-
-    inputNumber = gui->addTextInput("KEY","-1");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("KEY")));
-
-    gui->setPosition(0,this->headerHeight);
-
     ofAddListener(mainWindow->events().keyPressed,this,&KeyPressed::objectKeyPressed);
 }
 
 //--------------------------------------------------------------
-void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    inputNumber->update();
+void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(lastKey == static_cast<int>(floor(this->getCustomVar("KEY"))) && lastKey != -1){
         lastKey = -1;
@@ -90,15 +78,60 @@ void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         *(float *)&_outletParams[0] = 0.0f;
     }
 
+    if(!loaded){
+        loaded = true;
+        requiredKey = static_cast<int>(this->getCustomVar("KEY"));
+    }
+
 }
 
 //--------------------------------------------------------------
 void KeyPressed::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw("Last Key: "+ofToString(persistentKey),this->fontSize,this->width/3,this->height/2);
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void KeyPressed::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - 40)); // Padding top
+
+        if(ImGui::InputInt("KEY",&requiredKey)){
+            this->setCustomVar(static_cast<float>(requiredKey),"KEY");
+        }
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Text("Last Key: %i",persistentKey);
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void KeyPressed::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "sends a bang when the selected key has been pressed. To know the key ascii code, press it and the number appears next to Last Key:",
+                "https://mosaic.d3cod3.org/reference.php?r=key-pressed", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -107,48 +140,12 @@ void KeyPressed::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void KeyPressed::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void KeyPressed::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void KeyPressed::objectKeyPressed(ofKeyEventArgs &e){
     lastKey         = e.key;
     persistentKey   = e.key;
 }
 
-//--------------------------------------------------------------
-void KeyPressed::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"KEY");
-        }
-
-    }
-}
 
 OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+
+#endif

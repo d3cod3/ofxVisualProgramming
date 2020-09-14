@@ -63,12 +63,12 @@
 #define OBJECT_WIDTH            OBJECT_STANDARD_WIDTH
 #define OBJECT_HEIGHT           OBJECT_STANDARD_HEIGHT
 #define HEADER_HEIGHT           16
-#define MAX_INLETS              24
-#define MAX_OUTLETS             24
+#define MAX_INLETS              32
+#define MAX_OUTLETS             32
 
 #define COLOR_NUMERIC_LINK      ofColor(210,210,210,255)
 #define COLOR_STRING_LINK       ofColor(200,180,255,255)
-#define COLOR_ARRAY_LINK        ofColor(120,255,120,255)
+#define COLOR_ARRAY_LINK        ofColor(120,180,120,255)
 #define COLOR_PIXELS_LINK       ofColor(0,180,140,255)
 #define COLOR_TEXTURE_LINK      ofColor(120,255,255,255)
 #define COLOR_AUDIO_LINK        ofColor(255,255,120,255)
@@ -76,11 +76,12 @@
 
 #define COLOR_NUMERIC           ofColor(210,210,210,255)
 #define COLOR_STRING            ofColor(200,180,255,255)
-#define COLOR_ARRAY             ofColor(120,255,120,255)
+#define COLOR_ARRAY             ofColor(120,180,120,255)
 #define COLOR_PIXELS            ofColor(0,180,140,255)
 #define COLOR_TEXTURE           ofColor(120,255,255,255)
 #define COLOR_AUDIO             ofColor(255,255,120,255)
 #define COLOR_SCRIPT            ofColor(255,128,128,255)
+#define COLOR_UNKNOWN           ofColor(255,126,000,255)
 
 #define MAIN_FONT               "ofxbraitsch/fonts/Verdana.ttf"
 #define LIVECODING_FONT         "fonts/IBMPlexMono-Medium.ttf"
@@ -105,5 +106,20 @@
 #define OFXVP_OBJECT_CAT_MATH           "math"
 #define OFXVP_OBJECT_CAT_SCRIPTING      "scripting"
 #define OFXVP_OBJECT_CAT_SOUND          "sound"
+#define OFXVP_OBJECT_CAT_TEXTURE        "texture"
 #define OFXVP_OBJECT_CAT_VIDEO          "video"
 #define OFXVP_OBJECT_CAT_WINDOWING      "windowing"
+
+// ImGui colors
+#define VHS_DGRAY       ImVec4(58/255.0f,58/255.0f,58/255.0f,1.0f)
+#define VHS_DGRAY_OVER  ImVec4(58/255.0f,58/255.0f,58/255.0f,0.7f)
+#define VHS_GRAY        ImVec4(82/255.0f,99/255.0f,106/255.0f,1.0f)
+#define VHS_GRAY_OVER   ImVec4(82/255.0f,99/255.0f,106/255.0f,0.7f)
+#define VHS_LGRAY       ImVec4(121/255.0f,135/255.0f,140/255.0f,1.0f)
+#define VHS_LGRAY_OVER  ImVec4(121/255.0f,135/255.0f,140/255.0f,0.7f)
+#define VHS_RED         ImVec4(182/255.0f,30/255.0f,41/255.0f,1.0f)
+#define VHS_RED_OVER    ImVec4(182/255.0f,30/255.0f,41/255.0f,0.7f)
+#define VHS_BLUE        ImVec4(35/255.0f,81/255.0f,140/255.0f,1.0f)
+#define VHS_BLUE_OVER   ImVec4(35/255.0f,81/255.0f,140/255.0f,0.7f)
+#define VHS_YELLOW      ImVec4(190/255.0f,134/255.0f,60/255.0f,1.0f)
+#define VHS_YELLOW_OVER ImVec4(190/255.0f,134/255.0f,60/255.0f,0.7f)

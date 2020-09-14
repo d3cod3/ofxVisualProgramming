@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Panner.h"
 
 //--------------------------------------------------------------
-Panner::Panner() : PatchObject(){
+Panner::Panner() : PatchObject("panner"){
 
     this->numInlets  = 2;
     this->numOutlets = 2;
@@ -47,12 +49,11 @@ Panner::Panner() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
+
+    pan                     = 0.0f;
 
     loaded                  = false;
 
@@ -60,34 +61,20 @@ Panner::Panner() : PatchObject(){
 
 //--------------------------------------------------------------
 void Panner::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pan");
+
     this->addOutlet(VP_LINK_AUDIO,"left");
     this->addOutlet(VP_LINK_AUDIO,"right");
 
-    this->setCustomVar(static_cast<float>(0),"PAN");
+    this->setCustomVar(pan,"PAN");
 }
 
 //--------------------------------------------------------------
 void Panner::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &Panner::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("Pan", -1,1,0);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
@@ -107,21 +94,17 @@ void Panner::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    slider->update();
+void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        pan_ctrl.set(ofClamp(*(float *)&_inletParams[1],-1.0f,1.0f));
-        slider->setValue(pan_ctrl.get());
+        pan = ofClamp(*(float *)&_inletParams[1],-1.0f,1.0f);
+        pan_ctrl.set(pan);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("PAN"));
-        pan_ctrl.set(ofClamp(slider->getValue(),-1.0f,1.0f));
+        pan = this->getCustomVar("PAN");
+        pan_ctrl.set(ofClamp(pan,-1.0f,1.0f));
     }
 
 }
@@ -129,9 +112,55 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 //--------------------------------------------------------------
 void Panner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
+        if(ImGui::SliderFloat("",&pan,-1.0f, 1.0f)){
+            pan_ctrl.set(pan);
+            this->setCustomVar(pan,"PAN");
+        }
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void Panner::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic stereo panner",
+                "https://mosaic.d3cod3.org/reference.php?r=panner", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -169,46 +198,7 @@ void Panner::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void Panner::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void Panner::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void Panner::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"PAN");
-    pan_ctrl.set(ofClamp(static_cast<float>(e.value),-1.0f,1.0f));
-}
 
 OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MidiSender.h"
 
 //--------------------------------------------------------------
-MidiSender::MidiSender() : PatchObject(){
+MidiSender::MidiSender() : PatchObject("midi sender"){
 
     this->numInlets  = 4;
     this->numOutlets = 0;
@@ -49,19 +51,19 @@ MidiSender::MidiSender() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     midiDeviceID        = 0;
 
     trigger             = false;
     lastNote            = 0.0f;
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
 void MidiSender::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addInlet(VP_LINK_NUMERIC,"channel");
     this->addInlet(VP_LINK_NUMERIC,"note");
@@ -73,60 +75,13 @@ void MidiSender::newObject(){
 //--------------------------------------------------------------
 void MidiSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setTheme(new ofxDatGuiThemeCharcoal());
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onMatrixEvent(this, &MidiSender::onMatrixEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    midiDeviceName = gui->addLabel("");
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
     midiOut.listOutPorts();
     midiDevicesList = midiOut.getOutPortList();
-
-    if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(midiDevicesList.size())){
-        midiDeviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
-    }else{
-        midiDeviceID = 0;
-        this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
-    }
-    
-    // open port by number
-    if(midiDevicesList.size() > 0){
-        midiOut.openPort(midiDeviceID);
-        midiDeviceName->setLabel(midiOut.getOutPortName(midiDeviceID));
-
-        deviceSelector = gui->addMatrix("DEVICE",midiDevicesList.size(),true);
-        deviceSelector->setUseCustomMouse(true);
-        deviceSelector->setRadioMode(true);
-        deviceSelector->getChildAt(midiDeviceID)->setSelected(true);
-        deviceSelector->onMatrixEvent(this, &MidiSender::onMatrixEvent);
-    
-    }else{
-        ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi sender object!");
-    }
 
 }
 
 //--------------------------------------------------------------
-void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        if(midiDevicesList.size() > 0){
-            deviceSelector->update();
-        }
-    }
+void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(midiDevicesList.size() > 0){
         if(midiOut.isOpen()){
@@ -153,27 +108,92 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         }
     }
 
+    if(!loaded){
+        loaded = true;
+
+        if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(midiDevicesList.size())){
+            midiDeviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
+        }else{
+            midiDeviceID = 0;
+            this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
+        }
+
+        // open port by number
+        if(midiDevicesList.size() > 0){
+            midiOut.openPort(midiDeviceID);
+        }else{
+            ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi sender object!");
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void MidiSender::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(30,31,36);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    string temp = "";
-    for(int i=1;i<this->numInlets;i++){
-        if(i==1){
-            temp = "Channel ";
-        }else if(i==2){
-            temp = "Note ";
-        }else if(i==3){
-            temp = "Velocity ";
+
+}
+
+//--------------------------------------------------------------
+void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
         }
-        font->draw(temp+ofToString(static_cast<int>(floor(*(float *)&_inletParams[i]))),this->fontSize,this->width/2,this->headerHeight*2.3 + (i*this->fontSize*1.15));
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(midiDevicesList.size() > 0){
+            ImGui::Spacing();
+            ImGui::PushStyleColor(ImGuiCol_Text, VHS_GRAY);
+            ImGui::Text("%s",midiDevicesList.at(midiDeviceID).c_str());
+            ImGui::PopStyleColor(1);
+            ImGui::Spacing();
+            ImGui::Text("Channel\nNote\nVelocity"); ImGui::SameLine();
+            ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*(float *)&_outletParams[1])),static_cast<int>(floor(*(float *)&_outletParams[2])),static_cast<int>(floor(*(float *)&_outletParams[3])));
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void MidiSender::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(midiDevicesList.size() > 0){
+        if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
+            for(int i=0; i < midiDevicesList.size(); ++i){
+                bool is_selected = (midiDeviceID == i );
+                if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
+                    resetMIDISettings(i);
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+    }else{
+        ImGui::Text("No MIDI devices found!");
+    }
+
+
+
+    ImGuiEx::ObjectInfo(
+                "Send data to a physical midi interface",
+                "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -186,60 +206,13 @@ void MidiSender::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void MidiSender::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    if(midiDevicesList.size() > 0){
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    if(!header->getIsCollapsed()){
-        if(midiDevicesList.size() > 0){
-            this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos());
-        }else{
-            this->isOverGUI = header->hitTest(_m-this->getPos());
-        }
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
-
-//--------------------------------------------------------------
-void MidiSender::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        if(midiDevicesList.size() > 0){
-            deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void MidiSender::resetMIDISettings(int devID){
 
     if(devID!=midiDeviceID){
         ofLog(OF_LOG_NOTICE,"Changing MIDI Device to: %s", midiOut.getOutPortName(devID).c_str());
 
         midiDeviceID = devID;
-        if(midiOut.getOutPortName(devID).size() > 22){
-            midiDeviceName->setLabel(midiOut.getOutPortName(devID).substr(0,21)+"...");
-        }else{
-            midiDeviceName->setLabel(midiOut.getOutPortName(devID));
-        }
+
         this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
 
         midiOut.closePort();
@@ -253,15 +226,6 @@ void MidiSender::resetMIDISettings(int devID){
 
 }
 
-//--------------------------------------------------------------
-void MidiSender::onMatrixEvent(ofxDatGuiMatrixEvent e){
-    if(!header->getIsCollapsed()){
-        if(midiDevicesList.size() > 0){
-            if(e.target == deviceSelector){
-                resetMIDISettings(e.child);
-            }
-        }
-    }
-}
-
 OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+
+#endif

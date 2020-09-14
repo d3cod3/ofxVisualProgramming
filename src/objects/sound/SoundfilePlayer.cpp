@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SoundfilePlayer.h"
 
 //--------------------------------------------------------------
-SoundfilePlayer::SoundfilePlayer() : PatchObject(){
+SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
     this->numInlets  = 5;
     this->numOutlets = 3;
@@ -56,12 +58,9 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     isAudioOUTObject    = true;
 
-    isNewObject         = false;
+    isNewObject         = true;
     isFileLoaded        = false;
     isPlaying           = false;
     audioWasPlaying     = false;
@@ -69,13 +68,14 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
     loop                = false;
     volume              = 1.0f;
-    speed               = 1.0;
+    speed               = 1.0f;
     sampleRate          = 44100.0;
     bufferSize          = 256;
 
     lastSoundfile       = "";
     loadSoundfileFlag   = false;
     soundfileLoaded     = false;
+    loadingFile         = false;
 
     finishSemaphore     = false;
     finishBang          = false;
@@ -88,12 +88,14 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addInlet(VP_LINK_NUMERIC,"bang");
+
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
@@ -111,25 +113,9 @@ void SoundfilePlayer::autoloadFile(string _fp){
 //--------------------------------------------------------------
 void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
+    fileDialog.setIsRetina(this->isRetina);
+
     loadSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &SoundfilePlayer::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    soundfileName = gui->addLabel("NONE");
-    gui->addBreak();
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     loading = true;
 }
@@ -144,29 +130,20 @@ void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-    gui->update();
-    header->update();
-    loadButton->update();
-
-    if(loadSoundfileFlag){
-        loadSoundfileFlag = false;
-        fd.openFile("load soundfile"+ofToString(this->getId()),"Select an audio file");
-    }
+void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
         soundfileLoaded = false;
         ofFile file (lastSoundfile);
         if (file.exists()){
-            string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "WAV" || fileExtension == "OGG" || fileExtension == "MP3" || fileExtension == "FLAC") {
-                loadAudioFile(file.getAbsolutePath());
-            }
+            isNewObject = false;
+            loadAudioFile(file.getAbsolutePath());
         }
     }
 
     if(loading && ofGetElapsedTimeMillis()-startTime > 500){
         if(filepath != "none"){
+            isNewObject = false;
             loadAudioFile(filepath);
         }else{
             isNewObject = true;
@@ -213,15 +190,11 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
         }
         // speed
         if(this->inletsConnected[2]){
-            speed = static_cast<double>(ofClamp(*(float *)&_inletParams[2],-10.0f,10.0f));
-        }else{
-            speed = 1.0;
+            speed = ofClamp(*(float *)&_inletParams[2],-10.0f,10.0f);
         }
         // volume
         if(this->inletsConnected[3]){
             volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
-        }else{
-            volume = 1.0f;
         }
 
         // trigger
@@ -251,54 +224,142 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(isFileLoaded && audiofile.loaded()){
-        posX = 0;
-        posY = this->headerHeight;
-        drawW = this->width;
-        drawH = this->height - this->headerHeight - header->getHeight();
+}
 
-        ofSetColor(0);
-        ofDrawRectangle(posX, posY, drawW, drawH);
-        ofSetColor(10,10,10);
-        ofDrawRectangle(posX+1, posY+1, drawW-2, drawH-2);
+//--------------------------------------------------------------
+void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-        ofSetColor(255,255,120,255);
-        ofSetLineWidth(1);
-        for( int x=0; x<drawW; ++x){
-            int n = ofMap( x, 0, drawW, 0, audiofile.length(), true );
-            float val = audiofile.sample( n, 0 );
-            ofDrawLine(x+posX, (drawH*0.5)+posY - (val*(drawH*0.5)),x+posX, ((drawH*0.5)+posY) + (val*(drawH*0.5)));
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
-
-        // draw player state
-        ofSetColor(255,60);
-        if(isPlaying){ // play
-            ofBeginShape();
-            ofVertex(this->width - 30,this->height - 50);
-            ofVertex(this->width - 30,this->height - 30);
-            ofVertex(this->width - 10,this->height - 40);
-            ofEndShape();
-        }else if(!isPlaying && playhead > 0.0){ // pause
-            ofDrawRectangle(this->width - 30, this->height - 50,8,20);
-            ofDrawRectangle(this->width - 18, this->height - 50,8,20);
-        }else if(!isPlaying && playhead == 0.0){ // stop
-            ofDrawRectangle(this->width - 30, this->height - 50,20,20);
-        }
-
-        ofSetColor(255);
-        ofSetLineWidth(2);
-        float phx = ofMap( playhead, 0, audiofile.length(), 1, drawW-1 );
-        ofDrawLine( phx, posY+2, phx, drawH+posY);
-    }else if(!isNewObject && !loading){
-        ofSetColor(255,0,0);
-        ofDrawRectangle(0,0,this->width,this->height);
-        ofSetColor(255);
-        font->draw("FILE NOT FOUND!",this->fontSize,this->width/3 + 4,this->headerHeight*2.3);
+        _nodeCanvas.EndNodeMenu();
     }
 
-    gui->draw();
-    ofDisableAlphaBlending();
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+        if(isFileLoaded && audiofile.loaded()){
+            ImVec2 window_pos = ImGui::GetWindowPos();
+            ImVec2 window_size = ImGui::GetWindowSize();
+            ImVec2 ph_pos = ImVec2(window_pos.x + (20*scaleFactor), window_pos.y + (20*scaleFactor));
+
+            objOriginX = ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor);
+            objOriginY = ImGui::GetWindowPos().y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor);
+            scaledObjW = window_size.x - IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor;
+            scaledObjH = window_size.y - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor;
+
+            // draw Audiofile Waveform plot
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(objOriginX,objOriginY),ImVec2(objOriginX+scaledObjW,objOriginY+scaledObjH),IM_COL32_BLACK);
+            for( int x=objOriginX; x<objOriginX+scaledObjW; ++x ){
+                int n = ofMap( x, objOriginX, objOriginX+scaledObjW, 0, audiofile.length(), true );
+                float val = audiofile.sample( n, 0 );
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(x, objOriginY + scaledObjH/2 - (val*(scaledObjH*0.5)) ),ImVec2(x, objOriginY + scaledObjH/2 + (val*(scaledObjH*0.5))),IM_COL32(255,255,120,180), 1.0f);
+            }
+
+            // draw position (timecode)
+            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ceil(static_cast<int>(floor(playhead))/audiofile.samplerate())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale()/this->scaleFactor);
+
+            // draw player state
+            if(isPlaying){ // play
+                _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
+            }else if(!isPlaying && playhead > 0.0){ // pause
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+            }else if(!isPlaying && playhead == 0.0){ // stop
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+            }
+
+            // draw playhead
+            float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 255, 255, 160), 2.0f);
+
+        }else if(loadingFile){
+            ImGui::Text("LOADING FILE...");
+        }else if(!isNewObject && !audiofile.loaded()){
+            ImGui::Text("FILE NOT FOUND!");
+        }
+    }
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            lastSoundfile = file.getAbsolutePath();
+            soundfileLoaded= true;
+            startTime = ofGetElapsedTimeMillis();
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void SoundfilePlayer::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadSoundfileFlag   = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+        ImGuiEx::drawTimecode(ImGui::GetForegroundDrawList(),static_cast<int>(ceil(audiofile.length()/audiofile.samplerate())),"Duration: ");
+    }
+    if(ImGui::Button(ICON_FA_FILE,ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadSoundfileFlag = true;
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor,26*scaleFactor))){
+        isPlaying = true;
+        playhead = 0.0;
+        audioWasPlaying = true;
+        finishSemaphore = true;
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor,26*scaleFactor))){
+        isPlaying = false;
+        playhead = 0.0;
+        audioWasPlaying = false;
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*scaleFactor,26*scaleFactor))){
+        isPlaying = !isPlaying;
+    }
+    ImGui::PopStyleColor(3);
+
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
+    ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
+    ImGui::PopItemWidth();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
+
+    ImGuiEx::ObjectInfo(
+                "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
+                "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -308,51 +369,6 @@ void SoundfilePlayer::removeObjectContent(bool removeFileFromData){
     }
     if(removeFileFromData){
         removeFile(filepath);
-    }
-}
-
-//--------------------------------------------------------------
-void SoundfilePlayer::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load soundfile"+ofToString(this->getId())){
-        lastSoundfile = response.filepath;
-        soundfileLoaded = true;
-        startTime = ofGetElapsedTimeMillis();
-    }
-}
-
-//--------------------------------------------------------------
-void SoundfilePlayer::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void SoundfilePlayer::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
     }
 }
 
@@ -432,38 +448,32 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
         filepath = forceCheckMosaicDataPath(audiofilepath);
     }
 
+    loadingFile = true;
 
     audiofile.free();
     audiofile.load(filepath);
     playhead = std::numeric_limits<int>::max();
     step = audiofile.samplerate() / sampleRate;
 
+    plot_data = new float[1024];
+    for( int x=0; x<1024; ++x){
+        int n = ofMap( x, 0, 1024, 0, audiofile.length(), true );
+        plot_data[x] = hardClip(audiofile.sample( n, 0 ));
+    }
+
     ofSoundBuffer tmpBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRate));
     monoBuffer.clear();
     monoBuffer = tmpBuffer;
 
-    ofFile tempFile(filepath);
-    if(tempFile.getFileName().size() > 44){
-        soundfileName->setLabel(tempFile.getFileName().substr(0,41)+"...");
-    }else{
-        soundfileName->setLabel(tempFile.getFileName());
-    }
-
     playhead = 0.0;
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 
     isFileLoaded = false;
+    loadingFile = false;
 
-}
-
-//--------------------------------------------------------------
-void SoundfilePlayer::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if (e.target == loadButton){
-            loadSoundfileFlag = true;
-        }
-    }
 }
 
 OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

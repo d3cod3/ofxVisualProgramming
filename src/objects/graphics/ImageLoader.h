@@ -30,9 +30,14 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 class ImageLoader : public PatchObject {
 
@@ -40,33 +45,44 @@ public:
 
     ImageLoader();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadImageFile();
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-
     ofImage             *img;
+    string              imgName;
+    string              imgRes;
+    string              imgPath;
     float               posX, posY, drawW, drawH;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
     bool                isNewObject;
     bool                isFileLoaded;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     imgName;
-    ofxDatGuiLabel*     imgRes;
-    ofxDatGuiButton*    loadButton;
+    imgui_addons::ImGuiFileBrowser  fileDialog;
 
     bool                loadImgFlag;
     bool                isImageLoaded;
 
+protected:
+
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

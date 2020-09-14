@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ShaderObject.h"
 
 //--------------------------------------------------------------
-ShaderObject::ShaderObject() : PatchObject(){
+ShaderObject::ShaderObject() : PatchObject("glsl shader"){
 
     this->numInlets  = 0;
     this->numOutlets = 1;
@@ -47,10 +49,10 @@ ShaderObject::ShaderObject() : PatchObject(){
     isGUIObject         = true;
     this->isOverGUI     = true;
 
-    fbo         = new ofFbo();
-    pingPong    = new ofxPingPong();
-    shader      = new ofShader();
-    needReset   = false;
+    fbo                 = new ofFbo();
+    pingPong            = new ofxPingPong();
+    shader              = new ofShader();
+    needReset           = false;
 
     kuro        = new ofImage();
 
@@ -73,17 +75,26 @@ ShaderObject::ShaderObject() : PatchObject(){
     shaderScriptSaved       = false;
     oneBang                 = false;
 
-    modalInfo               = false;
+    loaded                  = false;
+
+    this->setIsResizable(true);
+    this->setIsTextureObj(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 
 }
 
 //--------------------------------------------------------------
 void ShaderObject::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
     this->addOutlet(VP_LINK_TEXTURE,"output");
 
     this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
     this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -95,13 +106,13 @@ void ShaderObject::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    fileDialog.setIsRetina(this->isRetina);
+
     initResolution();
 
     // load kuro
     kuro->load("images/kuro.jpg");
-
-    // Setup ThreadedCommand var
-    tempCommand.setup();
 
     // init path watcher
     watcher.start();
@@ -117,12 +128,7 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
-        modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
-    }
+void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     // Recursive reset for shader objects chain
     if(needReset){
@@ -131,34 +137,13 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                 for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
                     if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                        if(it->second->getName() == "lua script" || it->second->getName() == "python script" || it->second->getName() == "shader object"){
+                        if(it->second->getName() == "lua script" || it->second->getName() == "python script" || it->second->getName() == "glsl shader"){
                             it->second->resetResolution(this->getId(),output_width,output_height);
                         }
                     }
                 }
             }
         }
-    }
-
-    // GUI
-    gui->update();
-    header->update();
-    newButton->update();
-    loadButton->update();
-    //editButton->update();
-    for(size_t i=0;i<shaderSliders.size();i++){
-        shaderSliders.at(i)->update();
-    }
-
-    if(loadShaderScriptFlag){
-        loadShaderScriptFlag = false;
-        fd.openFile("load shader"+ofToString(this->getId()),"Select a shader");
-    }
-
-    if(saveShaderScriptFlag){
-        saveShaderScriptFlag = false;
-        string newFileName = "shader_"+ofGetTimestampString("%y%m%d")+".frag";
-        fd.saveFile("save shader"+ofToString(this->getId()),"Save new GLSL shader as",newFileName);
     }
 
     if(shaderScriptLoaded){
@@ -220,6 +205,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         for(int i=0;i<this->numInlets;i++){
             if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_TEXTURE && i < static_cast<int>(textures.size()) && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
                 textures[i]->begin();
+                ofSetColor(255);
                 static_cast<ofTexture *>(_inletParams[i])->draw(0,0,output_width, output_height);
                 textures[i]->end();
             }
@@ -238,21 +224,21 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
         for(int i=0;i<this->numInlets;i++){
             if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_NUMERIC){
-                shaderSliders.at(i-static_cast<int>(textures.size()))->setValue(*(float *)&_inletParams[i]);
+                shaderSliders.at(i-static_cast<int>(textures.size())) = *(float *)&_inletParams[i];
             }
         }
 
         // set custom shader vars
         string paramName, tempVarName;
         for(size_t i=0;i<shaderSliders.size();i++){
-            if(shaderSliders.at(i)->getPrecision() != 0){// FLOAT
+            if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
                 paramName = "param1f"+ofToString(shaderSlidersIndex[i]);
-                tempVarName = "GUI_FLOAT_"+shaderSliders.at(i)->getLabel();
-                shader->setUniform1f(paramName.c_str(), static_cast<float>(this->getCustomVar(tempVarName)));
-            }else{ // INT
+                tempVarName = "GUI_FLOAT_"+shaderSlidersLabel.at(i);
+                shader->setUniform1f(paramName.c_str(), static_cast<float>(shaderSliders.at(i)));
+            }else if(shaderSlidersType.at(i) == ShaderSliderType_INT){
                 paramName = "param1i"+ofToString(shaderSlidersIndex[i]);
-                tempVarName = "GUI_INT_"+shaderSliders.at(i)->getLabel();
-                shader->setUniform1i(paramName.c_str(), static_cast<int>(floor(this->getCustomVar(tempVarName))));
+                tempVarName = "GUI_INT_"+shaderSlidersLabel.at(i);
+                shader->setUniform1i(paramName.c_str(), static_cast<int>(floor(shaderSliders.at(i))));
             }
         }
 
@@ -281,6 +267,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         ofPushStyle();
         ofPushMatrix();
         ofEnableAlphaBlending();
+        ofSetColor(255);
         pingPong->dst->draw(0,0,output_width, output_height);
         ofPopMatrix();
         ofPopStyle();
@@ -291,39 +278,154 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     fbo->end();
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+
+    if(!loaded){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
 }
 
 //--------------------------------------------------------------
 void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-    }else{ // always considered vertical texture
-        drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-        drawH           = this->height;
-        posX            = (this->width-drawW)/2.0f;
-        posY            = 0;
+    }else{
+        // background
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
-    // GUI
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+    string newFileName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
+    if(ImGuiEx::getFileDialog(fileDialog, saveShaderScriptFlag, "Save new GLSL shader as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".frag", newFileName, scaleFactor)){
+        lastShaderScript = fileDialog.selected_path;
+        shaderScriptSaved = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadShaderScriptFlag, "Select a GLSL shader", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".frag,.vert", "", scaleFactor)){
+        lastShaderScript = fileDialog.selected_path;
+        shaderScriptLoaded = true;
+    }
+
+}
+
+//--------------------------------------------------------------
+void ShaderObject::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadShaderScriptFlag = false;
+    saveShaderScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
+        saveShaderScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadShaderScriptFlag = true;
+    }
+
+    if(shaderSliders.size() > 0){
+
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        ImGui::PushItemWidth(224*scaleFactor);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(120,255,255,160));
+        for(size_t i=0;i<shaderSliders.size();i++){
+            if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
+                ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,10.0f);
+                this->setCustomVar(shaderSliders.at(i),"GUI_FLOAT_"+shaderSlidersLabel.at(i));
+            }else if(shaderSlidersType.at(i) == ShaderSliderType_INT){
+                ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,30.0f,"%.0f");
+                this->setCustomVar(static_cast<float>(static_cast<int>(floor(shaderSliders.at(i)))),"GUI_INT_"+shaderSlidersLabel.at(i));
+            }
+        }
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
+                "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void ShaderObject::removeObjectContent(bool removeFileFromData){
-    tempCommand.stop();
 
     if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.exists() && removeFileFromData){
         removeFile(filepath);
@@ -333,51 +435,6 @@ void ShaderObject::removeObjectContent(bool removeFileFromData){
         }*/
     }
 
-}
-
-//--------------------------------------------------------------
-void ShaderObject::mouseMovedObjectContent(ofVec3f _m){
-    int testingOver = 0;
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    for(size_t i=0;i<shaderSliders.size();i++){
-        shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        if(shaderSliders.at(i)->hitTest(_m-this->getPos())){
-            testingOver++;
-        }
-    }
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || testingOver>0;
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ShaderObject::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        for(size_t i=0;i<shaderSliders.size();i++){
-            shaderSliders.at(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -421,7 +478,7 @@ void ShaderObject::doFragmentShader(){
         reloading = false;
         nTextures = num;
 
-        this->inlets.clear();
+        this->inletsType.clear();
         this->inletsNames.clear();
 
         // add texture(s) inlets
@@ -431,10 +488,10 @@ void ShaderObject::doFragmentShader(){
 
     }
 
-    loadGUI();
-
     shaderSliders.clear();
+    shaderSlidersLabel.clear();
     shaderSlidersIndex.clear();
+    shaderSlidersType.clear();
 
     // OBJECT CUSTOM STANDARD VARS
     map<string,float> tempVars = this->loadCustomVars();
@@ -448,18 +505,19 @@ void ShaderObject::doFragmentShader(){
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
             string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
-            ofxDatGuiSlider* tempSlider = gui->addSlider(varName,0.0f,10.0f,0.0f);
-            tempSlider->setUseCustomMouse(true);
+            float tempValue = 0.0f;
             map<string,float>::const_iterator it = tempVars.find("GUI_FLOAT_"+varName);
             if(it!=tempVars.end()){
                 this->setCustomVar(it->second,"GUI_FLOAT_"+varName);
-                tempSlider->setValue(it->second);
+                tempValue = it->second;
             }else{
                 this->setCustomVar(0.0f,"GUI_FLOAT_"+varName);
             }
 
-            shaderSliders.push_back(tempSlider);
+            shaderSliders.push_back(tempValue);
             shaderSlidersIndex.push_back(i);
+            shaderSlidersLabel.push_back(varName);
+            shaderSlidersType.push_back(ShaderSliderType_FLOAT);
 
             _inletParams[this->numInlets] = new float();
             *(float *)&_inletParams[this->numInlets] = 0.0f;
@@ -478,18 +536,18 @@ void ShaderObject::doFragmentShader(){
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
             string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
-            ofxDatGuiSlider* tempSlider = gui->addSlider(varName,0,30,0);
-            tempSlider->setUseCustomMouse(true);
-            tempSlider->setPrecision(0);
+            float tempValue = 0.0f;
             map<string,float>::const_iterator it = tempVars.find("GUI_INT_"+varName);
             if(it!=tempVars.end()){
                 this->setCustomVar(it->second,"GUI_INT_"+varName);
-                tempSlider->setValue(it->second);
+                tempValue = it->second;
             }else{
                 this->setCustomVar(0.0f,"GUI_INT_"+varName);
             }
-            shaderSliders.push_back(tempSlider);
+            shaderSliders.push_back(tempValue);
             shaderSlidersIndex.push_back(i);
+            shaderSlidersLabel.push_back(varName);
+            shaderSlidersType.push_back(ShaderSliderType_INT);
 
             _inletParams[this->numInlets] = new float();
             *(float *)&_inletParams[this->numInlets] = 0.0f;
@@ -500,7 +558,6 @@ void ShaderObject::doFragmentShader(){
             break;
         }
     }
-    gui->setWidth(this->width);
 
     this->inletsConnected.clear();
     for(int i=0;i<this->numInlets;i++){
@@ -517,7 +574,7 @@ void ShaderObject::doFragmentShader(){
 
     ofNotifyEvent(this->resetEvent, this->nId);
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 
     // Compile the shader and load it to the GPU
     shader->unload();
@@ -566,7 +623,7 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
 
         this->setCustomVar(static_cast<float>(output_width),"OUTPUT_WIDTH");
         this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
 
         fbo = new ofFbo();
         fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
@@ -585,54 +642,6 @@ void ShaderObject::resetResolution(int fromID, int newWidth, int newHeight){
         needReset = true;
     }
 
-}
-
-//--------------------------------------------------------------
-void ShaderObject::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load shader"+ofToString(this->getId())){
-        lastShaderScript = response.filepath;
-        shaderScriptLoaded = true;
-    }else if(response.id == "save shader"+ofToString(this->getId())){
-        lastShaderScript = response.filepath;
-        shaderScriptSaved = true;
-    }
-}
-
-//--------------------------------------------------------------
-void ShaderObject::loadGUI(){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    //gui->setWidth(this->width);
-    gui->onButtonEvent(this, &ShaderObject::onButtonEvent);
-    gui->onSliderEvent(this, &ShaderObject::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    shaderName = gui->addLabel("NONE");
-    ofFile tempFile(filepath);
-    if(tempFile.getFileName().size() > 22){
-        shaderName->setLabel(tempFile.getFileName().substr(0,21)+"...");
-    }else{
-        shaderName->setLabel(tempFile.getFileName());
-    }
-    gui->addBreak();
-
-    newButton = gui->addButton("NEW");
-    newButton->setUseCustomMouse(true);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    //editButton = gui->addButton("EDIT");
-    //editButton->setUseCustomMouse(true);
-    gui->addBreak();
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
@@ -685,33 +694,6 @@ void ShaderObject::loadScript(string scriptFile){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::onSliderEvent(ofxDatGuiSliderEvent e){
-    for(size_t i=0;i<shaderSliders.size();i++){
-        if(e.target == shaderSliders.at(i)){
-            string sliderName = shaderSliders.at(i)->getLabel();
-            if(shaderSliders.at(i)->getPrecision() == 0){// INT
-                sliderName = "GUI_INT_"+sliderName;
-            }else{ // FLOAT
-                sliderName = "GUI_FLOAT_"+sliderName;
-            }
-            this->setCustomVar(static_cast<float>(shaderSliders.at(i)->getValue()),sliderName);
-            this->saveConfig(false,this->nId);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ShaderObject::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == newButton){
-            saveShaderScriptFlag = true;
-        }else if(e.target == loadButton){
-            loadShaderScriptFlag = true;
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void ShaderObject::pathChanged(const PathWatcher::Event &event) {
     switch(event.change) {
         case PathWatcher::CREATED:
@@ -741,4 +723,6 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
 
 }
 
-OBJECT_REGISTER( ShaderObject, "shader object", OFXVP_OBJECT_CAT_SCRIPTING)
+OBJECT_REGISTER( ShaderObject, "glsl shader", OFXVP_OBJECT_CAT_SCRIPTING)
+
+#endif

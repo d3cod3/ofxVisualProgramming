@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 
@@ -58,7 +60,7 @@ public:
         }
     }
 
-    bool readToPixels(ofFbo &fbo, ofPixelsRef pix, ofImageType type)
+    bool readToPixels(ofFbo &fbo, ofPixelsRef pix, ofImageType type = OF_IMAGE_COLOR)
     {
         genPBOs();
 
@@ -129,6 +131,69 @@ public:
         return mem != NULL;
     }
 
+    bool readToPixels( ofFbo &fbo, ofFloatPixels& pix, int aGlType ) {
+        genPBOs();
+
+        int channels = 3;
+        int numBytes = 4;
+        int glType = aGlType;
+        int glReadType = GL_RGB;
+
+        if( glType == GL_RGB32F ) {
+            // only support RGB32F to float pixels //
+        } else if( glType == GL_RGBA32F ) {
+            glReadType = GL_RGBA;
+            channels = 4;
+        } else {
+            // no support for other options right now //
+            return false;
+        }
+
+        const int width = fbo.getWidth();
+        const int height = fbo.getHeight();
+
+        if (async)
+        {
+            index = (index + 1) % num_buffers;
+            nextIndex = (index + 1) % num_buffers;
+        }
+        else
+        {
+            index = nextIndex = 0;
+        }
+
+        size_t nb = width * height * (channels * numBytes);
+
+        if (nb != num_bytes)
+        {
+            num_bytes = nb;
+            setupPBOs(num_bytes);
+        }
+
+        glReadBuffer(GL_FRONT);
+
+        fbo.bind();
+
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[index]);
+        glReadPixels(0, 0, width, height, glReadType, GL_FLOAT, NULL );// (GLubyte*) NULL + (12) );
+
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[nextIndex]);
+        float* mem = (float*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+
+        if (mem != NULL) {
+            pix.setFromPixels( mem, width, height, channels );
+            glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+        } else {
+            //cout << "ofxFastFboReader :: 32F is null " << " | " << ofGetFrameNum() << endl;
+        }
+
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+        fbo.unbind();
+
+        return mem != NULL;
+    }
+
     bool getAsync() { return async; }
     void setAsync(bool v) { async = v; }
 
@@ -165,3 +230,5 @@ protected:
     }
 
 };
+
+#endif

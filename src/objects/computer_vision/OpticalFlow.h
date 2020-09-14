@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -43,17 +45,15 @@ public:
 
     OpticalFlow();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
 
     ofxCv::FlowFarneback        fb;
@@ -63,17 +63,26 @@ public:
     bool                        isFBOAllocated;
 
     float                       posX, posY, drawW, drawH;
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiToggle*            fbUseGaussian;
-    ofxDatGuiSlider*            fbPyrScale;
-    ofxDatGuiSlider*            fbPolySigma;
-    ofxDatGuiSlider*            fbLevels;
-    ofxDatGuiSlider*            fbIterations;
-    ofxDatGuiSlider*            fbPolyN;
-    ofxDatGuiSlider*            fbWinSize;
+
+    bool                        fbUseGaussian;
+    float                       fbPyrScale;
+    float                       fbPolySigma;
+    float                       fbLevels;
+    float                       fbIterations;
+    float                       fbPolyN;
+    float                       fbWinSize;
+
+    bool                        loaded;
     
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

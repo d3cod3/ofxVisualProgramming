@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -74,19 +76,21 @@ public:
 
     VideoTimelapse();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
 
-    float           posX, posY, drawW, drawH;
+    float                   posX, posY, drawW, drawH;
+    float                   scaledObjW, scaledObjH;
+    float                   objOriginX, objOriginY;
+    float                   canvasZoom;
 
     circularTextureBuffer   *videoBuffer;
     ofPixels                *pix;
@@ -97,9 +101,12 @@ public:
     size_t                  resetTime;
     size_t                  wait;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiTextInput*     guiDelayMS;
+    bool                    loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

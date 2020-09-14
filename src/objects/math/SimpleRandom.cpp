@@ -30,36 +30,41 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SimpleRandom.h"
 
 //--------------------------------------------------------------
-SimpleRandom::SimpleRandom() : PatchObject(){
+SimpleRandom::SimpleRandom() :
+            PatchObject("simple random"),
+
+            // define default values
+            lastMinRange(0.f,"min"),
+            lastMaxRange(1.f,"max")
+{
 
     this->numInlets  = 3;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    _inletParams[1] = new float();  // min
-    _inletParams[2] = new float();  // max
     *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 1.0f;
+
+    *(float *)&_inletParams[1] = lastMinRange.get();
+    *(float *)&_inletParams[2] = lastMaxRange.get();
 
     _outletParams[0] = new float(); // output
     *(float *)&_outletParams[0] = 0.0f;
 
     this->initInletsState();
 
-    changeRange     = false;
     bang            = false;
 
-    lastMinRange    = *(float *)&_inletParams[1];
-    lastMaxRange    = *(float *)&_inletParams[2];
 }
 
 //--------------------------------------------------------------
 void SimpleRandom::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
@@ -69,20 +74,10 @@ void SimpleRandom::newObject(){
 //--------------------------------------------------------------
 void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofSeedRandom(ofGetElapsedTimeMillis());
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-
-    rPlotter = gui->addValuePlotter("",*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
-
-    gui->setPosition(0,this->height-rPlotter->getHeight());
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
             bang = false;
@@ -94,17 +89,10 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
     }
 
-    gui->update();
-    rPlotter->setValue(*(float *)&_outletParams[0]);
     if(this->inletsConnected[1] || this->inletsConnected[2]){
-        if(lastMinRange != *(float *)&_inletParams[1] || lastMaxRange != *(float *)&_inletParams[2]){
-            lastMinRange    = *(float *)&_inletParams[1];
-            lastMaxRange    = *(float *)&_inletParams[2];
-            changeRange = true;
-        }
-        if(changeRange){
-            changeRange = false;
-            rPlotter->setRange(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
+        if(lastMinRange.get() != *(float *)&_inletParams[1] || lastMaxRange.get() != *(float *)&_inletParams[2]){
+            lastMinRange.get()    = *(float *)&_inletParams[1];
+            lastMaxRange.get()    = *(float *)&_inletParams[2];
         }
     }
 }
@@ -112,10 +100,50 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void SimpleRandom::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(255,255,255,255), this->scaleFactor);
+
+        _nodeCanvas.EndNodeContent();
+    }
+}
+
+//--------------------------------------------------------------
+void SimpleRandom::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    ImGui::DragFloat("min", &lastMinRange.get());
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*scaleFactor);
+    ImGui::DragFloat("max", &lastMaxRange.get());
+
+    ImGuiEx::ObjectInfo(
+                "Standard Range controlled random number generator.",
+                "https://mosaic.d3cod3.org/reference.php?r=simple-random", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -124,3 +152,5 @@ void SimpleRandom::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH)
+
+#endif

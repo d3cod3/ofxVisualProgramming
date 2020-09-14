@@ -30,9 +30,13 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "imgui_controls.h"
 
 class pdspBitNoise : public PatchObject{
 
@@ -40,42 +44,44 @@ public:
 
     pdspBitNoise();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
+
 
     void            loadAudioSettings();
 
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
-
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     pdsp::BitNoise          noise;
-    pdsp::Scope             scope;
+    pdsp::Scope             scopeL, scopeR;
     pdsp::ValueControl      pitch_ctrl;
     pdsp::ValueControl      decimation_ctrl;
     pdsp::ValueControl      bits_ctrl;
     pdsp::PatchNode         trigger_in;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiSlider*        pitch;
-    ofxDatGuiSlider*        decimation;
-    ofxDatGuiSlider*        bits;
-
-    ofPolyline              waveform;
+    float                   pitch;
+    float                   decimation;
+    float                   bits;
 
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

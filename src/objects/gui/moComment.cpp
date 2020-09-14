@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moComment.h"
 
 //--------------------------------------------------------------
-moComment::moComment() : PatchObject(){
+moComment::moComment() : PatchObject("comment"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -48,41 +50,40 @@ moComment::moComment() : PatchObject(){
 
     this->initInletsState();
 
-    paragraph = new ofxParagraph();
-    textBuffer = new moTextBuffer();
-    label = ofxSmartFont::add(MAIN_FONT, this->fontSize,"verdana");
-
-    actualComment   = "This project deals with the idea of integrate/amplify human-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, Python, GLSL and BASH).";
     bang            = false;
 
-    this->isBigGuiComment   = true;
     this->width             *= 2;
+
+    this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
+
+    loaded                  = false;
 }
 
 //--------------------------------------------------------------
 void moComment::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
-    this->addInlet(VP_LINK_STRING,"comment");
+    this->addInlet(VP_LINK_STRING,"text");
     this->addOutlet(VP_LINK_STRING,"text");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
 void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    paragraph->setColor(ofColor::white);
-    paragraph->setAlignment(ofxParagraph::ALIGN_CENTER);
-    paragraph->setFont(label);
-    paragraph->setWidth(this->width-20);
-    paragraph->setSpacing(this->fontSize*.7f);
-    paragraph->setLeading(this->fontSize*.5f);
-    paragraph->setBorderPadding(10);
-    paragraph->setPosition(10,this->headerHeight+20);
 
+    actualComment = "Comment your patches and share!";
     loadCommentSetting();
+
 }
 
 //--------------------------------------------------------------
-void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -95,78 +96,82 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     if(this->inletsConnected[1]){
         actualComment = "";
         actualComment.append(*static_cast<string *>(_inletParams[1]));
-    }else{
-        actualComment = textBuffer->getText();
     }
-
-    paragraph->setText(actualComment);
 
     if(bang){
         *static_cast<string *>(_outletParams[0]) = actualComment;
-    }else{
-        *static_cast<string *>(_outletParams[0]) = "";
     }
 
-    if(this->isRetina){
-        this->box->height = paragraph->getHeight() + this->headerHeight+120;
-    }else{
-        this->box->height = paragraph->getHeight() + this->headerHeight+60;
-    }
 
+    if(!loaded){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
 
 }
 
 //--------------------------------------------------------------
 void moComment::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    paragraph->draw();
-    if(this->isMouseOver && !this->inletsConnected[1]){
-        ofSetColor(255,255,255,100);
-        if(this->isRetina){
-           ofDrawRectangle(paragraph->getLastLetterPosition().x,paragraph->getLastLetterPosition().y,this->fontSize*.5f,font->getLineHeight()*20);
-        }else{
-            ofDrawRectangle(paragraph->getLastLetterPosition().x,paragraph->getLastLetterPosition().y,this->fontSize*.5f,font->getLineHeight()*10);
+
+}
+
+//--------------------------------------------------------------
+void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGui::InputTextMultiline("##source", &actualComment, ImVec2(ImGui::GetWindowSize().x-30, ImGui::GetWindowSize().y-24), ImGuiInputTextFlags_AllowTabInput)){
+            saveCommentSetting();
+        }
+
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void moComment::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A simple comment object.",
+                "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void moComment::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void moComment::mousePressedObjectContent(ofVec3f _m){
-    bang = true;
-}
-
-//--------------------------------------------------------------
-void moComment::mouseReleasedObjectContent(ofVec3f _m){
-    bang = false;
-}
-
-//--------------------------------------------------------------
-void moComment::keyPressedObjectContent(int key){
-    //ofLog(OF_LOG_NOTICE,"%i",key);
-    if(!this->inletsConnected[1]){
-        if (key < 127 && key > 31) {
-            textBuffer->insert(key);
-        }else if (key == 8) { // BACKSPACE
-            if(textBuffer->getText().size() > 0){
-                textBuffer->backspace();
-            }
-        }else if(key == 13){ // ENTER
-
-        }
-        saveCommentSetting();
-    }
-}
-
-//--------------------------------------------------------------
-void moComment::keyReleasedObjectContent(int key){
-
 }
 
 //--------------------------------------------------------------
@@ -178,7 +183,7 @@ void moComment::loadCommentSetting(){
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
                 if(XML.getValue("id", -1) == this->nId){
-                    textBuffer->setText(XML.getValue("text","none"));
+                    actualComment = XML.getValue("text","none");
                 }
                 XML.popTag();
             }
@@ -195,7 +200,7 @@ void moComment::saveCommentSetting(){
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
                 if(XML.getValue("id", -1) == this->nId){
-                    XML.setValue("text",textBuffer->getText());
+                    XML.setValue("text",actualComment);
                 }
                 XML.popTag();
             }
@@ -205,3 +210,5 @@ void moComment::saveCommentSetting(){
 }
 
 OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)
+
+#endif

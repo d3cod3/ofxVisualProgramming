@@ -32,12 +32,16 @@
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
+<<<<<<< HEAD
+#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
+=======
 #else
+>>>>>>> master
 
 #include "PythonScript.h"
 
 //--------------------------------------------------------------
-PythonScript::PythonScript() : PatchObject(){
+PythonScript::PythonScript() : PatchObject("python script"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -48,13 +52,10 @@ PythonScript::PythonScript() : PatchObject(){
 
     this->initInletsState();
 
-    nameLabelLoaded     = false;
     isNewObject         = false;
 
     pythonIcon          = new ofImage();
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
+    posX = posY = drawW = drawH = 0.0f;
 
     mosaicTableName = "_mosaic_data_inlet";
     pythonTableName = "_mosaic_data_outlet";
@@ -64,65 +65,32 @@ PythonScript::PythonScript() : PatchObject(){
     lastPythonScript       = "";
     loadPythonScriptFlag   = false;
     savePythonScriptFlag   = false;
-    pythonScriptLoaded     = false;
-    pythonScriptSaved      = false;
 
-    modalInfo           = false;
+    this->setIsTextureObj(true);
 
 }
 
 //--------------------------------------------------------------
 void PythonScript::newObject(){
-    this->setName(this->objectName);
-    this->addInlet(VP_LINK_ARRAY,"data");
+    PatchObject::setName( this->objectName );
+
+    this->addInlet(VP_LINK_ARRAY,"_mosaic_data_inlet");
+
     this->addOutlet(VP_LINK_ARRAY,"_mosaic_data_outlet");
 }
 
 //--------------------------------------------------------------
 void PythonScript::autoloadFile(string _fp){
     lastPythonScript = _fp;
-    pythonScriptLoaded = true;
+    ofFile file (lastPythonScript);
+    filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+    reloadScript();
 }
 
 //--------------------------------------------------------------
 void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     pythonIcon->load("images/python.png");
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &PythonScript::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    scriptName = gui->addLabel("NONE");
-    gui->addBreak();
-
-    newButton = gui->addButton("NEW");
-    newButton->setUseCustomMouse(true);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    //editButton = gui->addButton("EDIT");
-    //editButton->setUseCustomMouse(true);
-
-    gui->addBreak();
-    clearButton = gui->addButton("CLEAR SCRIPT");
-    clearButton->setUseCustomMouse(true);
-    reloadButton = gui->addButton("RELOAD SCRIPT");
-    reloadButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
-    // Setup ThreadedCommand var
-    tempCommand.setup();
 
     // init python
     python.init();
@@ -131,62 +99,13 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.py"));
-        //filepath = file.getAbsolutePath();
         filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
 
 }
 
 //--------------------------------------------------------------
-void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
-        modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor, and it seems you do not have it installed on your system.");
-    }
-
-    // GUI
-    gui->update();
-    header->update();
-    newButton->update();
-    loadButton->update();
-    //editButton->update();
-    clearButton->update();
-    reloadButton->update();
-
-    if(loadPythonScriptFlag){
-        loadPythonScriptFlag = false;
-        fd.openFile("load python script"+ofToString(this->getId()),"Select a python script");
-    }
-
-    if(savePythonScriptFlag){
-        savePythonScriptFlag = false;
-        string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
-        fd.saveFile("save python script"+ofToString(this->getId()),"Save new Python script as",newFileName);
-    }
-
-    if(pythonScriptLoaded){
-        pythonScriptLoaded = false;
-        ofFile file (lastPythonScript);
-        if (file.exists()){
-            string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "PY") {
-                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                //filepath = file.getAbsolutePath();
-                reloadScriptThreaded();
-            }
-        }
-    }
-
-    if(pythonScriptSaved){
-        pythonScriptSaved = false;
-        ofFile fileToRead(ofToDataPath("scripts/empty.py"));
-        ofFile newPyFile (lastPythonScript);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
-        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
-        //filepath = newPyFile.getAbsolutePath();
-        reloadScriptThreaded();
-    }
+void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
@@ -195,14 +114,6 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     ///////////////////////////////////////////
     // PYTHON UPDATE
     if(script){
-        if(nameLabelLoaded){
-            nameLabelLoaded = false;
-            if(currentScriptFile.getFileName().size() > 22){
-                scriptName->setLabel(currentScriptFile.getFileName().substr(0,21)+"...");
-            }else{
-                scriptName->setLabel(currentScriptFile.getFileName());
-            }
-        }
         updatePython = script.attr("update");
         if(updatePython && !script.isPythonError() && !updatePython.isPythonError()){
             updateMosaicList = python.getObject("_updateMosaicData");
@@ -232,7 +143,6 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(needToLoadScript){
         needToLoadScript = false;
         loadScript(filepath);
-        nameLabelLoaded = true;
     }
 
 }
@@ -240,75 +150,116 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    pythonIcon->draw(this->width/2,this->headerHeight*1.8f,((this->height/2.2f)/pythonIcon->getHeight())*pythonIcon->getWidth(),this->height/2.2f);
-    // GUI
-    gui->draw();
-    ofDisableAlphaBlending();
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(pythonIcon->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+
+}
+
+//--------------------------------------------------------------
+void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+    string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
+    if(ImGuiEx::getFileDialog(fileDialog, savePythonScriptFlag, "Save new python script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".py", newFileName, scaleFactor)){
+        lastPythonScript = fileDialog.selected_path;
+
+        ofFile fileToRead(ofToDataPath("scripts/empty.py"));
+        ofFile newPyFile (lastPythonScript);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
+        reloadScript();
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadPythonScriptFlag, "Select a python script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".py", "", scaleFactor)){
+        lastPythonScript = fileDialog.selected_path;
+
+        ofFile file (lastPythonScript);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+        reloadScript();
+    }
+
+}
+
+//--------------------------------------------------------------
+void PythonScript::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadPythonScriptFlag = false;
+    savePythonScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
+        savePythonScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadPythonScriptFlag = true;
+    }
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Separator();
+    ImGui::Spacing();
+    if(ImGui::Button("Clear Script",ImVec2(224*scaleFactor,26*scaleFactor))){
+        clearScript();
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Reload Script",ImVec2(224*scaleFactor,26*scaleFactor))){
+        reloadScript();
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with the default code editor on your computer.",
+                "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void PythonScript::removeObjectContent(bool removeFileFromData){
-    tempCommand.stop();
     script = ofxPythonObject::_None();
 
     if(removeFileFromData && filepath != ofToDataPath("scripts/empty.py",true)){
         removeFile(filepath);
-    }
-}
-
-//--------------------------------------------------------------
-void PythonScript::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos()) || clearButton->hitTest(_m-this->getPos()) || reloadButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void PythonScript::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        clearButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        reloadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void PythonScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load python script"+ofToString(this->getId())){
-        lastPythonScript = response.filepath;
-        pythonScriptLoaded = true;
-    }else if(response.id == "save python script"+ofToString(this->getId())){
-        lastPythonScript = response.filepath;
-        pythonScriptSaved = true;
     }
 }
 
@@ -358,7 +309,7 @@ void PythonScript::loadScript(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
 
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
     }else{
         script = ofxPythonObject::_None();
     }
@@ -373,24 +324,9 @@ void PythonScript::clearScript(){
 }
 
 //--------------------------------------------------------------
-void PythonScript::reloadScriptThreaded(){
+void PythonScript::reloadScript(){
     script = ofxPythonObject::_None();
     needToLoadScript = true;
-}
-
-//--------------------------------------------------------------
-void PythonScript::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == newButton){
-            savePythonScriptFlag = true;
-        }else if(e.target == loadButton){
-            loadPythonScriptFlag = true;
-        }else if(e.target == clearButton){
-            clearScript();
-        }else if(e.target == reloadButton){
-            reloadScriptThreaded();
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -402,7 +338,7 @@ void PythonScript::pathChanged(const PathWatcher::Event &event) {
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
             filepath = event.path;
-            reloadScriptThreaded();
+            reloadScript();
             break;
         case PathWatcher::DELETED:
             //ofLogVerbose(PACKAGE) << "path deleted " << event.path;

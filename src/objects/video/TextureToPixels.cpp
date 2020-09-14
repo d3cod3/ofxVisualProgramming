@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "TextureToPixels.h"
 
 //--------------------------------------------------------------
-TextureToPixels::TextureToPixels() : PatchObject(){
+TextureToPixels::TextureToPixels() : PatchObject("texture to pixels"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -44,14 +46,16 @@ TextureToPixels::TextureToPixels() : PatchObject(){
 
     this->initInletsState();
 
-    posX = posY = drawW = drawH = 0;
+    this->height     /= 2;
 
 }
 
 //--------------------------------------------------------------
 void TextureToPixels::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"texture");
+
     this->addOutlet(VP_LINK_PIXELS,"pixels");
 }
 
@@ -61,7 +65,7 @@ void TextureToPixels::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         static_cast<ofTexture *>(_inletParams[0])->readToPixels(*static_cast<ofPixels *>(_outletParams[0]));
@@ -70,31 +74,45 @@ void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void TextureToPixels::drawObjectContent(ofxFontStash *font){
+void TextureToPixels::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth()/static_cast<ofTexture *>(_inletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_inletParams[0])->getWidth() > static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+
+}
+
+//--------------------------------------------------------------
+void TextureToPixels::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
-        static_cast<ofTexture *>(_inletParams[0])->draw(posX,posY,drawW,drawH);
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void TextureToPixels::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Transforms the signal from a texture cable (blue) into a pixel signal (emerald green). Texture data is processed on GPU while pixel data on CPU",
+                "https://mosaic.d3cod3.org/reference.php?r=texture-to-pixel", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -102,4 +120,6 @@ void TextureToPixels::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( TextureToPixels, "texture to pixels", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( TextureToPixels, "texture to pixels", OFXVP_OBJECT_CAT_TEXTURE)
+
+#endif

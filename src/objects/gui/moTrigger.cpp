@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moTrigger.h"
 
 //--------------------------------------------------------------
-moTrigger::moTrigger() : PatchObject(){
+moTrigger::moTrigger() : PatchObject("trigger"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -52,24 +54,30 @@ moTrigger::moTrigger() : PatchObject(){
 
 //--------------------------------------------------------------
 void moTrigger::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
 }
 
 //--------------------------------------------------------------
 void moTrigger::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
+
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
-void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0f){
             trigger = false;
+            currentColor = releaseColor;
         }else{
             trigger = true;
+            currentColor = pressColor;
         }
     }
     *(float *)&_outletParams[0] = static_cast<float>(trigger);
@@ -78,21 +86,53 @@ void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 //--------------------------------------------------------------
 void moTrigger::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(trigger){
-        ofSetLineWidth(6);
-        ofSetColor(250,250,5);
-        if(this->isRetina){
-            ofDrawLine(0,this->headerHeight,this->width,this->height-12);
-            ofDrawLine(this->width,this->headerHeight,0,this->height-12);
-        }else{
-            ofDrawLine(0,this->headerHeight,this->width,this->height-6);
-            ofDrawLine(this->width,this->headerHeight,0,this->height-6);
+
+}
+
+//--------------------------------------------------------------
+void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
 
-        ofSetLineWidth(1);
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // TRIGGER button
+        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if (state == SmartButtonState_Released){
+            trigger = !trigger;
+            if(trigger){
+                currentColor = pressColor;
+            }else{
+                currentColor = releaseColor;
+            }
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+}
+
+//--------------------------------------------------------------
+void moTrigger::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Basic trigger. Useful to keep an action active, or inactive, continuously over time.",
+                "https://mosaic.d3cod3.org/reference.php?r=trigger", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -100,11 +140,7 @@ void moTrigger::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void moTrigger::mouseReleasedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[0]){
-        trigger = !trigger;
-    }
-}
 
 OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI)
+
+#endif

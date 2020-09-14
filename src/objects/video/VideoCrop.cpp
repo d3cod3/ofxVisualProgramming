@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoCrop.h"
 
 //--------------------------------------------------------------
-VideoCrop::VideoCrop() : PatchObject(){
+VideoCrop::VideoCrop() : PatchObject("texture crop"){
 
     this->numInlets  = 5;
     this->numOutlets = 1;
@@ -52,82 +54,72 @@ VideoCrop::VideoCrop() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     croppedFbo  = new ofFbo();
     needToGrab  = false;
 
+    posX = posY = drawW = drawH = 0.0f;
+
+    _x = 0.0f;
+    _y = 0.0f;
+
+    _w = STANDARD_TEXTURE_WIDTH;
+    _h = STANDARD_TEXTURE_HEIGHT;
+
+    _maxW = STANDARD_TEXTURE_WIDTH;
+    _maxH = STANDARD_TEXTURE_HEIGHT;
+
     loaded      = false;
+
+    this->setIsTextureObj(true);
+    this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 
 }
 
 //--------------------------------------------------------------
 void VideoCrop::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"x");
     this->addInlet(VP_LINK_NUMERIC,"y");
     this->addInlet(VP_LINK_NUMERIC,"width");
     this->addInlet(VP_LINK_NUMERIC,"height");
+
     this->addOutlet(VP_LINK_TEXTURE,"croppedOutput");
 
-    this->setCustomVar(0.0f,"POSX");
-    this->setCustomVar(0.0f,"POSY");
-    this->setCustomVar(STANDARD_TEXTURE_WIDTH,"WIDTH");
-    this->setCustomVar(STANDARD_TEXTURE_HEIGHT,"HEIGHT");
+    this->setCustomVar(_x,"POSX");
+    this->setCustomVar(_y,"POSY");
+    this->setCustomVar(_w,"WIDTH");
+    this->setCustomVar(_h,"HEIGHT");
+
+    this->setCustomVar(prevW,"OBJ_WIDTH");
+    this->setCustomVar(prevH,"OBJ_HEIGHT");
 }
 
 //--------------------------------------------------------------
 void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->on2dPadEvent(this, &VideoCrop::on2dPadEvent);
-    gui->onSliderEvent(this, &VideoCrop::onSliderEvent);
 
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    gui->addBreak();
-    gui->addBreak();
-    pad = gui->add2dPad("POS");
-    pad->setUseCustomMouse(true);
-    pad->setPoint(ofPoint(this->getCustomVar("POSX"),this->getCustomVar("POSY"),0));
-    sliderW = gui->addSlider("Width", 0.0,STANDARD_TEXTURE_WIDTH,this->getCustomVar("WIDTH"));
-    sliderW->setUseCustomMouse(true);
-    sliderH = gui->addSlider("Height", 0.0,STANDARD_TEXTURE_HEIGHT,this->getCustomVar("HEIGHT"));
-    sliderH->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
-void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    sliderW->update();
-    sliderH->update();
-    pad->update();
+void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             if(!needToGrab){
                 needToGrab = true;
                 croppedFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA );
-                sliderW->setMax(static_cast<ofTexture *>(_inletParams[0])->getWidth());
-                //sliderW->setValue(static_cast<ofTexture *>(_inletParams[0])->getWidth());
-                sliderH->setMax(static_cast<ofTexture *>(_inletParams[0])->getHeight());
-                //sliderH->setValue(static_cast<ofTexture *>(_inletParams[0])->getHeight());
+                _maxW = static_cast<ofTexture *>(_inletParams[0])->getWidth();
+                _maxH = static_cast<ofTexture *>(_inletParams[0])->getHeight();
             }
 
             croppedFbo->begin();
             ofClear(0,0,0,255);
-            bounds.set((pad->getPoint().x/pad->getBounds().width)*static_cast<ofTexture *>(_inletParams[0])->getWidth(),(pad->getPoint().y/pad->getBounds().height)*static_cast<ofTexture *>(_inletParams[0])->getHeight(),sliderW->getValue(),sliderH->getValue());
+            bounds.set(_x,_y,_w,_h);
+            ofSetColor(255);
             drawTextureCropInsideRect(static_cast<ofTexture *>(_inletParams[0]),0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),bounds);
             croppedFbo->end();
 
@@ -138,38 +130,31 @@ void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     }
 
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(*(float *)&_inletParams[1] == 0.0){
-            pad->setPoint(ofPoint(0.000001,pad->getPoint().y,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[1] == static_cast<ofTexture *>(_inletParams[0])->getWidth()){
-            pad->setPoint(ofPoint(pad->getBounds().width*0.999999,pad->getPoint().y,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(ofClamp(*(float *)&_inletParams[1],0,static_cast<ofTexture *>(_inletParams[0])->getWidth())/static_cast<ofTexture *>(_inletParams[0])->getWidth()*pad->getBounds().width,pad->getPoint().y,pad->getPoint().z));
-        }
+        _x = ofClamp(*(float *)&_inletParams[1],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
     }
 
     if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(*(float *)&_inletParams[2] == 0.0){
-            pad->setPoint(ofPoint(pad->getPoint().x,0.000001,pad->getPoint().z));
-        }else if(*(float *)&_inletParams[2] == static_cast<ofTexture *>(_inletParams[0])->getHeight()){
-            pad->setPoint(ofPoint(pad->getPoint().x,pad->getBounds().height*0.999999,pad->getPoint().z));
-        }else{
-            pad->setPoint(ofPoint(pad->getPoint().x,ofClamp(*(float *)&_inletParams[2],0,static_cast<ofTexture *>(_inletParams[0])->getHeight())/static_cast<ofTexture *>(_inletParams[0])->getHeight()*pad->getBounds().height,pad->getPoint().z));
-        }
+        _y = ofClamp(*(float *)&_inletParams[2],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight());
     }
 
     if(this->inletsConnected[3] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        sliderW->setValue(ofClamp(*(float *)&_inletParams[3],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth()));
+        _w = ofClamp(*(float *)&_inletParams[3],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
     }
 
     if(this->inletsConnected[4] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        sliderH->setValue(ofClamp(*(float *)&_inletParams[4],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight()));
+        _h = ofClamp(*(float *)&_inletParams[4],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight());
     }
 
     if(!loaded){
         loaded = true;
-        pad->setPoint(ofPoint(this->getCustomVar("POSX"),this->getCustomVar("POSY"),0));
-        sliderW->setValue(this->getCustomVar("WIDTH"));
-        sliderH->setValue(this->getCustomVar("HEIGHT"));
+        _x = this->getCustomVar("XPOS");
+        _y = this->getCustomVar("YPOS");
+        _w = this->getCustomVar("WIDTH");
+        _h = this->getCustomVar("HEIGHT");
+        prevW = this->getCustomVar("OBJ_WIDTH");
+        prevH = this->getCustomVar("OBJ_HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
     }
     
 }
@@ -177,92 +162,89 @@ void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 //--------------------------------------------------------------
 void VideoCrop::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    }else{
+        // background
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void VideoCrop::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(prevW,"OBJ_WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(prevH,"OBJ_HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void VideoCrop::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130*this->scaleFactor);
+    if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
+        this->setCustomVar(_x,"XPOS");
+    }
+    if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
+        this->setCustomVar(_y,"YPOS");
+    }
+    if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
+        this->setCustomVar(_w,"WIDTH");
+    }
+    if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
+        this->setCustomVar(_h,"HEIGHT");
+    }
+    ImGui::PopItemWidth();
+
+    ImGuiEx::ObjectInfo(
+                "Basic texture crop.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-crop", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void VideoCrop::removeObjectContent(bool removeFileFromData){
     
-}
-
-//--------------------------------------------------------------
-void VideoCrop::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    sliderW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    sliderH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || pad->hitTest(_m-this->getPos()) || sliderW->hitTest(_m-this->getPos()) || sliderH->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void VideoCrop::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        pad->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        sliderW->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        sliderH->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void VideoCrop::on2dPadEvent(ofxDatGui2dPadEvent e){
-    this->setCustomVar(static_cast<float>(e.x),"POSX");
-    this->setCustomVar(static_cast<float>(e.y),"POSY");
-}
-
-//--------------------------------------------------------------
-void VideoCrop::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == sliderW){
-            this->setCustomVar(static_cast<float>(e.value),"WIDTH");
-        }else if(e.target == sliderH){
-            this->setCustomVar(static_cast<float>(e.value),"HEIGHT");
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -317,4 +299,6 @@ ofRectangle VideoCrop::getIntersection(ofRectangle & r1,ofRectangle & r2){
     }
 }
 
-OBJECT_REGISTER( VideoCrop, "video crop", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoCrop, "texture crop", OFXVP_OBJECT_CAT_TEXTURE)
+
+#endif

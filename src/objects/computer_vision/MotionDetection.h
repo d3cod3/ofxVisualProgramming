@@ -30,9 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+#include "imgui_stdlib.h"
 
 #include "ofxCv.h"
 #include "ofxOpenCv.h"
@@ -43,17 +46,17 @@ public:
 
     MotionDetection();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            resetTextures(int w, int h);
-    
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     ofPixels                    *pix;
@@ -69,14 +72,16 @@ public:
 
     bool                        newConnection;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiSlider*            noiseValue;
-    ofxDatGuiSlider*            thresholdValue;
+    float                       noise;
+    float                       threshold;
 
-    ofxDatGui*                  gui2;
-    ofxDatGuiValuePlotter*      rPlotter;
+    bool                        loaded;
     
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

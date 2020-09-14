@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoGate.h"
 
 //--------------------------------------------------------------
-VideoGate::VideoGate() : PatchObject(){
+VideoGate::VideoGate() : PatchObject("video gate"){
 
     this->numInlets  = 6;
     this->numOutlets = 1;
@@ -41,89 +43,179 @@ VideoGate::VideoGate() : PatchObject(){
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
 
-    _inletParams[1] = new ofTexture();  // float1
-    _inletParams[2] = new ofTexture();  // float2
-    _inletParams[3] = new ofTexture();  // float3
-    _inletParams[4] = new ofTexture();  // float4
-    _inletParams[5] = new ofTexture();  // float5
+    _inletParams[1] = new ofTexture();  // tex1
+    _inletParams[2] = new ofTexture();  // tex2
+    _inletParams[3] = new ofTexture();  // tex3
+    _inletParams[4] = new ofTexture();  // tex4
+    _inletParams[5] = new ofTexture();  // tex5
 
     _outletParams[0] = new ofTexture(); // texture output
 
     this->initInletsState();
 
-    isOpen      = false;
+    dataInlets      = 6;
+
+    needReset       = false;
+    loaded          = false;
+
     openInlet   = 0;
 
     kuro        = new ofImage();
+
+    this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 
 }
 
 //--------------------------------------------------------------
 void VideoGate::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"open");
     this->addInlet(VP_LINK_TEXTURE,"t1");
     this->addInlet(VP_LINK_TEXTURE,"t2");
     this->addInlet(VP_LINK_TEXTURE,"t3");
     this->addInlet(VP_LINK_TEXTURE,"t4");
     this->addInlet(VP_LINK_TEXTURE,"t5");
+
     this->addOutlet(VP_LINK_TEXTURE,"output");
+
+    this->setCustomVar(static_cast<float>(openInlet),"OPEN");
+    this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
 void VideoGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
+
+    texData.width = kuro->getWidth();
+    texData.height = kuro->getHeight();
+    texData.textureTarget = GL_TEXTURE_2D;
+    texData.bFlipTexture = true;
+
+    kuroTex = new ofTexture();
+    kuroTex->clear();
+    kuroTex->allocate(texData);
+    kuroTex->loadData(kuro->getPixels());
 }
 
 //--------------------------------------------------------------
-void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            isOpen = false;
-        }else{
-            isOpen = true;
-        }
-    }
-
-    if(isOpen){
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        if(openInlet >= 1 && openInlet <= this->numInlets){
-            *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[openInlet]);
-        }
-    }else{
-        *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
     }
     
+    if(openInlet >= 1 && openInlet < this->numInlets){
+        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[openInlet]);
+    }else if(openInlet == 0){
+        *static_cast<ofTexture *>(_outletParams[0]) = *kuroTex;
+    }
+
+    if(needReset){
+        needReset = false;
+        resetInletsSettings();
+    }
+
+    if(!loaded){
+        loaded  = true;
+        initInlets();
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+        openInlet = this->getCustomVar("OPEN");
+    }
 }
 
 //--------------------------------------------------------------
 void VideoGate::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(isOpen && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+
+}
+
+//--------------------------------------------------------------
+void VideoGate::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
+
+        for(int i=1;i<this->numInlets;i++){
+            if(i == openInlet){
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x,window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (90*scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(120,255,255,60),2.0f);
+            }
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)+((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(120,255,255,60),2.0f);
+        }
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void VideoGate::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Open",&openInlet)){
+        if(openInlet < 0){
+            openInlet = 0;
+        }else if(openInlet > dataInlets){
+            openInlet = dataInlets;
+        }
+        this->setCustomVar(static_cast<float>(openInlet),"OPEN");
+    }
+    if(ImGui::InputInt("Texture Inlets",&dataInlets)){
+        if(dataInlets > MAX_INLETS-1){
+            dataInlets = MAX_INLETS-1;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Receives up to 31 textures, and transmits only the one indicated in its first inlet: open.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-gate", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -131,4 +223,64 @@ void VideoGate::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_VIDEO)
+//--------------------------------------------------------------
+void VideoGate::initInlets(){
+    dataInlets = this->getCustomVar("NUM_INLETS");
+
+    this->numInlets = dataInlets;
+
+    resetInletsSettings();
+}
+
+//--------------------------------------------------------------
+void VideoGate::resetInletsSettings(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
+    this->numInlets = dataInlets+1;
+
+    _inletParams[0] = new float();  // open
+    *(float *)&_inletParams[0] = 0.0f;
+
+    for(size_t i=1;i<this->numInlets;i++){
+        _inletParams[i] = new ofTexture();
+    }
+
+    this->inletsType.clear();
+    this->inletsNames.clear();
+
+    this->addInlet(VP_LINK_NUMERIC,"open");
+
+    for(size_t i=1;i<this->numInlets;i++){
+        this->addInlet(VP_LINK_TEXTURE,"t"+ofToString(i));
+    }
+
+    this->inletsConnected.clear();
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }else{
+            this->inletsConnected.push_back(false);
+        }
+    }
+
+    ofNotifyEvent(this->resetEvent, this->nId);
+
+    this->saveConfig(false);
+
+}
+
+OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_TEXTURE)
+
+#endif

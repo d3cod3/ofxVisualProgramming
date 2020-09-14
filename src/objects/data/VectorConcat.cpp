@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VectorConcat.h"
 
 //--------------------------------------------------------------
-VectorConcat::VectorConcat() : PatchObject(){
+VectorConcat::VectorConcat() : PatchObject("vector concat"){
 
     this->numInlets  = 6;
     this->numOutlets = 1;
@@ -49,18 +51,35 @@ VectorConcat::VectorConcat() : PatchObject(){
 
     this->initInletsState();
 
+    dataInlets     = 6;
+
+    needReset       = false;
+    loaded          = false;
+
+    this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
+
 }
 
 //--------------------------------------------------------------
 void VectorConcat::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"v1");
     this->addInlet(VP_LINK_ARRAY,"v2");
     this->addInlet(VP_LINK_ARRAY,"v3");
     this->addInlet(VP_LINK_ARRAY,"v4");
     this->addInlet(VP_LINK_ARRAY,"v5");
     this->addInlet(VP_LINK_ARRAY,"v6");
+
     this->addOutlet(VP_LINK_ARRAY,"output");
+
+    this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -69,7 +88,7 @@ void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     static_cast<vector<float> *>(_outletParams[0])->clear();
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
@@ -78,14 +97,105 @@ void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             }
         }
     }
+
+    if(needReset){
+        needReset = false;
+        resetInletsSettings();
+    }
+
+    if(!loaded){
+        loaded  = true;
+        initInlets();
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
 }
 
 //--------------------------------------------------------------
 void VectorConcat::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw("Size: "+ofToString(static_cast<size_t>(static_cast<vector<float> *>(_outletParams[0])->size())),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void VectorConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
+
+        for(int i=0;i<this->numInlets;i++){
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (14*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(120,255,120,60),2.0f);
+            if(i==this->numInlets-1){
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),IM_COL32(120,255,120,60),2.0f);
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (114*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + ((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(120,255,120,60),2.0f);
+            }
+        }
+
+        ImGui::Dummy(ImVec2(-1,10*scaleFactor));
+        if(static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()) > 0){
+            ImGui::Text("size\nrange");
+            ImGui::SameLine();
+            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()),static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size())-1);
+        }
+
+
+        // save object dimensions (for resizable ones)
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->width != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void VectorConcat::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Inlets",&dataInlets)){
+        if(dataInlets > MAX_INLETS){
+            dataInlets = MAX_INLETS;
+        }
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
+        needReset = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "receive up to 32 data vectors, and concatenates them as a single vector",
+                "https://mosaic.d3cod3.org/reference.php?r=vector-concat", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -93,4 +203,59 @@ void VectorConcat::removeObjectContent(bool removeFileFromData){
 
 }
 
+//--------------------------------------------------------------
+void VectorConcat::initInlets(){
+    dataInlets = this->getCustomVar("NUM_INLETS");
+
+    this->numInlets = dataInlets;
+
+    resetInletsSettings();
+}
+
+//--------------------------------------------------------------
+void VectorConcat::resetInletsSettings(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
+    this->numInlets = dataInlets;
+
+    for(size_t i=0;i<dataInlets;i++){
+        _inletParams[i] = new vector<float>();
+    }
+
+    this->inletsType.clear();
+    this->inletsNames.clear();
+
+    for(size_t i=0;i<dataInlets;i++){
+        this->addInlet(VP_LINK_ARRAY,"v"+ofToString(i+1));
+    }
+
+    this->inletsConnected.clear();
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }else{
+            this->inletsConnected.push_back(false);
+        }
+    }
+
+    ofNotifyEvent(this->resetEvent, this->nId);
+
+    this->saveConfig(false);
+
+}
+
 OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA)
+
+#endif

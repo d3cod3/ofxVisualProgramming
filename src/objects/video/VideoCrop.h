@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -40,20 +42,18 @@ public:
 
     VideoCrop();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            drawTextureCropInsideRect(ofTexture *texture,float x, float y, float w, float h,ofRectangle &bounds);
     ofRectangle     getIntersection(ofRectangle &r1,ofRectangle &r2);
-
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            on2dPadEvent(ofxDatGui2dPadEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     ofFbo           *croppedFbo;
@@ -62,13 +62,23 @@ public:
 
     float           posX, posY, drawW, drawH;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGui2dPad*         pad;
-    ofxDatGuiSlider*        sliderW;
-    ofxDatGuiSlider*        sliderH;
+    float           scaledObjW, scaledObjH;
+    float           objOriginX, objOriginY;
+    float           canvasZoom;
 
-    bool                    loaded;
+    float           _x,_y;
+    float           _w,_h;
+
+    float           _maxW, _maxH;
+
+    float           prevW, prevH;
+
+    bool            loaded;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

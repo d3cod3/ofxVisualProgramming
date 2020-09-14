@@ -70,8 +70,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxCv](https://github.com/kylemcdonald/ofxCv)
 
-#### [ofxDatGui](https://github.com/d3cod3/ofxDatGui)
-
 #### [ofxEasing](https://github.com/arturoc/ofxEasing)
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
@@ -80,11 +78,9 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxGLEditor](https://github.com/d3cod3/ofxGLEditor)
 
-#### [ofxHistoryPlot](https://github.com/armadillu/ofxHistoryPlot)
-
-#### [ofxJava](https://github.com/d3cod3/ofxJava)
-
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
+
+#### [ofxImGui](https://github.com/d3cod3/ofxImGui)
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
 
@@ -96,8 +92,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxNDI](https://github.com/d3cod3/ofxNDI)
 
-#### [ofxParagraph](https://github.com/d3cod3/ofxParagraph)
-
 #### [ofxPd](https://github.com/danomatika/ofxPd)
 
 #### [ofxPdExternals](https://github.com/d3cod3/ofxPdExternals)
@@ -106,11 +100,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
-#### [ofxThreadedFileDialog](https://github.com/d3cod3/ofxThreadedFileDialog)
-
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
-
-#### [ofxTimeMeasurements](https://github.com/armadillu/ofxTimeMeasurements)
 
 #### [ofxWarp](https://github.com/d3cod3/ofxWarp)
 
@@ -132,13 +122,10 @@ git clone https://github.com/npisanti/ofxAudioFile
 git clone https://github.com/d3cod3/ofxBTrack
 git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
-git clone https://github.com/d3cod3/ofxDatGui
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/d3cod3/ofxGLEditor
-git clone https://github.com/armadillu/ofxHistoryPlot
-git clone https://github.com/d3cod3/ofxJava
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
@@ -146,13 +133,10 @@ git clone https://github.com/d3cod3/ofxMidi
 git clone https://github.com/d3cod3/ofxMtlMapping2D
 git clone https://github.com/d3cod3/ofxNDI
 git clone --branch=OF0.9.8 https://github.com/d3cod3/ofxPython
-git clone https://github.com/d3cod3/ofxParagraph
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPdExternals
 git clone https://github.com/npisanti/ofxPDSP
-git clone https://github.com/d3cod3/ofxThreadedFileDialog
 git clone https://github.com/d3cod3/ofxTimeline
-git clone https://github.com/armadillu/ofxTimeMeasurements
 git clone https://github.com/d3cod3/ofxWarp
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
@@ -209,267 +193,49 @@ void ofApp::draw(){
 
 ```
 
-# CONTRIBUTING
+# CONTRIBUTING, WRITING PLUGINS ( YEAH! )
 
-Contributing to the project adding new objects is relatively easy, i'm going to show here a basic object template class, everyone is invited to fork ofxVisualProgramming addon, create new objects, and make a pull request. ONLY ONE PULL REQUEST FOR EACH NEW OBJECT WILL BE ACCEPTED, please do not make a pull request with thousands lines of new code!!!
+Contributing to the project adding new objects is relatively easy, as ofxVisualProgramming is at the core of [Mosaic](https://github.com/d3cod3/Mosaic) software, i've implemented a plugin mechanism based on [Pugg](http://pugg.sourceforge.net/), in order to facilitate the extension and the creation of new objects/nodes to add at the ofxVisualProgramming/Mosaic default objects/nodes library. (see objects/nodes list below)
 
-So, the template, as this is a work in progress right now, i'm going to show a basic object template only.
+You can find the repo of the plugin template here: [Mosaic-Plugin](https://github.com/d3cod3/Mosaic-Plugin), with some generic objects templates and more detailed info in the readme.
 
-The header of your new object (_SuperAmazingObject_, for instance) will be SuperAmazingObject.h :
-
-```c
-
-/*==============================================================================
-
-    ofxVisualProgramming: A visual programming patching environment for OF
-
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
-
-    See https://github.com/d3cod3/ofxVisualProgramming for documentation
-
-    SuperAmazingObject:
-    developed by _object author_
-    _author github_
-    _author www_
-
-==============================================================================*/
-
-#pragma once
-
-#include "PatchObject.h"
-
-/*
-  This is a simplified version of the SimpleRandom object already included in
-  the ofxVisualProgramming addon:
-  src/objects/math/SimpleRandom.h
-  src/objects/math/SimpleRandom.cpp
-*/
-
-
-class SuperAmazingObject : public PatchObject {
-
-public:
-
-    // constructor
-    SuperAmazingObject();
-
-    // inherit virtual methods from base class PatchObject
-    // this are all methods available, you can use it all
-    // or just the one you need.
-    // for this simple object i'm going to leave commented
-    // the ones i don't need
-
-    void  newObject();
-    // This methods are for objects with file loading capabilities (video file, audio file, script file, etc)
-    // void autoloadFile(string _fp);
-    // void autosaveNewFile(string fromFile)
-
-    void  setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    // void setupAudioOutObjectContent(pdsp::Engine &engine);
-    void  updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd);
-    void  drawObjectContent(ofxFontStash *font);
-    void  removeObjectContent();
-
-    //void  mouseMovedObjectContent(ofVec3f _m);
-    //void  mousePressedObjectContent(ofVec3f _m);
-    //void  mouseReleasedObjectContent(ofVec3f _m);
-    //void  keyPressedObjectContent(int key);
-
-    //void  fileDialogResponse(ofxThreadedFileDialogResponse &response);
-
-    //void  dragGUIObject(ofVec3f _m);
-
-    // This methods are for audio objects
-    //void  audioInObject(ofSoundBuffer &inputBuffer);
-    //void  audioOutObject(ofSoundBuffer &outBuffer);
-
-    // This methods are for advanced objects with inlets/internal vars changes on runtime
-    //void  customReset()
-    //void  resetSystemObject();
-    //void  resetResolution(int fromID, int newWidth, int newHeight);
-
-    // my SuperAmazingObject public variables (if any)
-    // .............
-
-
-    // initialize object in factory
-    OBJECT_FACTORY_PROPS
-
-};
-
-```
-
-And the source SuperAmazingObject.cpp :
-
-```c
-
-/*==============================================================================
-
-    ofxVisualProgramming: A visual programming patching environment for OF
-
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
-
-    See https://github.com/d3cod3/ofxVisualProgramming for documentation
-
-    SuperAmazingObject:
-    developed by _object author_
-    _author github_
-    _author www_
-
-==============================================================================*/
-
-#include "SuperAmazingObject.h"
-
-//--------------------------------------------------------------
-SuperAmazingObject::SuperAmazingObject() : PatchObject(){
-
-    // first, declare how many inlet/outlet the object have
-    this->numInlets  = 2;
-    this->numOutlets = 1;
-
-    // then init the pointers
-    // i have used here void* pointers
-    // and established 5 fixed type of data plus a variable
-    // one (a special purpose cable for special cases) to cast
-    // and create proper connections
-
-    // VP_LINK_NUMERIC --> float
-    // VP_LINK_STRING  --> string
-    // VP_LINK_ARRAY   --> vector<float>
-    // VP_LINK_TEXTURE --> ofTexture
-    // VP_LINK_AUDIO   --> ofSoundBuffer
-    // VP_LINK_SPECIAL --> anything
-
-    // These are the ONLY available connections
-    // so we are creating here a random number generator
-    // a really basic one will have two inlets, _min_ and _max_
-    // for the random range
-    // and one outlet, the random number
-
-    // we create/cast the two inlets then as float
-    _inletParams[0] = new float();  // min
-    _inletParams[1] = new float();  // max
-    // and init them with some start value
-    *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 1.0f;
-
-    // then we create/cast the outlet as float too
-    _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
-
-    // we call this to init some stuff
-    this->initInletsState();
-
-}
-
-//--------------------------------------------------------------
-void SuperAmazingObject::newObject(){
-
-    // first set the name of the object
-    // (choose a cool one, no strange chars please)
-    this->setName(this->objectName);
-
-    // and then the inlets/outlets names/types
-    this->addInlet(VP_LINK_NUMERIC,"min");
-    this->addInlet(VP_LINK_NUMERIC,"max");
-    this->addOutlet(VP_LINK_NUMERIC,"output");
-}
-
-//--------------------------------------------------------------
-void SuperAmazingObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
-    // setup your object here
-    ofSeedRandom(ofGetElapsedTimeMillis());
-}
-
-//--------------------------------------------------------------
-void SuperAmazingObject::updateObjectContent(map<int,PatchObject*> &patchObjects, ofxThreadedFileDialog &fd){
-    // update your object here, as any ofApp example
-
-    // in this case we just need to update the outlet value
-    // using the ofRandom function
-    // (why not, at the end is just a random number generator object)
-    *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[0],*(float *)&_inletParams[1]);
-}
-
-//--------------------------------------------------------------
-void SuperAmazingObject::drawObjectContent(ofxFontStash *font){
-    // draw your object content here
-
-    // and if you need to write some text, just use the font
-    // available with the method,
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
-}
-
-//--------------------------------------------------------------
-void SuperAmazingObject::removeObjectContent(){
-  // anything you need to remove or stop when deleting the object
-}
-
-// register object to factory OBJECT_REGISTER(class, object name, category)
-OBJECT_REGISTER( SuperAmazingObject, "super amazing object", OFXVP_OBJECT_CAT_DATA)
-
-// available categories
-// OFXVP_OBJECT_CAT_AUDIOANALYSIS
-// OFXVP_OBJECT_CAT_COMMUNICATIONS
-// OFXVP_OBJECT_CAT_CV
-// OFXVP_OBJECT_CAT_DATA
-// OFXVP_OBJECT_CAT_GRAPHICS
-// OFXVP_OBJECT_CAT_GUI
-// OFXVP_OBJECT_CAT_LOGIC
-// OFXVP_OBJECT_CAT_MATH
-// OFXVP_OBJECT_CAT_SCRIPTING
-// OFXVP_OBJECT_CAT_SOUND
-// OFXVP_OBJECT_CAT_VIDEO
-// OFXVP_OBJECT_CAT_WINDOWING
-
-```
-
-And thats it! This is all for now, for every question just open an issue here on github, or send me an email.
-
-More soon...
 
 # OBJECTS LIST
 
-Audio Analysis | Ready | TODO
----------- | ---------- | ----------
+Audio Analysis | Ready
+---------- | ----------
 audio analyzer | X |
-beat extractor | X |
 bpm extractor | X |
 centroid extractor | X |
 dissonance extractor | X |
 fft extractor | X |
 hfc extractor | X |
+hpcp extractor | X |
 inharmonicity extractor | X |
 mel bands extractor | X |
 mfcc extractor | X |
-hpcp extractor | X |
 onset extractor | X |
 pitch extractor | X |
 power extractor | X |
 rms extractor | X |
-roll-off extractor | X |
+rolloff extractor | X |
 tristimulus extractor | X |
 
-Communications | Ready | TODO
----------- | ---------- | ----------
+Communications | Ready
+---------- | ----------
 arduino serial | X  |
 key pressed | X  |
 key released | X  |
 midi key | X  |
 midi knob | X  |
 midi pad | X  |
-midi receive | X  |
-midi score | X  |
+midi receiver | X  |
 midi sender | X  |
 osc receiver | X  |
 osc sender | X  |
 
-Computer Vision | Ready | TODO
----------- | ---------- | ----------
+Computer Vision | Ready
+---------- | ----------
 background subtraction | X  |
 chroma key | X  |
 color tracking | X  |
@@ -478,27 +244,28 @@ haar tracking | X |
 motion detection | X |
 optical flow | X |
 
-Data | Ready | TODO
----------- | ---------- | ----------
+Data | Ready
+---------- | ----------
 bang multiplexer | X  |
+bang to float | X  |
+color palette | X  |
 data to texture | X  |
+file to data | X  |
+float multiplexer | X  |
 floats to vector | X  |
 texture to data | X  |
 vector at | X  |
 vector concat | X  |
+vector extract | X  |
 vector gate | X  |
-vector multiply | X  |
+vector operator | X  |
 
-Graphics | Ready | TODO
----------- | ---------- | ----------
-image exporter | X |
-image loader | X |
-
-GUI | Ready | TODO
----------- | ---------- | ----------
+GUI | Ready
+---------- | ----------
 2D pad | X |
 bang | X |
 comment | X |
+data viewer | X |
 message | X |
 player controls | X |
 signal viewer | X |
@@ -506,102 +273,103 @@ slider | X |
 sonogram | X |
 timeline | X |
 trigger | X |
+value plotter | X |
 video viewer | X |
 vu meter | X |
 
-Logic | Ready | TODO
----------- | ---------- | ----------
-== | X |
-!= | X |
+Logic | Ready
+---------- | ----------
+boolean operator | X |
+conditional operator | X |
 counter | X |
 delay bang | X |
+delay float | X |
 gate | X |
 inverter | X |
 loadbang | X |
-select | X |
 spigot | X |
+timed semaphore | X |
 
-Math | Ready | TODO
----------- | ---------- | ----------
-add | X |
+Math | Ready
+---------- | ----------
+1D noise | X |
 clamp | X |
 constant | X |
-divide | X |
+cosine generator | X |
+map | X |
 metronome | X |
-multiply | X |
-range | X |
-simple noise | X |
+operator | X |
 simple random | X |
+sine generator | X |
 smooth | X |
-subtract | X |
 
-Scripting | Ready | TODO
----------- | ---------- | ----------
+Scripting | Ready
+---------- | ----------
 bash script | X |
+glsl shader | X |
 lua script | X |
-processing script | X |
 python script | X |
-shader object | X |
+scheme script | |
 
-Sound | Ready | TODO
----------- | ---------- | ----------
+
+Sound | Ready
+---------- | ----------
 ADSR envelope | X |
 AHR envelope | X |
-amp | X |
+amplifier | X |
 audio exporter | X |
-audio gate | X |
-bitcruncher | | X
+bit cruncher | X |
 bit noise | X |
-chorus | X |
-click | | X
 comb filter | X |
 compressor | X |
 crossfader | X |
 data oscillator | X |
 decimator | X |
 delay | X |
-ducker | X |
-hi pass | X |
+dimension chorus | X |
+high pass | X |
+kick | X |
 lfo | X |
 low pass | X |
 mixer | X |
 note to frequency | X |
+oscillator | X |
 panner | X |
-peak EQ | | X
 pd patch | X |
-phasor filter | | X
-pulse | X |
 quad panner | X |
-resonant 2pole filter | | X
-resonant 4pole filter | | X
+resonant filter | X |
 reverb | X |
 sample and hold | | X
 saturator | | X
-saw | X |
-sequencer | | X
+sequencer | X |
+sidechain compressor | X |
+signal gate | X |
+signal operator | X |
 signal trigger | X |
-sine | X |
 soundfile player | X |
-triangle | X |
-wavetable oscillator | | X
-white noise | X |
-more to come ... | | X
 
-Video | Ready | TODO
----------- | ---------- | ----------
+Texture | Ready
+---------- | ----------
+image exporter | X |
+image loader | X |
 kinect grabber | X |
-video crop | X |
-video feedback | X |
+pixels to texture | X |
+texture crop | X |
+texture to pixels | X |
+texture transform | X |
+to grayscale texture | X |
 video exporter | X |
+video feedback | X |
 video gate | X |
 video grabber | X |
 video player | X |
-video scale | X |
+video receiver | X |
+video sender | X |
 video streaming | X |
 video timedelay | X |
 
-Windowing | Ready | TODO
----------- | ---------- | ----------
+Windowing | Ready
+---------- | ----------
 live patching | X |
 output window | X |
 projection mapping | X |
@@ -623,18 +391,23 @@ ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
 
 ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
+<<<<<<< HEAD
+=======
 
 ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
+>>>>>>> master
 
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
 
-ofxFontStash, ofxHistoryPlot, ofxTimeMeasurements original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
+ofxFontStash original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
 ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
+
+ofxImGui original addon by [Jason Van Cleave](https://github.com/jvcleave)
 
 ofxInfiniteCanvas original addon by [Roy Macdonald](https://github.com/roymacdonald)
 

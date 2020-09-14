@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -45,45 +47,54 @@ public:
 
     VideoGrabber();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadCameraSettings();
     void            resetCameraSettings(int devID);
-
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
 
     ofVideoGrabber*         vidGrabber;
     ofxCvColorImage*        colorImage;
     vector<ofVideoDevice>   wdevices;
     vector<string>          devicesVector;
     vector<int>             devicesID;
+
     int                     camWidth, camHeight;
     int                     temp_width, temp_height;
+    string                  deviceName;
     int                     deviceID;
+
     bool                    needReset;
     bool                    isOneDeviceAvailable;
 
-    float               posX, posY, drawW, drawH;
-    bool                isNewObject;
+    bool                    hMirror, vMirror;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     deviceName;
-    ofxDatGuiMatrix*    deviceSelector;
-    ofxDatGuiToggle*    mirrorH;
-    ofxDatGuiToggle*    mirrorV;
-    ofxDatGuiTextInput* guiTexWidth;
-    ofxDatGuiTextInput* guiTexHeight;
-    ofxDatGuiButton*    applyButton;
+    float                   posX, posY, drawW, drawH;
+    bool                    isNewObject;
+
+    float                   scaledObjW, scaledObjH;
+    float                   objOriginX, objOriginY;
+    float                   canvasZoom;
+
+    float                   prevW, prevH;
+
+    bool                    loaded;
+
+
+protected:
+
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

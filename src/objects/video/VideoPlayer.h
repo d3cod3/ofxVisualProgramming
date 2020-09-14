@@ -30,11 +30,14 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
 
-#include "ofxTimecode.h"
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 class VideoPlayer : public PatchObject {
 
@@ -42,42 +45,55 @@ public:
 
     VideoPlayer();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadVideoFile();
-    void            reloadVideoThreaded();
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
     ofVideoPlayer*      video;
-    ofxTimecode         videoTimecode;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
     bool                isFileLoaded;
     bool                nameLabelLoaded;
     bool                videoWasPlaying;
+    bool                isPaused;
+    bool                finishBang;
+    bool                preloadFirstFrame;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     videoName;
-    ofxDatGuiLabel*     videoRes;
-    ofxDatGuiButton*    loadButton;
+    float               volume;
+    float               speed;
+    bool                loop;
+
+    imgui_addons::ImGuiFileBrowser  fileDialog;
+    string              videoName;
+    string              videoRes;
+    string              videoPath;
 
     string              lastMessage;
     float               lastPlayhead;
 
     bool                loadVideoFlag;
 
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
 protected:
-    bool                    needToLoadVideo;
+    bool                needToLoadVideo;
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

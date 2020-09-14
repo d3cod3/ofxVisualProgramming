@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -40,38 +42,40 @@ public:
 
     VideoDelay();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
 
-    void            on2dPadEvent(ofxDatGui2dPadEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    float           posX, posY, drawW, drawH;
+    float                   posX, posY, drawW, drawH;
+    float                   scaledObjW, scaledObjH;
+    float                   objOriginX, objOriginY;
+    float                   canvasZoom;
 
-    float           alphaTo;
-    float           scaleTo;
-    float           scale;
-    float           alpha;
+    float                   _x,_y;
 
-    ofFbo           *delayFbo;
-    ofTexture       *backBufferTex;
-    ofRectangle     bounds;
-    float           halfscale;
-    bool            needToGrab;
+    float                   alphaTo;
+    float                   scaleTo;
+    float                   scale;
+    float                   alpha;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGui2dPad*         pad;
-    ofxDatGuiSlider*        slider;
-    ofxDatGuiSlider*        sliderA;
+    ofFbo                   *delayFbo;
+    ofTexture               *backBufferTex;
+    ofRectangle             bounds;
+    float                   halfscale;
+    bool                    needToGrab;
 
     bool                    loaded;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

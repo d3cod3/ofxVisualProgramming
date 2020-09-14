@@ -32,12 +32,12 @@
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
-#else
+#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
 
 #include "VideoReceiver.h"
 
 //--------------------------------------------------------------
-VideoReceiver::VideoReceiver() : PatchObject(){
+VideoReceiver::VideoReceiver() : PatchObject("video receiver"){
 
     this->numInlets  = 0;
     this->numOutlets = 1;
@@ -50,11 +50,14 @@ VideoReceiver::VideoReceiver() : PatchObject(){
 
     needToGrab = true;
 
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
 void VideoReceiver::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addOutlet(VP_LINK_TEXTURE,"textureReceived");
 }
 
@@ -65,7 +68,7 @@ void VideoReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     ndiGrabber.update();
 
     if(needToGrab && ndiGrabber.getTexture().isAllocated()){
@@ -81,24 +84,63 @@ void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void VideoReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofSetCircleResolution(50);
-    ofEnableAlphaBlending();
-
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth() >= static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    }else{
+        // background
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void VideoReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+}
+
+//--------------------------------------------------------------
+void VideoReceiver::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Receive broadcast (local network) video from the video sender object through the NDI (Network Device Interface)communication protocol.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -106,6 +148,6 @@ void VideoReceiver::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_VIDEO)
+OBJECT_REGISTER( VideoReceiver, "video receiver", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

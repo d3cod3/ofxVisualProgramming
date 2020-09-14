@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Crossfader.h"
 
 //--------------------------------------------------------------
-Crossfader::Crossfader() : PatchObject(){
+Crossfader::Crossfader() : PatchObject("crossfader"){
 
     this->numInlets  = 3;
     this->numOutlets = 1;
@@ -47,54 +49,42 @@ Crossfader::Crossfader() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    fade_value              = 0.0f;
+
     loaded                  = false;
+
+    this->height            /= 2;
 
 }
 
 //--------------------------------------------------------------
 void Crossfader::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"in 1");
     this->addInlet(VP_LINK_AUDIO,"in 2");
     this->addInlet(VP_LINK_NUMERIC,"fade");
+
     this->addOutlet(VP_LINK_AUDIO,"out");
 
-    this->setCustomVar(static_cast<float>(0),"FADE");
+    this->setCustomVar(fade_value,"FADE");
 }
 
 //--------------------------------------------------------------
 void Crossfader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &Crossfader::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("Fade", 0,1,0);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void Crossfader::setupAudioOutObjectContent(pdsp::Engine &engine){
 
     fade_ctrl >> crossfader.in_fade();
-    fade_ctrl.set(0.0f);
+    fade_ctrl.set(fade_value);
     fade_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> crossfader.in_A();
@@ -106,31 +96,70 @@ void Crossfader::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    slider->update();
+void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[2]){
-        fade_ctrl.set(ofClamp(*(float *)&_inletParams[2],0.0f,1.0f));
-        slider->setValue(fade_ctrl.get());
+        fade_value = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("FADE"));
-        fade_ctrl.set(ofClamp(slider->getValue(),0.0f,1.0f));
+        fade_value = this->getCustomVar("FADE");
     }
+
+    fade_ctrl.set(ofClamp(fade_value,0.0f,1.0f));
 
 }
 
 //--------------------------------------------------------------
 void Crossfader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void Crossfader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
+        ImGui::SliderFloat("",&fade_value,0.0f, 1.0f);
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void Crossfader::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A basic linear crossfader",
+                "https://mosaic.d3cod3.org/reference.php?r=crossfader", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -167,46 +196,6 @@ void Crossfader::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void Crossfader::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void Crossfader::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void Crossfader::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"FADE");
-    fade_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
-}
-
 OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

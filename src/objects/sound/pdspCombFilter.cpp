@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspCombFilter.h"
 
 //--------------------------------------------------------------
-pdspCombFilter::pdspCombFilter() : PatchObject(){
+pdspCombFilter::pdspCombFilter() : PatchObject("comb filter"){
 
     this->numInlets  = 4;
     this->numOutlets = 1;
@@ -51,110 +53,88 @@ pdspCombFilter::pdspCombFilter() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    pitch                   = 12.0f;
+    damping                 = 0.0f;
+    feedback                = 0.0f;
+
     loaded                  = false;
+
+    this->width *= 2.0f;
 
 }
 
 //--------------------------------------------------------------
 void pdspCombFilter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"pitch");
     this->addInlet(VP_LINK_NUMERIC,"damping");
     this->addInlet(VP_LINK_NUMERIC,"feedback");
+
     this->addOutlet(VP_LINK_AUDIO,"filteredSignal");
 
-    this->setCustomVar(static_cast<float>(0.1),"PITCH");
-    this->setCustomVar(static_cast<float>(0),"DAMPING");
-    this->setCustomVar(static_cast<float>(0),"FEEDBACK");
+    this->setCustomVar(static_cast<float>(pitch),"PITCH");
+    this->setCustomVar(static_cast<float>(damping),"DAMPING");
+    this->setCustomVar(static_cast<float>(feedback),"FEEDBACK");
 }
 
 //--------------------------------------------------------------
 void pdspCombFilter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspCombFilter::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    pitch = gui->addSlider("Pitch", 0,1,0.1);
-    pitch->setUseCustomMouse(true);
-    damping = gui->addSlider("Damping", 0,1,0);
-    damping->setUseCustomMouse(true);
-    feedback = gui->addSlider("Feedback", 0,1,0);
-    feedback->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void pdspCombFilter::setupAudioOutObjectContent(pdsp::Engine &engine){
 
     pitch_ctrl >> filter.in_pitch();
-    pitch_ctrl.set(12);
+    pitch_ctrl.set(pitch);
     pitch_ctrl.enableSmoothing(50.0f);
 
     damping_ctrl >> filter.in_damping();
-    damping_ctrl.set(0.0f);
+    damping_ctrl.set(damping);
     damping_ctrl.enableSmoothing(50.0f);
 
     feedback_ctrl >> filter.in_feedback();
-    feedback_ctrl.set(0.0f);
+    feedback_ctrl.set(feedback);
     feedback_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> filter.in_signal();
 
     filter.out_signal() >> this->pdspOut[0];
-
     filter.out_signal() >> scope >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
-void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    pitch->update();
-    damping->update();
-    feedback->update();
+void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        pitch_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0f,127.0f));
-        pitch->setValue(pitch_ctrl.get()/127.0f);
+        pitch = ofClamp(*(float *)&_inletParams[1],0.0f,127.0f);
+        pitch_ctrl.set(pitch);
     }
 
     if(this->inletsConnected[2]){
-        damping_ctrl.set(ofClamp(*(float *)&_inletParams[2],0.0f,1.0f));
-        damping->setValue(damping_ctrl.get());
+        damping = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        damping_ctrl.set(damping);
     }
 
     if(this->inletsConnected[3]){
-        feedback_ctrl.set(ofClamp(*(float *)&_inletParams[3],0.0f,1.0f));
-        feedback->setValue(feedback_ctrl.get());
+        feedback = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        feedback_ctrl.set(feedback);
     }
 
     if(!loaded){
         loaded = true;
-        pitch->setValue(this->getCustomVar("PITCH"));
-        pitch_ctrl.set(ofClamp(pitch->getValue()*127.0f,0.0f,127.0f));
-        damping->setValue(this->getCustomVar("DAMPING"));
-        damping_ctrl.set(ofClamp(damping->getValue(),0.0f,1.0f));
-        feedback->setValue(this->getCustomVar("FEEDBACK"));
-        feedback_ctrl.set(ofClamp(feedback->getValue(),0.0f,1.0f));
+        pitch = ofClamp(this->getCustomVar("PITCH"),0.0f,127.0f);
+        pitch_ctrl.set(pitch);
+        damping = ofClamp(this->getCustomVar("DAMPING"),0.0f,1.0f);
+        damping_ctrl.set(damping);
+        feedback = ofClamp(this->getCustomVar("FEEDBACK"),0.0f,1.0f);
+        feedback_ctrl.set(feedback);
     }
 
 }
@@ -162,9 +142,53 @@ void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 //--------------------------------------------------------------
 void pdspCombFilter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void pdspCombFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 127.0f, 1270.0f)){
+            pitch_ctrl.set(pitch);
+            this->setCustomVar(static_cast<float>(pitch),"PITCH");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "damping", &damping, 0.0f, 1.0f, 100.0f)){
+            damping_ctrl.set(damping);
+            this->setCustomVar(static_cast<float>(damping),"DAMPING");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "feedback", &feedback, 0.0f, 1.0f, 100.0f)){
+            feedback_ctrl.set(feedback);
+            this->setCustomVar(static_cast<float>(feedback),"FEEDBACK");
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspCombFilter::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "A comb filter is a delay tuned to a specific pitch frequency (mix it with the dry signal)",
+                "https://mosaic.d3cod3.org/reference.php?r=comb-filter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -200,59 +224,7 @@ void pdspCombFilter::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspCombFilter::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    pitch->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    damping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    feedback->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || damping->hitTest(_m-this->getPos()) || feedback->hitTest(_m-this->getPos()) || pitch->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void pdspCombFilter::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        pitch->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        damping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        feedback->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspCombFilter::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(e.target == pitch){
-        this->setCustomVar(static_cast<float>(e.value),"PITCH");
-        pitch_ctrl.set(static_cast<float>(e.value)*127.0f);
-    }else if(e.target == damping){
-        this->setCustomVar(static_cast<float>(e.value),"DAMPING");
-        damping_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
-    }else if(e.target == feedback){
-        this->setCustomVar(static_cast<float>(e.value),"FEEDBACK");
-        feedback_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,1.0f));
-    }
-
-}
 
 OBJECT_REGISTER( pdspCombFilter, "comb filter", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

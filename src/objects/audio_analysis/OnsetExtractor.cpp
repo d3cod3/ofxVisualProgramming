@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OnsetExtractor.h"
 
 //--------------------------------------------------------------
-OnsetExtractor::OnsetExtractor() : PatchObject(){
+OnsetExtractor::OnsetExtractor() : PatchObject("onset extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -56,8 +58,10 @@ OnsetExtractor::OnsetExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void OnsetExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_NUMERIC,"onset");
 }
 
@@ -77,7 +81,7 @@ void OnsetExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void OnsetExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void OnsetExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
@@ -111,12 +115,50 @@ void OnsetExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 //--------------------------------------------------------------
 void OnsetExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(*(float *)&_outletParams[0] > 0){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
+
+}
+
+//--------------------------------------------------------------
+void OnsetExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(*(float *)&_outletParams[0] > 0){
+            // draw onset
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos(),ImGui::GetWindowPos()+ImGui::GetWindowSize(),IM_COL32(255,255,120,255));
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void OnsetExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Get the onset of an audio signal as a float value (0 or 1)",
+                "https://mosaic.d3cod3.org/reference.php?r=onset-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -125,3 +167,5 @@ void OnsetExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( OnsetExtractor , "onset extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

@@ -30,77 +30,75 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Metronome.h"
 
 //--------------------------------------------------------------
-Metronome::Metronome() : PatchObject(){
+Metronome::Metronome() :
+        PatchObject("metronome"),
+
+        // define default values
+        timeSetting(1000,"time")
+{
 
     this->numInlets  = 2;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
-    _inletParams[0] = new float(); // time
-    *(float *)&_inletParams[0] = 0.0f;
+    *(float *)&_inletParams[0] = timeSetting.get();
 
-    _outletParams[0] = new float(); // output
+    _inletParams[1] = new float(); // bang
+    *(float *)&_inletParams[1] = 0.0f;
+
+    _outletParams[0] = new float(); // bang
     *(float *)&_outletParams[0] = 0.0f;
+
+    _outletParams[1] = new float(); // system bpm bang
+    *(float *)&_outletParams[1] = 0.0f;
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
-    wait = 1000;
     resetTime = ofGetElapsedTimeMillis();
     metroTime = ofGetElapsedTimeMillis();
 
     sync                = false;
+
+    bpmMetro            = false;
+
     loaded              = false;
 
 }
 
 //--------------------------------------------------------------
 void Metronome::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"time");
     this->addInlet(VP_LINK_NUMERIC,"sync");
-    this->addOutlet(VP_LINK_NUMERIC,"bang");
 
-    this->setCustomVar(static_cast<float>(wait),"TIME");
+    this->addOutlet(VP_LINK_NUMERIC,"bang");
+    this->addOutlet(VP_LINK_NUMERIC,"system bpm bang");
+
+    this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
 }
 
 //--------------------------------------------------------------
 void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &Metronome::onTextInputEvent);
 
-    timeSetting = gui->addTextInput(" ","1000");
-    timeSetting->setUseCustomMouse(true);
-    timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
-    gui->addBreak();
-    rPlotter = gui->addValuePlotter("",0.0,1.0);
-    rPlotter->setDrawMode(ofxDatGuiGraph::LINES);
-    rPlotter->setSpeed(1);
-
-    gui->setPosition(0,this->headerHeight);
-
-    wait = ofToInt(timeSetting->getText());
+    systemBPM.code = [&]() noexcept {
+        // BPM metronome
+        if(systemBPM.frame()%4==0) bpmMetro = true;
+    };
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     metroTime = ofGetElapsedTimeMillis();
 
-    gui->update();
-    timeSetting->update();
-
-    if(this->inletsConnected[0] && static_cast<size_t>(floor(*(float *)&_inletParams[0])) != wait){
-        wait = static_cast<size_t>(floor(*(float *)&_inletParams[0]));
-        timeSetting->setText(ofToString(wait));
-        this->setCustomVar(static_cast<float>(wait),"TIME");
+    if(this->inletsConnected[0] && static_cast<int>(floor(*(float *)&_inletParams[0])) != timeSetting.get()){
+        timeSetting.get() = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
     }
 
     if(this->inletsConnected[1]){
@@ -111,27 +109,73 @@ void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         resetTime = ofGetElapsedTimeMillis();
     }
 
-    if(metroTime-resetTime > wait){
+    if(metroTime-resetTime > timeSetting.get()){
         resetTime = ofGetElapsedTimeMillis();
         *(float *)&_outletParams[0] = 1.0f;
     }else{
         *(float *)&_outletParams[0] = 0.0f;
     }
 
-    rPlotter->setValue(*(float *)&_outletParams[0]);
+    if(bpmMetro){
+        bpmMetro = false;
+        *(float *)&_outletParams[1] = 1.0f;
+    }else{
+        *(float *)&_outletParams[1] = 0.0f;
+    }
 
     if(!loaded){
         loaded = true;
-        timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
+        timeSetting.set(static_cast<int>(floor(this->getCustomVar("TIME"))));
     }
+
 }
 
 //--------------------------------------------------------------
 void Metronome::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(255,255,255,255), this->scaleFactor);
+
+        _nodeCanvas.EndNodeContent();
+    }
+}
+
+//--------------------------------------------------------------
+void Metronome::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(130);
+    if(ImGui::DragInt("time (ms)", &timeSetting.get())){
+        this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Sends a bang with the time periodicity you specify in milliseconds.",
+                "https://mosaic.d3cod3.org/reference.php?r=metronome", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -139,46 +183,6 @@ void Metronome::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void Metronome::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = timeSetting->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void Metronome::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void Metronome::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == timeSetting){
-        if(isInteger(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-            wait = ofToInt(e.text);
-        }else{
-            timeSetting->setText(ofToString(wait));
-        }
-
-    }
-}
-
 OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH)
+
+#endif

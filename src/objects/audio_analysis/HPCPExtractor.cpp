@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "HPCPExtractor.h"
 
 //--------------------------------------------------------------
-HPCPExtractor::HPCPExtractor() : PatchObject(){
+HPCPExtractor::HPCPExtractor() : PatchObject("hpcp extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -56,8 +58,10 @@ HPCPExtractor::HPCPExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void HPCPExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_ARRAY,"harmonicPitchClassProfile");
 }
 
@@ -83,7 +87,7 @@ void HPCPExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void HPCPExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void HPCPExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
@@ -121,16 +125,48 @@ void HPCPExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void HPCPExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
 
-    float bin_w = (float) this->width / HPCP_SIZE;
-    for (int i = 0; i < HPCP_SIZE; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
+}
+
+//--------------------------------------------------------------
+void HPCPExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw FFT
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_outletParams[0]));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void HPCPExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the HPCP (Harmonic Pitch Class Profile) data as a dynamic vector of 12 float values",
+                "https://mosaic.d3cod3.org/reference.php?r=hpcp-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -139,3 +175,5 @@ void HPCPExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( HPCPExtractor , "hpcp extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

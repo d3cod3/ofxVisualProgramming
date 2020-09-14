@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
@@ -42,39 +44,42 @@ public:
 
     ChromaKey();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            updateBGColor();
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
     void            updateChromaVars();
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
 
     ofxChromaKeyShader          *chromakey;
     bool                        isInputConnected;
 
     float                       posX, posY, drawW, drawH;
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiTextInput*         bgColor;
-    ofxDatGuiSlider*            redValue;
-    ofxDatGuiSlider*            greenValue;
-    ofxDatGuiSlider*            blueValue;
-    ofxDatGuiSlider*            thresholdValue;
-    ofxDatGuiSlider*            maskStrengthValue;
-    ofxDatGuiSlider*            spillStrengthValue;
-    ofxDatGuiSlider*            blurValue;
-    ofxDatGuiSlider*            offsetValue;
+
+    ofFloatColor                chromaBgColor;
+    float                       baseMaskStrength;
+    float                       chromaMaskStrength;
+    float                       greenSpillStrength;
+    float                       chromaBlur;
+    float                       multiplyFilterHue;
+
+    bool                        loaded;
 
     
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

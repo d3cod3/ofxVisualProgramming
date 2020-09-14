@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoTimelapse.h"
 
 //--------------------------------------------------------------
-VideoTimelapse::VideoTimelapse() : PatchObject(){
+VideoTimelapse::VideoTimelapse() : PatchObject("video timedelay"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -51,6 +53,8 @@ VideoTimelapse::VideoTimelapse() : PatchObject(){
     pix         = new ofPixels();
     kuro        = new ofImage();
 
+    posX = posY = drawW = drawH = 0.0f;
+
     nDelayFrames    = 25;
     capturedFrame   = 0;
     delayFrame      = 0;
@@ -58,13 +62,19 @@ VideoTimelapse::VideoTimelapse() : PatchObject(){
     resetTime       = ofGetElapsedTimeMillis();
     wait            = 1000/static_cast<int>(ofGetFrameRate());
 
+    loaded = false;
+
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
 void VideoTimelapse::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
     this->addInlet(VP_LINK_NUMERIC,"delay");
+
     this->addOutlet(VP_LINK_TEXTURE,"timeDelayedOutput");
 
     this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
@@ -72,36 +82,12 @@ void VideoTimelapse::newObject(){
 
 //--------------------------------------------------------------
 void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->onTextInputEvent(this, &VideoTimelapse::onTextInputEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    guiDelayMS = gui->addTextInput("Frames","25");
-    guiDelayMS->setUseCustomMouse(true);
-    guiDelayMS->setText(ofToString(this->getCustomVar("DELAY_FRAMES")));
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
-    nDelayFrames = this->getCustomVar("DELAY_FRAMES");
-    videoBuffer->setup(nDelayFrames);
-
     // load kuro
     kuro->load("images/kuro.jpg");
-
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    guiDelayMS->update();
+void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
@@ -135,7 +121,6 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     if(this->inletsConnected[1]){
         if(nDelayFrames != static_cast<int>(floor(*(float *)&_inletParams[1]))){
             nDelayFrames = static_cast<int>(floor(*(float *)&_inletParams[1]));
-            guiDelayMS->setText(ofToString(nDelayFrames));
 
             capturedFrame   = 0;
             delayFrame      = 0;
@@ -146,36 +131,83 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
             videoBuffer->setup(nDelayFrames);
         }
     }
+
+    if(!loaded){
+        loaded = true;
+        nDelayFrames = this->getCustomVar("DELAY_FRAMES");
+        videoBuffer->setup(nDelayFrames);
+    }
     
 }
 
 //--------------------------------------------------------------
 void VideoTimelapse::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_outletParams[0])->getWidth()/static_cast<ofTexture *>(_outletParams[0])->getHeight() >= this->width/this->height){
-            if(static_cast<ofTexture *>(_outletParams[0])->getWidth() > static_cast<ofTexture *>(_outletParams[0])->getHeight()){   // horizontal texture
-                drawW           = this->width;
-                drawH           = (this->width/static_cast<ofTexture *>(_outletParams[0])->getWidth())*static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                posX            = 0;
-                posY            = (this->height-drawH)/2.0f;
-            }else{ // vertical texture
-                drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-                drawH           = this->height;
-                posX            = (this->width-drawW)/2.0f;
-                posY            = 0;
-            }
-        }else{ // always considered vertical texture
-            drawW           = (static_cast<ofTexture *>(_outletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_outletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+        // draw node texture preview with OF
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_outletParams[0])->draw(posX,posY,drawW,drawH);
+    }else{
+        // background
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::drawObjectNodeConfig(){
+    ImGui::Spacing();
+
+    if(ImGui::InputInt("Frames",&nDelayFrames)){
+        capturedFrame   = 0;
+        delayFrame      = 0;
+
+        resetTime       = ofGetElapsedTimeMillis();
+        wait            = 1000/static_cast<int>(ofGetFrameRate());
+
+        videoBuffer->setup(nDelayFrames);
+        this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Delay the playback of a video file or live video.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-timedelay", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -183,61 +215,7 @@ void VideoTimelapse::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void VideoTimelapse::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiDelayMS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || guiDelayMS->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
+OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_TEXTURE)
 
-//--------------------------------------------------------------
-void VideoTimelapse::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiDelayMS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void VideoTimelapse::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == guiDelayMS){
-            if(isInteger(e.text) || isFloat(e.text)){
-                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"DELAY_FRAMES");
-                nDelayFrames    = ofToInt(e.text);
-                capturedFrame   = 0;
-                delayFrame      = 0;
-
-                resetTime       = ofGetElapsedTimeMillis();
-                wait            = 1000/static_cast<int>(ofGetFrameRate());
-
-                videoBuffer->setup(nDelayFrames);
-            }else{
-                guiDelayMS->setText(ofToString(nDelayFrames));
-            }
-
-        }
-    }
-}
-
-OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_VIDEO)
+#endif

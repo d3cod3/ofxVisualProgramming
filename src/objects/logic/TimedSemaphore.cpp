@@ -30,12 +30,14 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "TimedSemaphore.h"
 
 //--------------------------------------------------------------
-TimedSemaphore::TimedSemaphore() : PatchObject(){
+TimedSemaphore::TimedSemaphore() : PatchObject("timed semaphore"){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
@@ -49,9 +51,6 @@ TimedSemaphore::TimedSemaphore() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     bang                = false;
 
     loadStart           = true;
@@ -63,9 +62,11 @@ TimedSemaphore::TimedSemaphore() : PatchObject(){
 
 //--------------------------------------------------------------
 void TimedSemaphore::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"ms");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
     this->setCustomVar(static_cast<float>(wait),"MS");
@@ -74,30 +75,18 @@ void TimedSemaphore::newObject(){
 //--------------------------------------------------------------
 void TimedSemaphore::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &TimedSemaphore::onTextInputEvent);
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
 
-    inputNumber = gui->addTextInput("","1000");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("MS")));
-
-    wait = this->getCustomVar("MS");
-
-    gui->setPosition(0,this->headerHeight);
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-    if(this->inletsConnected[1]){
-      wait                = static_cast<size_t>(floor(*(float *)&_inletParams[1]));
-      inputNumber->setText(ofToString(wait));
-    }
+void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    inputNumber->update();
+    if(this->inletsConnected[1]){
+      wait = static_cast<int>(floor(*(float *)&_inletParams[1]));
+    }
 
     if(this->inletsConnected[0] && loadStart){
         if(*(float *)&_inletParams[0] == 1.0 && !bang){
@@ -115,26 +104,81 @@ void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     
     *(float *)&_outletParams[0] = static_cast<float>(bang);
 
+    if(!loaded){
+        loaded = true;
+        wait   = static_cast<int>(floor(this->getCustomVar("MS")));
+    }
+
 }
 
 //--------------------------------------------------------------
 void TimedSemaphore::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofSetCircleResolution(50);
-    ofEnableAlphaBlending();
-    if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
+
+}
+
+//--------------------------------------------------------------
+void TimedSemaphore::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    if(loadStart){
-        ofSetColor(5,250,5);
-        ofDrawCircle(this->width-20,this->height-20,10);
-    }else{
-        ofSetColor(250,5,5);
-        ofDrawCircle(this->width-20,this->height-20,10);
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*this->scaleFactor), window_pos.y + (40*this->scaleFactor));
+
+        // BANG (PD Style) button
+        ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if (bang){
+            currentColor = pressColor;
+        }else{
+            currentColor = releaseColor;
+        }
+
+        if(loadStart){
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(5, 250, 5, 255), 40);
+        }else{
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(250, 5, 5, 255), 40);
+        }
+
+        _nodeCanvas.EndNodeContent();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void TimedSemaphore::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Time",&wait)){
+        if(wait < 0){
+            wait = 0;
+        }
+        this->setCustomVar(static_cast<float>(wait),"MS");
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Interrupt time in milliseconds.");
+
+    ImGuiEx::ObjectInfo(
+                "Interrupts, for a certain time, the continuous data flow to generate a discrete action.",
+                "https://mosaic.d3cod3.org/reference.php?r=timed-semaphore", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -142,46 +186,7 @@ void TimedSemaphore::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void TimedSemaphore::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void TimedSemaphore::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void TimedSemaphore::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToInt(e.text)),"MS");
-            wait        = ofToInt(e.text);
-        }else{
-            inputNumber->setText(ofToString(wait));
-        }
-
-    }
-}
 
 OBJECT_REGISTER( TimedSemaphore, "timed semaphore", OFXVP_OBJECT_CAT_LOGIC)
+
+#endif

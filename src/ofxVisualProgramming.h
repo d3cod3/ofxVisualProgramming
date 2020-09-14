@@ -34,16 +34,21 @@
 
 #include "ofMain.h"
 
-#include "include.h"
 #include "config.h"
 
 #include "ofxInfiniteCanvas.h"
-#include "ofxTimeMeasurements.h"
-#include "ofxThreadedFileDialog.h"
 #include "ofxPDSP.h"
+#include "ofxImGui.h"
+#include "imgui_node_canvas.h"
+#include "imgui_profiler.h"
+#include "FileBrowser/ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 #include "Kernel.h"
 #include "PatchObject.h"
+
+
+#define OFXVP_DEBUG 0
 
 
 class ofxVisualProgramming : public pdsp::Wrapper {
@@ -53,11 +58,11 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            setup();
+    void            setup(ofxImGui::Gui* guiRef = nullptr);
     void            update();
-    void            updateCanvasGUI();
     void            updateCanvasViewport();
     void            draw();
+    void            drawInspector();
     void            drawLivePatchingSession();
     void            resetTempFolder();
     void            cleanPatchDataFolder();
@@ -71,38 +76,31 @@ public:
 
     void            keyPressed(ofKeyEventArgs &e);
 
-    void            onFileDialogResponse(ofxThreadedFileDialogResponse &response);
-
     void            activeObject(int oid);
 
     shared_ptr<PatchObject>    selectObject(string objname);
     void            addObject(string name, ofVec2f pos);
     shared_ptr<PatchObject>    getLastAddedObject();
 
-    void            dragObject(int &id);
     void            resetObject(int &id);
     void            resetObject(int id);
     void            reconnectObjectOutlets(int &id);
     void            removeObject(int &id);
-    void            iconifyObject(int &id);
     void            duplicateObject(int &id);
 
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
-    void            disconnectSelected(int objID, int objLink);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);
     bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
-    void            deleteSelectedObject();
 
     void            newPatch();
     void            newTempPatchFromFile(string patchFile);
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
+    void            reloadPatch();
     void            savePatchAs(string patchFile);
-    void            openLastPatch();
-    void            savePatchAsLast();
     void            setPatchVariable(string var, int value);
 
     void            setAudioInDevice(int ind);
@@ -115,16 +113,19 @@ public:
     void            setIsHoverCodeEditor(bool isl){ isHoverCodeEditor = isl; }
 
     // PATCH CANVAS
-    ofxInfiniteCanvas       canvas;
-    ofEasyCam               easyCam;
-    ofRectangle             canvasViewport;
+    ofxInfiniteCanvas               canvas;
+    ofEasyCam                       easyCam;
+    ofRectangle                     canvasViewport;
+    ofxImGui::Gui*                  ofxVPGui;
+    ImGuiEx::NodeCanvas             nodeCanvas;
+    ImGuiEx::ProfilersWindow        profiler;
+
 
     // PATCH DRAWING RESOURCES
     ofxFontStash            *font;
     int                     fontSize;
     bool                    isRetina;
     int                     scaleFactor;
-    int                     linkActivateDistance;
 
     // PUGG external plugins objects
     pugg::Kernel            plugins_kernel;
@@ -134,23 +135,14 @@ public:
     map<string,string>      scriptsObjectsFilesPaths;
     vector<pair<int,int>>   leftToRightIndexOrder;
     vector<int>             eraseIndexes;
-    bool                    isOutletSelected;
-    int                     selectedObjectLinkType;
-    int                     selectedObjectLink;
+
     int                     selectedObjectID;
-    ofVec2f                 actualMouse;
-    bool                    draggingObject;
-    int                     draggingObjectID;
-    int                     pressedObjectID;
     int                     actualObjectID;
     int                     lastAddedObjectID;
     bool                    bLoadingNewObject;
     bool                    bLoadingNewPatch;
-    OF_DEPRECATED_MSG("The variable objectsMatrix has been removed. Please use ofxVPObjects::factory::getCategories() instead.",
-                  map<string,vector<string>> objectsMatrix );
 
     // LOAD/SAVE
-    ofxThreadedFileDialog   fileDialog;
     string                  currentPatchFile;
     string                  currentPatchFolderPath;
     string                  tempPatchFile;
@@ -161,14 +153,12 @@ public:
 
     // SYSTEM
     shared_ptr<ofAppGLFWWindow>     mainWindow;
-    string                          glVersion;
-    string                          glShadingVersion;
     bool                            profilerActive;
+    bool                            inspectorActive;
     bool                            inited;
 
     // GUI
-    bool                            isVPMouseMoving;
-    bool                            isVPDragging;
+    string                          inspectorTitle;
     bool                            isHoverMenu;
     bool                            isHoverLogger;
     bool                            isHoverCodeEditor;
@@ -196,12 +186,13 @@ public:
     int                     audioGUIOUTIndex;
     int                     audioSampleRate;
     int                     audioBufferSize;
+    int                     bpm;
     bool                    dspON;
 
     // MEMORY
     uint64_t                resetTime;
     uint64_t                wait;
-    
+
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
 };

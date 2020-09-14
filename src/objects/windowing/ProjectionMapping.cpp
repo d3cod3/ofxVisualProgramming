@@ -30,12 +30,14 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ProjectionMapping.h"
 
 #include "GLFW/glfw3.h"
 
 //--------------------------------------------------------------
-ProjectionMapping::ProjectionMapping() : PatchObject(){
+ProjectionMapping::ProjectionMapping() : PatchObject("projection mapping"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -57,9 +59,6 @@ ProjectionMapping::ProjectionMapping() : PatchObject(){
     window_actual_width     = STANDARD_PROJECTOR_WINDOW_WIDTH;
     window_actual_height    = STANDARD_PROJECTOR_WINDOW_HEIGHT;
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     needReset           = false;
 
     lastWarpingConfig   = "";
@@ -72,18 +71,24 @@ ProjectionMapping::ProjectionMapping() : PatchObject(){
     winMouseY           = 0;
 
     autoRemove          = false;
+
+    this->setIsTextureObj(true);
 }
 
 //--------------------------------------------------------------
 void ProjectionMapping::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"source");
     this->addInlet(VP_LINK_TEXTURE,"background");
+
     this->addOutlet(VP_LINK_TEXTURE,"mappingOutput");
 }
 
 //--------------------------------------------------------------
 void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+
+    fileDialog.setIsRetina(this->isRetina);
 
     ofGLFWWindowSettings settings;
     settings.setGLVersion(2,1);
@@ -126,41 +131,10 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
         ofLog(OF_LOG_NOTICE,"%s: PROJECTION MAPPING CREATED WITH OUTPUT RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
     }
 
-    // GUI
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &ProjectionMapping::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    gui->addBreak();
-    loadWarping = gui->addButton("LOAD WARPING");
-    loadWarping->setUseCustomMouse(true);
-    loadWarping->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    saveWarping = gui->addButton("SAVE WARPING");
-    saveWarping->setUseCustomMouse(true);
-    saveWarping->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    loadWarping->update();
-    saveWarping->update();
-
-    if(loadWarpingFlag){
-        loadWarpingFlag = false;
-        fd.openFile("open mapping config"+ofToString(this->getId()),"Select a mapping config file");
-    }
+void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(warpingConfigLoaded){
         warpingConfigLoaded = false;
@@ -175,17 +149,12 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
         }
     }
 
-    if(saveWarpingFlag){
-        saveWarpingFlag = false;
-        fd.saveFile("save mapping config"+ofToString(this->getId()),"Save mapping settings as","mappingSettings.xml");
-    }
-
     // reset mapping textures resolution on inlet connection
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             if(!needReset){
                 needReset = true;
-                resetResolution();
+                resetMappingResolution();
             }
         }
     }else{
@@ -206,82 +175,100 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 //--------------------------------------------------------------
 void ProjectionMapping::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-            thdrawW           = this->width;
-            thdrawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            thposX            = 0;
-            thposY            = (this->height-thdrawH)/2.0f;
-        }else{ // vertical texture
-            thdrawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            thdrawH           = this->height;
-            thposX            = (this->width-thdrawW)/2.0f;
-            thposY            = 0;
+    // draw node texture preview with OF
+    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        if(scaledObjW*canvasZoom > 90.0f){
+            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
-        static_cast<ofTexture *>(_inletParams[0])->draw(thposX,thposY,thdrawW,thdrawH);
     }else{
-        ofSetColor(0);
-        ofDrawRectangle(0,0,this->width,this->height);
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void ProjectionMapping::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    loadWarpingFlag = false;
+    saveWarpingFlag = false;
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a mapping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            warpingConfigLoaded = true;
+            lastWarpingConfig = file.getAbsolutePath();
+        }
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save mapping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".xml", "mappingSettings.xml", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "xml"){
+            filepath += ".xml";
+        }
+        _mapping->saveMappingAs(filepath);
+
+    }
+}
+
+//--------------------------------------------------------------
+void ProjectionMapping::drawObjectNodeConfig(){
+    ImGui::Separator();
+
+    ImGui::Spacing();
+    if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadWarpingFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+        saveWarpingFlag = true;
+    }
+
+    ImGuiEx::ObjectInfo(
+                "With warping option active and fullscreen you can adjust the projection surface.",
+                "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void ProjectionMapping::removeObjectContent(bool removeFileFromData){
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
-    }
-}
-
-//--------------------------------------------------------------
-void ProjectionMapping::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    saveWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || loadWarping->hitTest(_m-this->getPos()) || saveWarping->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ProjectionMapping::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        saveWarping->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ProjectionMapping::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "open mapping config"+ofToString(this->getId())){
-        warpingConfigLoaded = true;
-        lastWarpingConfig = response.filepath;
-    }else if(response.id == "save mapping config"+ofToString(this->getId())){
-        ofFile newFile (response.filepath);
-        filepath = newFile.getAbsolutePath();
-        _mapping->saveMappingAs(filepath);
     }
 }
 
@@ -337,7 +324,7 @@ void ProjectionMapping::drawInWindow(ofEventArgs &e){
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::resetResolution(){
+void ProjectionMapping::resetMappingResolution(){
 
     if(output_width != static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth()) || output_height != static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getHeight())){
         output_width            = static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth());
@@ -365,47 +352,27 @@ void ProjectionMapping::keyPressed(ofKeyEventArgs &e){
 
 //--------------------------------------------------------------
 void ProjectionMapping::mouseDragged(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-
-    }
-
     if(isOverWindow){
         _mapping->mouseDragged(e);
     }
-
 }
 
 //--------------------------------------------------------------
 void ProjectionMapping::mousePressed(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        //warpController->onMousePressed(window->events().getMouseX(),window->events().getMouseY());
-
-    }
-
     if(isOverWindow){
         _mapping->mousePressed(e);
     }
-
 }
 
 //--------------------------------------------------------------
 void ProjectionMapping::mouseReleased(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-
-    }
-
     if(isOverWindow){
         _mapping->mouseReleased(e);
     }
-
 }
 
 //--------------------------------------------------------------
 void ProjectionMapping::mouseScrolled(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-
-    }
-
     if(isOverWindow){
         _mapping->mouseScrolled(e);
     }
@@ -416,15 +383,7 @@ void ProjectionMapping::windowResized(ofResizeEventArgs &e){
     _mapping->windowResized(e);
 }
 
-//--------------------------------------------------------------
-void ProjectionMapping::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == loadWarping){
-            loadWarpingFlag = true;
-        }else if(e.target == saveWarping){
-            saveWarpingFlag = true;
-        }
-    }
-}
 
 OBJECT_REGISTER( ProjectionMapping, "projection mapping", OFXVP_OBJECT_CAT_WINDOWING)
+
+#endif

@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "TristimulusExtractor.h"
 
 //--------------------------------------------------------------
-TristimulusExtractor::TristimulusExtractor() : PatchObject(){
+TristimulusExtractor::TristimulusExtractor() : PatchObject("tristimulus extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -56,8 +58,10 @@ TristimulusExtractor::TristimulusExtractor() : PatchObject(){
 
 //--------------------------------------------------------------
 void TristimulusExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_ARRAY,"tristimulus");
 }
 
@@ -83,7 +87,7 @@ void TristimulusExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainW
 }
 
 //--------------------------------------------------------------
-void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
@@ -121,16 +125,48 @@ void TristimulusExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> 
 //--------------------------------------------------------------
 void TristimulusExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
 
-    float bin_w = (float) this->width / TRISTIMULUS_BANDS_NUM;
-    for (int i = 0; i < TRISTIMULUS_BANDS_NUM; i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawRectangle(i*bin_w, this->height, bin_w, bin_h);
+}
+
+//--------------------------------------------------------------
+void TristimulusExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw FFT
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_outletParams[0]));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void TristimulusExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts a three-element vector that measures the mixture of harmonics from the audio analysis data vector",
+                "https://mosaic.d3cod3.org/reference.php?r=tristimulus-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -139,3 +175,5 @@ void TristimulusExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( TristimulusExtractor , "tristimulus extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

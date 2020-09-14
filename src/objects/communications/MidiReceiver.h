@@ -30,6 +30,8 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "ofxMidi.h"
@@ -42,31 +44,36 @@ public:
 
     MidiReceiver();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            resetMIDISettings(int devID);
 
-    void            onMatrixEvent(ofxDatGuiMatrixEvent e);
-
-    void            newMidiMessage(ofxMidiMessage& msg);
+    void            newMidiMessage(ofxMidiMessage& msg) override;
     
 
     ofxMidiIn               midiIn;
     ofxMidiMessage          lastMessage;
+
     vector<string>          midiDevicesList;
     int                     midiDeviceID;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiLabel*         midiDeviceName;
-    ofxDatGuiMatrix*        deviceSelector;
+    bool                    loaded;
+
+protected:
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

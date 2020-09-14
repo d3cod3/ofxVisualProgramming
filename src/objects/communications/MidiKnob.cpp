@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "MidiKnob.h"
 
 //--------------------------------------------------------------
-MidiKnob::MidiKnob() : PatchObject(){
+MidiKnob::MidiKnob() : PatchObject("midi knob"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -48,114 +50,103 @@ MidiKnob::MidiKnob() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
+    lastControl     = 0;
+    savedControl    = 0;
+    actualValue     = 0.0f;
+    loaded          = false;
 
-    innerRadius         = 7;
-    outerRadius         = 14;
+    this->width     *= 1.4f;
+    this->height    *= 1.5f;
 
 }
 
 //--------------------------------------------------------------
 void MidiKnob::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"control");
     this->addInlet(VP_LINK_NUMERIC,"value");
+
     this->addOutlet(VP_LINK_NUMERIC,"value");
 
-    this->setCustomVar(0.0f,"INDEX");
+    this->setCustomVar(static_cast<float>(savedControl),"INDEX");
 }
 
 //--------------------------------------------------------------
 void MidiKnob::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setTheme(new ofxDatGuiThemeCharcoal());
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &MidiKnob::onTextInputEvent);
-
-    inputNumber = gui->addTextInput("","0");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("INDEX")));
-
-    gui->setPosition(0,this->headerHeight);
-
-    innerRadius         = this->width/12;
-    outerRadius         = this->width/6;
 }
 
 //--------------------------------------------------------------
-void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    inputNumber->update();
+void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && this->inletsConnected[1]){
-        if(static_cast<int>(floor(*(float *)&_inletParams[0])) == static_cast<int>(floor(this->getCustomVar("INDEX")))){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[1]/127.0f;
+        if(static_cast<int>(floor(*(float *)&_inletParams[0])) == savedControl){
+            *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
         }
     }else{
         *(float *)&_outletParams[0] = 0.0f;
+    }
+
+    actualValue = *(float *)&_outletParams[0];
+
+    if(!loaded){
+        loaded = true;
+        lastControl  = static_cast<int>(this->getCustomVar("INDEX"));
+        savedControl = lastControl;
     }
 
 }
 
 //--------------------------------------------------------------
 void MidiKnob::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(30,31,36);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofSetColor(255);
-    ofEnableAlphaBlending();
 
-    float theta = ofMap(*(float *)&_outletParams[0],0,1,0,360,true);
+}
 
-    ofPushMatrix();
-        ofTranslate(this->width*2/3,this->height*2/3);
+//--------------------------------------------------------------
+void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-        ofBeginShape();
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
 
+        if (ImGui::BeginMenu("CONFIG"))
         {
-            float x = sin(-ofDegToRad(0));
-            float y = cos(-ofDegToRad(0));
-            ofVertex(outerRadius*x,outerRadius*y);
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,10)); // Padding top
+
+        if(ImGui::InputInt("CONTROL",&lastControl)){
+            savedControl = lastControl;
+            this->setCustomVar(static_cast<float>(savedControl),"INDEX");
+
         }
 
-        for(int i = 0; i <= theta; i+=10)
-        {
-            float x = sin(-ofDegToRad(i));
-            float y = cos(-ofDegToRad(i));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
+        ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/6, IM_COL32(255,255,120,255), "value", &actualValue, 0.0f, 127.0f, 127.0f);
 
-            ofVertex(outerRadius*x,outerRadius*y);
-        }
+        _nodeCanvas.EndNodeContent();
+    }
 
-        {
-            float x = sin(-ofDegToRad(theta));
-            float y = cos(-ofDegToRad(theta));
-            ofVertex(outerRadius*x,outerRadius*y);
-            ofVertex(innerRadius*x,innerRadius*y);
-        }
+}
 
-        for(int i = theta; i >= 0; i-=10)
-        {
-            float x = sin(-ofDegToRad(i));
-            float y = cos(-ofDegToRad(i));
-
-            ofVertex(innerRadius*x,innerRadius*y);
-        }
-
-        {
-            float x = sin(-ofDegToRad(0));
-            float y = cos(-ofDegToRad(0));
-            ofVertex(innerRadius*x,innerRadius*y);
-        }
-
-        ofEndShape();
-    ofPopMatrix();
-
-    gui->draw();
-    ofDisableAlphaBlending();
+//--------------------------------------------------------------
+void MidiKnob::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "This object is used linked to the midi receiver object to map a knob on a midi device",
+                "https://mosaic.d3cod3.org/reference.php?r=midi-knob", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -163,43 +154,8 @@ void MidiKnob::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void MidiKnob::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void MidiKnob::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void MidiKnob::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"INDEX");
-        }
-
-    }
-}
 
 OBJECT_REGISTER( MidiKnob, "midi knob", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+
+#endif

@@ -33,125 +33,140 @@
 #include "Constant.h"
 
 //--------------------------------------------------------------
-Constant::Constant() : PatchObject(){
+Constant::Constant() :
+        // Extend the classes you need
+        PatchObject("constant"),
 
-    this->numInlets  = 1;
+        // define default values
+        inputValueNew(0.f, "")
+{
+
+    this->numInlets  = 2;
     this->numOutlets = 2;
 
-    _inletParams[0] = new float();  // input number
+    // Bind Inlets to values
+    _inletParams[0] = new float();  // bang
     *(float *)&_inletParams[0] = 0.0f;
 
-    _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *(float *)&_inletParams[1] = inputValueNew.get(); // value
 
-    _outletParams[1] = new string(); // output string
-    *static_cast<string *>(_outletParams[1]) = "";
+    // Bind outlets to values
+    *(float *)&_outletParams[0] = inputValueNew.get(); // float output
+
+     _outletParams[1] = new string(); // string output
+     *static_cast<string *>(_outletParams[1]) = "";
 
     this->initInletsState();
 
+    bang                = false;
+    nextFrame           = true;
+    loaded              = false;
+
     this->height        /= 2;
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
-    inputValue = *(float *)&_inletParams[0];
 }
 
 //--------------------------------------------------------------
 void Constant::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
+    this->addInlet(VP_LINK_NUMERIC,"bang");
     this->addInlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_NUMERIC,"number");
     this->addOutlet(VP_LINK_STRING,"numberString");
 
-    this->setCustomVar(static_cast<float>(inputValue),"NUMBER");
+    this->setCustomVar(static_cast<float>(inputValueNew.get()),"NUMBER");
 }
 
 //--------------------------------------------------------------
 void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setWidth(this->width);
-    gui->addBreak();
-    gui->onTextInputEvent(this, &Constant::onTextInputEvent);
-
-    inputNumber = gui->addTextInput("","0");
-    inputNumber->setUseCustomMouse(true);
-    inputNumber->setText(ofToString(this->getCustomVar("NUMBER")));
-
-    inputValue = this->getCustomVar("NUMBER");
-
-    gui->setPosition(0,this->headerHeight);
 }
 
 //--------------------------------------------------------------
-void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+
     if(this->inletsConnected[0]){
-      inputValue = *(float *)&_inletParams[0];
-      inputNumber->setText(ofToString(inputValue));
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
+        }
     }
 
-    gui->update();
-    inputNumber->update();
+    if(this->inletsConnected[1]){
+      inputValueNew = *(float *)&_inletParams[1]; 
+    }
 
-    *(float *)&_outletParams[0] = inputValue;
+    if(!nextFrame){
+        nextFrame = true;
+        *(float *)&_outletParams[0] = inputValueNew;
+    }
 
-    *static_cast<string *>(_outletParams[1]) = ofToString(inputValue);
+    if(bang){
+        nextFrame = false;
+        *(float *)&_outletParams[0] = inputValueNew+0.00001f;
+        *static_cast<string *>(_outletParams[1]) = ofToString( inputValueNew.get() );
+    }
+
+    if(!loaded){
+        loaded = true;
+        inputValueNew = this->getCustomVar("NUMBER");
+    }
 
 }
 
 //--------------------------------------------------------------
 void Constant::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (28*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        if(ImGui::DragFloat("", &inputValueNew.get(),0.01f)){
+            this->setCustomVar(static_cast<float>(inputValueNew.get()),"NUMBER");
+        }
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void Constant::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Single numeric value controller.",
+                "https://mosaic.d3cod3.org/reference.php?r=constant", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void Constant::removeObjectContent(bool removeFileFromData){
 
-}
-
-//--------------------------------------------------------------
-void Constant::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    this->isOverGUI = inputNumber->hitTest(_m-this->getPos());
-}
-
-//--------------------------------------------------------------
-void Constant::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        inputNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void Constant::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(e.target == inputNumber){
-        if(isInteger(e.text) || isFloat(e.text)){
-            this->setCustomVar(static_cast<float>(ofToFloat(e.text)),"NUMBER");
-            inputValue = ofToFloat(e.text);
-        }
-
-    }
 }
 
 OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH)

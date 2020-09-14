@@ -30,14 +30,16 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
-
 #include "PathWatcher.h"
-#include "ThreadedCommand.h"
 
-#include <atomic>
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
+
 
 class BashScript : public PatchObject{
 
@@ -45,19 +47,18 @@ public:
 
     BashScript();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            autoloadFile(string _fp) override;
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            loadScript(string scriptFile);
-    void            reloadScriptThreaded();
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            reloadScript();
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
@@ -66,27 +67,29 @@ public:
     PathWatcher         watcher;
     ofFile              currentScriptFile;
     bool                scriptLoaded;
-    bool                nameLabelLoaded;
     bool                isNewObject;
-
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiLabel*     scriptName;
-    ofxDatGuiButton*    newButton;
-    ofxDatGuiButton*    loadButton;
-    ofxDatGuiButton*    editButton;
-
-    ofImage             *bashIcon;
 
     string              lastMessage;
 
-    bool                modalInfo;
+    imgui_addons::ImGuiFileBrowser          fileDialog;
+
+    ofImage             *bashIcon;
+    float               posX, posY, drawW, drawH;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
 
 protected:
-    ThreadedCommand         tempCommand;
+
     bool                    needToLoadScript;
     bool                    loadScriptFlag;
     bool                    saveScriptFlag;
 
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

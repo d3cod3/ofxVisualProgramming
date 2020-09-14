@@ -30,20 +30,24 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "BPMExtractor.h"
 
 //--------------------------------------------------------------
-BPMExtractor::BPMExtractor() : PatchObject(){
+BPMExtractor::BPMExtractor() : PatchObject("bpm extractor"){
 
     this->numInlets  = 1;
-    this->numOutlets = 2;
+    this->numOutlets = 3;
 
     _inletParams[0] = new vector<float>();  // RAW Data
 
-    _outletParams[0] = new float(); // BPM
+    _outletParams[0] = new float(); // beat
     *(float *)&_outletParams[0] = 0.0f;
-    _outletParams[1] = new float(); // MS
+    _outletParams[1] = new float(); // BPM
     *(float *)&_outletParams[1] = 0.0f;
+    _outletParams[2] = new float(); // MS
+    *(float *)&_outletParams[3] = 0.0f;
 
     this->initInletsState();
 
@@ -52,14 +56,20 @@ BPMExtractor::BPMExtractor() : PatchObject(){
 
     arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 9;
 
-    isNewConnection   = false;
-    isConnectionRight = false;
+    isNewConnection     = false;
+    isConnectionRight   = false;
+
+    this->height        *= 0.7;
+
 }
 
 //--------------------------------------------------------------
 void BPMExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
+    this->addOutlet(VP_LINK_NUMERIC,"beat");
     this->addOutlet(VP_LINK_NUMERIC,"bpm");
     this->addOutlet(VP_LINK_NUMERIC,"millis");
 }
@@ -77,19 +87,10 @@ void BPMExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         }
     }
 
-    bpmPlot = new ofxHistoryPlot(NULL, "BPM", this->width, false);
-    bpmPlot->setRange(0,200);
-    bpmPlot->setColor(ofColor(255,255,255));
-    bpmPlot->setRespectBorders(true);
-    bpmPlot->setShowNumericalInfo(false);
-    bpmPlot->setDrawTitle(false);
-    bpmPlot->setLineWidth(1);
-    bpmPlot->setBackgroundColor(ofColor(50,50,50,220));
-
 }
 
 //--------------------------------------------------------------
-void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
@@ -113,9 +114,9 @@ void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     }
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
-        *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
-        bpmPlot->update(*(float *)&_outletParams[0]);
-        *(float *)&_outletParams[1] = 60000.0f / *(float *)&_outletParams[0];
+        *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->back(); // beat
+        *(float *)&_outletParams[1] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition); // bpm
+        *(float *)&_outletParams[2] = 60000.0f / *(float *)&_outletParams[1]; // millis
     }else if(this->inletsConnected[0] && !isConnectionRight){
         ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer object ONLY! Just reconnect it right!",this->getName().c_str());
     }
@@ -125,10 +126,58 @@ void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void BPMExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    bpmPlot->draw(0,0,this->width,this->height);
-    font->draw(ofToString(*(float *)&_outletParams[0]),this->fontSize,this->width/2,this->headerHeight*2.3);
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (50*scaleFactor), window_pos.y + window_size.y/2);
+
+        char temp[32];
+        sprintf(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, IM_COL32_WHITE,temp, NULL, 0.0f);
+
+        if(*(float *)&_outletParams[0] > 0){
+            // draw beat
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x - (10*scaleFactor),pos.y + (8*scaleFactor)), 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void BPMExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Get the beat, the average bmp over a period of time, and the beat time period in milliseconds",
+                "https://mosaic.d3cod3.org/reference.php?r=bpm-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -137,3 +186,5 @@ void BPMExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

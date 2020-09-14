@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "ArduinoSerial.h"
 
 //--------------------------------------------------------------
-ArduinoSerial::ArduinoSerial() : PatchObject(){
+ArduinoSerial::ArduinoSerial() : PatchObject("arduino serial"){
 
     this->numInlets  = 1;
     this->numOutlets  = 1;
@@ -44,21 +46,27 @@ ArduinoSerial::ArduinoSerial() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     arduinoIcon         = new ofImage();
+    posX = posY = drawW = drawH = 0.0f;
 
     serialDeviceID      = 0;
     baudRateID          = 0;
 
+    baudrateList        = {"9600","19200","38400","57600","74880","115200","230400","250000"};
+
     resetTime           = ofGetElapsedTimeMillis();
+
+    loaded              = false;
+
+    this->setIsTextureObj(true);
 }
 
 //--------------------------------------------------------------
 void ArduinoSerial::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_ARRAY,"dataFromArduino");
 
     this->setCustomVar(static_cast<float>(serialDeviceID),"DEVICE_ID");
@@ -68,7 +76,7 @@ void ArduinoSerial::newObject(){
 //--------------------------------------------------------------
 void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    arduinoIcon->load("images/arduino.png");
+    arduinoIcon->load("images/arduino.jpg");
 
     ofLog(OF_LOG_NOTICE," ");
     ofLog(OF_LOG_NOTICE,"------------------- SERIAL DEVICES");
@@ -79,78 +87,17 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         ofLog(OF_LOG_NOTICE,"[%i] - %s",i,deviceList.at(i).getDeviceName().c_str());
         deviceNameList.push_back(deviceList.at(i).getDeviceName());
     }
-    baudrateList = {"9600","19200","38400","57600","74880","115200","230400","250000"};
+
 
     for(int i=0;i<MAX_ARDUINO_RECEIVING_VECTOR_LENGTH;i++){
         static_cast<vector<float> *>(_outletParams[0])->push_back(0);
     }
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onMatrixEvent(this, &ArduinoSerial::onMatrixEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    serialDeviceName = gui->addLabel("");
-    if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(deviceNameList.size())){
-        serialDeviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
-    }else{
-        serialDeviceID = 0;
-        this->setCustomVar(static_cast<float>(serialDeviceID),"DEVICE_ID");
-    }
-    if(static_cast<int>(floor(this->getCustomVar("BAUDRATE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("BAUDRATE_ID"))) < static_cast<int>(baudrateList.size())){
-        baudRateID = ofClamp(static_cast<int>(floor(this->getCustomVar("BAUDRATE_ID"))),0,7);
-    }else{
-        baudRateID = 0;
-        this->setCustomVar(static_cast<float>(baudRateID),"BAUDRATE_ID");
-    }
-
-    if(deviceNameList.size() > 0){
-        serialDeviceName->setLabel(deviceNameList.at(serialDeviceID));
-
-        deviceSelector = gui->addMatrix("DEVICE",deviceNameList.size(),true);
-        deviceSelector->setUseCustomMouse(true);
-        deviceSelector->setRadioMode(true);
-        deviceSelector->getChildAt(serialDeviceID)->setSelected(true);
-        deviceSelector->onMatrixEvent(this, &ArduinoSerial::onMatrixEvent);
-        gui->addBreak();
-        baudRates = gui->addDropdown("Baudrate",baudrateList);
-        baudRates->onDropdownEvent(this,&ArduinoSerial::onDropdownEvent);
-        baudRates->setUseCustomMouse(true);
-        baudRates->select(baudRateID);
-        for(int i=0;i<baudRates->children.size();i++){
-            baudRates->getChildAt(i)->setUseCustomMouse(true);
-        }
-
-        serial.setup(serialDeviceID, ofToInt(baudrateList.at(baudRateID)));
-
-    }else{
-        ofLog(OF_LOG_WARNING,"You have no SERIAL devices available, please enable one in order to use the arduino sender object!");
-    }
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        if(deviceNameList.size() > 0){
-            deviceSelector->update();
-        }
-        baudRates->update();
-        for(int i=0;i<baudRates->children.size();i++){
-            baudRates->getChildAt(i)->update();
-        }
-    }
+void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(deviceNameList.size() > 0){
         if(ofGetElapsedTimeMillis()-resetTime > 40){
@@ -191,20 +138,112 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             }
 
         }
-
     }
+
+    if(!loaded){
+        loaded = true;
+
+        if(static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("DEVICE_ID"))) < static_cast<int>(deviceNameList.size())){
+            serialDeviceID = static_cast<int>(floor(this->getCustomVar("DEVICE_ID")));
+        }else{
+            serialDeviceID = 0;
+            this->setCustomVar(static_cast<float>(serialDeviceID),"DEVICE_ID");
+        }
+        if(static_cast<int>(floor(this->getCustomVar("BAUDRATE_ID"))) >= 0 && static_cast<int>(floor(this->getCustomVar("BAUDRATE_ID"))) < static_cast<int>(baudrateList.size())){
+            baudRateID = ofClamp(static_cast<int>(floor(this->getCustomVar("BAUDRATE_ID"))),0,7);
+        }else{
+            baudRateID = 0;
+            this->setCustomVar(static_cast<float>(baudRateID),"BAUDRATE_ID");
+        }
+
+        if(deviceNameList.size() > 0){
+            serial.setup(serialDeviceID, ofToInt(baudrateList.at(baudRateID)));
+
+        }else{
+            ofLog(OF_LOG_WARNING,"You have no SERIAL devices available, please enable one in order to use the arduino serial object!");
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void ArduinoSerial::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(0,151,157);
-    ofDrawRectangle(0,0,this->width,this->height);
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    arduinoIcon->draw(this->width/2,this->headerHeight*1.8f,((this->height/2.2f)/arduinoIcon->getHeight())*arduinoIcon->getWidth(),this->height/2.2f);
-    // GUI
-    gui->draw();
-    ofDisableAlphaBlending();
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(arduinoIcon->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+}
+
+//--------------------------------------------------------------
+void ArduinoSerial::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+}
+
+//--------------------------------------------------------------
+void ArduinoSerial::drawObjectNodeConfig(){
+    //ImGui::Spacing();
+    //ImGui::Text("%s",deviceNameList.at(serialDeviceID).c_str());
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Device", deviceNameList.at(serialDeviceID).c_str() )){
+        for(int i=0; i < deviceNameList.size(); ++i){
+            bool is_selected = (serialDeviceID == i );
+            if (ImGui::Selectable(deviceNameList.at(i).c_str(), is_selected)){
+                resetSERIALSettings(i,baudRateID);
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Baudrate", baudrateList.at(baudRateID).c_str() )){
+        for(int i=0; i < baudrateList.size(); ++i){
+            bool is_selected = (baudRateID == i );
+            if (ImGui::Selectable(baudrateList.at(i).c_str(), is_selected)){
+                resetSERIALSettings(serialDeviceID,i);
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "This object communicates with Arduino for both sending and receiving data. This template MosaicConnector.ino must be used as Arduino template file",
+                "https://mosaic.d3cod3.org/reference.php?r=arduino-serial", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -215,70 +254,13 @@ void ArduinoSerial::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    baudRates->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    if(deviceNameList.size() > 0){
-        deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-    for(int i=0;i<baudRates->children.size();i++){
-        baudRates->getChildAt(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || deviceSelector->hitTest(_m-this->getPos()) || baudRates->hitTest(_m-this->getPos());
-
-        for(int i=0;i<baudRates->children.size();i++){
-            this->isOverGUI = baudRates->getChildAt(i)->hitTest(_m-this->getPos());
-        }
-
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void ArduinoSerial::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        baudRates->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        if(deviceNameList.size() > 0){
-            deviceSelector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-        for(int i=0;i<baudRates->children.size();i++){
-            baudRates->getChildAt(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
 void ArduinoSerial::resetSERIALSettings(int devID, int br){
 
     if(devID!=serialDeviceID || br != baudRateID){
         ofLog(OF_LOG_NOTICE,"Changing SERIAL Device to: %s", deviceNameList.at(devID).c_str());
 
         serialDeviceID = devID;
-        if(deviceNameList.at(devID).size() > 22){
-            serialDeviceName->setLabel(deviceNameList.at(devID).substr(0,21)+"...");
-        }else{
-            serialDeviceName->setLabel(deviceNameList.at(devID));
-        }
+
         this->setCustomVar(static_cast<float>(serialDeviceID),"DEVICE_ID");
 
         baudRateID = ofClamp(br,0,7);
@@ -292,32 +274,11 @@ void ArduinoSerial::resetSERIALSettings(int devID, int br){
 
         if(serial.isInitialized() && serial.available()){
             ofLog(OF_LOG_NOTICE,"SERIAL device %s connected!", deviceNameList.at(devID).c_str());
-            this->saveConfig(false,this->nId);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ArduinoSerial::onMatrixEvent(ofxDatGuiMatrixEvent e){
-    if(!header->getIsCollapsed()){
-        if(deviceNameList.size() > 0){
-            if(e.target == deviceSelector){
-                resetSERIALSettings(e.child,baudRateID);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void ArduinoSerial::onDropdownEvent(ofxDatGuiDropdownEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == baudRates){
-            if(deviceNameList.size() > 0){
-                resetSERIALSettings(serialDeviceID,e.child);
-                e.target->expand();
-            }
+            this->saveConfig(false);
         }
     }
 }
 
 OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+
+#endif

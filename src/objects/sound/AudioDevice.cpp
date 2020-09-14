@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "AudioDevice.h"
 
 //--------------------------------------------------------------
-AudioDevice::AudioDevice() : PatchObject(){
+AudioDevice::AudioDevice() : PatchObject("audio device"){
 
     this->numInlets     = 0;
     this->numOutlets    = 0;
@@ -53,19 +55,23 @@ AudioDevice::AudioDevice() : PatchObject(){
     deviceLoaded        = false;
 
     bg                  = new ofImage();
+    posX = posY = drawW = drawH = 0.0f;
+
+    this->setIsTextureObj(true);
     
 }
 
 //--------------------------------------------------------------
 void AudioDevice::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
 }
 
 //--------------------------------------------------------------
 void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadDeviceInfo();
 
-    bg->load("images/audioDevice_bg.png");
+    bg->load("images/audioDevice_bg.jpg");
+
 }
 
 //--------------------------------------------------------------
@@ -93,17 +99,56 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 }
 
 //--------------------------------------------------------------
 void AudioDevice::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-    ofEnableAlphaBlending();
-    //font->draw(ofToString(sampleRateIN),this->fontSize,this->width/2,this->headerHeight*2);
-    bg->draw(0,0,this->width,120 * this->retinaScale);
-    ofDisableAlphaBlending();
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+}
+
+//--------------------------------------------------------------
+void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+}
+
+//--------------------------------------------------------------
+void AudioDevice::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Mosaic system object, which means that it cannot be added/deleted, but appears when you configure the sound system from the Sound menu. The audio device object is a virtual direct connection to the audio hardware.",
+                "https://mosaic.d3cod3.org/reference.php?r=audio-device", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -200,16 +245,16 @@ void AudioDevice::resetSystemObject(){
             this->pdspOut[i] = *tempPN;
         }
 
-        this->inlets.clear();
+        this->inletsType.clear();
         this->inletsNames.clear();
 
         for( int i = 0; i < out_channels; i++){
-            this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
+            this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
         }
 
-        this->outlets.clear();
+        this->outletsType.clear();
         for( int i = 0; i < in_channels; i++){
-            this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
+            this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
         }
 
         this->inletsConnected.clear();
@@ -224,7 +269,6 @@ void AudioDevice::resetSystemObject(){
         if(this->numInlets > 12 || this->numOutlets > 12){
             this->height          *= 2;
         }
-        this->box->setHeight(this->height);
 
         // Save new object config
         for(int i=0;i<totalObjects;i++){
@@ -234,10 +278,10 @@ void AudioDevice::resetSystemObject(){
                     XML.removeTag("outlets");
                     int newOutlets = XML.addTag("outlets");
                     if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
                             int newLink = XML.addTag("link");
                             if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outlets.at(j));
+                                XML.setValue("type",this->outletsType.at(j));
                                 XML.popTag();
                             }
                         }
@@ -341,17 +385,17 @@ void AudioDevice::loadDeviceInfo(){
             this->pdspOut[i] = *tempPN;
         }
 
-        this->inlets.clear();
+        this->inletsType.clear();
         this->inletsNames.clear();
 
         for( int i = 0; i < out_channels; i++){
-            this->addInlet(VP_LINK_AUDIO,"OUT_"+ofToString(i));
+            this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
         }
 
         if(isNewObject){
-            this->outlets.clear();
+            this->outletsType.clear();
             for( int i = 0; i < in_channels; i++){
-                this->addOutlet(VP_LINK_AUDIO,"audioInputCH_"+ofToString(i));
+                this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
             }
         }
 
@@ -367,10 +411,11 @@ void AudioDevice::loadDeviceInfo(){
         if(this->numInlets > 12 || this->numOutlets > 12){
             this->height          *= 2;
         }
-        this->box->setHeight(this->height);
 
         deviceLoaded      = true;
     }
 }
 
 OBJECT_REGISTER( AudioDevice, "audio device", OFXVP_OBJECT_CAT_SOUND)
+
+#endif

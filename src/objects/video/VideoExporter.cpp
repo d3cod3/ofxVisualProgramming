@@ -30,66 +30,54 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "VideoExporter.h"
 
 //--------------------------------------------------------------
-VideoExporter::VideoExporter() : PatchObject(){
+VideoExporter::VideoExporter() :
+    PatchObject("video exporter")
 
-    this->numInlets  = 1;
+{
+
+    this->numInlets  = 2;
     this->numOutlets = 0;
 
     _inletParams[0] = new ofTexture(); // input
 
-    this->initInletsState();
+    _inletParams[1] = new float();  // bang
+    *(float *)&_inletParams[1] = 0.0f;
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
+    this->initInletsState();
 
     isNewObject         = false;
 
     posX = posY = drawW = drawH = 0.0f;
 
+    bang                = false;
     needToGrab          = false;
     exportVideoFlag     = false;
-    videoSaved          = false;
+
+    codecsList = {"hevc","libx264","jpeg2000","mjpeg","mpeg4"};
+    selectedCodec = 4;
+    recButtonLabel = "REC";
+
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
 void VideoExporter::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_TEXTURE,"input");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
 }
 
 //--------------------------------------------------------------
 void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    recButton = gui->addToggle("REC");
-    recButton->setUseCustomMouse(true);
-    recButton->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->addBreak();
-    codecsList = {"hevc","libx264","jpeg2000","mjpeg","mpeg4"};
-    codecs = gui->addDropdown("Codec",codecsList);
-    codecs->onDropdownEvent(this,&VideoExporter::onDropdownEvent);
-    codecs->setUseCustomMouse(true);
-    codecs->select(4);
-    for(int i=0;i<codecs->children.size();i++){
-        codecs->getChildAt(i)->setUseCustomMouse(true);
-    }
-
-    gui->onToggleEvent(this, &VideoExporter::onToggleEvent);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
+    fileDialog.setIsRetina(this->isRetina);
 
     captureFbo.allocate( STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT, GL_RGB );
     recorder.setup(true, false, glm::vec2(STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT)); // record video only for now
@@ -104,32 +92,27 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    gui->update();
-    header->update();
-    if(!header->getIsCollapsed()){
-        recButton->update();
-        codecs->update();
-        for(int i=0;i<codecs->children.size();i++){
-            codecs->getChildAt(i)->update();
+    if(this->inletsConnected[1]){
+        if(*(float *)&_inletParams[1] < 1.0){
+            bang = false;
+        }else{
+            bang = true;
         }
     }
 
-    if(exportVideoFlag){
-        exportVideoFlag = false;
-        #if defined(TARGET_WIN32)
-        fd.saveFile("export videofile"+ofToString(this->getId()),"Export new video file as","export.avi");
-        #else
-        fd.saveFile("export videofile"+ofToString(this->getId()),"Export new video file as","export.mp4");
-        #endif
-    }
-
-    if(videoSaved){
-        videoSaved = false;
-        recorder.setOutputPath(filepath);
-        recorder.setBitRate(20000);
-        recorder.startCustomRecord();
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
+        if(!recorder.isRecording()){
+            recorder.setBitRate(20000);
+            recorder.startCustomRecord();
+            recButtonLabel = "STOP";
+            ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
+        }else if(recorder.isRecording()){
+            recorder.stop();
+            recButtonLabel = "REC";
+            ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING VIDEO");
+        }
     }
 
 }
@@ -137,8 +120,6 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 //--------------------------------------------------------------
 void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofSetCircleResolution(50);
-    ofEnableAlphaBlending();
 
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -164,7 +145,17 @@ void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
             }
 
         }
+        if(scaledObjW*canvasZoom > 90.0f){
+            // draw node texture preview with OF
+            drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        }
     }else{
+
+        if(scaledObjW*canvasZoom > 90.0f){
+            ofSetColor(34,34,34);
+            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
+        }
+
         captureFbo.begin();
         ofClear(0,0,0,255);
         captureFbo.end();
@@ -172,30 +163,146 @@ void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
         needToGrab = false;
     }
 
-    if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<ofTexture *>(_inletParams[0])->getWidth() >= static_cast<ofTexture *>(_inletParams[0])->getHeight()){   // horizontal texture
-            drawW           = this->width;
-            drawH           = (this->width/static_cast<ofTexture *>(_inletParams[0])->getWidth())*static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            posX            = 0;
-            posY            = (this->height-drawH)/2.0f;
-        }else{ // vertical texture
-            drawW           = (static_cast<ofTexture *>(_inletParams[0])->getWidth()*this->height)/static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            drawH           = this->height;
-            posX            = (this->width-drawW)/2.0f;
-            posY            = 0;
+}
+
+//--------------------------------------------------------------
+void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
         }
-        captureFbo.getTexture().draw(posX,posY,drawW,drawH);
-        if (recorder.isPaused() && recorder.isRecording()){
-            ofSetColor(ofColor::yellow);
-        }else if (recorder.isRecording()){
-            ofSetColor(ofColor::red);
-        }else{
-            ofSetColor(ofColor::green);
-        }
-        ofDrawCircle(ofPoint(this->width-20, 30), 10);
+        _nodeCanvas.EndNodeMenu();
     }
-    gui->draw();
-    ofDisableAlphaBlending();
+
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*this->scaleFactor), window_pos.y + (40*this->scaleFactor));
+        if (recorder.isRecording()){
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(255, 0, 0, 255), 40);
+        }else if(recorder.isPaused() && recorder.isRecording()){
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(255, 255, 0, 255), 40);
+        }else{
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(0, 255, 0, 255), 40);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+#if defined(TARGET_WIN32)
+    if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".avi", "videoExport.avi", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "avi"){
+            filepath += ".avi";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank video file
+        recorder.startCustomRecord();
+        recorder.stop();
+    }
+#else
+    if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp4", "videoExport.mp4", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp4"){
+            filepath += ".mp4";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank video file
+        recorder.startCustomRecord();
+        recorder.stop();
+    }
+#endif
+}
+
+//--------------------------------------------------------------
+void VideoExporter::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    exportVideoFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Export to File:");
+    if(filepath == "none"){
+        ImGui::Text("none");
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(108*scaleFactor,26*scaleFactor))){
+        exportVideoFlag = true;
+    }
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_RED);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
+    char tmp[256];
+    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
+        if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
+        }else if(filepath == "none"){
+            ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
+        }else{
+            if(!recorder.isRecording()){
+                recorder.setBitRate(20000);
+                recorder.startCustomRecord();
+                recButtonLabel = "STOP";
+                ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
+            }else if(recorder.isRecording()){
+                recorder.stop();
+                recButtonLabel = "REC";
+                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING VIDEO");
+            }
+        }
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::Spacing();
+    if(ImGui::BeginCombo("Codec", codecsList.at(selectedCodec).c_str() )){
+        for(int i=0; i < codecsList.size(); ++i){
+            bool is_selected = (selectedCodec == i );
+            if (ImGui::Selectable(codecsList.at(i).c_str(), is_selected)){
+                selectedCodec = i;
+                recorder.setVideoCodec(codecsList.at(selectedCodec));
+            }
+            if (is_selected) ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Export video from every texture cable (blue ones). You can choose the video codec: mpeg4, mjpeg, jpg2000, libx264, or hevc.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-exporter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -203,90 +310,7 @@ void VideoExporter::removeObjectContent(bool removeFileFromData){
 
 }
 
-//--------------------------------------------------------------
-void VideoExporter::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    codecs->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    for(int i=0;i<codecs->children.size();i++){
-        codecs->getChildAt(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || recButton->hitTest(_m-this->getPos()) || codecs->hitTest(_m-this->getPos());
+OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_TEXTURE)
 
-        for(int i=0;i<codecs->children.size();i++){
-            this->isOverGUI = codecs->getChildAt(i)->hitTest(_m-this->getPos());
-        }
-
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void VideoExporter::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        recButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        codecs->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        for(int i=0;i<codecs->children.size();i++){
-            codecs->getChildAt(i)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        }
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void VideoExporter::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "export videofile"+ofToString(this->getId())){
-        filepath = response.filepath;
-        videoSaved = true;
-    }
-}
-
-//--------------------------------------------------------------
-void VideoExporter::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == recButton){
-            if(e.checked){
-                if(!recorder.isRecording()){
-                    exportVideoFlag = true;
-                }
-                ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
-            }else{
-                if(recorder.isRecording()){
-                    recorder.stop();
-                }
-                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING VIDEO");
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void VideoExporter::onDropdownEvent(ofxDatGuiDropdownEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == codecs){
-            recorder.setVideoCodec(codecsList.at(e.child));
-            e.target->expand();
-        }
-    }
-}
-
-OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_VIDEO)
+#endif

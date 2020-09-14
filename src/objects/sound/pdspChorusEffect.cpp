@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspChorusEffect.h"
 
 //--------------------------------------------------------------
-pdspChorusEffect::pdspChorusEffect() : PatchObject(){
+pdspChorusEffect::pdspChorusEffect() : PatchObject("dimension chorus"){
 
     this->numInlets  = 4;
     this->numOutlets = 1;
@@ -51,69 +53,54 @@ pdspChorusEffect::pdspChorusEffect() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    speed                   = 0.25f;
+    depth                   = 10.0f;
+    delay                   = 80.0f;
+
     loaded                  = false;
+
+    this->width *= 2.0f;
 
 }
 
 //--------------------------------------------------------------
 void pdspChorusEffect::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"depth");
     this->addInlet(VP_LINK_NUMERIC,"delay");
+
     this->addOutlet(VP_LINK_AUDIO,"signal");
 
-    this->setCustomVar(static_cast<float>(0.25),"SPEED");
-    this->setCustomVar(static_cast<float>(10),"DEPTH");
-    this->setCustomVar(static_cast<float>(80),"DELAY");
+    this->setCustomVar(speed,"SPEED");
+    this->setCustomVar(depth,"DEPTH");
+    this->setCustomVar(delay,"DELAY");
 }
 
 //--------------------------------------------------------------
 void pdspChorusEffect::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspChorusEffect::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    speed = gui->addSlider("Speed", 0,1,0.25);
-    speed->setUseCustomMouse(true);
-    depth = gui->addSlider("Depth", 0,1,0.01);
-    depth->setUseCustomMouse(true);
-    delay = gui->addSlider("Delay", 0,1,0.08);
-    delay->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void pdspChorusEffect::setupAudioOutObjectContent(pdsp::Engine &engine){
 
     speed_ctrl >> chorus.in_speed();
-    speed_ctrl.set(0.25);
+    speed_ctrl.set(speed);
     speed_ctrl.enableSmoothing(50.0f);
 
     depth_ctrl >> chorus.in_depth();
-    depth_ctrl.set(10.0f);
+    depth_ctrl.set(depth);
     depth_ctrl.enableSmoothing(50.0f);
 
     delay_ctrl >> chorus.in_delay();
-    delay_ctrl.set(80.0f);
+    delay_ctrl.set(delay);
     delay_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> chorus.ch(0);
@@ -124,37 +111,31 @@ void pdspChorusEffect::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    speed->update();
-    depth->update();
-    delay->update();
+void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        speed_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
-        speed->setValue(speed_ctrl.get());
+        speed = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        speed_ctrl.set(speed);
     }
 
     if(this->inletsConnected[2]){
-        depth_ctrl.set(ofClamp(*(float *)&_inletParams[2],0.0f,1000.0f));
-        depth->setValue(depth_ctrl.get()/1000.0f);
+        depth = ofClamp(*(float *)&_inletParams[2],0.0f,1000.0f);
+        depth_ctrl.set(depth);
     }
 
     if(this->inletsConnected[3]){
-        delay_ctrl.set(ofClamp(*(float *)&_inletParams[3],0.0f,1000.0f));
-        delay->setValue(delay_ctrl.get()/1000.0f);
+        delay = ofClamp(*(float *)&_inletParams[3],0.0f,1000.0f);
+        delay_ctrl.set(delay);
     }
 
     if(!loaded){
         loaded = true;
-        speed->setValue(this->getCustomVar("SPEED"));
-        speed_ctrl.set(ofClamp(speed->getValue(),0.0f,1.0f));
-        depth->setValue(this->getCustomVar("DEPTH"));
-        depth_ctrl.set(ofClamp(depth->getValue()*1000.0f,0.0f,1000.0f));
-        delay->setValue(this->getCustomVar("DELAY"));
-        delay_ctrl.set(ofClamp(delay->getValue()*1000.0f,0.0f,1000.0f));
+        speed = ofClamp(this->getCustomVar("SPEED"),0.0f,1.0f);
+        speed_ctrl.set(speed);
+        depth = ofClamp(this->getCustomVar("DEPTH"),0.0f,1000.0f);
+        depth_ctrl.set(depth);
+        delay = ofClamp(this->getCustomVar("DELAY"),0.0f,1000.0f);
+        delay_ctrl.set(delay);
     }
 
 }
@@ -162,9 +143,56 @@ void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
 //--------------------------------------------------------------
 void pdspChorusEffect::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+}
+
+//--------------------------------------------------------------
+void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "speed", &speed, 0.0f, 1.0f, 100.0f)){
+            speed_ctrl.set(speed);
+            this->setCustomVar(speed,"SPEED");
+
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "depth", &depth, 0.0f, 1000.0f, 1000.0f)){
+            depth_ctrl.set(depth);
+            this->setCustomVar(depth,"DEPTH");
+
+
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "delay", &delay, 0.0f, 1000.0f, 1000.0f)){
+            delay_ctrl.set(delay);
+            this->setCustomVar(delay,"DELAY");
+        }
+
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspChorusEffect::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Chorus loosely based on Roland Dimension C-D models",
+                "https://mosaic.d3cod3.org/reference.php?r=chorus", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -200,59 +228,8 @@ void pdspChorusEffect::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspChorusEffect::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    speed->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    depth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    delay->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || delay->hitTest(_m-this->getPos()) || depth->hitTest(_m-this->getPos()) || speed->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
 
-}
+OBJECT_REGISTER( pdspChorusEffect, "dimension chorus", OFXVP_OBJECT_CAT_SOUND)
 
-//--------------------------------------------------------------
-void pdspChorusEffect::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        speed->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        depth->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        delay->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspChorusEffect::onSliderEvent(ofxDatGuiSliderEvent e){
-    if(e.target == speed){
-        this->setCustomVar(static_cast<float>(e.value),"SPEED");
-        speed_ctrl.set(static_cast<float>(e.value));
-    }else if(e.target == depth){
-        this->setCustomVar(static_cast<float>(e.value),"DEPTH");
-        depth_ctrl.set(ofClamp(static_cast<float>(e.value)*1000.0f,0.0f,1000.0f));
-    }else if(e.target == delay){
-        this->setCustomVar(static_cast<float>(e.value),"DELAY");
-        delay_ctrl.set(ofClamp(static_cast<float>(e.value)*1000.0f,0.0f,1000.0f));
-    }
-
-}
-
-OBJECT_REGISTER( pdspChorusEffect, "chorus", OFXVP_OBJECT_CAT_SOUND)
+#endif

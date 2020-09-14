@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "FftExtractor.h"
 
 //--------------------------------------------------------------
-FftExtractor::FftExtractor() : PatchObject(){
+FftExtractor::FftExtractor() : PatchObject("fft extractor"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -49,12 +51,15 @@ FftExtractor::FftExtractor() : PatchObject(){
 
     isNewConnection   = false;
     isConnectionRight = false;
+
 }
 
 //--------------------------------------------------------------
 void FftExtractor::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_ARRAY,"data");
+
     this->addOutlet(VP_LINK_ARRAY,"fft");
 }
 
@@ -78,7 +83,7 @@ void FftExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(!isNewConnection){
@@ -116,16 +121,46 @@ void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void FftExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetColor(255,220,110,120);
-    ofNoFill();
+}
 
-    float bin_w = (float) this->width / spectrumSize;
-    for (int i = 0; i < static_cast<int>(spectrumSize); i++){
-        float bin_h = -1 * (static_cast<vector<float> *>(_outletParams[0])->at(i) * this->height);
-        ofDrawLine(i*bin_w, this->height, i*bin_w, bin_h + this->height);
+//--------------------------------------------------------------
+void FftExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // draw FFT
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_outletParams[0]));
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void FftExtractor::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Extracts the FFT (Fast Fourier Transform) from the audio analysis data vector",
+                "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -134,3 +169,5 @@ void FftExtractor::removeObjectContent(bool removeFileFromData){
 }
 
 OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+
+#endif

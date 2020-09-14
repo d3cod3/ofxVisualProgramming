@@ -30,9 +30,13 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "imgui_controls.h"
 
 class Oscillator : public PatchObject{
 
@@ -40,38 +44,75 @@ public:
 
     Oscillator();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            setupAudioOutObjectContent(pdsp::Engine &engine);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
     void            loadAudioSettings();
 
-    void            audioOutObject(ofSoundBuffer &outputBuffer);
-
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
-
 
     pdsp::VAOscillator      osc;
+    pdsp::WhiteNoise        noise;
+    pdsp::Amp               level;
     pdsp::Scope             scope;
+    pdsp::Scope             sine_scope;
+    pdsp::Scope             triangle_scope;
+    pdsp::Scope             saw_scope;
+    pdsp::Scope             pulse_scope;
+    pdsp::Scope             noise_scope;
+
+    pdsp::ValueControl      level_ctrl;
     pdsp::ValueControl      pitch_ctrl;
+    pdsp::ValueControl      detuneCoarse_ctrl;
+    pdsp::ValueControl      detuneFine_ctrl;
+    pdsp::ValueControl      pw_ctrl;
 
-    ofPolyline              waveform;
+    pdsp::ValueControl      sine_ctrl;
+    pdsp::ValueControl      triangle_ctrl;
+    pdsp::ValueControl      saw_ctrl;
+    pdsp::ValueControl      pulse_ctrl;
+    pdsp::ValueControl      noise_ctrl;
 
-    ofxDatGui*              gui;
-    ofxDatGuiHeader*        header;
-    ofxDatGuiLabel*         oscInfo;
-    ofxDatGuiSlider*        slider;
+    pdsp::Amp               sineLevel;
+    pdsp::Amp               triangleLevel;
+    pdsp::Amp               sawLevel;
+    pdsp::Amp               pulseLevel;
+    pdsp::Amp               noiseLevel;
 
+    float                   level_float;
+    float                   pitch_float;
+    float                   detune_float;
+    float                   fine_float;
+    float                   pw_float;
+
+    float                   sine_float;
+    float                   triangle_float;
+    float                   saw_float;
+    float                   pulse_float;
+    float                   noise_float;
+
+    float                   plot_data[1024];
     int                     bufferSize;
     int                     sampleRate;
 
     bool                    loaded;
 
+protected:
+
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

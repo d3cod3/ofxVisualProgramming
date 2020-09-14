@@ -30,9 +30,13 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "ImGuiFileBrowser.h"
 
 #include "ofxMtlMapping2D.h"
 
@@ -43,20 +47,22 @@ public:
 
     ProjectionMapping();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+    
 
     void            toggleWindowFullscreen();
     void            updateInWindow(ofEventArgs &e);
     void            drawInWindow(ofEventArgs &e);
 
-    void            resetResolution();
+    void            resetMappingResolution();
 
     void            keyPressed(ofKeyEventArgs &e);
     void            mouseDragged(ofMouseEventArgs &e);
@@ -64,8 +70,6 @@ public:
     void            mouseReleased(ofMouseEventArgs &e);
     void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
 
 
     shared_ptr<ofAppGLFWWindow>             window;
@@ -78,17 +82,20 @@ public:
     float                                   thposX, thposY, thdrawW, thdrawH;
     bool                                    needReset;
 
-    ofxDatGui*                              gui;
-    ofxDatGuiHeader*                        header;
-    ofxDatGuiButton*                        loadWarping;
-    ofxDatGuiButton*                        saveWarping;
-
+    imgui_addons::ImGuiFileBrowser          fileDialog;
     string                                  lastWarpingConfig;
     bool                                    loadWarpingFlag;
     bool                                    saveWarpingFlag;
     bool                                    warpingConfigLoaded;
 
+    float                                   posX, posY, drawW, drawH;
+    float                                   scaledObjW, scaledObjH;
+    float                                   objOriginX, objOriginY;
+    float                                   canvasZoom;
+
     bool                                    autoRemove;
 
     OBJECT_FACTORY_PROPS
 };
+
+#endif

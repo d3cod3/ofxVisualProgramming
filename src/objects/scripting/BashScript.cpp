@@ -30,15 +30,14 @@
 
 ==============================================================================*/
 
-
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
-#else
+#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
 
 #include "BashScript.h"
 
 //--------------------------------------------------------------
-BashScript::BashScript() : PatchObject(){
+BashScript::BashScript() : PatchObject("bash script"){
 
     this->numInlets  = 1;
     this->numOutlets = 1;
@@ -51,14 +50,12 @@ BashScript::BashScript() : PatchObject(){
 
     this->initInletsState();
 
+    posX = posY = drawW = drawH = 0.0f;
+
     bashIcon            = new ofImage();
 
-    nameLabelLoaded     = false;
     scriptLoaded        = false;
     isNewObject         = false;
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     lastMessage         = "";
 
@@ -67,13 +64,16 @@ BashScript::BashScript() : PatchObject(){
     loadScriptFlag      = false;
     saveScriptFlag      = false;
 
-    modalInfo           = false;
+    this->setIsTextureObj(true);
+
 }
 
 //--------------------------------------------------------------
 void BashScript::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_STRING,"control");
+
     this->addOutlet(VP_LINK_STRING,"scriptSTDOutput");
 }
 
@@ -81,59 +81,28 @@ void BashScript::newObject(){
 void BashScript::autoloadFile(string _fp){
     //filepath = _fp;
     filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
-    reloadScriptThreaded();
+    reloadScript();
 }
 
 //--------------------------------------------------------------
 void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // GUI
+    fileDialog.setIsRetina(this->isRetina);
+
     bashIcon->load("images/bash.png");
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &BashScript::onButtonEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    scriptName = gui->addLabel("NONE");
-    gui->addBreak();
-
-    newButton = gui->addButton("NEW");
-    newButton->setUseCustomMouse(true);
-
-    loadButton = gui->addButton("OPEN");
-    loadButton->setUseCustomMouse(true);
-
-    //editButton = gui->addButton("EDIT");
-    //editButton->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
     // Load script
-    tempCommand.setup();
     watcher.start();
     if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.sh"));
-        //filepath = file.getAbsolutePath();
         filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
     }
 
 }
 
 //--------------------------------------------------------------
-void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    if(tempCommand.getCmdExec() && tempCommand.getSysStatus() != 0 && !modalInfo){
-        modalInfo = true;
-        fd.notificationPopup("Mosaic files editing","Mosaic works better with Atom [https://atom.io/] text editor\nand it seems you do not have it installed on your system.");
-    }
+void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     // listen to message control (_inletParams[0])
     if(this->inletsConnected[0]){
@@ -142,131 +111,120 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         }
 
         if(lastMessage == "bang"){
-            reloadScriptThreaded();
+            reloadScript();
         }
     }
 
-    // GUI
-    gui->update();
-    header->update();
-    newButton->update();
-    loadButton->update();
-    //editButton->update();
-
-    if(nameLabelLoaded){
-        nameLabelLoaded = false;
-        if(currentScriptFile.getFileName().size() > 22){
-            scriptName->setLabel(currentScriptFile.getFileName().substr(0,21)+"...");
-        }else{
-            scriptName->setLabel(currentScriptFile.getFileName());
-        }
-    }
-
-    // file dialogs
-    if(loadScriptFlag){
-        loadScriptFlag = false;
-        fd.openFile("load bash"+ofToString(this->getId()),"Select a bash script");
-    }
-
-    if(saveScriptFlag){
-        saveScriptFlag = false;
-        string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
-        fd.saveFile("save bash"+ofToString(this->getId()),"Save new Bash script as",newFileName);
+    if(needToLoadScript){
+        needToLoadScript = false;
+        loadScript(filepath);
     }
 
     // path watcher
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
     }
-
-    if(needToLoadScript){
-        needToLoadScript = false;
-        loadScript(filepath);
-        nameLabelLoaded = true;
-    }
 }
 
 //--------------------------------------------------------------
 void BashScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255,150);
-    ofEnableAlphaBlending();
-    bashIcon->draw(this->width/2,this->headerHeight,((this->height/2.2f)/bashIcon->getHeight())*bashIcon->getWidth(),this->height/2.2f);
-    // GUI
     ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+    // draw node texture preview with OF
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(bashIcon->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+}
+
+//--------------------------------------------------------------
+void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+    // file dialog
+    string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
+    if(ImGuiEx::getFileDialog(fileDialog, saveScriptFlag, "Save new bash script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".sh", newFileName, scaleFactor)){
+        ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
+        ofFile newBashFile (fileDialog.selected_path);
+
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
+        reloadScript();
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
+        ofFile bashFile (fileDialog.selected_path);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,bashFile.getAbsolutePath());
+        reloadScript();
+    }
+
+}
+
+//--------------------------------------------------------------
+void BashScript::drawObjectNodeConfig(){
+    ofFile tempFilename(filepath);
+
+    loadScriptFlag = false;
+    saveScriptFlag = false;
+
+    ImGui::Spacing();
+    ImGui::Text("Loaded File:");
+    if(filepath == "none"){
+        ImGui::Text("%s",filepath.c_str());
+    }else{
+        ImGui::Text("%s",tempFilename.getFileName().c_str());
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
+        saveScriptFlag = true;
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
+        loadScriptFlag = true;
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with the default code editor on your computer.",
+                "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void BashScript::removeObjectContent(bool removeFileFromData){
-    tempCommand.stop();
-
     if(filepath != ofToDataPath("scripts/empty.sh",true) && removeFileFromData){
         removeFile(filepath);
     }
 }
 
-//--------------------------------------------------------------
-void BashScript::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || newButton->hitTest(_m-this->getPos()) || loadButton->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void BashScript::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        newButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        loadButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        //editButton->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void BashScript::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load bash"+ofToString(this->getId())){
-        ofFile file (response.filepath);
-        if (file.exists()){
-            string fileExtension = ofToUpper(file.getExtension());
-            if(fileExtension == "SH") {
-                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-                //filepath = file.getAbsolutePath();
-                reloadScriptThreaded();
-            }
-        }
-    }else if(response.id == "save bash"+ofToString(this->getId())){
-        ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
-        ofFile newBashFile (response.filepath);
-
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
-        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
-        reloadScriptThreaded();
-    }
-}
 
 //--------------------------------------------------------------
 void BashScript::loadScript(string scriptFile){
@@ -309,7 +267,7 @@ void BashScript::loadScript(string scriptFile){
         //ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
         ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
 
-        this->saveConfig(false,this->nId);
+        this->saveConfig(false);
 
 #ifdef TARGET_LINUX
         pclose(execFile);
@@ -324,20 +282,9 @@ void BashScript::loadScript(string scriptFile){
 }
 
 //--------------------------------------------------------------
-void BashScript::reloadScriptThreaded(){
+void BashScript::reloadScript(){
     scriptLoaded = false;
     needToLoadScript = true;
-}
-
-//--------------------------------------------------------------
-void BashScript::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == newButton){
-            saveScriptFlag = true;
-        }else if(e.target == loadButton){
-            loadScriptFlag = true;
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -349,7 +296,7 @@ void BashScript::pathChanged(const PathWatcher::Event &event) {
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
             filepath = event.path;
-            reloadScriptThreaded();
+            reloadScript();
             break;
         case PathWatcher::DELETED:
             //ofLogVerbose(PACKAGE) << "path deleted " << event.path;

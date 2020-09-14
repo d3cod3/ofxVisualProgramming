@@ -30,14 +30,16 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
 
 #include "PathWatcher.h"
-#include "ThreadedCommand.h"
 
-#include <atomic>
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 class ofxPingPong {
 public:
@@ -78,31 +80,31 @@ private:
     int     flag;       // Integer for making a quick swap
 };
 
+enum ShaderSliderType { ShaderSliderType_INT, ShaderSliderType_FLOAT, ShaderSliderType_COUNT };
+
 class ShaderObject : public PatchObject{
 
 public:
 
     ShaderObject();
 
-    void            autoloadFile(string _fp);
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            resetResolution(int fromID, int newWidth, int newHeight);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            autoloadFile(string _fp) override;
+
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+    
+    void            resetResolution(int fromID, int newWidth, int newHeight) override;
 
     void            initResolution();
     void            doFragmentShader();
 
-    void            loadGUI();
     void            loadScript(string scriptFile);
-
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onSliderEvent(ofxDatGuiSliderEvent e);
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
@@ -115,6 +117,11 @@ public:
     string              vertexShader;
     int                 nTextures, internalFormat;
     bool                needReset;
+
+    vector<float>       shaderSliders;
+    vector<string>      shaderSlidersLabel;
+    vector<int>         shaderSlidersIndex;
+    vector<int>         shaderSlidersType;
     
     PathWatcher         watcher;
     bool                scriptLoaded;
@@ -122,15 +129,7 @@ public:
     bool                reloading;
     bool                oneBang;
 
-    ofxDatGui*                  gui;
-    ofxDatGuiHeader*            header;
-    ofxDatGuiLabel*             shaderName;
-    ofxDatGuiButton*            newButton;
-    ofxDatGuiButton*            loadButton;
-    ofxDatGuiButton*            editButton;
-    vector<ofxDatGuiSlider*>    shaderSliders;
-    vector<int>                 shaderSlidersIndex;
-    vector<float>               objectCustomVars;
+    imgui_addons::ImGuiFileBrowser          fileDialog;
 
     string              lastShaderScript;
     string              lastVertexShaderPath;
@@ -142,11 +141,17 @@ public:
     ofFbo               *fbo;
     ofImage             *kuro;
     float               posX, posY, drawW, drawH;
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
 
-    bool                modalInfo;
+    float               prevW, prevH;
+
+    bool                loaded;
 
 protected:
-    ThreadedCommand     tempCommand;
-
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

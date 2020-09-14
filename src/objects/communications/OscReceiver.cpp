@@ -30,29 +30,31 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "OscReceiver.h"
 
 //--------------------------------------------------------------
-OscReceiver::OscReceiver() : PatchObject(){
+OscReceiver::OscReceiver() : PatchObject("osc receiver"){
 
     this->numInlets  = 0;
     this->numOutlets = 0;
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     osc_port            = 12345;
+    osc_port_string     = ofToString(osc_port);
     local_ip            = "0.0.0.0";
 
     _tempImage          = new ofImage();
+
+    loaded              = false;
 
 }
 
 //--------------------------------------------------------------
 void OscReceiver::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
 
     this->setCustomVar(static_cast<float>(osc_port),"PORT");
 }
@@ -60,65 +62,12 @@ void OscReceiver::newObject(){
 //--------------------------------------------------------------
 void OscReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &OscReceiver::onButtonEvent);
-    gui->onTextInputEvent(this, &OscReceiver::onTextInputEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
     local_ip = getLocalIP();
-    localIP = gui->addLabel(local_ip);
 
-    port = gui->addTextInput("PORT","12345");
-    port->setUseCustomMouse(true);
-    port->setText(ofToString(static_cast<int>(floor(this->getCustomVar("PORT")))));
-
-    gui->addBreak();
-
-    addOSCNumber = gui->addButton("ADD OSC NUMBER");
-    addOSCNumber->setUseCustomMouse(true);
-    addOSCNumber->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addOSCText = gui->addButton("ADD OSC TEXT");
-    addOSCText->setUseCustomMouse(true);
-    addOSCText->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addOSCVector = gui->addButton("ADD OSC VECTOR");
-    addOSCVector->setUseCustomMouse(true);
-    addOSCVector->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addOSCTexture = gui->addButton("ADD OSC IMAGE");
-    addOSCTexture->setUseCustomMouse(true);
-    addOSCTexture->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-
-    gui->addBreak();
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
-    initOutlets();
-
-    osc_port = static_cast<int>(floor(this->getCustomVar("PORT")));
-    osc_receiver.setup(osc_port);
 }
 
 //--------------------------------------------------------------
-void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    port->update();
-    addOSCNumber->update();
-    addOSCText->update();
-    addOSCVector->update();
-    addOSCTexture->update();
-
-    for(size_t l=0;l<labels.size();l++){
-        labels.at(l)->update();
-    }
+void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(osc_labels.size() > 0){
         while(osc_receiver.hasWaitingMessages()){
@@ -166,173 +115,174 @@ void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
             }
         }
     }
+
+    if(!loaded){
+        loaded = true;
+        initOutlets();
+
+        osc_port = static_cast<int>(floor(this->getCustomVar("PORT")));
+        osc_port_string     = ofToString(osc_port);
+        osc_receiver.setup(osc_port);
+    }
+
 }
 
 //--------------------------------------------------------------
 void OscReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void OscReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
+
+        ImGui::PushItemWidth(80*scaleFactor);
+        ImGui::Text("%s", local_ip.c_str());
+        ImGui::Spacing();
+        if(ImGui::InputText("PORT",&osc_port_string)){
+            if(isInteger(osc_port_string)){
+                osc_port = ofToInt(osc_port_string);
+                this->setCustomVar(static_cast<float>(osc_port),"PORT");
+            }
+        }
+        ImGui::Spacing();
+        if(ImGui::Button("APPLY",ImVec2(-1,26*scaleFactor))){
+            osc_receiver.setup(osc_port);
+        }
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void OscReceiver::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::Text("Receiving OSC data @ port %s", osc_port_string.c_str());
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    if(ImGui::Button("ADD OSC NUMBER",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _outletParams[this->numOutlets] = new float();
+        *(float *)&_outletParams[this->numOutlets] = 0.0f;
+        this->addOutlet(VP_LINK_NUMERIC,"number");
+
+        osc_labels.push_back("/numberlabel");
+        osc_labels_type.push_back(VP_LINK_NUMERIC);
+        this->setCustomVar(0.0f,"/numberlabel");
+
+        this->numOutlets++;
+        resetOutlets();
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD OSC TEXT",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _outletParams[this->numOutlets] = new string();  // control
+        *static_cast<string *>(_outletParams[this->numOutlets]) = "";
+        this->addOutlet(VP_LINK_STRING,"text");
+
+        osc_labels.push_back("/textlabel");
+        osc_labels_type.push_back(VP_LINK_STRING);
+        this->setCustomVar(0.0f,"/textlabel");
+
+        this->numOutlets++;
+        resetOutlets();
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD OSC VECTOR",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _outletParams[this->numOutlets] = new vector<float>();
+        this->addOutlet(VP_LINK_ARRAY,"vector");
+
+        osc_labels.push_back("/vectorlabel");
+        osc_labels_type.push_back(VP_LINK_ARRAY);
+        this->setCustomVar(0.0f,"/vectorlabel");
+
+        this->numOutlets++;
+        resetOutlets();
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD OSC TEXTURE",ImVec2(224*scaleFactor,26*scaleFactor))){
+        _outletParams[this->numOutlets] = new ofTexture();
+        this->addOutlet(VP_LINK_TEXTURE,"texture");
+
+        osc_labels.push_back("/texturelabel");
+        osc_labels_type.push_back(VP_LINK_TEXTURE);
+        this->setCustomVar(0.0f,"/texturelabel");
+
+        this->numOutlets++;
+        resetOutlets();
+    }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    prev_osc_labels = osc_labels;
+
+    for(int i=0;i<osc_labels.size();i++){
+        ImGui::PushID(i);
+        if(osc_labels_type.at(i) == VP_LINK_STRING){
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(200,180,255,30));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(200,180,255,60));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(200,180,255,60));
+        }else if(osc_labels_type.at(i) == VP_LINK_ARRAY){
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,120,30));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,120,60));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,120,60));
+        }else if(osc_labels_type.at(i) == VP_LINK_TEXTURE){
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(120,255,255,30));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
+        }else{
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::GetStyle().Colors[ImGuiCol_FrameBg]);
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImGui::GetStyle().Colors[ImGuiCol_FrameBgHovered]);
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImGui::GetStyle().Colors[ImGuiCol_FrameBgActive]);
+        }
+        if(ImGui::InputText("###label",&osc_labels.at(i))){
+            this->substituteCustomVar(prev_osc_labels.at(i),osc_labels.at(i));
+            this->saveConfig(false);
+        }
+        ImGui::PopStyleColor(3);
+        ImGui::PopID();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Receive data via OSC protocol as numeric type (float), text (string), vector<float> or texture. Texture receive is limited by the maximum buffer size permitted, so you have max 1280x720 for grayscale texture, 640x480 for RGB and 640x360 for RGBA",
+                "https://mosaic.d3cod3.org/reference.php?r=osc-receiver", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void OscReceiver::removeObjectContent(bool removeFileFromData){
     if(osc_receiver.isListening()){
         osc_receiver.stop();
-    }
-}
-
-//--------------------------------------------------------------
-void OscReceiver::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    port->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addOSCNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addOSCText->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addOSCVector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addOSCTexture->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    for(size_t l=0;l<labels.size();l++){
-        labels.at(l)->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || port->hitTest(_m-this->getPos())
-                          || addOSCNumber->hitTest(_m-this->getPos()) || addOSCText->hitTest(_m-this->getPos()) || addOSCVector->hitTest(_m-this->getPos()) || addOSCTexture->hitTest(_m-this->getPos());
-
-        for(size_t l=0;l<labels.size();l++){
-            this->isOverGUI = labels.at(l)->hitTest(_m-this->getPos());
-        }
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
-
-//--------------------------------------------------------------
-void OscReceiver::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        port->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addOSCNumber->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addOSCText->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addOSCVector->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addOSCTexture->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void OscReceiver::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == addOSCNumber){
-            _outletParams[this->numOutlets] = new float();
-            *(float *)&_outletParams[this->numOutlets] = 0.0f;
-            this->addOutlet(VP_LINK_NUMERIC,"number");
-
-            ofxDatGuiTextInput* temp;
-            temp = gui->addTextInput("N","/labelnumber");
-            temp->setUseCustomMouse(true);
-            temp->setTextUpperCase(false);
-            labels.push_back(temp);
-            osc_labels.push_back("/labelnumber");
-            gui->setWidth(this->width);
-
-            this->setCustomVar(0.0f,"/labelnumber");
-
-            this->numOutlets++;
-
-            resetOutlets();
-        }else if(e.target == addOSCText){
-            _outletParams[this->numOutlets] = new string();  // control
-            *static_cast<string *>(_outletParams[this->numOutlets]) = "";
-            this->addOutlet(VP_LINK_STRING,"text");
-
-            ofxDatGuiTextInput* temp;
-            temp = gui->addTextInput("T","/labeltext");
-            temp->setUseCustomMouse(true);
-            temp->setTextUpperCase(false);
-            labels.push_back(temp);
-            osc_labels.push_back("/labeltext");
-            gui->setWidth(this->width);
-
-            this->setCustomVar(0.0f,"/labeltext");
-
-            this->numOutlets++;
-
-            resetOutlets();
-        }else if(e.target == addOSCVector){
-            _outletParams[this->numOutlets] = new vector<float>();
-            this->addOutlet(VP_LINK_ARRAY,"numbersArray");
-
-            ofxDatGuiTextInput* temp;
-            temp = gui->addTextInput("V","/labelvector");
-            temp->setUseCustomMouse(true);
-            temp->setTextUpperCase(false);
-            labels.push_back(temp);
-            osc_labels.push_back("/labelvector");
-            gui->setWidth(this->width);
-
-            this->setCustomVar(0.0f,"/labelvector");
-
-            this->numOutlets++;
-
-            resetOutlets();
-        }else if(e.target == addOSCTexture){
-            _outletParams[this->numOutlets] = new ofTexture();
-            this->addOutlet(VP_LINK_TEXTURE,"texture");
-
-            ofxDatGuiTextInput* temp;
-            temp = gui->addTextInput("I","/labelimage");
-            temp->setUseCustomMouse(true);
-            temp->setTextUpperCase(false);
-            labels.push_back(temp);
-            osc_labels.push_back("/labelimage");
-            gui->setWidth(this->width);
-
-            this->setCustomVar(0.0f,"/labelimage");
-
-            this->numOutlets++;
-
-            resetOutlets();
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void OscReceiver::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == port){
-            if(isInteger(e.text)){
-                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"PORT");
-                osc_port = ofToInt(e.text);
-                osc_receiver.setup(osc_port);
-            }else{
-                port->setText(ofToString(osc_port));
-            }
-        }
-
-        for(int i=0;i<labels.size();i++){
-            if(e.target == labels.at(i)){
-                this->substituteCustomVar(osc_labels.at(i),e.text);
-                osc_labels.at(i) = e.text;
-
-                this->saveConfig(false,this->nId);
-            }
-        }
     }
 }
 
@@ -368,44 +318,24 @@ void OscReceiver::initOutlets(){
                                     if(tempTypes.at(tempCounter) == 0){
                                         _outletParams[tempCounter] = new float();
                                         *(float *)&_outletParams[tempCounter] = 0.0f;
-                                        ofxDatGuiTextInput* temp;
-                                        temp = gui->addTextInput("N",XML.getValue("name",""));
-                                        temp->setUseCustomMouse(true);
-                                        temp->setTextUpperCase(false);
-                                        labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
-                                        gui->setWidth(this->width);
+                                        osc_labels_type.push_back(VP_LINK_NUMERIC);
                                         tempCounter++;
                                     }else if(tempTypes.at(tempCounter) == 1){
                                         _outletParams[tempCounter] = new string();
                                         *static_cast<string *>(_outletParams[tempCounter]) = "";
-                                        ofxDatGuiTextInput* temp;
-                                        temp = gui->addTextInput("T",XML.getValue("name",""));
-                                        temp->setUseCustomMouse(true);
-                                        temp->setTextUpperCase(false);
-                                        labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
-                                        gui->setWidth(this->width);
+                                        osc_labels_type.push_back(VP_LINK_STRING);
                                         tempCounter++;
                                     }else if(tempTypes.at(tempCounter) == 2){
                                         _outletParams[tempCounter] = new vector<float>();
-                                        ofxDatGuiTextInput* temp;
-                                        temp = gui->addTextInput("V",XML.getValue("name",""));
-                                        temp->setUseCustomMouse(true);
-                                        temp->setTextUpperCase(false);
-                                        labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
-                                        gui->setWidth(this->width);
+                                        osc_labels_type.push_back(VP_LINK_ARRAY);
                                         tempCounter++;
                                     }else if(tempTypes.at(tempCounter) == 3){
                                         _outletParams[tempCounter] = new ofTexture();
-                                        ofxDatGuiTextInput* temp;
-                                        temp = gui->addTextInput("I",XML.getValue("name",""));
-                                        temp->setUseCustomMouse(true);
-                                        temp->setTextUpperCase(false);
-                                        labels.push_back(temp);
                                         osc_labels.push_back(XML.getValue("name",""));
-                                        gui->setWidth(this->width);
+                                        osc_labels_type.push_back(VP_LINK_TEXTURE);
                                         tempCounter++;
                                     }
                                 }
@@ -431,8 +361,6 @@ void OscReceiver::resetOutlets(){
     if(this->numOutlets > 12){
         this->height          *= 2;
     }
-    this->box->setHeight(this->height);
-    gui->setPosition(0,this->height - header->getHeight());
 
     ofxXmlSettings XML;
     if(XML.loadFile(this->patchFile)){
@@ -446,10 +374,10 @@ void OscReceiver::resetOutlets(){
                     XML.removeTag("outlets");
                     int newOutlets = XML.addTag("outlets");
                     if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
                             int newLink = XML.addTag("link");
                             if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outlets.at(j));
+                                XML.setValue("type",this->outletsType.at(j));
                                 XML.popTag();
                             }
                         }
@@ -463,7 +391,7 @@ void OscReceiver::resetOutlets(){
         XML.saveFile();
     }
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
@@ -512,3 +440,5 @@ string OscReceiver::getLocalIP(){
 }
 
 OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+
+#endif

@@ -30,9 +30,13 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "IconsFontAwesome5.h"
 
 #include "ofxTimeline.h"
 
@@ -41,7 +45,6 @@
 #define TIMELINE_SWITCH_TRACK   2
 #define TIMELINE_COLOR_TRACK    3
 #define TIMELINE_LFO_TRACK      4
-#define TIMELINE_MIDI_TRACK     5
 
 class moTimeline : public PatchObject {
 
@@ -49,16 +52,17 @@ public:
 
     moTimeline();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            customReset();
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
+
+    void            removeObjectContent(bool removeFileFromData=false) override;
+
+    void            customReset() override;
 
     void            initTimeline();
     string          getLoadingTimelineName(string path);
@@ -83,10 +87,6 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
     void            windowResized(ofResizeEventArgs &e);
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
-    void            onToggleEvent(ofxDatGuiToggleEvent e);
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
-
 
     std::shared_ptr<ofAppGLFWWindow>        window;
     bool                                    isFullscreen;
@@ -99,33 +99,13 @@ public:
     int                                     sameNameAvoider;
     int                                     durationInSeconds;
     int                                     fps;
-    float                                   bpm;
+    int                                     bpm;
     int                                     lastTrackID;
     bool                                    timelineLoaded;
     bool                                    resetTimelineOutlets;
 
     string                                  lastMessage;
     float                                   lastPlayheadPos;
-
-
-    ofxDatGui*                              gui;
-    ofxDatGuiHeader*                        header;
-    ofxDatGuiToggle*                        setRetina;
-    ofxDatGuiTextInput*                     guiDuration;
-    ofxDatGuiButton*                        setDuration;
-    ofxDatGuiTextInput*                     guiFPS;
-    ofxDatGuiButton*                        setFPS;
-    ofxDatGuiTextInput*                     guiBPM;
-    ofxDatGuiButton*                        setBPM;
-    ofxDatGuiButton*                        showBPMGrid;
-    ofxDatGuiTextInput*                     guiTrackName;
-    ofxDatGuiButton*                        addCurveTrack;
-    ofxDatGuiButton*                        addBangTrack;
-    ofxDatGuiButton*                        addSwitchTrack;
-    ofxDatGuiButton*                        addColorTrack;
-    ofxDatGuiButton*                        addLFOTrack;
-    ofxDatGuiButton*                        loadTimeline;
-    ofxDatGuiButton*                        saveTimeline;
 
     string                                  lastTimelineFolder;
     bool                                    loadTimelineConfigFlag;
@@ -135,9 +115,22 @@ public:
 
     bool                                    loadedObjectFromXML;
     bool                                    autoRemove;
+    bool                                    retinaScreen;
+    bool                                    showBPMGrid;
+    bool                                    isPaused;
+    bool                                    isLoop;
+
     bool                                    loaded;
     size_t                                  startTime;
     size_t                                  waitTime;
 
+protected:
+
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

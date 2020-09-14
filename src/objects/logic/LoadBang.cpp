@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "LoadBang.h"
 
 //--------------------------------------------------------------
-LoadBang::LoadBang() : PatchObject(){
+LoadBang::LoadBang() : PatchObject("loadbang"){
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -49,13 +51,10 @@ LoadBang::LoadBang() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject         = true;
-    this->isOverGUI     = true;
-
     bang                = false;
     loadStart           = false;
 
-    wait                = static_cast<size_t>(floor(*(float *)&_inletParams[0]));
+    wait                = 1000;
     startTime           = ofGetElapsedTimeMillis();
 
     loaded              = false;
@@ -64,8 +63,10 @@ LoadBang::LoadBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void LoadBang::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"delay");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
 
@@ -74,43 +75,17 @@ void LoadBang::newObject(){
 
 //--------------------------------------------------------------
 void LoadBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onTextInputEvent(this, &LoadBang::onTextInputEvent);
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
 
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-
-    timeSetting = gui->addTextInput("DELAY","1000");
-    timeSetting->setUseCustomMouse(true);
-    timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
-    wait = ofToInt(timeSetting->getText());
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
-void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    timeSetting->update();
-
-    if(!loaded){
-        loaded = true;
-        timeSetting->setText(ofToString(static_cast<int>(floor(this->getCustomVar("TIME")))));
-        wait = ofToInt(timeSetting->getText());
-    }
+void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && static_cast<size_t>(floor(*(float *)&_inletParams[0])) != wait){
-        wait = static_cast<size_t>(floor(*(float *)&_inletParams[0]));
-        timeSetting->setText(ofToString(wait));
+        wait = static_cast<int>(floor(*(float *)&_inletParams[0]));
         this->setCustomVar(static_cast<float>(wait),"TIME");
         loadStart = false;
         startTime = ofGetElapsedTimeMillis();
@@ -130,69 +105,87 @@ void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
         *static_cast<string *>(_outletParams[1]) = "";
     }
 
+    if(!loaded){
+        loaded = true;
+        wait = static_cast<int>(floor(this->getCustomVar("TIME")));
+    }
+
 }
 
 //--------------------------------------------------------------
 void LoadBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
-    }
-    gui->draw();
-    ofDisableAlphaBlending();
 }
 
 //--------------------------------------------------------------
-void LoadBang::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
+void LoadBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || timeSetting->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
 
-//--------------------------------------------------------------
-void LoadBang::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        timeSetting->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
 
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
+        if (ImGui::BeginMenu("CONFIG"))
+        {
 
-        x = box->getPosition().x;
-        y = box->getPosition().y;
+            drawObjectNodeConfig();
 
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
+            ImGui::EndMenu();
         }
+
+        _nodeCanvas.EndNodeMenu();
     }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+
+        // BANG (PD Style) button
+        ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if (bang){
+            currentColor = pressColor;
+        }else{
+            currentColor = releaseColor;
+        }
+
+        if(!loadStart){
+            float percentage = static_cast<float>(ofGetElapsedTimeMillis()-startTime) / static_cast<float>(wait);
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x, window_pos.y + window_size.y - (26*this->scaleFactor)),ImVec2(window_pos.x + (window_size.x*percentage),window_pos.y + window_size.y - (26*this->scaleFactor)),IM_COL32(60,60,60,255),8.0f);
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
 }
 
 //--------------------------------------------------------------
-void LoadBang::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == timeSetting){
-            if(isInteger(e.text)){
-                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"TIME");
-                wait = ofToInt(e.text);
-                loadStart = false;
-                startTime = ofGetElapsedTimeMillis();
-            }else{
-                timeSetting->setText(ofToString(wait));
-            }
+void LoadBang::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::InputInt("Delay",&wait)){
+        if(wait < 0){
+            wait = 0;
         }
+
     }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Delay in milliseconds.");
+
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(-1,26*this->scaleFactor))){
+        this->setCustomVar(static_cast<float>(wait),"TIME");
+        loadStart = false;
+        startTime = ofGetElapsedTimeMillis();
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Automatically triggered bang on patch load, with configurable delay time.",
+                "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
 }
 
 OBJECT_REGISTER( LoadBang, "loadbang", OFXVP_OBJECT_CAT_LOGIC)
+
+#endif

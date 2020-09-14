@@ -30,9 +30,13 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "imgui_plot.h"
 
 class Metronome : public PatchObject {
 
@@ -40,26 +44,34 @@ public:
 
     Metronome();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            onTextInputEvent(ofxDatGuiTextInputEvent e);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
 
-    ofxDatGui*              gui;
-    ofxDatGuiValuePlotter*  rPlotter;
-    ofxDatGuiTextInput*     timeSetting;
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
-    size_t                  wait;
+    pdsp::Function          systemBPM;
+    bool                    bpmMetro;
+
     size_t                  resetTime;
     size_t                  metroTime;
 
     bool                    sync;
+
     bool                    loaded;
 
+protected:
+
+    ofxVPObjectParameter<int> timeSetting;
+
+private:
+
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

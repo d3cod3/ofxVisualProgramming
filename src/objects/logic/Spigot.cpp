@@ -30,16 +30,17 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "Spigot.h"
 
 //--------------------------------------------------------------
-Spigot::Spigot() : PatchObject(){
+Spigot::Spigot() : PatchObject("spigot"){
 
     this->numInlets  = 6;
     this->numOutlets = 5;
 
-    _inletParams[0] = new float();  // state
-    *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[0] = new vector<float>();  // state
 
     _inletParams[1] = new float();  // float
     *(float *)&_inletParams[1] = 0.0f;
@@ -67,29 +68,42 @@ Spigot::Spigot() : PatchObject(){
 
     this->initInletsState();
 
-    isOpen  = false;
+    isOpen = new bool[5];
+    for(int i=0;i<5;i++){
+        isOpen[i] = false;
+    }
+
+    labels.assign(5,"");
 
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
     empty   = new vector<float>();
     kuro    = new ofImage();
+
+    loaded  = false;
 }
 
 //--------------------------------------------------------------
 void Spigot::newObject(){
-    this->setName(this->objectName);
-    this->addInlet(VP_LINK_NUMERIC,"state");
+    PatchObject::setName( this->objectName );
+
+    this->addInlet(VP_LINK_ARRAY,"state");
     this->addInlet(VP_LINK_NUMERIC,"float");
     this->addInlet(VP_LINK_STRING,"string");
     this->addInlet(VP_LINK_ARRAY,"vector");
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addInlet(VP_LINK_AUDIO,"signal");
-    this->addOutlet(VP_LINK_NUMERIC);
-    this->addOutlet(VP_LINK_STRING);
-    this->addOutlet(VP_LINK_ARRAY);
-    this->addOutlet(VP_LINK_TEXTURE);
-    this->addOutlet(VP_LINK_AUDIO);
+
+    this->addOutlet(VP_LINK_NUMERIC,"float");
+    this->addOutlet(VP_LINK_STRING,"string");
+    this->addOutlet(VP_LINK_ARRAY,"vector");
+    this->addOutlet(VP_LINK_TEXTURE,"texture");
+    this->addOutlet(VP_LINK_AUDIO,"signal");
+
+    for(int i=0;i<5;i++){
+        this->setCustomVar(static_cast<float>(isOpen[i]),"IS_OPEN_"+ofToString(i));
+    }
 }
 
 //--------------------------------------------------------------
@@ -99,33 +113,65 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
 
+    labels.at(0) = "float";
+    labels.at(1) = "string";
+    labels.at(2) = "vector<float>";
+    labels.at(3) = "texture";
+    labels.at(4) = "audio signal";
+
     static_cast<ofSoundBuffer *>(_inletParams[5])->set(0.0f);
     static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
 }
 
 //--------------------------------------------------------------
-void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            isOpen = false;
-        }else{
-            isOpen = true;
+
+        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+            if(s<5){
+                if(static_cast<vector<float> *>(_inletParams[0])->at(s) < 1.0f){
+                    isOpen[s] = false;
+                }else{
+                    isOpen[s] = true;
+                }
+            }else{
+                break;
+            }
         }
+
+        if(isOpen[0]){
+            *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+        }else{
+            *(float *)&_outletParams[0] = -1.0f;
+        }
+        if(isOpen[1]){
+            *static_cast<string *>(_outletParams[1]) = *static_cast<string *>(_inletParams[2]);
+        }else{
+            *static_cast<string *>(_outletParams[1]) = "empty";
+        }
+        if(isOpen[2]){
+            *static_cast<vector<float> *>(_outletParams[2]) = *static_cast<vector<float> *>(_inletParams[3]);
+        }else{
+            *static_cast<vector<float> *>(_outletParams[2]) = *empty;
+        }
+        if(isOpen[3]){
+            *static_cast<ofTexture *>(_outletParams[3]) = *static_cast<ofTexture *>(_inletParams[4]);
+        }else{
+            *static_cast<ofTexture *>(_outletParams[3]) = kuro->getTexture();
+        }
+
     }
 
-    if(isOpen){
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
-        *static_cast<string *>(_outletParams[1]) = *static_cast<string *>(_inletParams[2]);
-        *static_cast<vector<float> *>(_outletParams[2]) = *static_cast<vector<float> *>(_inletParams[3]);
-        *static_cast<ofTexture *>(_outletParams[3]) = *static_cast<ofTexture *>(_inletParams[4]);
-        *static_cast<ofSoundBuffer *>(_outletParams[4]) = *static_cast<ofSoundBuffer *>(_inletParams[5]);
-    }else{
-        *(float *)&_outletParams[0] = -1.0f;
-        *static_cast<string *>(_outletParams[1]) = "empty";
-        *static_cast<vector<float> *>(_outletParams[2]) = *empty;
-        *static_cast<ofTexture *>(_outletParams[3]) = kuro->getTexture();
-        *static_cast<ofSoundBuffer *>(_outletParams[4]) *= 0.0f;
+    if(!loaded){
+        loaded = true;
+        for(int i=0;i<5;i++){
+            if(this->getCustomVar("IS_OPEN_"+ofToString(i)) < 1.0f){
+               isOpen[i] = false;
+            }else{
+                isOpen[i] = true;
+            }
+        }
     }
     
 }
@@ -133,17 +179,75 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 //--------------------------------------------------------------
 void Spigot::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    ofSetLineWidth(3);
-    if(!isOpen){
-        ofSetColor(240,10,10);
-        ofDrawLine(this->headerHeight*4,this->headerHeight,this->width-this->headerHeight,this->height);
-    }else{
-        ofSetColor(250,250,250);
-        ofDrawLine(this->headerHeight*4,this->height/2 + this->headerHeight,this->width-this->headerHeight,this->height/2 + this->headerHeight);
+}
+
+//--------------------------------------------------------------
+void Spigot::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofSetLineWidth(1);
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float inletPinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
+        float outletPinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numOutlets;
+
+        ImU32 tempCol;
+
+        for(int i=0;i<5;i++){
+            if(isOpen[i]){
+                if(i==0){
+                    tempCol = IM_COL32(210,210,210,255);
+                }else if(i==1){
+                    tempCol = IM_COL32(200,180,255,255);
+                }else if(i==2){
+                    tempCol = IM_COL32(120,180,120,255);
+                }else if(i==3){
+                    tempCol = IM_COL32(120,255,255,255);
+                }else if(i==4){
+                    tempCol = IM_COL32(255,255,120,255);
+                }
+                _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x,window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (inletPinDistance/2) + inletPinDistance*(i+1)),ImVec2(window_pos.x + window_size.x,window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (outletPinDistance/2) + outletPinDistance*i),tempCol,2.0f);
+            }
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void Spigot::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    for(int i=0;i<5;i++){
+        if(ImGui::Checkbox(labels.at(i).c_str(),&isOpen[i])){
+            this->setCustomVar(static_cast<float>(isOpen[i]),"IS_OPEN_"+ofToString(i));
+        }
+        ImGui::Spacing();
+    }
+
+
+    ImGuiEx::ObjectInfo(
+                "Multiple switch of different cable types.",
+                "https://mosaic.d3cod3.org/reference.php?r=spigot", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -152,15 +256,8 @@ void Spigot::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void Spigot::mouseReleasedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[0]){
-        isOpen = !isOpen;
-    }
-}
-
-//--------------------------------------------------------------
 void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
-    if(isOpen){
+    if(isOpen[4]){
         if(this->inletsConnected[5]){
             *static_cast<ofSoundBuffer *>(_outletParams[4]) = *static_cast<ofSoundBuffer *>(_inletParams[5]);
         }
@@ -170,3 +267,5 @@ void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC)
+
+#endif

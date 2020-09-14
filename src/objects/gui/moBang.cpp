@@ -30,10 +30,15 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moBang.h"
 
 //--------------------------------------------------------------
-moBang::moBang() : PatchObject(){
+moBang::moBang() :
+        PatchObject("bang")
+
+{
 
     this->numInlets  = 1;
     this->numOutlets = 2;
@@ -56,19 +61,24 @@ moBang::moBang() : PatchObject(){
 
 //--------------------------------------------------------------
 void moBang::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_NUMERIC,"bang");
+
     this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_STRING,"bang");
 }
 
 //--------------------------------------------------------------
 void moBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
+    releaseColor = { 0.f, 0.f, 0.f, 0.f };
+
+    currentColor = releaseColor;
 }
 
 //--------------------------------------------------------------
-void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
+void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -95,12 +105,61 @@ void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects,
 //--------------------------------------------------------------
 void moBang::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
-    ofEnableAlphaBlending();
-    if(bang){
-        ofSetColor(250,250,5);
-        ofDrawRectangle(0,0,this->width,this->height);
+
+}
+
+//--------------------------------------------------------------
+void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
-    ofDisableAlphaBlending();
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        // BANG (PD Style) button
+        auto state = ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
+
+        if (state == SmartButtonState_Pressed || bang){
+            currentColor = pressColor;
+            if(!bang && !this->inletsConnected[0]){
+                bang = true;
+            }
+        }
+
+        if(state == SmartButtonState_Released || !bang){
+            currentColor = releaseColor;
+            if(bang && !this->inletsConnected[0]){
+                bang = false;
+                isBangFinished = true;
+            }
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void moBang::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Triggers a bang. You can control it manually with the mouse or automate it by its inlet.",
+                "https://mosaic.d3cod3.org/reference.php?r=bang", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -108,19 +167,6 @@ void moBang::removeObjectContent(bool removeFileFromData){
     
 }
 
-//--------------------------------------------------------------
-void moBang::mousePressedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[0]){
-        bang = true;
-    }
-}
-
-//--------------------------------------------------------------
-void moBang::mouseReleasedObjectContent(ofVec3f _m){
-    if(!this->inletsConnected[0]){
-        bang = false;
-        isBangFinished = true;
-    }
-}
-
 OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)
+
+#endif

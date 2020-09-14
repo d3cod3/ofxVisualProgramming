@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "pdspLowCut.h"
 
 //--------------------------------------------------------------
-pdspLowCut::pdspLowCut() : PatchObject(){
+pdspLowCut::pdspLowCut() : PatchObject("high pass"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -46,49 +48,37 @@ pdspLowCut::pdspLowCut() : PatchObject(){
 
     this->initInletsState();
 
-    this->width *= 2;
-
     freqINFO                = new ofImage();
+    posX = posY = drawW = drawH = 0.0f;
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
+    this->setIsTextureObj(true);
 
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
+    freq                    = 20.0f;
+
     loaded                  = false;
+
+    this->width *= 2;
 }
 
 //--------------------------------------------------------------
 void pdspLowCut::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"freq");
+
     this->addOutlet(VP_LINK_AUDIO,"filteredSignal");
 
-    this->setCustomVar(static_cast<float>(20),"FREQUENCY");
+    this->setCustomVar(freq,"FREQUENCY");
 }
 
 //--------------------------------------------------------------
 void pdspLowCut::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
-
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &pdspLowCut::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("freq",20,20000,20);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 
     freqINFO->load("images/freq_graph.png");
 }
@@ -96,7 +86,7 @@ void pdspLowCut::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void pdspLowCut::setupAudioOutObjectContent(pdsp::Engine &engine){
     freq_ctrl >> filter.in_freq();
-    freq_ctrl.set(20.0f);
+    freq_ctrl.set(freq);
     freq_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> filter >> this->pdspOut[0];
@@ -104,39 +94,84 @@ void pdspLowCut::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspLowCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    slider->update();
+void pdspLowCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        freq_ctrl.set(ofClamp(*(float *)&_inletParams[1],20.0f,20000.0f));
-        slider->setValue(freq_ctrl.get());
+        freq = ofClamp(*(float *)&_inletParams[1],20.0f,20000.0f);
+        freq_ctrl.set(freq);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("FREQUENCY"));
-        freq_ctrl.set(ofClamp(slider->getValue(),20.0f,20000.0f));
+        freq = ofClamp(this->getCustomVar("FREQUENCY"),20.0f,20000.0f);
+        freq_ctrl.set(freq);
     }
 
 }
 
 //--------------------------------------------------------------
 void pdspLowCut::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(0);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    ofSetLineWidth(3);
-    ofDrawLine(0,this->height-20,ofMap(freq_ctrl.get(),20.0f,20000.0f,10,this->width),this->height/3);
-    ofDrawLine(ofMap(freq_ctrl.get(),20.0f,20000.0f,10,this->width),this->height/3,this->width,this->height/3);
-    ofSetLineWidth(1);
+
+    // draw node texture preview with OF
     ofSetColor(255);
-    freqINFO->draw(0,this->height/2);
-    gui->draw();
-    ofDisableAlphaBlending();
+    if(scaledObjW*canvasZoom > 90.0f){
+        drawNodeOFTexture(freqINFO->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+    }
+
+}
+
+//--------------------------------------------------------------
+void pdspLowCut::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
+
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x ,window_pos.y + window_size.y),ImVec2(window_pos.x + ofMap(freq,20.0f,20000.0f,20*scaleFactor,window_size.x-(20*scaleFactor)),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),IM_COL32(255,255,120,160),2.0f);
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + ofMap(freq,20.0f,20000.0f,20*scaleFactor,window_size.x-(20*scaleFactor)),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),ImVec2(window_pos.x + window_size.x, window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),IM_COL32(255,255,120,160),2.0f);
+
+        // get imgui node translated/scaled position/dimension for drawing textures in OF
+        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL-2)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+    // get imgui canvas zoom
+    canvasZoom = _nodeCanvas.GetCanvasScale();
+
+}
+
+//--------------------------------------------------------------
+void pdspLowCut::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    if(ImGui::SliderFloat("Frequency",&freq,20.0f,20000.0f)){
+        freq_ctrl.set(freq);
+        this->setCustomVar(freq,"FREQUENCY");
+    }
+    ImGui::Spacing();
+
+    ImGuiEx::ObjectInfo(
+                "12 dB High-Pass (aka Low Cut filter). Non-resonant.",
+                "https://mosaic.d3cod3.org/reference.php?r=hi-pass", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -173,45 +208,7 @@ void pdspLowCut::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void pdspLowCut::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
+OBJECT_REGISTER( pdspLowCut, "high pass", OFXVP_OBJECT_CAT_SOUND)
 
-//--------------------------------------------------------------
-void pdspLowCut::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void pdspLowCut::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"FREQUENCY");
-    freq_ctrl.set(ofClamp(static_cast<float>(e.value),20.0f,20000.0f));
-}
-
-OBJECT_REGISTER( pdspLowCut, "hi pass", OFXVP_OBJECT_CAT_SOUND)
+#endif

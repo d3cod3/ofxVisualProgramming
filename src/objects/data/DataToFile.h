@@ -30,9 +30,14 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #pragma once
 
 #include "PatchObject.h"
+
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 
 
 class DataToFile : public PatchObject {
@@ -41,17 +46,15 @@ public:
 
     DataToFile();
 
-    void            newObject();
-    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow);
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd);
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer);
-    void            removeObjectContent(bool removeFileFromData=false);
+    void            newObject() override;
+    void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            mouseMovedObjectContent(ofVec3f _m);
-    void            dragGUIObject(ofVec3f _m);
-    void            fileDialogResponse(ofxThreadedFileDialogResponse &response);
+    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
+    void            drawObjectNodeConfig() override;
 
-    void            onButtonEvent(ofxDatGuiButtonEvent e);
+    void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            appendLineToFile(string filepath, string line);
 
@@ -61,9 +64,18 @@ public:
     bool                fileSaved;
     bool                recordData;
 
-    ofxDatGui*          gui;
-    ofxDatGuiHeader*    header;
-    ofxDatGuiButton*    recButton;
+    imgui_addons::ImGuiFileBrowser  fileDialog;
+    string                          tmpFileName;
+
+protected:
+
+    string              recButtonLabel;
+
+
+private:
 
     OBJECT_FACTORY_PROPS
+
 };
+
+#endif

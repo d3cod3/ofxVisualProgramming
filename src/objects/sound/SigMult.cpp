@@ -30,10 +30,12 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "SigMult.h"
 
 //--------------------------------------------------------------
-SigMult::SigMult() : PatchObject(){
+SigMult::SigMult() : PatchObject("amplifier"){
 
     this->numInlets  = 2;
     this->numOutlets = 1;
@@ -46,12 +48,11 @@ SigMult::SigMult() : PatchObject(){
 
     this->initInletsState();
 
-    isGUIObject             = true;
-    this->isOverGUI         = true;
-
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
+
+    gainValue               = 1.0f;
 
     loaded                  = false;
 
@@ -59,39 +60,26 @@ SigMult::SigMult() : PatchObject(){
 
 //--------------------------------------------------------------
 void SigMult::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_AUDIO,"signal");
     this->addInlet(VP_LINK_NUMERIC,"gain");
+
     this->addOutlet(VP_LINK_AUDIO,"amplifiedSignal");
 
-    this->setCustomVar(static_cast<float>(1),"GAIN");
+    this->setCustomVar(gainValue,"GAIN");
 }
 
 //--------------------------------------------------------------
 void SigMult::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadAudioSettings();
 
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onSliderEvent(this, &SigMult::onSliderEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    slider = gui->addSlider("gain", 0,12,1);
-    slider->setUseCustomMouse(true);
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
 }
 
 //--------------------------------------------------------------
 void SigMult::setupAudioOutObjectContent(pdsp::Engine &engine){
     gain_ctrl >> gain.in_mod();
-    gain_ctrl.set(0.0f);
+    gain_ctrl.set(gainValue);
     gain_ctrl.enableSmoothing(50.0f);
 
     this->pdspIn[0] >> gain >> this->pdspOut[0];
@@ -99,29 +87,17 @@ void SigMult::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-
-    gui->update();
-    header->update();
-    slider->update();
-
-    waveform.clear();
-    for(size_t i = 0; i < scope.getBuffer().size(); i++) {
-        float sample = scope.getBuffer().at(i);
-        float x = ofMap(i, 0, scope.getBuffer().size(), 0, this->width);
-        float y = ofMap(hardClip(sample), -1, 1, headerHeight, this->height);
-        waveform.addVertex(x, y);
-    }
+void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        gain_ctrl.set(ofClamp(*(float *)&_inletParams[1],0.0f,12.0f));
-        slider->setValue(gain_ctrl.get());
+        gainValue = ofClamp(*(float *)&_inletParams[1],0.0f,12.0f);
+        gain_ctrl.set(gainValue);
     }
 
     if(!loaded){
         loaded = true;
-        slider->setValue(this->getCustomVar("GAIN"));
-        gain_ctrl.set(ofClamp(slider->getValue(),0.0f,12.0f));
+        gainValue = this->getCustomVar("GAIN");
+        gain_ctrl.set(ofClamp(gainValue,0.0f,12.0f));
     }
 
 }
@@ -129,13 +105,56 @@ void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 //--------------------------------------------------------------
 void SigMult::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
-    ofDrawRectangle(0,0,this->width,this->height);
-    ofEnableAlphaBlending();
-    ofSetColor(255,255,120);
-    waveform.draw();
-    ofSetColor(255);
-    gui->draw();
-    ofDisableAlphaBlending();
+
+}
+
+//--------------------------------------------------------------
+void SigMult::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::PushItemWidth(-1);
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
+        if(ImGui::SliderFloat("",&gainValue,0.0f, 12.0f)){
+            gain_ctrl.set(gainValue);
+            this->setCustomVar(gainValue,"GAIN");
+        }
+        ImGui::PopStyleColor(4);
+        ImGui::PopItemWidth();
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void SigMult::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "Signal amplifier",
+                "https://mosaic.d3cod3.org/reference.php?r=amp", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -172,45 +191,7 @@ void SigMult::audioOutObject(ofSoundBuffer &outputBuffer){
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-//--------------------------------------------------------------
-void SigMult::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
 
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || slider->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-}
+OBJECT_REGISTER( SigMult, "amplifier", OFXVP_OBJECT_CAT_SOUND)
 
-//--------------------------------------------------------------
-void SigMult::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        slider->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void SigMult::onSliderEvent(ofxDatGuiSliderEvent e){
-    this->setCustomVar(static_cast<float>(e.value),"GAIN");
-    gain_ctrl.set(ofClamp(static_cast<float>(e.value),0.0f,12.0f));
-}
-
-OBJECT_REGISTER( SigMult, "amp", OFXVP_OBJECT_CAT_SOUND)
+#endif

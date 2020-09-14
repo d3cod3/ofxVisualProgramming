@@ -30,12 +30,14 @@
 
 ==============================================================================*/
 
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
 #include "moTimeline.h"
 
 #include "GLFW/glfw3.h"
 
 //--------------------------------------------------------------
-moTimeline::moTimeline() : PatchObject(){
+moTimeline::moTimeline() : PatchObject("timeline"){
 
     this->numInlets  = 2;
     this->numOutlets = 0;
@@ -56,15 +58,12 @@ moTimeline::moTimeline() : PatchObject(){
     lastTrackID         = 0;
     durationInSeconds   = 60;
     fps                 = 30;
-    bpm                 = 120.0f;
+    bpm                 = 120;
     timelineLoaded      = false;
     resetTimelineOutlets= false;
 
     isFullscreen        = false;
     scrolledDisplacement= 0;
-
-    isGUIObject         = true;
-    this->isOverGUI     = true;
 
     lastMessage         = "";
     lastPlayheadPos     = 0;
@@ -74,6 +73,11 @@ moTimeline::moTimeline() : PatchObject(){
     saveTimelineConfigFlag  = false;
     loadedTimelineConfig    = false;
     savedTimelineConfig     = false;
+
+    retinaScreen            = false;
+    showBPMGrid             = false;
+    isPaused                = false;
+    isLoop                  = false;
 
     loaded                  = false;
     loadedObjectFromXML     = false;
@@ -85,7 +89,8 @@ moTimeline::moTimeline() : PatchObject(){
 
 //--------------------------------------------------------------
 void moTimeline::newObject(){
-    this->setName(this->objectName);
+    PatchObject::setName( this->objectName );
+
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
 
@@ -101,7 +106,7 @@ void moTimeline::customReset(){
     timeline->setName("timeline"+ofToString(this->nId));
     timeline->saveTracksToFolder(this->filepath);
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
@@ -116,7 +121,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // RETINA FIX
     if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
         settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(1600+100),400));
-        settings.setSize(800, 600);
+        settings.setSize(1600, 1200);
     }else{
         settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(800+50),200));
         settings.setSize(800, 600);
@@ -140,96 +145,10 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     initTimeline();
 
-    // GUI
-    gui = new ofxDatGui( ofxDatGuiAnchor::TOP_RIGHT );
-    gui->setAutoDraw(false);
-    gui->setUseCustomMouse(true);
-    gui->setWidth(this->width);
-    gui->onButtonEvent(this, &moTimeline::onButtonEvent);
-    gui->onToggleEvent(this, &moTimeline::onToggleEvent);
-    gui->onTextInputEvent(this, &moTimeline::onTextInputEvent);
-
-    header = gui->addHeader("CONFIG",false);
-    header->setUseCustomMouse(true);
-    header->setCollapsable(true);
-    setRetina = gui->addToggle("RETINA SCREEN",false);
-    setRetina->setUseCustomMouse(true);
-    gui->addBreak();
-    guiDuration = gui->addTextInput("LENGTH","60"); // duration in seconds
-    guiDuration->setText(ofToString(static_cast<int>(floor(this->getCustomVar("DURATION")))));
-    guiDuration->setUseCustomMouse(true);
-    setDuration = gui->addButton("SET DURATION");
-    setDuration->setUseCustomMouse(true);
-    setDuration->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->addBreak();
-    guiFPS = gui->addTextInput("FPS",ofToString(fps)); // fps
-    guiFPS->setText(ofToString(static_cast<int>(floor(this->getCustomVar("FPS")))));
-    guiFPS->setUseCustomMouse(true);
-    setFPS = gui->addButton("SET FPS");
-    setFPS->setUseCustomMouse(true);
-    setFPS->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    guiBPM = gui->addTextInput("BPM",ofToString(bpm)); // bpm
-    guiBPM->setText(ofToString(this->getCustomVar("BPM")));
-    guiBPM->setUseCustomMouse(true);
-    setBPM = gui->addButton("SET BPM");
-    setBPM->setUseCustomMouse(true);
-    setBPM->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    showBPMGrid = gui->addButton("TOGGLE BPM GRID");
-    showBPMGrid->setUseCustomMouse(true);
-    showBPMGrid->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->addBreak();
-    guiTrackName = gui->addTextInput("NAME",actualTrackName);
-    guiTrackName->setUseCustomMouse(true);
-    gui->addBreak();
-    addCurveTrack = gui->addButton("ADD CURVE TRACK");
-    addCurveTrack->setUseCustomMouse(true);
-    addCurveTrack->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addBangTrack = gui->addButton("ADD BANG TRACK");
-    addBangTrack->setUseCustomMouse(true);
-    addBangTrack->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addSwitchTrack = gui->addButton("ADD SWITCH TRACK");
-    addSwitchTrack->setUseCustomMouse(true);
-    addSwitchTrack->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addColorTrack = gui->addButton("ADD COLOR TRACK");
-    addColorTrack->setUseCustomMouse(true);
-    addColorTrack->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    addLFOTrack = gui->addButton("ADD LFO TRACK");
-    addLFOTrack->setUseCustomMouse(true);
-    addLFOTrack->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    /*gui->addBreak();
-    loadTimeline = gui->addButton("LOAD TIMELINE");
-    loadTimeline->setUseCustomMouse(true);
-    loadTimeline->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    saveTimeline = gui->addButton("SAVE TIMELINE");
-    saveTimeline->setUseCustomMouse(true);
-    saveTimeline->setLabelAlignment(ofxDatGuiAlignment::CENTER);*/
-
-    gui->setPosition(0,this->height - header->getHeight());
-    gui->collapse();
-    header->setIsCollapsed(true);
-
 }
 
 //--------------------------------------------------------------
-void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects, ofxThreadedFileDialog &fd){
-    gui->update();
-    header->update();
-    setRetina->update();
-    guiTrackName->update();
-    addCurveTrack->update();
-    addBangTrack->update();
-    addSwitchTrack->update();
-    addColorTrack->update();
-    addLFOTrack->update();
-    guiDuration->update();
-    setDuration->update();
-    guiFPS->update();
-    setFPS->update();
-    guiBPM->update();
-    setBPM->update();
-    showBPMGrid->update();
-    //loadTimeline->update();
-    //saveTimeline->update();
+void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(!timelineLoaded){
         timelineLoaded = true;
@@ -237,17 +156,17 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         timeline->setFrameRate(static_cast<float>(floor(this->getCustomVar("FPS"))));
     }
 
-    if(loadTimelineConfigFlag){
+    /*if(loadTimelineConfigFlag){
         loadTimelineConfigFlag = false;
         //fd.openFolder("load timeline config","Select folder for loading timeline data");
-    }
+    }*/
 
-    if(saveTimelineConfigFlag){
+    /*if(saveTimelineConfigFlag){
         saveTimelineConfigFlag = false;
         //fd.openFolder("save timeline config","Select folder for saving timeline data");
-    }
+    }*/
 
-    if(loadedTimelineConfig){
+    /*if(loadedTimelineConfig){
         loadedTimelineConfig = false;
         if(lastTimelineFolder != ""){
             ofFile tempfile (lastTimelineFolder);
@@ -255,9 +174,9 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
                 loadTimelineData(tempfile.getAbsolutePath()+"/");
             }
         }
-    }
+    }*/
 
-    if(savedTimelineConfig){
+    /*if(savedTimelineConfig){
         savedTimelineConfig = false;
         if(lastTimelineFolder != ""){
             ofFile tempfile (lastTimelineFolder);
@@ -265,7 +184,7 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
                  saveTimelineData(tempfile.getAbsolutePath()+"/");
             }
         }
-    }
+    }*/
 
     if(resetTimelineOutlets){
         resetTimelineOutlets = false;
@@ -327,7 +246,7 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     // auto set/load timeline data folder
     if(!loaded){
         loaded = true;
-        ofLog(OF_LOG_NOTICE,"%s",this->patchFolderPath.c_str());
+        ofLog(OF_LOG_NOTICE,"Timeline settings loaded from folder: %s",this->patchFolderPath.c_str());
         ofFile temp(this->patchFolderPath+"timeline"+ofToString(this->nId));
         if(!temp.exists()){
             saveTimelineData(this->patchFolderPath+"timeline"+ofToString(this->nId)+"/");
@@ -349,41 +268,176 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void moTimeline::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     localFont = font;
-    ofSetColor(255);
-    ofEnableAlphaBlending();
+}
 
-    // draw timeline state
-    ofSetColor(255,60);
-    if(timeline->getIsPlaying()){ // play
-        ofBeginShape();
-        ofVertex(this->width - 30,this->height - 50);
-        ofVertex(this->width - 30,this->height - 30);
-        ofVertex(this->width - 10,this->height - 40);
-        ofEndShape();
-    }else if(!timeline->getIsPlaying() && timeline->getCurrentFrame() > 1){ // pause
-        ofDrawRectangle(this->width - 30, this->height - 50,8,20);
-        ofDrawRectangle(this->width - 18, this->height - 50,8,20);
-    }else if(timeline->getCurrentFrame() <= 1){ // stop
-        ofDrawRectangle(this->width - 30, this->height - 50,20,20);
+//--------------------------------------------------------------
+void moTimeline::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig();
+
+            ImGui::EndMenu();
+        }
+
+        _nodeCanvas.EndNodeMenu();
     }
 
-    // draw timeline playhead
-    ofSetColor(255,100);
-    ofSetLineWidth(2);
-    float phx = ofMap( timeline->getPercentComplete(), 0, 1, 1, this->width-2 );
-    if(timeline->getCurrentFrame() > 1){
-        ofDrawLine( phx, this->headerHeight, phx, this->height-this->headerHeight);
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 ph_pos = ImVec2(window_pos.x + (20*this->scaleFactor), window_pos.y + (20*this->scaleFactor));
+
+
+        // draw position (timecode)
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize()*_nodeCanvas.GetCanvasScale()/this->scaleFactor, ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y + (40*_nodeCanvas.GetCanvasScale())), IM_COL32_WHITE, timeline->getTimecode().timecodeForFrame(timeline->getCurrentFrame()).c_str(), NULL, 0.0f);
+
+        // draw player state
+        if(timeline->getIsPlaying()){ // play
+            _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
+        }else if(!timeline->getIsPlaying() && timeline->getCurrentFrame() > 1){ // pause
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+        }else if(!timeline->getIsPlaying() && timeline->getCurrentFrame() <= 1){ // stop
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
+        }
+
+        // draw playhead
+        float phx = ofMap( ofClamp(timeline->getPercentComplete(),0.0f,1.0f), 0.0f, 1.0f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 255, 255, 160), 2.0f);
+
+        _nodeCanvas.EndNodeContent();
+    }
+}
+
+//--------------------------------------------------------------
+void moTimeline::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::Text("%s - %s", timeline->getTimecode().timecodeForFrame(timeline->getCurrentFrame()).c_str(), timeline->getDurationInTimecode().c_str());
+    ImGui::Spacing();
+    ImGui::Text("%s - %s", ofToString(timeline->getCurrentFrame()).c_str(), ofToString(timeline->getDurationInFrames()).c_str());
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
+    if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
+        timeline->play();
+    }
+    ImGui::SameLine();
+    if(ImGui::Button(ICON_FA_STOP,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
+        timeline->setCurrentTimeSeconds(0);
+        timeline->stop();
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::SameLine();
+    ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
+    if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
+        isPaused = !isPaused;
+        if(isPaused){
+            timeline->stop();
+        }else{
+            timeline->play();
+        }
+
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::Spacing();
+    if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&isLoop)){
+        if(isLoop){
+            timeline->setLoopType(OF_LOOP_NORMAL);
+        }else{
+            timeline->setLoopType(OF_LOOP_NONE);
+        }
     }
 
-    // draw timeline time and timecode
-    ofSetColor(255);
-    font->draw(timeline->getTimecode().timecodeForFrame(timeline->getCurrentFrame()),static_cast<int>(floor(this->fontSize*1.4)),this->width/3 + 8,this->headerHeight*2.3);
-    font->draw(timeline->getDurationInTimecode(),static_cast<int>(floor(this->fontSize*1.4)),this->width/3 + 8,this->headerHeight*3.3);
-    font->draw(ofToString(timeline->getCurrentFrame()),static_cast<int>(floor(this->fontSize*1.3)),this->width/3 + 8,this->headerHeight*5);
-    font->draw(ofToString(timeline->getDurationInFrames()),static_cast<int>(floor(this->fontSize*1.3)),this->width/3 + 8,this->headerHeight*6);
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
 
-    gui->draw();
-    ofDisableAlphaBlending();
+    if(ImGui::Checkbox("Retina Screen",&retinaScreen)){
+        timeline->forceRetina = retinaScreen;
+    }
+    ImGui::Spacing();
+    if(ImGui::InputInt("Duration",&durationInSeconds)){
+        if(durationInSeconds < 1){
+            durationInSeconds = 1;
+        }
+        this->setCustomVar(static_cast<float>(durationInSeconds),"DURATION");
+        timeline->setDurationInSeconds(durationInSeconds);
+    }
+    ImGui::SameLine(); ImGuiEx::HelpMarker("Duration in seconds.");
+    ImGui::Spacing();
+    if(ImGui::InputInt("FPS",&fps)){
+        if(fps < 1){
+            fps = 1;
+        }
+        this->setCustomVar(static_cast<float>(fps),"FPS");
+        timeline->setFrameRate(fps);
+    }
+    ImGui::Spacing();
+    if(ImGui::InputInt("BPM",&bpm)){
+        if(bpm < 1){
+            bpm = 1;
+        }
+        this->setCustomVar(static_cast<float>(bpm),"BPM");
+        timeline->setBPM(static_cast<float>(bpm));
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("Toggle BPM grid",&showBPMGrid)){
+        timeline->setShowBPMGrid(showBPMGrid);
+        if(showBPMGrid){
+            ofLog(OF_LOG_NOTICE,"Zoom IN on your timeline to make BPM Grid appear!");
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    ImGui::InputText("Track Name",&actualTrackName);
+
+    ImGui::Spacing();
+    if(ImGui::Button("ADD CURVE TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_CURVE_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD BANG TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_BANG_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD SWITCH TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_SWITCH_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD COLOR TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_COLOR_TRACK);
+    }
+    ImGui::Spacing();
+    if(ImGui::Button("ADD LFO TRACK",ImVec2(224*scaleFactor,26*scaleFactor))){
+        addTrack(TIMELINE_LFO_TRACK);
+    }
+
+    ImGuiEx::ObjectInfo(
+                "Advanced GUI module, it allows you to visualize/ edit a timeline with different keyframes controlled tracks : curves, bangs, switches, colors, and lfo.",
+                "https://mosaic.d3cod3.org/reference.php?r=timeline", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -393,86 +447,6 @@ void moTimeline::removeObjectContent(bool removeFileFromData){
     }
     if(removeFileFromData){
         removeFile(filepath);
-    }
-}
-
-//--------------------------------------------------------------
-void moTimeline::mouseMovedObjectContent(ofVec3f _m){
-    gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    setRetina->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiTrackName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addCurveTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addBangTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addSwitchTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addColorTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    addLFOTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiDuration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    setDuration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiFPS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    setFPS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    guiBPM->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    setBPM->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    showBPMGrid->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    //loadTimeline->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    //saveTimeline->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-
-    if(!header->getIsCollapsed()){
-        this->isOverGUI = header->hitTest(_m-this->getPos()) || setRetina->hitTest(_m-this->getPos()) || guiTrackName->hitTest(_m-this->getPos()) || addCurveTrack->hitTest(_m-this->getPos())
-                            || addBangTrack->hitTest(_m-this->getPos()) || addSwitchTrack->hitTest(_m-this->getPos()) || addColorTrack->hitTest(_m-this->getPos()) || addLFOTrack->hitTest(_m-this->getPos())
-                            || guiDuration->hitTest(_m-this->getPos()) || setDuration->hitTest(_m-this->getPos())
-                            || guiFPS->hitTest(_m-this->getPos()) || setFPS->hitTest(_m-this->getPos()) || guiBPM->hitTest(_m-this->getPos()) || setBPM->hitTest(_m-this->getPos()) || showBPMGrid->hitTest(_m-this->getPos());
-    }else{
-        this->isOverGUI = header->hitTest(_m-this->getPos());
-    }
-
-}
-
-//--------------------------------------------------------------
-void moTimeline::dragGUIObject(ofVec3f _m){
-    if(this->isOverGUI){
-        gui->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        header->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        setRetina->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiTrackName->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addCurveTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addBangTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addSwitchTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addColorTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        addLFOTrack->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiDuration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        setDuration->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiFPS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        setFPS->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        guiBPM->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        setBPM->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        showBPMGrid->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        //loadTimeline->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-        //saveTimeline->setCustomMousePos(static_cast<int>(_m.x - this->getPos().x),static_cast<int>(_m.y - this->getPos().y));
-    }else{
-        ofNotifyEvent(dragEvent, nId);
-
-        box->setFromCenter(_m.x, _m.y,box->getWidth(),box->getHeight());
-        headerBox->set(box->getPosition().x,box->getPosition().y,box->getWidth(),headerHeight);
-
-        x = box->getPosition().x;
-        y = box->getPosition().y;
-
-        for(int j=0;j<static_cast<int>(outPut.size());j++){
-            outPut[j]->linkVertices[0].move(outPut[j]->posFrom.x,outPut[j]->posFrom.y);
-            outPut[j]->linkVertices[1].move(outPut[j]->posFrom.x+20,outPut[j]->posFrom.y);
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void moTimeline::fileDialogResponse(ofxThreadedFileDialogResponse &response){
-    if(response.id == "load timeline config"){
-        lastTimelineFolder = response.filepath;
-        loadedTimelineConfig = true;
-    }else if(response.id == "save timeline config"){
-        lastTimelineFolder = response.filepath;
-        savedTimelineConfig = true;
     }
 }
 
@@ -653,7 +627,7 @@ void moTimeline::loadTimelineData(string folder){
 
     timelineLoaded = false;
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
@@ -664,7 +638,7 @@ void moTimeline::saveTimelineData(string folder){
     timeline->setName("timeline"+ofToString(this->nId));
     timeline->saveTracksToFolder(this->filepath);
 
-    this->saveConfig(false,this->nId);
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
@@ -716,10 +690,10 @@ void moTimeline::saveOutletConfig(){
                     XML.removeTag("outlets");
                     int newOutlets = XML.addTag("outlets");
                     if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outlets.size());j++){
+                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
                             int newLink = XML.addTag("link");
                             if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outlets.at(j));
+                                XML.setValue("type",this->outletsType.at(j));
 
                                 // re-add previous links
                                 for(int z=0;z<tempLinks.size();z++){
@@ -754,7 +728,7 @@ void moTimeline::resetOutlets(){
     vector<ofxTLTrack*> tempTracks = timeline->getPage("Page One")->getTracks();
 
     this->outPut.clear();
-    this->outlets.clear();
+    this->outletsType.clear();
 
     this->numOutlets = tempTracks.size();
 
@@ -779,8 +753,6 @@ void moTimeline::resetOutlets(){
     if(this->numOutlets > 12){
         this->height          *= 2;
     }
-    this->box->setHeight(this->height);
-    gui->setPosition(0,this->height - header->getHeight());
 
     saveOutletConfig();
 
@@ -820,7 +792,7 @@ void moTimeline::drawInWindow(ofEventArgs &e){
     ofSetColor(120);
     // RETINA FIX
     if(timeline->forceRetina){
-        localFont->draw("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",22,40,window->getHeight()-20);
+        localFont->draw("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",24,40,window->getHeight()-20);
     }else{
         localFont->draw("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",12,20,window->getHeight()-10);
     }
@@ -833,7 +805,12 @@ void moTimeline::toggleWindowFullscreen(){
     window->toggleFullscreen();
 
     if(!isFullscreen){
-        window->setWindowShape(800,600);
+        if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
+            window->setWindowShape(1600,1200);
+        }else{
+            window->setWindowShape(800,600);
+        }
+
     }
 }
 
@@ -909,69 +886,7 @@ void moTimeline::windowResized(ofResizeEventArgs &e){
     timeline->setWidth(window->getWidth());
 }
 
-//--------------------------------------------------------------
-void moTimeline::onButtonEvent(ofxDatGuiButtonEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == addCurveTrack){
-            addTrack(TIMELINE_CURVE_TRACK);
-        }else if(e.target == addBangTrack){
-            addTrack(TIMELINE_BANG_TRACK);
-        }else if(e.target == addSwitchTrack){
-            addTrack(TIMELINE_SWITCH_TRACK);
-        }else if(e.target == addColorTrack){
-            addTrack(TIMELINE_COLOR_TRACK);
-        }else if(e.target == addLFOTrack){
-            addTrack(TIMELINE_LFO_TRACK);
-        }else if(e.target == setDuration){
-            timeline->setDurationInSeconds(durationInSeconds);
-        }else if(e.target == setFPS){
-            timeline->setFrameRate(fps);
-        }else if(e.target == setBPM){
-            timeline->setBPM(bpm);
-        }else if(e.target == showBPMGrid){
-            timeline->setShowBPMGrid(!timeline->getShowBPMGrid());
-            if(timeline->getShowBPMGrid()){
-                ofLog(OF_LOG_NOTICE,"Zoom IN on your timeline to make BPM Grid appear!");
-            }
-        }/*else if(e.target == loadTimeline){
-            loadTimelineConfigFlag = true;
-        }else if(e.target == saveTimeline){
-            saveTimelineConfigFlag = true;
-        }*/
-    }
-}
-
-//--------------------------------------------------------------
-void moTimeline::onToggleEvent(ofxDatGuiToggleEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == setRetina){
-            timeline->forceRetina = e.checked;
-        }
-    }
-}
-
-//--------------------------------------------------------------
-void moTimeline::onTextInputEvent(ofxDatGuiTextInputEvent e){
-    if(!header->getIsCollapsed()){
-        if(e.target == guiTrackName){
-            actualTrackName = e.text;
-        }else if(e.target == guiDuration){
-            if(isInteger(e.text)){
-                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"DURATION");
-                durationInSeconds = ofToInt(e.text);
-            }
-        }else if(e.target == guiFPS){
-            if(isInteger(e.text)){
-                this->setCustomVar(static_cast<float>(ofToInt(e.text)),"FPS");
-                fps = ofToInt(e.text);
-            }
-        }else if(e.target == guiBPM){
-            if(isInteger(e.text) || isFloat(e.text)){
-                this->setCustomVar(ofToFloat(e.text),"BPM");
-                bpm = ofToFloat(e.text);
-            }
-        }
-    }
-}
 
 OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI)
+
+#endif
