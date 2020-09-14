@@ -388,19 +388,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         }
 
         // Draw HeaderBar BG
-        if(nId == activeNode){
-            nodeDrawList->AddRectFilled(
-                        curNodeData.outerContentBox.Min,
-                        curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
-                        IM_COL32(90,90,90,200)
-                        );
-        }else{
-            nodeDrawList->AddRectFilled(
-                        curNodeData.outerContentBox.Min,
-                        curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
-                        ImGui::GetColorU32(ImGuiCol_Header)
-                        );
-        }
+        nodeDrawList->AddRectFilled(
+                    curNodeData.outerContentBox.Min,
+                    curNodeData.outerContentBox.Min+ImVec2(curNodeData.outerContentBox.GetSize().x, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor),
+                    ImGui::GetColorU32(ImGuiCol_Header)
+                    );
 
         // Draw footer
         nodeDrawList->AddRectFilled(
@@ -414,7 +406,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
         // Header info
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min+ImVec2(5, ((IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor)-ImGui::CalcTextSize("").y)*.5f) );//canvasView.translation+pos+ImVec2(5,4));
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,255,255,255));
+        if(nId == activeNode){
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255,255,255,255));
+        }else{
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,255));
+        }
         ImGui::Text("%s", name.c_str()); // title
         ImGui::PopStyleColor();
 

@@ -176,7 +176,7 @@ static void ObjectInfo(const char* desc, const char* url, float retinaScale=1.0f
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
-    ImGui::InvisibleButton("empty",ImVec2(160*retinaScale,1));  // fix widget width
+    ImGui::InvisibleButton("empty",ImVec2(224*retinaScale,1));  // fix widget width
     if (ImGui::CollapsingHeader("INFO", ImGuiTreeNodeFlags_None)){
         ImGui::TextWrapped("%s",desc);
         ImGui::Spacing();
