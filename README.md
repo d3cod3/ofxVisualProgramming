@@ -3,7 +3,7 @@
 
 > A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua and Python scripting interpreter, plus live compile of GLSL Shaders version 120 and live editing/execute Bash scripts(macOS & linux) capabilities.
 
-![Mosaic 0.1.7](https://github.com/d3cod3/Mosaic/raw/master/process/img/20_jupiterBlues.jpg)
+![Mosaic 0.4.0](https://github.com/d3cod3/Mosaic/raw/master/process/img/28_transparent_machines04.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V21B90C)
