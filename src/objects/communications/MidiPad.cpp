@@ -63,6 +63,8 @@ MidiPad::MidiPad() : PatchObject("midi pad"){
 
     loaded          = false;
 
+    this->width *= 1.2f;
+
 }
 
 //--------------------------------------------------------------

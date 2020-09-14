@@ -60,6 +60,8 @@ MidiKey::MidiKey() : PatchObject("midi key"){
 
     loaded      = false;
 
+    this->width *= 1.2f;
+
 }
 
 //--------------------------------------------------------------

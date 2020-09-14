@@ -55,8 +55,8 @@ MidiKnob::MidiKnob() : PatchObject("midi knob"){
     actualValue     = 0.0f;
     loaded          = false;
 
-    this->width     *= 1.4f;
-    this->height    *= 1.5f;
+    this->width     *= 1.5f;
+    this->height    *= 1.3f;
 
 }
 
@@ -135,7 +135,8 @@ void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
-        ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/6, IM_COL32(255,255,120,255), "value", &actualValue, 0.0f, 127.0f, 127.0f);
+        ImGui::Dummy(ImVec2((ImGui::GetWindowSize().x-46)/2 - (ImGui::GetWindowSize().x-46)/6,1)); ImGui::SameLine();
+        ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-46)/10, IM_COL32(255,255,120,255), "value", &actualValue, 0.0f, 127.0f, 127.0f);
 
         _nodeCanvas.EndNodeContent();
     }
