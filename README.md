@@ -193,7 +193,7 @@ void ofApp::draw(){
 
 ```
 
-# CONTRIBUTING, WRITING PLUGINS ( YEAH! )
+# CONTRIBUTING
 
 Contributing to the project adding new objects is relatively easy, as ofxVisualProgramming is at the core of [Mosaic](https://github.com/d3cod3/Mosaic) software, i've implemented a plugin mechanism based on [Pugg](http://pugg.sourceforge.net/), in order to facilitate the extension and the creation of new objects/nodes to add at the ofxVisualProgramming/Mosaic default objects/nodes library. (see objects/nodes list below)
 
