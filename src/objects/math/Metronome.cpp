@@ -65,6 +65,8 @@ Metronome::Metronome() :
 
     bpmMetro            = false;
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -119,6 +121,11 @@ void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         *(float *)&_outletParams[1] = 1.0f;
     }else{
         *(float *)&_outletParams[1] = 0.0f;
+    }
+
+    if(!loaded){
+        loaded = true;
+        timeSetting.set(static_cast<int>(floor(this->getCustomVar("TIME"))));
     }
 
 }

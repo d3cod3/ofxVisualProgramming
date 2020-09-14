@@ -252,6 +252,9 @@ void ofxVisualProgramming::updateCanvasViewport(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::draw(){
 
+    // LIVE PATCHING SESSION
+    drawLivePatchingSession();
+
     ofPushView();
     ofPushStyle();
     ofPushMatrix();
@@ -361,9 +364,6 @@ void ofxVisualProgramming::draw(){
 
     // Graphical Context
     canvas.update();
-
-    // LIVE PATCHING SESSION
-    drawLivePatchingSession();
 
 }
 

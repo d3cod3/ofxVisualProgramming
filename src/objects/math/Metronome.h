@@ -62,6 +62,8 @@ public:
 
     bool                    sync;
 
+    bool                    loaded;
+
 protected:
 
     ofxVPObjectParameter<int> timeSetting;
