@@ -40,12 +40,15 @@
 #include "ImGuiFileBrowser.h"
 #include "IconsFontAwesome5.h"
 
+#include <atomic>
 
-class BashScript : public PatchObject{
+class BashScript : public ofThread, public PatchObject{
 
 public:
 
     BashScript();
+
+    void            threadedFunction() override;
 
     void            autoloadFile(string _fp) override;
     void            newObject() override;
@@ -81,8 +84,9 @@ public:
     float               canvasZoom;
 
 protected:
-
+    std::condition_variable condition;
     bool                    needToLoadScript;
+    bool                    threadLoaded;
     bool                    loadScriptFlag;
     bool                    saveScriptFlag;
 

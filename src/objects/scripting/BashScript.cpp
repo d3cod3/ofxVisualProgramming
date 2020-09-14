@@ -59,6 +59,7 @@ BashScript::BashScript() : PatchObject("bash script"){
 
     lastMessage         = "";
 
+    threadLoaded        = false;
     needToLoadScript    = true;
 
     loadScriptFlag      = false;
@@ -79,9 +80,24 @@ void BashScript::newObject(){
 
 //--------------------------------------------------------------
 void BashScript::autoloadFile(string _fp){
-    //filepath = _fp;
+    threadLoaded = false;
     filepath = copyFileToPatchFolder(this->patchFolderPath,_fp);
     reloadScript();
+}
+
+//--------------------------------------------------------------
+void BashScript::threadedFunction(){
+    while(isThreadRunning()){
+        std::unique_lock<std::mutex> lock(mutex);
+        if(needToLoadScript){
+            needToLoadScript = false;
+            loadScript(filepath);
+            threadLoaded = true;
+        }
+        condition.wait(lock);
+        sleep(10);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -97,6 +113,10 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.sh"));
         filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+    }
+
+    if(!isThreadRunning()){
+        startThread();
     }
 
 }
@@ -115,15 +135,18 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         }
     }
 
-    if(needToLoadScript){
+    /*if(needToLoadScript){
         needToLoadScript = false;
         loadScript(filepath);
-    }
+    }*/
 
     // path watcher
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
     }
+
+    condition.notify_all();
+
 }
 
 //--------------------------------------------------------------
@@ -174,15 +197,16 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, saveScriptFlag, "Save new bash script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".sh", newFileName, scaleFactor)){
         ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
         ofFile newBashFile (fileDialog.selected_path);
-
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
         filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
+        threadLoaded = false;
         reloadScript();
     }
 
     if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
         ofFile bashFile (fileDialog.selected_path);
         filepath = copyFileToPatchFolder(this->patchFolderPath,bashFile.getAbsolutePath());
+        threadLoaded = false;
         reloadScript();
     }
 
@@ -223,6 +247,10 @@ void BashScript::removeObjectContent(bool removeFileFromData){
     if(filepath != ofToDataPath("scripts/empty.sh",true) && removeFileFromData){
         removeFile(filepath);
     }
+
+    std::unique_lock<std::mutex> lck(mutex);
+    stopThread();
+    condition.notify_all();
 }
 
 
@@ -234,16 +262,9 @@ void BashScript::loadScript(string scriptFile){
 
     string cmd = "";
     FILE *execFile;
-#ifdef TARGET_LINUX
+
     cmd = "sh "+filepath;
     execFile = popen(cmd.c_str(), "r");
-#elif defined(TARGET_OSX)
-    cmd = "sh "+filepath;
-    execFile = popen(cmd.c_str(), "r");
-#elif defined(TARGET_WIN32)
-    cmd = filepath;
-    execFile = _popen(cmd.c_str(), "r");
-#endif
 
     if (execFile){
         scriptLoaded = true;
@@ -269,13 +290,7 @@ void BashScript::loadScript(string scriptFile){
 
         this->saveConfig(false);
 
-#ifdef TARGET_LINUX
         pclose(execFile);
-#elif defined(TARGET_OSX)
-        pclose(execFile);
-#elif defined(TARGET_WIN32)
-        _pclose(execFile);
-#endif
 
     }
 
