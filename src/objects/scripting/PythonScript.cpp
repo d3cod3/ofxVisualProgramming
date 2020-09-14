@@ -32,11 +32,8 @@
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
-<<<<<<< HEAD
 #elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
-=======
-#else
->>>>>>> master
+
 
 #include "PythonScript.h"
 

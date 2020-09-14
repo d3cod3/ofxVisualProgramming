@@ -15,10 +15,10 @@
 # and the PG will write to the console the kind of error and in which line it is
 
 meta:
-	ADDON_NAME = ofxVisualProgramming
-	ADDON_DESCRIPTION = A visual programming patching environment for OF
-	ADDON_AUTHOR = Emanuele Mazza
-    ADDON_TAGS = "visual programming" "visual patching" "cyber-transmedia programming"
+        ADDON_NAME = ofxVisualProgramming
+        ADDON_DESCRIPTION = A visual programming patching environment for OF
+        ADDON_AUTHOR = Emanuele Mazza
+        ADDON_TAGS = "visual programming" "visual patching" "cyber-transmedia programming"
 	ADDON_URL = http://github.com/d3cod3/ofxVisualProgramming
 
 common:
@@ -26,14 +26,9 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
-<<<<<<< HEAD
         ADDON_DEPENDENCIES += ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
         ADDON_DEPENDENCIES += ofxImGui
-=======
-        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph
-        ADDON_DEPENDENCIES += ofxPDSP ofxThreadedFileDialog ofxTimeline ofxTimeMeasurements ofxWarp
->>>>>>> master
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
@@ -77,8 +72,8 @@ common:
 	# a specific platform
 	# ADDON_INCLUDES_EXCLUDE =
 
+
 linux64:
-<<<<<<< HEAD
         ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
 
 msys2:
@@ -86,12 +81,3 @@ msys2:
 
 osx:
         ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
-=======
-        ADDON_DEPENDENCIES += ofxJava ofxPd ofxPdExternals ofxPython ofxNDI
-
-msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/ProcessingScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
-
-osx:
-        ADDON_DEPENDENCIES += ofxJava ofxPd ofxPdExternals ofxPython ofxNDI
->>>>>>> master
