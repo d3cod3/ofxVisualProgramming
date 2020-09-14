@@ -391,6 +391,11 @@ ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
 
 ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
+<<<<<<< HEAD
+=======
+
+ofxDatGui, ofxParagraph original addons by [Stephen Braitsch](https://github.com/braitsch)
+>>>>>>> master
 
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 

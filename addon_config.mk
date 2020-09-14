@@ -26,9 +26,14 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFontStash ofxGLEditor
+<<<<<<< HEAD
         ADDON_DEPENDENCIES += ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
         ADDON_DEPENDENCIES += ofxImGui
+=======
+        ADDON_DEPENDENCIES += ofxDatGui ofxHistoryPlot ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D ofxParagraph
+        ADDON_DEPENDENCIES += ofxPDSP ofxThreadedFileDialog ofxTimeline ofxTimeMeasurements ofxWarp
+>>>>>>> master
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
@@ -73,6 +78,7 @@ common:
 	# ADDON_INCLUDES_EXCLUDE =
 
 linux64:
+<<<<<<< HEAD
         ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
 
 msys2:
@@ -80,3 +86,12 @@ msys2:
 
 osx:
         ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
+=======
+        ADDON_DEPENDENCIES += ofxJava ofxPd ofxPdExternals ofxPython ofxNDI
+
+msys2:
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/ProcessingScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+
+osx:
+        ADDON_DEPENDENCIES += ofxJava ofxPd ofxPdExternals ofxPython ofxNDI
+>>>>>>> master

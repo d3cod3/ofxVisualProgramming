@@ -36,6 +36,10 @@
 
 #pragma once
 
+#if defined(TARGET_WIN32)
+    // Unavailable on windows.
+#else
+
 #include "PatchObject.h"
 
 #include "ofxPython.h"

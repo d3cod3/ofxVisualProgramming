@@ -32,7 +32,11 @@
 
 #if defined(TARGET_WIN32)
     // Unavailable on windows.
+<<<<<<< HEAD
 #elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
+=======
+#else
+>>>>>>> master
 
 #pragma once
 
@@ -42,9 +46,7 @@
 #include "IconsFontAwesome5.h"
 
 #include "ofxPd.h"
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    #include "ofxPdExternals.h"
-#endif
+#include "ofxPdExternals.h"
 
 
 using namespace pd;
