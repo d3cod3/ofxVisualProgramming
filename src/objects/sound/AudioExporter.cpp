@@ -119,7 +119,7 @@ void AudioExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 //--------------------------------------------------------------
 void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-
+    exportAudioFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -238,6 +238,33 @@ void AudioExporter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Export audio from every sound buffer cable (yellow ones). Export format is fixed to 320 kb mp3.",
                 "https://mosaic.d3cod3.org/reference.php?r=audio-exporter", scaleFactor);
+
+    // file dialog
+#if defined(TARGET_WIN32)
+    if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3", "audioExport.mp3", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp3"){
+            filepath += ".mp3";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank audio file
+        recorder.startCustomAudioRecord();
+        recorder.stop();
+    }
+#else
+    if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3", "audioExport.mp3", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp3"){
+            filepath += ".mp3";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank audio file
+        recorder.startCustomAudioRecord();
+        recorder.stop();
+    }
+#endif
 }
 
 //--------------------------------------------------------------

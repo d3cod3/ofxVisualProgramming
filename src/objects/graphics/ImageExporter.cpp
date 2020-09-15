@@ -117,6 +117,7 @@ void ImageExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 
 //--------------------------------------------------------------
 void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    saveImgFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -195,6 +196,13 @@ void ImageExporter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Export an image or image sequence (using ### for auto-numeration) from every texture cable (blue ones).",
                 "https://mosaic.d3cod3.org/reference.php?r=image-exporter", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, saveImgFlag, "Save image", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".jpg,.jpeg,.gif,.png,.tif,.tiff", "imageExport.jpg", scaleFactor)){
+        lastImageFile = fileDialog.selected_path;
+        filepath = lastImageFile;
+        isImageSaved= true;
+    }
 }
 
 //--------------------------------------------------------------

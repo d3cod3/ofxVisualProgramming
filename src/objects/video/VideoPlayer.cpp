@@ -259,6 +259,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 //--------------------------------------------------------------
 void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
+    loadVideoFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -410,6 +411,16 @@ void VideoPlayer::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
                 "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".mov,.mp4,.mpg,.mpeg,.avi", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            isFileLoaded = false;
+            needToLoadVideo = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------

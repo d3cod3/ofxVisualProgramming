@@ -127,6 +127,7 @@ void ImageLoader::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
 
 //--------------------------------------------------------------
 void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadImgFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -192,6 +193,16 @@ void ImageLoader::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Simple object for loading image files. Compatible formats are jpg, png, gif and tif.",
                 "https://mosaic.d3cod3.org/reference.php?r=image-loader", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadImgFlag, "Select image", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".jpg,.jpeg,.gif,.png,.tif,.tiff", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            isImageLoaded= true;
+            isFileLoaded = false;
+        }
+    }
 }
 
 //--------------------------------------------------------------

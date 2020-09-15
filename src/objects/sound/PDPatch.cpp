@@ -223,6 +223,9 @@ void PDPatch::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>
 
 //--------------------------------------------------------------
 void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadPatchFlag   = false;
+    savePatchFlag   = false;
+    setExternalFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -311,6 +314,23 @@ void PDPatch::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Pure Data ( Vainilla ) patch container with inlets and outlets. As for live coding, with this object you can live patching, passing in real time and in both directions audio and data cables.",
                 "https://mosaic.d3cod3.org/reference.php?r=491", scaleFactor);
+
+    // file dialog
+    string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
+    if(ImGuiEx::getFileDialog(fileDialog, savePatchFlag, "Save new PD patch as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".pd", newFileName, scaleFactor)){
+        lastLoadedPatch = fileDialog.selected_path;
+        patchSaved = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadPatchFlag, "Select a PD patch", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".pd", "", scaleFactor)){
+        lastLoadedPatch = fileDialog.selected_path;
+        patchLoaded = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, setExternalFlag, "Select your PD external folder", imgui_addons::ImGuiFileBrowser::DialogMode::SELECT, "", "", scaleFactor)){
+        lastExternalsFolder = fileDialog.selected_path;
+        externalPathSaved = true;
+    }
 }
 
 //--------------------------------------------------------------

@@ -249,7 +249,8 @@ void OutputWindow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 //--------------------------------------------------------------
 void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-
+    loadWarpingFlag = false;
+    saveWarpingFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -421,6 +422,31 @@ void OutputWindow::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object creates a output window projector. (cmd/ctrl) + F focusing the window = activate/deactivate fullscreen. With warping option active and fullscreen you can adjust the projection surface.",
                 "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a warping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".json", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            warpController->loadSettings(filepath);
+            edgesLuminance = this->getCustomVar("EDGES_LUMINANCE");
+            edgesGamma = this->getCustomVar("EDGES_GAMMA");
+            edgesExponent = this->getCustomVar("EDGES_EXPONENT");
+            edgeL = this->getCustomVar("EDGE_LEFT");
+            edgeR = this->getCustomVar("EDGE_RIGHT");
+            edgeT = this->getCustomVar("EDGE_TOP");
+            edgeB = this->getCustomVar("EDGE_BOTTOM");
+        }
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save warping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".json", "warpSettings.json", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "json"){
+            filepath += ".json";
+        }
+        warpController->saveSettings(filepath);
+    }
 }
 
 //--------------------------------------------------------------

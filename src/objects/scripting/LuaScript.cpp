@@ -277,6 +277,9 @@ void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRendere
 //--------------------------------------------------------------
 void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
+    loadLuaScriptFlag = false;
+    saveLuaScriptFlag = false;
+
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
 
@@ -371,6 +374,18 @@ void LuaScript::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
                 "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
+
+    // file dialog
+    string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
+    if(ImGuiEx::getFileDialog(fileDialog, saveLuaScriptFlag, "Save new Lua script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".lua", newFileName, scaleFactor)){
+        lastLuaScript = fileDialog.selected_path;
+        luaScriptSaved = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadLuaScriptFlag, "Select a lua script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".lua", "", scaleFactor)){
+        lastLuaScript = fileDialog.selected_path;
+        luaScriptLoaded = true;
+    }
 }
 
 //--------------------------------------------------------------

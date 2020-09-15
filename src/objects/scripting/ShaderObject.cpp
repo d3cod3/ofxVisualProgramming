@@ -307,7 +307,8 @@ void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
-
+    loadShaderScriptFlag = false;
+    saveShaderScriptFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -422,6 +423,18 @@ void ShaderObject::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
                 "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
+
+    // file dialog
+    string newFileName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
+    if(ImGuiEx::getFileDialog(fileDialog, saveShaderScriptFlag, "Save new GLSL shader as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".frag", newFileName, scaleFactor)){
+        lastShaderScript = fileDialog.selected_path;
+        shaderScriptSaved = true;
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadShaderScriptFlag, "Select a GLSL shader", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".frag,.vert", "", scaleFactor)){
+        lastShaderScript = fileDialog.selected_path;
+        shaderScriptLoaded = true;
+    }
 }
 
 //--------------------------------------------------------------

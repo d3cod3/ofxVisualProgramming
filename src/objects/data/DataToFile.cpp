@@ -113,6 +113,7 @@ void DataToFile::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 
 //--------------------------------------------------------------
 void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    exportFileFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -211,6 +212,17 @@ void DataToFile::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Saves the vector data in a .txt file, line by line for each computing frame.",
                 "https://mosaic.d3cod3.org/reference.php?r=data-to-file", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, exportFileFlag, "Export new data file as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".txt", "data.txt", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (!file.exists()){
+            file.create();
+        }
+        filepath = checkFileExtension(file.getAbsolutePath(), ofToUpper(file.getExtension()), "TXT");
+        tmpFileName = file.getFileName();
+        fileSaved = true;
+    }
 }
 
 //--------------------------------------------------------------

@@ -168,7 +168,7 @@ void VideoExporter::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
 //--------------------------------------------------------------
 void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
-
+    exportVideoFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -303,6 +303,33 @@ void VideoExporter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Export video from every texture cable (blue ones). You can choose the video codec: mpeg4, mjpeg, jpg2000, libx264, or hevc.",
                 "https://mosaic.d3cod3.org/reference.php?r=video-exporter", scaleFactor);
+
+    // file dialog
+#if defined(TARGET_WIN32)
+    if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".avi", "videoExport.avi", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "avi"){
+            filepath += ".avi";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank video file
+        recorder.startCustomRecord();
+        recorder.stop();
+    }
+#else
+    if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp4", "videoExport.mp4", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "mp4"){
+            filepath += ".mp4";
+        }
+        recorder.setOutputPath(filepath);
+        // prepare blank video file
+        recorder.startCustomRecord();
+        recorder.stop();
+    }
+#endif
 }
 
 //--------------------------------------------------------------

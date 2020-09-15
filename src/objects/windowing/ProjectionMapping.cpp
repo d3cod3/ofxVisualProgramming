@@ -249,6 +249,10 @@ void ProjectionMapping::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void ProjectionMapping::drawObjectNodeConfig(){
+
+    loadWarpingFlag = false;
+    saveWarpingFlag = false;
+
     ImGui::Separator();
 
     ImGui::Spacing();
@@ -263,6 +267,25 @@ void ProjectionMapping::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "With warping option active and fullscreen you can adjust the projection surface.",
                 "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a mapping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            warpingConfigLoaded = true;
+            lastWarpingConfig = file.getAbsolutePath();
+        }
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save mapping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".xml", "mappingSettings.xml", scaleFactor)){
+        filepath = fileDialog.selected_path;
+        // check extension
+        if(fileDialog.ext != "xml"){
+            filepath += ".xml";
+        }
+        _mapping->saveMappingAs(filepath);
+
+    }
 }
 
 //--------------------------------------------------------------

@@ -109,6 +109,7 @@ void FileToData::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 
 //--------------------------------------------------------------
 void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    openFileFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -171,6 +172,15 @@ void FileToData::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.",
                 "https://mosaic.d3cod3.org/reference.php?r=file-to-data", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, openFileFlag, "Open a previously saved Mosaic data file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".txt", "", scaleFactor)){
+        ofLog(OF_LOG_NOTICE,"START IMPORTING DATA");
+        ofFile file (fileDialog.selected_path);
+        tmpFileName = file.getFileName();
+        filepath = file.getAbsolutePath();
+        loadDataFile(filepath);
+    }
 }
 
 //--------------------------------------------------------------

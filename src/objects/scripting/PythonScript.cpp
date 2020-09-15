@@ -156,6 +156,8 @@ void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadPythonScriptFlag = false;
+    savePythonScriptFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -249,6 +251,26 @@ void PythonScript::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with the default code editor on your computer.",
                 "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
+
+    // file dialog
+    string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
+    if(ImGuiEx::getFileDialog(fileDialog, savePythonScriptFlag, "Save new python script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".py", newFileName, scaleFactor)){
+        lastPythonScript = fileDialog.selected_path;
+
+        ofFile fileToRead(ofToDataPath("scripts/empty.py"));
+        ofFile newPyFile (lastPythonScript);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
+        reloadScript();
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadPythonScriptFlag, "Select a python script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".py", "", scaleFactor)){
+        lastPythonScript = fileDialog.selected_path;
+
+        ofFile file (lastPythonScript);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+        reloadScript();
+    }
 }
 
 //--------------------------------------------------------------

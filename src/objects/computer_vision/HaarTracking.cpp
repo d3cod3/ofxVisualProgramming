@@ -192,6 +192,7 @@ void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
 
 //--------------------------------------------------------------
 void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadHaarConfigFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -260,6 +261,18 @@ void HaarTracking::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Detects shapes with specific characteristics or structures within images or video frames.",
                 "https://mosaic.d3cod3.org/reference.php?r=haar-tracking", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadHaarConfigFlag, "Select haarcascade xml file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            haarFinder->setup(filepath);
+
+            size_t start = file.getFileName().find_first_of("_");
+            haarfileName = file.getFileName().substr(start+1,file.getFileName().size()-start-5);
+        }
+    }
 }
 
 //--------------------------------------------------------------

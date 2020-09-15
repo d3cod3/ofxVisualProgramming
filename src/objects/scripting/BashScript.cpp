@@ -160,6 +160,8 @@ void BashScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRender
 
 //--------------------------------------------------------------
 void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadScriptFlag = false;
+    saveScriptFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -240,6 +242,24 @@ void BashScript::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with the default code editor on your computer.",
                 "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
+
+    // file dialog
+    string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
+    if(ImGuiEx::getFileDialog(fileDialog, saveScriptFlag, "Save new bash script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".sh", newFileName, scaleFactor)){
+        ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
+        ofFile newBashFile (fileDialog.selected_path);
+        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
+        threadLoaded = false;
+        reloadScript();
+    }
+
+    if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
+        ofFile bashFile (fileDialog.selected_path);
+        filepath = copyFileToPatchFolder(this->patchFolderPath,bashFile.getAbsolutePath());
+        threadLoaded = false;
+        reloadScript();
+    }
 }
 
 //--------------------------------------------------------------

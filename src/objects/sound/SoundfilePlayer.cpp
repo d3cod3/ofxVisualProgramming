@@ -228,6 +228,7 @@ void SoundfilePlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLR
 
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+    loadSoundfileFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -360,6 +361,16 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
                 "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
+
+    // file dialog
+    if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            lastSoundfile = file.getAbsolutePath();
+            soundfileLoaded= true;
+            startTime = ofGetElapsedTimeMillis();
+        }
+    }
 }
 
 //--------------------------------------------------------------
