@@ -214,7 +214,7 @@ void KinectGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             prevW = this->width;
             this->setCustomVar(prevW,"OBJ_WIDTH");
         }
-        if(this->width != prevH){
+        if(this->height != prevH){
             prevH = this->height;
             this->setCustomVar(prevH,"OBJ_HEIGHT");
         }

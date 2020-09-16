@@ -140,7 +140,7 @@ void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             prevW = this->width;
             this->setCustomVar(static_cast<float>(prevW),"WIDTH");
         }
-        if(this->width != prevH){
+        if(this->height != prevH){
             prevH = this->height;
             this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
         }
