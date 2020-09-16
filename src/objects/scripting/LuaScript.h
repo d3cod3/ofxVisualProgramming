@@ -103,6 +103,7 @@ public:
 
     string              mosaicTableName;
     string              luaTablename;
+    string              mosaicStringName;
     string              tempstring;
 
     imgui_addons::ImGuiFileBrowser          fileDialog;

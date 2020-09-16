@@ -37,10 +37,13 @@
 //--------------------------------------------------------------
 LuaScript::LuaScript() : PatchObject("lua script"){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 3;
 
     _inletParams[0] = new vector<float>();      // data
+
+    _inletParams[1] = new string();             // string
+    *static_cast<string *>(_inletParams[1]) = "";
 
     _outletParams[0] = new ofTexture();         // output
     _outletParams[1] = new LiveCoding();        // lua script reference (for keyboard and mouse events on external windows)
@@ -62,8 +65,9 @@ LuaScript::LuaScript() : PatchObject("lua script"){
     output_width        = STANDARD_TEXTURE_WIDTH;
     output_height       = STANDARD_TEXTURE_HEIGHT;
 
-    mosaicTableName = "_mosaic_data_inlet";
-    luaTablename    = "_mosaic_data_outlet";
+    mosaicTableName     = "_mosaic_data_inlet";
+    luaTablename        = "_mosaic_data_outlet";
+    mosaicStringName    = "_mosaic_string_inlet";
     tempstring      = "";
 
     needToLoadScript= true;
@@ -94,6 +98,7 @@ void LuaScript::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_ARRAY,"data");
+    this->addInlet(VP_LINK_STRING,"string");
 
     this->addOutlet(VP_LINK_TEXTURE,"generatedTexture");
     this->addOutlet(VP_LINK_SPECIAL,"mouseKeyboardInteractivity");
@@ -210,6 +215,15 @@ void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRendere
         }
 
 
+        if(this->inletsConnected[1]){
+            string temp = mosaicStringName+" = '";
+            temp.append(*static_cast<string *>(_inletParams[1]));
+            temp.append("'");
+            static_cast<LiveCoding *>(_outletParams[1])->lua.doString(temp);
+        }else{
+            string temp = mosaicStringName+" = ''";
+            static_cast<LiveCoding *>(_outletParams[1])->lua.doString(temp);
+        }
 
         // send internal data
         size_t len = static_cast<LiveCoding *>(_outletParams[1])->lua.tableSize(luaTablename);
@@ -312,7 +326,7 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             prevW = this->width;
             this->setCustomVar(static_cast<float>(prevW),"WIDTH");
         }
-        if(this->width != prevH){
+        if(this->height != prevH){
             prevH = this->height;
             this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
         }
@@ -472,6 +486,10 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
             tempstring = "USING_DATA_INLET = false";
         }
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+        tempstring = mosaicStringName+" = ''";
+        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
         ofFile tempFileScript(filepath);
         tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
@@ -555,6 +573,10 @@ void LuaScript::loadScript(string scriptFile){
     tempstring = "function _getLUAOutletTableAt(i) return "+luaTablename+"[i] end";
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
+    // inject incoming string
+    tempstring = mosaicStringName+" = ''";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
     // set Mosaic scripting vars
     tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
@@ -621,6 +643,10 @@ void LuaScript::clearScript(){
     tempstring = luaTablename+" = {}";
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _getLUAOutletTableAt(i) return "+luaTablename+"[i] end";
+    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+
+    // inject incoming string
+    tempstring = mosaicStringName+" = ''";
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
     // set Mosaic scripting vars
