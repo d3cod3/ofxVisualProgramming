@@ -175,6 +175,19 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         saveScript(lastLuaScript);
     }
 
+    if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+        reloadScriptThreaded();
+    }
+}
+
+//--------------------------------------------------------------
+void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
     ///////////////////////////////////////////
     // LUA UPDATE
     if(scriptLoaded && !isError){
@@ -247,18 +260,6 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
 
-    if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
-        loaded = true;
-        prevW = this->getCustomVar("WIDTH");
-        prevH = this->getCustomVar("HEIGHT");
-        this->width             = prevW;
-        this->height            = prevH;
-        reloadScriptThreaded();
-    }
-}
-
-//--------------------------------------------------------------
-void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF
