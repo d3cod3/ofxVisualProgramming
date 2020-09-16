@@ -89,7 +89,7 @@ void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         *static_cast<vector<float> *>(_outletParams[0]) = dataMatrix.at(actualIndex);
     }
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && readData){
         if(*(float *)&_inletParams[0] == 1.0){
             if(actualIndex < dataMatrix.size()-1){
                 actualIndex++;
