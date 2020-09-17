@@ -55,6 +55,7 @@ public:
     void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            initInlets();
+    string          getHostFromConfig();
 
 
     ofxOscSender                    osc_sender;

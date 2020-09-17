@@ -64,12 +64,13 @@ void OscReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     local_ip = getLocalIP();
 
+    initOutlets();
 }
 
 //--------------------------------------------------------------
 void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(osc_labels.size() > 0){
+    if(osc_labels.size() > 0 && loaded && osc_receiver.isListening()){
         while(osc_receiver.hasWaitingMessages()){
             ofxOscMessage m;
             osc_receiver.getNextMessage(m);
@@ -118,7 +119,6 @@ void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
     if(!loaded){
         loaded = true;
-        initOutlets();
 
         osc_port = static_cast<int>(floor(this->getCustomVar("PORT")));
         osc_port_string     = ofToString(osc_port);
@@ -145,7 +145,9 @@ void OscReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            drawObjectNodeConfig();
+            if(loaded && osc_receiver.isListening()){
+                drawObjectNodeConfig();
+            }
 
 
             ImGui::EndMenu();

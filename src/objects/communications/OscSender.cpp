@@ -58,80 +58,80 @@ void OscSender::newObject(){
     PatchObject::setName( this->objectName );
 
     this->setCustomVar(static_cast<float>(osc_port),"PORT");
+    this->setCustomVar(0.0f,"@"+osc_host);
 }
 
 //--------------------------------------------------------------
 void OscSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
-    if(filepath == "none"){
-        filepath = osc_host;
-    }
+    initInlets();
 
 }
 
 //--------------------------------------------------------------
 void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    for(int i=0;i<this->getNumInlets();i++){
-        if(this->inletsConnected[i]){
-            ofxOscMessage m;
-            bool messageOK = false;
-            m.setAddress(osc_labels.at(i));
-            if(this->getInletType(i) == VP_LINK_NUMERIC){
-                m.addFloatArg(*(float *)&_inletParams[i]);
-                messageOK = true;
-            }else if(this->getInletType(i) == VP_LINK_STRING){
-                m.addStringArg(*static_cast<string *>(_inletParams[i]));
-                messageOK = true;
-            }else if(this->getInletType(i) == VP_LINK_ARRAY){
-                for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
-                    m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
-                }
-                messageOK = true;
-            }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
-                // note: the size of the image depends greatly on your network buffer sizes,
-                // if an image is too big the message won't come through
-                int depth = 1;
-                if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
-                    depth = 1;
-                }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
-                    depth = 3;
-                }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
-                    depth = 4;
-                }
-                if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight()*depth < 922000){ // 327680
-                    static_cast<ofTexture *>(_inletParams[i])->readToPixels(*_tempPixels);
-                    m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getWidth());
-                    m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getHeight());
-                    if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
-                        _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_GRAYSCALE);
-                        m.addInt32Arg(OF_IMAGE_GRAYSCALE);
-                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
-                        _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR);
-                        m.addInt32Arg(OF_IMAGE_COLOR);
-                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
-                        _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR_ALPHA);
-                        m.addInt32Arg(OF_IMAGE_COLOR_ALPHA);
-                    }
-                    _tempImage->save(*_tempBuffer);
-                    m.addBlobArg(*_tempBuffer);
-                    _tempBuffer->clear();
+    if(loaded){
+        for(int i=0;i<this->getNumInlets();i++){
+            if(this->inletsConnected[i]){
+                ofxOscMessage m;
+                bool messageOK = false;
+                m.setAddress(osc_labels.at(i));
+                if(this->getInletType(i) == VP_LINK_NUMERIC){
+                    m.addFloatArg(*(float *)&_inletParams[i]);
                     messageOK = true;
-                }else{
-                    ofLog(OF_LOG_ERROR,"The image you're trying to send via OSC is too big! Please choose an image below 1280x720 GRAYSCALE, or 640x480 RGB, or 640x360 RGBA");
+                }else if(this->getInletType(i) == VP_LINK_STRING){
+                    m.addStringArg(*static_cast<string *>(_inletParams[i]));
+                    messageOK = true;
+                }else if(this->getInletType(i) == VP_LINK_ARRAY){
+                    for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
+                        m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
+                    }
+                    messageOK = true;
+                }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+                    // note: the size of the image depends greatly on your network buffer sizes,
+                    // if an image is too big the message won't come through
+                    int depth = 1;
+                    if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
+                        depth = 1;
+                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
+                        depth = 3;
+                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
+                        depth = 4;
+                    }
+                    if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight()*depth < 922000){ // 327680
+                        static_cast<ofTexture *>(_inletParams[i])->readToPixels(*_tempPixels);
+                        m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getWidth());
+                        m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getHeight());
+                        if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
+                            _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_GRAYSCALE);
+                            m.addInt32Arg(OF_IMAGE_GRAYSCALE);
+                        }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
+                            _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR);
+                            m.addInt32Arg(OF_IMAGE_COLOR);
+                        }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
+                            _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR_ALPHA);
+                            m.addInt32Arg(OF_IMAGE_COLOR_ALPHA);
+                        }
+                        _tempImage->save(*_tempBuffer);
+                        m.addBlobArg(*_tempBuffer);
+                        _tempBuffer->clear();
+                        messageOK = true;
+                    }else{
+                        ofLog(OF_LOG_ERROR,"The image you're trying to send via OSC is too big! Please choose an image below 1280x720 GRAYSCALE, or 640x480 RGB, or 640x360 RGBA");
+                    }
                 }
-            }
-            if(messageOK){
-                osc_sender.sendMessage(m,false);
+                if(messageOK){
+                    osc_sender.sendMessage(m,false);
+                }
             }
         }
     }
 
     if(!loaded){
         loaded = true;
-        initInlets();
 
-        osc_host = filepath;
+        osc_host = getHostFromConfig();
         osc_port = static_cast<int>(floor(this->getCustomVar("PORT")));
         osc_port_string     = ofToString(osc_port);
         osc_sender.setup(osc_host.c_str(),osc_port);
@@ -157,7 +157,9 @@ void OscSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            drawObjectNodeConfig();
+            if(loaded){
+                drawObjectNodeConfig();
+            }
 
 
             ImGui::EndMenu();
@@ -173,6 +175,7 @@ void OscSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushItemWidth(80*scaleFactor);
         if(ImGui::InputText("HOST",&osc_host)){
             filepath = osc_host;
+            this->saveConfig(false);
         }
         ImGui::Spacing();
         if(ImGui::InputText("PORT",&osc_port_string)){
@@ -368,6 +371,34 @@ void OscSender::initInlets(){
     }
 
     this->initInletsState();
+}
+
+//--------------------------------------------------------------
+string OscSender::getHostFromConfig(){
+
+    ofxXmlSettings XML;
+    if(XML.loadFile(this->patchFile)){
+        int totalObjects = XML.getNumTags("object");
+
+        // Get object inlets config
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    string temp = XML.getValue("filepath","none");
+
+                    size_t found = temp.find_last_of("/");
+                    if(found != string::npos){
+                        return temp.substr(found+1);
+                    }else{
+                        return temp;
+                    }
+                }
+                XML.popTag();
+            }
+        }
+    }
+
+    return "localhost";
 }
 
 
