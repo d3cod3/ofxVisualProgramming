@@ -387,7 +387,7 @@ void LuaScript::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with the default code editor on your computer",
+                "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
 
     // file dialog

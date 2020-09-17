@@ -240,7 +240,7 @@ void BashScript::drawObjectNodeConfig(){
 
 
     ImGuiEx::ObjectInfo(
-                "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with the default code editor on your computer.",
+                "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
 
     // file dialog

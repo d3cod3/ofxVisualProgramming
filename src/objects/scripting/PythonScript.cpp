@@ -250,7 +250,7 @@ void PythonScript::drawObjectNodeConfig(){
 
 
     ImGuiEx::ObjectInfo(
-                "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with the default code editor on your computer.",
+                "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
 
     // file dialog
