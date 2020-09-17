@@ -94,23 +94,6 @@ void ChromaKey::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(!isInputConnected){
-            isInputConnected = true;
-            chromakey = new ofxChromaKeyShader(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-            updateChromaVars();
-        }
-
-        if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
-            chromakey->updateChromakeyMask(*static_cast<ofTexture *>(_inletParams[0]),*static_cast<ofTexture *>(_inletParams[1]));
-            *static_cast<ofTexture *>(_outletParams[0]) = chromakey->fbo_final.getTexture();
-        }else{
-            *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
-        }
-    }else{
-        isInputConnected = false;
-    }
-
     if(!loaded){
         loaded = true;
         chromaBgColor.set(this->getCustomVar("RED"),this->getCustomVar("GREEN"),this->getCustomVar("BLUE"));
@@ -128,6 +111,25 @@ void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void ChromaKey::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // UPDATE SHADER
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(!isInputConnected){
+            isInputConnected = true;
+            chromakey = new ofxChromaKeyShader(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            updateChromaVars();
+        }
+
+        if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
+            chromakey->updateChromakeyMask(*static_cast<ofTexture *>(_inletParams[0]),*static_cast<ofTexture *>(_inletParams[1]));
+            *static_cast<ofTexture *>(_outletParams[0]) = chromakey->fbo_final.getTexture();
+        }else{
+            *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+        }
+    }else{
+        isInputConnected = false;
+    }
+
     ofSetColor(255);
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){

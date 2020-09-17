@@ -97,8 +97,13 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    
+}
 
-    // HAAR Tracking
+//--------------------------------------------------------------
+void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // HAAR Tracking UPDATE
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         if(!isFBOAllocated){
@@ -118,7 +123,7 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             static_cast<vector<float> *>(_outletParams[1])->push_back(haarFinder->size());
 
             for(int i = 0; i < haarFinder->size(); i++) {
-                
+
                 // blob id
                 int label = haarFinder->getLabel(i);
 
@@ -145,11 +150,8 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     }else{
         isFBOAllocated = false;
     }
-    
-}
 
-//--------------------------------------------------------------
-void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    // HAAR Tracking DRAW
     ofSetColor(255);
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 

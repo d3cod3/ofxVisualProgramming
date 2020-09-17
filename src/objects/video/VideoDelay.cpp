@@ -100,10 +100,40 @@ void VideoDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        _x = ofClamp(*(float *)&_inletParams[1],-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
+    }
+
+    if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        _y = ofClamp(*(float *)&_inletParams[2],-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+    }
+
+    if(this->inletsConnected[3]){
+        scaleTo = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+    }
+
+    if(this->inletsConnected[4]){
+        alphaTo = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
+    }
+
+    if(!loaded && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        loaded = true;
+        _x = ofClamp(this->getCustomVar("POSX"),-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _y = ofClamp(this->getCustomVar("POSY"),-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        scaleTo = this->getCustomVar("SCALE");
+        alphaTo = this->getCustomVar("ALPHA");
+    }
+    
+}
+
+//--------------------------------------------------------------
+void VideoDelay::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // UPDATE
     alpha       = .995 * alpha + .005 * alphaTo;
     scale       = .95 * scale + .05 * scaleTo;
     halfscale   = (1.000000f - scale) / 2.000000f;
-    
+
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!needToGrab){
             needToGrab = true;
@@ -135,34 +165,7 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         needToGrab = false;
     }
 
-    if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _x = ofClamp(*(float *)&_inletParams[1],-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
-    }
-
-    if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _y = ofClamp(*(float *)&_inletParams[2],-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-    }
-
-    if(this->inletsConnected[3]){
-        scaleTo = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
-    }
-
-    if(this->inletsConnected[4]){
-        alphaTo = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
-    }
-
-    if(!loaded && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        loaded = true;
-        _x = ofClamp(this->getCustomVar("POSX"),-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
-        _y = ofClamp(this->getCustomVar("POSY"),-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-        scaleTo = this->getCustomVar("SCALE");
-        alphaTo = this->getCustomVar("ALPHA");
-    }
-    
-}
-
-//--------------------------------------------------------------
-void VideoDelay::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    // DRAW
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF

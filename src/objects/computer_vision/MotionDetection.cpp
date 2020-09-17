@@ -85,6 +85,18 @@ void MotionDetection::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 //--------------------------------------------------------------
 void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    if(!loaded){
+        loaded = true;
+        threshold = this->getCustomVar("THRESHOLD");
+        noise = this->getCustomVar("NOISE_COMP");
+    }
+
+}
+
+//--------------------------------------------------------------
+void MotionDetection::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // MOTION DETECTION UPDATE
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(!newConnection){
             newConnection = true;
@@ -122,19 +134,7 @@ void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
         newConnection = false;
     }
 
-    if(!loaded){
-        loaded = true;
-        threshold = this->getCustomVar("THRESHOLD");
-        noise = this->getCustomVar("NOISE_COMP");
-    }
-
     frameCounter++;
-
-}
-
-//--------------------------------------------------------------
-void MotionDetection::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
 
 }
 

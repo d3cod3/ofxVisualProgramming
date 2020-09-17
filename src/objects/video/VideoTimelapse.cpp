@@ -88,7 +88,33 @@ void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+
+    if(this->inletsConnected[1]){
+        if(nDelayFrames != static_cast<int>(floor(*(float *)&_inletParams[1]))){
+            nDelayFrames = static_cast<int>(floor(*(float *)&_inletParams[1]));
+
+            capturedFrame   = 0;
+            delayFrame      = 0;
+
+            resetTime       = ofGetElapsedTimeMillis();
+            wait            = 1000/static_cast<int>(ofGetFrameRate());
+
+            videoBuffer->setup(nDelayFrames);
+        }
+    }
+
+    if(!loaded){
+        loaded = true;
+        nDelayFrames = this->getCustomVar("DELAY_FRAMES");
+        videoBuffer->setup(nDelayFrames);
+    }
     
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // UPDATE
     if(this->inletsConnected[0]){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
             resetTime       = ofGetElapsedTimeMillis();
@@ -118,30 +144,7 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
         *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
     }
 
-    if(this->inletsConnected[1]){
-        if(nDelayFrames != static_cast<int>(floor(*(float *)&_inletParams[1]))){
-            nDelayFrames = static_cast<int>(floor(*(float *)&_inletParams[1]));
-
-            capturedFrame   = 0;
-            delayFrame      = 0;
-
-            resetTime       = ofGetElapsedTimeMillis();
-            wait            = 1000/static_cast<int>(ofGetFrameRate());
-
-            videoBuffer->setup(nDelayFrames);
-        }
-    }
-
-    if(!loaded){
-        loaded = true;
-        nDelayFrames = this->getCustomVar("DELAY_FRAMES");
-        videoBuffer->setup(nDelayFrames);
-    }
-    
-}
-
-//--------------------------------------------------------------
-void VideoTimelapse::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    // DRAW
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF

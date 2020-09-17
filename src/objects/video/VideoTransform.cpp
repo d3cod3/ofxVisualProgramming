@@ -126,35 +126,6 @@ void VideoTransform::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 //--------------------------------------------------------------
 void VideoTransform::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(this->inletsConnected[0]){
-        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            if(!needToGrab){
-                needToGrab = true;
-                scaledFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA );
-                _maxW = static_cast<ofTexture *>(_inletParams[0])->getWidth();
-                _maxH = static_cast<ofTexture *>(_inletParams[0])->getHeight();
-            }
-
-            scaledFbo->begin();
-            ofClear(0,0,0,255);
-            bounds.set(_x,_y,_w,_h);
-
-            ofPushMatrix();
-            ofTranslate(bounds.x+(bounds.width/2),bounds.y+(bounds.height/2));
-            ofRotateXDeg(angleX);
-            ofRotateYDeg(angleY);
-            ofRotateZDeg(angleZ);
-            ofSetColor(255);
-            static_cast<ofTexture *>(_inletParams[0])->draw(-bounds.width/2,0-bounds.height/2,bounds.width,bounds.height);
-            ofPopMatrix();
-            scaledFbo->end();
-
-            *static_cast<ofTexture *>(_outletParams[0]) = scaledFbo->getTexture();
-        }
-    }else{
-        needToGrab = false;
-    }
-
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         _x = ofClamp(*(float *)&_inletParams[1],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
     }
@@ -202,6 +173,38 @@ void VideoTransform::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void VideoTransform::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // UPDATE
+    if(this->inletsConnected[0]){
+        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            if(!needToGrab){
+                needToGrab = true;
+                scaledFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA );
+                _maxW = static_cast<ofTexture *>(_inletParams[0])->getWidth();
+                _maxH = static_cast<ofTexture *>(_inletParams[0])->getHeight();
+            }
+
+            scaledFbo->begin();
+            ofClear(0,0,0,255);
+            bounds.set(_x,_y,_w,_h);
+
+            ofPushMatrix();
+            ofTranslate(bounds.x+(bounds.width/2),bounds.y+(bounds.height/2));
+            ofRotateXDeg(angleX);
+            ofRotateYDeg(angleY);
+            ofRotateZDeg(angleZ);
+            ofSetColor(255);
+            static_cast<ofTexture *>(_inletParams[0])->draw(-bounds.width/2,0-bounds.height/2,bounds.width,bounds.height);
+            ofPopMatrix();
+            scaledFbo->end();
+
+            *static_cast<ofTexture *>(_outletParams[0]) = scaledFbo->getTexture();
+        }
+    }else{
+        needToGrab = false;
+    }
+
+    // DRAW
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF

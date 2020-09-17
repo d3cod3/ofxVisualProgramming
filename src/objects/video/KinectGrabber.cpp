@@ -113,6 +113,30 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }
     }
 
+    if(!loaded){
+        loaded = true;
+        if(weHaveKinect){
+
+            colorCleanImage.allocate(kinectWidth, kinectHeight);
+            cleanImage.allocate(kinectWidth, kinectHeight);
+            grayThreshNear.allocate(kinectWidth, kinectHeight);
+            grayThreshFar.allocate(kinectWidth, kinectHeight);
+
+            loadKinectSettings();
+
+            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
+            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
+            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
+            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
+
+        }
+    }
+
+}
+
+//--------------------------------------------------------------
+void KinectGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
     // KINECT UPDATE
     if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected()){
         static_cast<ofxKinect *>(_outletParams[2])->update();
@@ -141,29 +165,6 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }
     }
 
-    if(!loaded){
-        loaded = true;
-        if(weHaveKinect){
-
-            colorCleanImage.allocate(kinectWidth, kinectHeight);
-            cleanImage.allocate(kinectWidth, kinectHeight);
-            grayThreshNear.allocate(kinectWidth, kinectHeight);
-            grayThreshFar.allocate(kinectWidth, kinectHeight);
-
-            loadKinectSettings();
-
-            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
-            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
-            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
-
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void KinectGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     // background
     if(scaledObjW*canvasZoom > 90.0f){
         ofSetColor(34,34,34);

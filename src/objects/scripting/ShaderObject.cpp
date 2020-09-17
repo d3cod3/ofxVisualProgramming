@@ -198,6 +198,19 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         pathChanged(watcher.nextEvent());
     }
 
+
+    if(!loaded){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+}
+
+//--------------------------------------------------------------
+void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
     ///////////////////////////////////////////
     // SHADER UPDATE
     if(scriptLoaded){
@@ -279,17 +292,6 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
 
-    if(!loaded){
-        loaded = true;
-        prevW = this->getCustomVar("WIDTH");
-        prevH = this->getCustomVar("HEIGHT");
-        this->width             = prevW;
-        this->height            = prevH;
-    }
-}
-
-//--------------------------------------------------------------
-void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF

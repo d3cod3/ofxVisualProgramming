@@ -108,6 +108,16 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         pathChanged(watcher.nextEvent());
     }
 
+    if(needToLoadScript){
+        needToLoadScript = false;
+        loadScript(filepath);
+    }
+
+}
+
+//--------------------------------------------------------------
+void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
     ///////////////////////////////////////////
     // PYTHON UPDATE
     if(script){
@@ -137,15 +147,6 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     }
     ///////////////////////////////////////////
 
-    if(needToLoadScript){
-        needToLoadScript = false;
-        loadScript(filepath);
-    }
-
-}
-
-//--------------------------------------------------------------
-void PythonScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){

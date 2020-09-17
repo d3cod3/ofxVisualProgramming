@@ -69,7 +69,6 @@ void VideoReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    ndiGrabber.update();
 
     if(needToGrab && ndiGrabber.getTexture().isAllocated()){
         needToGrab = false;
@@ -83,6 +82,9 @@ void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void VideoReceiver::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    ndiGrabber.update();
+
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         // draw node texture preview with OF

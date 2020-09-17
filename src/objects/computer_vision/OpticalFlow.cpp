@@ -99,8 +99,26 @@ void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    if(!loaded){
+        loaded = true;
+
+        fbUseGaussian = static_cast<bool>(floor(this->getCustomVar("FB_USE_GAUSSIAN")));
+        fbPyrScale = this->getCustomVar("FB_PYR_SCALE");
+        fbLevels = this->getCustomVar("FB_LEVELS");
+        fbWinSize = this->getCustomVar("FB_WIN_SIZE");
+        fbIterations = this->getCustomVar("FB_ITERATIONS");
+        fbPolyN = this->getCustomVar("FB_POLY_N");
+        fbPolySigma = this->getCustomVar("FB_POLY_SIGMA");
+    }
+
+}
+
+//--------------------------------------------------------------
+void OpticalFlow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    // OPTICAL FLOW UPDATE
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        
+
         if(!isFBOAllocated){
             isFBOAllocated = true;
             pix             = new ofPixels();
@@ -145,22 +163,7 @@ void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         isFBOAllocated = false;
     }
 
-    if(!loaded){
-        loaded = true;
-
-        fbUseGaussian = static_cast<bool>(floor(this->getCustomVar("FB_USE_GAUSSIAN")));
-        fbPyrScale = this->getCustomVar("FB_PYR_SCALE");
-        fbLevels = this->getCustomVar("FB_LEVELS");
-        fbWinSize = this->getCustomVar("FB_WIN_SIZE");
-        fbIterations = this->getCustomVar("FB_ITERATIONS");
-        fbPolyN = this->getCustomVar("FB_POLY_N");
-        fbPolySigma = this->getCustomVar("FB_POLY_SIGMA");
-    }
-
-}
-
-//--------------------------------------------------------------
-void OpticalFlow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    // OPTICAL FLOW DRAW
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 
         outputFBO->begin();
