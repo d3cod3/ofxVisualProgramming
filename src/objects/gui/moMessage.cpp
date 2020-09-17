@@ -122,7 +122,7 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::InputText("##source", &actualMessage);
         ImGui::PopStyleColor(1);
         ImGui::PopItemWidth();
-        ImGui::SameLine(); ImGuiEx::HelpMarker("Always check objects reference for UPPERCASE/LOWERCASE messages.");
+        ImGui::SameLine(); ImGuiEx::HelpMarker("Always check receiving objects reference for UPPERCASE/LOWERCASE messages.");
 
         ImGui::Spacing();
         if(ImGui::Button("SEND",ImVec2(-1,26*scaleFactor))){
