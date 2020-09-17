@@ -196,7 +196,7 @@ void ofxVisualProgramming::update(){
             // remove scripts objects filepath reference from scripts objects files map
             ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
             string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
                 map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                 if (sofpIT != scriptsObjectsFilesPaths.end()){
                     // found it, remove it
@@ -231,7 +231,7 @@ void ofxVisualProgramming::update(){
         // update scripts objects files map
         ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
         string fileExt = ofToUpper(tempsofp.getExtension());
-        if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+        if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
             map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
             if (sofpIT == scriptsObjectsFilesPaths.end()){
                 // not found, insert it
@@ -438,7 +438,7 @@ void ofxVisualProgramming::cleanPatchDataFolder(){
                 // not found in patch scripts map, remove it from patch data folder
                 //ofLog(OF_LOG_NOTICE,"%s",dir.getFile(i).getAbsolutePath().c_str());
                 string fileExt = ofToUpper(dir.getFile(i).getExtension());
-                if(fileExt == "PY" || fileExt == "SH" || fileExt == "JAVA" || fileExt == "FRAG"){
+                if(fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
                     dir.getFile(i).remove();
                 }
                 // remove if filename is empty
