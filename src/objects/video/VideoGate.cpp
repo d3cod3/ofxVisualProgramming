@@ -35,7 +35,7 @@
 #include "VideoGate.h"
 
 //--------------------------------------------------------------
-VideoGate::VideoGate() : PatchObject("video gate"){
+VideoGate::VideoGate() : PatchObject("texture gate"){
 
     this->numInlets  = 6;
     this->numOutlets = 1;
@@ -281,6 +281,6 @@ void VideoGate::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( VideoGate, "video gate", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoGate, "texture gate", OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif
