@@ -130,6 +130,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
+            drawObjectNodeConfig();
 
             ImGui::EndMenu();
         }

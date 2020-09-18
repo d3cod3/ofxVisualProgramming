@@ -351,6 +351,8 @@ void VideoGrabber::resetCameraSettings(int devID){
         }
     }
 
+    this->saveConfig(false);
+
     needReset = false;
 }
 
