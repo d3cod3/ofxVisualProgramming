@@ -313,7 +313,7 @@ void PDPatch::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Pure Data ( Vainilla ) patch container with inlets and outlets. As for live coding, with this object you can live patching, passing in real time and in both directions audio and data cables.",
-                "https://mosaic.d3cod3.org/reference.php?r=491", scaleFactor);
+                "https://mosaic.d3cod3.org/reference.php?r=pd-patch", scaleFactor);
 
     // file dialog
     string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
