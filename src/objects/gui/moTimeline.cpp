@@ -254,6 +254,12 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
             this->filepath = this->patchFolderPath+"timeline"+ofToString(this->nId)+"/";
             loadTimelineData(this->filepath);
         }
+        // force init for retina screens
+        ofResizeEventArgs te;
+        te.width = window->getWidth();
+        te.height = window->getHeight();
+        timeline->windowResized(te);
+        timeline->setWidth(window->getWidth());
     }
 
     // auto remove
@@ -372,6 +378,11 @@ void moTimeline::drawObjectNodeConfig(){
 
     if(ImGui::Checkbox("Retina Screen",&retinaScreen)){
         timeline->forceRetina = retinaScreen;
+        ofResizeEventArgs te;
+        te.width = window->getWidth();
+        te.height = window->getHeight();
+        timeline->windowResized(te);
+        timeline->setWidth(window->getWidth());
     }
     ImGui::Spacing();
     if(ImGui::InputInt("Duration",&durationInSeconds)){
