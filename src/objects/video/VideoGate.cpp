@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 VideoGate::VideoGate() : PatchObject("texture gate"){
 
-    this->numInlets  = 6;
+    this->numInlets  = 7;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
@@ -48,6 +48,7 @@ VideoGate::VideoGate() : PatchObject("texture gate"){
     _inletParams[3] = new ofTexture();  // tex3
     _inletParams[4] = new ofTexture();  // tex4
     _inletParams[5] = new ofTexture();  // tex5
+    _inletParams[6] = new ofTexture();  // tex6
 
     _outletParams[0] = new ofTexture(); // texture output
 
@@ -227,7 +228,7 @@ void VideoGate::removeObjectContent(bool removeFileFromData){
 void VideoGate::initInlets(){
     dataInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = dataInlets;
+    this->numInlets = dataInlets+1;
 
     resetInletsSettings();
 }
@@ -244,7 +245,7 @@ void VideoGate::resetInletsSettings(){
         }
     }
 
-    this->numInlets = dataInlets+1;
+    //this->numInlets = dataInlets+1;
 
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;

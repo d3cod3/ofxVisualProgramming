@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 AudioGate::AudioGate() : PatchObject("signal gate"){
 
-    this->numInlets  = 6;
+    this->numInlets  = 7;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
@@ -48,6 +48,7 @@ AudioGate::AudioGate() : PatchObject("signal gate"){
     _inletParams[3] = new ofSoundBuffer();  // sig3
     _inletParams[4] = new ofSoundBuffer();  // sig4
     _inletParams[5] = new ofSoundBuffer();  // sig5
+    _inletParams[6] = new ofSoundBuffer();  // sig6
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -238,7 +239,7 @@ void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
 void AudioGate::initInlets(){
     dataInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = dataInlets;
+    this->numInlets = dataInlets+1;
 
     resetInletsSettings();
 }
@@ -255,7 +256,7 @@ void AudioGate::resetInletsSettings(){
         }
     }
 
-    this->numInlets = dataInlets+1;
+    //this->numInlets = dataInlets+1;
 
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;

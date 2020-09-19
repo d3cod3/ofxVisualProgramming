@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 VectorGate::VectorGate() : PatchObject("vector gate"){
 
-    this->numInlets  = 6;
+    this->numInlets  = 7;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
@@ -48,6 +48,7 @@ VectorGate::VectorGate() : PatchObject("vector gate"){
     _inletParams[3] = new vector<float>();  // vector3
     _inletParams[4] = new vector<float>();  // vector4
     _inletParams[5] = new vector<float>();  // vector5
+    _inletParams[6] = new vector<float>();  // vector6
 
     _outletParams[0] = new vector<float>(); // output
 
@@ -216,7 +217,7 @@ void VectorGate::removeObjectContent(bool removeFileFromData){
 void VectorGate::initInlets(){
     dataInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = dataInlets;
+    this->numInlets = dataInlets+1;
 
     resetInletsSettings();
 }
@@ -233,7 +234,7 @@ void VectorGate::resetInletsSettings(){
         }
     }
 
-    this->numInlets = dataInlets+1;
+    //this->numInlets = dataInlets+1;
 
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;

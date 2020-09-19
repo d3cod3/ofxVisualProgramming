@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 Gate::Gate() : PatchObject("gate"){
 
-    this->numInlets  = 6;
+    this->numInlets  = 7;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
@@ -48,11 +48,13 @@ Gate::Gate() : PatchObject("gate"){
     _inletParams[3] = new float();  // float3
     _inletParams[4] = new float();  // float4
     _inletParams[5] = new float();  // float5
+    _inletParams[6] = new float();  // float5
     *(float *)&_inletParams[1] = 0.0f;
     *(float *)&_inletParams[2] = 0.0f;
     *(float *)&_inletParams[3] = 0.0f;
     *(float *)&_inletParams[4] = 0.0f;
     *(float *)&_inletParams[5] = 0.0f;
+    *(float *)&_inletParams[6] = 0.0f;
 
     _outletParams[0] = new float(); // output numeric
     *(float *)&_outletParams[0] = 0.0f;
@@ -222,7 +224,7 @@ void Gate::removeObjectContent(bool removeFileFromData){
 void Gate::initInlets(){
     floatInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = floatInlets;
+    this->numInlets = floatInlets+1;
 
     resetInletsSettings();
 }
@@ -239,7 +241,7 @@ void Gate::resetInletsSettings(){
         }
     }
 
-    this->numInlets = floatInlets+1;
+    //this->numInlets = floatInlets+1;
 
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
