@@ -56,6 +56,9 @@ public:
 
 
     bool                    bang;
+    bool                    forceInt;
+
+    bool                    loaded;
 
 protected:
 

@@ -59,6 +59,10 @@ SimpleRandom::SimpleRandom() :
 
     bang            = false;
 
+    forceInt        = false;
+
+    loaded          = false;
+
 }
 
 //--------------------------------------------------------------
@@ -69,6 +73,11 @@ void SimpleRandom::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"min");
     this->addInlet(VP_LINK_NUMERIC,"max");
     this->addOutlet(VP_LINK_NUMERIC,"random");
+
+    this->setCustomVar(static_cast<float>(lastMinRange.get()),"MIN");
+    this->setCustomVar(static_cast<float>(lastMaxRange.get()),"MAX");
+    this->setCustomVar(static_cast<float>(forceInt),"FORCE_INT");
+
 }
 
 //--------------------------------------------------------------
@@ -86,7 +95,12 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         }
     }
     if(bang){
-        *(float *)&_outletParams[0] = ofRandom(*(float *)&_inletParams[1],*(float *)&_inletParams[2]);
+        if(forceInt){
+            *(float *)&_outletParams[0] = floor(ofRandom(lastMinRange.get(),lastMaxRange.get()));
+        }else{
+            *(float *)&_outletParams[0] = ofRandom(lastMinRange.get(),lastMaxRange.get());
+        }
+
     }
 
     if(this->inletsConnected[1] || this->inletsConnected[2]){
@@ -94,6 +108,14 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             lastMinRange.get()    = *(float *)&_inletParams[1];
             lastMaxRange.get()    = *(float *)&_inletParams[2];
         }
+    }
+
+    if(!loaded){
+        loaded = true;
+
+        lastMinRange.get()  = this->getCustomVar("MIN");
+        lastMaxRange.get()  = this->getCustomVar("MAX");
+        forceInt            = static_cast<bool>(floor(this->getCustomVar("FORCE_INT")));
     }
 }
 
@@ -136,10 +158,18 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void SimpleRandom::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::PushItemWidth(130*scaleFactor);
-    ImGui::DragFloat("min", &lastMinRange.get());
+    if(ImGui::DragFloat("min", &lastMinRange.get())){
+        this->setCustomVar(static_cast<float>(lastMinRange.get()),"MIN");
+    }
     ImGui::Spacing();
     ImGui::PushItemWidth(130*scaleFactor);
-    ImGui::DragFloat("max", &lastMaxRange.get());
+    if(ImGui::DragFloat("max", &lastMaxRange.get())){
+        this->setCustomVar(static_cast<float>(lastMaxRange.get()),"MAX");
+    }
+    ImGui::Spacing();
+    if(ImGui::Checkbox("Force Integer",&forceInt)){
+        this->setCustomVar(static_cast<float>(forceInt),"FORCE_INT");
+    }
 
     ImGuiEx::ObjectInfo(
                 "Standard Range controlled random number generator.",
