@@ -390,7 +390,11 @@ string OscSender::getHostFromConfig(){
                     if(found != string::npos){
                         return temp.substr(found+1);
                     }else{
-                        return temp;
+                        if(temp == "none"){
+                            return "localhost";
+                        }else{
+                            return temp;
+                        }
                     }
                 }
                 XML.popTag();
