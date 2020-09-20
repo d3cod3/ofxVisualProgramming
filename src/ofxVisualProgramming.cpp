@@ -210,37 +210,38 @@ void ofxVisualProgramming::update(){
 
     }
 
-    // left to right computing order
-    leftToRightIndexOrder.clear();
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
-    }
-    // sort the vector by it's pair first value (object X position)
-    sort(leftToRightIndexOrder.begin(),leftToRightIndexOrder.end());
+    if(!bLoadingNewPatch && !patchObjects.empty()){
+        // left to right computing order
+        leftToRightIndexOrder.clear();
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
+        }
+        // sort the vector by it's pair first value (object X position)
+        sort(leftToRightIndexOrder.begin(),leftToRightIndexOrder.end());
 
+        ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
 
-    ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
+        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+            pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
+            pt[i].startTime = ofGetElapsedTimef();
+            pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+            patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
+            pt[i].endTime = ofGetElapsedTimef();
 
-    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-        pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
-        pt[i].startTime = ofGetElapsedTimef();
-        pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
-        patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
-        pt[i].endTime = ofGetElapsedTimef();
-
-        // update scripts objects files map
-        ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-        string fileExt = ofToUpper(tempsofp.getExtension());
-        if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
-            map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-            if (sofpIT == scriptsObjectsFilesPaths.end()){
-                // not found, insert it
-                scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+            // update scripts objects files map
+            ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+            string fileExt = ofToUpper(tempsofp.getExtension());
+            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                if (sofpIT == scriptsObjectsFilesPaths.end()){
+                    // not found, insert it
+                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                }
             }
         }
-    }
 
-    profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
+        profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
+    }
 
 }
 
@@ -1063,6 +1064,12 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
     ofFile fileToRead(patchFile);
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
+
+    ofDirectory dataFolderOrigin;
+    dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"/data/");
+    std::filesystem::path tp = ofToDataPath("temp/data/",true);
+    dataFolderOrigin.copyTo(tp,true,true);
+
     newFileCounter++;
 
     currentPatchFile = newPatchFile.getAbsolutePath();
