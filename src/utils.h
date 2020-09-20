@@ -39,6 +39,7 @@
 #endif
 
 #include <math.h>
+#include <random>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -48,21 +49,22 @@
 //--------------------------------------------------------------
 inline std::string random_string( size_t length ){
 
-    srand(ofGetElapsedTimeMillis());
+    static auto& chrs = "0123456789"
+                        "abcdefghijklmnopqrstuvwxyz"
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                        "!?*+{}[]()=$-_";
 
-    auto randchar = []() -> char
-    {
-            const char charset[] =
-            "0123456789"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwxyz"
-            "!¿?*+{}[]%&()=%$-_";
-            const size_t max_index = (sizeof(charset) - 1);
-            return charset[ rand() % max_index ];
-    };
-    std::string str(length,0);
-    std::generate_n( str.begin(), length, randchar );
-    return str;
+    thread_local static std::mt19937 rg{std::random_device{}()};
+    thread_local static std::uniform_int_distribution<std::string::size_type> pick(0, sizeof(chrs) - 2);
+
+    std::string s;
+
+    s.reserve(length);
+
+    while(length--)
+        s += chrs[pick(rg)];
+
+    return s;
 }
 
 //--------------------------------------------------------------
