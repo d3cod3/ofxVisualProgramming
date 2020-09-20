@@ -241,7 +241,7 @@ void Gate::resetInletsSettings(){
         }
     }
 
-    //this->numInlets = floatInlets+1;
+    this->numInlets = floatInlets+1;
 
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;

@@ -256,7 +256,7 @@ void AudioGate::resetInletsSettings(){
         }
     }
 
-    //this->numInlets = dataInlets+1;
+    this->numInlets = dataInlets+1;
 
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
