@@ -50,7 +50,8 @@ moComment::moComment() : PatchObject("comment"){
 
     this->initInletsState();
 
-    bang            = false;
+    bang                = false;
+    nextFrame           = true;
 
     this->width             *= 2;
 
@@ -98,8 +99,14 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         actualComment.append(*static_cast<string *>(_inletParams[1]));
     }
 
-    if(bang){
+    if(!nextFrame){
+        nextFrame = true;
         *static_cast<string *>(_outletParams[0]) = actualComment;
+    }
+
+    if(bang){
+        nextFrame = false;
+        *static_cast<string *>(_outletParams[0]) = actualComment+" ";
     }
 
 

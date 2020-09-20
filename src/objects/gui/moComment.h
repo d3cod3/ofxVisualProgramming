@@ -59,6 +59,7 @@ public:
 
     string                      actualComment;
     bool                        bang;
+    bool                        nextFrame;
 
     float                       prevW, prevH;
 
