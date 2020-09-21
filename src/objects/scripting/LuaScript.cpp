@@ -97,8 +97,8 @@ LuaScript::LuaScript() : PatchObject("lua script"){
 void LuaScript::newObject(){
     PatchObject::setName( this->objectName );
 
-    this->addInlet(VP_LINK_ARRAY,"data");
-    this->addInlet(VP_LINK_STRING,"string");
+    this->addInlet(VP_LINK_ARRAY,"_mosaic_data_inlet");
+    this->addInlet(VP_LINK_STRING,"_mosaic_string_inlet");
 
     this->addOutlet(VP_LINK_TEXTURE,"generatedTexture");
     this->addOutlet(VP_LINK_SPECIAL,"mouseKeyboardInteractivity");
