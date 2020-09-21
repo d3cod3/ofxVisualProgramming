@@ -48,6 +48,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     ofAddListener(ofEvents().mouseReleased, this, &ofxVisualProgramming::mouseReleased);
     ofAddListener(ofEvents().mouseScrolled, this, &ofxVisualProgramming::mouseScrolled);
     ofAddListener(ofEvents().keyPressed, this, &ofxVisualProgramming::keyPressed);
+    ofAddListener(ofEvents().keyReleased, this, &ofxVisualProgramming::keyReleased);
 
     // System
     engine                  = new pdsp::Engine();
@@ -530,7 +531,18 @@ void ofxVisualProgramming::keyPressed(ofKeyEventArgs &e){
         return;
 
     for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-        patchObjects[leftToRightIndexOrder[i].second]->keyPressed(e.key,patchObjects);
+        patchObjects[leftToRightIndexOrder[i].second]->keyPressed(e,patchObjects);
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::keyReleased(ofKeyEventArgs &e){
+
+    if(ImGui::IsAnyItemActive())
+        return;
+
+    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        patchObjects[leftToRightIndexOrder[i].second]->keyReleased(e,patchObjects);
     }
 }
 

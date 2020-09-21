@@ -276,8 +276,11 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             outletsPositions[i] = _nodeCanvas.getOutletPosition(nId,i);
         }
 
-        // Refresh links to eventually disconnect (backspace key or right click menu)
+        // Refresh links to eventually disconnect ( backspace key )
         linksToDisconnect = _nodeCanvas.getSelectedLinks();
+
+        // Refresh objects selected to eventually duplicate or delete ( cmd-d or backsapce )
+        objectsSelected = _nodeCanvas.getSelectedNodes();
 
         // Let objects draw their own Gui
         this->drawObjectNodeGui( _nodeCanvas );
@@ -969,13 +972,36 @@ void PatchObject::setPatchfile(string pf) {
 }
 
 //--------------------------------------------------------------
-void PatchObject::keyPressed(int key,map<int,shared_ptr<PatchObject>> &patchObjects){
+void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
-        if(key == OF_KEY_BACKSPACE){
+
+    }
+}
+
+//--------------------------------------------------------------
+void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
+    if(!willErase){
+        if(e.key == OF_KEY_BACKSPACE){
             for (int j=0;j<linksToDisconnect.size();j++){
                 disconnectLink(patchObjects,linksToDisconnect.at(j));
             }
             linksToDisconnect.clear();
+
+            for(int j=0;j<objectsSelected.size();j++){
+                if(objectsSelected.at(j) == this->nId){
+                    ofNotifyEvent(removeEvent, objectsSelected.at(j));
+                    this->setWillErase(true);
+                    break;
+                }
+            }
+            objectsSelected.clear();
+        // OSX: CMD-D, WIN/LINUX: CTRL-D    (DUPLICATE SELECTED OBJECTS)
+        }else if(e.hasModifier(MOD_KEY) && e.keycode == 68){
+            for(int j=0;j<objectsSelected.size();j++){
+                if(objectsSelected.at(j) == this->nId){
+                    ofNotifyEvent(duplicateEvent, objectsSelected.at(j));
+                }
+            }
         }
     }
 }

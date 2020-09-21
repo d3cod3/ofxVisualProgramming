@@ -109,7 +109,8 @@ public:
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
 
     // Keyboard Events
-    void                    keyPressed(int key,map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Sound
     void                    audioIn(ofSoundBuffer &inputBuffer);
@@ -190,6 +191,7 @@ public:
     // patch object connections
     vector<shared_ptr<PatchLink>>       outPut;
     vector<int>                         linksToDisconnect;
+    vector<int>                         objectsSelected;
     vector<bool>                        inletsConnected;
 
     void                                *_inletParams[MAX_INLETS];

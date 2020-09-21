@@ -402,7 +402,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                     );
 
         // Node border (surrounding)
-        nodeDrawList->AddRect( curNodeData.outerContentBox.Min+ImVec2(1,1), curNodeData.outerContentBox.Max-ImVec2(1,1), ImGui::GetColorU32(ImGuiCol_Border) );
+        ImU32 _tempColor = IM_COL32(0,0,0,0);
+        if (std::find(selected_nodes.begin(), selected_nodes.end(),nId)!=selected_nodes.end()){ // selected
+            _tempColor = IM_COL32(255,0,0,255);
+        }
+        nodeDrawList->AddRect( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max, _tempColor );
 
         // Header info
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min+ImVec2(5, ((IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor)-ImGui::CalcTextSize("").y)*.5f) );//canvasView.translation+pos+ImVec2(5,4));
@@ -424,6 +428,14 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
         if(ImGui::IsItemActive() && ImGui::IsItemClicked(0)){
             activeNode = nId;
+            if(ImGui::GetIO().KeyShift && name != "audio device"){
+                selected_nodes.push_back(nId);
+            }
+        }
+
+        // deselect nodes on clicking on patch
+        if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
+            selected_nodes.clear();
         }
 
         if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){

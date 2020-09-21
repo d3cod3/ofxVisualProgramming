@@ -75,6 +75,7 @@ public:
     void            mouseScrolled(ofMouseEventArgs &e);
 
     void            keyPressed(ofKeyEventArgs &e);
+    void            keyReleased(ofKeyEventArgs &e);
 
     void            activeObject(int oid);
 
