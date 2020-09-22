@@ -160,6 +160,7 @@ public:
 
     // GUI
     string                          inspectorTitle;
+    float                           lastInspectorWidth;
     bool                            isHoverMenu;
     bool                            isHoverLogger;
     bool                            isHoverCodeEditor;

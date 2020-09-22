@@ -168,6 +168,7 @@ public:
     float                   getObjectHeight() { return height; }
     int                     getOutputWidth() { return output_width; }
     int                     getOutputHeight() { return output_height; }
+    float                   getConfigmenuWidth() { return configMenuWidth; }
 
     string                  getFilepath() { return filepath; }
 
@@ -217,6 +218,7 @@ protected:
     int                     fontSize;
     ImVec2                  canvasTranslation;
     float                   canvasScale;
+    float                   configMenuWidth;
     float                   scaleFactor;
 
     // Core vars

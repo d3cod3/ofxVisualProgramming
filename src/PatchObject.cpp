@@ -65,6 +65,8 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     y           = 0.0f;
     fontSize    = 12;
 
+    configMenuWidth     = 246.0f;
+
     canvasScale         = 1;
     scaleFactor         = 1.0f;
 
@@ -96,6 +98,7 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
         headerHeight    *= 2;
         fontSize         = 16;
         scaleFactor      = 2.0f;
+        configMenuWidth  *= 2;
     }
 
     setupObjectContent(mainWindow);

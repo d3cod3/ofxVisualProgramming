@@ -144,6 +144,8 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
             drawObjectNodeConfig();
 
+            this->configMenuWidth = ImGui::GetWindowWidth();
+
             ImGui::EndMenu();
         }
 
