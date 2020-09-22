@@ -425,8 +425,8 @@ void ShaderObject::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
-                "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
+                "This object is a GLSL ( #version 120 ) container, capable of loading shaders and editing them in real-time. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
+                "https://mosaic.d3cod3.org/reference.php?r=glsl-shader", scaleFactor);
 
     // file dialog
     string newFileName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
