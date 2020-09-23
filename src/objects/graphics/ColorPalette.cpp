@@ -37,10 +37,13 @@
 //--------------------------------------------------------------
 ColorPalette::ColorPalette() : PatchObject("color palette"){
 
-    this->numInlets  = 1;
+    this->numInlets  = 2;
     this->numOutlets = 1;
 
     _inletParams[0] = new vector<float>(); // base color
+    _inletParams[1] = new float();      // bang
+    *(float *)&_inletParams[1] = 0.0f;
+
     _outletParams[0] = new vector<float>(); // palette
 
     this->initInletsState();
@@ -62,6 +65,7 @@ void ColorPalette::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_ARRAY,"baseColor");
+    this->addInlet(VP_LINK_NUMERIC,"bang");
 
     this->addOutlet(VP_LINK_ARRAY,"palette");
 
@@ -95,6 +99,22 @@ void ColorPalette::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             baseColor.set(static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(0));
         }else if(static_cast<vector<float> *>(_inletParams[0])->size() == 3){
             baseColor.set(static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(1),static_cast<vector<float> *>(_inletParams[0])->at(2));
+        }
+    }
+
+    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0){
+        if(selectedGeneration == 0){
+            generateRandom(numColors);
+        }else if(selectedGeneration == 1){
+            generateMonoChromatic((ColorChannel)selectedChannel,numColors);
+        }else if(selectedGeneration == 2){
+            generateComplementary((ColorChannel)selectedChannel,numColors);
+        }else if(selectedGeneration == 3){
+            generateTriad();
+        }else if(selectedGeneration == 4){
+            generateComplementaryTriad();
+        }else if(selectedGeneration == 5){
+            generateAnalogous(numColors,spread);
         }
     }
 
@@ -135,6 +155,8 @@ void ColorPalette::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         {
 
             drawObjectNodeConfig();
+
+            this->configMenuWidth = ImGui::GetWindowWidth();
 
             ImGui::EndMenu();
         }
