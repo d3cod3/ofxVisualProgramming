@@ -184,6 +184,7 @@ public:
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
+    void                    setConfigmenuWidth(float cmw) { configMenuWidth = cmw; }
 
     // PUGG Plugin System
     static const int version = 1;

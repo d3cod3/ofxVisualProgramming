@@ -230,7 +230,7 @@ void VideoTransform::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            drawObjectNodeConfig();
+            drawObjectNodeConfig(); this->configMenuWidth = ImGui::GetWindowWidth();
 
             ImGui::EndMenu();
         }

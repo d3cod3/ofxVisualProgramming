@@ -146,7 +146,7 @@ void OscReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         {
 
             if(loaded && osc_receiver.isListening()){
-                drawObjectNodeConfig();
+                drawObjectNodeConfig(); this->configMenuWidth = ImGui::GetWindowWidth();
             }
 
 

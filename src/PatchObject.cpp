@@ -65,7 +65,7 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     y           = 0.0f;
     fontSize    = 12;
 
-    configMenuWidth     = 246.0f;
+    configMenuWidth     = 360.0f;
 
     canvasScale         = 1;
     scaleFactor         = 1.0f;

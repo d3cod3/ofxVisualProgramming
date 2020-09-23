@@ -167,7 +167,7 @@ void pdspResonant2PoleFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanva
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            drawObjectNodeConfig();
+            drawObjectNodeConfig(); this->configMenuWidth = ImGui::GetWindowWidth();
 
             ImGui::EndMenu();
         }
