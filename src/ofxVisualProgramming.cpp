@@ -61,6 +61,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     lastAddedObjectID       = -1;
     bLoadingNewObject       = false;
     bLoadingNewPatch        = false;
+    clearingObjectsMap      = false;
 
     livePatchingObiID       = -1;
 
@@ -175,43 +176,16 @@ void ofxVisualProgramming::update(){
     }
 
     // Sound Context
-    unique_lock<std::mutex> lock(inputAudioMutex);
+    /*unique_lock<std::mutex> lock(inputAudioMutex);
     {
 
-    }
+    }*/
 
     // Clear map from deleted objects
-    if(ofGetElapsedTimeMillis()-resetTime > wait){
-        resetTime = ofGetElapsedTimeMillis();
-        eraseIndexes.clear();
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(it->second->getWillErase()){
-                eraseIndexes.push_back(it->first);
+    clearObjectsMap();
 
-            }
-        }
-        for(int x=0;x<static_cast<int>(eraseIndexes.size());x++){
-            for(int p=0;p<static_cast<int>(patchObjects.at(eraseIndexes.at(x))->outPut.size());p++){
-                patchObjects[patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toObjectID]->inletsConnected.at(patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toInletID) = false;
-            }
 
-            // remove scripts objects filepath reference from scripts objects files map
-            ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
-            string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                if (sofpIT != scriptsObjectsFilesPaths.end()){
-                    // found it, remove it
-                    scriptsObjectsFilesPaths.erase(sofpIT);
-                }
-            }
-
-            patchObjects.at(eraseIndexes.at(x))->removeObjectContent(true);
-            patchObjects.erase(eraseIndexes.at(x));
-        }
-
-    }
-
+    // update patch objects
     if(!bLoadingNewPatch && !patchObjects.empty()){
         // left to right computing order
         leftToRightIndexOrder.clear();
@@ -254,6 +228,8 @@ void ofxVisualProgramming::updateCanvasViewport(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::draw(){
+
+    if(bLoadingNewPatch) return;
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
@@ -367,6 +343,7 @@ void ofxVisualProgramming::draw(){
 
     // Graphical Context
     canvas.update();
+
 
 }
 
@@ -553,6 +530,8 @@ void ofxVisualProgramming::keyReleased(ofKeyEventArgs &e){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChannels){
+
+    if(bLoadingNewPatch) return;
 
     if(audioSampleRate != 0 && dspON){
 
@@ -853,6 +832,48 @@ void ofxVisualProgramming::deleteObject(int id){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::clearObjectsMap(){
+    if(ofGetElapsedTimeMillis()-resetTime > wait){
+        resetTime = ofGetElapsedTimeMillis();
+        eraseIndexes.clear();
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(it->second->getWillErase()){
+                eraseIndexes.push_back(it->first);
+            }
+        }
+        for(int x=0;x<static_cast<int>(eraseIndexes.size());x++){
+
+            if(!clearingObjectsMap){
+                for(int p=0;p<static_cast<int>(patchObjects.at(eraseIndexes.at(x))->outPut.size());p++){
+                    patchObjects[patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toObjectID]->inletsConnected.at(patchObjects.at(eraseIndexes.at(x))->outPut.at(p)->toInletID) = false;
+                }
+            }
+
+            // remove scripts objects filepath reference from scripts objects files map
+            ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
+            string fileExt = ofToUpper(tempsofp.getExtension());
+            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                if (sofpIT != scriptsObjectsFilesPaths.end()){
+                    // found it, remove it
+                    scriptsObjectsFilesPaths.erase(sofpIT);
+                }
+            }
+
+            patchObjects.at(eraseIndexes.at(x))->removeObjectContent(true);
+            patchObjects.erase(eraseIndexes.at(x));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+
+        if(clearingObjectsMap){
+            clearingObjectsMap = false;
+            openPatch(currentPatchFile);
+        }
+
+    }
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::removeObject(int &id){
     resetTime = ofGetElapsedTimeMillis();
 
@@ -1066,12 +1087,10 @@ void ofxVisualProgramming::newPatch(){
     ofFile fileToRead(ofToDataPath("empty_patch.xml",true));
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
+
     newFileCounter++;
 
-    currentPatchFile = newPatchFile.getAbsolutePath();
-    openPatch(currentPatchFile);
-
-    tempPatchFile = currentPatchFile;
+    preloadPatch(newPatchFile.getAbsolutePath());
 
 }
 
@@ -1089,10 +1108,29 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 
     newFileCounter++;
 
-    currentPatchFile = newPatchFile.getAbsolutePath();
-    openPatch(currentPatchFile);
+    preloadPatch(newPatchFile.getAbsolutePath());
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::preloadPatch(string patchFile){
+    currentPatchFile = patchFile;
     tempPatchFile = currentPatchFile;
+    // clear previous patch
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->second->getName() != "audio device"){
+            it->second->setWillErase(true);
+        }else{
+            for(int in=0;in<it->second->getNumInlets();in++){
+                it->second->inletsConnected[in] = false;
+                it->second->pdspIn[in].disconnectIn();
+            }
+
+            it->second->outPut.clear();
+        }
+    }
+    resetTime = ofGetElapsedTimeMillis();
+    clearingObjectsMap = true;
 }
 
 //--------------------------------------------------------------
@@ -1108,13 +1146,6 @@ void ofxVisualProgramming::openPatch(string patchFile){
     if(!patchDataFolder.exists()){
         patchDataFolder.create();
     }
-
-    // clear previous patch
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->removeObjectContent();
-    }
-
-    patchObjects.clear();
 
     // load new patch
     loadPatch(currentPatchFile);
@@ -1243,67 +1274,70 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
         int totalObjects = XML.getNumTags("object");
 
-        // Load all the patch objects
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                string objname = XML.getValue("name","");
-                bool loaded = false;
+        if(totalObjects > 0){
+            // Load all the patch objects
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    string objname = XML.getValue("name","");
+                    bool loaded = false;
 
-                shared_ptr<PatchObject> tempObj = selectObject(objname);
-                if(tempObj != nullptr){
-                    loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
-                    if(loaded){
-                        tempObj->setPatchfile(currentPatchFile);
-                        tempObj->setIsRetina(isRetina);
-                        ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
-                        ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
-                        ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
-                        ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
-                        // Insert the new patch into the map
-                        patchObjects[tempObj->getId()] = tempObj;
-                        actualObjectID = tempObj->getId();
-                        lastAddedObjectID = tempObj->getId();
+                    shared_ptr<PatchObject> tempObj = selectObject(objname);
+                    if(tempObj != nullptr){
+                        ofLog(OF_LOG_NOTICE,"BEFORE LOADING OBJECT CONFIG....");
+                        loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
+                        ofLog(OF_LOG_NOTICE,"AFTER LOADING OBJECT CONFIG....");
+                        if(loaded){
+                            tempObj->setPatchfile(currentPatchFile);
+                            tempObj->setIsRetina(isRetina);
+                            ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
+                            ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
+                            ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
+                            ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
+                            // Insert the new patch into the map
+                            patchObjects[tempObj->getId()] = tempObj;
+                            actualObjectID = tempObj->getId();
+                            lastAddedObjectID = tempObj->getId();
 
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                    }
-                }
-                XML.popTag();
-            }
-        }
-
-        // Load Links
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                int fromID = XML.getValue("id", -1);
-                if (XML.pushTag("outlets")){
-                    int totalOutlets = XML.getNumTags("link");
-                    for(int j=0;j<totalOutlets;j++){
-                        if (XML.pushTag("link",j)){
-                            int linkType = XML.getValue("type", 0);
-                            int totalLinks = XML.getNumTags("to");
-                            for(int z=0;z<totalLinks;z++){
-                                if(XML.pushTag("to",z)){
-                                    int toObjectID = XML.getValue("id", 0);
-                                    int toInletID = XML.getValue("inlet", 0);
-
-                                    if(connect(fromID,j,toObjectID,toInletID,linkType)){
-                                        //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
-                                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                                    }
-
-                                    XML.popTag();
-                                }
-                            }
-                            XML.popTag();
+                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
                         }
                     }
-
                     XML.popTag();
                 }
-                XML.popTag();
+            }
+
+            // Load Links
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    int fromID = XML.getValue("id", -1);
+                    if (XML.pushTag("outlets")){
+                        int totalOutlets = XML.getNumTags("link");
+                        for(int j=0;j<totalOutlets;j++){
+                            if (XML.pushTag("link",j)){
+                                int linkType = XML.getValue("type", 0);
+                                int totalLinks = XML.getNumTags("to");
+                                for(int z=0;z<totalLinks;z++){
+                                    if(XML.pushTag("to",z)){
+                                        int toObjectID = XML.getValue("id", 0);
+                                        int toInletID = XML.getValue("inlet", 0);
+
+                                        if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                            //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                        }
+
+                                        XML.popTag();
+                                    }
+                                }
+                                XML.popTag();
+                            }
+                        }
+
+                        XML.popTag();
+                    }
+                    XML.popTag();
+                }
             }
         }
-
     }
 
     bLoadingNewPatch = false;

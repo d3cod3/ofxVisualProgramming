@@ -95,9 +95,11 @@ public:
     void            resetSpecificSystemObjects(string name);
     bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
+    void            clearObjectsMap();
 
     void            newPatch();
     void            newTempPatchFromFile(string patchFile);
+    void            preloadPatch(string patchFile);
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
     void            reloadPatch();
@@ -142,6 +144,7 @@ public:
     int                     lastAddedObjectID;
     bool                    bLoadingNewObject;
     bool                    bLoadingNewPatch;
+    bool                    clearingObjectsMap;
 
     // LOAD/SAVE
     string                  currentPatchFile;
