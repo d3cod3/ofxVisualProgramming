@@ -373,7 +373,7 @@ void ofxVisualProgramming::draw(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawInspector(){
 
-    ImGui::SetNextWindowSize(ImVec2(lastInspectorWidth,ofGetWindowHeight()-(26*scaleFactor)), ImGuiCond_Always );
+    ImGui::SetNextWindowSize(ImVec2(lastInspectorWidth,ofGetWindowHeight()-(46*scaleFactor)), ImGuiCond_Always );
     ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-lastInspectorWidth,26*scaleFactor), ImGuiCond_Always);
 
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
