@@ -1000,7 +1000,6 @@ void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>>
                 if(objectsSelected.at(j) == this->nId){
                     ofNotifyEvent(removeEvent, objectsSelected.at(j));
                     this->setWillErase(true);
-                    break;
                 }
             }
             objectsSelected.clear();

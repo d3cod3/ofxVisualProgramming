@@ -98,6 +98,8 @@ public:
     void            deleteObject(int id);
     void            clearObjectsMap();
 
+    string          getSubpatchParent(string subpatchName);
+
     void            newPatch();
     void            newTempPatchFromFile(string patchFile);
     void            preloadPatch(string patchFile);

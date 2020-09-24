@@ -58,6 +58,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     isRetina                = false;
     scaleFactor             = 1;
 
+    actualObjectID          = 0;
     lastAddedObjectID       = -1;
     bLoadingNewObject       = false;
     bLoadingNewPatch        = false;
@@ -74,7 +75,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     subpatchesTree[currentSubpatch] = rootBranch;
 
     resetTime               = ofGetElapsedTimeMillis();
-    wait                    = 2000;
+    wait                    = 1000;
 
     alphabet                = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY";
     newFileCounter          = 0;
@@ -888,6 +889,19 @@ void ofxVisualProgramming::clearObjectsMap(){
 }
 
 //--------------------------------------------------------------
+string ofxVisualProgramming::getSubpatchParent(string subpatchName){
+    for(map<string,vector<string>>::iterator it = subpatchesTree.begin(); it != subpatchesTree.end(); it++ ){
+        for(int s=0;s<it->second.size();s++){
+            if(it->second.at(s) == subpatchName){
+                return it->first;
+            }
+        }
+    }
+    // return root if subpatch searched do not exists
+    return "root";
+}
+
+//--------------------------------------------------------------
 void ofxVisualProgramming::removeObject(int &id){
     resetTime = ofGetElapsedTimeMillis();
 
@@ -1069,16 +1083,14 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
 
 //--------------------------------------------------------------
 bool ofxVisualProgramming::weAlreadyHaveObject(string name){
-    bool found = false;
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getName() == name){
-            found = true;
-            break;
+            return true;
         }
     }
 
-    return found;
+    return false;
 }
 
 //--------------------------------------------------------------
@@ -1131,6 +1143,8 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
     currentPatchFile = patchFile;
     tempPatchFile = currentPatchFile;
 
+    actualObjectID          = 0;
+
     // clear previous patch
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getName() != "audio device"){
@@ -1143,8 +1157,10 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
 
             it->second->outPut.clear();
 
-            glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-            it->second->move(temp.x,temp.y);
+            //glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+            //it->second->move(temp.x,temp.y);
+            it->second->setWillErase(true);
+
         }
     }
     resetTime = ofGetElapsedTimeMillis();
@@ -1358,6 +1374,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             }
         }
     }
+
+    activateDSP();
 
     bLoadingNewPatch = false;
 
