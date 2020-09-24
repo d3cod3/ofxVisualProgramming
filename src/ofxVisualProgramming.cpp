@@ -1120,6 +1120,7 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 void ofxVisualProgramming::preloadPatch(string patchFile){
     currentPatchFile = patchFile;
     tempPatchFile = currentPatchFile;
+
     // clear previous patch
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getName() != "audio device"){
@@ -1131,6 +1132,9 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
             }
 
             it->second->outPut.clear();
+
+            glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+            it->second->move(temp.x,temp.y);
         }
     }
     resetTime = ofGetElapsedTimeMillis();
@@ -1141,6 +1145,9 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
 void ofxVisualProgramming::openPatch(string patchFile){
 
     bLoadingNewPatch = true;
+
+    // reset subpatch level
+    currentSubpatch = "root";
 
     currentPatchFile = patchFile;
     ofFile temp(currentPatchFile);
