@@ -34,13 +34,15 @@
 
 //--------------------------------------------------------------
 PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUID) {
-    nId             = -1;
-    name            = "none";
-    filepath        = "none";
-    patchFile       = "";
-    patchFolderPath = "";
+    nId                 = -1;
+    name                = "none";
+    filepath            = "none";
+    patchFile           = "";
+    patchFolderPath     = "";
 
     specialLinkTypeName = "";
+
+    subpatchName        = "root";
 
     numInlets   = 0;
     numOutlets  = 0;
@@ -511,6 +513,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
             nId = XML.getValue("id", 0);
             name = XML.getValue("name","none");
             filepath = XML.getValue("filepath","none");
+            subpatchName = XML.getValue("subpatch","root");
 
             move(XML.getValue("position:x", 0),XML.getValue("position:y", 0));
 
@@ -601,6 +604,8 @@ bool PatchObject::saveConfig(bool newConnection){
                         XML.setValue("name",name);
                         XML.addTag("filepath");
                         XML.setValue("filepath",filepath);
+                        XML.addTag("subpatch");
+                        XML.setValue("subpatch",subpatchName);
                         XML.addTag("position");
                         XML.setValue("position:x",static_cast<double>(x));
                         XML.setValue("position:y",static_cast<double>(y));
@@ -656,6 +661,7 @@ bool PatchObject::saveConfig(bool newConnection){
                     if(XML.pushTag("object", i)){
                         if(XML.getValue("id", -1) == nId){
                             XML.setValue("filepath",filepath);
+                            XML.setValue("subpatch",subpatchName);
                             XML.setValue("position:x",static_cast<double>(x));
                             XML.setValue("position:y",static_cast<double>(y));
 

@@ -68,6 +68,11 @@ ofxVisualProgramming::ofxVisualProgramming(){
     currentPatchFile        = "empty_patch.xml";
     currentPatchFolderPath  = ofToDataPath("temp/");
 
+    currentSubpatch         = "root";
+
+    vector<string> rootBranch;
+    subpatchesTree[currentSubpatch] = rootBranch;
+
     resetTime               = ofGetElapsedTimeMillis();
     wait                    = 2000;
 
@@ -175,12 +180,6 @@ void ofxVisualProgramming::update(){
         }
     }
 
-    // Sound Context
-    /*unique_lock<std::mutex> lock(inputAudioMutex);
-    {
-
-    }*/
-
     // Clear map from deleted objects
     clearObjectsMap();
 
@@ -198,20 +197,22 @@ void ofxVisualProgramming::update(){
         ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
 
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-            pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
-            pt[i].startTime = ofGetElapsedTimef();
-            pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
-            patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
-            pt[i].endTime = ofGetElapsedTimef();
+            if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
+                pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
+                pt[i].startTime = ofGetElapsedTimef();
+                pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+                patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
+                pt[i].endTime = ofGetElapsedTimef();
 
-            // update scripts objects files map
-            ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-            string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                if (sofpIT == scriptsObjectsFilesPaths.end()){
-                    // not found, insert it
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                // update scripts objects files map
+                ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+                string fileExt = ofToUpper(tempsofp.getExtension());
+                if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
+                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    if (sofpIT == scriptsObjectsFilesPaths.end()){
+                        // not found, insert it
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                    }
                 }
             }
         }
@@ -294,22 +295,24 @@ void ofxVisualProgramming::draw(){
         ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
 
-            pt[i].color = profiler.gpuGraph.colors[static_cast<unsigned int>(i%16)];
-            pt[i].startTime = ofGetElapsedTimef();
-            pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw";
+            if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
+                pt[i].color = profiler.gpuGraph.colors[static_cast<unsigned int>(i%16)];
+                pt[i].startTime = ofGetElapsedTimef();
+                pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw";
 
-            // LivePatchingObject hack, should not be handled by mosaic.
-            if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
-                livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
+                // LivePatchingObject hack, should not be handled by mosaic.
+                if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
+                    livePatchingObiID = patchObjects[leftToRightIndexOrder[i].second]->getId();
+                }
+
+                // Draw
+                patchObjects[leftToRightIndexOrder[i].second]->draw(font);
+                if(isCanvasVisible){
+                    patchObjects[leftToRightIndexOrder[i].second]->drawImGuiNode(nodeCanvas,patchObjects);
+                }
+
+                pt[i].endTime = ofGetElapsedTimef();
             }
-
-            // Draw
-            patchObjects[leftToRightIndexOrder[i].second]->draw(font);
-            if(isCanvasVisible){
-                patchObjects[leftToRightIndexOrder[i].second]->drawImGuiNode(nodeCanvas,patchObjects);
-            }
-
-            pt[i].endTime = ofGetElapsedTimef();
 
         }
 
@@ -374,7 +377,7 @@ void ofxVisualProgramming::drawInspector(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawLivePatchingSession(){
-    if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1){
+    if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1 && currentSubpatch == "root"){
         if(patchObjects[livePatchingObiID]->inletsConnected[0] && static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->isAllocated()){
             float lpDrawW, lpDrawH, lpPosX, lpPosY;
             if(static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth() >= static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight()){   // horizontal texture
@@ -596,6 +599,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     tempObj->setupDSP(*engine);
     tempObj->move(static_cast<int>(pos.x-(OBJECT_STANDARD_WIDTH/2*scaleFactor)),static_cast<int>(pos.y-(OBJECT_STANDARD_HEIGHT/2*scaleFactor)));
     tempObj->setIsRetina(isRetina);
+    tempObj->setSubpatch(currentSubpatch);
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
     ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
     ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
@@ -1283,9 +1287,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
                     shared_ptr<PatchObject> tempObj = selectObject(objname);
                     if(tempObj != nullptr){
-                        ofLog(OF_LOG_NOTICE,"BEFORE LOADING OBJECT CONFIG....");
                         loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
-                        ofLog(OF_LOG_NOTICE,"AFTER LOADING OBJECT CONFIG....");
                         if(loaded){
                             tempObj->setPatchfile(currentPatchFile);
                             tempObj->setIsRetina(isRetina);

@@ -134,17 +134,20 @@ public:
     pugg::Kernel            plugins_kernel;
 
     // PATCH OBJECTS
-    map<int,shared_ptr<PatchObject>>   patchObjects;
-    map<string,string>      scriptsObjectsFilesPaths;
-    vector<pair<int,int>>   leftToRightIndexOrder;
-    vector<int>             eraseIndexes;
+    map<int,shared_ptr<PatchObject>>    patchObjects;
+    map<string,string>                  scriptsObjectsFilesPaths;
+    vector<pair<int,int>>               leftToRightIndexOrder;
+    vector<int>                         eraseIndexes;
 
-    int                     selectedObjectID;
-    int                     actualObjectID;
-    int                     lastAddedObjectID;
-    bool                    bLoadingNewObject;
-    bool                    bLoadingNewPatch;
-    bool                    clearingObjectsMap;
+    map<string,vector<string>>          subpatchesTree;
+    string                              currentSubpatch;
+
+    int                                 selectedObjectID;
+    int                                 actualObjectID;
+    int                                 lastAddedObjectID;
+    bool                                bLoadingNewObject;
+    bool                                bLoadingNewPatch;
+    bool                                clearingObjectsMap;
 
     // LOAD/SAVE
     string                  currentPatchFile;

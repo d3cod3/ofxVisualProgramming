@@ -185,6 +185,7 @@ public:
     void                    setWillErase(bool e) { willErase = e; }
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
     void                    setConfigmenuWidth(float cmw) { configMenuWidth = cmw; }
+    void                    setSubpatch(string sp) { subpatchName = sp; }
 
     // PUGG Plugin System
     static const int version = 1;
@@ -196,18 +197,24 @@ public:
     vector<int>                         objectsSelected;
     vector<bool>                        inletsConnected;
 
+    // subpatch vars
+    string                              subpatchName;
+
+    // inlets/outlets
     void                                *_inletParams[MAX_INLETS];
     void                                *_outletParams[MAX_OUTLETS];
 
+    // PDSP nodes
     map<int,pdsp::PatchNode>            pdspIn;
     map<int,pdsp::PatchNode>            pdspOut;
 
-    ofEvent<int>            resetEvent;
-    ofEvent<int>            removeEvent;
-    ofEvent<int>            reconnectOutletsEvent;
-    ofEvent<int>            duplicateEvent;
+    // events
+    ofEvent<int>                        resetEvent;
+    ofEvent<int>                        removeEvent;
+    ofEvent<int>                        reconnectOutletsEvent;
+    ofEvent<int>                        duplicateEvent;
 
-    string                  specialLinkTypeName;
+    string                              specialLinkTypeName;
 
 protected:
 
