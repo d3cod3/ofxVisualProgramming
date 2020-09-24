@@ -344,6 +344,9 @@ void ofxVisualProgramming::draw(){
     ofPopStyle();
     ofPopView();
 
+    // Draw Subpatch Navigation
+    drawSubpatchNavigation();
+
     // Graphical Context
     canvas.update();
 
@@ -394,6 +397,13 @@ void ofxVisualProgramming::drawLivePatchingSession(){
             ofSetColor(255,*(float *)&patchObjects[livePatchingObiID]->_outletParams[0]);
             static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->draw(lpPosX,lpPosY,lpDrawW,lpDrawH);
         }
+    }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::drawSubpatchNavigation(){
+    if(currentSubpatch != "root"){
+        // TODO
     }
 }
 

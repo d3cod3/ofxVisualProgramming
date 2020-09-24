@@ -64,6 +64,7 @@ public:
     void            draw();
     void            drawInspector();
     void            drawLivePatchingSession();
+    void            drawSubpatchNavigation();
     void            resetTempFolder();
     void            cleanPatchDataFolder();
     void            exit();
