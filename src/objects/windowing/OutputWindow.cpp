@@ -132,7 +132,6 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     settings.setSize(window_actual_width, window_actual_height);
 
     window = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
-    window->setWindowTitle("Projector"+ofToString(this->getId()));
     window->setVerticalSync(false);
     window->setWindowPosition(this->getCustomVar("OUTPUT_POSX"),this->getCustomVar("OUTPUT_POSY"));
 
@@ -164,6 +163,9 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+
+    window->setWindowTitle("output window | id: "+ofToString(this->getId()));
+
     if(needReset){
         needReset = false;
         resetOutputResolution();
@@ -710,6 +712,9 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
+
+    this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
+    this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
 }
 
 //--------------------------------------------------------------

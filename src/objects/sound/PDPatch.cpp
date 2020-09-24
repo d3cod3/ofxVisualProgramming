@@ -37,7 +37,7 @@
 #include "PDPatch.h"
 
 //--------------------------------------------------------------
-PDPatch::PDPatch() : PatchObject(){
+PDPatch::PDPatch() : PatchObject("pd patch"){
 
     this->numInlets  = 5;
     this->numOutlets = 5;
