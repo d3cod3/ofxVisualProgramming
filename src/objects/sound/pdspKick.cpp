@@ -37,11 +37,17 @@
 //--------------------------------------------------------------
 pdspKick::pdspKick() : PatchObject("kick"){
 
-    this->numInlets  = 1;
+    this->numInlets  = 4;
     this->numOutlets = 1;
 
     _inletParams[0] = new float();          // bang
     *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new float();          // osc freq
+    *(float *)&_inletParams[1] = 0.0f;
+    _inletParams[2] = new float();          // filter freq
+    *(float *)&_inletParams[2] = 0.0f;
+    _inletParams[3] = new float();          // filter res
+    *(float *)&_inletParams[3] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -58,7 +64,6 @@ pdspKick::pdspKick() : PatchObject("kick"){
     filterRes               = 0.168f;
 
     this->width *= 2.0f;
-    this->height *= 2.0f;
 
 }
 
@@ -67,8 +72,15 @@ void pdspKick::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_NUMERIC,"bang");
+    this->addInlet(VP_LINK_NUMERIC,"pitch");
+    this->addInlet(VP_LINK_NUMERIC,"filter frequency");
+    this->addInlet(VP_LINK_NUMERIC,"filter resonance");
 
-    this->addOutlet(VP_LINK_AUDIO,"envelopedSignal");
+    this->addOutlet(VP_LINK_AUDIO,"kick");
+
+    this->setCustomVar(oscFreq,"OSC_FREQ");
+    this->setCustomVar(filterFreq,"FILTER_FREQ");
+    this->setCustomVar(filterRes,"FILTER_RES");
 
 
 }
@@ -118,9 +130,25 @@ void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    if(this->inletsConnected[1]){
+        oscFreq = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
+    }
+
+    if(this->inletsConnected[2]){
+        filterFreq = ofClamp(*(float *)&_inletParams[2],0.0f, 8260.0f);
+    }
+
+    if(this->inletsConnected[3]){
+        filterRes = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+    }
+
 
     if(!loaded){
         loaded = true;
+
+        oscFreq     = this->getCustomVar("OSC_FREQ");
+        filterFreq  = this->getCustomVar("FILTER_FREQ");
+        filterRes   = this->getCustomVar("FILTER_RES");
     }
 }
 
@@ -151,19 +179,19 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2*scaleFactor));
-
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ", &oscFreq, 0.0f, 100.0f, 100.0f)){
             osc_freq_ctrl.set(pdsp::f2p(oscFreq));
+            this->setCustomVar(oscFreq,"OSC_FREQ");
         }
-        ImGui::SameLine();
-
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. FREQ", &filterFreq, 0.0f, 8260.0f, 2065.0f)){
             filter_freq_ctrl.set(pdsp::f2p(filterFreq));
+            this->setCustomVar(filterFreq,"FILTER_FREQ");
         }
-        ImGui::SameLine();
+        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. RES", &filterRes, 0.0f, 1.0f, 100.0f)){
             filter_res_ctrl.set(filterRes);
+            this->setCustomVar(filterRes,"FILTER_RES");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
@@ -175,8 +203,8 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void pdspKick::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
-                "Kick synth.",
-                "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
+                "A pretty simple kick synth.",
+                "https://mosaic.d3cod3.org/reference.php?r=kick", scaleFactor);
 }
 
 //--------------------------------------------------------------
