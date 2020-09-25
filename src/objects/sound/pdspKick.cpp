@@ -130,6 +130,13 @@ void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
 //--------------------------------------------------------------
 void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    // bang --> trigger envelope
+    if(this->inletsConnected[0]){
+        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
+    }else{
+        gate_ctrl.off();
+    }
+
     if(this->inletsConnected[1]){
         oscFreq = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
     }
@@ -233,12 +240,6 @@ void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 
-    // bang --> trigger envelope
-    if(this->inletsConnected[0]){
-        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
-    }else{
-        gate_ctrl.off();
-    }
 }
 
 OBJECT_REGISTER( pdspKick, "kick", OFXVP_OBJECT_CAT_SOUND)
