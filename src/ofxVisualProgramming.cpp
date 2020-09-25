@@ -555,8 +555,8 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
                 // compute audio input
                 if(!bLoadingNewPatch){
-                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                        it->second->audioIn(inputBuffer);
+                    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+                        patchObjects[leftToRightIndexOrder[i].second]->audioIn(inputBuffer);
                     }
                 }
 
@@ -567,8 +567,8 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             if(audioDevices[audioOUTDev].outputChannels > 0){
                 // compute audio output
                 if(!bLoadingNewPatch){
-                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                        it->second->audioOut(emptyBuffer);
+                    for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+                        patchObjects[leftToRightIndexOrder[i].second]->audioOut(emptyBuffer);
                     }
                 }
             }
