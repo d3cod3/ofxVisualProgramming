@@ -187,6 +187,9 @@ void ofxVisualProgramming::update(){
 
     // update patch objects
     if(!bLoadingNewPatch && !patchObjects.empty()){
+
+        std::lock_guard<std::mutex> lck(vp_mutex);
+
         // left to right computing order
         leftToRightIndexOrder.clear();
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
@@ -202,7 +205,9 @@ void ofxVisualProgramming::update(){
                 pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
                 pt[i].startTime = ofGetElapsedTimef();
                 pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+
                 patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
+
                 pt[i].endTime = ofGetElapsedTimef();
 
                 // update scripts objects files map
@@ -546,33 +551,27 @@ void ofxVisualProgramming::keyReleased(ofKeyEventArgs &e){
 void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChannels){
 
     if(bLoadingNewPatch) return;
+    if(bLoadingNewObject) return;
 
     if(audioSampleRate != 0 && dspON){
 
-        if(!bLoadingNewObject){
-            if(audioDevices[audioINDev].inputChannels > 0){
-                inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
+        std::lock_guard<std::mutex> lck(vp_mutex);
 
-                // compute audio input
-                if(!bLoadingNewPatch){
-                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                        it->second->audioIn(inputBuffer);
-                    }
-                }
+        if(audioDevices[audioINDev].inputChannels > 0){
+            inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
 
-
-                unique_lock<std::mutex> lock(inputAudioMutex);
-                lastInputBuffer = inputBuffer;
-            }
-            if(audioDevices[audioOUTDev].outputChannels > 0){
-                // compute audio output
-                if(!bLoadingNewPatch){
-                    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                        it->second->audioOut(emptyBuffer);
-                    }
-                }
+            // compute audio input
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                it->second->audioIn(inputBuffer);
             }
 
+            lastInputBuffer = inputBuffer;
+        }
+        if(audioDevices[audioOUTDev].outputChannels > 0){
+            // compute audio output
+            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                it->second->audioOut(emptyBuffer);
+            }
         }
 
     }

@@ -188,7 +188,6 @@ public:
     vector<int>             audioDevicesID_IN;
     vector<int>             audioDevicesID_OUT;
     ofSoundStream           soundStreamIN;
-    std::mutex              inputAudioMutex;
     ofSoundBuffer           lastInputBuffer;
     ofPolyline              inputBufferWaveform;
     int                     audioINDev;
@@ -206,4 +205,7 @@ public:
 
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
+
+    mutable ofMutex         vp_mutex;
+
 };
