@@ -100,7 +100,6 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
                     for(int i=0;i<128;i++){
                         midiOut.sendNoteOff(static_cast<int>(floor(*(float *)&_inletParams[1])),i,0);
                     }
-
                 }
 
                 lastNote = *(float *)&_inletParams[2];
@@ -163,7 +162,7 @@ void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PopStyleColor(1);
             ImGui::Spacing();
             ImGui::Text("Channel\nNote\nVelocity"); ImGui::SameLine();
-            ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*(float *)&_outletParams[1])),static_cast<int>(floor(*(float *)&_outletParams[2])),static_cast<int>(floor(*(float *)&_outletParams[3])));
+            ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*(float *)&_inletParams[1])),static_cast<int>(floor(*(float *)&_inletParams[2])),static_cast<int>(floor(*(float *)&_inletParams[3])));
         }
 
         _nodeCanvas.EndNodeContent();
@@ -192,7 +191,7 @@ void MidiSender::drawObjectNodeConfig(){
 
 
     ImGuiEx::ObjectInfo(
-                "Send data to a physical midi interface",
+                "Send data to a physical ( or virtual ) midi interface",
                 "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
 }
 
