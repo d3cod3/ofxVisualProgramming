@@ -170,6 +170,16 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         pathChanged(watcher.nextEvent());
     }
 
+    ///////////////////////////////////////////
+    // LUA SETUP
+    if(scriptLoaded && !isError){
+        if(!setupTrigger){
+            setupTrigger = true;
+            static_cast<LiveCoding *>(_outletParams[1])->lua.scriptSetup();
+        }
+    }
+    ///////////////////////////////////////////
+
     if(luaScriptLoaded){
         luaScriptLoaded = false;
         openScript(lastLuaScript);
@@ -196,10 +206,6 @@ void LuaScript::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRendere
     ///////////////////////////////////////////
     // LUA UPDATE
     if(scriptLoaded && !isError){
-        if(!setupTrigger){
-            setupTrigger = true;
-            static_cast<LiveCoding *>(_outletParams[1])->lua.scriptSetup();
-        }
 
         // receive external data
         if(this->inletsConnected[0]){
