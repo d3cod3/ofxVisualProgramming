@@ -239,7 +239,7 @@ void ProjectionMapping::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save mapping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".xml", "mappingSettings.xml", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "xml"){
+        if(fileDialog.ext != ".xml"){
             filepath += ".xml";
         }
         _mapping->saveMappingAs(filepath);
@@ -280,7 +280,7 @@ void ProjectionMapping::drawObjectNodeConfig(){
     if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save mapping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".xml", "mappingSettings.xml", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "xml"){
+        if(fileDialog.ext != ".xml"){
             filepath += ".xml";
         }
         _mapping->saveMappingAs(filepath);

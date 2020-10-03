@@ -220,7 +220,7 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".avi", "videoExport.avi", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "avi"){
+        if(fileDialog.ext != ".avi"){
             filepath += ".avi";
         }
         recorder.setOutputPath(filepath);
@@ -232,7 +232,7 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp4", "videoExport.mp4", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "mp4"){
+        if(fileDialog.ext != ".mp4"){
             filepath += ".mp4";
         }
         recorder.setOutputPath(filepath);
@@ -309,7 +309,7 @@ void VideoExporter::drawObjectNodeConfig(){
     if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".avi", "videoExport.avi", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "avi"){
+        if(fileDialog.ext != ".avi"){
             filepath += ".avi";
         }
         recorder.setOutputPath(filepath);
@@ -321,7 +321,7 @@ void VideoExporter::drawObjectNodeConfig(){
     if(ImGuiEx::getFileDialog(fileDialog, exportVideoFlag, "Export video", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp4", "videoExport.mp4", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "mp4"){
+        if(fileDialog.ext != ".mp4"){
             filepath += ".mp4";
         }
         recorder.setOutputPath(filepath);

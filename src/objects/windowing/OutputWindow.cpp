@@ -306,7 +306,7 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save warping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".json", "warpSettings.json", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "json"){
+        if(fileDialog.ext != ".json"){
             filepath += ".json";
         }
         warpController->saveSettings(filepath);
@@ -444,7 +444,7 @@ void OutputWindow::drawObjectNodeConfig(){
     if(ImGuiEx::getFileDialog(fileDialog, saveWarpingFlag, "Save warping settings as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".json", "warpSettings.json", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "json"){
+        if(fileDialog.ext != ".json"){
             filepath += ".json";
         }
         warpController->saveSettings(filepath);

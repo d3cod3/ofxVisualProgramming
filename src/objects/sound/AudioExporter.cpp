@@ -169,7 +169,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3", "audioExport.mp3", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "mp3"){
+        if(fileDialog.ext != ".mp3"){
             filepath += ".mp3";
         }
         recorder.setOutputPath(filepath);
@@ -181,7 +181,7 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3", "audioExport.mp3", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "mp3"){
+        if(fileDialog.ext != ".mp3"){
             filepath += ".mp3";
         }
         recorder.setOutputPath(filepath);
@@ -245,7 +245,7 @@ void AudioExporter::drawObjectNodeConfig(){
     if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3", "audioExport.mp3", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "mp3"){
+        if(fileDialog.ext != ".mp3"){
             filepath += ".mp3";
         }
         recorder.setOutputPath(filepath);
@@ -257,7 +257,7 @@ void AudioExporter::drawObjectNodeConfig(){
     if(ImGuiEx::getFileDialog(fileDialog, exportAudioFlag, "Export audio", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".mp3", "audioExport.mp3", scaleFactor)){
         filepath = fileDialog.selected_path;
         // check extension
-        if(fileDialog.ext != "mp3"){
+        if(fileDialog.ext != ".mp3"){
             filepath += ".mp3";
         }
         recorder.setOutputPath(filepath);
