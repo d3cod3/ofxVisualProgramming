@@ -537,14 +537,15 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
     ofBackground(0);
 
     ofPushStyle();
-    ofSetColor(255);
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         warpedTexture->begin();
         ofClear(0,0,0,255);
+        ofSetColor(255);
         static_cast<ofTexture *>(_inletParams[0])->draw(0,0,this->output_width,this->output_height);
         warpedTexture->end();
 
+        ofSetColor(255);
         if(useMapping && isFullscreen){
             warpController->getWarp(0)->draw(warpedTexture->getTexture());
         }else{
