@@ -22,6 +22,7 @@
 #endif
 #include "dirent_win.h"
 #include <windows.h>
+#include <direct.h>
 #else
 #include <dirent.h>
 #endif // defined (WIN32) || defined (_WIN32)
