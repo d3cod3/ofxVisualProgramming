@@ -265,7 +265,7 @@ void BashScript::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void BashScript::removeObjectContent(bool removeFileFromData){
     if(filepath != ofToDataPath("scripts/empty.sh",true) && removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 
     std::unique_lock<std::mutex> lck(mutex);

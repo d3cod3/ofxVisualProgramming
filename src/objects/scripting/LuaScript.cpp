@@ -417,7 +417,7 @@ void LuaScript::removeObjectContent(bool removeFileFromData){
     ///////////////////////////////////////////
 
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 

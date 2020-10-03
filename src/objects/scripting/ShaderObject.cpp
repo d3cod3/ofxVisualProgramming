@@ -443,7 +443,7 @@ void ShaderObject::drawObjectNodeConfig(){
 void ShaderObject::removeObjectContent(bool removeFileFromData){
 
     if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.exists() && removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
         //ofLog(OF_LOG_NOTICE,"%s",lastVertexShaderPath.c_str());
         /*if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
             removeFile(lastVertexShaderPath);

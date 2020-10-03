@@ -279,7 +279,7 @@ void PythonScript::removeObjectContent(bool removeFileFromData){
     script = ofxPythonObject::_None();
 
     if(removeFileFromData && filepath != ofToDataPath("scripts/empty.py",true)){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 
