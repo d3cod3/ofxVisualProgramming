@@ -1376,7 +1376,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
         }
     }
 
-    activateDSP();
+    #if !defined(TARGET_WIN32)
+        activateDSP();
+    #endif
 
     bLoadingNewPatch = false;
 
