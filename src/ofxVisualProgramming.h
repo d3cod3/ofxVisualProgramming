@@ -58,6 +58,7 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
+    void            setRetina(bool retina);
     void            setup(ofxImGui::Gui* guiRef = nullptr);
     void            update();
     void            updateCanvasViewport();
@@ -116,7 +117,7 @@ public:
 
     void            setIsHoverMenu(bool ish){ isHoverMenu = ish; }
     void            setIsHoverLogger(bool isl){ isHoverLogger = isl; }
-    void            setIsHoverCodeEditor(bool isl){ isHoverCodeEditor = isl; }
+    void            setIsHoverCodeEditor(bool isl){ isHoverCodeEditor = isl; }    
 
     // PATCH CANVAS
     ofxInfiniteCanvas               canvas;

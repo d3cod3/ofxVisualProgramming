@@ -102,20 +102,28 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
+void ofxVisualProgramming::setRetina(bool retina){
+    isRetina = retina;
 
-    // Load resources
-    font->setup(MAIN_FONT,1.0,2048,true,8,3.0f);
-
-    // Check retina screens
-    if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
-        isRetina = true;
+    if(isRetina){
         scaleFactor = 2;
         fontSize    = 26;
+        canvas.setScale(2);
+    }else{
+        scaleFactor = 1;
+        fontSize    = 12;
     }
 
     nodeCanvas.setRetina(isRetina);
     profiler.setIsRetina(isRetina);
+
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
+
+    // Load resources
+    font->setup(MAIN_FONT,1.0,2048,true,8,3.0f);
 
     // Initialise GUI
     if( _guiRef == nullptr ){
@@ -173,17 +181,11 @@ void ofxVisualProgramming::update(){
     // canvas init
     if(!inited){
         inited = true;
-        canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
-
-        // RETINA FIX
-        if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
-            canvas.setScale(2);
-        }
+        //canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
     }
 
     // Clear map from deleted objects
     clearObjectsMap();
-
 
     // update patch objects
     if(!bLoadingNewPatch && !patchObjects.empty()){
