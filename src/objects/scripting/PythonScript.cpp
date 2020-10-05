@@ -250,7 +250,7 @@ void PythonScript::drawObjectNodeConfig(){
 
 
     ImGuiEx::ObjectInfo(
-                "Load and run a python ( 2.7 ) script files. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
+                "Load and run a python ( 2.7 on osx, 3.8 on linux ) script files. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
 
     // file dialog
@@ -297,7 +297,7 @@ void PythonScript::loadScript(string scriptFile){
     string tempstring = mosaicTableName+" = [];\n"+mosaicTableName+".append(0)";
     python.executeString(tempstring);
     // tabs and newlines are really important in python!
-    tempstring = "def _updateMosaicData( i,data ):\n\t if len("+mosaicTableName+") < i:\n\t\t"+mosaicTableName+".append(0)\n\t elif 0 <= i < len("+mosaicTableName+"):\n\t\t"+mosaicTableName+"[i] = data\n";
+    tempstring = "def _updateMosaicData( i,data ):\n\t if len("+mosaicTableName+") < i:\n\t\t "+mosaicTableName+".append(0)\n\t elif 0 <= i < len("+mosaicTableName+"):\n\t\t "+mosaicTableName+"[i] = data\n";
     python.executeString(tempstring);
 
     // inject outgoing data list to mosaic as vector<float>
