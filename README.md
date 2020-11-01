@@ -76,7 +76,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFontStash](https://github.com/d3cod3/ofxFontStash)
 
-#### [ofxGLEditor](https://github.com/d3cod3/ofxGLEditor)
+#### [ofxGLEditor](https://github.com/Akira-Hayasaka/ofxGLEditor)
 
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
 
@@ -86,7 +86,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxLua](https://github.com/d3cod3/ofxLua)
 
-#### [ofxMidi](https://github.com/d3cod3/ofxMidi)
+#### [ofxMidi](https://github.com/danomatika/ofxMidi)
 
 #### [ofxMtlMapping2D](https://github.com/d3cod3/ofxMtlMapping2D)
 
@@ -125,12 +125,12 @@ git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/d3cod3/ofxFontStash
-git clone https://github.com/d3cod3/ofxGLEditor
+git clone https://github.com/Akira-Hayasaka/ofxGLEditor
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
-git clone https://github.com/d3cod3/ofxMidi
+git clone https://github.com/danomatika/ofxMidi
 git clone https://github.com/d3cod3/ofxMtlMapping2D
 git clone https://github.com/d3cod3/ofxNDI
 git clone https://github.com/d3cod3/ofxPython
