@@ -524,7 +524,7 @@ void LuaScript::openScript(string scriptFile){
             tf.listDir(file.getEnclosingDirectory());
             for(int i = 0; i < (int)tf.size(); i++){
                 ofDirectory ttf(tf.getPath(i));
-                if(ttf.isDirectory()){
+                if(ttf.isDirectory() && tf.getName(i) != "data"){
                     filesystem::path tpa(this->patchFolderPath+tf.getName(i)+"/");
                     ttf.copyTo(tpa,false,false);
                     ttf.listDir();

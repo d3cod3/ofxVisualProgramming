@@ -208,7 +208,7 @@ void ImageLoader::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void ImageLoader::removeObjectContent(bool removeFileFromData){
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 

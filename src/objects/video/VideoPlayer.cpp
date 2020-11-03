@@ -431,7 +431,7 @@ void VideoPlayer::removeObjectContent(bool removeFileFromData){
         video->close();
     }
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 
