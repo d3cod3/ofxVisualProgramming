@@ -1,4 +1,5 @@
 #include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
@@ -46,6 +47,9 @@ namespace imgui_addons
         ext_box_width = -1.0f;
         col_width = 280.0f;
         min_size = ImVec2(500,300);
+        currentDir = 0;
+        standardButtonW = 90;
+        standardButtonH = 26;
 
         invfile_modal_id = "Invalid File!";
         repfile_modal_id = "Replace File?";
@@ -167,9 +171,9 @@ namespace imgui_addons
                 is_appearing = false;
             }
 
+            show_error |= renderInputTextAndExtRegion();
             show_error |= renderNavAndSearchBarRegion();
             show_error |= renderFileListRegion();
-            show_error |= renderInputTextAndExtRegion();
             show_error |= renderButtonsAndCheckboxRegion();
             
 
@@ -231,7 +235,8 @@ namespace imgui_addons
         ImGuiStyle& style = ImGui::GetStyle();
         bool show_error = false;
         float frame_height = ImGui::GetFrameHeight();
-        float list_item_height = GImGui->FontSize + style.ItemSpacing.y;
+        //float list_item_height = GImGui->FontSize + style.ItemSpacing.y;
+        std::string tmbFN, tmpSELFN;
 
         ImVec2 pw_content_size = ImGui::GetWindowSize() - style.WindowPadding * 2.0;
         ImVec2 sw_size = ImVec2(ImGui::CalcTextSize("Random").x + 140, style.WindowPadding.y * 2.0 + frame_height);
@@ -240,9 +245,47 @@ namespace imgui_addons
 
 
         ImGui::BeginChild("##NavigationWindow", nw_size, true, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.25f, 0.5f, 1.0f,1.0f));
 
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.882f, 0.745f, 0.078f,1.0f));
-        for(int i = 0; i < current_dirlist.size(); i++)
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.125f, 0.125f, 0.125f, 1.0f));
+        ImGui::Dummy(ImVec2(0*scaleFactor,6*scaleFactor)); ImGui::Dummy(ImVec2(2*scaleFactor,6*scaleFactor)); ImGui::SameLine();
+
+        // back button
+        if(ImGui::Button(ICON_FA_LESS_THAN,ImVec2(standardButtonH*scaleFactor,standardButtonH*scaleFactor))){
+            if(currentDir > 0) currentDir--;
+            show_error |= !(onNavigationButtonClick(currentDir));
+        }
+
+        ImGui::SameLine();
+
+        if(current_dirlist[currentDir] == "/"){
+            tmpSELFN = "\uf0a0 " + current_dirlist[currentDir];
+        }else{
+            tmpSELFN = "\uf07c " + current_dirlist[currentDir];
+        }
+        ImGui::PushItemWidth(-8*scaleFactor);
+        if(ImGui::BeginCombo("##NavBarDropBox", tmpSELFN.c_str())){
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.25f, 0.5f, 1.0f,1.0f));
+            for(int j = current_dirlist.size()-1; j >= 0; j--){
+                bool is_selected = (currentDir == j );
+                if(current_dirlist[j] == "/"){
+                    tmbFN = "\uf0a0 " + current_dirlist[j]; // ICON_FA_HDD
+                }else{
+                    tmbFN = "\uf07b " + current_dirlist[j]; // ICON_FA_FOLDER
+                }
+                if(ImGui::Selectable(tmbFN.c_str(), is_selected)){
+                    show_error |= !(onNavigationButtonClick(j));
+                    currentDir = j;
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::PopStyleColor();
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+        ImGui::PopStyleColor();
+
+        /*for(int i = 0; i < current_dirlist.size(); i++)
         {
             if( ImGui::Button(current_dirlist[i].c_str()) )
             {
@@ -300,7 +343,8 @@ namespace imgui_addons
                     ImGui::PopStyleColor(2);
                 }
             }
-        }
+        }*/
+
         ImGui::PopStyleColor();
         ImGui::EndChild();
 
@@ -309,6 +353,7 @@ namespace imgui_addons
 
         //Render Search/Filter bar
         float marker_width = ImGui::CalcTextSize("(?)").x + style.ItemSpacing.x;
+        ImGui::Dummy(ImVec2(2*scaleFactor,6*scaleFactor)); ImGui::Dummy(ImVec2(2*scaleFactor,6*scaleFactor)); ImGui::SameLine();
         if(filter.Draw("##SearchBar", sw_content_size.x - marker_width) || filter_dirty )
             filterFiles(filter_mode);
 
@@ -357,15 +402,19 @@ namespace imgui_addons
         ImGui::BeginChild("##ScrollingRegion", ImVec2(0, window_height), true, ImGuiWindowFlags_HorizontalScrollbar);
         ImGui::Columns(num_cols);
 
-        //Output directories in yellow
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.882f, 0.745f, 0.078f,1.0f));
+        //Output directories in gray
+
+        std::string tmpFN;
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.25f, 0.50f, 1.0f,1.0f));
         int items = 0;
         for (int i = 0; i < filtered_dirs.size(); i++)
         {
             if(!filtered_dirs[i]->is_hidden || show_hidden)
             {
                 items++;
-                if(ImGui::Selectable(filtered_dirs[i]->name.c_str(), selected_idx == i && is_dir, ImGuiSelectableFlags_AllowDoubleClick))
+                tmpFN = "\uf07b " + filtered_dirs[i]->name;
+                if(ImGui::Selectable(tmpFN.c_str(), selected_idx == i && is_dir, ImGuiSelectableFlags_AllowDoubleClick))
                 {
                     selected_idx = i;
                     is_dir = true;
@@ -425,7 +474,7 @@ namespace imgui_addons
 
     bool ImGuiFileBrowser::renderInputTextAndExtRegion()
     {
-        std::string label = (dialog_mode == DialogMode::SAVE) ? "Save As:" : "Open:";
+        //std::string label = (dialog_mode == DialogMode::SAVE) ? "Save As:" : "Open:";
         ImGuiStyle& style = ImGui::GetStyle();
         ImGuiIO& io = ImGui::GetIO();
 
@@ -434,10 +483,10 @@ namespace imgui_addons
         ImVec2 cursor_pos = ImGui::GetCursorPos();
 
         if(ext_box_width < 0.0)
-            ext_box_width = ImGui::CalcTextSize(".abc").x + 100;
-        float label_width = ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x;
+            ext_box_width = ImGui::CalcTextSize(".abc").x + 100*scaleFactor;
+        //float label_width = ImGui::CalcTextSize(label.c_str()).x + style.ItemSpacing.x;
         float frame_height_spacing = ImGui::GetFrameHeightWithSpacing();
-        float input_bar_width = pw_content_sz.x - label_width;
+        float input_bar_width = pw_content_sz.x;// - label_width;
         if(dialog_mode != DialogMode::SELECT)
             input_bar_width -= (ext_box_width + style.ItemSpacing.x);
 
@@ -445,8 +494,8 @@ namespace imgui_addons
         ImGui::SetCursorPosY(pw_content_sz.y - frame_height_spacing * 2.0f);
 
         //Render Input Text Bar label
-        ImGui::Text("%s", label.c_str());
-        ImGui::SameLine();
+        //ImGui::Text("%s", label.c_str());
+        //ImGui::SameLine();
 
         //Render Input Text Bar
         input_combobox_pos = ImVec2(pw_pos + ImGui::GetCursorPos());
@@ -517,16 +566,14 @@ namespace imgui_addons
         ImVec2 pw_size = ImGui::GetWindowSize();
         ImGuiStyle& style = ImGui::GetStyle();
         bool show_error = false;
-        float frame_height = ImGui::GetFrameHeight();
+        //float frame_height = ImGui::GetFrameHeight();
         float frame_height_spacing = ImGui::GetFrameHeightWithSpacing();
         float opensave_btn_width = getButtonSize("Open").x;     // Since both Open/Save are 4 characters long, width gonna be same.
         float selcan_btn_width = getButtonSize("Cancel").x;     // Since both Cancel/Select have same number of characters, so same width.
-        float newFolder_width = getButtonSize("New folder").x;
+        //float newFolder_width = getButtonSize("New folder").x;
         float buttons_xpos;
 
-        if (dialog_mode == DialogMode::SAVE){
-            buttons_xpos = pw_size.x - opensave_btn_width - selcan_btn_width - newFolder_width - ( 2.0 * style.ItemSpacing.x) - style.WindowPadding.x;
-        }else if(dialog_mode == DialogMode::OPEN){
+        if (dialog_mode == DialogMode::SAVE || dialog_mode == DialogMode::OPEN){
             buttons_xpos = pw_size.x - opensave_btn_width - selcan_btn_width - style.ItemSpacing.x - style.WindowPadding.x;
         }else if(dialog_mode == DialogMode::SELECT){
             buttons_xpos = pw_size.x - opensave_btn_width - (2.0 * selcan_btn_width) - ( 2.0 * style.ItemSpacing.x) - style.WindowPadding.x;
@@ -535,67 +582,73 @@ namespace imgui_addons
         ImGui::SetCursorPosY(pw_size.y - frame_height_spacing - style.WindowPadding.y);
 
         //Render Checkbox
-        float label_width = ImGui::CalcTextSize("Show Hidden Files and Folders").x + ImGui::GetCursorPosX() + frame_height;
+        /*float label_width = ImGui::CalcTextSize("Show Hidden Files and Folders").x + ImGui::GetCursorPosX() + frame_height;
         bool show_marker = (label_width >= buttons_xpos);
         ImGui::Checkbox( (show_marker) ? "##showHiddenFiles" : "Show Hidden Files and Folders", &show_hidden);
         if(show_marker)
         {
             ImGui::SameLine();
             showHelpMarker("Show Hidden Files and Folders");
-        }
+        }*/
 
         //Render an Open Button (in OPEN/SELECT dialog_mode) or Open/Save depending on what's selected in SAVE dialog_mode
-        ImGui::SameLine();
+        //ImGui::SameLine();
+
+        // New folder button
+        if (ImGui::Button(ICON_FA_FOLDER_PLUS "  New folder")){
+            newDirName = "";
+            ImGui::OpenPopup("New folder");
+        }
+
+        if(ImGui::BeginPopup("New folder")){
+
+            if(ImGui::InputText("##NewDirNameInput", &newDirName,ImGuiInputTextFlags_EnterReturnsTrue)){
+                if(newDirName != ""){
+                    // create directory
+                    std::string sPath = current_path+newDirName;
+                    #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
+                        _mkdir(sPath.c_str());
+                    #else
+                        mode_t nMode = 0733;
+                        mkdir(sPath.c_str(),nMode);
+                    #endif
+                    // refresh dir list
+                    readDIR(current_path);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Cancel")){
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Create")){
+                if(newDirName != ""){
+                    // create directory
+                    std::string sPath = current_path+newDirName;
+                    #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
+                        _mkdir(sPath.c_str());
+                    #else
+                        mode_t nMode = 0733;
+                        mkdir(sPath.c_str(),nMode);
+                    #endif
+                    // refresh dir list
+                    readDIR(current_path);
+                }
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+
+        }
+
         ImGui::SetCursorPosX(buttons_xpos);
-        if(dialog_mode == DialogMode::SAVE)
-        {
+        ImGui::SetCursorPosY(pw_size.y - frame_height_spacing - style.WindowPadding.y);
 
-            // New folder button
-            if (ImGui::Button("New folder")){
-                newDirName = "";
-                ImGui::OpenPopup("New folder");
-            }
+        //Render Cancel Button
+        if (ImGui::Button("Cancel"))
+            closeDialog();
 
-            if(ImGui::BeginPopup("New folder")){
-
-                if(ImGui::InputText("##NewDirNameInput", &newDirName,ImGuiInputTextFlags_EnterReturnsTrue)){
-                    if(newDirName != ""){
-                        // create directory
-                        std::string sPath = current_path+newDirName;
-                        #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
-                            _mkdir(sPath.c_str());
-                        #else
-                            mode_t nMode = 0733;
-                            mkdir(sPath.c_str(),nMode);
-                        #endif
-                        // refresh dir list
-                        readDIR(current_path);
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::SameLine();
-                if(ImGui::Button("Ok")){
-                    if(newDirName != ""){
-                        // create directory
-                        std::string sPath = current_path+newDirName;
-                        #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
-                            _mkdir(sPath.c_str());
-                        #else
-                            mode_t nMode = 0733;
-                            mkdir(sPath.c_str(),nMode);
-                        #endif
-                        // refresh dir list
-                        readDIR(current_path);
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::SameLine();
-                if(ImGui::Button("Cancel")){
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-
-            }
+        if(dialog_mode == DialogMode::SAVE){
 
             ImGui::SameLine();
 
@@ -610,42 +663,32 @@ namespace imgui_addons
                 selected_fn = input_fn_string;
                 validate_file = true;
             }
-        }
-        else
-        {
-            if (ImGui::Button("Open"))
-            {
+        }else{
+
+            ImGui::SameLine();
+            if (ImGui::Button("Open")){
                 //It's possible for both to be true at once (user selected directory but input bar has some text. In this case we chose to open the directory instead of opening the file.
                 //Also note that we don't need to access the selected file through "selected_idx" since the if a file is selected, input bar will get populated with that name.
-                if(selected_idx >= 0 && is_dir)
+                if(selected_idx >= 0 && is_dir){
                     show_error |= !(onDirClick(selected_idx));
-                else if(input_fn_string.size() > 0)
-                {
+                }else if(input_fn_string.size() > 0){
                     selected_fn = input_fn_string;
                     validate_file = true;
                 }
             }
 
             //Render Select Button if in SELECT Mode
-            if(dialog_mode == DialogMode::SELECT)
-            {
+            if(dialog_mode == DialogMode::SELECT){
                 //Render Select Button
                 ImGui::SameLine();
-                if (ImGui::Button("Select"))
-                {
-                    if(input_fn_string.size() > 0)
-                    {
+                if (ImGui::Button("Select")){
+                    if(input_fn_string.size() > 0){
                         selected_fn = input_fn_string;
                         validate_file = true;
                     }
                 }
             }
         }
-
-        //Render Cancel Button
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel"))
-            closeDialog();
 
         return show_error;
     }
@@ -818,6 +861,7 @@ namespace imgui_addons
                 current_dirlist.push_back(name);
 
              current_path = new_path;
+             currentDir = current_dirlist.size()-1;
              return true;
         }
         else
@@ -951,7 +995,7 @@ namespace imgui_addons
 
     void ImGuiFileBrowser::showHelpMarker(std::string desc)
     {
-        ImGui::TextDisabled("(?)");
+        ImGui::TextDisabled(ICON_FA_QUESTION_CIRCLE);
         if (ImGui::IsItemHovered())
         {
             ImGui::BeginTooltip();
@@ -964,7 +1008,7 @@ namespace imgui_addons
 
     void ImGuiFileBrowser::showErrorModal()
     {
-        ImVec2 window_size(260, 0);
+        ImVec2 window_size(260*scaleFactor, 0);
         ImGui::SetNextWindowSize(window_size);
 
         if (ImGui::BeginPopupModal(error_title.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize))
@@ -981,7 +1025,7 @@ namespace imgui_addons
 
     bool ImGuiFileBrowser::showReplaceFileModal()
     {
-        ImVec2 window_size(250, 0);
+        ImVec2 window_size(260*scaleFactor, 0);
         ImGui::SetNextWindowSize(window_size);
         bool ret_val = false;
         if (ImGui::BeginPopupModal(repfile_modal_id.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize))
@@ -1026,7 +1070,7 @@ namespace imgui_addons
         float frame_height = ImGui::GetFrameHeightWithSpacing();
         float cw_content_height = valid_exts.size() * frame_height;
         float cw_height = std::min(4.0f * frame_height, cw_content_height);
-        ImVec2 window_size(350, 0);
+        ImVec2 window_size(350*scaleFactor, 0);
         ImGui::SetNextWindowSize(window_size);
 
         if (ImGui::BeginPopupModal(invfile_modal_id.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize))
@@ -1064,7 +1108,7 @@ namespace imgui_addons
                 valid_exts.push_back(extension);
             }
         }
-        float min_width = ImGui::CalcTextSize(".abc").x + 100;
+        float min_width = ImGui::CalcTextSize(".abc").x + 100*scaleFactor;
         ext_box_width = std::max(min_width, ImGui::CalcTextSize(max_str.c_str()).x);
     }
 
@@ -1156,6 +1200,8 @@ namespace imgui_addons
             if(!path_element.empty())
                 current_dirlist.push_back(path_element);
         }
+
+        currentDir = current_dirlist.size()-1;
     }
 
     std::string ImGuiFileBrowser::wStringToString(const wchar_t* wchar_arr)

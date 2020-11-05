@@ -115,6 +115,9 @@ namespace imgui_addons
             std::vector<Info> subdirs;
             std::vector<Info> subfiles;
             std::string current_path, error_msg, error_title, invfile_modal_id, repfile_modal_id;
+            int currentDir;
+            int standardButtonW;
+            int standardButtonH;
 
             ImGuiTextFilter filter;
             std::string valid_types;
