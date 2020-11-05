@@ -66,7 +66,7 @@ inline void drawOFTexture(ofTexture* tex, float& _tw, float& _th, float& posX, f
     ImVec2 cursor_pos = ImGui::GetCursorPos();
     ImGui::SetCursorPos(ImVec2(posX,posY+IMGUI_EX_NODE_HEADER_HEIGHT));
 
-    ofxImGui::AddImage(*tex, ImVec2(drawW, drawH));
+    ofxImGui::AddImage(*tex, ofVec2f(drawW, drawH));
 
     ImGui::SetCursorPos(cursor_pos);
 

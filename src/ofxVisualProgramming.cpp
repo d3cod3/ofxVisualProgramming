@@ -248,7 +248,7 @@ void ofxVisualProgramming::draw(){
     ofPushMatrix();
 
     // Init canvas
-    nodeCanvas.SetTransform( canvas.getTranslation(), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
+    nodeCanvas.SetTransform( ImVec2(canvas.getTranslation().x,canvas.getTranslation().y), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
 
     // DEBUG
     if(OFXVP_DEBUG){
@@ -291,7 +291,7 @@ void ofxVisualProgramming::draw(){
 
     // Try to begin ImGui Canvas.
     // Should always return true, except if window is minimised or somehow not rendered.
-    ImGui::SetNextWindowPos(canvasViewport.getTopLeft(), ImGuiCond_Always );
+    ImGui::SetNextWindowPos(ImVec2(canvasViewport.getTopLeft().x,canvasViewport.getTopLeft().y), ImGuiCond_Always );
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
     bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
     if ( isCanvasVisible ){
