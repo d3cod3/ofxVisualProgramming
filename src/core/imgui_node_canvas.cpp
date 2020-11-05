@@ -363,6 +363,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                             //| ImGuiWindowFlags_AlwaysAutoResize
                             //| ImGuiWindowFlags_AlwaysUseWindowPadding
                             | ImGuiWindowFlags_NoFocusOnAppearing
+                            | ImGuiWindowFlags_NoDocking
                             );
     // Save draw context
     nodeDrawList = ImGui::GetWindowDrawList();
