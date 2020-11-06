@@ -115,10 +115,6 @@ public:
     void            activateDSP();
     void            deactivateDSP();
 
-    void            setIsHoverMenu(bool ish){ isHoverMenu = ish; }
-    void            setIsHoverLogger(bool isl){ isHoverLogger = isl; }
-    void            setIsHoverCodeEditor(bool isl){ isHoverCodeEditor = isl; }    
-
     // PATCH CANVAS
     ofxInfiniteCanvas               canvas;
     ofEasyCam                       easyCam;
@@ -129,13 +125,13 @@ public:
 
 
     // PATCH DRAWING RESOURCES
-    ofxFontStash            *font;
-    int                     fontSize;
-    bool                    isRetina;
-    int                     scaleFactor;
+    ofxFontStash                    *font;
+    int                             fontSize;
+    bool                            isRetina;
+    int                             scaleFactor;
 
     // PUGG external plugins objects
-    pugg::Kernel            plugins_kernel;
+    pugg::Kernel                    plugins_kernel;
 
     // PATCH OBJECTS
     map<int,shared_ptr<PatchObject>>    patchObjects;
@@ -154,51 +150,48 @@ public:
     bool                                clearingObjectsMap;
 
     // LOAD/SAVE
-    string                  currentPatchFile;
-    string                  currentPatchFolderPath;
-    string                  tempPatchFile;
-    int                     output_width;
-    int                     output_height;
-    string                  alphabet;
-    int                     newFileCounter;
+    string                              currentPatchFile;
+    string                              currentPatchFolderPath;
+    string                              tempPatchFile;
+    int                                 output_width;
+    int                                 output_height;
+    string                              alphabet;
+    int                                 newFileCounter;
 
     // SYSTEM
-    shared_ptr<ofAppGLFWWindow>     mainWindow;
-    bool                            profilerActive;
-    bool                            inspectorActive;
-    bool                            inited;
+    shared_ptr<ofAppGLFWWindow>         mainWindow;
+    bool                                profilerActive;
+    bool                                inspectorActive;
+    bool                                inited;
 
     // GUI
-    string                          inspectorTitle;
-    float                           lastInspectorWidth;
-    bool                            isHoverMenu;
-    bool                            isHoverLogger;
-    bool                            isHoverCodeEditor;
+    string                              inspectorTitle;
+    float                               lastInspectorWidth;
 
     // LIVE PATCHING
-    int                             livePatchingObiID;
+    int                                 livePatchingObiID;
 
     // Sound Stream
-    pdsp::Engine            *engine;
-    ofSoundBuffer           inputBuffer;
-    ofSoundBuffer           emptyBuffer;
+    pdsp::Engine                        *engine;
+    ofSoundBuffer                       inputBuffer;
+    ofSoundBuffer                       emptyBuffer;
 
-    vector<ofSoundDevice>   audioDevices;
-    vector<string>          audioDevicesStringIN;
-    vector<string>          audioDevicesStringOUT;
-    vector<int>             audioDevicesID_IN;
-    vector<int>             audioDevicesID_OUT;
-    ofSoundStream           soundStreamIN;
-    ofSoundBuffer           lastInputBuffer;
-    ofPolyline              inputBufferWaveform;
-    int                     audioINDev;
-    int                     audioOUTDev;
-    int                     audioGUIINIndex;
-    int                     audioGUIOUTIndex;
-    int                     audioSampleRate;
-    int                     audioBufferSize;
-    int                     bpm;
-    bool                    dspON;
+    vector<ofSoundDevice>               audioDevices;
+    vector<string>                      audioDevicesStringIN;
+    vector<string>                      audioDevicesStringOUT;
+    vector<int>                         audioDevicesID_IN;
+    vector<int>                         audioDevicesID_OUT;
+    ofSoundStream                       soundStreamIN;
+    ofSoundBuffer                       lastInputBuffer;
+    ofPolyline                          inputBufferWaveform;
+    int                                 audioINDev;
+    int                                 audioOUTDev;
+    int                                 audioGUIINIndex;
+    int                                 audioGUIOUTIndex;
+    int                                 audioSampleRate;
+    int                                 audioBufferSize;
+    int                                 bpm;
+    bool                                dspON;
 
     // MEMORY
     uint64_t                resetTime;
