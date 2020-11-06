@@ -164,10 +164,6 @@ public:
     bool                                inspectorActive;
     bool                                inited;
 
-    // GUI
-    string                              inspectorTitle;
-    float                               lastInspectorWidth;
-
     // LIVE PATCHING
     int                                 livePatchingObiID;
 

@@ -88,8 +88,6 @@ ofxVisualProgramming::ofxVisualProgramming(){
 
     profilerActive          = false;
     inspectorActive         = false;
-    inspectorTitle          = "";
-    lastInspectorWidth      = 0.0f;
 
     inited                  = false;
 
@@ -364,24 +362,24 @@ void ofxVisualProgramming::draw(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawInspector(){
 
-    ImGui::SetNextWindowSize(ImVec2(lastInspectorWidth,ofGetWindowHeight()-(46*scaleFactor)), ImGuiCond_Always );
-    ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-lastInspectorWidth,26*scaleFactor), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(ofGetWindowWidth()/4,ofGetWindowHeight()-(46*scaleFactor)), ImGuiCond_Appearing );
+    //ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-200,26*scaleFactor), ImGuiCond_Appearing);
 
-    if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
-        inspectorTitle = "Inspector | "+patchObjects[nodeCanvas.getActiveNode()]->getDisplayName()+" | id: "+ofToString(nodeCanvas.getActiveNode());
-    }else{
-        inspectorTitle = "Inspector";
-    }
-    ImGui::Begin(inspectorTitle.c_str(), 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoCollapse);
 
     // if object id exists
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
 
+        ImGui::Text("%s",patchObjects[nodeCanvas.getActiveNode()]->getDisplayName().c_str());
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Text("id: %s",ofToString(nodeCanvas.getActiveNode()).c_str());
+        ImGui::Spacing();
+        ImGui::Spacing();
+
         patchObjects[nodeCanvas.getActiveNode()]->drawImGuiNodeConfig();
 
-        lastInspectorWidth = patchObjects[nodeCanvas.getActiveNode()]->getConfigmenuWidth();
     }
-
 
     ImGui::End();
 }
