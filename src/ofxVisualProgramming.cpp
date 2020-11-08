@@ -284,7 +284,7 @@ void ofxVisualProgramming::draw(){
 
     // PROFILER
     if(profilerActive){
-        profiler.Render();
+        profiler.Render(&profilerActive);
     }
 
     // Try to begin ImGui Canvas.
