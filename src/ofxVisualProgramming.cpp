@@ -1372,11 +1372,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
             }
         }
-    }
 
-    #if !defined(TARGET_WIN32)
-        activateDSP();
-    #endif
+        #if !defined(TARGET_WIN32)
+            activateDSP();
+        #endif
+
+    }
 
     bLoadingNewPatch = false;
 
