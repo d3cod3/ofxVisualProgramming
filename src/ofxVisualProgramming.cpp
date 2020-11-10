@@ -85,6 +85,8 @@ ofxVisualProgramming::ofxVisualProgramming(){
     audioGUIOUTIndex        = -1;
     bpm                     = 120;
     dspON                   = false;
+    audioINDev              = 0;
+    audioOUTDev             = 0;
 
     profilerActive          = false;
     inspectorActive         = false;
