@@ -348,7 +348,7 @@ public:
 
         std::stringstream title;
         title.precision(2);
-        title << std::fixed << "Profiler [Rendering at " << 1.0f / avgFrameTime << "fps\t" << avgFrameTime * 1000.0f << "ms]###ProfilerWindow";
+        title << std::fixed << "\uf085  Profiler [Rendering at " << 1.0f / avgFrameTime << "fps\t" << avgFrameTime * 1000.0f << "ms]###ProfilerWindow";
         //###AnimatedTitle
         ImGui::Begin(title.str().c_str(), active, ImGuiWindowFlags_NoScrollbar);
         ImVec2 canvasSize = ImGui::GetContentRegionAvail();
