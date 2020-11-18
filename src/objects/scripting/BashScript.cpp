@@ -109,11 +109,11 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // Load script
     watcher.start();
-    if(filepath == "none"){
+    /*if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.sh"));
         filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-    }
+    }*/
 
     if(!isThreadRunning()){
         startThread();
@@ -134,11 +134,6 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
             reloadScript();
         }
     }
-
-    /*if(needToLoadScript){
-        needToLoadScript = false;
-        loadScript(filepath);
-    }*/
 
     // path watcher
     while(watcher.waitingEvents()) {
@@ -195,7 +190,7 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
+    /*string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
     if(ImGuiEx::getFileDialog(fileDialog, saveScriptFlag, "Save new bash script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".sh", newFileName, scaleFactor)){
         ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
         ofFile newBashFile (fileDialog.selected_path);
@@ -203,7 +198,7 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
         threadLoaded = false;
         reloadScript();
-    }
+    }*/
 
     if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
         ofFile bashFile (fileDialog.selected_path);
@@ -233,6 +228,47 @@ void BashScript::drawObjectNodeConfig(){
     if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveScriptFlag = true;
     }
+
+    if(saveScriptFlag){
+        newScriptName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
+        ImGui::OpenPopup("Save new bash script as");
+    }
+
+    if(ImGui::BeginPopup("Save new bash script as")){
+
+        if(ImGui::InputText("##NewFileNameInput", &newScriptName,ImGuiInputTextFlags_EnterReturnsTrue)){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
+                ofFile newBashFile (this->patchFolderPath+newScriptName);
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
+                filepath = this->patchFolderPath+newScriptName;
+                threadLoaded = false;
+                reloadScript();
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Cancel")){
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Create")){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
+                ofFile newBashFile (this->patchFolderPath+newScriptName);
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
+                filepath = this->patchFolderPath+newScriptName;
+                threadLoaded = false;
+                reloadScript();
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+
+    }
+
     ImGui::Spacing();
     if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadScriptFlag = true;
@@ -243,16 +279,6 @@ void BashScript::drawObjectNodeConfig(){
                 "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
 
-    // file dialog
-    string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
-    if(ImGuiEx::getFileDialog(fileDialog, saveScriptFlag, "Save new bash script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".sh", newFileName, scaleFactor)){
-        ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
-        ofFile newBashFile (fileDialog.selected_path);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
-        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
-        threadLoaded = false;
-        reloadScript();
-    }
 
     if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
         ofFile bashFile (fileDialog.selected_path);
@@ -264,10 +290,6 @@ void BashScript::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void BashScript::removeObjectContent(bool removeFileFromData){
-    if(filepath != ofToDataPath("scripts/empty.sh",true) && removeFileFromData){
-        //removeFile(filepath);
-    }
-
     std::unique_lock<std::mutex> lck(mutex);
     stopThread();
     condition.notify_all();
@@ -277,41 +299,45 @@ void BashScript::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void BashScript::loadScript(string scriptFile){
 
-    filepath = forceCheckMosaicDataPath(scriptFile);
-    currentScriptFile.open(filepath);
+    ofFile tmpf(scriptFile);
 
-    string cmd = "";
-    FILE *execFile;
+    if(tmpf.isFile() && ofToUpper(tmpf.getExtension()) == "SH"){
+        filepath = forceCheckMosaicDataPath(scriptFile);
+        currentScriptFile.open(filepath);
 
-    cmd = "sh "+filepath;
-    execFile = popen(cmd.c_str(), "r");
+        string cmd = "";
+        FILE *execFile;
 
-    if (execFile){
-        scriptLoaded = true;
-        watcher.removeAllPaths();
-        watcher.addPath(filepath);
+        cmd = "sh "+filepath;
+        execFile = popen(cmd.c_str(), "r");
 
-        ofLog(OF_LOG_NOTICE,"[verbose] bash script: %s RUNNING!",filepath.c_str());
-        ofLog(OF_LOG_NOTICE," ");
+        if (execFile){
+            scriptLoaded = true;
+            watcher.removeAllPaths();
+            watcher.addPath(filepath);
 
-        char buffer[128];
-        _outletParams[0] = new string();
-        *static_cast<string *>(_outletParams[0]) = "";
-        while(!feof(execFile)){
-            if(fgets(buffer, sizeof(buffer), execFile) != nullptr){
-                char *s = buffer;
-                std::string tempstr(s);
-                static_cast<string *>(_outletParams[0])->append(tempstr);
-                static_cast<string *>(_outletParams[0])->append(" ");
+            ofLog(OF_LOG_NOTICE,"[verbose] bash script: %s RUNNING!",filepath.c_str());
+            ofLog(OF_LOG_NOTICE," ");
+
+            char buffer[128];
+            _outletParams[0] = new string();
+            *static_cast<string *>(_outletParams[0]) = "";
+            while(!feof(execFile)){
+                if(fgets(buffer, sizeof(buffer), execFile) != nullptr){
+                    char *s = buffer;
+                    std::string tempstr(s);
+                    static_cast<string *>(_outletParams[0])->append(tempstr);
+                    static_cast<string *>(_outletParams[0])->append(" ");
+                }
             }
+            //ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
+            ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
+
+            this->saveConfig(false);
+
+            pclose(execFile);
+
         }
-        //ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
-        ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
-
-        this->saveConfig(false);
-
-        pclose(execFile);
-
     }
 
 }

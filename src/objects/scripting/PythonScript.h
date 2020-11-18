@@ -81,6 +81,7 @@ public:
     bool                isNewObject;
 
     imgui_addons::ImGuiFileBrowser          fileDialog;
+    string                                  newScriptName;
 
     ofImage             *pythonIcon;
     float               posX, posY, drawW, drawH;

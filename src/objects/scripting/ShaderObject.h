@@ -130,6 +130,7 @@ public:
     bool                oneBang;
 
     imgui_addons::ImGuiFileBrowser          fileDialog;
+    string                                  newScriptName;
 
     string              lastShaderScript;
     string              lastVertexShaderPath;

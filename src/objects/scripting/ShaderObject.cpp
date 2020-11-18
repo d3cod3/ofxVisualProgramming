@@ -100,7 +100,6 @@ void ShaderObject::newObject(){
 //--------------------------------------------------------------
 void ShaderObject::autoloadFile(string _fp){
     lastShaderScript = _fp;
-    //lastShaderScript = copyFileToPatchFolder(this->patchFolderPath,_fp);
     shaderScriptLoaded = true;
 }
 
@@ -117,13 +116,9 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // init path watcher
     watcher.start();
 
-    if(filepath == "none"){
-        currentScriptFile.open(ofToDataPath("scripts/empty.frag"));
-        //filepath = currentScriptFile.getAbsolutePath();
-        filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
-        isNewObject = true;
+    if(filepath != "none"){
+        loadScript(filepath);
     }
-    loadScript(filepath);
 
 }
 
@@ -153,7 +148,6 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         if (currentScriptFile.exists()){
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {
-                //filepath = currentScriptFile.getAbsolutePath();
                 filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
                 loadScript(filepath);
                 reloading = true;
@@ -177,20 +171,9 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         ofFile correctedFileToRead(checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"));
         currentScriptFile = correctedFileToRead;
         if (currentScriptFile.exists()){
-            string fileExtension = ofToUpper(currentScriptFile.getExtension());
-            if(fileExtension == "FRAG") {
-                // filepath = currentScriptFile.getAbsolutePath();
-                filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
-                loadScript(filepath);
-                reloading = true;
-            }else if(fileExtension == "VERT"){
-                string vsName = currentScriptFile.getFileName();
-                string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                filepath = fsName;
-                filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
-                loadScript(filepath);
-                reloading = true;
-            }
+            filepath = currentScriptFile.getAbsolutePath();
+            loadScript(filepath);
+            reloading = true;
         }
     }
 
@@ -355,11 +338,11 @@ void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    string newFileName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
+    /*string newFileName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
     if(ImGuiEx::getFileDialog(fileDialog, saveShaderScriptFlag, "Save new GLSL shader as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".frag", newFileName, scaleFactor)){
         lastShaderScript = fileDialog.selected_path;
         shaderScriptSaved = true;
-    }
+    }*/
 
     if(ImGuiEx::getFileDialog(fileDialog, loadShaderScriptFlag, "Select a GLSL shader", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".frag,.vert", "", scaleFactor)){
         lastShaderScript = fileDialog.selected_path;
@@ -390,6 +373,39 @@ void ShaderObject::drawObjectNodeConfig(){
     if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveShaderScriptFlag = true;
     }
+
+    if(saveShaderScriptFlag){
+        newScriptName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
+        ImGui::OpenPopup("Save new GLSL shader as");
+    }
+
+    if(ImGui::BeginPopup("Save new GLSL shader as")){
+
+        if(ImGui::InputText("##NewFileNameInput", &newScriptName,ImGuiInputTextFlags_EnterReturnsTrue)){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                lastShaderScript = this->patchFolderPath+newScriptName;
+                shaderScriptSaved = true;
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Cancel")){
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Create")){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                lastShaderScript = this->patchFolderPath+newScriptName;
+                shaderScriptSaved = true;
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+
+    }
+
     ImGui::Spacing();
     if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadShaderScriptFlag = true;
@@ -427,12 +443,6 @@ void ShaderObject::drawObjectNodeConfig(){
                 "https://mosaic.d3cod3.org/reference.php?r=glsl-shader", scaleFactor);
 
     // file dialog
-    string newFileName = "glslshader_"+ofGetTimestampString("%y%m%d")+".frag";
-    if(ImGuiEx::getFileDialog(fileDialog, saveShaderScriptFlag, "Save new GLSL shader as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".frag", newFileName, scaleFactor)){
-        lastShaderScript = fileDialog.selected_path;
-        shaderScriptSaved = true;
-    }
-
     if(ImGuiEx::getFileDialog(fileDialog, loadShaderScriptFlag, "Select a GLSL shader", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".frag,.vert", "", scaleFactor)){
         lastShaderScript = fileDialog.selected_path;
         shaderScriptLoaded = true;
@@ -441,14 +451,6 @@ void ShaderObject::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ShaderObject::removeObjectContent(bool removeFileFromData){
-
-    if(currentScriptFile.getAbsolutePath() != ofToDataPath("scripts/empty.frag",true) && currentScriptFile.exists() && removeFileFromData){
-        //removeFile(filepath);
-        //ofLog(OF_LOG_NOTICE,"%s",lastVertexShaderPath.c_str());
-        /*if(lastVertexShaderPath != ofToDataPath("scripts/empty.vert",true)){
-            removeFile(lastVertexShaderPath);
-        }*/
-    }
 
 }
 
@@ -665,7 +667,6 @@ void ShaderObject::loadScript(string scriptFile){
     oneBang = true;
 
     // Get FRAGMENT_SHADER
-    //filepath = copyFileToPatchFolder(this->patchFolderPath,scriptFile);
     filepath = scriptFile;
     // Check if we have VERTEX_SHADER too
     ofFile tempCurrentFrag(scriptFile);

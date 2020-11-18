@@ -75,6 +75,7 @@ public:
     string              lastMessage;
 
     imgui_addons::ImGuiFileBrowser          fileDialog;
+    string                                  newScriptName;
 
     ofImage             *bashIcon;
     float               posX, posY, drawW, drawH;

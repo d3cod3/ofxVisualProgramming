@@ -93,11 +93,11 @@ void PythonScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     python.init();
     watcher.start();
 
-    if(filepath == "none"){
+    /*if(filepath == "none"){
         isNewObject = true;
         ofFile file (ofToDataPath("scripts/empty.py"));
         filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-    }
+    }*/
 
 }
 
@@ -108,7 +108,7 @@ void PythonScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         pathChanged(watcher.nextEvent());
     }
 
-    if(needToLoadScript){
+    if(needToLoadScript && filepath != "none"){
         needToLoadScript = false;
         loadScript(filepath);
     }
@@ -192,7 +192,7 @@ void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
+    /*string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
     if(ImGuiEx::getFileDialog(fileDialog, savePythonScriptFlag, "Save new python script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".py", newFileName, scaleFactor)){
         lastPythonScript = fileDialog.selected_path;
 
@@ -201,7 +201,7 @@ void PythonScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
         filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
         reloadScript();
-    }
+    }*/
 
     if(ImGuiEx::getFileDialog(fileDialog, loadPythonScriptFlag, "Select a python script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".py", "", scaleFactor)){
         lastPythonScript = fileDialog.selected_path;
@@ -232,6 +232,45 @@ void PythonScript::drawObjectNodeConfig(){
     if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         savePythonScriptFlag = true;
     }
+
+    if(savePythonScriptFlag){
+        newScriptName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
+        ImGui::OpenPopup("Save new python script as");
+    }
+
+    if(ImGui::BeginPopup("Save new python script as")){
+
+        if(ImGui::InputText("##NewFileNameInput", &newScriptName,ImGuiInputTextFlags_EnterReturnsTrue)){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                ofFile fileToRead(ofToDataPath("scripts/empty.py"));
+                ofFile newPyFile (this->patchFolderPath+newScriptName);
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
+                filepath = this->patchFolderPath+newScriptName;
+                reloadScript();
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Cancel")){
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Create")){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                ofFile fileToRead(ofToDataPath("scripts/empty.py"));
+                ofFile newPyFile (this->patchFolderPath+newScriptName);
+                ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
+                filepath = this->patchFolderPath+newScriptName;
+                reloadScript();
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+
+    }
+
     ImGui::Spacing();
     if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadPythonScriptFlag = true;
@@ -254,17 +293,6 @@ void PythonScript::drawObjectNodeConfig(){
                 "https://mosaic.d3cod3.org/reference.php?r=python-script", scaleFactor);
 
     // file dialog
-    string newFileName = "pythonScript_"+ofGetTimestampString("%y%m%d")+".py";
-    if(ImGuiEx::getFileDialog(fileDialog, savePythonScriptFlag, "Save new python script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".py", newFileName, scaleFactor)){
-        lastPythonScript = fileDialog.selected_path;
-
-        ofFile fileToRead(ofToDataPath("scripts/empty.py"));
-        ofFile newPyFile (lastPythonScript);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"),true,true);
-        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newPyFile.getAbsolutePath(), ofToUpper(newPyFile.getExtension()), "PY"));
-        reloadScript();
-    }
-
     if(ImGuiEx::getFileDialog(fileDialog, loadPythonScriptFlag, "Select a python script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".py", "", scaleFactor)){
         lastPythonScript = fileDialog.selected_path;
 
@@ -277,10 +305,6 @@ void PythonScript::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void PythonScript::removeObjectContent(bool removeFileFromData){
     script = ofxPythonObject::_None();
-
-    if(removeFileFromData && filepath != ofToDataPath("scripts/empty.py",true)){
-        //removeFile(filepath);
-    }
 }
 
 //--------------------------------------------------------------

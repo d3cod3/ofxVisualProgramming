@@ -57,7 +57,6 @@ public:
     LuaScript();
 
     void            autoloadFile(string _fp) override;
-    void            autosaveNewFile(string fromFile) override;
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -73,11 +72,11 @@ public:
     void            initResolution();
 
     void            openScript(string scriptFile);
-    void            saveScript(string scriptFile);
+    void            newScript(string scriptFile);
     void            loadScript(string scriptFile);
     void            unloadScript();
     void            clearScript();
-    void            reloadScriptThreaded();
+    void            reloadScript();
 
     // Filepath watcher callback
     void            pathChanged(const PathWatcher::Event &event);
@@ -107,8 +106,8 @@ public:
     string              tempstring;
 
     imgui_addons::ImGuiFileBrowser          fileDialog;
+    string                                  newScriptName;
     string                                  lastLuaScript;
-    string                                  newFileFromFilepath;
     bool                                    loadLuaScriptFlag;
     bool                                    saveLuaScriptFlag;
     bool                                    luaScriptLoaded;

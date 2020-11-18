@@ -76,7 +76,6 @@ LuaScript::LuaScript() : PatchObject("lua script"){
     setupTrigger    = false;
 
     lastLuaScript       = "";
-    newFileFromFilepath = ofToDataPath("scripts/empty.lua");
     loadLuaScriptFlag   = false;
     saveLuaScriptFlag   = false;
     luaScriptLoaded     = false;
@@ -117,12 +116,6 @@ void LuaScript::autoloadFile(string _fp){
 }
 
 //--------------------------------------------------------------
-void LuaScript::autosaveNewFile(string fromFile){
-    newFileFromFilepath = fromFile;
-    saveScript(newFileFromFilepath);
-}
-
-//--------------------------------------------------------------
 void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     fileDialog.setIsRetina(this->isRetina);
@@ -147,19 +140,12 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     static_cast<LiveCoding *>(_outletParams[1])->lua.addListener(this);
     watcher.start();
 
-    if(filepath == "none"){
-        isNewObject = true;
-        ofFile file (ofToDataPath("scripts/empty.lua"));
-        //filepath = file.getAbsolutePath();
-        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-    }
-
 }
 
 //--------------------------------------------------------------
 void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(needToLoadScript){
+    if(needToLoadScript  && filepath != "none"){
         needToLoadScript = false;
         loadScript(filepath);
         setupTrigger = false;
@@ -187,7 +173,7 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
     if(luaScriptSaved){
         luaScriptSaved = false;
-        saveScript(lastLuaScript);
+        newScript(lastLuaScript);
     }
 
     if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
@@ -196,7 +182,7 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
-        reloadScriptThreaded();
+        reloadScript();
     }
 }
 
@@ -344,11 +330,11 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
+    /*string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
     if(ImGuiEx::getFileDialog(fileDialog, saveLuaScriptFlag, "Save new Lua script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".lua", newFileName, scaleFactor)){
         lastLuaScript = fileDialog.selected_path;
         luaScriptSaved = true;
-    }
+    }*/
 
     if(ImGuiEx::getFileDialog(fileDialog, loadLuaScriptFlag, "Select a lua script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".lua", "", scaleFactor)){
         lastLuaScript = fileDialog.selected_path;
@@ -376,6 +362,39 @@ void LuaScript::drawObjectNodeConfig(){
     if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveLuaScriptFlag = true;
     }
+
+    if(saveLuaScriptFlag){
+        newScriptName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
+        ImGui::OpenPopup("Save new lua script as");
+    }
+
+    if(ImGui::BeginPopup("Save new lua script as")){
+
+        if(ImGui::InputText("##NewFileNameInput", &newScriptName,ImGuiInputTextFlags_EnterReturnsTrue)){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                lastLuaScript = this->patchFolderPath+newScriptName;
+                luaScriptSaved = true;
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Cancel")){
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Create")){
+            if(newScriptName != ""){
+                // save file in data/ folder
+                lastLuaScript = this->patchFolderPath+newScriptName;
+                luaScriptSaved = true;
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+
+    }
+
     ImGui::Spacing();
     if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadLuaScriptFlag = true;
@@ -389,7 +408,7 @@ void LuaScript::drawObjectNodeConfig(){
     }
     ImGui::Spacing();
     if(ImGui::Button("Reload Script",ImVec2(224*scaleFactor,26*scaleFactor))){
-        reloadScriptThreaded();
+        reloadScript();
     }
 
     ImGuiEx::ObjectInfo(
@@ -397,12 +416,6 @@ void LuaScript::drawObjectNodeConfig(){
                 "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
 
     // file dialog
-    string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
-    if(ImGuiEx::getFileDialog(fileDialog, saveLuaScriptFlag, "Save new Lua script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".lua", newFileName, scaleFactor)){
-        lastLuaScript = fileDialog.selected_path;
-        luaScriptSaved = true;
-    }
-
     if(ImGuiEx::getFileDialog(fileDialog, loadLuaScriptFlag, "Select a lua script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".lua", "", scaleFactor)){
         lastLuaScript = fileDialog.selected_path;
         luaScriptLoaded = true;
@@ -415,10 +428,6 @@ void LuaScript::removeObjectContent(bool removeFileFromData){
     // LUA EXIT
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
     ///////////////////////////////////////////
-
-    if(removeFileFromData){
-        //removeFile(filepath);
-    }
 }
 
 //--------------------------------------------------------------
@@ -543,26 +552,25 @@ void LuaScript::openScript(string scriptFile){
             filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
             static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
             static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
-            reloadScriptThreaded();
+            reloadScript();
         }
     }
 }
 
 //--------------------------------------------------------------
-void LuaScript::saveScript(string scriptFile){
-    ofFile fileToRead(newFileFromFilepath);
+void LuaScript::newScript(string scriptFile){
+    ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
     ofFile newLuaFile (scriptFile);
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"),true,true);
-    filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"));
+    filepath = scriptFile;
     static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
     static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
-    reloadScriptThreaded();
+    reloadScript();
 }
 
 //--------------------------------------------------------------
 void LuaScript::loadScript(string scriptFile){
 
-    //filepath = forceCheckMosaicDataPath(scriptFile);
     currentScriptFile.open(filepath);
 
     static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
@@ -679,8 +687,7 @@ void LuaScript::clearScript(){
 }
 
 //--------------------------------------------------------------
-void LuaScript::reloadScriptThreaded(){
-    newFileFromFilepath = ofToDataPath("scripts/empty.lua");
+void LuaScript::reloadScript(){
 
     unloadScript();
 
@@ -698,7 +705,7 @@ void LuaScript::pathChanged(const PathWatcher::Event &event) {
         case PathWatcher::MODIFIED:
             //ofLogVerbose(PACKAGE) << "path modified " << event.path;
             filepath = event.path;
-            reloadScriptThreaded();
+            reloadScript();
             break;
         case PathWatcher::DELETED:
             //ofLogVerbose(PACKAGE) << "path deleted " << event.path;
