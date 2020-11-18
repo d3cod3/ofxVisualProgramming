@@ -155,11 +155,7 @@ void VideoPlayer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRende
             static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
             static_cast<ofTexture *>(_outletParams[0])->clear();
         }else{
-            #ifdef TARGET_OSX
-            *static_cast<ofTexture *>(_outletParams[0]) = video->getTexture();
-            #else
             static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
-            #endif
         }
 
         // listen to message control (_inletParams[0])
