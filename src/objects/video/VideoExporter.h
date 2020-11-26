@@ -83,8 +83,6 @@ public:
 protected:
 
     string                  recButtonLabel;
-    vector<string>          codecsList;
-    int                     selectedCodec;
 
 private:
 

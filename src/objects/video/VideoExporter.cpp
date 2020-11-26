@@ -58,8 +58,6 @@ VideoExporter::VideoExporter() :
     needToGrab          = false;
     exportVideoFlag     = false;
 
-    codecsList = {"hevc","libx264","jpeg2000","mjpeg","mpeg4"};
-    selectedCodec = 4;
     recButtonLabel = "REC";
 
     this->setIsTextureObj(true);
@@ -104,6 +102,7 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
         if(!recorder.isRecording()){
+            recorder.setVideoCodec("hevc");
             recorder.setBitRate(20000);
             recorder.startCustomRecord();
             recButtonLabel = "STOP";
@@ -275,6 +274,7 @@ void VideoExporter::drawObjectNodeConfig(){
         }else{
             if(!recorder.isRecording()){
                 recorder.setBitRate(20000);
+                recorder.setVideoCodec("hevc");
                 recorder.startCustomRecord();
                 recButtonLabel = "STOP";
                 ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
@@ -286,19 +286,6 @@ void VideoExporter::drawObjectNodeConfig(){
         }
     }
     ImGui::PopStyleColor(3);
-    ImGui::Spacing();
-    if(ImGui::BeginCombo("Codec", codecsList.at(selectedCodec).c_str() )){
-        for(int i=0; i < codecsList.size(); ++i){
-            bool is_selected = (selectedCodec == i );
-            if (ImGui::Selectable(codecsList.at(i).c_str(), is_selected)){
-                selectedCodec = i;
-                recorder.setVideoCodec(codecsList.at(selectedCodec));
-            }
-            if (is_selected) ImGui::SetItemDefaultFocus();
-        }
-
-        ImGui::EndCombo();
-    }
 
     ImGuiEx::ObjectInfo(
                 "Export video from every texture cable (blue ones). You can choose the video codec: mpeg4, mjpeg, jpg2000, libx264, or hevc.",
@@ -313,6 +300,7 @@ void VideoExporter::drawObjectNodeConfig(){
             filepath += ".avi";
         }
         recorder.setOutputPath(filepath);
+        recorder.setVideoCodec("hevc");
         // prepare blank video file
         recorder.startCustomRecord();
         recorder.stop();
@@ -325,6 +313,7 @@ void VideoExporter::drawObjectNodeConfig(){
             filepath += ".mp4";
         }
         recorder.setOutputPath(filepath);
+        recorder.setVideoCodec("hevc");
         // prepare blank video file
         recorder.startCustomRecord();
         recorder.stop();
