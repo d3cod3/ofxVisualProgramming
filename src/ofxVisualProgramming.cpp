@@ -367,7 +367,7 @@ void ofxVisualProgramming::drawInspector(){
     ImGui::SetNextWindowSize(ImVec2(ofGetWindowWidth()/4,ofGetWindowHeight()/2), ImGuiCond_Appearing );
     //ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-200,26*scaleFactor), ImGuiCond_Appearing);
 
-    ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin("Inspector", &inspectorActive, ImGuiWindowFlags_NoCollapse);
 
     // if object id exists
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
