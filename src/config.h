@@ -44,10 +44,6 @@
     #define MOD_KEY OF_KEY_CONTROL
 #endif
 
-
-#define RETINA_MIN_WIDTH                    2560
-#define RETINA_MIN_HEIGHT                   1600
-
 #define OUTPUT_TEX_MAX_WIDTH                4800
 #define OUTPUT_TEX_MAX_HEIGHT               4800
 

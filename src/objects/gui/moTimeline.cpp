@@ -119,7 +119,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     settings.resizable = true;
     settings.stencilBits = 0;
     // RETINA FIX
-    if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
+    if(mainWindow->getPixelScreenCoordScale() > 1){
         settings.setPosition(ofDefaultVec2(mainWindow->getScreenSize().x-(1600+100),400));
         settings.setSize(1600, 1200);
     }else{
@@ -816,7 +816,7 @@ void moTimeline::toggleWindowFullscreen(){
     window->toggleFullscreen();
 
     if(!isFullscreen){
-        if(ofGetScreenWidth() >= RETINA_MIN_WIDTH && ofGetScreenHeight() >= RETINA_MIN_HEIGHT){
+        if(window->getPixelScreenCoordScale() > 1){
             window->setWindowShape(1600,1200);
         }else{
             window->setWindowShape(800,600);
