@@ -110,7 +110,7 @@ void pdspLowCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void pdspLowCut::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspLowCut::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // draw node texture preview with OF
     ofSetColor(255);

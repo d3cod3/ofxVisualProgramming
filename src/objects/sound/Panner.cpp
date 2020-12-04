@@ -110,7 +110,7 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 }
 
 //--------------------------------------------------------------
-void Panner::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Panner::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

@@ -53,7 +53,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     // System
     engine                  = new pdsp::Engine();
 
-    font                    = new ofxFontStash();
+    font                    = new ofTrueTypeFont();
     fontSize                = 12;
     isRetina                = false;
     scaleFactor             = 1;
@@ -107,23 +107,19 @@ void ofxVisualProgramming::setRetina(bool retina){
 
     if(isRetina){
         scaleFactor = 2;
-        fontSize    = 26;
+        fontSize    = 14;
         canvas.setScale(2);
     }else{
         scaleFactor = 1;
-        fontSize    = 12;
+        fontSize    = 7;
     }
-
-    nodeCanvas.setRetina(isRetina);
-    profiler.setIsRetina(isRetina);
-
 }
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
 
     // Load resources
-    font->setup(MAIN_FONT,1.0,2048,true,8,3.0f);
+    font->load(MAIN_FONT,fontSize);
 
     // Initialise GUI
     if( _guiRef == nullptr ){
@@ -140,6 +136,9 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
     }
 
     nodeCanvas.setContext(ImGui::GetCurrentContext());
+
+    nodeCanvas.setRetina(isRetina);
+    profiler.setIsRetina(isRetina);
 
     // Set pan-zoom canvas
     canvas.disableMouseInput();

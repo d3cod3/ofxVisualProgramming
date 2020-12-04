@@ -135,7 +135,7 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void KinectGrabber::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void KinectGrabber::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // KINECT UPDATE
     if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected()){

@@ -103,7 +103,7 @@ void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void SigMult::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void SigMult::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
 
 }

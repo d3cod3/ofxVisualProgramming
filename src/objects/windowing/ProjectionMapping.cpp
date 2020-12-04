@@ -91,7 +91,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     fileDialog.setIsRetina(this->isRetina);
 
     ofGLFWWindowSettings settings;
-    settings.setGLVersion(2,1);
+    settings.setGLVersion(4,1);
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;
@@ -173,7 +173,7 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ProjectionMapping::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     // draw node texture preview with OF
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -256,17 +256,17 @@ void ProjectionMapping::drawObjectNodeConfig(){
     ImGui::Separator();
 
     ImGui::Spacing();
-    if(ImGui::Button("LOAD WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("LOAD MAPPING",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadWarpingFlag = true;
     }
     ImGui::Spacing();
-    if(ImGui::Button("SAVE WARPING",ImVec2(224*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("SAVE MAPPING",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveWarpingFlag = true;
     }
 
     ImGuiEx::ObjectInfo(
-                "With warping option active and fullscreen you can adjust the projection surface.",
-                "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
+                "Module for video mapping. It provides an interface with more flexible resources than the warping grid.",
+                "https://mosaic.d3cod3.org/reference.php?r=projection-mapping", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a mapping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml", "", scaleFactor)){

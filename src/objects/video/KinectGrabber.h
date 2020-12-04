@@ -52,7 +52,7 @@ public:
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
-    void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+    void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            drawObjectNodeConfig() override;
     void            removeObjectContent(bool removeFileFromData=false) override;

@@ -192,7 +192,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ShaderObject::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     ///////////////////////////////////////////
     // SHADER UPDATE
@@ -239,12 +239,24 @@ void ShaderObject::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
         }
 
         ofSetColor(255,255);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0, 0); glVertex3f(0, 0, 0);
-        glTexCoord2f(output_width, 0); glVertex3f(output_width, 0, 0);
-        glTexCoord2f(output_width, output_height); glVertex3f(output_width, output_height, 0);
-        glTexCoord2f(0,output_height);  glVertex3f(0,output_height, 0);
-        glEnd();
+        if (ofIsGLProgrammableRenderer()) {
+            if (quad.getNumVertices() == 0) {
+                quad.clear();
+                quad.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+                quad.addVertex(glm::vec3(0, 0, 0));			 quad.addTexCoord(glm::vec2(0, 0));
+                quad.addVertex(glm::vec3(output_width, 0, 0));		 quad.addTexCoord(glm::vec2(output_width, 0));
+                quad.addVertex(glm::vec3(output_width, output_width, 0)); quad.addTexCoord(glm::vec2(output_width, output_width));
+                quad.addVertex(glm::vec3(0, output_width, 0));	 quad.addTexCoord(glm::vec2(0, output_width));
+            }
+            quad.draw(OF_MESH_FILL);
+        }else{
+            glBegin(GL_QUADS);
+            glTexCoord2f(0, 0); glVertex3f(0, 0, 0);
+            glTexCoord2f(output_width, 0); glVertex3f(output_width, 0, 0);
+            glTexCoord2f(output_width, output_height); glVertex3f(output_width, output_height, 0);
+            glTexCoord2f(0,output_height);  glVertex3f(0,output_height, 0);
+            glEnd();
+        }
 
         shader->end();
 
@@ -594,11 +606,19 @@ void ShaderObject::doFragmentShader(){
     this->saveConfig(false);
 
     // Compile the shader and load it to the GPU
+    quad.clear();
     shader->unload();
-    if(vertexShader != ""){
-        shader->setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+
+    if (!ofIsGLProgrammableRenderer()) {
+        if(vertexShader != ""){
+            shader->setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+        }
+        shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
+    }else{
+        size_t lastindex = filepath.find_last_of(".");
+        string rawname = filepath.substr(0, lastindex);
+        shader->load(rawname);
     }
-    shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
     scriptLoaded = shader->linkProgram();
 
     if(scriptLoaded){
@@ -687,12 +707,17 @@ void ShaderObject::loadScript(string scriptFile){
             vertexShader = vscontent.getText();
         }
 
-        ofShader test;
-        if(vertexShader != ""){
-            test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+        ofShader test; 
+        if (ofIsGLProgrammableRenderer()) {
+            size_t lastindex = filepath.find_last_of(".");
+            string rawname = filepath.substr(0, lastindex);
+            test.load(rawname);
+        }else{
+            if(vertexShader != ""){
+                test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
+            }
+            test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
         }
-        test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
-
         if(test.linkProgram()){
             watcher.removeAllPaths();
             watcher.addPath(filepath);

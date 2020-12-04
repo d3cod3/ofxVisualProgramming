@@ -127,7 +127,7 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void VideoDelay::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoDelay::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE
     alpha       = .995 * alpha + .005 * alphaTo;

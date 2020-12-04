@@ -322,7 +322,7 @@ void pdspSequencer::updateAudioObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspSequencer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspSequencer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

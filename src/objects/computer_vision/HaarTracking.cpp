@@ -101,7 +101,7 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void HaarTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // HAAR Tracking UPDATE
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -178,7 +178,7 @@ void HaarTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRend
             ofTranslate(center.x, center.y);
             int label = haarFinder->getLabel(i);
             string msg = ofToString(label) + ":" + ofToString(haarFinder->getTracker().getAge(label));
-            font->draw(msg,fontSize,0,0);
+            font->drawString(msg,0,0);
             ofPopMatrix();
         }
 

@@ -155,7 +155,7 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
 }
 
 //--------------------------------------------------------------
-void PatchObject::draw(ofxFontStash *font){
+void PatchObject::draw(ofTrueTypeFont *font){
 
     if(willErase) return;
 

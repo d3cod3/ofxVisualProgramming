@@ -70,7 +70,7 @@ void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void TextureToPixels::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void TextureToPixels::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         static_cast<ofTexture *>(_inletParams[0])->readToPixels(*static_cast<ofPixels *>(_outletParams[0]));
     }

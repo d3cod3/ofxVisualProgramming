@@ -93,7 +93,7 @@ void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moVideoViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     // draw node texture preview with OF
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

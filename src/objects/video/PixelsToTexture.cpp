@@ -70,7 +70,7 @@ void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void PixelsToTexture::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void PixelsToTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     if(this->inletsConnected[0]){
         if(static_cast<ofPixels *>(_inletParams[0])->getWidth() > 0 && static_cast<ofPixels *>(_inletParams[0])->getHeight() > 0){

@@ -120,7 +120,7 @@ void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void ColorTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ColorTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         // UPDATE STUFF
@@ -257,7 +257,7 @@ void ColorTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRen
                 int label = contourFinder->getLabel(i);
                 string msg = ofToString(label) + ":" + ofToString(contourFinder->getTracker().getAge(label));
                 ofSetColor(255,255,255);
-                font->draw(msg,fontSize,0,0);
+                font->drawString(msg,0,0);
                 ofPopMatrix();
             }
 

@@ -117,7 +117,7 @@ void ContourTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void ContourTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ContourTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         // UPDATE STUFF
@@ -264,7 +264,7 @@ void ContourTracking::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLR
                 }else{
                     ofSetColor(255,255,255);
                 }
-                font->draw(msg,fontSize,0,0);
+                font->drawString(msg,0,0);
                 ofPopMatrix();
             }
 

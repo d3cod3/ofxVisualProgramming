@@ -144,7 +144,7 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void DataToTexture::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void DataToTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] || this->inletsConnected[1] || this->inletsConnected[2]){
         // draw node texture preview with OF
         if(scaledObjW*canvasZoom > 90.0f){

@@ -36,7 +36,6 @@
 #include "config.h"
 #include "utils.h"
 
-#include "ofxFontStash.h"
 #include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
 
@@ -82,7 +81,7 @@ public:
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
     void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine);
-    void                    draw(ofxFontStash *font);
+    void                    draw(ofTrueTypeFont *font);
     void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
     void                    drawImGuiNodeConfig();
 
@@ -96,7 +95,7 @@ public:
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
     virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) {}
     virtual void            updateAudioObjectContent(pdsp::Engine &engine) {}
-    virtual void            drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
+    virtual void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
     virtual void            drawObjectNodeConfig() {}
     virtual void            removeObjectContent(bool removeFileFromData=false) {}

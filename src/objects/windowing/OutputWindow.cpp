@@ -114,7 +114,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadWindowSettings();
 
     ofGLFWWindowSettings settings;
-    settings.setGLVersion(2,1);
+    settings.setGLVersion(4,1);
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;
@@ -233,7 +233,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void OutputWindow::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void OutputWindow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     // draw node texture preview with OF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){

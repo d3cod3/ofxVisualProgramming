@@ -112,7 +112,7 @@ void DissonanceExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &
 }
 
 //--------------------------------------------------------------
-void DissonanceExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void DissonanceExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

@@ -125,7 +125,7 @@ public:
 
 
     // PATCH DRAWING RESOURCES
-    ofxFontStash                    *font;
+    ofTrueTypeFont                  *font;
     int                             fontSize;
     bool                            isRetina;
     int                             scaleFactor;

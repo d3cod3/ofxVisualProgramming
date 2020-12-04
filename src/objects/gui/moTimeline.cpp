@@ -51,7 +51,7 @@ moTimeline::moTimeline() : PatchObject("timeline"){
 
     timeline    = new ofxTimeline();
     actualTracks= new vector<string>();
-    localFont   = new ofxFontStash();
+    localFont   = new ofTrueTypeFont();
 
     actualTrackName     = "trackName";
     sameNameAvoider     = 0;
@@ -113,7 +113,7 @@ void moTimeline::customReset(){
 void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     ofGLFWWindowSettings settings;
-    settings.setGLVersion(2,1);
+    settings.setGLVersion(4,1);
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;
@@ -272,7 +272,7 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void moTimeline::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moTimeline::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     localFont = font;
 }
 
@@ -803,9 +803,9 @@ void moTimeline::drawInWindow(ofEventArgs &e){
     ofSetColor(120);
     // RETINA FIX
     if(timeline->forceRetina){
-        localFont->draw("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",24,40,window->getHeight()-20);
+        localFont->drawString("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",40,window->getHeight()-20);
     }else{
-        localFont->draw("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",12,20,window->getHeight()-10);
+        localFont->drawString("forked ofxTimeline modded for Mosaic, original ofxaddon from James George co-developed by YCAM Interlab",20,window->getHeight()-10);
     }
     ofPopStyle();
 }

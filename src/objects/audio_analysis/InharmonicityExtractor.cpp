@@ -112,7 +112,7 @@ void InharmonicityExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void InharmonicityExtractor::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void InharmonicityExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

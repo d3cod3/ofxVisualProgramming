@@ -86,7 +86,7 @@ void ToGrayScaleTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void ToGrayScaleTexture::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ToGrayScaleTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE STUFF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){

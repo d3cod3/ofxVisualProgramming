@@ -111,7 +111,7 @@ void pdspHiCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void pdspHiCut::drawObjectContent(ofxFontStash *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspHiCut::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     // draw node texture preview with OF
     ofSetColor(255);
     if(scaledObjW*canvasZoom > 90.0f){
