@@ -54,7 +54,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     engine                  = new pdsp::Engine();
 
     font                    = new ofTrueTypeFont();
-    fontSize                = 12;
+    fontSize                = 8;
     isRetina                = false;
     scaleFactor             = 1;
 
@@ -107,11 +107,11 @@ void ofxVisualProgramming::setRetina(bool retina){
 
     if(isRetina){
         scaleFactor = 2;
-        fontSize    = 14;
+        fontSize    = 16;
         canvas.setScale(2);
     }else{
         scaleFactor = 1;
-        fontSize    = 7;
+        fontSize    = 8;
     }
 }
 
@@ -354,7 +354,7 @@ void ofxVisualProgramming::draw(){
 
     // Draw Bottom Bar
     ofSetColor(0,0,0,60);
-    ofDrawRectangle(0,ofGetHeight() - (18*scaleFactor),ofGetWidth(),(18*scaleFactor));
+    ofDrawRectangle(0,ofGetHeight() - (20*scaleFactor),ofGetWidth(),(20*scaleFactor));
 
     ofDisableAlphaBlending();
 
