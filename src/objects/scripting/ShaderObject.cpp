@@ -149,13 +149,35 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             string fileExtension = ofToUpper(currentScriptFile.getExtension());
             if(fileExtension == "FRAG") {
                 filepath = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
+                string fsName = currentScriptFile.getFileName();
+                string vsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+                ofFile newVertGLSLFile (vsName);
+                if(newVertGLSLFile.exists()){
+                    copyFileToPatchFolder(this->patchFolderPath,newVertGLSLFile.getAbsolutePath());
+                }else{
+                    ofFile vertToRead(ofToDataPath("scripts/empty.vert"));
+                    ofFile patchFolderNewFrag(filepath);
+                    string pf_fsName = patchFolderNewFrag.getFileName();
+                    string pf_vsName = patchFolderNewFrag.getEnclosingDirectory()+patchFolderNewFrag.getFileName().substr(0,pf_fsName.find_last_of('.'))+".vert";
+                    ofFile::copyFromTo(vertToRead.getAbsolutePath(),pf_vsName,true,true);
+                }
                 loadScript(filepath);
                 reloading = true;
             }else if(fileExtension == "VERT"){
+                string newVertOpened = copyFileToPatchFolder(this->patchFolderPath,currentScriptFile.getAbsolutePath());
                 string vsName = currentScriptFile.getFileName();
                 string fsName = currentScriptFile.getEnclosingDirectory()+currentScriptFile.getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                filepath = fsName;
-                filepath = copyFileToPatchFolder(this->patchFolderPath,filepath);
+                ofFile newFragGLSLFile (fsName);
+                if(newFragGLSLFile.exists()){
+                    filepath = copyFileToPatchFolder(this->patchFolderPath,newFragGLSLFile.getAbsolutePath());
+                }else{
+                    ofFile fragToRead(ofToDataPath("scripts/empty.frag"));
+                    ofFile patchFolderNewVert(newVertOpened);
+                    string pf_vsName = patchFolderNewVert.getFileName();
+                    string pf_fsName = patchFolderNewVert.getEnclosingDirectory()+patchFolderNewVert.getFileName().substr(0,pf_vsName.find_last_of('.'))+".frag";
+                    ofFile::copyFromTo(fragToRead.getAbsolutePath(),pf_fsName,true,true);
+                    filepath = pf_fsName;
+                }
                 loadScript(filepath);
                 reloading = true;
             }
@@ -169,6 +191,13 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         ofFile newGLSLFile (lastShaderScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"),true,true);
         ofFile correctedFileToRead(checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"));
+
+        ofFile vertToRead(ofToDataPath("scripts/empty.vert"));
+        string fsName = newGLSLFile.getFileName();
+        string vsName = newGLSLFile.getEnclosingDirectory()+newGLSLFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+        ofFile newVertGLSLFile (vsName);
+        ofFile::copyFromTo(vertToRead.getAbsolutePath(),newVertGLSLFile.getAbsolutePath(),true,true);
+
         currentScriptFile = correctedFileToRead;
         if (currentScriptFile.exists()){
             filepath = currentScriptFile.getAbsolutePath();

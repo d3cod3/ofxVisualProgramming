@@ -214,11 +214,22 @@ void ofxVisualProgramming::update(){
                 // update scripts objects files map
                 ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
                 string fileExt = ofToUpper(tempsofp.getExtension());
-                if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
+                if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH"){
                     map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                     if (sofpIT == scriptsObjectsFilesPaths.end()){
                         // not found, insert it
                         scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                    }
+                }else if(fileExt == "FRAG"){
+                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    if (sofpIT == scriptsObjectsFilesPaths.end()){
+                        // not found, insert FRAG
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                        // insert VERT
+                        string fsName = tempsofp.getFileName();
+                        string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+                        ofFile newVertGLSLFile (vsName);
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
                     }
                 }
             }
