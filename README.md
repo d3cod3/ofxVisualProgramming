@@ -74,8 +74,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
-#### [ofxFontStash](https://github.com/d3cod3/ofxFontStash)
-
 #### [ofxGLEditor](https://github.com/Akira-Hayasaka/ofxGLEditor)
 
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
@@ -124,7 +122,6 @@ git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
-git clone https://github.com/d3cod3/ofxFontStash
 git clone https://github.com/Akira-Hayasaka/ofxGLEditor
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxImGui
@@ -396,8 +393,6 @@ ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
-
-ofxFontStash original addons by [Oriol Ferrer Mesià](https://github.com/armadillu)
 
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
