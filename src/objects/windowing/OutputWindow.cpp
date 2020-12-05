@@ -41,10 +41,12 @@
 OutputWindow::OutputWindow() : PatchObject("output window"){
 
     this->numInlets  = 2;
-    this->numOutlets = 0;
+    this->numOutlets = 1;
 
     _inletParams[0] = new ofTexture();  // projector
     _inletParams[1] = new LiveCoding(); // script reference
+
+    _outletParams[0] = new vector<float>(); // mouse
 
     this->specialLinkTypeName = "LiveCoding";
 
@@ -90,6 +92,8 @@ void OutputWindow::newObject(){
 
     this->addInlet(VP_LINK_TEXTURE,"projector");
     this->addInlet(VP_LINK_SPECIAL,"script");
+
+    this->addOutlet(VP_LINK_ARRAY,"mouse");
 
     this->setCustomVar(static_cast<float>(isFullscreen),"FULLSCREEN");
     this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
@@ -158,6 +162,9 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     asRatio = reduceToAspectRatio(this->output_width,this->output_height);
     window_asRatio = reduceToAspectRatio(window->getWidth(),window->getHeight());
     scaleTextureToWindow(window->getWidth(),window->getHeight());
+
+    // init outlet mouse data
+    static_cast<vector<float> *>(_outletParams[0])->assign(3,0.0f);
 
 }
 
@@ -668,12 +675,17 @@ void OutputWindow::mouseMoved(ofMouseEventArgs &e){
         warpController->onMouseMoved(window->events().getMouseX(),window->events().getMouseY());
     }
 
+    ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
         }
     }
+
+    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
+    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
+    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
+
 }
 
 //--------------------------------------------------------------
@@ -681,12 +693,17 @@ void OutputWindow::mouseDragged(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMouseDragged(window->events().getMouseX(),window->events().getMouseY());
     }
+
+    ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
+
+    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
+    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
+    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
 }
 
 //--------------------------------------------------------------
@@ -694,12 +711,17 @@ void OutputWindow::mousePressed(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMousePressed(window->events().getMouseX(),window->events().getMouseY());
     }
+
+    ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
+
+    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
+    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
+    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
 }
 
 //--------------------------------------------------------------
@@ -707,12 +729,16 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMouseReleased(window->events().getMouseX(),window->events().getMouseY());
     }
+    ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
+
+    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
+    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
+    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
 
     this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
     this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
@@ -720,12 +746,16 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
 
 //--------------------------------------------------------------
 void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
+    ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
         if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
             static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
         }
     }
+
+    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
+    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
+    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
 }
 
 //--------------------------------------------------------------
