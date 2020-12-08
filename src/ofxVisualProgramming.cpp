@@ -878,11 +878,27 @@ void ofxVisualProgramming::clearObjectsMap(){
             // remove scripts objects filepath reference from scripts objects files map
             ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
             string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
+            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH"){
                 map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                 if (sofpIT != scriptsObjectsFilesPaths.end()){
                     // found it, remove it
                     scriptsObjectsFilesPaths.erase(sofpIT);
+                }
+            }else if(fileExt == "FRAG"){
+                // remove .frag
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                if (sofpIT != scriptsObjectsFilesPaths.end()){
+                    // found it, remove it
+                    scriptsObjectsFilesPaths.erase(sofpIT);
+                }
+                // remove .vert
+                string pf_fsName = tempsofp.getFileName();
+                string pf_vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,pf_fsName.find_last_of('.'))+".vert";
+                ofFile tempVert(pf_vsName);
+                map<string,string>::iterator sofpITV = scriptsObjectsFilesPaths.find(tempVert.getFileName());
+                if (sofpITV != scriptsObjectsFilesPaths.end()){
+                    // found it, remove it
+                    scriptsObjectsFilesPaths.erase(sofpITV);
                 }
             }
 
