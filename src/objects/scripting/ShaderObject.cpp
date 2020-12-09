@@ -518,6 +518,8 @@ void ShaderObject::doFragmentShader(){
     }
 
     // reset inlets
+    this->inletsType.clear();
+    this->inletsNames.clear();
     this->numInlets = num;
 
     textures.clear();
@@ -532,18 +534,12 @@ void ShaderObject::doFragmentShader(){
         textures.push_back(tempFBO);
     }
 
-    if (num != nTextures || reloading || isNewObject){
-        reloading = false;
-        nTextures = num;
+    reloading = false;
+    nTextures = num;
 
-        this->inletsType.clear();
-        this->inletsNames.clear();
-
-        // add texture(s) inlets
-        for( int i = 0; i < nTextures; i++){
-            this->addInlet(VP_LINK_TEXTURE,"texture"+ofToString((i+1)));
-        }
-
+    // INJECT TEXTURE(s) INLETS
+    for( int i = 0; i < nTextures; i++){
+        this->addInlet(VP_LINK_TEXTURE,"texture"+ofToString((i+1)));
     }
 
     shaderSliders.clear();
@@ -563,6 +559,7 @@ void ShaderObject::doFragmentShader(){
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
             string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
+
             float tempValue = 0.0f;
             map<string,float>::const_iterator it = tempVars.find("GUI_FLOAT_"+varName);
             if(it!=tempVars.end()){
@@ -648,7 +645,7 @@ void ShaderObject::doFragmentShader(){
         string rawname = filepath.substr(0, lastindex);
         shader->load(rawname);
     }
-    scriptLoaded = shader->linkProgram();
+    scriptLoaded = shader->isLoaded();
 
     if(scriptLoaded){
         ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
@@ -728,15 +725,17 @@ void ShaderObject::loadScript(string scriptFile){
     if(currentScriptFile.exists()){
         ofBuffer fscontent = ofBufferFromFile(filepath);
 
+        fragmentShader.clear();
         fragmentShader = fscontent.getText();
 
         if(vertexShaderFile.exists()){
             lastVertexShaderPath = vertexShaderFile.getAbsolutePath();
             ofBuffer vscontent = ofBufferFromFile(lastVertexShaderPath);
+            vertexShader.clear();
             vertexShader = vscontent.getText();
         }
 
-        ofShader test; 
+        ofShader test;
         if (ofIsGLProgrammableRenderer()) {
             size_t lastindex = filepath.find_last_of(".");
             string rawname = filepath.substr(0, lastindex);
@@ -747,7 +746,8 @@ void ShaderObject::loadScript(string scriptFile){
             }
             test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
         }
-        if(test.linkProgram()){
+        if(test.isLoaded()){
+            test.unload();
             watcher.removeAllPaths();
             watcher.addPath(filepath);
             if(vertexShader != ""){
@@ -755,6 +755,7 @@ void ShaderObject::loadScript(string scriptFile){
             }
             doFragmentShader();
         }
+
     }else{
         ofLog(OF_LOG_ERROR,"SHADER File %s do not exists",currentScriptFile.getFileName().c_str());
     }
