@@ -61,8 +61,7 @@ public:
     void            removeObjectContent(bool removeFileFromData=false) override;
 
 
-    glm::vec2       reduceToAspectRatio(int _w, int _h);
-    void            scaleTextureToWindow(int theScreenW, int theScreenH);
+    void            scaleTextureToWindow(float texW, float texH, float winW, float winH);
     void            toggleWindowFullscreen();
 
     void            drawInWindow(ofEventArgs &e);
@@ -87,20 +86,17 @@ public:
     int                                     temp_width, temp_height;
     int                                     window_actual_width, window_actual_height;
     float                                   posX, posY, drawW, drawH;
-    glm::vec2                               asRatio;
-    glm::vec2                               window_asRatio;
     float                                   thposX, thposY, thdrawW, thdrawH;
     bool                                    needReset;
 
     ofxWarpController                       *warpController;
-    ofFbo                                   *warpedTexture;
-    bool                                    isWarpingLoaded;
 
     imgui_addons::ImGuiFileBrowser          fileDialog;
     bool                                    loadWarpingFlag;
     bool                                    saveWarpingFlag;
 
     bool                                    useMapping;
+    bool                                    hideMouse;
 
     float                                   edgesLuminance;
     float                                   edgesGamma;
