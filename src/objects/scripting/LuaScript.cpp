@@ -359,6 +359,11 @@ void LuaScript::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
+    ImGui::Text("Rendering at: %.0fx%.0f",static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
     if(ImGui::Button("New",ImVec2(224*scaleFactor,26*scaleFactor))){
         saveLuaScriptFlag = true;
     }
