@@ -33,6 +33,10 @@
 #include "ofxVisualProgramming.h"
 #include "imgui_internal.h"
 
+#ifdef MOSAIC_ENABLE_PROFILING
+#include "Tracy.hpp"
+#endif
+
 //--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
 
@@ -177,10 +181,13 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
 //--------------------------------------------------------------
 void ofxVisualProgramming::update(){
 
+    #ifdef MOSAIC_ENABLE_PROFILING
+    ZoneScopedN("ofxVisualProgramming::Update()");
+    #endif
+
     // canvas init
     if(!inited){
         inited = true;
-        //canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
     }
 
     // Clear map from deleted objects
@@ -201,11 +208,14 @@ void ofxVisualProgramming::update(){
 
         ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
 
-        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
+        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){ 
             if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
+
+                string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+
                 pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
                 pt[i].startTime = ofGetElapsedTimef();
-                pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+                pt[i].name = tmpon;
 
                 patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
 
@@ -247,6 +257,10 @@ void ofxVisualProgramming::updateCanvasViewport(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::draw(){
+
+    #ifdef MOSAIC_ENABLE_PROFILING
+    ZoneScopedN("ofxVisualProgramming::Draw()");
+    #endif
 
     if(bLoadingNewPatch) return;
 
@@ -314,9 +328,12 @@ void ofxVisualProgramming::draw(){
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
 
             if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
+
+                string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw";
+
                 pt[i].color = profiler.gpuGraph.colors[static_cast<unsigned int>(i%16)];
                 pt[i].startTime = ofGetElapsedTimef();
-                pt[i].name = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw";
+                pt[i].name = tmpon;
 
                 // LivePatchingObject hack, should not be handled by mosaic.
                 if(patchObjects[leftToRightIndexOrder[i].second]->getName() == "live patching"){
