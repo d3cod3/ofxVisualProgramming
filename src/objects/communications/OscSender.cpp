@@ -329,12 +329,18 @@ void OscSender::initInlets(){
                     }
                     if (XML.pushTag("vars")){
                         int totalOutlets = XML.getNumTags("var");
-                        this->numInlets = totalOutlets-1;
+                        this->numInlets = totalOutlets-2;
 
                         int tempCounter = 0;
                         for (int t=0;t<totalOutlets;t++){
                             if(XML.pushTag("var",t)){
-                                if(XML.getValue("name","") != "PORT"){
+                                bool isreceiverIP = false;
+                                if (XML.getValue("name","").find('@') != std::string::npos){
+                                    isreceiverIP = true;
+                                }else{
+                                    isreceiverIP = false;
+                                }
+                                if(XML.getValue("name","") != "PORT" && !isreceiverIP){
                                     if(tempTypes.at(tempCounter) == 0){ // float
                                         _inletParams[tempCounter] = new float();
                                         *(float *)&_inletParams[tempCounter] = 0.0f;
