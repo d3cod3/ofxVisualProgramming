@@ -184,6 +184,12 @@ void MidiReceiver::drawObjectNodeConfig(){
         }
     }else{
         ImGui::Text("No MIDI devices found!");
+
+        if(midiDevicesList.size() == 0){
+            if(ImGui::Button("Rescan Devices")){
+                rescanMIDI();
+            }
+        }
     }
 
 
@@ -221,6 +227,24 @@ void MidiReceiver::resetMIDISettings(int devID){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void MidiReceiver::rescanMIDI(){
+    midiIn.listInPorts();
+    midiDevicesList = midiIn.getInPortList();
+
+    // open port by number
+    if(midiDevicesList.size() > 0){
+        midiIn.openPort(midiDeviceID);
+
+        // don't ignore sysex, timing, & active sense messages,
+        midiIn.ignoreTypes(false, false, false);
+        midiIn.addListener(this);
+        midiIn.setVerbose(true);
+    }else{
+        ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi receiver object!");
+    }
 }
 
 //--------------------------------------------------------------

@@ -55,6 +55,7 @@ public:
     void            removeObjectContent(bool removeFileFromData=false) override;
 
     void            resetMIDISettings(int devID);
+    void            rescanMIDI();
 
     void            newMidiMessage(ofxMidiMessage& msg) override;
     

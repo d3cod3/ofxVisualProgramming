@@ -186,6 +186,12 @@ void MidiSender::drawObjectNodeConfig(){
         }
     }else{
         ImGui::Text("No MIDI devices found!");
+
+        if(midiDevicesList.size() == 0){
+            if(ImGui::Button("Rescan Devices")){
+                rescanMIDI();
+            }
+        }
     }
 
 
@@ -223,6 +229,19 @@ void MidiSender::resetMIDISettings(int devID){
 
     }
 
+}
+
+//--------------------------------------------------------------
+void MidiSender::rescanMIDI(){
+    midiOut.listOutPorts();
+    midiDevicesList = midiOut.getOutPortList();
+
+    // open port by number
+    if(midiDevicesList.size() > 0){
+        midiOut.openPort(midiDeviceID);
+    }else{
+        ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi sender object!");
+    }
 }
 
 OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS)
