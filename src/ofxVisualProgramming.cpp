@@ -120,7 +120,7 @@ void ofxVisualProgramming::setRetina(bool retina){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
+void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
 
     // Load resources
     font->load(MAIN_FONT,fontSize);
@@ -174,7 +174,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef){
     }
 
     // Create new empty file patch
-    newPatch();
+    newPatch(release);
 
 }
 
@@ -1152,9 +1152,17 @@ shared_ptr<PatchObject> ofxVisualProgramming::selectObject(string objname){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::newPatch(){
+void ofxVisualProgramming::newPatch(string release){
     string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
     ofFile fileToRead(ofToDataPath("empty_patch.xml",true));
+
+    // set patch release
+    ofxXmlSettings XML;
+    if (XML.loadFile(fileToRead.getAbsolutePath())){
+        XML.setValue("release",release);
+        XML.saveFile();
+    }
+
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 

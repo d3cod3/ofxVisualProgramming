@@ -59,7 +59,7 @@ public:
     ~ofxVisualProgramming();
 
     void            setRetina(bool retina);
-    void            setup(ofxImGui::Gui* guiRef = nullptr);
+    void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
     void            update();
     void            updateCanvasViewport();
     void            draw();
@@ -101,7 +101,7 @@ public:
 
     string          getSubpatchParent(string subpatchName);
 
-    void            newPatch();
+    void            newPatch(string release);
     void            newTempPatchFromFile(string patchFile);
     void            preloadPatch(string patchFile);
     void            openPatch(string patchFile);
