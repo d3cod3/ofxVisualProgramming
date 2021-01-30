@@ -379,7 +379,7 @@ void SoundfilePlayer::removeObjectContent(bool removeFileFromData){
         it->second.disconnectAll();
     }
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 

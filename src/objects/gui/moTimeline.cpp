@@ -457,7 +457,7 @@ void moTimeline::removeObjectContent(bool removeFileFromData){
         window->setWindowShouldClose();
     }
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 

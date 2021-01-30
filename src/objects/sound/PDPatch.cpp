@@ -345,7 +345,7 @@ void PDPatch::removeObjectContent(bool removeFileFromData){
     pd.clear();
 
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 

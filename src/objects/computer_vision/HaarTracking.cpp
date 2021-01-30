@@ -280,7 +280,7 @@ void HaarTracking::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void HaarTracking::removeObjectContent(bool removeFileFromData){
     if(removeFileFromData){
-        removeFile(filepath);
+        //removeFile(filepath);
     }
 }
 
