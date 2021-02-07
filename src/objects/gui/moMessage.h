@@ -54,8 +54,11 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    void            loadMessageSetting();
+    void            saveMessageSetting();
 
-    string              actualMessage;
+
+    string          actualMessage;
 
 private:
 
