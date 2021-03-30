@@ -260,6 +260,8 @@ void Mixer::initInlets(){
 //--------------------------------------------------------------
 void Mixer::resetInletsSettings(){
 
+    mix.disconnectIn();
+
     vector<bool> tempInletsConn;
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
@@ -281,7 +283,7 @@ void Mixer::resetInletsSettings(){
 
     _inletParams[0] = new vector<float>();
 
-    for(size_t i=0;i<signalInlets;i++){
+    for(int i=0;i<signalInlets;i++){
         _inletParams[i+1] = new ofSoundBuffer();
     }
 
@@ -290,12 +292,12 @@ void Mixer::resetInletsSettings(){
 
     this->addInlet(VP_LINK_ARRAY,"control");
 
-    for(size_t i=0;i<signalInlets;i++){
+    for(int i=0;i<signalInlets;i++){
         this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i+1));
     }
 
     this->inletsConnected.clear();
-    for(int i=0;i<tempInletsConn.size();i++){
+    for(size_t i=0;i<tempInletsConn.size();i++){
         if(tempInletsConn.at(i)){
             this->inletsConnected.push_back(true);
         }else{
