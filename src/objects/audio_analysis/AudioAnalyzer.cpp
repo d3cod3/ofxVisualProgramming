@@ -264,7 +264,7 @@ void AudioAnalyzer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::removeObjectContent(bool removeFileFromData){
-    //audioAnalyzer.exit();
+    audioAnalyzer.exit();
 }
 
 //--------------------------------------------------------------

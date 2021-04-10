@@ -935,7 +935,7 @@ void ofxVisualProgramming::clearObjectsMap(){
 //--------------------------------------------------------------
 string ofxVisualProgramming::getSubpatchParent(string subpatchName){
     for(map<string,vector<string>>::iterator it = subpatchesTree.begin(); it != subpatchesTree.end(); it++ ){
-        for(int s=0;s<it->second.size();s++){
+        for(unsigned int s=0;s<it->second.size();s++){
             if(it->second.at(s) == subpatchName){
                 return it->first;
             }
@@ -1026,7 +1026,7 @@ void ofxVisualProgramming::removeObject(int &id){
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
     if(patchObjects[id]->getName() != "audio device" && patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching" && patchObjects[id]->getName() != "projection mapping"){
-        ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
+        //ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
         addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
@@ -1266,6 +1266,11 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 XML.setValue("bpm",bpm);
             }
 
+            delete engine;
+            engine = nullptr;
+            engine = new pdsp::Engine();
+
+            soundStreamIN.close();
             audioDevices = soundStreamIN.getDeviceList();
             audioDevicesStringIN.clear();
             audioDevicesID_IN.clear();
@@ -1332,15 +1337,11 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.setValue("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
             XML.saveFile();
 
-            delete engine;
-            engine = nullptr;
-            engine = new pdsp::Engine();
-
             if(dspON){
                 engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
                 this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
-                for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+                for(unsigned int in=0;in<audioDevices[audioINDev].inputChannels;in++){
                     engine->audio_in(in) >> this->in(in);
                 }
                 this->out_silent() >> engine->blackhole();
@@ -1514,8 +1515,8 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
 
     bool found = false;
     int index = audioDevicesID_IN.at(ind);
-    for(int i=0;i<audioDevices[index].sampleRates.size();i++){
-        if(audioDevices[index].sampleRates[i] == audioSampleRate){
+    for(size_t i=0;i<audioDevices[index].sampleRates.size();i++){
+        if((int)audioDevices[index].sampleRates[i] == audioSampleRate){
             found = true;
         }
     }
@@ -1561,7 +1562,7 @@ void ofxVisualProgramming::activateDSP(){
         engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
         this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
-        for(int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+        for(unsigned int in=0;in<audioDevices[audioINDev].inputChannels;in++){
             engine->audio_in(in) >> this->in(in);
         }
         this->out_silent() >> engine->blackhole();
