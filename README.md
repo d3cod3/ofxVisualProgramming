@@ -94,7 +94,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPdExternals](https://github.com/d3cod3/ofxPdExternals)
 
-#### [ofxPDSP](https://github.com/npisanti/ofxPDSP)
+#### [ofxPDSP](https://github.com/d3cod3/ofxPDSP)
 
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
@@ -133,7 +133,7 @@ git clone https://github.com/d3cod3/ofxNDI
 git clone https://github.com/d3cod3/ofxPython
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPdExternals
-git clone https://github.com/npisanti/ofxPDSP
+git clone https://github.com/d3cod3/ofxPDSP
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/d3cod3/ofxWarp
 git clone https://github.com/d3cod3/ofxVisualProgramming
