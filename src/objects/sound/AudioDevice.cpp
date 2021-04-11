@@ -76,6 +76,11 @@ void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
+
+    if(this->numInlets != in_channels || this->numOutlets != out_channels){
+        resetInletsOutlets();
+    }
+
     if(deviceLoaded && out_channels>0){
         for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
             OUT_CH[c].out_signal() >> engine.audio_out(c);
@@ -231,7 +236,7 @@ void AudioDevice::resetSystemObject(){
             _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
-        for( int i = 0; i < this->pdspOut.size(); i++){
+        for( unsigned int i = 0; i < this->pdspOut.size(); i++){
             this->pdspOut[i].disconnectOut();
         }
         this->pdspOut.clear();
@@ -324,6 +329,50 @@ void AudioDevice::resetSystemObject(){
 
         deviceLoaded      = true;
     }
+}
+
+//--------------------------------------------------------------
+void AudioDevice::resetInletsOutlets(){
+
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        int totalObjects = XML.getNumTags("object");
+
+        if (XML.pushTag("settings")){
+            in_channels  = XML.getValue("input_channels",0);
+            out_channels = XML.getValue("output_channels",0);
+            sampleRateIN = XML.getValue("sample_rate_in",0);
+            sampleRateOUT= XML.getValue("sample_rate_out",0);
+            bufferSize   = XML.getValue("buffer_size",0);
+            XML.popTag();
+        }
+
+        // Save new object config
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    // Dynamic reloading outlets
+                    XML.removeTag("outlets");
+                    int newOutlets = XML.addTag("outlets");
+                    if(XML.pushTag("outlets",newOutlets)){
+                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
+                            int newLink = XML.addTag("link");
+                            if(XML.pushTag("link",newLink)){
+                                XML.setValue("type",this->outletsType.at(j));
+                                XML.popTag();
+                            }
+                        }
+                        XML.popTag();
+                    }
+                }
+            }
+        }
+
+        XML.saveFile();
+
+    }
+
 }
 
 //--------------------------------------------------------------
