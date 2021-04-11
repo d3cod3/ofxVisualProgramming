@@ -59,7 +59,6 @@ public:
     void            resetSystemObject() override;
 
     void            loadDeviceInfo();
-    void            resetInletsOutlets();
 
     vector<ofSoundBuffer>       IN_CH;
     vector<pdsp::ExternalInput> PN_IN_CH;
