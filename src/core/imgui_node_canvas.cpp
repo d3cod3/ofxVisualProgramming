@@ -573,10 +573,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
     ImGui::BeginColumns("innerNode", 3,
-                        ImGuiColumnsFlags_NoBorder
-                        | ImGuiColumnsFlags_NoResize
+                        ImGuiOldColumnFlags_NoBorder
+                        | ImGuiOldColumnFlags_NoResize
                         //| ImGuiOldColumnFlags_NoPreserveWidths
-                        | ImGuiColumnsFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
+                        | ImGuiOldColumnFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
     // Column layout
     // Note: A column of 0 width will probably cause crashes
@@ -788,7 +788,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                         connectingColor.w = 0.4f;
                         const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                        canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                         // add link info
                         std::string _temp = _type+" "+_gui_label;
@@ -812,7 +812,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                         connectingColor.w = 0.4f;
                         const LinkBezierData link_data = get_link_renderable(canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                        canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                         // add link info
                         std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
@@ -968,7 +968,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     _tempColor = IM_COL32(255,0,0,255);
                 }
 
-                canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
+                canvasDrawList->AddBezierCubic(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
             }
 
             // Draw pin
@@ -990,8 +990,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             if(_connected){
                 nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
             }
-
-
         }
     }
 
