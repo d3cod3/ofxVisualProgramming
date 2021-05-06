@@ -704,7 +704,7 @@ namespace imgui_addons
         input_combobox_sz.y = std::min((inputcb_filter_files.size() + 1) * frame_height + style.WindowPadding.y *  2.0f,
                                         8 * ImGui::GetFrameHeight() + style.WindowPadding.y *  2.0f);
 
-        if(show_inputbar_combobox && ( ImGui::GetFocusScopeID() == focus_scope_id || ImGui::GetCurrentContext()->ActiveIdIsAlive == input_id  ))
+        if(show_inputbar_combobox && ( ImGui::GetFocusedFocusScope() == focus_scope_id || ImGui::GetCurrentContext()->ActiveIdIsAlive == input_id  ))
         {
             ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoTitleBar           |
                                           ImGuiWindowFlags_NoResize             |
@@ -723,7 +723,7 @@ namespace imgui_addons
             ImGui::BeginChild("##InputBarComboBox", input_combobox_sz, true, popupFlags);
 
             ImVec2 listbox_size = input_combobox_sz - ImGui::GetStyle().WindowPadding * 2.0f;
-            if(ImGui::ListBoxHeader("##InputBarComboBoxList", listbox_size))
+            if(ImGui::BeginListBox("##InputBarComboBoxList", listbox_size))
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
                 ImGui::PushFocusScope(focus_scope_id);
@@ -747,7 +747,7 @@ namespace imgui_addons
                 }
                 ImGui::PopFocusScope();
                 ImGui::PopStyleColor(1);
-                ImGui::ListBoxFooter();
+                ImGui::EndListBox();
             }
             ImGui::EndChild();
             ImGui::PopStyleColor(2);

@@ -231,7 +231,7 @@ void ImGuiEx::NodeCanvas::End(){
     IM_ASSERT(isDrawingCanvas == true); // // Begin() wasn't called
     IM_ASSERT(isDrawingNode == false); // Forgot to call EndNode()
 
-    isAnyCanvasNodeHovered = ImGui::IsAnyWindowHovered(); // not really needed anymore...
+    isAnyCanvasNodeHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow); // not really needed anymore...
 
     // reset cursor pos to canvas window
     ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
@@ -551,10 +551,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
     ImGui::BeginColumns("innerNode", 3,
-                        ImGuiColumnsFlags_NoBorder
-                        | ImGuiColumnsFlags_NoResize
-                        //| ImGuiColumnsFlags_NoPreserveWidths
-                        | ImGuiColumnsFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
+                        ImGuiOldColumnFlags_NoBorder
+                        | ImGuiOldColumnFlags_NoResize
+                        //| ImGuiOldColumnFlags_NoPreserveWidths
+                        | ImGuiOldColumnFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
     // Column layout
     ImGui::SetColumnOffset(0,0);
@@ -761,7 +761,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                     connectingColor.w = 0.4f;
                     const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                    canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                    canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                     // add link info
                     std::string _temp = _type+" "+_gui_label;
@@ -785,7 +785,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                     connectingColor.w = 0.4f;
                     const LinkBezierData link_data = get_link_renderable(canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                    canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                    canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                     // add link info
                     std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
@@ -912,7 +912,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 _tempColor = IM_COL32(255,0,0,255);
             }
 
-            canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
+            canvasDrawList->AddBezierCubic(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
         }
 
         // draw labels
@@ -948,7 +948,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     }
 
     // remove link if drag from connected inlet and drop on canvas
-    if(ImGui::GetIO().MouseReleased[0] && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive() && !ImGui::IsAnyItemFocused() && !ImGui::IsAnyWindowHovered() && connectType == 2){
+    if(ImGui::GetIO().MouseReleased[0] && !ImGui::IsAnyItemHovered() && !ImGui::IsAnyItemActive() && !ImGui::IsAnyItemFocused() && !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) && connectType == 2){
         connectData.connectType = 3;
         connectData.linkID = linkID;
 

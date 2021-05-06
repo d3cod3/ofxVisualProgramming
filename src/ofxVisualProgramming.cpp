@@ -142,7 +142,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
         }
         // Manually force shared mode
         else {
-            ofxVPGui->forceSharedMode(true);
+            ofxVPGui->setSharedMode(true);
         }
 
         //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');

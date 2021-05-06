@@ -368,7 +368,7 @@ void VUMeter(ImDrawList* drawList, float width, float height,float _vol, bool ho
 
     if(horizontal){
         // prepare canvas
-        const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
+        const float dim = width > 0 ? width : ImGui::GetContentRegionAvail().x;
         ImVec2 Canvas(dim, height);
 
         ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
@@ -413,7 +413,7 @@ void PlotBands(ImDrawList* drawList, float width, float height, std::vector<floa
     ImGuiWindow* Window = ImGui::GetCurrentWindow();
 
     // prepare canvas
-    const float dim = width > 0 ? width : ImGui::GetContentRegionAvailWidth();
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvail().x;
     ImVec2 Canvas(dim, height);
 
     ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
