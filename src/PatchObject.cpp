@@ -172,27 +172,13 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );
 
-    if(_nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() )){
+    // Begin Node
+    static bool isNodeVisible;
+    isNodeVisible = _nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() );
 
-        // save node state on click
-        if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)){
-            //ofLog(OF_LOG_NOTICE, "Clicked object with id %i", this->nId);
-            saveConfig(false);
-        }
-
-        // Check menu state
-        if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DeleteNode) ){
-            ofNotifyEvent(removeEvent, nId);
-            this->setWillErase(true);
-        }
-        //else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_CopyNode) ){
-        //          ofGetWindowPtr()->setClipboardString( this->serialize() );
-            // ofNotifyEvent(copyEvent, nId); ?
-        //}
-        else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DuplicateNode) ){
-            ofNotifyEvent(duplicateEvent, nId);
-        }
-
+    // Always draw [in/out]lets (so wires render correctly)
+    // Updates pin positions
+    {
         // Inlets
         for(int i=0;i<static_cast<int>(inletsType.size());i++){
             auto pinCol = getInletColor(i);
@@ -254,7 +240,6 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
         }
 
-
         // Outlets
         for(int i=0;i<static_cast<int>(outletsType.size());i++){
             auto pinCol = getOutletColor(i);
@@ -279,6 +264,29 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), tempLinkData, getOutletTypeName(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
 
             outletsPositions[i] = _nodeCanvas.getOutletPosition(nId,i);
+        }
+    }
+
+    // Draw Node content and handle
+    if(isNodeVisible){
+
+        // save node state on click
+        if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)){
+            //ofLog(OF_LOG_NOTICE, "Clicked object with id %i", this->nId);
+            saveConfig(false);
+        }
+
+        // Check menu state
+        if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DeleteNode) ){
+            ofNotifyEvent(removeEvent, nId);
+            this->setWillErase(true);
+        }
+        //else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_CopyNode) ){
+        //          ofGetWindowPtr()->setClipboardString( this->serialize() );
+            // ofNotifyEvent(copyEvent, nId); ?
+        //}
+        else if( _nodeCanvas.doNodeMenuAction(ImGuiExNodeMenuActionFlags_DuplicateNode) ){
+            ofNotifyEvent(duplicateEvent, nId);
         }
 
         // Refresh links to eventually disconnect ( backspace key )
