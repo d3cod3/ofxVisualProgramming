@@ -287,8 +287,8 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     // Calc zoom name
     if( !isNodeVisible ){
         curNodeData.zoomName = ImGuiExNodeZoom_Invisible;
-        //return false;
-    }else{
+        //return false; // Note: Commented so that pins and wires can still be drawn
+    } else {
         unsigned int curWidth = curNodeData.outerContentBox.GetSize().x;
         if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_SMALL )
             curNodeData.zoomName = ImGuiExNodeZoom_Imploded;
@@ -350,11 +350,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     fg->AddRect(curNodeData.outerContentBox.Min, ImVec2(curNodeData.outerContentBox.Max.x,curNodeData.outerContentBox.Min.y+IMGUI_EX_NODE_HEADER_HEIGHT), IM_COL32(255,255,255,200));
     fg->AddRect(ImVec2(curNodeData.outerContentBox.Min.x, curNodeData.outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT), curNodeData.outerContentBox.Max, IM_COL32(255,255,255,200));
 #endif
+
     // Return early now that everything has been calc'd.
     if( !isNodeVisible ){
         nodeDrawList = ImGui::GetWindowDrawList(); // So that nodes can still draw pins !
         return false;
     }
+
     // Create node window
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));//IMGUI_EX_NODE_CONTENT_PADDING,IMGUI_EX_NODE_CONTENT_PADDING));
     ImGui::SetNextWindowPos(curNodeData.outerContentBox.Min);
@@ -919,7 +921,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 }
 
             }
-
         }
 
         // right side (OUTLETS)
@@ -955,7 +956,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         }
                     }
                 }
-
 
                 static ImU32 _tempColor;
                 _tempColor = _color;

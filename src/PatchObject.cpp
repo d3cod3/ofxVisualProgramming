@@ -285,9 +285,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
     // Always draw [in/out]lets (so wires render correctly)
     // Updates pin positions
-
     {
-
         // Inlets
         for(int i=0;i<static_cast<int>(inletsType.size());i++){
             auto pinCol = getInletColor(i);
@@ -374,14 +372,13 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
             outletsPositions[i] = _nodeCanvas.getOutletPosition(nId,i);
         }
-
     }
 
     // Draw Node content and handle
     if(isNodeVisible){
 
         // save node state on click
-        if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(0)){
+        if(ImGui::IsWindowHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             //ofLog(OF_LOG_NOTICE, "Clicked object with id %i", this->nId);
             saveConfig(false);
         }
