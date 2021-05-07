@@ -303,7 +303,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     curNodeData.viewName = ImGuiExNodeView_None;
 
     // Adapt the layout for pins
-    int pinsWidth = 0;
+    static int pinsWidth; pinsWidth = 0;
     /*if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
         // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
         pinsWidth = 0;
@@ -430,11 +430,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min );
         //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-curTabsWidth, IMGUI_EX_NODE_HEADER_HEIGHT )  );
-        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor )  );
+        ImGui::InvisibleButton( "headerGripBtn", ImMax(ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor ), ImVec2(1,1))  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
 
-        if(ImGui::IsItemActive() && ImGui::IsItemClicked(0)){
+        if(ImGui::IsItemActive() && ImGui::IsItemClicked(ImGuiMouseButton_Left)){
             activeNode = nId;
             if(ImGui::GetIO().KeyShift && name != "audio device"){
                 selected_nodes.push_back(nId);
@@ -442,11 +442,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         }
 
         // deselect nodes on clicking on patch
-        if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
+        if(ImGui::IsMouseClicked( ImGuiMouseButton_Left ) && !isAnyCanvasNodeHovered){
             selected_nodes.clear();
         }
 
-        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             if(!isDraggingHeader){
                 mouseOffset = ImGui::GetMousePos()-curNodeData.outerContentBox.Min;
                 isDraggingHeader = true;
@@ -542,18 +542,18 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     }
 
+    // reset origin
+    ImGui::SetCursorScreenPos( curNodeData.innerContentBox.Min );
+
     // Return before drawing content, if scale is too small ?
     // todo. (This is already partially handled by BeginNodeContent();)
-    if( false && curNodeData.zoomName < ImGuiExNodeZoom_Small ){
+    if( curNodeData.zoomName <= ImGuiExNodeZoom_Imploded ){
         // Fill empty space with color
         //canvasDrawList->AddRectFilled(); // todo
 
         // Todo: something with : window->SkipItems to prevent drawing to node ?
         return false;
     }
-
-    // reset origin
-    ImGui::SetCursorScreenPos( curNodeData.innerContentBox.Min );
 
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
@@ -564,9 +564,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                         | ImGuiOldColumnFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
     // Column layout
+    // Note: A column of 0 width will probably cause crashes
     ImGui::SetColumnOffset(0,0);
-    ImGui::SetColumnOffset(1,curNodeData.leftPins.region.GetSize().x);
-    ImGui::SetColumnOffset(2,curNodeData.innerContentBox.Max.x-curNodeData.leftPins.region.Min.x);
+    ImGui::SetColumnOffset(1, std::max(curNodeData.leftPins.region.GetSize().x, 1.f));
+    ImGui::SetColumnOffset(2, std::max(curNodeData.innerContentBox.Max.x-curNodeData.leftPins.region.Min.x, 2.f));
 
     // move to middle column where the user can draw
     ImGui::NextColumn();
@@ -722,7 +723,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     if( _pinFlag==ImGuiExNodePinsFlags_Left ) ImGui::NextColumn(); // left column
 
     // Draw pins
-    if(pinLayout.pinSpace.x > 0){
+    if(pinLayout.pinSpace.x > 1){ // Minimum width (with ±0 values ImGui crashes)
         if( _pinFlag==ImGuiExNodePinsFlags_Left ){
             ImGui::SetCursorScreenPos( pinLayout.curDrawPos  );
         }
