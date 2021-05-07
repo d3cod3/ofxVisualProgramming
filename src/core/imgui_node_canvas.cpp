@@ -303,17 +303,17 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     // Adapt the layout for pins
     static int pinsWidth; pinsWidth = 0;
-    /*if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
-        // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
-        pinsWidth = 0;
-        if(_numLeftPins > 0 || _numLeftPins > 0)
-            pinsWidth = ImFloor(curNodeData.innerContentBox.GetSize().x);
-        if(_numLeftPins > 0 && _numLeftPins > 0)
-            pinsWidth *= .5f;
-    }
-    else{
-        pinsWidth = (curNodeData.zoomName >= ImGuiExNodeZoom_Large) ? IMGUI_EX_NODE_PINS_WIDTH_LARGE : (curNodeData.zoomName >= ImGuiExNodeZoom_Normal) ? IMGUI_EX_NODE_PINS_WIDTH_NORMAL : IMGUI_EX_NODE_PINS_WIDTH_SMALL;
-    }*/
+    // if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
+    //     // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
+    //     pinsWidth = 0;
+    //     if(_numLeftPins > 0 || _numLeftPins > 0)
+    //         pinsWidth = ImFloor(curNodeData.innerContentBox.GetSize().x);
+    //     if(_numLeftPins > 0 && _numLeftPins > 0)
+    //         pinsWidth *= .5f;
+    // }
+    // else{
+    //     pinsWidth = (curNodeData.zoomName >= ImGuiExNodeZoom_Large) ? IMGUI_EX_NODE_PINS_WIDTH_LARGE : (curNodeData.zoomName >= ImGuiExNodeZoom_Normal) ? IMGUI_EX_NODE_PINS_WIDTH_NORMAL : IMGUI_EX_NODE_PINS_WIDTH_SMALL;
+    // }
 
 
 
@@ -571,7 +571,6 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         return false;
     }
 
-
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
     ImGui::BeginColumns("innerNode", 3,
@@ -751,7 +750,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 ImGui::SetCursorScreenPos( pinLayout.curDrawPos + ImVec2( -pinLayout.pinSpace.x, 0)  );
             }
 
-
 # if __IMGUI_EX_NODECANVAS_DEBUG__
             ImGui::Button("##nodeBtn", pinLayout.pinSpace);
 # else
@@ -882,7 +880,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 }
 
                 ImGui::EndDragDropTarget();
-
 
             }
 
