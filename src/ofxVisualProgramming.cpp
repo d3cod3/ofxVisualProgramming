@@ -318,9 +318,6 @@ void ofxVisualProgramming::draw(){
     ImGui::SetNextWindowPos(ImVec2(canvasViewport.getTopLeft().x,canvasViewport.getTopLeft().y), ImGuiCond_Always );
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
     bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
-    if ( isCanvasVisible ){
-
-    }
 
     // Render objects.
     if(!bLoadingNewPatch && !patchObjects.empty()){
@@ -362,7 +359,7 @@ void ofxVisualProgramming::draw(){
     }
 
     // Close canvas
-    if ( isCanvasVisible ) nodeCanvas.End();
+    nodeCanvas.End();
 
     // We're done drawing to IMGUI
     ofxVPGui->end();

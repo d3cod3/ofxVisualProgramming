@@ -283,13 +283,12 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     // Is the node out of sight on canvas ?
     bool isNodeVisible = ImGui::IsRectVisible( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max );
-    if( !isNodeVisible ){
-        curNodeData.zoomName = ImGuiExNodeZoom_Invisible;
-        return false;
-    }
 
     // Calc zoom name
-    {
+    if( !isNodeVisible ){
+        curNodeData.zoomName = ImGuiExNodeZoom_Invisible;
+        //return false;
+    }else{
         unsigned int curWidth = curNodeData.outerContentBox.GetSize().x;
         if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_SMALL )
             curNodeData.zoomName = ImGuiExNodeZoom_Imploded;
@@ -303,7 +302,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     curNodeData.viewName = ImGuiExNodeView_None;
 
     // Adapt the layout for pins
-    int pinsWidth = 0;
+    static int pinsWidth; pinsWidth = 0;
     /*if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
         // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
         pinsWidth = 0;
@@ -351,6 +350,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     fg->AddRect(curNodeData.outerContentBox.Min, ImVec2(curNodeData.outerContentBox.Max.x,curNodeData.outerContentBox.Min.y+IMGUI_EX_NODE_HEADER_HEIGHT), IM_COL32(255,255,255,200));
     fg->AddRect(ImVec2(curNodeData.outerContentBox.Min.x, curNodeData.outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT), curNodeData.outerContentBox.Max, IM_COL32(255,255,255,200));
 #endif
+    // Return early now that everything has been calc'd.
+    if( !isNodeVisible ){
+        nodeDrawList = ImGui::GetWindowDrawList(); // So that nodes can still draw pins !
+        return false;
+    }
     // Create node window
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));//IMGUI_EX_NODE_CONTENT_PADDING,IMGUI_EX_NODE_CONTENT_PADDING));
     ImGui::SetNextWindowPos(curNodeData.outerContentBox.Min);
@@ -422,12 +426,12 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         // Enable drag on title
         //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min );
-        //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-curTabsWidth, IMGUI_EX_NODE_HEADER_HEIGHT )  );
-        ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor )  );
+        //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor )  );
+        ImGui::InvisibleButton( "headerGripBtn", ImMax(ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor ), ImVec2(1,1))  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
 
-        if(ImGui::IsItemActive() && ImGui::IsItemClicked(0)){
+        if(ImGui::IsItemActive() && ImGui::IsItemClicked(ImGuiMouseButton_Left)){
             activeNode = nId;
             if(ImGui::GetIO().KeyShift && name != "audio device"){
                 selected_nodes.push_back(nId);
@@ -435,11 +439,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         }
 
         // deselect nodes on clicking on patch
-        if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
+        if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !isAnyCanvasNodeHovered){
             selected_nodes.clear();
         }
 
-        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             if(!isDraggingHeader){
                 mouseOffset = ImGui::GetMousePos()-curNodeData.outerContentBox.Min;
                 isDraggingHeader = true;
@@ -535,9 +539,12 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     }
 
+    // reset origin
+    ImGui::SetCursorScreenPos( curNodeData.innerContentBox.Min );
+
     // Return before drawing content, if scale is too small ?
     // todo. (This is already partially handled by BeginNodeContent();)
-    if( false && curNodeData.zoomName < ImGuiExNodeZoom_Small ){
+    if( curNodeData.zoomName <= ImGuiExNodeZoom_Imploded ){
         // Fill empty space with color
         //canvasDrawList->AddRectFilled(); // todo
 
@@ -545,8 +552,6 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         return false;
     }
 
-    // reset origin
-    ImGui::SetCursorScreenPos( curNodeData.innerContentBox.Min );
 
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
@@ -557,9 +562,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                         | ImGuiColumnsFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
     // Column layout
+    // Note: A column of 0 width will probably cause crashes
     ImGui::SetColumnOffset(0,0);
-    ImGui::SetColumnOffset(1,curNodeData.leftPins.region.GetSize().x);
-    ImGui::SetColumnOffset(2,curNodeData.innerContentBox.Max.x-curNodeData.leftPins.region.Min.x);
+    ImGui::SetColumnOffset(1, std::max(curNodeData.leftPins.region.GetSize().x, 1.f));
+    ImGui::SetColumnOffset(2, std::max(curNodeData.innerContentBox.Max.x-curNodeData.leftPins.region.Min.x, 2.f));
 
     // move to middle column where the user can draw
     ImGui::NextColumn();
@@ -580,7 +586,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     // Draw default menu items
     if(ImGui::BeginPopup(IMGUI_EX_NODE_MENU_ID)){
-        if(name != "audio device"){
+        if(name != "audio device"){ // Todo: should not be checked on title... maybe: if(node->canBeRemoved())
             if(ImGui::MenuItem("Delete")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DeleteNode;
             //if(ImGui::MenuItem("Copy")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_CopyNode;
             if(ImGui::MenuItem("Duplicate")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DuplicateNode;
@@ -699,6 +705,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     static int linkID = -1;
 
     // Check ImGui Callstack
+    IM_ASSERT(nodeDrawList != NULL ); // Huh ?
     IM_ASSERT(isDrawingCanvas == true); // Please Call between Begin() and End()
     IM_ASSERT(isDrawingNode == true); // Please Call between BeginNode() and EndNode()
     IM_ASSERT(_pinFlag == ImGuiExNodePinsFlags_Left || _pinFlag == ImGuiExNodePinsFlags_Right); // Only left / right pins can be created
@@ -713,8 +720,8 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     ImGui::NextColumn(); // right col
     if( _pinFlag==ImGuiExNodePinsFlags_Left ) ImGui::NextColumn(); // left column
 
-    // Hover interaction
-    if(pinLayout.pinSpace.x > 0){
+    // Draw pins
+    if(pinLayout.pinSpace.x > 1){ // Minimum width (with ±0 values ImGui crashes)
         if( _pinFlag==ImGuiExNodePinsFlags_Left ){
             ImGui::SetCursorScreenPos( pinLayout.curDrawPos  );
         }
@@ -855,40 +862,40 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     //float pinSpace = (ImGui::IsItemHovered()) ? IMGUI_EX_NODE_PIN_WIDTH_HOVERED : IMGUI_EX_NODE_PIN_WIDTH;
     float pinSpace = IMGUI_EX_NODE_PIN_WIDTH*scaleFactor;
 
-    // Draw pin
-
     // Left side (INLETS)
     if( _pinFlag==ImGuiExNodePinsFlags_Left ){
-
+        // Update pin position
         inletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,0);
 
-        nodeDrawList->AddCircleFilled(inletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
+        // Draw pin
+        if( curNodeData.zoomName != ImGuiExNodeZoom_Invisible ){
+            nodeDrawList->AddCircleFilled(inletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
 
-        if(ImGui::GetMousePos().x > inletPinsPositions[nodeID][pinID].x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < inletPinsPositions[nodeID][pinID].x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > inletPinsPositions[nodeID][pinID].y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < inletPinsPositions[nodeID][pinID].y+(pinLayout.pinSpace.y*.5f)){
-            if(activePinType == _type || activePinType == ""){
-                nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
-                ImVec2 tempPos = inletPinsPositions[nodeID][pinID] - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
-                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
-                canvasDrawList->AddText( tempPos, _color, _label);
+            if(ImGui::GetMousePos().x > inletPinsPositions[nodeID][pinID].x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < inletPinsPositions[nodeID][pinID].x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > inletPinsPositions[nodeID][pinID].y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < inletPinsPositions[nodeID][pinID].y+(pinLayout.pinSpace.y*.5f)){
+                if(activePinType == _type || activePinType == ""){
+                    nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                    ImVec2 tempPos = inletPinsPositions[nodeID][pinID] - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
+                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
+                    canvasDrawList->AddText( tempPos, _color, _label);
+                }
+
             }
 
-        }
+            if(_connected){
+                nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+            }
 
-        if(_connected){
-            nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
         }
 
     }
 
     // right side (OUTLETS)
     else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
-
+        // Update pin position
         outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
 
-        nodeDrawList->AddCircleFilled(outletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
-
         // draw links (OUTLETS to INLETS ONLY)
-        for(int i=0;i<_linksData.size();i++){
+        for(unsigned int i=0;i<_linksData.size();i++){
             const LinkBezierData link_data = get_link_renderable(outletPinsPositions[nodeID][pinID], canvasView.translation+(_linksData.at(i)._toPinPosition*canvasView.scale), IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
 
             const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
@@ -907,7 +914,8 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             }
 
 
-            ImU32 _tempColor = _color;
+            static ImU32 _tempColor;
+            _tempColor = _color;
             if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)!=selected_links.end()){ // selected
                 _tempColor = IM_COL32(255,0,0,255);
             }
@@ -915,17 +923,22 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
         }
 
-        // draw labels
-        if(ImGui::GetMousePos().x > outletPinsPositions[nodeID][pinID].x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < outletPinsPositions[nodeID][pinID].x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > outletPinsPositions[nodeID][pinID].y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < outletPinsPositions[nodeID][pinID].y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
-            if(connectType == 0){
-                nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
-                ImVec2 tempPos = outletPinsPositions[nodeID][pinID] + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
-                canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
-                canvasDrawList->AddText( tempPos, _color, _label);
+        // Draw pin
+        if( curNodeData.zoomName != ImGuiExNodeZoom_Invisible ){
+            nodeDrawList->AddCircleFilled(outletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
+
+            // draw labels
+            if(ImGui::GetMousePos().x > outletPinsPositions[nodeID][pinID].x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < outletPinsPositions[nodeID][pinID].x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > outletPinsPositions[nodeID][pinID].y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < outletPinsPositions[nodeID][pinID].y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
+                if(connectType == 0){
+                    nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                    ImVec2 tempPos = outletPinsPositions[nodeID][pinID] + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
+                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
+                    canvasDrawList->AddText( tempPos, _color, _label);
+                }
             }
         }
 
-        // draw pin connected
+        // Draw Connected Appearance
         if(_connected){
             nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
         }
