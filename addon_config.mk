@@ -75,9 +75,10 @@ common:
 
 linux64:
         ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
+        ADDON_SOURCES_EXCLUDE = src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
+        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI ofxSyphon

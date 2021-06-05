@@ -17,40 +17,9 @@ Project{
             'src/ofApp.h',
         ]
 
-        of.addons: {
-            if(qbs.targetOS.indexOf("windows")>-1){
-                return ['ofxAssimpModelLoader','ofxGui','ofxKinect','ofxNetwork','ofxOpenCv','ofxOsc','ofxPoco','ofxSvg','ofxVectorGraphics','ofxXmlSettings',
-                        'ofxAudioAnalyzer',
-                        'ofxBTrack',
-                        'ofxCv',
-                        'ofxFontStash',
-                        'ofxGLError',
-                        'ofxDatGui',
-                        'ofxHistoryPlot',
-                        'ofxInfiniteCanvas',
-                        'ofxLua',
-                        'ofxLoggerChannel',
-                        'ofxTimeMeasurements',
-                        'ofxVisualProgramming'
-                        ]
-            }else{
-                return ['ofxAssimpModelLoader','ofxGui','ofxKinect','ofxNetwork','ofxOpenCv','ofxOsc','ofxPoco','ofxSvg','ofxVectorGraphics','ofxXmlSettings',
-                        'ofxAudioAnalyzer',
-                        'ofxBTrack',
-                        'ofxCv',
-                        'ofxFontStash',
-                        'ofxGLError',
-                        'ofxDatGui',
-                        'ofxHistoryPlot',
-                        'ofxInfiniteCanvas',
-                        'ofxLua',
-                        'ofxLoggerChannel',
-                        'ofxPython',
-                        'ofxTimeMeasurements',
-                        'ofxVisualProgramming'
-                        ]
-            }
-        }
+        of.addons: [
+            'ofxVisualProgramming'
+        ]
 
         // additional flags for the project. the of module sets some
         // flags by default to add the core libraries, search paths...
@@ -70,6 +39,22 @@ Project{
         // eg: this will enable ccache when compiling
         //
         // cpp.compilerWrapper: 'ccache'
+
+        // Include ofxSyphon on osx
+        Properties {
+            // osx only, additional frameworks to link with the project
+            condition: qbs.targetOS.contains("osx") || qbs.targetOS.contains("macos")
+            of.addons: outer.concat(['ofxSyphon'])
+            of.frameworks: outer.concat(['Syphon'])
+            cpp.frameworkPaths: ['../../../addons/ofxSyphon/libs/Syphon/lib/osx/']
+            // dirty fix for compiling .mm files (not auto-detected on qt)
+            files: outer.concat([
+                                    '../../../addons/ofxSyphon/src/ofxSyphonClient.mm',
+                                    '../../../addons/ofxSyphon/src/ofxSyphonServer.mm',
+                                    '../../../addons/ofxSyphon/src/ofxSyphonServerDirectory.mm',
+                                    '../../../addons/ofxSyphon/libs/Syphon/src/SyphonNameboundClient.m',
+                                ])
+        }
 
         Depends{
             name: "cpp"

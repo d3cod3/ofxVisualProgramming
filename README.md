@@ -1,12 +1,11 @@
 
 # ofxVisualProgramming - A visual-programming patching addon for OF
 
-> A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua and Python scripting interpreter, plus live compile of GLSL Shaders version 120 and live editing/execute Bash scripts(macOS & linux) capabilities.
+> A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua and Python scripting interpreter, plus live compile of GLSL Shaders from version 150 to 410, and live editing/execute Bash scripts(macOS & linux) capabilities.
 
 ![Mosaic 0.4.0](https://github.com/d3cod3/Mosaic/raw/master/process/img/28_transparent_machines04.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V21B90C)
 
 Table of Contents
 =================
@@ -98,6 +97,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPython](https://github.com/d3cod3/ofxPython)
 
+#### [ofxSyphon](https://github.com/d3cod3/ofxSyphon)
+
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
 
 #### [ofxWarp](https://github.com/d3cod3/ofxWarp)
@@ -134,6 +135,7 @@ git clone https://github.com/d3cod3/ofxPython
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPdExternals
 git clone https://github.com/d3cod3/ofxPDSP
+git clone https://github.com/d3cod3/ofxSyphon
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/d3cod3/ofxWarp
 git clone https://github.com/d3cod3/ofxVisualProgramming
@@ -356,6 +358,8 @@ texture crop | X |
 texture to pixels | X |
 texture transform | X |
 to grayscale texture | X |
+syphon sender | X |
+syphon receiver | X |
 video exporter | X |
 video feedback | X |
 video gate | X |
@@ -409,6 +413,8 @@ ofxMtlMapping2D original addon by [morethanlogic](https://github.com/morethanlog
 ofxNDI original addon by [Thomas Geissl](https://github.com/thomasgeissl)
 
 ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
+
+ofxSyphon original addon by [Anthony Stellato](https://github.com/astellato)
 
 ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
 
