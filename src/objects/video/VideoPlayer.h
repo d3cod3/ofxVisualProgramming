@@ -39,6 +39,8 @@
 #include "ImGuiFileBrowser.h"
 #include "IconsFontAwesome5.h"
 
+#include "ofxHapPlayer.h"
+
 class VideoPlayer : public PatchObject {
 
 public:
@@ -59,7 +61,7 @@ public:
     void            loadVideoFile();
 
 
-    ofVideoPlayer*      video;
+    ofxHapPlayer*       video;
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
     bool                isFileLoaded;

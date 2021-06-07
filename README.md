@@ -77,6 +77,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
 
+#### [ofxHapPlayer](https://github.com/d3cod3/ofxHapPlayer)
+
 #### [ofxImGui](https://github.com/d3cod3/ofxImGui)
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
@@ -125,6 +127,7 @@ git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/Akira-Hayasaka/ofxGLEditor
 git clone https://github.com/jeffcrouse/ofxJSON
+git clone https://github.com/d3cod3/ofxHapPlayer
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
@@ -401,6 +404,8 @@ ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkan
 ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
 ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
+
+ofxHapPlayer original addon by [Tom Butterworth](https://github.com/bangnoise)
 
 ofxImGui original addon by [Jason Van Cleave](https://github.com/jvcleave)
 
