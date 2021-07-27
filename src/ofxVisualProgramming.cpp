@@ -450,16 +450,7 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetTempFolder(){
     ofDirectory dir;
-    dir.listDir(ofToDataPath("temp/"));
-    for(size_t i = 0; i < dir.size(); i++){
-        if(dir.getFile(i).isDirectory()){
-            ofDirectory temp;
-            temp.removeDirectory(dir.getFile(i).getAbsolutePath(),true,true);
-        }else{
-            dir.getFile(i).remove();
-        }
-
-    }
+    dir.removeDirectory(ofToDataPath("temp/",true),true,true);
 }
 
 //--------------------------------------------------------------
@@ -469,28 +460,30 @@ void ofxVisualProgramming::cleanPatchDataFolder(){
     dir.listDir(currentPatchFolderPath+"data/");
 
     for(size_t i = 0; i < dir.size(); i++){
-        if(dir.getFile(i).isFile()){
-            map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(dir.getFile(i).getFileName());
-            if (sofpIT == scriptsObjectsFilesPaths.end()){
-                // not found in patch scripts map, remove it from patch data folder
-                //ofLog(OF_LOG_NOTICE,"%s",dir.getFile(i).getAbsolutePath().c_str());
-                string fileExt = ofToUpper(dir.getFile(i).getExtension());
-                if(fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
-                    dir.getFile(i).remove();
-                }
-                // remove if filename is empty
-                string tfn = dir.getFile(i).getFileName();
-                if(dir.getFile(i).getFileName().substr(0,tfn.find_last_of('.')) == "empty"){
-                    dir.getFile(i).remove();
-                }
-                // remove alone .vert files
-                if(fileExt == "VERT"){
-                    string vsName = dir.getFile(i).getFileName();
-                    string fsName = dir.getFile(i).getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                    map<string,string>::iterator sofpIT2 = scriptsObjectsFilesPaths.find(fsName);
-                    if (sofpIT2 == scriptsObjectsFilesPaths.end()){
-                        // related fragment shader not found in patch scripts map, remove it from patch data folder
+        if(dir.getFile(i).exists()){
+            if(dir.getFile(i).isFile()){
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(dir.getFile(i).getFileName());
+                if (sofpIT == scriptsObjectsFilesPaths.end()){
+                    // not found in patch scripts map, remove it from patch data folder
+                    //ofLog(OF_LOG_NOTICE,"%s",dir.getFile(i).getAbsolutePath().c_str());
+                    string fileExt = ofToUpper(dir.getFile(i).getExtension());
+                    if(fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
                         dir.getFile(i).remove();
+                    }
+                    // remove if filename is empty
+                    string tfn = dir.getFile(i).getFileName();
+                    if(dir.getFile(i).getFileName().substr(0,tfn.find_last_of('.')) == "empty"){
+                        dir.getFile(i).remove();
+                    }
+                    // remove alone .vert files
+                    if(fileExt == "VERT"){
+                        string vsName = dir.getFile(i).getFileName();
+                        string fsName = dir.getFile(i).getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                        map<string,string>::iterator sofpIT2 = scriptsObjectsFilesPaths.find(fsName);
+                        if (sofpIT2 == scriptsObjectsFilesPaths.end()){
+                            // related fragment shader not found in patch scripts map, remove it from patch data folder
+                            dir.getFile(i).remove();
+                        }
                     }
                 }
             }
