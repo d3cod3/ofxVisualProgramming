@@ -270,6 +270,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
     }
 
+    // Draw Node content and handle
     if(isNodeVisible){
 
         // save node state on click
