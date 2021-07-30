@@ -155,7 +155,12 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 if(newVertGLSLFile.exists()){
                     copyFileToPatchFolder(this->patchFolderPath,newVertGLSLFile.getAbsolutePath());
                 }else{
-                    ofFile vertToRead(ofToDataPath("scripts/empty.vert"));
+                    ofFile vertToRead;
+                    if(ofIsGLProgrammableRenderer()){
+                      vertToRead.open(ofToDataPath("scripts/empty.vert"));
+                    }else{
+                      vertToRead.open(ofToDataPath("scripts/empty_120.vert"));
+                    }
                     ofFile patchFolderNewFrag(filepath);
                     string pf_fsName = patchFolderNewFrag.getFileName();
                     string pf_vsName = patchFolderNewFrag.getEnclosingDirectory()+patchFolderNewFrag.getFileName().substr(0,pf_fsName.find_last_of('.'))+".vert";
@@ -171,7 +176,12 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 if(newFragGLSLFile.exists()){
                     filepath = copyFileToPatchFolder(this->patchFolderPath,newFragGLSLFile.getAbsolutePath());
                 }else{
-                    ofFile fragToRead(ofToDataPath("scripts/empty.frag"));
+                    ofFile fragToRead;
+                    if(ofIsGLProgrammableRenderer()){
+                      fragToRead.open(ofToDataPath("scripts/empty.frag"));
+                    }else{
+                      fragToRead.open(ofToDataPath("scripts/empty_120.frag"));
+                    }
                     ofFile patchFolderNewVert(newVertOpened);
                     string pf_vsName = patchFolderNewVert.getFileName();
                     string pf_fsName = patchFolderNewVert.getEnclosingDirectory()+patchFolderNewVert.getFileName().substr(0,pf_vsName.find_last_of('.'))+".frag";
@@ -187,18 +197,29 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(shaderScriptSaved){
         shaderScriptSaved = false;
         // create and open the new one
-        ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
+        ofFile fileToRead;
+        if(ofIsGLProgrammableRenderer()){
+          fileToRead.open(ofToDataPath("scripts/empty.frag"));
+        }else{
+          fileToRead.open(ofToDataPath("scripts/empty_120.frag"));
+        }
         ofFile newGLSLFile (lastShaderScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"),true,true);
         ofFile correctedFileToRead(checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"));
 
-        ofFile vertToRead(ofToDataPath("scripts/empty.vert"));
+        ofFile vertToRead;
+        if(ofIsGLProgrammableRenderer()){
+          vertToRead.open(ofToDataPath("scripts/empty.vert"));
+        }else{
+          vertToRead.open(ofToDataPath("scripts/empty_120.vert"));
+        }
         string fsName = newGLSLFile.getFileName();
         string vsName = newGLSLFile.getEnclosingDirectory()+newGLSLFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
         ofFile newVertGLSLFile (vsName);
         ofFile::copyFromTo(vertToRead.getAbsolutePath(),newVertGLSLFile.getAbsolutePath(),true,true);
 
         currentScriptFile = correctedFileToRead;
+
         if (currentScriptFile.exists()){
             filepath = currentScriptFile.getAbsolutePath();
             loadScript(filepath);
@@ -561,7 +582,6 @@ void ShaderObject::doFragmentShader(){
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
             string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
-
             float tempValue = 0.0f;
             map<string,float>::const_iterator it = tempVars.find("GUI_FLOAT_"+varName);
             if(it!=tempVars.end()){
@@ -634,7 +654,9 @@ void ShaderObject::doFragmentShader(){
     this->saveConfig(false);
 
     // Compile the shader and load it to the GPU
-    quad.clear();
+    if (ofIsGLProgrammableRenderer()) {
+      quad.clear();
+    }
     shader->unload();
 
     if (!ofIsGLProgrammableRenderer()) {
@@ -642,12 +664,13 @@ void ShaderObject::doFragmentShader(){
             shader->setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
         }
         shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
+        scriptLoaded = shader->linkProgram();
     }else{
         size_t lastindex = filepath.find_last_of(".");
         string rawname = filepath.substr(0, lastindex);
         shader->load(rawname);
+        scriptLoaded = shader->isLoaded();
     }
-    scriptLoaded = shader->isLoaded();
 
     if(scriptLoaded){
         ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
@@ -742,20 +765,30 @@ void ShaderObject::loadScript(string scriptFile){
             size_t lastindex = filepath.find_last_of(".");
             string rawname = filepath.substr(0, lastindex);
             test.load(rawname);
+
+            if(test.isLoaded()){
+                test.unload();
+                watcher.removeAllPaths();
+                watcher.addPath(filepath);
+                if(vertexShader != ""){
+                    watcher.addPath(vertexShaderFile.getAbsolutePath());
+                }
+                doFragmentShader();
+            }
         }else{
             if(vertexShader != ""){
                 test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
             }
             test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
-        }
-        if(test.isLoaded()){
-            test.unload();
-            watcher.removeAllPaths();
-            watcher.addPath(filepath);
-            if(vertexShader != ""){
-                watcher.addPath(vertexShaderFile.getAbsolutePath());
+
+            if(test.linkProgram()){
+                watcher.removeAllPaths();
+                watcher.addPath(filepath);
+                if(vertexShader != ""){
+                    watcher.addPath(vertexShaderFile.getAbsolutePath());
+                }
+                doFragmentShader();
             }
-            doFragmentShader();
         }
 
     }else{

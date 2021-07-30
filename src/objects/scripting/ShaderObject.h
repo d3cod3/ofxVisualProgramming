@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2021 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -98,7 +98,7 @@ public:
     void            drawObjectNodeConfig() override;
 
     void            removeObjectContent(bool removeFileFromData=false) override;
-    
+
     void            resetResolution(int fromID, int newWidth, int newHeight) override;
 
     void            initResolution();
@@ -123,7 +123,7 @@ public:
     vector<string>      shaderSlidersLabel;
     vector<int>         shaderSlidersIndex;
     vector<int>         shaderSlidersType;
-    
+
     PathWatcher         watcher;
     bool                scriptLoaded;
     bool                isNewObject;
