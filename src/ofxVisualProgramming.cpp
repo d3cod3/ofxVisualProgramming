@@ -136,13 +136,13 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
         // Dummy call to IO which will crash if _guiRef is not initialised.
         ImGui::GetIO();
         // Ensure ImGui gets loaded correctly
-        if(ImGui::GetCurrentContext()==nullptr || !ImGui::GetCurrentContext()->Initialized){
+        /*if(ImGui::GetCurrentContext()==nullptr || !ImGui::GetCurrentContext()->Initialized){
             ofxVPGui->setup();
         }
         // Manually force shared mode
         else {
             ofxVPGui->setSharedMode(true);
-        }
+        }*/
 
         //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
