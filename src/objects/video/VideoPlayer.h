@@ -71,7 +71,6 @@ public:
     bool                finishBang;
     bool                preloadFirstFrame;
 
-    float               volume;
     float               speed;
     bool                loop;
 
