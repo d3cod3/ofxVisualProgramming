@@ -55,7 +55,11 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
     this->initInletsState();
 
-    video = new ofxHapPlayer();
+    #ifndef TARGET_WIN32
+        video = new ofxHapPlayer();
+    #else
+        video = new ofVideoPlayer();
+    #endif
 
     lastMessage         = "";
     isNewObject         = false;
@@ -152,7 +156,11 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
             static_cast<ofTexture *>(_outletParams[0])->clear();
         }else{
             //static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
-            *static_cast<ofTexture *>(_outletParams[0]) = *video->getTexture();
+            #ifndef TARGET_WIN32
+                *static_cast<ofTexture *>(_outletParams[0]) = *video->getTexture();
+            #else
+                static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+            #endif
         }
 
         // listen to message control (_inletParams[0])
@@ -314,6 +322,7 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
+    #ifndef TARGET_WIN32
     if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file encoded with the HAP codec", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".mov,.mp4,.mpg,.mpeg,.avi", "", scaleFactor)){
         ofFile file (fileDialog.selected_path);
         if (file.exists()){
@@ -322,6 +331,17 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             needToLoadVideo = true;
         }
     }
+    #else
+    if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".mov,.mp4,.mpg,.mpeg,.avi", "", scaleFactor)){
+        ofFile file (fileDialog.selected_path);
+        if (file.exists()){
+            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+            isFileLoaded = false;
+            needToLoadVideo = true;
+        }
+    }
+    #endif
+
 
 }
 
@@ -349,7 +369,12 @@ void VideoPlayer::drawObjectNodeConfig(){
     if (ImGui::IsItemHovered()){
         ImGui::BeginTooltip();
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg .avi. Compatible codec: HAP");
+        #ifndef TARGET_WIN32
+            ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg .avi | Compatible codec: HAP");
+        #else
+            ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg .avi");
+        #endif
+
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }
@@ -402,19 +427,35 @@ void VideoPlayer::drawObjectNodeConfig(){
         }
     }
 
-    ImGuiEx::ObjectInfo(
+    #ifndef TARGET_WIN32
+        ImGuiEx::ObjectInfo(
                 "Simple object for playing video files. It use the HAP codec as standard, so you can use only videos encoded with HAP. More info here: https://hap.video/using-hap.html",
                 "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
-
-    // file dialog
-    if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file encoded with the HAP codec", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, "*.*", "", scaleFactor)){
-        ofFile file (fileDialog.selected_path);
-        if (file.exists()){
-            filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-            isFileLoaded = false;
-            needToLoadVideo = true;
+        // file dialog
+        if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file encoded with the HAP codec", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, "*.*", "", scaleFactor)){
+            ofFile file (fileDialog.selected_path);
+            if (file.exists()){
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                isFileLoaded = false;
+                needToLoadVideo = true;
+            }
         }
-    }
+    #else
+        ImGuiEx::ObjectInfo(
+                "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
+                "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
+        // file dialog
+        if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, "*.*", "", scaleFactor)){
+            ofFile file (fileDialog.selected_path);
+            if (file.exists()){
+                filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
+                isFileLoaded = false;
+                needToLoadVideo = true;
+            }
+        }
+    #endif
+
+
 }
 
 //--------------------------------------------------------------
