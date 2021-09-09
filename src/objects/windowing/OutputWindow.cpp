@@ -590,11 +590,7 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
     }
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->hide){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
-        }else{
-            static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
-        }
+        static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
     }
 }
 
@@ -603,21 +599,9 @@ void OutputWindow::keyReleased(ofKeyEventArgs &e){
     // OSX: CMD-F, WIN/LINUX: CTRL-F    (FULLSCREEN)
     if(e.hasModifier(MOD_KEY) && e.keycode == 70){
         toggleWindowFullscreen();
-    // OSX: CMD-E, WIN/LINUX: CTRL-E    (EXECUTE SCRIPT)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 69){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
     // OSX: CMD-T, WIN/LINUX: CTRL-T    (HIDE LIVECODING EDITOR)
     }else if(e.hasModifier(MOD_KEY) && e.keycode == 84){
         static_cast<LiveCoding *>(_inletParams[1])->hide = !static_cast<LiveCoding *>(_inletParams[1])->hide;
-    // OSX: CMD-K, WIN/LINUX: CTRL-K    (TOGGLE AUTO FOCUS)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 75){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setAutoFocus(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getAutoFocus());
-    // OSX: CMD-L, WIN/LINUX: CTRL-L    (TOGGLE LINE WRAPPING)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 76){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setLineWrapping(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getLineWrapping());
-    // OSX: CMD-N, WIN/LINUX: CTRL-N    (TOGGLE LINE NUMBERS)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 78){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setLineNumbers(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getLineNumbers());
     }
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
@@ -728,10 +712,6 @@ void OutputWindow::windowResized(ofResizeEventArgs &e){
 
     this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
     this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
-
-    if(this->inletsConnected[2]){
-        static_cast<ofxEditor *>(_inletParams[2])->resize(window->getWidth(),window->getHeight());
-    }
 }
 
 

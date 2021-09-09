@@ -73,8 +73,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
-#### [ofxGLEditor](https://github.com/Akira-Hayasaka/ofxGLEditor)
-
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
 
 #### [ofxHapPlayer](https://github.com/d3cod3/ofxHapPlayer)
@@ -125,7 +123,6 @@ git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
-git clone https://github.com/Akira-Hayasaka/ofxGLEditor
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxHapPlayer
 git clone https://github.com/d3cod3/ofxImGui
@@ -358,6 +355,7 @@ image loader | X |
 kinect grabber | X |
 pixels to texture | X |
 texture crop | X |
+texture mixer | X |
 texture to pixels | X |
 texture transform | X |
 to grayscale texture | X |
@@ -400,8 +398,6 @@ ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
-
-ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
 ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
 

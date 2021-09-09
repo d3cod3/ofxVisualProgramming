@@ -125,16 +125,6 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // load kuro
     kuro->load("images/kuro.jpg");
 
-    // init live coding editor
-    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 32);
-    liveEditorSyntax.loadFile(ofToDataPath(LUA_SYNTAX));
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
-    liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setColorScheme(&liveEditorColors);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setLineNumbers(true);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setAutoFocus(true);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
-
     // init lua
     static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
     static_cast<LiveCoding *>(_outletParams[1])->lua.addListener(this);
@@ -253,9 +243,6 @@ void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
         static_cast<LiveCoding *>(_outletParams[1])->lua.scriptDraw();
     }else{
         kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
-    }
-    if(!static_cast<LiveCoding *>(_outletParams[1])->hide){
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
     }
     ofPopMatrix();
     ofPopStyle();
@@ -455,8 +442,6 @@ void LuaScript::initResolution(){
     _outletParams[0] = new ofTexture();
     static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
 
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
-
 }
 
 //--------------------------------------------------------------
@@ -493,8 +478,6 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 
         _outletParams[0] = new ofTexture();
         static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
 
         tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
@@ -555,8 +538,6 @@ void LuaScript::openScript(string scriptFile){
 
             // then import the main script file
             filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
             reloadScript();
         }
     }
@@ -568,8 +549,6 @@ void LuaScript::newScript(string scriptFile){
     ofFile newLuaFile (scriptFile);
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"),true,true);
     filepath = scriptFile;
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     reloadScript();
 }
 
@@ -632,10 +611,6 @@ void LuaScript::loadScript(string scriptFile){
         watcher.addPath(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
         this->saveConfig(false);
-    }
-    if(static_cast<LiveCoding *>(_outletParams[1])->hide){
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     }
     ///////////////////////////////////////////
 
