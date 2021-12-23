@@ -61,6 +61,8 @@ VideoMixer::VideoMixer() : PatchObject("texture mixer"){
     kuro            = new ofImage();
     mixFbo          = new ofFbo();
 
+    alphas.assign(32,255);
+
     canvasWidth     = STANDARD_TEXTURE_WIDTH;
     canvasHeight    = STANDARD_TEXTURE_HEIGHT;
     temp_width      = STANDARD_TEXTURE_WIDTH;
@@ -78,12 +80,12 @@ VideoMixer::VideoMixer() : PatchObject("texture mixer"){
 void VideoMixer::newObject(){
     PatchObject::setName( this->objectName );
 
+    this->addInlet(VP_LINK_TEXTURE,"t0");
     this->addInlet(VP_LINK_TEXTURE,"t1");
     this->addInlet(VP_LINK_TEXTURE,"t2");
     this->addInlet(VP_LINK_TEXTURE,"t3");
     this->addInlet(VP_LINK_TEXTURE,"t4");
     this->addInlet(VP_LINK_TEXTURE,"t5");
-    this->addInlet(VP_LINK_TEXTURE,"t6");
 
     this->addOutlet(VP_LINK_TEXTURE,"output");
 
@@ -94,7 +96,6 @@ void VideoMixer::newObject(){
     this->setCustomVar(static_cast<float>(canvasWidth),"CANVAS_WIDTH");
     this->setCustomVar(static_cast<float>(canvasHeight),"CANVAS_HEIGHT");
 
-    alphas.assign(32,255);
     for(int i=0;i<32;i++){
         this->setCustomVar(alphas.at(i),"T"+ofToString(i)+"_alpha");
     }
