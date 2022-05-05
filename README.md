@@ -137,6 +137,7 @@ git clone https://github.com/d3cod3/ofxPdExternals
 git clone https://github.com/d3cod3/ofxPDSP
 git clone https://github.com/d3cod3/ofxSyphon
 git clone https://github.com/d3cod3/ofxTimeline
+git clone --branch=main https://github.com/armadillu/ofxTurboJpeg
 git clone https://github.com/d3cod3/ofxWarp
 git clone https://github.com/d3cod3/ofxVisualProgramming
 ```
@@ -353,8 +354,10 @@ Texture | Ready
 image exporter | X |
 image loader | X |
 kinect grabber | X |
+lossy JPEG compression | - |
 pixels to texture | X |
 texture crop | X |
+texture information | - |
 texture mixer | X |
 texture to pixels | X |
 texture transform | X |
@@ -420,3 +423,5 @@ ofxSyphon original addon by [Anthony Stellato](https://github.com/astellato)
 ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
 
 ofxWarp original addon by [Elie Zananiri](https://github.com/prisonerjohn/ofxWarp)
+
+ofxTurboJpeg addon by [Oriol Ferrer Mesia](https://github.com/armadillu/ofxTurboJpeg)
