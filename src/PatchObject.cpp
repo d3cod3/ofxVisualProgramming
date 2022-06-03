@@ -398,6 +398,8 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
             _inletParams[toInlet] = new ofPixels();
         }else if(tempLink->type == VP_LINK_TEXTURE){
             _inletParams[toInlet] = new ofTexture();
+        }else if(tempLink->type == VP_LINK_FBO){
+            _inletParams[toInlet] = new ofxPingPong();
         }else if(tempLink->type == VP_LINK_AUDIO){
             _inletParams[toInlet] = new ofSoundBuffer();
             if(patchObjects[fromObjectID]->getIsPDSPPatchableObject() && getIsPDSPPatchableObject()){
@@ -887,6 +889,8 @@ ofColor PatchObject::getInletColor(const int& iid) const {
             break;
         case 6: return COLOR_PIXELS;
             break;
+        case 7: return COLOR_FBO;
+            break;
         default:
             break;
     }
@@ -910,6 +914,8 @@ ofColor PatchObject::getOutletColor(const int& oid) const {
         case 5: return COLOR_SCRIPT;
             break;
         case 6: return COLOR_PIXELS;
+            break;
+        case 7: return COLOR_FBO;
             break;
         default:
             break;

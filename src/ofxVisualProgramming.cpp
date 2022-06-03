@@ -1066,6 +1066,8 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
             patchObjects[toID]->_inletParams[toInlet] = new ofPixels();
         }else if(tempLink->type == VP_LINK_TEXTURE){
             patchObjects[toID]->_inletParams[toInlet] = new ofTexture();
+        }else if(tempLink->type == VP_LINK_FBO){
+            patchObjects[toID]->_inletParams[toInlet] = new ofxPingPong();
         }else if(tempLink->type == VP_LINK_AUDIO){
             patchObjects[toID]->_inletParams[toInlet] = new ofSoundBuffer();
             if(patchObjects[fromID]->getIsPDSPPatchableObject() && patchObjects[toID]->getIsPDSPPatchableObject()){

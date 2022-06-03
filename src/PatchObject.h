@@ -38,6 +38,7 @@
 
 #include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
+#include "ofxPingPong.h"
 
 #include "objectFactory.h"
 #include "ofxVPHasUid.h"
@@ -50,13 +51,14 @@
 #include "Driver.h"
 
 enum LINK_TYPE {
-    VP_LINK_NUMERIC,
-    VP_LINK_STRING,
-    VP_LINK_ARRAY,
-    VP_LINK_TEXTURE,
-    VP_LINK_AUDIO,
-    VP_LINK_SPECIAL,
-    VP_LINK_PIXELS
+    VP_LINK_NUMERIC,    // 0
+    VP_LINK_STRING,     // 1
+    VP_LINK_ARRAY,      // 2
+    VP_LINK_TEXTURE,    // 3
+    VP_LINK_AUDIO,      // 4
+    VP_LINK_SPECIAL,    // 5
+    VP_LINK_PIXELS,     // 6
+    VP_LINK_FBO         // 7
 };
 
 struct PatchLink{
