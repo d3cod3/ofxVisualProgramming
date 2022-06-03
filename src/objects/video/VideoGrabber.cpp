@@ -232,8 +232,8 @@ void VideoGrabber::drawObjectNodeConfig(){
     ImGui::Text("Format: %ix%i",camWidth,camHeight);
 
     ImGui::Spacing();
-    if(ImGui::BeginCombo("Device", devicesVector.at(deviceID).c_str() )){
-        for(int i=0; i < devicesVector.size(); ++i){
+    if(ImGui::BeginCombo("Device", devicesVector.size()>deviceID ? devicesVector.at(deviceID).c_str() : deviceName.c_str() )){
+        for(int i=0; i < static_cast<int>(devicesVector.size()); ++i){
             bool is_selected = (deviceID == i );
             if (ImGui::Selectable(devicesVector.at(i).c_str(), is_selected)){
                 resetCameraSettings(i);
