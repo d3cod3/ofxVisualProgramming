@@ -116,6 +116,21 @@ static inline float hardClip(float x){
 }
 
 //--------------------------------------------------------------
+inline ofVec3f ofRandVec3f() {
+    return ofVec3f(ofRandomf(),ofRandomf(),ofRandomf()).normalize().scale(ofRandomf());
+}
+
+//--------------------------------------------------------------
+inline float fastSqrt(float x) {
+    float xhalf = 0.5f * x;
+    int i = *(int*)&x;            // store floating-point bits in integer
+    i = 0x5f3759df - (i >> 1);    // initial guess for Newton's method
+    x = *(float*)&i;              // convert new bits into float
+    x = x*(1.5f - xhalf*x*x);     // One round of Newton's method
+    return 1.0f / x;
+}
+
+//--------------------------------------------------------------
 inline bool isInteger(const std::string & s){
    if(s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false ;
 
