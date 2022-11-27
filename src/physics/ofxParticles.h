@@ -290,9 +290,9 @@ public:
         ofSetColor(color);
         ofPushMatrix();
         ofTranslate(position);
-        ofRotateX(rotation.x);
-        ofRotateY(rotation.y);
-        ofRotateZ(rotation.z);
+        ofRotateXDeg(rotation.x);
+        ofRotateYDeg(rotation.y);
+        ofRotateZDeg(rotation.z);
         tex.draw(w*-0.5,h*-0.5,w,h);
         ofPopMatrix();
     }
@@ -470,13 +470,13 @@ public:
             bins.resize(xbins * ybins);
         }
 
-        for (int i = 0; i < bins.size(); ++i) {
+        for (int i = 0; i < (int)bins.size(); ++i) {
             bins[i].clear();
         }
 
         int xbin, ybin;
         ofxParticle * p;
-        for (int i = 0; i < particles.size(); ++i) {
+        for (int i = 0; i < (int)particles.size(); ++i) {
             p = particles[i];
             if (bounds.inside(p->position)) {
                 xbin = ((unsigned) p->position.x) >> binPower;
@@ -511,19 +511,19 @@ public:
         maxXBin++;
         maxYBin++;
 
-        if(maxXBin > xbins) {
+        if(maxXBin > (unsigned int)xbins) {
             maxXBin = xbins;
         }
-        if(maxYBin > ybins) {
+        if(maxYBin > (unsigned int)ybins) {
             maxYBin = ybins;
         }
 
         neighbors.clear();
 
-        for (y = minYBin; y < maxYBin; y++) {
-            for (x = minXBin; x < maxXBin; x++) {
+        for (y = minYBin; y < (int)maxYBin; y++) {
+            for (x = minXBin; x < (int)maxXBin; x++) {
                 bindex = x + y * xbins;
-                for (p = 0; p < bins[bindex].size(); p++) {
+                for (p = 0; p < (int)bins[bindex].size(); p++) {
                     neighbors.push_back(bins[bindex][p]);
                 }
 
