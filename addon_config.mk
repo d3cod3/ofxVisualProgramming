@@ -24,11 +24,10 @@ meta:
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
-        ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
+        ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder
-        ADDON_DEPENDENCIES += ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
+        ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
-        ADDON_DEPENDENCIES += ofxImGui
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
