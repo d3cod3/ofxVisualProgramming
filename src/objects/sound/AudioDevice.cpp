@@ -371,7 +371,7 @@ void AudioDevice::loadDeviceInfo(){
             _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
-        for( int i = 0; i < this->pdspOut.size(); i++){
+        for( int i = 0; i < (int)this->pdspOut.size(); i++){
             this->pdspOut[i].disconnectOut();
         }
         this->pdspOut.clear();
