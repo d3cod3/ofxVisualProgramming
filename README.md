@@ -111,7 +111,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 # INSTALLING
 
-Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together all the others addons listed:
+Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together with all the others addons listed:
 
 ```bash
 cd <your_openframeworks_release_folder>/addons
@@ -355,6 +355,7 @@ image loader | X |
 kinect grabber | X |
 pixels to texture | X |
 texture crop | X |
+texture information | X |
 texture mixer | X |
 texture to pixels | X |
 texture transform | X |
