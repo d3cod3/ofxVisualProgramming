@@ -503,7 +503,7 @@ void ShaderObject::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "This object is a GLSL ( #version 120 ) container, capable of loading shaders and editing them in real-time. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
+                "This object is a GLSL ( #version 150 ) container, capable of loading shaders and editing them in real-time. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=glsl-shader", scaleFactor);
 
     // file dialog
@@ -744,6 +744,8 @@ void ShaderObject::loadScript(string scriptFile){
     string fsName = tempCurrentFrag.getFileName();
     string vsName = tempCurrentFrag.getEnclosingDirectory()+tempCurrentFrag.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
     ofFile vertexShaderFile(vsName);
+
+    this->setSpecialName("| "+fsName.substr(0,fsName.find_last_of('.')));
 
     currentScriptFile.open(filepath);
 
