@@ -75,6 +75,9 @@ struct PatchLink{
 
 class PatchObject : public ofxVPHasUID {
 
+// this macro is used to silent unused variables warnings on virtual functions
+template <typename... Ts> void unusedArgs(const Ts&...) {}
+
 public:
 
     PatchObject(const std::string& _customUID = "patchObject");
@@ -90,24 +93,24 @@ public:
     // Virtual Methods
     virtual void            newObject() {}
 
-    virtual void            autoloadFile(string _fp) {}
-    virtual void            autosaveNewFile(string fromFile) {}
+    virtual void            autoloadFile(string _fp) { unusedArgs(_fp); }
+    virtual void            autosaveNewFile(string fromFile) { unusedArgs(fromFile); }
 
-    virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) {}
-    virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) {}
-    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) {}
-    virtual void            updateAudioObjectContent(pdsp::Engine &engine) {}
-    virtual void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) {}
-    virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) {}
+    virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) { unusedArgs(mainWindow); }
+    virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) { unusedArgs(engine); }
+    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) { unusedArgs(patchObjects); }
+    virtual void            updateAudioObjectContent(pdsp::Engine &engine) { unusedArgs(engine); }
+    virtual void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) { unusedArgs(font,glRenderer); }
+    virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) { unusedArgs(_nodeCanvas); }
     virtual void            drawObjectNodeConfig() {}
-    virtual void            removeObjectContent(bool removeFileFromData=false) {}
+    virtual void            removeObjectContent(bool removeFileFromData=false) { unusedArgs(removeFileFromData); }
 
-    virtual void            audioInObject(ofSoundBuffer &inputBuffer) {}
-    virtual void            audioOutObject(ofSoundBuffer &outputBuffer) {}
+    virtual void            audioInObject(ofSoundBuffer &inputBuffer) { unusedArgs(inputBuffer); }
+    virtual void            audioOutObject(ofSoundBuffer &outputBuffer) { unusedArgs(outputBuffer); }
 
     virtual void            customReset() {}
     virtual void            resetSystemObject() {}
-    virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) {}
+    virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) { unusedArgs(fromID,newWidth,newHeight); }
 
     // Keyboard Events
     void                    keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects);
@@ -143,6 +146,7 @@ public:
     int                     getId() const { return nId; }
     ofPoint                 getPos() const { return ofPoint(x,y); }
     string                  getName() const { return name; }
+    string                  getSpecialName() const { return specialName; }
     bool                    getIsResizable() const { return isResizable; }
     bool                    getIsRetina() const { return isRetina; }
     bool                    getIsSystemObject() const { return isSystemObject; }
@@ -175,6 +179,7 @@ public:
 
     // SETTERS
     void                    setName(string _name) { name = _name; }
+    void                    setSpecialName(string _name) { specialName = _name; }
     void                    setFilepath(string fp) { filepath = fp; }
 
     void                    setPatchfile(string pf);
@@ -232,6 +237,7 @@ protected:
 
     // Core vars
     string                  name;
+    string                  specialName;
     string                  filepath;
     string                  patchFile;
     string                  patchFolderPath;

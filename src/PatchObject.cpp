@@ -36,6 +36,7 @@
 PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUID) {
     nId                 = -1;
     name                = "none";
+    specialName         = "";
     filepath            = "none";
     patchFile           = "";
     patchFolderPath     = "";
@@ -174,7 +175,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
     // Begin Node
     static bool isNodeVisible;
-    isNodeVisible = _nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), PatchObject::getDisplayName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() );
+    isNodeVisible = _nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), PatchObject::getDisplayName()+" "+this->getSpecialName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() );
 
     // Always draw [in/out]lets (so wires render correctly)
     // Updates pin positions
