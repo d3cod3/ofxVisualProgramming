@@ -25,7 +25,7 @@ common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder
+        ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFft
         ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
 

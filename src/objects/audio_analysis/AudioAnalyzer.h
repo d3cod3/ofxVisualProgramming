@@ -36,11 +36,12 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
+#include "ofxFft.h"
 #include "ofxBTrack.h"
 
 #include "imgui_plot.h"
 #include "imgui_controls.h"
+
 
 class AudioAnalyzer : public PatchObject {
 
@@ -62,6 +63,13 @@ public:
     void            audioInObject(ofSoundBuffer &inputBuffer) override;
 
     void            loadAudioSettings();
+    void            doAutoCorrelation(float* signal);
+    void            detectRMS();
+    void            detectPitch();
+    void            setupMelScale();
+    void            updateMelScale(int i);
+
+    void            smoothingValues();
 
 
     // GUI vars
@@ -74,27 +82,36 @@ public:
     std::mutex                              audioMutex;
 
     // Analysis variables
-    ofxAudioAnalyzer                        audioAnalyzer;
+    ofxFft                                  *fft;
     ofxBTrack                               *beatTrack;
+
     float                                   plot_data[1024];
-    vector<float>                           spectrum;
-    vector<float>                           melBands;
-    vector<float>                           mfcc;
-    vector<float>                           hpcp;
-    vector<float>                           tristimulus;
+
+    float                                   *spectrum;
+    float                                   *melBins;
+    float                                   *autoCorrelation;
+    float                                   *autoCorrelationNorm;
+    int                                     *binsToMel;
+
+    float                                   fft_binSizeHz;
+    int                                     fft_StrongestBinIndex;
+    float                                   fft_StrongestBinValue;
+    int                                     fft_pitchBin;
+
+
     float                                   rms;
-    float                                   power;
-    float                                   pitchFreq;
-    float                                   hfc;
-    float                                   centroid;
-    float                                   centroidNorm;
-    float                                   inharmonicity;
-    float                                   dissonance;
-    float                                   rollOff;
-    float                                   rollOffNorm;
+    float                                   pitch;
     float                                   bpm;
     bool                                    beat;
-    bool                                    isOnset;
+
+
+    float                                   *_s_spectrum;
+    float                                   *_s_melBins;
+    float                                   _s_rms;
+    float                                   _s_pitch;
+
+    int                                     fftBinSize;
+
 
     size_t                                  startTime;
     bool                                    isConnected;

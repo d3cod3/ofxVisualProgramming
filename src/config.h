@@ -87,7 +87,8 @@
 #define PLUGINS_FOLDER          "../plugins/"
 
 #define	NOTES                           128
-#define MOSAIC_DEFAULT_BUFFER_SIZE     1024
+#define MOSAIC_DEFAULT_BUFFER_SIZE      1024
+#define MEL_SCALE_CRITICAL_BANDS        24
 
 #define OFXVP_OBJECT_CAT_AUDIOANALYSIS  "audio analysis"
 #define OFXVP_OBJECT_CAT_COMMUNICATIONS "communications"
@@ -100,6 +101,7 @@
 #define OFXVP_OBJECT_CAT_SCRIPTING      "scripting"
 #define OFXVP_OBJECT_CAT_SOUND          "sound"
 #define OFXVP_OBJECT_CAT_STRING         "string"
+#define OFXVP_OBJECT_CAT_SURFACE        "surface"
 #define OFXVP_OBJECT_CAT_TEXTURE        "texture"
 #define OFXVP_OBJECT_CAT_VIDEO          "video"
 #define OFXVP_OBJECT_CAT_WINDOWING      "windowing"

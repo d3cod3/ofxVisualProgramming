@@ -50,7 +50,7 @@ RMSExtractor::RMSExtractor() : PatchObject("rms extractor"){
     bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
     spectrumSize = (bufferSize/2) + 1;
 
-    arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
+    arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS - 1;
 
     isNewConnection   = false;
     isConnectionRight = false;
@@ -73,7 +73,7 @@ void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
-            arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
+            arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS - 1;
             XML.popTag();
         }
     }

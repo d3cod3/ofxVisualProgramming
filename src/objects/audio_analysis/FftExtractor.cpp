@@ -52,6 +52,8 @@ FftExtractor::FftExtractor() : PatchObject("fft extractor"){
     isNewConnection   = false;
     isConnectionRight = false;
 
+    this->width     *= 2.0f;
+
 }
 
 //--------------------------------------------------------------
