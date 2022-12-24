@@ -161,7 +161,7 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void AudioAnalyzer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    ofSetColor(255);
 }
 
 //--------------------------------------------------------------
@@ -359,7 +359,7 @@ void AudioAnalyzer::loadAudioSettings(){
 //--------------------------------------------------------------
 void AudioAnalyzer::doAutoCorrelation(float* signal){
     float sum;
-    float autoCorrelationResults[bufferSize];
+    std::vector<float> autoCorrelationResults(bufferSize);
 
     for (int i = 0; i < bufferSize; i++) {
         sum = 0;
@@ -370,7 +370,7 @@ void AudioAnalyzer::doAutoCorrelation(float* signal){
 
     }
 
-    memcpy(autoCorrelation, autoCorrelationResults, bufferSize * sizeof(float));
+    memcpy(autoCorrelation, &autoCorrelationResults[0], bufferSize * sizeof(float));
 
     float maxValue = 0;
 
@@ -385,7 +385,7 @@ void AudioAnalyzer::doAutoCorrelation(float* signal){
             autoCorrelationResults[i] /= maxValue;
         }
     }
-    memcpy(autoCorrelationNorm, autoCorrelationResults, bufferSize * sizeof(float));
+    memcpy(autoCorrelationNorm, &autoCorrelationResults[0], bufferSize * sizeof(float));
 }
 
 //--------------------------------------------------------------
