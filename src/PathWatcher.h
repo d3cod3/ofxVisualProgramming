@@ -31,6 +31,10 @@
 #include <functional>
 #include <sys/stat.h>
 
+#ifdef TARGET_WIN32
+#include <io.h>
+#endif
+
 /// \class PathWatcher
 /// \brief watch file and directory paths for modifications
 ///
