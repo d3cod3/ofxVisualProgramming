@@ -30,9 +30,7 @@
 
 ==============================================================================*/
 
-#if defined(TARGET_WIN32)
-    // Unavailable on windows.
-#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
 #include "PDPatch.h"
 
@@ -65,14 +63,10 @@ PDPatch::PDPatch() : PatchObject("pd patch"){
     isAudioOUTObject    = true;
 
     lastLoadedPatch     = "";
-    prevExternalsFolder = "/path_to_pd_externals";
-    lastExternalsFolder = "SET PD EXTERNAL FOLDER!";
     loadPatchFlag       = false;
     savePatchFlag       = false;
-    setExternalFlag     = false;
     patchLoaded         = false;
     patchSaved          = false;
-    externalPathSaved   = false;
     loading             = true;
 
     isPDSPPatchableObject   = true;
@@ -96,8 +90,6 @@ void PDPatch::newObject(){
     this->addOutlet(VP_LINK_AUDIO,"audioOut3");
     this->addOutlet(VP_LINK_AUDIO,"audioOut4");
     this->addOutlet(VP_LINK_ARRAY,"data");
-
-    this->setCustomVar(0.0f,"/path_to_pd_externals");
 }
 
 //--------------------------------------------------------------
@@ -171,28 +163,6 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         this->saveConfig(false);
     }
 
-    if(externalPathSaved){
-        externalPathSaved = false;
-        if(lastExternalsFolder != ""){
-            ofFile tempfile (lastExternalsFolder);
-            if(tempfile.exists() && tempfile.isDirectory()){
-                string temp = tempfile.getAbsolutePath().substr(0, tempfile.getAbsolutePath().size()-1);
-                pd.addToSearchPath(temp);
-                this->substituteCustomVar(prevExternalsFolder,temp.c_str());
-                prevExternalsFolder = lastExternalsFolder;
-                ofLog(OF_LOG_NOTICE,"PD Externals Folder set to: %s",temp.c_str());
-                this->saveConfig(false);
-                // load externals
-                #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-                if(lastExternalsFolder != "SET PD EXTERNAL FOLDER!"){
-                    cyclone_setup();
-                    zexy_setup();
-                }
-                #endif
-            }
-        }
-    }
-
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         pd.startMessage();
         for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
@@ -225,7 +195,6 @@ void PDPatch::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRendere
 void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     loadPatchFlag   = false;
     savePatchFlag   = false;
-    setExternalFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -267,11 +236,6 @@ void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         patchLoaded = true;
     }
 
-    if(ImGuiEx::getFileDialog(fileDialog, setExternalFlag, "Select your PD external folder", imgui_addons::ImGuiFileBrowser::DialogMode::SELECT, "", "", scaleFactor)){
-        lastExternalsFolder = fileDialog.selected_path;
-        externalPathSaved = true;
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -280,7 +244,6 @@ void PDPatch::drawObjectNodeConfig(){
 
     loadPatchFlag   = false;
     savePatchFlag   = false;
-    setExternalFlag = false;
 
     ImGui::Spacing();
     ImGui::Text("Loaded PD Patch:");
@@ -290,8 +253,6 @@ void PDPatch::drawObjectNodeConfig(){
         ImGui::Text("%s",tempFilename.getFileName().c_str());
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
-    ImGui::Spacing();
-    ImGui::Text("%s",lastExternalsFolder.c_str());
 
     ImGui::Spacing();
     ImGui::Spacing();
@@ -305,10 +266,6 @@ void PDPatch::drawObjectNodeConfig(){
     ImGui::Spacing();
     if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadPatchFlag = true;
-    }
-    ImGui::Spacing();
-    if(ImGui::Button("Set Externals Path",ImVec2(224*scaleFactor,26*scaleFactor))){
-        setExternalFlag = true;
     }
 
     ImGuiEx::ObjectInfo(
@@ -327,10 +284,6 @@ void PDPatch::drawObjectNodeConfig(){
         patchLoaded = true;
     }
 
-    if(ImGuiEx::getFileDialog(fileDialog, setExternalFlag, "Select your PD external folder", imgui_addons::ImGuiFileBrowser::DialogMode::SELECT, "", "", scaleFactor)){
-        lastExternalsFolder = fileDialog.selected_path;
-        externalPathSaved = true;
-    }
 }
 
 //--------------------------------------------------------------
@@ -422,30 +375,6 @@ void PDPatch::loadAudioSettings(){
             bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
         }
-        int totalObjects = XML.getNumTags("object");
-
-        // Load object outlet config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    if (XML.pushTag("vars")){
-                        int totalVars = XML.getNumTags("var");
-
-                        for (int t=0;t<totalVars;t++){
-                            if(XML.pushTag("var",t)){
-                                prevExternalsFolder = XML.getValue("name","");
-                                lastExternalsFolder = prevExternalsFolder;
-                                ofLog(OF_LOG_NOTICE,"Externals folder: %s",lastExternalsFolder.c_str());
-                                XML.popTag();
-                            }
-                        }
-
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
-            }
-        }
     }
 
     lastInputBuffer.allocate(bufferSize,4);
@@ -461,14 +390,6 @@ void PDPatch::loadAudioSettings(){
     lastOutputBuffer4.allocate(bufferSize,1);
 
     pd.init(4,4,sampleRate,bufferSize/ofxPd::blockSize(),false);
-    // load externals
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(lastExternalsFolder != "SET PD EXTERNAL FOLDER!"){
-        cyclone_setup();
-        zexy_setup();
-    }
-#endif
-
 
     pd.subscribe("toMosaic");
 
@@ -504,13 +425,6 @@ void PDPatch::loadPatch(string scriptFile){
     filepath = scriptFile;
 
     currentPatchFile.open(filepath);
-
-    if(prevExternalsFolder != "" && prevExternalsFolder != "/path_to_pd_externals"){
-        ofFile tempfile (prevExternalsFolder);
-        if(tempfile.exists() && tempfile.isDirectory()){
-            pd.addToSearchPath(tempfile.getAbsolutePath());
-        }
-    }
 
     currentPatch = pd.openPatch(currentPatchFile.getAbsolutePath());
 
