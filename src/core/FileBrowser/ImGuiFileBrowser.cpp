@@ -764,7 +764,7 @@ namespace imgui_addons
         ImGui::PushItemWidth(ext_box_width);
         if(ImGui::BeginCombo("##FileTypes", valid_exts[selected_ext_idx].c_str()))
         {
-            for(int i = 0; i < valid_exts.size(); i++)
+            for(int i = 0; i < static_cast<int>(valid_exts.size()); i++)
             {
                 if(ImGui::Selectable(valid_exts[i].c_str(), selected_ext_idx == i))
                 {

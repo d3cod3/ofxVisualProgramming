@@ -71,7 +71,12 @@ ofxVisualProgramming::ofxVisualProgramming(){
     livePatchingObiID       = -1;
 
     currentPatchFile        = "empty_patch.xml";
+#if defined (TARGET_WIN32)
+    currentPatchFolderPath  = ofToDataPath("temp\");
+#else
     currentPatchFolderPath  = ofToDataPath("temp/");
+#endif
+
 
     currentSubpatch         = "root";
 
@@ -135,16 +140,6 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
         ofxVPGui = _guiRef;
         // Dummy call to IO which will crash if _guiRef is not initialised.
         ImGui::GetIO();
-        // Ensure ImGui gets loaded correctly
-        /*if(ImGui::GetCurrentContext()==nullptr || !ImGui::GetCurrentContext()->Initialized){
-            ofxVPGui->setup();
-        }
-        // Manually force shared mode
-        else {
-            ofxVPGui->setSharedMode(true);
-        }*/
-
-        //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
 
     nodeCanvas.setContext(ImGui::GetCurrentContext());
@@ -457,7 +452,12 @@ void ofxVisualProgramming::resetTempFolder(){
 void ofxVisualProgramming::cleanPatchDataFolder(){
     ofDirectory dir;
     // get patch data folder
+#if defined (TARGET_WIN32)
+    dir.listDir(currentPatchFolderPath+"data\");
+#else
     dir.listDir(currentPatchFolderPath+"data/");
+#endif
+
 
     for(size_t i = 0; i < dir.size(); i++){
         if(dir.getFile(i).exists()){
@@ -467,7 +467,7 @@ void ofxVisualProgramming::cleanPatchDataFolder(){
                     // not found in patch scripts map, remove it from patch data folder
                     //ofLog(OF_LOG_NOTICE,"%s",dir.getFile(i).getAbsolutePath().c_str());
                     string fileExt = ofToUpper(dir.getFile(i).getExtension());
-                    if(fileExt == "PY" || fileExt == "SH" || fileExt == "FRAG"){
+                    if(fileExt == "SH" || fileExt == "FRAG"){
                         dir.getFile(i).remove();
                     }
                     // remove if filename is empty
@@ -893,7 +893,7 @@ void ofxVisualProgramming::clearObjectsMap(){
             // remove scripts objects filepath reference from scripts objects files map
             ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
             string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH"){
+            if(fileExt == "LUA" || fileExt == "SH"){
                 map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                 if (sofpIT != scriptsObjectsFilesPaths.end()){
                     // found it, remove it
@@ -1163,7 +1163,12 @@ void ofxVisualProgramming::newPatch(string release){
         XML.saveFile();
     }
 
+#if defined (TARGET_WIN32)
+    ofFile newPatchFile(ofToDataPath("temp\"+newFileName,true));
+#else
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
+#endif
+
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
     newFileCounter++;
@@ -1176,12 +1181,22 @@ void ofxVisualProgramming::newPatch(string release){
 void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
     string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
     ofFile fileToRead(patchFile);
+#if defined (TARGET_WIN32)
+    ofFile newPatchFile(ofToDataPath("temp\"+newFileName,true));
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
+
+    ofDirectory dataFolderOrigin;
+    dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"\data\");
+    std::filesystem::path tp = ofToDataPath("temp\data\",true);
+#else
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
     ofDirectory dataFolderOrigin;
     dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"/data/");
     std::filesystem::path tp = ofToDataPath("temp/data/",true);
+#endif
+
     dataFolderOrigin.copyTo(tp,true,true);
 
     newFileCounter++;
@@ -1231,7 +1246,12 @@ void ofxVisualProgramming::openPatch(string patchFile){
     ofFile temp(currentPatchFile);
     currentPatchFolderPath  = temp.getEnclosingDirectory();
 
+#if defined (TARGET_WIN32)
+    ofFile patchDataFolder(currentPatchFolderPath+"data\");
+#else
     ofFile patchDataFolder(currentPatchFolderPath+"data/");
+#endif
+
     if(!patchDataFolder.exists()){
         patchDataFolder.create();
     }
@@ -1427,9 +1447,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             }
         }
 
-        #if !defined(TARGET_WIN32)
-            activateDSP();
-        #endif
+        activateDSP();
 
     }
 
@@ -1479,9 +1497,23 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     string newFileName = checkFileExtension(sanitizedPatchFile, ofToUpper(tempFile.getExtension()), "XML");
     ofFile fileToRead(currentPatchFile);
     ofDirectory dataFolderOrigin;
+#if defined (TARGET_WIN32)
+    dataFolderOrigin.listDir(currentPatchFolderPath+"data\");
+#else
     dataFolderOrigin.listDir(currentPatchFolderPath+"data/");
+#endif
+
     ofFile newPatchFile(newFileName);
 
+#if defined (TARGET_WIN32)
+    currentPatchFile = newPatchFile.getEnclosingDirectory()+finalTempFileName+"\"+newPatchFile.getFileName();
+    ofFile temp(currentPatchFile);
+    currentPatchFolderPath  = temp.getEnclosingDirectory();
+
+    ofFile::copyFromTo(fileToRead.getAbsolutePath(),currentPatchFile,true,true);
+
+    std::filesystem::path tp = currentPatchFolderPath+"\data\";
+#else
     currentPatchFile = newPatchFile.getEnclosingDirectory()+finalTempFileName+"/"+newPatchFile.getFileName();
     ofFile temp(currentPatchFile);
     currentPatchFolderPath  = temp.getEnclosingDirectory();
@@ -1489,6 +1521,8 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),currentPatchFile,true,true);
 
     std::filesystem::path tp = currentPatchFolderPath+"/data/";
+#endif
+
     dataFolderOrigin.copyTo(tp,true,true);
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
