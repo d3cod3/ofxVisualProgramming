@@ -58,6 +58,7 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     isAudioOUTObject        = false;
     isPDSPPatchableObject   = false;
     isTextureObject         = false;
+    isHardwareObject        = false;
     isResizable             = false;
     willErase               = false;
 

@@ -67,6 +67,7 @@ KinectGrabber::KinectGrabber() : PatchObject("kinect grabber"){
 
     this->setIsResizable(true);
     this->setIsTextureObj(true);
+    this->setIsHardwareObj(true);
 
     prevW                   = this->width;
     prevH                   = this->height;

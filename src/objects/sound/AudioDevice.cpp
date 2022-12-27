@@ -58,6 +58,7 @@ AudioDevice::AudioDevice() : PatchObject("audio device"){
     posX = posY = drawW = drawH = 0.0f;
 
     this->setIsTextureObj(true);
+    this->setIsHardwareObj(true);
     
 }
 

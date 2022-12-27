@@ -522,18 +522,6 @@ void LuaScript::openScript(string scriptFile){
             for(int i = 0; i < (int)tf.size(); i++){
                 ofDirectory ttf(tf.getPath(i));
                 if(ttf.isDirectory() && tf.getName(i) != "data"){
-#if defined (TARGET_WIN32)
-                    filesystem::path tpa(this->patchFolderPath+tf.getName(i)+"\");
-                    ttf.copyTo(tpa,false,false);
-                    ttf.listDir();
-                    for(int j = 0; j < (int)ttf.size(); j++){
-                        ofFile ftf(ttf.getPath(j));
-                        if(ftf.isFile()){
-                            filesystem::path tpa(this->patchFolderPath+tf.getName(i)+"\"+ftf.getFileName());
-                            ftf.copyTo(tpa,false,false);
-                        }
-                    }
-#else
                     filesystem::path tpa(this->patchFolderPath+tf.getName(i)+"/");
                     ttf.copyTo(tpa,false,false);
                     ttf.listDir();
@@ -544,8 +532,6 @@ void LuaScript::openScript(string scriptFile){
                             ftf.copyTo(tpa,false,false);
                         }
                     }
-#endif
-
                     //ofLog(OF_LOG_NOTICE,"%s - %s",this->patchFolderPath.c_str(),tf.getName(i).c_str());
                 }
             }
@@ -559,11 +545,7 @@ void LuaScript::openScript(string scriptFile){
 
 //--------------------------------------------------------------
 void LuaScript::newScript(string scriptFile){
-#if defined (TARGET_WIN32)
-    ofFile fileToRead(ofToDataPath("scripts\empty.lua"));
-#else
     ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
-#endif
 
     ofFile newLuaFile (scriptFile);
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"),true,true);
@@ -615,11 +597,7 @@ void LuaScript::loadScript(string scriptFile){
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
     // load lua Mosaic lib
-#if defined (TARGET_WIN32)
-    tempstring = ofBufferFromFile("livecoding\lua_mosaicLib.lua").getText();
-#else
     tempstring = ofBufferFromFile("livecoding/lua_mosaicLib.lua").getText();
-#endif
 
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 

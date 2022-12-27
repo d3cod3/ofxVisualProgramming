@@ -71,11 +71,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     livePatchingObiID       = -1;
 
     currentPatchFile        = "empty_patch.xml";
-#if defined (TARGET_WIN32)
-    currentPatchFolderPath  = ofToDataPath("temp\");
-#else
     currentPatchFolderPath  = ofToDataPath("temp/");
-#endif
 
 
     currentSubpatch         = "root";
@@ -452,11 +448,7 @@ void ofxVisualProgramming::resetTempFolder(){
 void ofxVisualProgramming::cleanPatchDataFolder(){
     ofDirectory dir;
     // get patch data folder
-#if defined (TARGET_WIN32)
-    dir.listDir(currentPatchFolderPath+"data\");
-#else
     dir.listDir(currentPatchFolderPath+"data/");
-#endif
 
 
     for(size_t i = 0; i < dir.size(); i++){
@@ -503,9 +495,12 @@ void ofxVisualProgramming::exit(){
         deactivateDSP();
     }
 
+#ifndef TARGET_WIN32
     cleanPatchDataFolder();
 
     resetTempFolder();
+#endif
+
 }
 
 //--------------------------------------------------------------
@@ -1023,7 +1018,8 @@ void ofxVisualProgramming::removeObject(int &id){
 //--------------------------------------------------------------
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
-    if(patchObjects[id]->getName() != "audio device" && patchObjects[id]->getName() != "video grabber" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching" && patchObjects[id]->getName() != "projection mapping"){
+    if(!patchObjects[id]->getIsHardwareObject()){
+    //if(patchObjects[id]->getName() != "audio device" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching"){
         //ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
         addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
     }else{
@@ -1163,11 +1159,7 @@ void ofxVisualProgramming::newPatch(string release){
         XML.saveFile();
     }
 
-#if defined (TARGET_WIN32)
-    ofFile newPatchFile(ofToDataPath("temp\"+newFileName,true));
-#else
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
-#endif
 
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
@@ -1181,21 +1173,12 @@ void ofxVisualProgramming::newPatch(string release){
 void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
     string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
     ofFile fileToRead(patchFile);
-#if defined (TARGET_WIN32)
-    ofFile newPatchFile(ofToDataPath("temp\"+newFileName,true));
-    ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
-
-    ofDirectory dataFolderOrigin;
-    dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"\data\");
-    std::filesystem::path tp = ofToDataPath("temp\data\",true);
-#else
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
     ofDirectory dataFolderOrigin;
     dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"/data/");
     std::filesystem::path tp = ofToDataPath("temp/data/",true);
-#endif
 
     dataFolderOrigin.copyTo(tp,true,true);
 
@@ -1246,11 +1229,7 @@ void ofxVisualProgramming::openPatch(string patchFile){
     ofFile temp(currentPatchFile);
     currentPatchFolderPath  = temp.getEnclosingDirectory();
 
-#if defined (TARGET_WIN32)
-    ofFile patchDataFolder(currentPatchFolderPath+"data\");
-#else
     ofFile patchDataFolder(currentPatchFolderPath+"data/");
-#endif
 
     if(!patchDataFolder.exists()){
         patchDataFolder.create();
@@ -1497,23 +1476,10 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     string newFileName = checkFileExtension(sanitizedPatchFile, ofToUpper(tempFile.getExtension()), "XML");
     ofFile fileToRead(currentPatchFile);
     ofDirectory dataFolderOrigin;
-#if defined (TARGET_WIN32)
-    dataFolderOrigin.listDir(currentPatchFolderPath+"data\");
-#else
     dataFolderOrigin.listDir(currentPatchFolderPath+"data/");
-#endif
 
     ofFile newPatchFile(newFileName);
 
-#if defined (TARGET_WIN32)
-    currentPatchFile = newPatchFile.getEnclosingDirectory()+finalTempFileName+"\"+newPatchFile.getFileName();
-    ofFile temp(currentPatchFile);
-    currentPatchFolderPath  = temp.getEnclosingDirectory();
-
-    ofFile::copyFromTo(fileToRead.getAbsolutePath(),currentPatchFile,true,true);
-
-    std::filesystem::path tp = currentPatchFolderPath+"\data\";
-#else
     currentPatchFile = newPatchFile.getEnclosingDirectory()+finalTempFileName+"/"+newPatchFile.getFileName();
     ofFile temp(currentPatchFile);
     currentPatchFolderPath  = temp.getEnclosingDirectory();
@@ -1521,7 +1487,6 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),currentPatchFile,true,true);
 
     std::filesystem::path tp = currentPatchFolderPath+"/data/";
-#endif
 
     dataFolderOrigin.copyTo(tp,true,true);
 
