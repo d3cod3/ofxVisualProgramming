@@ -86,6 +86,8 @@ ofxVisualProgramming::ofxVisualProgramming(){
     newFileCounter          = 0;
 
     audioSampleRate         = 44100;
+    audioBufferSize         = 1024;
+    audioNumBuffers         = 4;
     audioGUIINIndex         = -1;
     audioGUIOUTIndex        = -1;
     bpm                     = 120;
@@ -1270,7 +1272,14 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             engine = new pdsp::Engine();
 
             soundStreamIN.close();
+#if defined(TARGET_WIN32)
+            audioDevices = soundStreamIN.getDeviceList(ofSoundDevice::Api::MS_DS);
+#elif defined(TARGET_OSX)
+            audioDevices = soundStreamIN.getDeviceList(ofSoundDevice::Api::OSX_CORE);
+#else
             audioDevices = soundStreamIN.getDeviceList();
+#endif
+
             audioDevicesStringIN.clear();
             audioDevicesID_IN.clear();
             audioDevicesStringOUT.clear();
@@ -1347,7 +1356,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
                 engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
                 engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-                engine->setup(audioSampleRate, audioBufferSize, 3);
+                engine->setup(audioSampleRate, audioBufferSize, audioNumBuffers);
                 engine->sequencer.setTempo(bpm);
 
                 ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
@@ -1573,7 +1582,7 @@ void ofxVisualProgramming::activateDSP(){
 
         engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
         engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-        engine->setup(audioSampleRate, audioBufferSize, 3);
+        engine->setup(audioSampleRate, audioBufferSize, audioNumBuffers);
         engine->sequencer.setTempo(bpm);
 
         bool found = weAlreadyHaveObject("audio device");

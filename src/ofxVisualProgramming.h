@@ -186,6 +186,7 @@ public:
     int                                 audioGUIOUTIndex;
     int                                 audioSampleRate;
     int                                 audioBufferSize;
+    int                                 audioNumBuffers;
     int                                 bpm;
     bool                                dspON;
 
