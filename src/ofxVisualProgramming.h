@@ -184,10 +184,14 @@ public:
     int                                 audioOUTDev;
     int                                 audioGUIINIndex;
     int                                 audioGUIOUTIndex;
+    int                                 audioGUIINChannels;
+    int                                 audioGUIOUTChannels;
     int                                 audioSampleRate;
     int                                 audioBufferSize;
     int                                 audioNumBuffers;
     int                                 bpm;
+    bool                                isInputDeviceAvailable;
+    bool                                isOutputDeviceAvailable;
     bool                                dspON;
 
     // MEMORY

@@ -90,7 +90,11 @@ ofxVisualProgramming::ofxVisualProgramming(){
     audioNumBuffers         = 4;
     audioGUIINIndex         = -1;
     audioGUIOUTIndex        = -1;
+    audioGUIINChannels      = 0;
+    audioGUIOUTChannels     = 0;
     bpm                     = 120;
+    isInputDeviceAvailable  = false;
+    isOutputDeviceAvailable = false;
     dspON                   = false;
     audioINDev              = 0;
     audioOUTDev             = 0;
@@ -1312,41 +1316,66 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioGUIINIndex         = -1;
             audioGUIOUTIndex        = -1;
 
+            audioGUIINChannels      = 0;
+            audioGUIOUTChannels     = 0;
+
             for(size_t i=0;i<audioDevicesID_IN.size();i++){
                 if(audioDevicesID_IN.at(i) == audioINDev){
                     audioGUIINIndex = i;
                     break;
                 }
             }
-            if(audioGUIINIndex == -1){
+            if(audioGUIINIndex == -1){ // no input devices available
+                isInputDeviceAvailable = false;
                 audioGUIINIndex = 0;
                 audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
+            }else{
+                isInputDeviceAvailable = true;
             }
+
             for(size_t i=0;i<audioDevicesID_OUT.size();i++){
                 if(audioDevicesID_OUT.at(i) == audioOUTDev){
                     audioGUIOUTIndex = i;
                     break;
                 }
             }
-            if(audioGUIOUTIndex == -1){
+            if(audioGUIOUTIndex == -1){ // no output devices available
+                isOutputDeviceAvailable = false;
                 audioGUIOUTIndex = 0;
                 audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
+            }else{
+                isOutputDeviceAvailable = false;
             }
 
-            audioSampleRate = audioDevices[audioOUTDev].sampleRates[0];
 
-            if(audioSampleRate < 44100){
+
+            if(isInputDeviceAvailable){
+                audioGUIINChannels      = static_cast<int>(audioDevices[audioINDev].inputChannels);
+                audioSampleRate         = audioDevices[audioINDev].sampleRates[0];
+            }else{
+                audioGUIINChannels      = 0;
+            }
+
+            if(isOutputDeviceAvailable){
+                audioGUIOUTChannels     = static_cast<int>(audioDevices[audioOUTDev].outputChannels);
+                audioSampleRate         = audioDevices[audioOUTDev].sampleRates[0];
+            }else{
+                audioGUIOUTChannels     = 0;
+            }
+
+            /*if(audioSampleRate < 44100){
                 audioSampleRate = 44100;
-            }
+            }*/
 
             XML.setValue("sample_rate_in",audioSampleRate);
             XML.setValue("sample_rate_out",audioSampleRate);
-            XML.setValue("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
-            XML.setValue("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
+            XML.setValue("input_channels",audioGUIINChannels);
+            XML.setValue("output_channels",audioGUIOUTChannels);
             XML.saveFile();
 
-            if(dspON){
-                engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
+            // at least we need one audio device available (input or output) to start the engine
+            if(dspON && (isInputDeviceAvailable || isOutputDeviceAvailable)){
+                engine->setChannels(audioGUIINChannels, audioGUIOUTChannels);
                 this->setChannels(audioDevices[audioINDev].inputChannels,0);
 
                 for(unsigned int in=0;in<audioDevices[audioINDev].inputChannels;in++){
