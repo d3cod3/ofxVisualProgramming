@@ -92,6 +92,8 @@ void VideoGate::newObject(){
 
 //--------------------------------------------------------------
 void VideoGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     // load kuro
     kuro->load("images/kuro.jpg");
 

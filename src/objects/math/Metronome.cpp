@@ -84,6 +84,7 @@ void Metronome::newObject(){
 
 //--------------------------------------------------------------
 void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     systemBPM.code = [&]() noexcept {
         // BPM metronome

@@ -68,6 +68,8 @@ void moMessage::newObject(){
 
 //--------------------------------------------------------------
 void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadMessageSetting();
 }
 

@@ -77,6 +77,7 @@ void MotionDetection::newObject(){
 
 //--------------------------------------------------------------
 void MotionDetection::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     resetTextures(320,240);
 

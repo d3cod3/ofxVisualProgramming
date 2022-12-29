@@ -87,6 +87,8 @@ void pdspResonant2PoleFilter::newObject(){
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadAudioSettings();
 
     filterModesString.push_back("Low Pass");

@@ -78,6 +78,8 @@ void FboComposer::newObject(){
 
 //--------------------------------------------------------------
 void FboComposer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     initResolution();
 
     // load kuro

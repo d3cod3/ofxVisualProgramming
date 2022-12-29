@@ -91,6 +91,8 @@ void FloatsToVector::newObject(){
 
 //--------------------------------------------------------------
 void FloatsToVector::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     static_cast<vector<float> *>(_outletParams[0])->assign(this->numInlets,0.0f);
 }
 

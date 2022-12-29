@@ -180,6 +180,8 @@ void pdspSequencer::newObject(){
 
 //--------------------------------------------------------------
 void pdspSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     seq.code = [&]() noexcept {
         // actual sequencer step
         step = seq.frame()%actualSteps.load();
@@ -421,7 +423,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // step leds
             ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + window_size.y - (40*scaleFactor));
-            if((i + (chapter*CHAPTER_STEPS)) == step){
+            if((i + (chapter*CHAPTER_STEPS)) == static_cast<size_t>(step)){
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 6*scaleFactor, IM_COL32(182, 30, 41, 255), 40);
             }else{
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5*scaleFactor, IM_COL32(50, 50, 50, 255), 40);

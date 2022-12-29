@@ -75,6 +75,7 @@ void ArduinoSerial::newObject(){
 
 //--------------------------------------------------------------
 void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     arduinoIcon->load("images/arduino.jpg");
 
@@ -83,7 +84,7 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 
     deviceList = serial.getDeviceList();
-    for(int i=0;i<deviceList.size();i++){
+    for(int i=0;i<static_cast<int>(deviceList.size());i++){
         ofLog(OF_LOG_NOTICE,"[%i] - %s",i,deviceList.at(i).getDeviceName().c_str());
         deviceNameList.push_back(deviceList.at(i).getDeviceName());
     }

@@ -83,6 +83,7 @@ void moSonogram::newObject(){
 
 //--------------------------------------------------------------
 void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     this->width     *= scaleFactor;
     this->height    *= scaleFactor;

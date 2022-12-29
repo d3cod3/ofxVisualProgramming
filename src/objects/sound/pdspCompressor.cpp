@@ -96,6 +96,8 @@ void pdspCompressor::newObject(){
 
 //--------------------------------------------------------------
 void pdspCompressor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }

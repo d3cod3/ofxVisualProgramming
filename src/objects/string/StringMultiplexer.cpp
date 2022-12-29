@@ -84,6 +84,8 @@ void StringMultiplexer::newObject(){
 
 //--------------------------------------------------------------
 void StringMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     inletsMemory.assign(this->numInlets,"");
 }
 

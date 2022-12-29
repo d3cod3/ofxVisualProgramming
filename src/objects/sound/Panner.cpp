@@ -74,6 +74,8 @@ void Panner::newObject(){
 
 //--------------------------------------------------------------
 void Panner::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 

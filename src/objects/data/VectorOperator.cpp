@@ -69,6 +69,8 @@ void VectorOperator::newObject(){
 
 //--------------------------------------------------------------
 void VectorOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     operators_string.push_back("+");
     operators_string.push_back("-");
     operators_string.push_back("*");

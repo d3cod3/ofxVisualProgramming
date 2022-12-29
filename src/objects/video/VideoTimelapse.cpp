@@ -82,6 +82,8 @@ void VideoTimelapse::newObject(){
 
 //--------------------------------------------------------------
 void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     // load kuro
     kuro->load("images/kuro.jpg");
 }

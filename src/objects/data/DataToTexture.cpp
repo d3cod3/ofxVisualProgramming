@@ -80,6 +80,7 @@ void DataToTexture::newObject(){
 
 //--------------------------------------------------------------
 void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     pix->allocate(320,240,OF_PIXELS_RGB);
 }

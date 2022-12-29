@@ -105,6 +105,7 @@ void ShaderObject::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 

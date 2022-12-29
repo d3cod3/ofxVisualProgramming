@@ -73,7 +73,7 @@ void ToGrayScaleTexture::newObject(){
 
 //--------------------------------------------------------------
 void ToGrayScaleTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    this->unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

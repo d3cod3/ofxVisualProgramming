@@ -69,6 +69,8 @@ void AudioDevice::newObject(){
 
 //--------------------------------------------------------------
 void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadDeviceInfo();
 
     bg->load("images/audioDevice_bg.jpg");

@@ -128,6 +128,8 @@ void Oscillator::newObject(){
 
 //--------------------------------------------------------------
 void Oscillator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }

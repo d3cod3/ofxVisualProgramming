@@ -97,7 +97,7 @@ void Gate::newObject(){
 
 //--------------------------------------------------------------
 void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    this->unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

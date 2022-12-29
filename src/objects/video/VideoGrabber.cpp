@@ -95,6 +95,7 @@ void VideoGrabber::newObject(){
 
 //--------------------------------------------------------------
 void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     wdevices = vidGrabber->listDevices();
     for(int i=0;i<static_cast<int>(wdevices.size());i++){

@@ -94,6 +94,7 @@ void AudioGate::newObject(){
 
 //--------------------------------------------------------------
 void AudioGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     for(int i=1;i<this->numInlets;i++){
         static_cast<ofSoundBuffer *>(_inletParams[i])->set(0.0f);

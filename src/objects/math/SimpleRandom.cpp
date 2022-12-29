@@ -82,6 +82,8 @@ void SimpleRandom::newObject(){
 
 //--------------------------------------------------------------
 void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     ofSeedRandom(ofGetElapsedTimeMillis());
 }
 

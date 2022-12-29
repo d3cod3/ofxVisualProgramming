@@ -87,6 +87,8 @@ void pdspLFO::newObject(){
 
 //--------------------------------------------------------------
 void pdspLFO::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 

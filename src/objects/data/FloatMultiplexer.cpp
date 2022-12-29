@@ -91,6 +91,8 @@ void FloatMultiplexer::newObject(){
 
 //--------------------------------------------------------------
 void FloatMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     inletsMemory.assign(this->numInlets,0.0f);
 }
 

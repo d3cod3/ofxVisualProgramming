@@ -84,7 +84,7 @@ void StringConcat::newObject(){
 
 //--------------------------------------------------------------
 void StringConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    this->unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

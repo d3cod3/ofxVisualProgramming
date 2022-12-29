@@ -64,6 +64,8 @@ void MelBandsExtractor::newObject(){
 
 //--------------------------------------------------------------
 void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){

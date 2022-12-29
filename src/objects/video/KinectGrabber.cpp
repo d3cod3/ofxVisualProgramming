@@ -91,6 +91,7 @@ void KinectGrabber::newObject(){
 
 //--------------------------------------------------------------
 void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    this->unusedArgs(mainWindow);
 
     int numKinects = ofxKinect::numAvailableDevices();
     if(numKinects > 0){

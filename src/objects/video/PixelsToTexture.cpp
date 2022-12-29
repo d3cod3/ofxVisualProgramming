@@ -61,7 +61,7 @@ void PixelsToTexture::newObject(){
 
 //--------------------------------------------------------------
 void PixelsToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    this->unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
