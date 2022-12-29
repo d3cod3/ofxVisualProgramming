@@ -140,6 +140,8 @@ void Clamp::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(static_cast<float>(max),"MAX");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

@@ -180,6 +180,8 @@ void pdspDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(feedback,"FEEDBACK");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

@@ -182,6 +182,8 @@ void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(bits,"BITS");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

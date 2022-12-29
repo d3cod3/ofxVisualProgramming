@@ -288,6 +288,8 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }else if(!isNewObject && !audiofile.loaded()){
             ImGui::Text("FILE NOT FOUND!");
         }
+
+        _nodeCanvas.EndNodeContent();
     }
 
     // file dialog

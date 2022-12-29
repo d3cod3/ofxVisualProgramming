@@ -204,6 +204,8 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(releaseHardness,"RELEASE_CURVE");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

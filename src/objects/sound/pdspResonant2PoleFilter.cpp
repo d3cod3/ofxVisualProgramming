@@ -192,6 +192,8 @@ void pdspResonant2PoleFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanva
             this->setCustomVar(resonance,"RESONANCE");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

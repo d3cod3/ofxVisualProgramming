@@ -193,6 +193,8 @@ void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             pitch_ctrl.set(pitch);
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

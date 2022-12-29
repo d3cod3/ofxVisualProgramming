@@ -188,6 +188,8 @@ void pdspLFO::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(phase,"PHASE");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

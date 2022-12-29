@@ -180,6 +180,8 @@ void pdspCombFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(static_cast<float>(feedback),"FEEDBACK");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

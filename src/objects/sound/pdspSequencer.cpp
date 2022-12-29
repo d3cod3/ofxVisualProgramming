@@ -435,6 +435,8 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
         }*/
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

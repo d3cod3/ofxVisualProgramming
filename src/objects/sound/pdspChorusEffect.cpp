@@ -184,6 +184,8 @@ void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(delay,"DELAY");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

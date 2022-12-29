@@ -353,6 +353,8 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(noise_float,"NOISE_LEVEL");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }

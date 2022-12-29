@@ -240,6 +240,8 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             knee_ctrl.set(knee);
             this->setCustomVar(knee,"KNEE");
         }
+
+        _nodeCanvas.EndNodeContent();
     }
 
 }

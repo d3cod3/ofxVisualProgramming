@@ -219,6 +219,8 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(modAmount,"MODAMOUNT");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }
