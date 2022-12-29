@@ -210,7 +210,7 @@ void VideoStreaming::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
 
     char tmp[256];
-    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(224*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");

@@ -180,7 +180,7 @@ void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         char temp[128];
-        sprintf(temp,"%.2f Hz", pdsp::PitchToFreq::eval(ofClamp(pitch,0,127)));
+        sprintf_s(temp,"%.2f Hz", pdsp::PitchToFreq::eval(ofClamp(pitch,0,127)));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(ImGui::GetWindowPos().x + ((40*scaleFactor)*_nodeCanvas.GetCanvasScale()), ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y*0.34)), IM_COL32_WHITE,temp, NULL, 0.0f);
 
         ImGui::Spacing();

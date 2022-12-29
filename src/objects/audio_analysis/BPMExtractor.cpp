@@ -160,7 +160,7 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - (50*scaleFactor), window_pos.y + window_size.y/2);
 
         char temp[32];
-        sprintf(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
+        sprintf_s(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, IM_COL32_WHITE,temp, NULL, 0.0f);
 
         if(*(float *)&_outletParams[0] > 0){

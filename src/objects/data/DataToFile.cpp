@@ -188,7 +188,7 @@ void DataToFile::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
     char tmp[256];
-    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
             ofLog(OF_LOG_WARNING,"There is no data cable connected to the object inlet, connect something if you want to export it!");

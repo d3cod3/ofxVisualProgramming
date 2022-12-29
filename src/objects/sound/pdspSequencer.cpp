@@ -365,7 +365,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
-            sprintf(temp,"S %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
+            sprintf_s(temp,"S %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
             if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(seqSteps[i + (chapter*CHAPTER_STEPS)],"S_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
@@ -376,7 +376,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
-            sprintf(temp,"A %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
+            sprintf_s(temp,"A %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
             if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl1Steps[i + (chapter*CHAPTER_STEPS)],"A_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
@@ -387,7 +387,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
-            sprintf(temp,"B %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
+            sprintf_s(temp,"B %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
             if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl2Steps[i + (chapter*CHAPTER_STEPS)],"B_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
@@ -398,7 +398,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
-            sprintf(temp,"C %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
+            sprintf_s(temp,"C %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
             if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl3Steps[i + (chapter*CHAPTER_STEPS)],"C_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
@@ -409,7 +409,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
-            sprintf(temp,"D %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
+            sprintf_s(temp,"D %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
             if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
                 this->setCustomVar(ctrl4Steps[i + (chapter*CHAPTER_STEPS)],"D_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }

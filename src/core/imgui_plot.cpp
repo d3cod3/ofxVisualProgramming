@@ -261,7 +261,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                     uint32_t end = start;
                     if (conf.selection.sanitize_fn)
                         end = conf.selection.sanitize_fn(end - start) + start;
-                    if (end < conf.values.offset + conf.values.count) {
+                    if (static_cast<int>(end) < conf.values.offset + conf.values.count) {
                         *conf.selection.start = start;
                         *conf.selection.length = end - start;
                         status = PlotStatus::selection_updated;
@@ -277,7 +277,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
                     if (end > start) {
                         if (conf.selection.sanitize_fn)
                             end = conf.selection.sanitize_fn(end - start) + start;
-                        if (end < conf.values.offset + conf.values.count) {
+                        if (static_cast<int>(end) < conf.values.offset + conf.values.count) {
                             *conf.selection.length = end - start;
                             status = PlotStatus::selection_updated;
                         }
@@ -318,7 +318,7 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf, ImU32 color) {
     PlotVarData& pvd = g_PlotVarsMap[id];
 
     // Setup
-    if (pvd.Data.capacity() != conf.buffer_size)
+    if (pvd.Data.capacity() != static_cast<int>(conf.buffer_size))
     {
         pvd.Data.resize(conf.buffer_size);
         memset(&pvd.Data[0], 0, sizeof(float) * conf.buffer_size);
@@ -327,7 +327,7 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf, ImU32 color) {
     }
 
     // Insert (avoid unnecessary modulo operator)
-    if (pvd.DataInsertIdx == conf.buffer_size)
+    if (pvd.DataInsertIdx == static_cast<int>(conf.buffer_size))
         pvd.DataInsertIdx = 0;
     //int display_idx = pvd.DataInsertIdx;
     if (conf.value != FLT_MAX)
@@ -335,15 +335,10 @@ PlotStatus PlotVar(const char* label, const PlotVarConfig& conf, ImU32 color) {
 
     // Draw
     int current_frame = ImGui::GetFrameCount();
-    if (pvd.LastFrame != current_frame)
-    {
-        //char overlay[32];
-        //sprintf(overlay, "%-3.4f", pvd.Data[display_idx]);
+    if (pvd.LastFrame != current_frame){
         ImGui::PushStyleColor(ImGuiCol_PlotLines, color);
         ImGui::PlotLines("##plot", &pvd.Data[0], conf.buffer_size, pvd.DataInsertIdx, NULL, conf.scale.min, conf.scale.max, ImVec2(conf.frame_size.x, conf.frame_size.y));
         ImGui::PopStyleColor(1);
-        //ImGui::SameLine();
-        //ImGui::Text("%s\n%-3.4f", label, pvd.Data[display_idx]);	// Display last value in buffer
         pvd.LastFrame = current_frame;
 
         status = PlotStatus::selection_updated;

@@ -46,6 +46,12 @@
 
 #include "imgui_node_canvas.h"
 
+// MACROS
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#define sprintf_s(buf, ...) snprintf((buf), sizeof(buf), __VA_ARGS__)
+#endif
+
+
 //--------------------------------------------------------------
 inline std::string random_string( size_t length ){
 

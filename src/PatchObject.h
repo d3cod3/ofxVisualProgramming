@@ -165,8 +165,8 @@ public:
     string                  getOutletTypeName(const int& oid) const;
     ImVec2                  getInletPosition(int iid);
     ImVec2                  getOutletPosition(int oid);
-    int                     getNumInlets() { return inletsType.size(); }
-    int                     getNumOutlets() { return outletsType.size(); }
+    int                     getNumInlets() { return static_cast<int>(inletsType.size()); }
+    int                     getNumOutlets() { return static_cast<int>(outletsType.size()); }
     bool                    getIsOutletConnected(int oid);
     bool                    getWillErase() { return willErase; }
 
