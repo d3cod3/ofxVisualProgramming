@@ -59,7 +59,7 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &inputBuffer) override;
 
     void            loadAudioSettings();
 

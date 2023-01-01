@@ -48,7 +48,7 @@ AudioExporter::AudioExporter() : PatchObject("audio exporter"){
     this->initInletsState();
 
     bang                = false;
-    isAudioINObject     = true;
+    isAudioOUTObject    = true;
 
     exportAudioFlag     = false;
 
@@ -293,7 +293,7 @@ void AudioExporter::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::audioInObject(ofSoundBuffer &inputBuffer){
+void AudioExporter::audioOutObject(ofSoundBuffer &inputBuffer){
     if(ofGetElapsedTimeMillis()-lastAudioTimeReset >= 1000){
         lastAudioTimeReset = ofGetElapsedTimeMillis();
         audioFPS = audioCounter;

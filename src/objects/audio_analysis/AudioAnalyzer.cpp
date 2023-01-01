@@ -53,7 +53,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
 
     this->initInletsState();
 
-    isAudioINObject                 = true;
+    isAudioOUTObject                = true;
 
     smoothingValue                  = 0.0f;
     audioInputLevel                 = 1.0f;
@@ -231,7 +231,7 @@ void AudioAnalyzer::removeObjectContent(bool removeFileFromData){
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
+void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
     if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
 
         lastBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);

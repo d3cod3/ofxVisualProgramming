@@ -306,6 +306,12 @@ void PDPatch::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
+
+}
+
+//--------------------------------------------------------------
+void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
+
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         if(this->inletsConnected[0]){
             lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
@@ -340,10 +346,7 @@ void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
 
         pd.audioIn(lastInputBuffer.getBuffer().data(), lastInputBuffer.getNumFrames(), lastInputBuffer.getNumChannels());
     }
-}
 
-//--------------------------------------------------------------
-void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         pd.audioOut(lastOutputBuffer.getBuffer().data(), lastOutputBuffer.getNumFrames(), 4);
     }else{
