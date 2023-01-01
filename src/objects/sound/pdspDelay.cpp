@@ -87,7 +87,7 @@ void pdspDelay::newObject(){
 
 //--------------------------------------------------------------
 void pdspDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     loadAudioSettings();
 }

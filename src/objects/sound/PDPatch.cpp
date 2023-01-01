@@ -102,7 +102,7 @@ void PDPatch::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     // init PD engine
     loadAudioSettings();

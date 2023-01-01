@@ -77,9 +77,6 @@ class PatchObject : public ofxVPHasUID {
 
 public:
 
-    // this macro is used to silent unused variables warnings on virtual functions
-    template <typename... Ts> void unusedArgs(const Ts&...) {}
-
     PatchObject(const std::string& _customUID = "patchObject");
     virtual ~PatchObject();
 

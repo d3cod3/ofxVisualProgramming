@@ -97,7 +97,7 @@ void Mixer::newObject(){
 
 //--------------------------------------------------------------
 void Mixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     loadAudioSettings();
 

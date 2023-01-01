@@ -85,7 +85,7 @@ void pdspCombFilter::newObject(){
 
 //--------------------------------------------------------------
 void pdspCombFilter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     loadAudioSettings();
 }

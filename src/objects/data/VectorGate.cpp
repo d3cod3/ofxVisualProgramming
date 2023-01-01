@@ -90,7 +90,7 @@ void VectorGate::newObject(){
 
 //--------------------------------------------------------------
 void VectorGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

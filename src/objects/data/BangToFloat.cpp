@@ -73,7 +73,7 @@ void BangToFloat::newObject(){
 
 //--------------------------------------------------------------
 void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){    
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

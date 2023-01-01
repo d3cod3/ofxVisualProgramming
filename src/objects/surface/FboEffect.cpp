@@ -81,7 +81,7 @@ void FboEffect::newObject(){
 
 //--------------------------------------------------------------
 void FboEffect::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     initResolution();
 

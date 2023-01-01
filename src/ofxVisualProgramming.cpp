@@ -511,7 +511,7 @@ void ofxVisualProgramming::exit(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
-
+    unusedArgs(e);
 }
 
 //--------------------------------------------------------------
@@ -585,7 +585,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
         std::lock_guard<std::mutex> lck(vp_mutex);
 
-        if(audioDevices[audioINDev].inputChannels > 0){
+        if(audioGUIINChannels > 0){
             inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
 
             // compute audio input
@@ -595,7 +595,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
             lastInputBuffer = inputBuffer;
         }
-        if(audioDevices[audioOUTDev].outputChannels > 0){
+        if(audioGUIOUTChannels > 0){
             // compute audio output
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 it->second->audioOut(emptyBuffer);
@@ -1319,6 +1319,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioGUIINChannels      = 0;
             audioGUIOUTChannels     = 0;
 
+            // check input devices
             for(size_t i=0;i<audioDevicesID_IN.size();i++){
                 if(audioDevicesID_IN.at(i) == audioINDev){
                     audioGUIINIndex = i;
@@ -1328,11 +1329,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             if(audioGUIINIndex == -1){ // no input devices available
                 isInputDeviceAvailable = false;
                 audioGUIINIndex = 0;
-                audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
             }else{
                 isInputDeviceAvailable = true;
             }
+            audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
 
+            // check output devices
             for(size_t i=0;i<audioDevicesID_OUT.size();i++){
                 if(audioDevicesID_OUT.at(i) == audioOUTDev){
                     audioGUIOUTIndex = i;
@@ -1342,13 +1344,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             if(audioGUIOUTIndex == -1){ // no output devices available
                 isOutputDeviceAvailable = false;
                 audioGUIOUTIndex = 0;
-                audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
             }else{
-                isOutputDeviceAvailable = false;
+                isOutputDeviceAvailable = true;
             }
+            audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
 
-
-
+            // select default devices
             if(isInputDeviceAvailable){
                 audioGUIINChannels      = static_cast<int>(audioDevices[audioINDev].inputChannels);
                 audioSampleRate         = audioDevices[audioINDev].sampleRates[0];
@@ -1363,9 +1364,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 audioGUIOUTChannels     = 0;
             }
 
-            /*if(audioSampleRate < 44100){
+            ofLog(OF_LOG_NOTICE,"%i IN CH - %i OUT CH",audioGUIINChannels, audioGUIOUTChannels);
+
+            // fix samplerate to 44100 as minimum
+            if(audioSampleRate < 44100){
                 audioSampleRate = 44100;
-            }*/
+            }
 
             XML.setValue("sample_rate_in",audioSampleRate);
             XML.setValue("sample_rate_out",audioSampleRate);
@@ -1376,9 +1380,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             // at least we need one audio device available (input or output) to start the engine
             if(dspON && (isInputDeviceAvailable || isOutputDeviceAvailable)){
                 engine->setChannels(audioGUIINChannels, audioGUIOUTChannels);
-                this->setChannels(audioDevices[audioINDev].inputChannels,0);
+                this->setChannels(audioGUIINChannels,0);
 
-                for(unsigned int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+                for(int in=0;in<audioGUIINChannels;in++){
                     engine->audio_in(in) >> this->in(in);
                 }
                 this->out_silent() >> engine->blackhole();
@@ -1563,9 +1567,10 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
         ofLog(OF_LOG_WARNING,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
         return;
     }else{
+        audioGUIINChannels = audioDevices[audioINDev].inputChannels;
         setPatchVariable("audio_in_device",index);
         setPatchVariable("sample_rate_in",audioSampleRate);
-        setPatchVariable("input_channels",static_cast<int>(audioDevices[audioINDev].inputChannels));
+        setPatchVariable("input_channels",audioGUIINChannels);
 
         reloadPatch();
     }
@@ -1582,9 +1587,11 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
         audioSampleRate = 44100;
     }
 
+    audioGUIOUTChannels = audioDevices[audioOUTDev].outputChannels;
+
     setPatchVariable("audio_out_device",index);
     setPatchVariable("sample_rate_out",audioSampleRate);
-    setPatchVariable("output_channels",static_cast<int>(audioDevices[audioOUTDev].outputChannels));
+    setPatchVariable("output_channels",audioGUIOUTChannels);
 
     reloadPatch();
 
@@ -1595,19 +1602,21 @@ void ofxVisualProgramming::activateDSP(){
 
     engine->setChannels(0,0);
 
-    if(audioDevices[audioINDev].inputChannels > 0 && audioDevices[audioOUTDev].outputChannels > 0){
-        engine->setChannels(audioDevices[audioINDev].inputChannels, audioDevices[audioOUTDev].outputChannels);
-        this->setChannels(audioDevices[audioINDev].inputChannels,0);
+    //ofLog(OF_LOG_NOTICE,"%i IN CH - %i OUT CH",audioGUIINChannels, audioGUIOUTChannels);
 
-        for(unsigned int in=0;in<audioDevices[audioINDev].inputChannels;in++){
+    if(audioGUIINChannels > 0 || audioGUIOUTChannels > 0){
+        engine->setChannels(audioGUIINChannels, audioGUIOUTChannels);
+        this->setChannels(audioGUIINChannels,0);
+
+        for(int in=0;in<audioGUIINChannels;in++){
             engine->audio_in(in) >> this->in(in);
         }
         this->out_silent() >> engine->blackhole();
 
         ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
-        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
+        ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i INPUT channels",audioDevices[audioINDev].name.c_str(),audioGUIINChannels);
         ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
-        ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+        ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i OUTPUT channels",audioDevices[audioOUTDev].name.c_str(),audioGUIOUTChannels);
 
         engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
         engine->setInputDeviceID(audioDevices[audioINDev].deviceID);

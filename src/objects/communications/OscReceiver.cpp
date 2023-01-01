@@ -61,7 +61,7 @@ void OscReceiver::newObject(){
 
 //--------------------------------------------------------------
 void OscReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     local_ip = getLocalIP();
 

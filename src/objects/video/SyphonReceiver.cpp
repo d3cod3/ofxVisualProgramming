@@ -63,7 +63,7 @@ void SyphonReceiver::newObject(){
 
 //--------------------------------------------------------------
 void SyphonReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
   
     //setup our directory
     dir.setup();

@@ -76,7 +76,7 @@ void BPMExtractor::newObject(){
 
 //--------------------------------------------------------------
 void BPMExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     ofxXmlSettings XML;
 

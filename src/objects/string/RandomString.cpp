@@ -76,7 +76,7 @@ void RandomString::newObject(){
 
 //--------------------------------------------------------------
 void RandomString::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

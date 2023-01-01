@@ -113,7 +113,7 @@ void NoteToFrequency::newObject(){
 
 //--------------------------------------------------------------
 void NoteToFrequency::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

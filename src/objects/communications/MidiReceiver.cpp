@@ -74,7 +74,7 @@ void MidiReceiver::newObject(){
 
 //--------------------------------------------------------------
 void MidiReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     midiIn.listInPorts();
     midiDevicesList = midiIn.getInPortList();

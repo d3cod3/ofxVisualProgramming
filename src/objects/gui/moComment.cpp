@@ -77,7 +77,7 @@ void moComment::newObject(){
 
 //--------------------------------------------------------------
 void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     actualComment = "Comment your patches and share!";
     loadCommentSetting();

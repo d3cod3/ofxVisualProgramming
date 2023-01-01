@@ -83,7 +83,7 @@ void QuadPanner::newObject(){
 
 //--------------------------------------------------------------
 void QuadPanner::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     loadAudioSettings();
 }

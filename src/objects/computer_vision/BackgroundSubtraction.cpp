@@ -99,7 +99,7 @@ void BackgroundSubtraction::newObject(){
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     bgSubTechVector.push_back("B&W ABS");
     bgSubTechVector.push_back("LIGHTER THAN");

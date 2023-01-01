@@ -67,7 +67,7 @@ void RMSExtractor::newObject(){
 
 //--------------------------------------------------------------
 void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     ofxXmlSettings XML;
 

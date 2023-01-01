@@ -103,7 +103,7 @@ void VideoMixer::newObject(){
 
 //--------------------------------------------------------------
 void VideoMixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     // load kuro
     kuro->load("images/kuro.jpg");

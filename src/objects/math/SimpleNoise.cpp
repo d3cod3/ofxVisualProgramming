@@ -66,7 +66,7 @@ void SimpleNoise::newObject(){
 
 //--------------------------------------------------------------
 void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     ofSeedRandom(ofGetElapsedTimeMillis());
 

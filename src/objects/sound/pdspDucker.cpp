@@ -101,7 +101,7 @@ void pdspDucker::newObject(){
 
 //--------------------------------------------------------------
 void pdspDucker::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     loadAudioSettings();
 }

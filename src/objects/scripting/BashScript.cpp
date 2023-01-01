@@ -102,7 +102,7 @@ void BashScript::threadedFunction(){
 
 //--------------------------------------------------------------
 void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     // GUI
     fileDialog.setIsRetina(this->isRetina);

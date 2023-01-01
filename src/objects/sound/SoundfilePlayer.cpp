@@ -112,7 +112,7 @@ void SoundfilePlayer::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    this->unusedArgs(mainWindow);
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 

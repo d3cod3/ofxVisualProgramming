@@ -51,6 +51,9 @@
 #define sprintf_s(buf, ...) snprintf((buf), sizeof(buf), __VA_ARGS__)
 #endif
 
+// this macro is used to silent unused variables warnings on virtual functions
+template <typename... Ts> void unusedArgs(const Ts&...) {}
+
 
 //--------------------------------------------------------------
 inline std::string random_string( size_t length ){
