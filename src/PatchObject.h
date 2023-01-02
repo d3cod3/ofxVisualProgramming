@@ -33,7 +33,7 @@
 #pragma once
 #include "ofMain.h"
 
-#include "config.h"
+#include "ofxVPConfig.h"
 #include "utils.h"
 
 #include "ofxXmlSettings.h"

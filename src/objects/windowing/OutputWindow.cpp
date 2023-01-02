@@ -117,7 +117,13 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadWindowSettings();
 
     ofGLFWWindowSettings settings;
+#if defined(MO_GL_VERSION_MAJOR)
     settings.setGLVersion(4,1);
+#elif defined(MO_GL_VERSION_MINOR)
+    settings.setGLVersion(3,2);
+#else
+    settings.setGLVersion(3,2);
+#endif
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;

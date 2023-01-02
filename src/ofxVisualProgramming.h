@@ -34,7 +34,7 @@
 
 #include "ofMain.h"
 
-#include "config.h"
+#include "ofxVPConfig.h"
 
 #include "ofxInfiniteCanvas.h"
 #include "ofxPDSP.h"
