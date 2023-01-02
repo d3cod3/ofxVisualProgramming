@@ -578,7 +578,7 @@ void ShaderObject::doFragmentShader(){
     // INJECT SHADER FLOAT PARAMETER IN OBJECT GUI
     for (int i = 0; i < 10; i++){
         string searchFor = "param1f" + ofToString(i);
-        if(fragmentShader.find(searchFor) != static_cast<unsigned long>(-1)){
+        if(fragmentShader.find(searchFor) != string::npos){
             unsigned long subVarStart = fragmentShader.find(searchFor);
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
@@ -609,7 +609,7 @@ void ShaderObject::doFragmentShader(){
     // INJECT SHADER INT PARAMETER IN OBJECT GUI
     for (int i = 0; i < 10; i++){
         string searchFor = "param1i" + ofToString(i);
-        if(fragmentShader.find(searchFor) != static_cast<unsigned long>(-1)){
+        if(fragmentShader.find(searchFor) != string::npos){
             unsigned long subVarStart = fragmentShader.find(searchFor);
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
