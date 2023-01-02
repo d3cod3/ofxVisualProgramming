@@ -447,7 +447,11 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetTempFolder(){
     ofDirectory dir;
-    dir.removeDirectory(ofToDataPath("temp/",true),true,true);
+
+    if(dir.doesDirectoryExist(ofToDataPath("temp/",true),true)){
+        dir.removeDirectory(ofToDataPath("temp/",true),true,true);
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -1290,13 +1294,19 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioDevicesID_OUT.clear();
             ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
             for(size_t i=0;i<audioDevices.size();i++){
-                if(audioDevices[i].inputChannels > 0){
+                bool haveMinSR = false;
+                for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
+                    if(audioDevices[i].sampleRates.at(sr) >= 44100){
+                        haveMinSR = true;
+                        break;
+                    }
+                }
+                if(audioDevices[i].inputChannels > 0 && haveMinSR){
                     audioDevicesStringIN.push_back("  "+audioDevices[i].name);
                     audioDevicesID_IN.push_back(i);
                     //ofLog(OF_LOG_NOTICE,"INPUT Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
-
                 }
-                if(audioDevices[i].outputChannels > 0){
+                if(audioDevices[i].outputChannels > 0 && haveMinSR){
                     audioDevicesStringOUT.push_back("  "+audioDevices[i].name);
                     audioDevicesID_OUT.push_back(i);
                     //ofLog(OF_LOG_NOTICE,"OUTPUT Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
@@ -1320,10 +1330,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioGUIOUTChannels     = 0;
 
             // check input devices
-            for(size_t i=0;i<audioDevicesID_IN.size();i++){
-                if(audioDevicesID_IN.at(i) == audioINDev){
-                    audioGUIINIndex = i;
-                    break;
+            if(!audioDevicesID_IN.empty()){
+                for(size_t i=0;i<audioDevicesID_IN.size();i++){
+                    if(audioDevicesID_IN.at(i) == audioINDev){
+                        audioGUIINIndex = i;
+                        break;
+                    }
                 }
             }
             if(audioGUIINIndex == -1){ // no input devices available
@@ -1331,14 +1343,16 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 audioGUIINIndex = 0;
             }else{
                 isInputDeviceAvailable = true;
+                audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
             }
-            audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
 
             // check output devices
-            for(size_t i=0;i<audioDevicesID_OUT.size();i++){
-                if(audioDevicesID_OUT.at(i) == audioOUTDev){
-                    audioGUIOUTIndex = i;
-                    break;
+            if(!audioDevicesID_OUT.empty()){
+                for(size_t i=0;i<audioDevicesID_OUT.size();i++){
+                    if(audioDevicesID_OUT.at(i) == audioOUTDev){
+                        audioGUIOUTIndex = i;
+                        break;
+                    }
                 }
             }
             if(audioGUIOUTIndex == -1){ // no output devices available
@@ -1346,8 +1360,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 audioGUIOUTIndex = 0;
             }else{
                 isOutputDeviceAvailable = true;
+                audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
             }
-            audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
 
             // select default devices
             if(isInputDeviceAvailable){
@@ -1364,7 +1378,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 audioGUIOUTChannels     = 0;
             }
 
-            ofLog(OF_LOG_NOTICE,"%i IN CH - %i OUT CH",audioGUIINChannels, audioGUIOUTChannels);
+            //ofLog(OF_LOG_NOTICE,"%i IN CH - %i OUT CH",audioGUIINChannels, audioGUIOUTChannels);
 
             // fix samplerate to 44100 as minimum
             if(audioSampleRate < 44100){
@@ -1387,15 +1401,31 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
                 this->out_silent() >> engine->blackhole();
 
-                engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-                engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+                if(isInputDeviceAvailable){
+                    engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+                }
+
+                if(isOutputDeviceAvailable){
+                    engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+                }
+
                 engine->setup(audioSampleRate, audioBufferSize, audioNumBuffers);
                 engine->sequencer.setTempo(bpm);
 
-                ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
-                ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
-                ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
-                ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+                if(isInputDeviceAvailable){
+                    ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
+                }else{
+                    ofLog(OF_LOG_ERROR,"------------------------------ Soundstream INPUT OFF, no input audio device available");
+                }
+
+                if(isOutputDeviceAvailable){
+                    ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
+                    ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
+
+                }else{
+                    ofLog(OF_LOG_ERROR,"------------------------------ Soundstream OUTPUT OFF, no output audio device available");
+                }
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
@@ -1613,13 +1643,22 @@ void ofxVisualProgramming::activateDSP(){
         }
         this->out_silent() >> engine->blackhole();
 
-        ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
-        ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i INPUT channels",audioDevices[audioINDev].name.c_str(),audioGUIINChannels);
-        ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
-        ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i OUTPUT channels",audioDevices[audioOUTDev].name.c_str(),audioGUIOUTChannels);
+        if(isInputDeviceAvailable){
+            engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+            ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
+            ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i INPUT channels",audioDevices[audioINDev].name.c_str(),audioGUIINChannels);
+        }else{
+            ofLog(OF_LOG_ERROR,"------------------------------ Soundstream INPUT OFF, no input audio device available");
+        }
 
-        engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-        engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
+        if(isOutputDeviceAvailable){
+            engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
+            ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
+            ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i OUTPUT channels",audioDevices[audioOUTDev].name.c_str(),audioGUIOUTChannels);
+        }else{
+            ofLog(OF_LOG_ERROR,"------------------------------ Soundstream OUTPUT OFF, no output audio device available");
+        }
+
         engine->setup(audioSampleRate, audioBufferSize, audioNumBuffers);
         engine->sequencer.setTempo(bpm);
 
