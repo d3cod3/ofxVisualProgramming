@@ -85,7 +85,7 @@ public:
     ofxFft                                  *fft;
     ofxBTrack                               *beatTrack;
 
-    float                                   plot_data[1024];
+    float                                   *plot_data;
 
     float                                   *spectrum;
     float                                   *melBins;

@@ -86,12 +86,16 @@ ofxVisualProgramming::ofxVisualProgramming(){
     newFileCounter          = 0;
 
     audioSampleRate         = 44100;
-    audioBufferSize         = 1024;
+    audioGUISRIndex         = 0;
     audioNumBuffers         = 4;
     audioGUIINIndex         = -1;
     audioGUIOUTIndex        = -1;
     audioGUIINChannels      = 0;
     audioGUIOUTChannels     = 0;
+    audioDevicesBS          = {"64","128","256","512","1024","2048"};
+    audioGUIBSIndex         = 4;
+    audioBufferSize         = ofToInt(audioDevicesBS[audioGUIBSIndex]);
+
     bpm                     = 120;
     isInputDeviceAvailable  = false;
     isOutputDeviceAvailable = false;
@@ -1267,6 +1271,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             dspON = XML.getValue("dsp",0);
             audioINDev = XML.getValue("audio_in_device",0);
             audioOUTDev = XML.getValue("audio_out_device",0);
+            audioSampleRate = XML.getValue("sample_rate_out",0);
             audioBufferSize = XML.getValue("buffer_size",0);
             bpm = XML.getValue("bpm",0);
             // pre 0.4.0 patches auto fix
@@ -1292,8 +1297,18 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioDevicesID_IN.clear();
             audioDevicesStringOUT.clear();
             audioDevicesID_OUT.clear();
+            audioDevicesSR.clear();
             ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
             for(size_t i=0;i<audioDevices.size();i++){
+                string tempSR = "";
+                for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
+                    if(sr < audioDevices[i].sampleRates.size()-1){
+                        tempSR += ofToString(audioDevices[i].sampleRates.at(sr))+", ";
+                    }else{
+                        tempSR += ofToString(audioDevices[i].sampleRates.at(sr));
+                    }
+                }
+
                 bool haveMinSR = false;
                 for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
                     if(audioDevices[i].sampleRates.at(sr) >= 44100){
@@ -1304,22 +1319,25 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(audioDevices[i].inputChannels > 0 && haveMinSR){
                     audioDevicesStringIN.push_back("  "+audioDevices[i].name);
                     audioDevicesID_IN.push_back(i);
-                    //ofLog(OF_LOG_NOTICE,"INPUT Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
+                    for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
+                        audioDevicesSR.push_back(ofToString(audioDevices[i].sampleRates.at(sr)));
+                    }
+                    ofLog(OF_LOG_NOTICE,"INPUT Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
                 }
                 if(audioDevices[i].outputChannels > 0 && haveMinSR){
                     audioDevicesStringOUT.push_back("  "+audioDevices[i].name);
                     audioDevicesID_OUT.push_back(i);
-                    //ofLog(OF_LOG_NOTICE,"OUTPUT Device[%zu]: %s (IN:%i - OUT:%i)",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels);
-                }
-                string tempSR = "";
-                for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
-                    if(sr < audioDevices[i].sampleRates.size()-1){
-                        tempSR += ofToString(audioDevices[i].sampleRates.at(sr))+", ";
-                    }else{
-                        tempSR += ofToString(audioDevices[i].sampleRates.at(sr));
+                    for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
+                        audioDevicesSR.push_back(ofToString(audioDevices[i].sampleRates.at(sr)));
                     }
+                    ofLog(OF_LOG_NOTICE,"OUTPUT Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
                 }
-                ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
+
+                // remove duplicates from sample rates vector
+                std::sort( audioDevicesSR.begin(), audioDevicesSR.end() );
+                audioDevicesSR.erase( std::unique( audioDevicesSR.begin(), audioDevicesSR.end() ), audioDevicesSR.end() );
+
+                //ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
             }
 
             // check audio devices index
@@ -1366,23 +1384,16 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             // select default devices
             if(isInputDeviceAvailable){
                 audioGUIINChannels      = static_cast<int>(audioDevices[audioINDev].inputChannels);
-                audioSampleRate         = audioDevices[audioINDev].sampleRates[0];
+                //audioSampleRate         = audioDevices[audioINDev].sampleRates[0];
             }else{
                 audioGUIINChannels      = 0;
             }
 
             if(isOutputDeviceAvailable){
                 audioGUIOUTChannels     = static_cast<int>(audioDevices[audioOUTDev].outputChannels);
-                audioSampleRate         = audioDevices[audioOUTDev].sampleRates[0];
+                //audioSampleRate         = audioDevices[audioOUTDev].sampleRates[0];
             }else{
                 audioGUIOUTChannels     = 0;
-            }
-
-            //ofLog(OF_LOG_NOTICE,"%i IN CH - %i OUT CH",audioGUIINChannels, audioGUIOUTChannels);
-
-            // fix samplerate to 44100 as minimum
-            if(audioSampleRate < 44100){
-                audioSampleRate = 44100;
             }
 
             XML.setValue("sample_rate_in",audioSampleRate);
@@ -1584,26 +1595,14 @@ void ofxVisualProgramming::setPatchVariable(string var, int value){
 //--------------------------------------------------------------
 void ofxVisualProgramming::setAudioInDevice(int ind){
 
-    bool found = false;
     int index = audioDevicesID_IN.at(ind);
-    for(size_t i=0;i<audioDevices[index].sampleRates.size();i++){
-        if((int)audioDevices[index].sampleRates[i] == audioSampleRate){
-            found = true;
-        }
-    }
 
-    if(!found){
-        ofLog(OF_LOG_WARNING,"------------------- INCOMPATIBLE INPUT DEVICE Sample Rate: %i", audioDevices[index].sampleRates[0]);
-        ofLog(OF_LOG_WARNING,"------------------- PLEASE SELECT ANOTHER INPUT DEVICE");
-        return;
-    }else{
-        audioGUIINChannels = audioDevices[audioINDev].inputChannels;
-        setPatchVariable("audio_in_device",index);
-        setPatchVariable("sample_rate_in",audioSampleRate);
-        setPatchVariable("input_channels",audioGUIINChannels);
+    audioGUIINChannels = audioDevices[index].inputChannels;
 
-        reloadPatch();
-    }
+    setPatchVariable("audio_in_device",index);
+    setPatchVariable("input_channels",audioGUIINChannels);
+
+    reloadPatch();
 
 }
 
@@ -1612,19 +1611,48 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 
     int index = audioDevicesID_OUT.at(ind);
 
-    audioSampleRate = audioDevices[audioOUTDev].sampleRates[0];
-    if(audioSampleRate < 44100){
-        audioSampleRate = 44100;
-    }
-
-    audioGUIOUTChannels = audioDevices[audioOUTDev].outputChannels;
+    audioGUIOUTChannels = audioDevices[index].outputChannels;
 
     setPatchVariable("audio_out_device",index);
-    setPatchVariable("sample_rate_out",audioSampleRate);
     setPatchVariable("output_channels",audioGUIOUTChannels);
 
     reloadPatch();
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setAudioDevices(int ind, int outd){
+    int indexIN = audioDevicesID_IN.at(ind);
+    int indexOUT = audioDevicesID_OUT.at(outd);
+
+    audioGUIINChannels = audioDevices[indexIN].inputChannels;
+    audioGUIOUTChannels = audioDevices[indexOUT].outputChannels;
+
+    setPatchVariable("audio_in_device",indexIN);
+    setPatchVariable("sample_rate_in",audioSampleRate);
+    setPatchVariable("input_channels",audioGUIINChannels);
+    setPatchVariable("audio_out_device",indexOUT);
+    setPatchVariable("sample_rate_out",audioSampleRate);
+    setPatchVariable("output_channels",audioGUIOUTChannels);
+
+    reloadPatch();
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setAudioSampleRate(int sr){
+    audioGUISRIndex = sr;
+    audioSampleRate = ofToInt(audioDevicesSR[audioGUISRIndex]);
+
+    setPatchVariable("sample_rate_in",audioSampleRate);
+    setPatchVariable("sample_rate_out",audioSampleRate);
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setAudioBufferSize(int bs){
+    audioGUIBSIndex = bs;
+    audioBufferSize = ofToInt(audioDevicesBS[audioGUIBSIndex]);
+
+    setPatchVariable("buffer_size",audioBufferSize);
 }
 
 //--------------------------------------------------------------
@@ -1672,6 +1700,7 @@ void ofxVisualProgramming::activateDSP(){
         setPatchVariable("dsp",1);
         dspON = true;
     }else{
+        deactivateDSP();
         ofLog(OF_LOG_ERROR,"The selected audio devices couldn't be compatible or couldn't be properly installed in your system!");
     }
 

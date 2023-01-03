@@ -46,7 +46,15 @@ MelBandsExtractor::MelBandsExtractor() : PatchObject("mel bands extractor"){
 
     this->initInletsState();
     
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        if (XML.pushTag("settings")){
+            bufferSize = XML.getValue("buffer_size",0);
+            XML.popTag();
+        }
+
+    }
     spectrumSize = (bufferSize/2) + 1;
 
     isNewConnection   = false;

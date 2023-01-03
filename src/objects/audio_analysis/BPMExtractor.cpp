@@ -51,9 +51,17 @@ BPMExtractor::BPMExtractor() : PatchObject("bpm extractor"){
 
     this->initInletsState();
 
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
-    spectrumSize = (bufferSize/2) + 1;
+    ofxXmlSettings XML;
 
+    if (XML.loadFile(patchFile)){
+        if (XML.pushTag("settings")){
+            bufferSize = XML.getValue("buffer_size",0);
+            XML.popTag();
+        }
+
+    }
+
+    spectrumSize = (bufferSize/2) + 1;
     arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS + 1;
 
     isNewConnection     = false;

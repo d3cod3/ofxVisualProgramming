@@ -469,9 +469,9 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     playhead = std::numeric_limits<int>::max();
     step = audiofile.samplerate() / sampleRate;
 
-    plot_data = new float[1024];
-    for( int x=0; x<1024; ++x){
-        int n = ofMap( x, 0, 1024, 0, audiofile.length(), true );
+    plot_data = new float[bufferSize];
+    for( int x=0; x<bufferSize; ++x){
+        int n = ofMap( x, 0, bufferSize, 0, audiofile.length(), true );
         plot_data[x] = hardClip(audiofile.sample( n, 0 ));
     }
 

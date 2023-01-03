@@ -112,6 +112,9 @@ public:
 
     void            setAudioInDevice(int ind);
     void            setAudioOutDevice(int ind);
+    void            setAudioDevices(int ind, int outd);
+    void            setAudioSampleRate(int sr);
+    void            setAudioBufferSize(int bs);
     void            activateDSP();
     void            deactivateDSP();
 
@@ -177,6 +180,8 @@ public:
     vector<string>                      audioDevicesStringOUT;
     vector<int>                         audioDevicesID_IN;
     vector<int>                         audioDevicesID_OUT;
+    vector<string>                      audioDevicesSR;
+    vector<string>                      audioDevicesBS;
     ofSoundStream                       soundStreamIN;
     ofSoundBuffer                       lastInputBuffer;
     ofPolyline                          inputBufferWaveform;
@@ -186,6 +191,8 @@ public:
     int                                 audioGUIOUTIndex;
     int                                 audioGUIINChannels;
     int                                 audioGUIOUTChannels;
+    int                                 audioGUISRIndex;
+    int                                 audioGUIBSIndex;
     int                                 audioSampleRate;
     int                                 audioBufferSize;
     int                                 audioNumBuffers;

@@ -46,13 +46,25 @@ FftExtractor::FftExtractor() : PatchObject("fft extractor"){
 
     this->initInletsState();
     
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        if (XML.pushTag("settings")){
+            bufferSize = XML.getValue("buffer_size",0);
+            XML.popTag();
+        }
+
+    }
     spectrumSize = (bufferSize/2) + 1;
 
-    isNewConnection   = false;
-    isConnectionRight = false;
+    multiplier          = 1.0f;
 
-    this->width     *= 2.0f;
+    isNewConnection     = false;
+    isConnectionRight   = false;
+
+    this->width         *= 2.0f;
+
+    loaded              = false;
 
 }
 
@@ -63,6 +75,8 @@ void FftExtractor::newObject(){
     this->addInlet(VP_LINK_ARRAY,"data");
 
     this->addOutlet(VP_LINK_ARRAY,"fft");
+
+    this->setCustomVar(multiplier,"MULTIPLIER");
 }
 
 //--------------------------------------------------------------
@@ -113,17 +127,24 @@ void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
         int index = 0;
         for(int i=bufferSize;i<bufferSize + spectrumSize;i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i)*multiplier;
             index++;
         }
     }else if(this->inletsConnected[0] && !isConnectionRight){
-        ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer object ONLY! Just reconnect it right!",this->getName().c_str());
+        ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer, or file data, objects ONLY! Just reconnect it right!",this->getName().c_str());
+    }
+
+    if(!loaded){
+        loaded = true;
+        multiplier = this->getCustomVar("MULTIPLIER");
     }
 
 }
 
 //--------------------------------------------------------------
 void FftExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -162,6 +183,12 @@ void FftExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void FftExtractor::drawObjectNodeConfig(){
+    ImGui::Spacing();
+    ImGui::PushItemWidth(224*scaleFactor);
+    if(ImGui::SliderFloat("Multiplier",&multiplier,1.0f,100.0f)){
+        this->setCustomVar(multiplier,"MULTIPLIER");
+    }
+
     ImGuiEx::ObjectInfo(
                 "Extracts the FFT (Fast Fourier Transform) from the audio analysis data vector",
                 "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
@@ -169,7 +196,7 @@ void FftExtractor::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void FftExtractor::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

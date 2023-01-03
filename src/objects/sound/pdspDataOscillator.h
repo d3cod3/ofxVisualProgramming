@@ -68,7 +68,7 @@ public:
 
     float                   pitch;
 
-    float                   plot_data[1024];
+    float                   *plot_data;
     int                     bufferSize;
     int                     sampleRate;
 

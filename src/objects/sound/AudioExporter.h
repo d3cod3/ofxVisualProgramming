@@ -65,7 +65,7 @@ public:
 
 
     ofxFFmpegRecorder   recorder;
-    float               plot_data[1024];
+    float               *plot_data;
 
     imgui_addons::ImGuiFileBrowser  fileDialog;
 
