@@ -327,6 +327,8 @@ void AudioDevice::resetSystemObject(){
 
         deviceLoaded      = true;
     }
+
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
