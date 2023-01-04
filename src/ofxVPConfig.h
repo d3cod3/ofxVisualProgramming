@@ -44,6 +44,9 @@
     #define MOD_KEY OF_KEY_CONTROL
 #endif
 
+#define OFXVP_GL_VERSION_MAJOR              4
+#define OFXVP_GL_VERSION_MINOR              1
+
 #define OUTPUT_TEX_MAX_WIDTH                4800
 #define OUTPUT_TEX_MAX_HEIGHT               4800
 
