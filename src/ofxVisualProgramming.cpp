@@ -1290,7 +1290,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 #elif defined(TARGET_OSX)
             audioDevices = soundStreamIN.getDeviceList(ofSoundDevice::Api::OSX_CORE);
 #else
-            audioDevices = soundStreamIN.getDeviceList();
+            audioDevices = soundStreamIN.getDeviceList(ofSoundDevice::Api::PULSE);
 #endif
 
             audioDevicesStringIN.clear();
@@ -1320,7 +1320,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     audioDevicesStringIN.push_back("  "+audioDevices[i].name);
                     audioDevicesID_IN.push_back(i);
                     for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
-                        audioDevicesSR.push_back(ofToString(audioDevices[i].sampleRates.at(sr)));
+                        if(audioDevices[i].sampleRates.at(sr) >= 44100){
+                            audioDevicesSR.push_back(ofToString(audioDevices[i].sampleRates.at(sr)));
+                        }
+
                     }
                     ofLog(OF_LOG_NOTICE,"INPUT Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
                 }
@@ -1328,7 +1331,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     audioDevicesStringOUT.push_back("  "+audioDevices[i].name);
                     audioDevicesID_OUT.push_back(i);
                     for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
-                        audioDevicesSR.push_back(ofToString(audioDevices[i].sampleRates.at(sr)));
+                        if(audioDevices[i].sampleRates.at(sr) >= 44100){
+                            audioDevicesSR.push_back(ofToString(audioDevices[i].sampleRates.at(sr)));
+                        }
                     }
                     ofLog(OF_LOG_NOTICE,"OUTPUT Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
                 }
@@ -1336,6 +1341,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 // remove duplicates from sample rates vector
                 std::sort( audioDevicesSR.begin(), audioDevicesSR.end() );
                 audioDevicesSR.erase( std::unique( audioDevicesSR.begin(), audioDevicesSR.end() ), audioDevicesSR.end() );
+                std::sort( audioDevicesSR.begin(), audioDevicesSR.end() );
 
                 //ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
             }
