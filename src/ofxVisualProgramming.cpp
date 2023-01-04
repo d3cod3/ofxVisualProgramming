@@ -1341,7 +1341,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 // remove duplicates from sample rates vector
                 std::sort( audioDevicesSR.begin(), audioDevicesSR.end() );
                 audioDevicesSR.erase( std::unique( audioDevicesSR.begin(), audioDevicesSR.end() ), audioDevicesSR.end() );
-                std::sort( audioDevicesSR.begin(), audioDevicesSR.end() );
+                std::sort( audioDevicesSR.begin(), audioDevicesSR.end(), [] (const std::string& lhs, const std::string& rhs) {
+                    return std::stoi(lhs) < std::stoi(rhs);
+                } );
 
                 //ofLog(OF_LOG_NOTICE,"Device[%zu]: %s (IN:%i - OUT:%i), Sample Rates: %s",i,audioDevices[i].name.c_str(),audioDevices[i].inputChannels,audioDevices[i].outputChannels,tempSR.c_str());
             }
