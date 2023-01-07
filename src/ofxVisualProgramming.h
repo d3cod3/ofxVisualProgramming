@@ -98,6 +98,8 @@ public:
     bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
     void            clearObjectsMap();
+    bool            isObjectInLibrary(string name);
+    bool            isObjectIDInPatchMap(int id);
 
     string          getSubpatchParent(string subpatchName);
 

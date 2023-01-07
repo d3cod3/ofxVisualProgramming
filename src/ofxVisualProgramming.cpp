@@ -421,7 +421,7 @@ void ofxVisualProgramming::drawInspector(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawLivePatchingSession(){
-    if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1 && currentSubpatch == "root"){
+    if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1 && currentSubpatch == "root" && !patchObjects.empty() && patchObjects.find(livePatchingObiID) != patchObjects.end()){
         if(patchObjects[livePatchingObiID]->inletsConnected[0] && static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->isAllocated()){
             float lpDrawW, lpDrawH, lpPosX, lpPosY;
             if(static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth() >= static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight()){   // horizontal texture
@@ -618,13 +618,8 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     // check if object exists
-    bool exists = false;
-    for(ofxVPObjects::factory::objectRegistry::iterator it = ofxVPObjects::factory::getObjectRegistry().begin(); it != ofxVPObjects::factory::getObjectRegistry().end(); it++ ){
-        if(it->first == name){
-            exists = true;
-            break;
-        }
-    }
+    bool exists = isObjectInLibrary(name);
+
     if(!exists && name != "audio device"){
         return;
     }
@@ -940,6 +935,33 @@ void ofxVisualProgramming::clearObjectsMap(){
 }
 
 //--------------------------------------------------------------
+bool ofxVisualProgramming::isObjectInLibrary(string name){
+    bool exists = false;
+    for(ofxVPObjects::factory::objectRegistry::iterator it = ofxVPObjects::factory::getObjectRegistry().begin(); it != ofxVPObjects::factory::getObjectRegistry().end(); it++ ){
+        if(it->first == name){
+            exists = true;
+            break;
+        }
+    }
+
+    return exists;
+}
+
+//--------------------------------------------------------------
+bool ofxVisualProgramming::isObjectIDInPatchMap(int id){
+    bool exists = false;
+
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->first == id){
+            exists = true;
+            break;
+        }
+    }
+
+    return exists;
+}
+
+//--------------------------------------------------------------
 string ofxVisualProgramming::getSubpatchParent(string subpatchName){
     for(map<string,vector<string>>::iterator it = subpatchesTree.begin(); it != subpatchesTree.end(); it++ ){
         for(unsigned int s=0;s<it->second.size();s++){
@@ -1089,6 +1111,10 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         checkSpecialConnection(fromID,toID,linkType);
 
+        #ifdef NDEBUG
+        std::cout << "Connect from " << patchObjects[fromID]->getName() << " to " << patchObjects[toID]->getName() << std::endl;
+        #endif
+
         connected = true;
     }
 
@@ -1191,10 +1217,37 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
 
     ofDirectory dataFolderOrigin;
-    dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"/data/");
-    std::filesystem::path tp = ofToDataPath("temp/data/",true);
+    dataFolderOrigin.listDir(fileToRead.getEnclosingDirectory()+"data/");
 
-    dataFolderOrigin.copyTo(tp,true,true);
+    if(dataFolderOrigin.exists()){
+
+        // remove previous data content
+        ofDirectory oldData;
+        oldData.listDir(ofToDataPath("temp/data/",true));
+#ifdef NDEBUG
+        std::cout << "Removing content from directory: " << oldData.getAbsolutePath() << std::endl;
+#endif
+        for(size_t i=0;i<oldData.getFiles().size();i++){
+            oldData.getFile(i).remove();
+#ifdef NDEBUG
+            std::cout << "Removing file: " << oldData.getFile(i).getAbsolutePath() << std::endl;
+#endif
+        }
+
+        string oldDataPath = oldData.getAbsolutePath();
+
+
+        // copy new data content
+#ifdef NDEBUG
+            std::cout << "Copying from  " << dataFolderOrigin.getAbsolutePath() << " to " << oldDataPath << std::endl;
+#endif
+        if(dataFolderOrigin.canRead() && oldData.canWrite()){
+            for(size_t i=0;i<dataFolderOrigin.getFiles().size();i++){
+                ofFile::copyFromTo(dataFolderOrigin.getFile(i).getAbsolutePath(),oldDataPath+"/"+dataFolderOrigin.getFile(i).getFileName(),true,true);
+            }
+        }
+
+    }
 
     newFileCounter++;
 
@@ -1461,22 +1514,28 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     string objname = XML.getValue("name","");
                     bool loaded = false;
 
-                    shared_ptr<PatchObject> tempObj = selectObject(objname);
-                    if(tempObj != nullptr){
-                        loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
-                        if(loaded){
-                            tempObj->setPatchfile(currentPatchFile);
-                            tempObj->setIsRetina(isRetina);
-                            ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
-                            ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
-                            ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
-                            ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
-                            // Insert the new patch into the map
-                            patchObjects[tempObj->getId()] = tempObj;
-                            actualObjectID = tempObj->getId();
-                            lastAddedObjectID = tempObj->getId();
+                    if(isObjectInLibrary(objname)){
+                        shared_ptr<PatchObject> tempObj = selectObject(objname);
+                        if(tempObj != nullptr){
+                            loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
+                            if(loaded){
+                                tempObj->setPatchfile(currentPatchFile);
+                                tempObj->setIsRetina(isRetina);
+                                ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
+                                ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
+                                ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
+                                ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
+                                // Insert the new patch into the map
+                                patchObjects[tempObj->getId()] = tempObj;
+                                actualObjectID = tempObj->getId();
+                                lastAddedObjectID = tempObj->getId();
 
-                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                #ifdef NDEBUG
+                                std::cout << "Loading "<< tempObj->getName() << std::endl;
+                                #endif
+
+                                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                            }
                         }
                     }
                     XML.popTag();
@@ -1486,31 +1545,37 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             // Load Links
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
-                    int fromID = XML.getValue("id", -1);
-                    if (XML.pushTag("outlets")){
-                        int totalOutlets = XML.getNumTags("link");
-                        for(int j=0;j<totalOutlets;j++){
-                            if (XML.pushTag("link",j)){
-                                int linkType = XML.getValue("type", 0);
-                                int totalLinks = XML.getNumTags("to");
-                                for(int z=0;z<totalLinks;z++){
-                                    if(XML.pushTag("to",z)){
-                                        int toObjectID = XML.getValue("id", 0);
-                                        int toInletID = XML.getValue("inlet", 0);
+                    string objname = XML.getValue("name","");
+                    if(isObjectInLibrary(objname)){
+                        int fromID = XML.getValue("id", -1);
+                        if (XML.pushTag("outlets")){
+                            int totalOutlets = XML.getNumTags("link");
+                            for(int j=0;j<totalOutlets;j++){
+                                if (XML.pushTag("link",j)){
+                                    int linkType = XML.getValue("type", 0);
+                                    int totalLinks = XML.getNumTags("to");
+                                    for(int z=0;z<totalLinks;z++){
+                                        if(XML.pushTag("to",z)){
+                                            int toObjectID = XML.getValue("id", 0);
+                                            int toInletID = XML.getValue("inlet", 0);
 
-                                        if(connect(fromID,j,toObjectID,toInletID,linkType)){
-                                            //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
-                                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                            // fix loading patches with non-existent objects (older OFXVP versions)
+                                            if(isObjectIDInPatchMap(toObjectID)){
+                                                if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                    //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                }
+                                            }
+
+                                            XML.popTag();
                                         }
-
-                                        XML.popTag();
                                     }
+                                    XML.popTag();
                                 }
-                                XML.popTag();
                             }
-                        }
 
-                        XML.popTag();
+                            XML.popTag();
+                        }
                     }
                     XML.popTag();
                 }

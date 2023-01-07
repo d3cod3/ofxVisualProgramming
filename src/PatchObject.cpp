@@ -1001,6 +1001,7 @@ void PatchObject::setPatchfile(string pf) {
 
 //--------------------------------------------------------------
 void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
     if(!willErase){
 
     }
@@ -1010,12 +1011,12 @@ void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> 
 void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
         if(e.key == OF_KEY_BACKSPACE){
-            for (int j=0;j<linksToDisconnect.size();j++){
+            for (int j=0;j<static_cast<int>(linksToDisconnect.size());j++){
                 disconnectLink(patchObjects,linksToDisconnect.at(j));
             }
             linksToDisconnect.clear();
 
-            for(int j=0;j<objectsSelected.size();j++){
+            for(int j=0;j<static_cast<int>(objectsSelected.size());j++){
                 if(objectsSelected.at(j) == this->nId){
                     ofNotifyEvent(removeEvent, objectsSelected.at(j));
                     this->setWillErase(true);
@@ -1024,7 +1025,7 @@ void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>>
             objectsSelected.clear();
         // OSX: CMD-D, WIN/LINUX: CTRL-D    (DUPLICATE SELECTED OBJECTS)
         }else if(e.hasModifier(MOD_KEY) && e.keycode == 68){
-            for(int j=0;j<objectsSelected.size();j++){
+            for(int j=0;j<static_cast<int>(objectsSelected.size());j++){
                 if(objectsSelected.at(j) == this->nId){
                     ofNotifyEvent(duplicateEvent, objectsSelected.at(j));
                 }
