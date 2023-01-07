@@ -45,17 +45,6 @@ FftExtractor::FftExtractor() : PatchObject("fft extractor"){
     _outletParams[0] = new vector<float>();  // FFT Data
 
     this->initInletsState();
-    
-    ofxXmlSettings XML;
-
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-
-    }
-    spectrumSize = (bufferSize/2) + 1;
 
     multiplier          = 1.0f;
 
