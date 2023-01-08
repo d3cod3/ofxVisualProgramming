@@ -531,6 +531,8 @@ void OutputWindow::toggleWindowFullscreen(){
 
 //--------------------------------------------------------------
 void OutputWindow::drawInWindow(ofEventArgs &e){
+    unusedArgs(e);
+
     ofBackground(0);
 
     if(hideMouse){
@@ -540,6 +542,8 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
     }
 
     ofPushStyle();
+    ofPushView();
+    ofPushMatrix();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         ofSetColor(255);
@@ -549,6 +553,8 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
             static_cast<ofTexture *>(_inletParams[0])->draw(thposX, thposY, thdrawW, thdrawH);
         }
     }
+    ofPopMatrix();
+    ofPopView();
     ofPopStyle();
 
 }
