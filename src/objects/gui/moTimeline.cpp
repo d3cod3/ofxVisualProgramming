@@ -277,6 +277,8 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void moTimeline::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(glRenderer);
+
     localFont = font;
 }
 
@@ -457,12 +459,12 @@ void moTimeline::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moTimeline::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }
-    if(removeFileFromData){
-        //removeFile(filepath);
-    }
+
 }
 
 //--------------------------------------------------------------
@@ -795,6 +797,8 @@ void moTimeline::removeTrack(string &trackName){
 
 //--------------------------------------------------------------
 void moTimeline::drawInWindow(ofEventArgs &e){
+    unusedArgs(e);
+
     ofBackground(20);
     ofPushStyle();
     ofSetColor(255);

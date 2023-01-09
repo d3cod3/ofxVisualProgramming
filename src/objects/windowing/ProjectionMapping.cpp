@@ -294,6 +294,8 @@ void ProjectionMapping::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ProjectionMapping::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }

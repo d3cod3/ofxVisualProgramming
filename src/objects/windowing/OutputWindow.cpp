@@ -280,6 +280,9 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void OutputWindow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
     // draw node texture preview with OF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -487,6 +490,8 @@ void OutputWindow::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void OutputWindow::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }
