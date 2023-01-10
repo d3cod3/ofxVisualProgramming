@@ -1498,11 +1498,19 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 audioGUIOUTChannels     = 0;
             }
 
+            XML.setValue("buffer_size",audioBufferSize);
             XML.setValue("sample_rate_in",audioSampleRate);
             XML.setValue("sample_rate_out",audioSampleRate);
             XML.setValue("input_channels",audioGUIINChannels);
             XML.setValue("output_channels",audioGUIOUTChannels);
             XML.saveFile();
+
+            for(size_t bs=0;bs<audioDevicesBS.size();bs++){
+                if(ofToInt(audioDevicesBS.at(bs)) == audioBufferSize){
+                    audioGUIBSIndex = bs;
+                    break;
+                }
+            }
 
             // at least we need one audio device available (input or output) to start the engine
             if(dspON && (isInputDeviceAvailable || isOutputDeviceAvailable)){
@@ -1716,8 +1724,6 @@ void ofxVisualProgramming::setAudioInDevice(int ind){
     setPatchVariable("audio_in_device",index);
     setPatchVariable("input_channels",audioGUIINChannels);
 
-    reloadPatch();
-
 }
 
 //--------------------------------------------------------------
@@ -1729,8 +1735,6 @@ void ofxVisualProgramming::setAudioOutDevice(int ind){
 
     setPatchVariable("audio_out_device",index);
     setPatchVariable("output_channels",audioGUIOUTChannels);
-
-    reloadPatch();
 
 }
 

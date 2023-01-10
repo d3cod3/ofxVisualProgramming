@@ -175,8 +175,15 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     ImVec2 imSize( this->width, this->height );
 
     // Begin Node
+    string displayName = "";
+    if(this->getSpecialName() != ""){
+        displayName = PatchObject::getDisplayName()+" "+this->getSpecialName();
+    }else{
+        displayName = PatchObject::getDisplayName();
+    }
+
     static bool isNodeVisible;
-    isNodeVisible = _nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), PatchObject::getDisplayName()+" "+this->getSpecialName(), imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() );
+    isNodeVisible = _nodeCanvas.BeginNode( nId, PatchObject::getUID().c_str(), displayName, imPos, imSize, this->getNumInlets(), this->getNumOutlets(), this->getIsResizable(), this->getIsTextureObject() );
 
     // Always draw [in/out]lets (so wires render correctly)
     // Updates pin positions
