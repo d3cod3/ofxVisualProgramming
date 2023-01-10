@@ -159,6 +159,9 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     canvas.toggleOfCam();
     easyCam.enableOrtho();
 
+    // create failsafe window for always maintaining reference to shared context
+    setupFailsafeWindow();
+
     // RESET TEMP FOLDER
     resetTempFolder();
 
@@ -185,6 +188,28 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     // Create new empty file patch
     newPatch(release);
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::setupFailsafeWindow(){
+    ofGLFWWindowSettings settings;
+#if defined(OFXVP_GL_VERSION_MAJOR) && defined(OFXVP_GL_VERSION_MINOR)
+    settings.setGLVersion(OFXVP_GL_VERSION_MAJOR,OFXVP_GL_VERSION_MINOR);
+#else
+    settings.setGLVersion(3,2);
+#endif
+    settings.shareContextWith = mainWindow;
+    settings.decorated = true;
+    settings.resizable = false;
+    settings.visible = false;
+    settings.setPosition(ofDefaultVec2(0,0));
+    settings.setSize(10,10);
+
+    failsafeWindow = dynamic_pointer_cast<ofAppGLFWWindow>(ofCreateWindow(settings));
+    failsafeWindow->setVerticalSync(false);
+    failsafeWindow->setWindowPosition(0,0);
+
+    glfwSetWindowCloseCallback(failsafeWindow->getGLFWWindow(),GL_FALSE);
 }
 
 //--------------------------------------------------------------

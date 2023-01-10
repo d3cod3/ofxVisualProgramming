@@ -60,6 +60,7 @@ public:
 
     void            setRetina(bool retina);
     void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
+    void            setupFailsafeWindow();
     void            update();
     void            updateCanvasViewport();
     void            draw();
@@ -210,6 +211,8 @@ public:
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
 
-    mutable ofMutex         vp_mutex;
+    mutable ofMutex                 vp_mutex;
+
+    shared_ptr<ofAppGLFWWindow>     failsafeWindow;
 
 };
