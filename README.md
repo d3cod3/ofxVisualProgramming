@@ -95,8 +95,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPDSP](https://github.com/d3cod3/ofxPDSP)
 
-#### [ofxPython](https://github.com/d3cod3/ofxPython)
-
 #### [ofxSyphon](https://github.com/d3cod3/ofxSyphon)
 
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
@@ -131,7 +129,6 @@ git clone https://github.com/danomatika/ofxLua
 git clone https://github.com/danomatika/ofxMidi
 git clone https://github.com/d3cod3/ofxMtlMapping2D
 git clone https://github.com/d3cod3/ofxNDI
-git clone https://github.com/d3cod3/ofxPython
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPDSP
 git clone https://github.com/d3cod3/ofxSyphon
@@ -410,8 +407,6 @@ ofxLua, ofxMidi, ofxPd original addons by [Dan Wilcox](https://github.com/danoma
 ofxMtlMapping2D original addon by [morethanlogic](https://github.com/morethanlogic)
 
 ofxNDI original addon by [Thomas Geissl](https://github.com/thomasgeissl)
-
-ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
 
 ofxSyphon original addon by [Anthony Stellato](https://github.com/astellato)
 
