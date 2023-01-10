@@ -1417,9 +1417,17 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     }
                 }
             }
-            if(audioGUIINIndex == -1){ // no input devices available
-                isInputDeviceAvailable = false;
-                audioGUIINIndex = 0;
+            if(audioGUIINIndex == -1){ // no configured input device available
+                // check if there is one available
+                if(!audioDevicesID_IN.empty()){
+                    isInputDeviceAvailable = true;
+                    // select the first one available
+                    audioGUIINIndex = audioDevicesID_IN.at(0);
+                    audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
+                }else{
+                    isInputDeviceAvailable = false;
+                    audioGUIINIndex = 0;
+                }
             }else{
                 isInputDeviceAvailable = true;
                 audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
@@ -1434,9 +1442,17 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     }
                 }
             }
-            if(audioGUIOUTIndex == -1){ // no output devices available
-                isOutputDeviceAvailable = false;
-                audioGUIOUTIndex = 0;
+            if(audioGUIOUTIndex == -1){ // no configured output device available
+                // check if there is one available
+                if(!audioDevicesID_OUT.empty()){
+                    isOutputDeviceAvailable = true;
+                    // select the first one available
+                    audioGUIOUTIndex = audioDevicesID_OUT.at(0);
+                    audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
+                }else{
+                    isOutputDeviceAvailable = false;
+                    audioGUIOUTIndex = 0;
+                }
             }else{
                 isOutputDeviceAvailable = true;
                 audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
