@@ -45,17 +45,6 @@ MelBandsExtractor::MelBandsExtractor() : PatchObject("mel bands extractor"){
     _outletParams[0] = new vector<float>();  // MEL bands Data
 
     this->initInletsState();
-    
-    ofxXmlSettings XML;
-
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-
-    }
-    spectrumSize = (bufferSize/2) + 1;
 
     isNewConnection   = false;
     isConnectionRight = false;

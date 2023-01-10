@@ -47,19 +47,6 @@ PitchExtractor::PitchExtractor() : PatchObject("pitch extractor"){
 
     this->initInletsState();
 
-    ofxXmlSettings XML;
-
-    if (XML.loadFile(patchFile)){
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-
-    }
-    spectrumSize = (bufferSize/2) + 1;
-
-    arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS;
-
     isNewConnection   = false;
     isConnectionRight = false;
 }
