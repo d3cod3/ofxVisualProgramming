@@ -35,7 +35,7 @@
 //--------------------------------------------------------------
 Constant::Constant() :
         // Extend the classes you need
-        PatchObject("constant"),
+        PatchObject("number"),
 
         // define default values
         inputValueNew(0.f, "")
@@ -85,6 +85,7 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
@@ -118,6 +119,7 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
 //--------------------------------------------------------------
 void Constant::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
     ofSetColor(255);
 }
 
@@ -159,6 +161,18 @@ void Constant::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void Constant::drawObjectNodeConfig(){
+
+    ImGui::Spacing();
+    ImGui::PushItemWidth(80*scaleFactor);
+    ImGui::InputText("Variable name",&varName);
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setSpecialName("| "+varName);
+        filepath = this->getSpecialName();
+        this->saveConfig(false);
+    }
+
+
     ImGuiEx::ObjectInfo(
                 "Single numeric value controller.",
                 "https://mosaic.d3cod3.org/reference.php?r=constant", scaleFactor);
@@ -166,7 +180,7 @@ void Constant::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Constant::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( Constant, "constant", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( Constant, "number", OFXVP_OBJECT_CAT_MATH)
