@@ -95,6 +95,7 @@ namespace imgui_addons
 
             #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
             bool loadWindowsDrives(); // Helper Function for Windows to load Drive Letters.
+            void initCurrentPathWindows();
             #endif
 
             #if defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__)

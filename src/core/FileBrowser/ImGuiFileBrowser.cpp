@@ -16,6 +16,7 @@
 #include <cmath>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <pwd.h>
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
 #define OSWIN
 #ifndef NOMINMAX
@@ -63,7 +64,7 @@ namespace imgui_addons
         scaleFactor = 1.0f;
 
         #ifdef OSWIN
-        current_path = "./";
+        initCurrentPathWindows();
         #else
         initCurrentPath();
         #endif
@@ -160,6 +161,7 @@ namespace imgui_addons
                 if(current_path.empty())
                 {
                     #ifdef OSWIN
+                    initCurrentPathWindows();
                     show_error |= !(loadWindowsDrives());
                     #else
                     initCurrentPath();
@@ -884,7 +886,8 @@ namespace imgui_addons
         {
             current_dirlist.clear();
             #ifdef OSWIN
-            current_path = pathdir = "./";
+            initCurrentPathWindows();
+            pathdir = current_path;
             #else
             initCurrentPath();
             pathdir = current_path;
@@ -1244,8 +1247,7 @@ namespace imgui_addons
 
     //Windows Exclusive function
     #ifdef OSWIN
-    bool ImGuiFileBrowser::loadWindowsDrives()
-    {
+    bool ImGuiFileBrowser::loadWindowsDrives(){
         DWORD len = GetLogicalDriveStringsA(0,nullptr);
         char* drives = new char[len];
         if(!GetLogicalDriveStringsA(len,drives))
@@ -1269,6 +1271,20 @@ namespace imgui_addons
         delete[] drives;
         return true;
     }
+
+    void ImGuiFileBrowser::initCurrentPathWindows(){
+        wchar_t my_documents[1024];
+        HRESULT result = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, my_documents);
+
+        if (SUCCEEDED(result)){
+            char str[1024];
+            wcstombs(str, my_documents, 1023);
+            current_path = std::string(str);
+            parsePathTabs(current_path);
+        }else{
+            current_path = "./";
+        }
+    }
     #endif
 
     //Unix only
@@ -1287,7 +1303,11 @@ namespace imgui_addons
         if(path_max_def)
             buffer = new char[PATH_MAX];
 
-        char* real_path = realpath("./", buffer);
+        //char* real_path = realpath("./", buffer);
+
+        struct passwd *pw = getpwuid(getuid());
+        char *real_path = pw->pw_dir;
+
         if (real_path == nullptr)
         {
             current_path = "/";
