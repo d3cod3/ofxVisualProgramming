@@ -40,7 +40,7 @@ const char* steps_names[Steps_COUNT] = { "1-16", "17-32", "33-48", "49-64" };
 //--------------------------------------------------------------
 pdspSequencer::pdspSequencer() : PatchObject("sequencer"){
 
-    this->numInlets  = 5;
+    this->numInlets  = 6;
     this->numOutlets = 21;
 
     _inletParams[0] = new vector<float>(); // S
@@ -48,6 +48,8 @@ pdspSequencer::pdspSequencer() : PatchObject("sequencer"){
     _inletParams[2] = new vector<float>(); // B
     _inletParams[3] = new vector<float>(); // C
     _inletParams[4] = new vector<float>(); // D
+    _inletParams[5] = new float();         // steps
+    *(float *)&_inletParams[5] = 0.0f;
 
     _outletParams[0] = new float();          // step
     *(float *)&_outletParams[0] = 0.0f;
@@ -122,6 +124,7 @@ pdspSequencer::pdspSequencer() : PatchObject("sequencer"){
     step                    = 0;
     chapter                 = 0;
     maxChapter              = Steps_1_16;
+    manualSteps             = CHAPTER_STEPS*(maxChapter+1);
     actualSteps             = CHAPTER_STEPS*(maxChapter+1);
 
     metro                   = false;
@@ -141,6 +144,7 @@ void pdspSequencer::newObject(){
     this->addInlet(VP_LINK_ARRAY,"B");
     this->addInlet(VP_LINK_ARRAY,"C");
     this->addInlet(VP_LINK_ARRAY,"D");
+    this->addInlet(VP_LINK_NUMERIC,"steps");
 
     this->addOutlet(VP_LINK_NUMERIC,"s1");
     this->addOutlet(VP_LINK_NUMERIC,"s2");
@@ -167,6 +171,7 @@ void pdspSequencer::newObject(){
     this->addOutlet(VP_LINK_NUMERIC,"D");
 
     this->setCustomVar(0.0f,"STEPS");
+    this->setCustomVar(static_cast<float>(actualSteps),"MANUAL_STEPS");
 
     for(size_t i=0;i<SEQUENCER_STEPS;i++){
         this->setCustomVar(0.0f,"S_"+ofToString(i+1));
@@ -217,12 +222,15 @@ void pdspSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void pdspSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
     step_millis = static_cast<int>(floor(60000 / 4 / 108));
     expected_step_millis = static_cast<int>(floor(60000 / 4 / 108));
 }
 
 //--------------------------------------------------------------
 void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(bang){
 
@@ -307,9 +315,26 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }
     }
 
+    // steps
+    if(this->inletsConnected[5]){
+        manualSteps = static_cast<int>(ofClamp(*(float *)&_inletParams[5],1.0f,SEQUENCER_STEPS*1.0f));
+        actualSteps = manualSteps;
+        if(actualSteps <= 16){
+            maxChapter = 0;
+        }else if(actualSteps > 16 && actualSteps <= 32){
+            maxChapter = 1;
+        }else if(actualSteps > 32 && actualSteps <= 48){
+            maxChapter = 2;
+        }else if(actualSteps > 48 && actualSteps <= 64){
+            maxChapter = 3;
+        }
+        step = seq.frame()%actualSteps.load();
+    }
+
     if(!loaded){
         loaded = true;
         maxChapter = static_cast<int>(this->getCustomVar("STEPS"));
+        manualSteps = static_cast<int>(this->getCustomVar("MANUAL_STEPS"));
         actualSteps = CHAPTER_STEPS*(maxChapter+1);
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
             seqSteps[i] = this->getCustomVar("S_"+ofToString(i+1));
@@ -328,6 +353,8 @@ void pdspSequencer::updateAudioObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspSequencer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -455,23 +482,41 @@ void pdspSequencer::drawObjectNodeConfig(){
 
     if(ImGui::SliderInt("steps", &maxChapter, 0, Steps_COUNT - 1, steps_nums[maxChapter])){
         actualSteps = CHAPTER_STEPS*(maxChapter+1);
+        manualSteps = actualSteps;
+        step = seq.frame()%actualSteps.load();
         this->setCustomVar(static_cast<float>(maxChapter),"STEPS");
+        this->setCustomVar(static_cast<float>(manualSteps),"MANUAL_STEPS");
+    }
+    ImGui::Spacing();
+    if(ImGui::SliderInt("manual steps", &manualSteps, 1, 64)){
+        actualSteps = manualSteps;
+        if(actualSteps <= 16){
+            maxChapter = 0;
+        }else if(actualSteps > 16 && actualSteps <= 32){
+            maxChapter = 1;
+        }else if(actualSteps > 32 && actualSteps <= 48){
+            maxChapter = 2;
+        }else if(actualSteps > 48 && actualSteps <= 64){
+            maxChapter = 3;
+        }
+        step = seq.frame()%actualSteps.load();
+        this->setCustomVar(static_cast<float>(manualSteps),"MANUAL_STEPS");
     }
     ImGui::Spacing();
     ImGui::ListBox("sections", &chapter, &vectorSteps[0], vectorSteps.size(), 4);
     ImGuiEx::ObjectInfo(
                 "Up to 64 step sequencer with 5 per-step assignable controls.",
-                "https://mosaic.d3cod3.org/reference.php?r=secuencer", scaleFactor);
+                "https://mosaic.d3cod3.org/reference.php?r=sequencer", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void pdspSequencer::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void pdspSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
-
+    unusedArgs(outputBuffer);
 }
 
 OBJECT_REGISTER( pdspSequencer, "sequencer", OFXVP_OBJECT_CAT_SOUND)

@@ -67,6 +67,7 @@ public:
     int                     step;
     int                     chapter;
     int                     maxChapter;
+    int                     manualSteps;
     std::atomic<int>        actualSteps;
 
     bool                    metro;
