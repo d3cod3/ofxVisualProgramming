@@ -391,7 +391,7 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
             playhead = 0.0;
             isPlaying = true;
             finishSemaphore = true;
-        }else if(playhead > 5000){
+        }else if(playhead > 6000){
             isNextCycle = false;
         }
 
