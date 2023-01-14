@@ -121,14 +121,11 @@ pdspSequencer::pdspSequencer() : PatchObject("sequencer"){
 
     loaded                  = false;
 
-    step                    = 0;
+    meter_step              = 0;
     chapter                 = 0;
     maxChapter              = Steps_1_16;
     manualSteps             = CHAPTER_STEPS*(maxChapter+1);
     actualSteps             = CHAPTER_STEPS*(maxChapter+1);
-
-    metro                   = false;
-    bang                    = false;
 
     this->width  *= 4.5f;
     this->height *= 4.0f;
@@ -187,21 +184,34 @@ void pdspSequencer::newObject(){
 void pdspSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
+    // ---- this code runs in the audio thread ----
     seq.code = [&]() noexcept {
         // actual sequencer step
-        step = seq.frame()%actualSteps.load();
+        int step = seq.frame()%actualSteps.load();
 
-        // BPM metronome
-        if(seq.frame()%4==0) metro = true;
+        meter_step = step;
 
-        // raw step bang
-        bang = true;
+        // CTRLS
+        *(float *)&_outletParams[16] = seqSteps[meter_step];      // S
+        *(float *)&_outletParams[17] = ctrl1Steps[meter_step];    // A
+        *(float *)&_outletParams[18] = ctrl2Steps[meter_step];    // B
+        *(float *)&_outletParams[19] = ctrl3Steps[meter_step];    // C
+        *(float *)&_outletParams[20] = ctrl4Steps[meter_step];    // D
 
-        // fix jitter for outside triggers ( testing )
-        time_span = std::chrono::steady_clock::now() - clock_begin;
-        clock_begin = std::chrono::steady_clock::now();
+        // SEQ
+        if(seqSteps[meter_step]>0.0f){
+            *(float *)&_outletParams[meter_step - (static_cast<int>(floor(meter_step/16))*CHAPTER_STEPS)] = 1.0f;
+        }else{
+            *(float *)&_outletParams[meter_step - (static_cast<int>(floor(meter_step/16))*CHAPTER_STEPS)] = 0.0f;
+        }
 
-        step_millis = static_cast<int>(floor(double(time_span.count()) * 1000 * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den));
+        for(int i=0;i<CHAPTER_STEPS;i++){
+            if(i == meter_step){
+                *(float *)&_outletParams[i] = seqSteps[meter_step];
+            }else{
+                *(float *)&_outletParams[i] = 0.0f;
+            }
+        }
 
     };
 
@@ -224,51 +234,11 @@ void pdspSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void pdspSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
     unusedArgs(engine);
 
-    step_millis = static_cast<int>(floor(60000 / 4 / 108));
-    expected_step_millis = static_cast<int>(floor(60000 / 4 / 108));
 }
 
 //--------------------------------------------------------------
 void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
-
-    if(bang){
-
-        int timeGap = expected_step_millis.load()-step_millis.load();
-        if(timeGap > 1){
-            // fix jitter
-            std::this_thread::sleep_for(std::chrono::milliseconds(timeGap));
-        }
-
-        bang = false;
-
-        // CTRLS
-        *(float *)&_outletParams[16] = seqSteps[step];      // S
-        *(float *)&_outletParams[17] = ctrl1Steps[step];    // A
-        *(float *)&_outletParams[18] = ctrl2Steps[step];    // B
-        *(float *)&_outletParams[19] = ctrl3Steps[step];    // C
-        *(float *)&_outletParams[20] = ctrl4Steps[step];    // D
-
-        // SEQ
-        if(seqSteps[step]>0.0f){
-            *(float *)&_outletParams[step - (static_cast<int>(floor(step/16))*CHAPTER_STEPS)] = 1.0f;
-        }else{
-            *(float *)&_outletParams[step - (static_cast<int>(floor(step/16))*CHAPTER_STEPS)] = 0.0f;
-        }
-        /*for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i==step && seqSteps[i]>0.0f){
-                *(float *)&_outletParams[i - (static_cast<int>(floor(step/16))*CHAPTER_STEPS)] = 1.0f;
-                //ofLog(OF_LOG_NOTICE, "Chapter %i, step %i, outlet %i",static_cast<int>(floor(step/16)),step,i - (static_cast<int>(floor(step/16))*CHAPTER_STEPS));
-                break;
-            }else{
-                *(float *)&_outletParams[i - (static_cast<int>(floor(step/16))*CHAPTER_STEPS)] = 0.0f;
-            }
-        }*/
-    }else{
-        for(size_t i=0;i<CHAPTER_STEPS;i++){
-            *(float *)&_outletParams[i] = 0.0f;
-        }
-    }
 
     // S
     if(this->inletsConnected[0]){
@@ -328,7 +298,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }else if(actualSteps > 48 && actualSteps <= 64){
             maxChapter = 3;
         }
-        step = seq.frame()%actualSteps.load();
+        meter_step = seq.frame()%actualSteps.load();
     }
 
     if(!loaded){
@@ -348,7 +318,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void pdspSequencer::updateAudioObjectContent(pdsp::Engine &engine){
-    expected_step_millis = static_cast<int>(floor(60000 / 4 / static_cast<int>(floor(engine.sequencer.getTempo()))));
+    unusedArgs(engine);
 }
 
 //--------------------------------------------------------------
@@ -387,7 +357,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // gate leds
             ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + (32*scaleFactor));
-            if((i + (chapter*CHAPTER_STEPS)) == static_cast<unsigned long>(step) && seqSteps[i + (chapter*CHAPTER_STEPS)] > 0.0f){
+            if((i + (chapter*CHAPTER_STEPS)) == static_cast<unsigned long>(meter_step) && seqSteps[i + (chapter*CHAPTER_STEPS)] > 0.0f){
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5*scaleFactor, IM_COL32(255, 255, 120, 140), 40);
             }
         }
@@ -450,19 +420,12 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // step leds
             ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + window_size.y - (40*scaleFactor));
-            if((i + (chapter*CHAPTER_STEPS)) == static_cast<size_t>(step)){
+            if((i + (chapter*CHAPTER_STEPS)) == static_cast<size_t>(meter_step)){
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 6*scaleFactor, IM_COL32(182, 30, 41, 255), 40);
             }else{
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5*scaleFactor, IM_COL32(50, 50, 50, 255), 40);
             }
         }
-
-        // BPM
-        /*if(metro){
-            metro = false;
-            ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*scaleFactor), window_pos.y + (40*scaleFactor));
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
-        }*/
 
         _nodeCanvas.EndNodeContent();
 
@@ -483,7 +446,7 @@ void pdspSequencer::drawObjectNodeConfig(){
     if(ImGui::SliderInt("steps", &maxChapter, 0, Steps_COUNT - 1, steps_nums[maxChapter])){
         actualSteps = CHAPTER_STEPS*(maxChapter+1);
         manualSteps = actualSteps;
-        step = seq.frame()%actualSteps.load();
+        meter_step = seq.frame()%actualSteps.load();
         this->setCustomVar(static_cast<float>(maxChapter),"STEPS");
         this->setCustomVar(static_cast<float>(manualSteps),"MANUAL_STEPS");
     }
@@ -499,7 +462,7 @@ void pdspSequencer::drawObjectNodeConfig(){
         }else if(actualSteps > 48 && actualSteps <= 64){
             maxChapter = 3;
         }
-        step = seq.frame()%actualSteps.load();
+        meter_step = seq.frame()%actualSteps.load();
         this->setCustomVar(static_cast<float>(manualSteps),"MANUAL_STEPS");
     }
     ImGui::Spacing();

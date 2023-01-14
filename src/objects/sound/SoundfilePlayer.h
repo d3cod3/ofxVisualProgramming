@@ -86,10 +86,13 @@ public:
     double              sampleRate;
     int                 bufferSize;
 
+    bool                isNextCycle;
+
     size_t              startTime;
     bool                loading;
     bool                finishSemaphore;
     bool                finishBang;
+
 
     imgui_addons::ImGuiFileBrowser  fileDialog;
 

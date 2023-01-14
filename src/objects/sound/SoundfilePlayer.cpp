@@ -79,6 +79,7 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
     finishSemaphore     = false;
     finishBang          = false;
+    isNextCycle         = false;
 
     isPDSPPatchableObject   = true;
 
@@ -104,7 +105,7 @@ void SoundfilePlayer::newObject(){
 //--------------------------------------------------------------
 void SoundfilePlayer::autoloadFile(string _fp){
     lastSoundfile = _fp;
-    //lastSoundfile = copyFileToPatchFolder(this->patchFolderPath,_fp);
+
     soundfileLoaded = true;
     loading = false;
     startTime = ofGetElapsedTimeMillis();
@@ -132,6 +133,7 @@ void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
         soundfileLoaded = false;
@@ -198,15 +200,6 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
             volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
         }
 
-        // trigger
-        if(this->inletsConnected[4]){
-            if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f){
-                playhead = 0.0;
-                isPlaying = true;
-                finishSemaphore = true;
-            }
-        }
-
         // outlet finish bang
         if(finishBang){
             *(float *)&_outletParams[2] = 1.0f;
@@ -224,6 +217,8 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -378,21 +373,35 @@ void SoundfilePlayer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
-    }
-    if(removeFileFromData){
-        //removeFile(filepath);
     }
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    // trigger, this needs to run in audio thread
+    if(this->inletsConnected[4]){
+        if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f && !isNextCycle){
+            isNextCycle = true;
+            playhead = 0.0;
+            isPlaying = true;
+            finishSemaphore = true;
+        }else if(playhead > 5000){
+            isNextCycle = false;
+        }
+
+    }
+
     if(isFileLoaded && audiofile.loaded() && isPlaying){
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
             int n = static_cast<int>(floor(playhead));
 
-            if(n < audiofile.length()-1){
+            if(n < static_cast<int>(audiofile.length()-1)){
                 float fract = static_cast<float>(playhead - n);
                 float isample = audiofile.sample(n, 0)*(1.0f-fract) + audiofile.sample(n+1, 0)*fract; // linear interpolation
                 monoBuffer.getSample(i,0) = isample * volume;
