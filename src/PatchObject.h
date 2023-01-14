@@ -70,6 +70,7 @@ struct PatchLink{
     int                     toInletID;
     int                     id;
     bool                    isDisabled;
+    bool                    isDeactivated;
 };
 
 
@@ -199,6 +200,7 @@ public:
     // patch object connections
     vector<shared_ptr<PatchLink>>       outPut;
     vector<int>                         linksToDisconnect;
+    vector<int>                         linksDeactivated;
     vector<int>                         objectsSelected;
     vector<bool>                        inletsConnected;
 

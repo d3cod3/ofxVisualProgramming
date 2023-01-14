@@ -292,6 +292,9 @@ struct NodeCanvas {
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
 
+    // Returns deactivated links
+    std::vector<int> getDeactivatedLinks(){ return deactivated_links; }
+
     // Returns active node
     int getActiveNode() { return activeNode; }
     void setActiveNode(int objID) { activeNode = objID; }
@@ -342,8 +345,9 @@ private:
     // Patch Control data
     std::map<int,std::map<int,ImVec2>>  inletPinsPositions;
     std::map<int,std::map<int,ImVec2>>  outletPinsPositions;
-    std::vector<int> selected_nodes; // for group actions (copy, duplicate, delete) -- TO IMPLEMENT
-    std::vector<int> selected_links; // for delete links (one or multiple)          -- IMPLEMENTED
+    std::vector<int> selected_nodes; // for group actions (copy, duplicate, delete)                 -- TO IMPLEMENT
+    std::vector<int> selected_links; // for delete links (one or multiple)                          -- IMPLEMENTED
+    std::vector<int> deactivated_links; // for activating/deactivating links (one or multiple)      -- IMPLEMENTED
     std::string activePin;
     std::string activePinType;
     int         activeNode = 0; // for node inspector

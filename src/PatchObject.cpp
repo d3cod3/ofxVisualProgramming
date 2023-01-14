@@ -143,8 +143,37 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
             if(!outPut[i]->isDisabled && outPut[i]->fromOutletID == out && patchObjects[outPut[i]->toObjectID]!=nullptr && !patchObjects[outPut[i]->toObjectID]->getWillErase()){
                 outPut[i]->posFrom = getOutletPosition(out);
                 outPut[i]->posTo = patchObjects[outPut[i]->toObjectID]->getInletPosition(outPut[i]->toInletID);
+
+                // check first if link is deactivated by shift click
+                outPut[i]->isDeactivated = false;
+                for(size_t di=0;di<linksDeactivated.size();di++){
+                    if(outPut[i]->id == linksDeactivated.at(di)){
+                        outPut[i]->isDeactivated = true;
+                        break;
+                    }
+                }
                 // send data through links
-                patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
+                if(!outPut[i]->isDeactivated){
+                    patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID] = true;
+                    if(outPut[i]->type == VP_LINK_AUDIO && patchObjects[outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
+                        if(this->getIsPDSPPatchableObject() || this->getName() == "audio device"){
+                            this->pdspOut[outPut[i]->fromOutletID] >> patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID];
+                        }
+                    }else if(outPut[i]->type == VP_LINK_TEXTURE){
+                        // TODO
+                    }
+                    patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
+                }else{
+                    patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID] = false;
+                    if(outPut[i]->type == VP_LINK_AUDIO){
+                        if(patchObjects[outPut[i]->toObjectID]->getIsPDSPPatchableObject() && patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID].getInputsList().size() > 0){
+                            patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID].disconnectIn();
+                        }
+                    }else if(outPut[i]->type == VP_LINK_TEXTURE){
+                        // TODO
+                    }
+
+                }
             }
         }
     }
@@ -303,7 +332,10 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
 
 
         // Refresh links to eventually disconnect ( backspace key )
-        linksToDisconnect = _nodeCanvas.getSelectedLinks();
+        linksToDisconnect   = _nodeCanvas.getSelectedLinks();
+
+        // Refresh links deactivated
+        linksDeactivated    = _nodeCanvas.getDeactivatedLinks();
 
         // Refresh objects selected to eventually duplicate or delete ( cmd-d or backsapce )
         objectsSelected = _nodeCanvas.getSelectedNodes();
@@ -392,6 +424,7 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
         tempLink->toObjectID    = this->getId();
         tempLink->toInletID     = toInlet;
         tempLink->isDisabled    = false;
+        tempLink->isDeactivated = false;
 
         patchObjects[fromObjectID]->outPut.push_back(tempLink);
 

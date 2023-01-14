@@ -853,6 +853,14 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                             }
                         }
 
+                        // reset deactivated links
+                        for(unsigned int i=0;i<_linksData.size();i++){
+                            std::vector<int>::iterator it = std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID);
+                            if (it!=deactivated_links.end()){
+                                deactivated_links.erase(it);
+                            }
+                        }
+
                     }
 
                     activePin = "";
@@ -920,7 +928,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
 
             if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
-                if (is_hovered){
+                if (is_hovered && !ImGui::GetIO().KeyShift){
                     if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
                         selected_links.push_back(_linksData.at(i)._linkID);
                     }
@@ -929,12 +937,27 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     if (it!=selected_links.end()){
                         selected_links.erase(it);
                     }
+                }else if(is_hovered && ImGui::GetIO().KeyShift){
+                    // deactivate if activated
+                    if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)==deactivated_links.end()){
+                        deactivated_links.push_back(_linksData.at(i)._linkID);
+                    }else{ // else the opposite
+                        std::vector<int>::iterator it = std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID);
+                        if (it!=deactivated_links.end()){
+                            deactivated_links.erase(it);
+                        }
+                    }
                 }
             }
 
 
             static ImU32 _tempColor;
             _tempColor = _color;
+
+            if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)!=deactivated_links.end()){ // disabled
+                _tempColor = IM_COL32(255,255,255,70);
+            }
+
             if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)!=selected_links.end()){ // selected
                 _tempColor = IM_COL32(255,0,0,255);
             }
