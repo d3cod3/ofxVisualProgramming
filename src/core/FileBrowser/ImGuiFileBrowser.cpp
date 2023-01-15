@@ -16,7 +16,6 @@
 #include <cmath>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <pwd.h>
 #if defined (WIN32) || defined (_WIN32) || defined (__WIN32)
 #define OSWIN
 #ifndef NOMINMAX
@@ -25,8 +24,10 @@
 #include "dirent_win.h"
 #include <windows.h>
 #include <direct.h>
+#include <shlobj.h>
 #else
 #include <dirent.h>
+#include <pwd.h>
 #endif // defined (WIN32) || defined (_WIN32)
 
 namespace imgui_addons
