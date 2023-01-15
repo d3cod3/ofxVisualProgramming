@@ -27,7 +27,7 @@ common:
         ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFft
         ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
-        ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
+        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxTimeline ofxWarp
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
@@ -73,14 +73,14 @@ common:
 
 
 linux64:
-        ADDON_DEPENDENCIES += ofxHapPlayer ofxPd ofxNDI
+        ADDON_DEPENDENCIES += ofxHapPlayer ofxNDI
         ADDON_SOURCES_EXCLUDE = src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 vs:
         ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxHapPlayer ofxPd ofxNDI ofxSyphon
+        ADDON_DEPENDENCIES += ofxHapPlayer ofxNDI ofxSyphon
