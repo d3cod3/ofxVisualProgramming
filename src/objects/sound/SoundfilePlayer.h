@@ -82,6 +82,8 @@ public:
     pdsp::Scope         scope;
     float               *plot_data;
     double              playhead;
+    double              cueIN;
+    double              cueOUT;
     double              step;
     double              sampleRate;
     int                 bufferSize;

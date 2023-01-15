@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
-    this->numInlets  = 5;
+    this->numInlets  = 7;
     this->numOutlets = 3;
 
     _inletParams[0] = new string();  // control
@@ -48,8 +48,12 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
     *(float *)&_inletParams[2] = 0.0f;
     _inletParams[3] = new float();  // volume
     *(float *)&_inletParams[3] = 0.0f;
-    _inletParams[4] = new float();  // trigger
+    _inletParams[4] = new float();  // cue IN
     *(float *)&_inletParams[4] = 0.0f;
+    _inletParams[5] = new float();  // cue OUT
+    *(float *)&_inletParams[5] = 0.0f;
+    _inletParams[6] = new float();  // trigger
+    *(float *)&_inletParams[6] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new vector<float>(); // audio buffer
@@ -95,6 +99,8 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
+    this->addInlet(VP_LINK_NUMERIC,"cue in");
+    this->addInlet(VP_LINK_NUMERIC,"cue out");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
@@ -200,6 +206,16 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
             volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
         }
 
+        // cue IN
+        if(this->inletsConnected[4]){
+            cueIN = static_cast<double>(ofClamp(*(float *)&_inletParams[4],0.0,cueOUT-2));
+        }
+
+        // cue OUT
+        if(this->inletsConnected[5]){
+            cueOUT = static_cast<double>(ofClamp(*(float *)&_inletParams[5],cueIN+2, audiofile.length()-2));
+        }
+
         // outlet finish bang
         if(finishBang){
             *(float *)&_outletParams[2] = 1.0f;
@@ -268,16 +284,22 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             // draw player state
             if(isPlaying){ // play
                 _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
-            }else if(!isPlaying && playhead > 0.0){ // pause
+            }else if(!isPlaying && playhead > cueIN){ // pause
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
-            }else if(!isPlaying && playhead == 0.0){ // stop
+            }else if(!isPlaying && playhead == cueIN){ // stop
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }
 
             // draw playhead
             float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 255, 255, 160), 2.0f);
+
+            // draw cues IN OUT
+            float cinx = ofMap( cueIN, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + cinx, ph_pos.y),ImVec2(ph_pos.x + cinx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 0, 0, 160), 2.0f);
+            float coutx = ofMap( cueOUT, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + coutx, ph_pos.y),ImVec2(ph_pos.x + coutx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 0, 0, 160), 2.0f);
 
         }else if(loadingFile){
             ImGui::Text("LOADING FILE...");
@@ -327,14 +349,14 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
     if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = true;
-        playhead = 0.0;
+        playhead = cueIN;
         audioWasPlaying = true;
         finishSemaphore = true;
     }
     ImGui::SameLine();
     if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = false;
-        playhead = 0.0;
+        playhead = cueIN;
         audioWasPlaying = false;
     }
     ImGui::PopStyleColor(3);
@@ -355,6 +377,24 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::Spacing();
     ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
+
+    ImGui::Spacing();
+    float tempcueIN = cueIN;
+    if(ImGui::SliderFloat("CUE IN",&tempcueIN,0.0, cueOUT-2)){
+        cueIN = static_cast<double>(tempcueIN);
+        if(playhead < cueIN){
+            playhead = cueIN;
+        }
+
+    }
+    ImGui::Spacing();
+    float tempcueOUT = cueOUT;
+    if(ImGui::SliderFloat("CUE OUT",&tempcueOUT,cueIN+2, audiofile.length()-2)){
+        cueOUT = static_cast<double>(tempcueOUT);
+        if(playhead > cueOUT){
+            playhead = cueOUT;
+        }
+    }
 
     ImGuiEx::ObjectInfo(
                 "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
@@ -386,22 +426,21 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 
     // trigger, this needs to run in audio thread
     if(this->inletsConnected[4]){
-        if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f && !isNextCycle){
+        if(ofClamp(*(float *)&_inletParams[6],0.0f,1.0f) == 1.0f && !isNextCycle){
             isNextCycle = true;
-            playhead = 0.0;
+            playhead = cueIN;
             isPlaying = true;
             finishSemaphore = true;
         }else if(playhead > 6000){
             isNextCycle = false;
         }
-
     }
 
     if(isFileLoaded && audiofile.loaded() && isPlaying){
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
             int n = static_cast<int>(floor(playhead));
 
-            if(n < static_cast<int>(audiofile.length()-1)){
+            if(static_cast<unsigned long long>(n) < cueOUT-1){
                 float fract = static_cast<float>(playhead - n);
                 float isample = audiofile.sample(n, 0)*(1.0f-fract) + audiofile.sample(n+1, 0)*fract; // linear interpolation
                 monoBuffer.getSample(i,0) = isample * volume;
@@ -419,9 +458,9 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
                 if(loop){
                     // backword
                     if(speed < 0.0){
-                        playhead = audiofile.length()-2;
+                        playhead = cueOUT;
                     }else if(speed > 0.0){
-                        playhead = 0.0;
+                        playhead = cueIN;
                     }
                 }
             }
@@ -488,7 +527,9 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     monoBuffer.clear();
     monoBuffer = tmpBuffer;
 
-    playhead = 0.0;
+    cueIN = 0.0;
+    cueOUT = audiofile.length()-2;
+    playhead = cueIN;
 
     this->saveConfig(false);
 
