@@ -110,14 +110,15 @@ void VideoGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
     
     if(this->inletsConnected[0]){
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
     }
     
-    if(openInlet >= 1 && openInlet < this->numInlets){
+    if(this->inletsConnected[openInlet] && openInlet >= 1 && openInlet < this->numInlets){
         *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[openInlet]);
-    }else if(openInlet == 0){
+    }else if(openInlet == 0 || !this->inletsConnected[openInlet]){
         *static_cast<ofTexture *>(_outletParams[0]) = *kuroTex;
     }
 
@@ -139,6 +140,8 @@ void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void VideoGate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -223,7 +226,7 @@ void VideoGate::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VideoGate::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
@@ -252,7 +255,7 @@ void VideoGate::resetInletsSettings(){
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new ofTexture();
     }
 
@@ -261,7 +264,7 @@ void VideoGate::resetInletsSettings(){
 
     this->addInlet(VP_LINK_NUMERIC,"open");
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         this->addInlet(VP_LINK_TEXTURE,"t"+ofToString(i));
     }
 

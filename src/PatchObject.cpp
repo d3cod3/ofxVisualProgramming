@@ -159,8 +159,6 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
                         if(this->getIsPDSPPatchableObject() || this->getName() == "audio device"){
                             this->pdspOut[outPut[i]->fromOutletID] >> patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID];
                         }
-                    }else if(outPut[i]->type == VP_LINK_TEXTURE){
-                        // TODO
                     }
                     patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
                 }else{
@@ -169,10 +167,7 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
                         if(patchObjects[outPut[i]->toObjectID]->getIsPDSPPatchableObject() && patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID].getInputsList().size() > 0){
                             patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID].disconnectIn();
                         }
-                    }else if(outPut[i]->type == VP_LINK_TEXTURE){
-                        // TODO
                     }
-
                 }
             }
         }
