@@ -93,7 +93,7 @@ NoteToFrequency::NoteToFrequency() : PatchObject("note to frequency"){
 
     this->initInletsState();
 
-    lastNote            = 69; // A4 (central octave) = LA = 440 Hz
+    lastNote            = 69; // A6 (central octave) = LA = 440 Hz
 
     loaded              = false;
 
@@ -118,6 +118,7 @@ void NoteToFrequency::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 
 //--------------------------------------------------------------
 void NoteToFrequency::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
       lastNote = ofClamp(ofToInt(ofToString(*(float *)&_inletParams[0])),0,127);
@@ -134,6 +135,8 @@ void NoteToFrequency::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
 //--------------------------------------------------------------
 void NoteToFrequency::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -196,7 +199,7 @@ void NoteToFrequency::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void NoteToFrequency::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------
