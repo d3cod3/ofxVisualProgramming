@@ -92,8 +92,8 @@ void FrequencyToNote::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
         frequency = ofClamp(*(float *)&_inletParams[0],1.0f,13289.0f);
     }
 
-    *(float *)&_outletParams[0] = frequencyToPitch(frequency);
-    lastNote = static_cast<int>(*(float *)&_outletParams[0]);
+    lastNote = static_cast<int>(frequencyToPitch(frequency));
+    *(float *)&_outletParams[0] = lastNote;
 
     if(!loaded){
         loaded = true;
