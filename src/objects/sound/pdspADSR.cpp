@@ -38,7 +38,7 @@
 pdspADSR::pdspADSR() : PatchObject("ADSR envelope"){
 
     this->numInlets  = 6;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
@@ -54,6 +54,8 @@ pdspADSR::pdspADSR() : PatchObject("ADSR envelope"){
     *(float *)&_inletParams[5] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
+    _outletParams[1] = new float();         // ADSR func
+    *(float *)&_outletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -88,6 +90,7 @@ void pdspADSR::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"S");
     this->addInlet(VP_LINK_NUMERIC,"R");
     this->addOutlet(VP_LINK_AUDIO,"envelopedSignal");
+    this->addOutlet(VP_LINK_NUMERIC,"envelope");
 
     this->setCustomVar(attackHardness,"ATTACK_CURVE");
     this->setCustomVar(releaseHardness,"RELEASE_CURVE");
@@ -119,6 +122,7 @@ void pdspADSR::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspADSR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     env.set(attackDuration,decayDuration,sustainLevel,releaseDuration);
     env.setAttackCurve(attackHardness);
@@ -172,6 +176,8 @@ void pdspADSR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
 //--------------------------------------------------------------
 void pdspADSR::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -240,6 +246,8 @@ void pdspADSR::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspADSR::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -264,6 +272,11 @@ void pdspADSR::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspADSR::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    // output envelope func
+    *(float *)&_outletParams[1] = env.meter_output();
+
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
