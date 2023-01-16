@@ -38,7 +38,7 @@
 pdspKick::pdspKick() : PatchObject("kick"){
 
     this->numInlets  = 4;
-    this->numOutlets = 1;
+    this->numOutlets = 3;
 
     _inletParams[0] = new float();          // bang
     *(float *)&_inletParams[0] = 0.0f;
@@ -50,6 +50,10 @@ pdspKick::pdspKick() : PatchObject("kick"){
     *(float *)&_inletParams[3] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
+    _outletParams[1] = new float();         // ADSR func
+    *(float *)&_outletParams[1] = 0.0f;
+    _outletParams[2] = new float();          // Freq. ADSR func
+    *(float *)&_outletParams[2] = 0.0f;
 
     this->initInletsState();
 
@@ -59,11 +63,28 @@ pdspKick::pdspKick() : PatchObject("kick"){
 
     loaded                  = false;
 
+    attackDuration          = 0.0f;
+    decayDuration           = 240.0f;
+    sustainLevel            = 0.0f;
+    releaseDuration         = 0.0f;
+
+    f_attackDuration        = 0.0f;
+    f_decayDuration         = 15.0f;
+    f_sustainLevel          = 0.0f;
+    f_releaseDuration       = 0.0f;
+
+    drivePower              = 4.57f;
+
     oscFreq                 = 44.0f;
     filterFreq              = 120.0f;
     filterRes               = 0.168f;
 
+    compRatio               = 8.0f;
+    compAttack              = 2.0f;
+    compRelease             = 2.0f;
+
     this->width *= 2.0f;
+    this->height *= 3.7f;
 
 }
 
@@ -77,11 +98,26 @@ void pdspKick::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"filter resonance");
 
     this->addOutlet(VP_LINK_AUDIO,"kick");
+    this->addOutlet(VP_LINK_NUMERIC,"envelope");
+    this->addOutlet(VP_LINK_NUMERIC,"frequency envelope");
+
+    this->setCustomVar(attackDuration,"ATTACK");
+    this->setCustomVar(decayDuration,"DECAY");
+    this->setCustomVar(sustainLevel,"SUSTAIN");
+    this->setCustomVar(releaseDuration,"RELEASE");
+
+    this->setCustomVar(f_attackDuration,"FREQ_ATTACK");
+    this->setCustomVar(f_decayDuration,"FREQ_DECAY");
+    this->setCustomVar(f_sustainLevel,"FREQ_SUSTAIN");
+    this->setCustomVar(f_releaseDuration,"FREQ_RELEASE");
 
     this->setCustomVar(oscFreq,"OSC_FREQ");
     this->setCustomVar(filterFreq,"FILTER_FREQ");
     this->setCustomVar(filterRes,"FILTER_RES");
 
+    this->setCustomVar(compRatio,"COMP_RATIO");
+    this->setCustomVar(compAttack,"COMP_A");
+    this->setCustomVar(compRelease,"COMP_R");
 
 }
 
@@ -108,29 +144,39 @@ void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
     filter_res_ctrl.set(filterRes);
     filter_res_ctrl.enableSmoothing(50.0f);
 
+    comp_ratio_ctrl >> compressor.in_ratio();
+    comp_ratio_ctrl.set(compRatio);
+    comp_ratio_ctrl.enableSmoothing(50.0f);
+
+    comp_A_ctrl >> compressor.in_attack();
+    comp_A_ctrl.set(compAttack);
+    comp_A_ctrl.enableSmoothing(50.0f);
+
+    comp_R_ctrl >> compressor.in_release();
+    comp_R_ctrl.set(compRelease);
+    comp_R_ctrl.enableSmoothing(50.0f);
+
+    drive.set(drivePower);
+
     pdsp::VAFilter::LowPass24 >> filter.in_mode();
 
-    40.0f >> eq.in_freq();
-    2.0f >> eq.in_gain();
-    2.0f >> eq.in_Q();
-
-    8.0f >> compressor.in_ratio();
-    4.16f >> compressor.in_attack();
-    50.0f >> compressor.in_release();
-
-    drive.set(4.57f);
+    compressor.analog();
 
     osc >> amp;
-    gate_ctrl.out_trig() >> ampEnv.set(0.0f,240.0f,0.0f,0.0f) >> amp.in_mod();
-    gate_ctrl.out_trig() >> modEnv.set(0.0f,15.0f,0.0f,0.0f) * osc_freq_ctrl.get() >> osc.in_pitch();
+    gate_ctrl.out_trig() >> ampEnv >> amp.in_mod();
+    gate_ctrl.out_trig() >> modEnv * osc_freq_ctrl.get() >> osc.in_pitch();
 
-    amp >> filter >> compressor >> drive >> this->pdspOut[0];
-    amp >> filter >> compressor >> drive >> scope >> engine.blackhole();
+    amp >> filter >> drive >> compressor >> this->pdspOut[0];
+    amp >> filter >> drive >> compressor >> scope >> engine.blackhole();
 
 }
 
 //--------------------------------------------------------------
 void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
+    ampEnv.set(attackDuration,decayDuration,sustainLevel,releaseDuration);
+    modEnv.set(f_attackDuration,f_decayDuration,f_sustainLevel,f_releaseDuration);
 
     // bang --> trigger envelope
     if(this->inletsConnected[0]){
@@ -155,14 +201,30 @@ void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     if(!loaded){
         loaded = true;
 
+        attackDuration = this->getCustomVar("ATTACK");
+        decayDuration = this->getCustomVar("DECAY");
+        sustainLevel = this->getCustomVar("SUSTAIN");
+        releaseDuration = this->getCustomVar("RELEASE");
+
+        f_attackDuration = this->getCustomVar("FREQ_ATTACK");
+        f_decayDuration = this->getCustomVar("FREQ_DECAY");
+        f_sustainLevel = this->getCustomVar("FREQ_SUSTAIN");
+        f_releaseDuration = this->getCustomVar("FREQ_RELEASE");
+
         oscFreq     = this->getCustomVar("OSC_FREQ");
         filterFreq  = this->getCustomVar("FILTER_FREQ");
         filterRes   = this->getCustomVar("FILTER_RES");
+
+        compRatio   = this->getCustomVar("COMP_RATIO");
+        compAttack  = this->getCustomVar("COMP_A");
+        compRelease = this->getCustomVar("COMP_R");
     }
 }
 
 //--------------------------------------------------------------
 void pdspKick::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -188,22 +250,73 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "A", &attackDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(attackDuration,"ATTACK");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "D", &decayDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(decayDuration,"DECAY");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "S", &sustainLevel, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(sustainLevel,"SUSTAIN");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(releaseDuration,"RELEASE");
+        }
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ A", &f_attackDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(f_attackDuration,"FREQ_ATTACK");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ D", &f_decayDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(f_decayDuration,"FREQ_DECAY");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ S", &f_sustainLevel, 0.0f, 1.0f, 100.0f)){
+            this->setCustomVar(f_sustainLevel,"FREQ_SUSTAIN");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ R", &f_releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+            this->setCustomVar(f_releaseDuration,"FREQ_RELEASE");
+        }
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ", &oscFreq, 0.0f, 100.0f, 100.0f)){
             osc_freq_ctrl.set(pdsp::f2p(oscFreq));
             this->setCustomVar(oscFreq,"OSC_FREQ");
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. FREQ", &filterFreq, 0.0f, 8260.0f, 2065.0f)){
             filter_freq_ctrl.set(pdsp::f2p(filterFreq));
             this->setCustomVar(filterFreq,"FILTER_FREQ");
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. RES", &filterRes, 0.0f, 1.0f, 100.0f)){
             filter_res_ctrl.set(filterRes);
             this->setCustomVar(filterRes,"FILTER_RES");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "RATIO", &compRatio, 1.0f, 40.0f, 400.0f)){
+            comp_ratio_ctrl.set(compRatio);
+            this->setCustomVar(compRatio,"COMP_RATIO");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "COMP A", &compAttack, 0.0f, 1000.0f, 1000.0f)){
+            comp_A_ctrl.set(compAttack);
+            this->setCustomVar(compAttack,"COMP_A");
+        }
+        ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "COMP R", &compRelease, 0.0f, 1000.0f, 1000.0f)){
+            comp_R_ctrl.set(compRelease);
+            this->setCustomVar(compRelease,"COMP_R");
+        }
 
         _nodeCanvas.EndNodeContent();
 
@@ -220,6 +333,8 @@ void pdspKick::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspKick::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -241,6 +356,13 @@ void pdspKick::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    // output envelope func
+    *(float *)&_outletParams[1] = ampEnv.meter_output();
+    // output freq. envelope func
+    *(float *)&_outletParams[2] = modEnv.meter_output();
+
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 
