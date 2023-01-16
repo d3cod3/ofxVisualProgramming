@@ -425,7 +425,7 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // trigger, this needs to run in audio thread
-    if(this->inletsConnected[4]){
+    if(this->inletsConnected[6]){
         if(ofClamp(*(float *)&_inletParams[6],0.0f,1.0f) == 1.0f && !isNextCycle){
             isNextCycle = true;
             playhead = cueIN;
