@@ -199,6 +199,16 @@ void AudioDevice::audioOutObject(ofSoundBuffer &outputBuffer){
 
 //--------------------------------------------------------------
 void AudioDevice::resetSystemObject(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
     ofxXmlSettings XML;
 
     deviceLoaded      = false;
@@ -263,6 +273,18 @@ void AudioDevice::resetSystemObject(){
         this->inletsConnected.clear();
         this->initInletsState();
 
+        for(int i=0;i<this->numInlets;i++){
+            if(i<static_cast<int>(tempInletsConn.size())){
+                if(tempInletsConn.at(i)){
+                    this->inletsConnected.push_back(true);
+                }else{
+                    this->inletsConnected.push_back(false);
+                }
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }
+
         this->height      = OBJECT_HEIGHT;
 
         if(this->numInlets > 6 || this->numOutlets > 6){
@@ -291,7 +313,7 @@ void AudioDevice::resetSystemObject(){
                         XML.popTag();
                     }
                 }else{
-                    // remove links to the this object
+                    // remove links to this object if exceed new inlets number
                     if(XML.pushTag("outlets")){
                         int totalLinks = XML.getNumTags("link");
                         for(int l=0;l<totalLinks;l++){
@@ -300,7 +322,7 @@ void AudioDevice::resetSystemObject(){
                                 vector<bool> delLinks;
                                 for(int t=0;t<totalTo;t++){
                                     if(XML.pushTag("to",t)){
-                                        if(XML.getValue("id", -1) == this->nId){
+                                        if(XML.getValue("id", -1) == this->nId && XML.getValue("inlet", -1) > this->getNumInlets()-1){
                                             delLinks.push_back(true);
                                         }else{
                                             delLinks.push_back(false);
@@ -333,6 +355,16 @@ void AudioDevice::resetSystemObject(){
 
 //--------------------------------------------------------------
 void AudioDevice::loadDeviceInfo(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -406,6 +438,18 @@ void AudioDevice::loadDeviceInfo(){
 
         this->inletsConnected.clear();
         this->initInletsState();
+
+        for(int i=0;i<this->numInlets;i++){
+            if(i<static_cast<int>(tempInletsConn.size())){
+                if(tempInletsConn.at(i)){
+                    this->inletsConnected.push_back(true);
+                }else{
+                    this->inletsConnected.push_back(false);
+                }
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }
 
         this->height      = OBJECT_HEIGHT;
 

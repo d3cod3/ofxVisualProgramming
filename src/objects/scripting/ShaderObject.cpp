@@ -244,6 +244,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void ShaderObject::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     ///////////////////////////////////////////
     // SHADER UPDATE
@@ -516,7 +517,7 @@ void ShaderObject::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ShaderObject::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

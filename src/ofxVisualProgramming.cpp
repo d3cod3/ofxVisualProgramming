@@ -1080,8 +1080,6 @@ void ofxVisualProgramming::removeObject(int &id){
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
     if(!patchObjects[id]->getIsHardwareObject()){
-    //if(patchObjects[id]->getName() != "audio device" && patchObjects[id]->getName() != "kinect grabber" && patchObjects[id]->getName() != "live patching"){
-        //ofVec2f newPos = ofVec2f(patchObjects[id]->getPos().x + patchObjects[id]->getObjectWidth(),patchObjects[id]->getPos().y);
         addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
@@ -1094,7 +1092,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
     if((fromID != -1) && (patchObjects[fromID] != nullptr) && (toID != -1) && (patchObjects[toID] != nullptr) && (patchObjects[fromID]->getOutletType(fromOutlet) == patchObjects[toID]->getInletType(toInlet)) && !patchObjects[toID]->inletsConnected[toInlet]){
 
-        //cout << "Mosaic :: "<< "Connect object " << patchObjects[fromID]->getName().c_str() << ":" << ofToString(fromID) << " to object " << patchObjects[toID]->getName().c_str() << ":" << ofToString(toID) << endl;
+        //std::cout << "Mosaic :: "<< "Connect object " << patchObjects[fromID]->getName().c_str() << ":" << ofToString(fromID) << " to object " << patchObjects[toID]->getName().c_str() << ":" << ofToString(toID) << std::endl;
 
         shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
 
@@ -1108,6 +1106,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
         tempLink->toObjectID    = toID;
         tempLink->toInletID     = toInlet;
         tempLink->isDisabled    = false;
+        tempLink->isDeactivated = false;
 
         patchObjects[fromID]->outPut.push_back(tempLink);
 
@@ -1165,7 +1164,9 @@ void ofxVisualProgramming::resetSystemObjects(){
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second->getIsSystemObject()){
             it->second->resetSystemObject();
-            resetObject(it->second->getId());
+            if(it->second->getName() != "audio device"){
+                resetObject(it->second->getId());
+            }
             if(it->second->getIsAudioOUTObject()){
                 it->second->setupAudioOutObjectContent(*engine);
             }
