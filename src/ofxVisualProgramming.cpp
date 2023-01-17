@@ -1814,9 +1814,8 @@ void ofxVisualProgramming::activateDSP(){
         if(!found){
             glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
             addObject("audio device",ofVec2f(temp.x,temp.y));
-        }else{
-            resetSystemObjects();
         }
+        resetSystemObjects();
 
         setPatchVariable("dsp",1);
         dspON = true;
