@@ -127,6 +127,7 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
     
     if(this->inletsConnected[0]){
 
@@ -180,6 +181,8 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 
 //--------------------------------------------------------------
 void Spigot::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -254,11 +257,13 @@ void Spigot::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Spigot::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     if(isOpen[4]){
         if(this->inletsConnected[5]){
             *static_cast<ofSoundBuffer *>(_outletParams[4]) = *static_cast<ofSoundBuffer *>(_inletParams[5]);

@@ -698,7 +698,7 @@ void ImGuiEx::NodeCanvas::SetTransform(const ImVec2& _origin, float _scale){
 //    //curPinFlags = ImGuiExNodePinsFlags_Left; // resets
 //}
 
-ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
+ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _wireless, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
 
     /*if(_pinFlag == ImGuiExNodePinsFlags_Left){
         // set data
@@ -738,146 +738,151 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     if( _pinFlag==ImGuiExNodePinsFlags_Left ) ImGui::NextColumn(); // left column
 
     // Draw pins
-    if(pinLayout.pinSpace.x > 1){ // Minimum width (with ±0 values ImGui crashes)
-        if( _pinFlag==ImGuiExNodePinsFlags_Left ){
-            ImGui::SetCursorScreenPos( pinLayout.curDrawPos  );
-        }
-        else {
-            ImGui::SetCursorScreenPos( pinLayout.curDrawPos + ImVec2( -pinLayout.pinSpace.x, 0)  );
-        }
+    if(!_wireless){
+
+
+        if(pinLayout.pinSpace.x > 1){ // Minimum width (with ±0 values ImGui crashes)
+            if( _pinFlag==ImGuiExNodePinsFlags_Left ){
+                ImGui::SetCursorScreenPos( pinLayout.curDrawPos  );
+            }
+            else {
+                ImGui::SetCursorScreenPos( pinLayout.curDrawPos + ImVec2( -pinLayout.pinSpace.x, 0)  );
+            }
 
 
 # if __IMGUI_EX_NODECANVAS_DEBUG__
-        ImGui::Button("##nodeBtn", pinLayout.pinSpace);
+            ImGui::Button("##nodeBtn", pinLayout.pinSpace);
 # else
-        ImGui::InvisibleButton("nodeBtn", ImMax(ImVec2(pinLayout.pinSpace.x,pinLayout.pinSpace.y*.8f), ImVec2(1,1)));
+            ImGui::InvisibleButton("nodeBtn", ImMax(ImVec2(pinLayout.pinSpace.x,pinLayout.pinSpace.y*.8f), ImVec2(1,1)));
 # endif
 
-        std::string _str_label(_label);
-        std::string _gui_label(_label);
-        _str_label += std::to_string(pinID);
-        _str_label += std::to_string(_pinFlag);
+            std::string _str_label(_label);
+            std::string _gui_label(_label);
+            _str_label += std::to_string(pinID);
+            _str_label += std::to_string(_pinFlag);
 
-        // update node active pin
-        if(ImGui::IsItemClicked()){ // || ImGui::IsItemHovered()
-            activePin = _str_label;
-            activePinType = _type;
-        }
-
-
-        // Let this pin be draggable
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceNoHoldToOpenOthers|ImGuiDragDropFlags_SourceNoPreviewTooltip)){
-            // draw dragging link creation
-            if( activePin == _str_label ){ // draw link from active pin only ( last clicked )
-
-                if(_pinFlag==ImGuiExNodePinsFlags_Right){ // drag new links ( only from outlets )
-
-                    fromObjectID = nodeID;
-                    outletPinID = pinID;
-
-                    connectType = 1;
-
-                    // PAYLOAD
-                    static int tmpNum=777;
-                    ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int)); // Set payload to carry the index of our item (could be anything)
-
-                    // add connecting link
-                    auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
-                    connectingColor.w = 0.4f;
-                    const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                    canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
-
-                    // add link info
-                    std::string _temp = _type+" "+_gui_label;
-                    ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
-                    canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
-                }
-                else if(_pinFlag==ImGuiExNodePinsFlags_Left && _connected && !_linksData.empty()){ // change previously created links ( only from inlets )
-
-                    fromObjectID = _linksData.at(0)._fromObjectID;
-                    outletPinID = _linksData.at(0)._fromPinID;
-
-                    connectType = 2;
-                    linkID = _linksData.at(0)._linkID;
-
-                    // PAYLOAD
-                    static int tmpNum=777;
-                    ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int)); // Set payload to carry the index of our item (could be anything)
-
-                    // retrieve previously connected link
-                    auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
-                    connectingColor.w = 0.4f;
-                    const LinkBezierData link_data = get_link_renderable(canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                    canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
-
-                    // add link info
-                    std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
-                    ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
-                    canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
-
-                }
-
+            // update node active pin
+            if(ImGui::IsItemClicked()){ // || ImGui::IsItemHovered()
+                activePin = _str_label;
+                activePinType = _type;
             }
 
-            ImGui::EndDragDropSource();
-        }
 
-        // Accept other pins dropping on this
-        if (ImGui::BeginDragDropTarget()){
+            // Let this pin be draggable
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceNoHoldToOpenOthers|ImGuiDragDropFlags_SourceNoPreviewTooltip)){
+                // draw dragging link creation
+                if( activePin == _str_label ){ // draw link from active pin only ( last clicked )
 
-            if(activePinType == _type){
+                    if(_pinFlag==ImGuiExNodePinsFlags_Right){ // drag new links ( only from outlets )
 
-                static int tmpAccept = 0;
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT,ImGuiDragDropFlags_AcceptNoDrawDefaultRect)){ // ImGuiDragDropFlags_AcceptNoDrawDefaultRect
+                        fromObjectID = nodeID;
+                        outletPinID = pinID;
 
-                    if(_pinFlag==ImGuiExNodePinsFlags_Left){ // only on inlets
-                        memcpy((float*)&tmpAccept, payload->Data, sizeof(int));
+                        connectType = 1;
 
-                        //std::cout << "ACCEPTED = " << tmpAccept << " from object " << fromObjectID << ", from OUTLET PIN " << outletPinID << " to object ID " << nodeID << " to INLET PIN " << pinID << std::endl;
+                        // PAYLOAD
+                        static int tmpNum=777;
+                        ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int)); // Set payload to carry the index of our item (could be anything)
 
-                        // connect/reconnect
-                        connectData.connectType = connectType;
-                        connectData.linkID = linkID;
-                        connectData.fromObjectID = fromObjectID;
-                        connectData.fromOutletPinID = outletPinID;
-                        connectData.toObjectID = nodeID;
-                        connectData.toInletPinID = pinID;
+                        // add connecting link
+                        auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
+                        connectingColor.w = 0.4f;
+                        const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
-                        // reset selected links
-                        for(unsigned int i=0;i<_linksData.size();i++){
-                            std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID);
-                            if (it!=selected_links.end()){
-                                selected_links.erase(it);
-                            }
-                        }
+                        // add link info
+                        std::string _temp = _type+" "+_gui_label;
+                        ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
+                        canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
+                        canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
+                    }
+                    else if(_pinFlag==ImGuiExNodePinsFlags_Left && _connected && !_linksData.empty()){ // change previously created links ( only from inlets )
 
-                        // reset deactivated links
-                        for(unsigned int i=0;i<_linksData.size();i++){
-                            std::vector<int>::iterator it = std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID);
-                            if (it!=deactivated_links.end()){
-                                deactivated_links.erase(it);
-                            }
-                        }
+                        fromObjectID = _linksData.at(0)._fromObjectID;
+                        outletPinID = _linksData.at(0)._fromPinID;
+
+                        connectType = 2;
+                        linkID = _linksData.at(0)._linkID;
+
+                        // PAYLOAD
+                        static int tmpNum=777;
+                        ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int)); // Set payload to carry the index of our item (could be anything)
+
+                        // retrieve previously connected link
+                        auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
+                        connectingColor.w = 0.4f;
+                        const LinkBezierData link_data = get_link_renderable(canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+
+                        // add link info
+                        std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
+                        ImVec2 tempPos = ImGui::GetMousePos() - (ImGui::GetMousePos() - (canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale)))/2.0f - ImGui::CalcTextSize(_temp.c_str())/2.0f;
+                        canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_temp.c_str()) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
+                        canvasDrawList->AddText( tempPos , _color, _temp.c_str() );
 
                     }
 
-                    activePin = "";
-                    activePinType = "";
-                    connectType = 0;
-
                 }
 
-            }else{
-                if(ImGui::GetIO().MouseReleased[0]){
-                    activePinType = "";
-                    connectType = 0;
-                }
+                ImGui::EndDragDropSource();
             }
 
-            ImGui::EndDragDropTarget();
+            // Accept other pins dropping on this
+            if (ImGui::BeginDragDropTarget()){
 
+                if(activePinType == _type){
+
+                    static int tmpAccept = 0;
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT,ImGuiDragDropFlags_AcceptNoDrawDefaultRect)){ // ImGuiDragDropFlags_AcceptNoDrawDefaultRect
+
+                        if(_pinFlag==ImGuiExNodePinsFlags_Left){ // only on inlets
+                            memcpy((float*)&tmpAccept, payload->Data, sizeof(int));
+
+                            //std::cout << "ACCEPTED = " << tmpAccept << " from object " << fromObjectID << ", from OUTLET PIN " << outletPinID << " to object ID " << nodeID << " to INLET PIN " << pinID << std::endl;
+
+                            // connect/reconnect
+                            connectData.connectType = connectType;
+                            connectData.linkID = linkID;
+                            connectData.fromObjectID = fromObjectID;
+                            connectData.fromOutletPinID = outletPinID;
+                            connectData.toObjectID = nodeID;
+                            connectData.toInletPinID = pinID;
+
+                            // reset selected links
+                            for(unsigned int i=0;i<_linksData.size();i++){
+                                std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID);
+                                if (it!=selected_links.end()){
+                                    selected_links.erase(it);
+                                }
+                            }
+
+                            // reset deactivated links
+                            for(unsigned int i=0;i<_linksData.size();i++){
+                                std::vector<int>::iterator it = std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID);
+                                if (it!=deactivated_links.end()){
+                                    deactivated_links.erase(it);
+                                }
+                            }
+
+                        }
+
+                        activePin = "";
+                        activePinType = "";
+                        connectType = 0;
+
+                    }
+
+                }else{
+                    if(ImGui::GetIO().MouseReleased[0]){
+                        activePinType = "";
+                        connectType = 0;
+                    }
+                }
+
+                ImGui::EndDragDropTarget();
+
+
+            }
 
         }
 
@@ -887,106 +892,109 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     //float pinSpace = (ImGui::IsItemHovered()) ? IMGUI_EX_NODE_PIN_WIDTH_HOVERED : IMGUI_EX_NODE_PIN_WIDTH;
     float pinSpace = IMGUI_EX_NODE_PIN_WIDTH*scaleFactor;
 
-    // Left side (INLETS)
-    if( _pinFlag==ImGuiExNodePinsFlags_Left ){
-        // Update pin position
-        inletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,0);
+    if(!_wireless){
+        // Left side (INLETS)
+        if( _pinFlag==ImGuiExNodePinsFlags_Left ){
+            // Update pin position
+            inletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * .5f, pinLayout.pinSpace.y * .5f) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,0);
 
-        // Draw pin
-        if( curNodeData.zoomName != ImGuiExNodeZoom_Invisible ){
-            nodeDrawList->AddCircleFilled(inletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
+            // Draw pin
+            if( curNodeData.zoomName != ImGuiExNodeZoom_Invisible ){
+                nodeDrawList->AddCircleFilled(inletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
 
-            // Interactivity
-            if(ImGui::GetMousePos().x > inletPinsPositions[nodeID][pinID].x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < inletPinsPositions[nodeID][pinID].x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > inletPinsPositions[nodeID][pinID].y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < inletPinsPositions[nodeID][pinID].y+(pinLayout.pinSpace.y*.5f)){
-                if(activePinType == _type || activePinType == ""){
-                    nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
-                    ImVec2 tempPos = inletPinsPositions[nodeID][pinID] - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
-                    canvasDrawList->AddText( tempPos, _color, _label);
+                // Interactivity
+                if(ImGui::GetMousePos().x > inletPinsPositions[nodeID][pinID].x-(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().x < inletPinsPositions[nodeID][pinID].x+(pinLayout.pinSpace.x*.5f) && ImGui::GetMousePos().y > inletPinsPositions[nodeID][pinID].y-(pinLayout.pinSpace.y*.5f) && ImGui::GetMousePos().y < inletPinsPositions[nodeID][pinID].y+(pinLayout.pinSpace.y*.5f)){
+                    if(activePinType == _type || activePinType == ""){
+                        nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                        ImVec2 tempPos = inletPinsPositions[nodeID][pinID] - ImVec2(pinSpace * .5f + (IMGUI_EX_NODE_PIN_WIDTH + 6)*scaleFactor,ImGui::GetTextLineHeight()*-.4f) - ImGui::CalcTextSize(_label);
+                        canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
+                        canvasDrawList->AddText( tempPos, _color, _label);
+                    }
+
                 }
 
+                // Draw Connected Appearance
+                if(_connected){
+                    nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                }
+
+            }
+
+        }
+
+        // right side (OUTLETS)
+        else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
+            // Update pin position
+            outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
+
+            // draw links (OUTLETS to INLETS ONLY)
+            for(unsigned int i=0;i<_linksData.size();i++){
+                const LinkBezierData link_data = get_link_renderable(outletPinsPositions[nodeID][pinID], canvasView.translation+(_linksData.at(i)._toPinPosition*canvasView.scale), IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
+
+                const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
+
+                if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
+                    if (is_hovered && !ImGui::GetIO().KeyShift){
+                        if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
+                            selected_links.push_back(_linksData.at(i)._linkID);
+                        }
+                    }else if(!is_hovered && !ImGui::GetIO().KeyShift){
+                        std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID);
+                        if (it!=selected_links.end()){
+                            selected_links.erase(it);
+                        }
+                    }else if(is_hovered && ImGui::GetIO().KeyShift){
+                        // deactivate if activated
+                        if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)==deactivated_links.end()){
+                            deactivated_links.push_back(_linksData.at(i)._linkID);
+                        }else{ // else the opposite
+                            std::vector<int>::iterator it = std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID);
+                            if (it!=deactivated_links.end()){
+                                deactivated_links.erase(it);
+                            }
+                        }
+                    }
+                }
+
+
+                static ImU32 _tempColor;
+                _tempColor = _color;
+
+                if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)!=deactivated_links.end()){ // disabled
+                    _tempColor = IM_COL32(255,255,255,70);
+                }
+
+                if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)!=selected_links.end()){ // selected
+                    _tempColor = IM_COL32(255,0,0,255);
+                }
+
+                canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
+            }
+
+            // Draw pin
+            if( curNodeData.zoomName != ImGuiExNodeZoom_Invisible ){
+                nodeDrawList->AddCircleFilled(outletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
+
+                // draw labels
+                if(ImGui::GetMousePos().x > outletPinsPositions[nodeID][pinID].x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < outletPinsPositions[nodeID][pinID].x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > outletPinsPositions[nodeID][pinID].y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < outletPinsPositions[nodeID][pinID].y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
+                    if(connectType == 0){
+                        nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                        ImVec2 tempPos = outletPinsPositions[nodeID][pinID] + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
+                        canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
+                        canvasDrawList->AddText( tempPos, _color, _label);
+                    }
+                }
             }
 
             // Draw Connected Appearance
             if(_connected){
-                nodeDrawList->AddCircle(inletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
+                nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
             }
 
-        }
 
+        }
     }
 
-    // right side (OUTLETS)
-    else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
-        // Update pin position
-        outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
-
-        // draw links (OUTLETS to INLETS ONLY)
-        for(unsigned int i=0;i<_linksData.size();i++){
-            const LinkBezierData link_data = get_link_renderable(outletPinsPositions[nodeID][pinID], canvasView.translation+(_linksData.at(i)._toPinPosition*canvasView.scale), IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-
-            const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
-
-            if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
-                if (is_hovered && !ImGui::GetIO().KeyShift){
-                    if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
-                        selected_links.push_back(_linksData.at(i)._linkID);
-                    }
-                }else if(!is_hovered && !ImGui::GetIO().KeyShift){
-                    std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID);
-                    if (it!=selected_links.end()){
-                        selected_links.erase(it);
-                    }
-                }else if(is_hovered && ImGui::GetIO().KeyShift){
-                    // deactivate if activated
-                    if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)==deactivated_links.end()){
-                        deactivated_links.push_back(_linksData.at(i)._linkID);
-                    }else{ // else the opposite
-                        std::vector<int>::iterator it = std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID);
-                        if (it!=deactivated_links.end()){
-                            deactivated_links.erase(it);
-                        }
-                    }
-                }
-            }
-
-
-            static ImU32 _tempColor;
-            _tempColor = _color;
-
-            if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)!=deactivated_links.end()){ // disabled
-                _tempColor = IM_COL32(255,255,255,70);
-            }
-
-            if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)!=selected_links.end()){ // selected
-                _tempColor = IM_COL32(255,0,0,255);
-            }
-
-            canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
-        }
-
-        // Draw pin
-        if( curNodeData.zoomName != ImGuiExNodeZoom_Invisible ){
-            nodeDrawList->AddCircleFilled(outletPinsPositions[nodeID][pinID], pinSpace * .5f, _color, 6);
-
-            // draw labels
-            if(ImGui::GetMousePos().x > outletPinsPositions[nodeID][pinID].x-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().x < outletPinsPositions[nodeID][pinID].x+IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y > outletPinsPositions[nodeID][pinID].y-IMGUI_EX_NODE_PIN_WIDTH_HOVERED && ImGui::GetMousePos().y < outletPinsPositions[nodeID][pinID].y+IMGUI_EX_NODE_PIN_WIDTH_HOVERED){
-                if(connectType == 0){
-                    nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
-                    ImVec2 tempPos = outletPinsPositions[nodeID][pinID] + ImVec2(pinSpace * .5f + 6,ImGui::GetTextLineHeight()*-.5f);
-                    canvasDrawList->AddRectFilled(tempPos + ImVec2(-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,-IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),tempPos + ImGui::CalcTextSize(_label) + ImVec2(IMGUI_EX_NODE_PIN_WIDTH*scaleFactor,IMGUI_EX_NODE_PIN_WIDTH*scaleFactor),IM_COL32(40,40,40,180) );
-                    canvasDrawList->AddText( tempPos, _color, _label);
-                }
-            }
-        }
-
-        // Draw Connected Appearance
-        if(_connected){
-            nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
-        }
-
-
-    }
     pinLayout.curDrawPos += ImVec2(0,pinLayout.pinSpace.y);
 
     // Move back to center column

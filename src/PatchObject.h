@@ -84,6 +84,7 @@ public:
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
     void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine);
+    void                    updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObjects);
     void                    draw(ofTrueTypeFont *font);
     void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
     void                    drawImGuiNodeConfig();
@@ -124,14 +125,16 @@ public:
     bool                    connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType);
     void                    disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectInlet);
     void                    disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID);
+    void                    openWirelessLink(int objectOutlet) { if(getNumOutlets()>objectOutlet){ resetWirelessPin=objectOutlet;initWirelessLink = true; } };
+    void                    closeWirelessLink(int objectOutlet) { if(getNumOutlets()>objectOutlet){ resetWirelessPin=objectOutlet;resetWirelessLink = true; } };
 
     // LOAD/SAVE
     bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile);
     bool                    saveConfig(bool newConnection);
     bool                    removeLinkFromConfig(int outlet, int toObjectID, int toInletID);
 
-    void                    addInlet(int type,string name) { inletsType.push_back(type);inletsNames.push_back(name); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
-    void                    addOutlet(int type,string name = "") { outletsType.push_back(type);outletsNames.push_back(name); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
+    void                    addInlet(int type,string name) { inletsType.push_back(type);inletsNames.push_back(name); inletsIDs.push_back(""); inletsWirelessReceive.push_back(false); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
+    void                    addOutlet(int type,string name = "") { outletsType.push_back(type);outletsNames.push_back(name); outletsIDs.push_back(""); outletsWirelessSend.push_back(false); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
     void                    setCustomVar(float value, string name){ customVars[name] = value; saveConfig(false); }
     float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
@@ -155,11 +158,15 @@ public:
     bool                    getIsTextureObject() const { return isTextureObject; }
     bool                    getIsHardwareObject() const { return isHardwareObject; }
     int                     getInletType(int iid) const { return inletsType[iid]; }
+    string                  getInletID(int iid) const { return inletsIDs[iid]; }
+    bool                    getInletWirelessReceive(int iid) const { return inletsWirelessReceive[iid]; }
     string                  getInletTypeName(const int& iid) const;
     ofColor                 getInletColor(const int& iid) const;
     ofColor                 getOutletColor(const int& oid) const;
     int                     getOutletType(int oid) const { return outletsType[oid]; }
     string                  getOutletName(int oid) const { return outletsNames[oid]; }
+    string                  getOutletID(int oid) const { return outletsIDs[oid]; }
+    bool                    getOutletWirelessSend(int oid) const { return outletsWirelessSend[oid]; }
     string                  getOutletTypeName(const int& oid) const;
     ImVec2                  getInletPosition(int iid);
     ImVec2                  getOutletPosition(int oid);
@@ -192,6 +199,10 @@ public:
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
     void                    setConfigmenuWidth(float cmw) { configMenuWidth = cmw; }
     void                    setSubpatch(string sp) { subpatchName = sp; }
+    void                    setInletID(int inlet, string ID) { inletsIDs[inlet] = ID; }
+    void                    setOutletID(int outlet, string ID) { outletsIDs[outlet] = ID; }
+    void                    setInletWirelessReceive(int inlet, bool wireless) { inletsWirelessReceive.at(inlet) = wireless; }
+    void                    setOutletWirelessSend(int outlet, bool wireless) { outletsWirelessSend.at(outlet) = wireless; }
 
     // PUGG Plugin System
     static const int version = 1;
@@ -244,6 +255,10 @@ protected:
     string                  patchFolderPath;
     vector<string>          inletsNames;
     vector<string>          outletsNames;
+    vector<string>          inletsIDs;
+    vector<string>          outletsIDs;
+    vector<bool>            inletsWirelessReceive;
+    vector<bool>            outletsWirelessSend;
     vector<ImVec2>          inletsPositions; // ImVec2 to prevent too much type casting
     vector<ImVec2>          outletsPositions; // Will hold screenpositions of pins, updated by ImGui
     vector<int>             inletsType;
@@ -267,6 +282,9 @@ protected:
     bool                    isHardwareObject;
     bool                    isResizable;
     bool                    willErase;
+    bool                    initWirelessLink;
+    bool                    resetWirelessLink;
+    int                     resetWirelessPin;
 
 };
 

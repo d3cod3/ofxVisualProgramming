@@ -71,6 +71,7 @@ void OscSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(loaded){
         for(int i=0;i<this->getNumInlets();i++){
@@ -142,6 +143,8 @@ void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void OscSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -270,7 +273,7 @@ void OscSender::drawObjectNodeConfig(){
 
     prev_osc_labels = osc_labels;
 
-    for(int i=0;i<osc_labels.size();i++){
+    for(size_t i=0;i<osc_labels.size();i++){
         ImGui::PushID(i);
         if(osc_labels_type.at(i) == VP_LINK_STRING){
             ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(200,180,255,30));
@@ -304,7 +307,7 @@ void OscSender::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void OscSender::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

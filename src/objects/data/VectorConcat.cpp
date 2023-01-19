@@ -226,14 +226,16 @@ void VectorConcat::resetInletsSettings(){
 
     this->numInlets = dataInlets;
 
-    for(size_t i=0;i<dataInlets;i++){
+    for(int i=0;i<dataInlets;i++){
         _inletParams[i] = new vector<float>();
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
-    for(size_t i=0;i<dataInlets;i++){
+    for(int i=0;i<dataInlets;i++){
         this->addInlet(VP_LINK_ARRAY,"v"+ofToString(i+1));
     }
 

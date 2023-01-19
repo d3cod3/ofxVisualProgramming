@@ -228,7 +228,7 @@ struct NodeCanvas {
     // Always call EndNodePins, only draw when it returns true.
     //void BeginNodePins( const int& _numPins, const ImGuiExNodePinsFlags& _pinFlags = ImGuiExNodePinsFlags_Left );
     //void EndNodePins();
-    NodeConnectData AddNodePin(const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
+    NodeConnectData AddNodePin(const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _wireless, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag  );
 
     // To extend the menu
     bool BeginNodeMenu();

@@ -746,6 +746,8 @@ void moTimeline::resetOutlets(){
 
     this->outPut.clear();
     this->outletsType.clear();
+    this->outletsIDs.clear();
+    this->outletsWirelessSend.clear();
 
     this->numOutlets = tempTracks.size();
 

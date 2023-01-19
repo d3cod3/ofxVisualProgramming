@@ -328,6 +328,8 @@ void VideoMixer::resetInletsSettings(){
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
     for(int i=0;i<this->numInlets;i++){
         this->addInlet(VP_LINK_TEXTURE,"t"+ofToString(i));

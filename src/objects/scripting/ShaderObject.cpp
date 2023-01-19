@@ -545,6 +545,8 @@ void ShaderObject::doFragmentShader(){
     // reset inlets
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
     this->numInlets = num;
 
     textures.clear();

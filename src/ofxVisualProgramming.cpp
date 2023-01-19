@@ -243,38 +243,36 @@ void ofxVisualProgramming::update(){
         ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
 
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){ 
-            if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
+            string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
 
-                string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+            pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
+            pt[i].startTime = ofGetElapsedTimef();
+            pt[i].name = tmpon;
 
-                pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
-                pt[i].startTime = ofGetElapsedTimef();
-                pt[i].name = tmpon;
+            patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
+            patchObjects[leftToRightIndexOrder[i].second]->updateWirelessLinks(patchObjects);
 
-                patchObjects[leftToRightIndexOrder[i].second]->update(patchObjects,*engine);
+            pt[i].endTime = ofGetElapsedTimef();
 
-                pt[i].endTime = ofGetElapsedTimef();
-
-                // update scripts objects files map
-                ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-                string fileExt = ofToUpper(tempsofp.getExtension());
-                if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH"){
-                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                    if (sofpIT == scriptsObjectsFilesPaths.end()){
-                        // not found, insert it
-                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-                    }
-                }else if(fileExt == "FRAG"){
-                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                    if (sofpIT == scriptsObjectsFilesPaths.end()){
-                        // not found, insert FRAG
-                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-                        // insert VERT
-                        string fsName = tempsofp.getFileName();
-                        string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
-                        ofFile newVertGLSLFile (vsName);
-                        scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
-                    }
+            // update scripts objects files map
+            ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+            string fileExt = ofToUpper(tempsofp.getExtension());
+            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH"){
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                if (sofpIT == scriptsObjectsFilesPaths.end()){
+                    // not found, insert it
+                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                }
+            }else if(fileExt == "FRAG"){
+                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                if (sofpIT == scriptsObjectsFilesPaths.end()){
+                    // not found, insert FRAG
+                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                    // insert VERT
+                    string fsName = tempsofp.getFileName();
+                    string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+                    ofFile newVertGLSLFile (vsName);
+                    scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
                 }
             }
         }

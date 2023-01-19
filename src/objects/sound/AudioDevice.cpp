@@ -260,12 +260,16 @@ void AudioDevice::resetSystemObject(){
 
         this->inletsType.clear();
         this->inletsNames.clear();
+        this->inletsIDs.clear();
+        this->inletsWirelessReceive.clear();
 
         for( int i = 0; i < out_channels; i++){
             this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
         }
 
         this->outletsType.clear();
+        this->outletsIDs.clear();
+        this->outletsWirelessSend.clear();
         for( int i = 0; i < in_channels; i++){
             this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
         }

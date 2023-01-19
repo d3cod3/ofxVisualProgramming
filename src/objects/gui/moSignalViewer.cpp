@@ -80,12 +80,16 @@ void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
     this->pdspIn[0] >> this->pdspOut[0];
     this->pdspIn[0] >> this->pdspOut[1];
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
     if(this->inletsConnected[0]){
         *(float *)&_outletParams[3] = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
     }else{
@@ -95,7 +99,7 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -142,6 +146,8 @@ void moSignalViewer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moSignalViewer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -172,11 +178,13 @@ void moSignalViewer::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void moSignalViewer::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
+    unusedArgs(outBuffer);
+
     if(this->inletsConnected[0]){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);

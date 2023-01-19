@@ -230,15 +230,17 @@ void FloatsToVector::resetInletsSettings(){
     static_cast<vector<float> *>(_outletParams[0])->clear();
     static_cast<vector<float> *>(_outletParams[0])->assign(this->numInlets,0.0f);
 
-    for(size_t i=0;i<floatInlets;i++){
+    for(int i=0;i<floatInlets;i++){
         _inletParams[i] = new float();
         *(float *)&_inletParams[i] = 0.0f;
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
-    for(size_t i=0;i<floatInlets;i++){
+    for(int i=0;i<floatInlets;i++){
         this->addInlet(VP_LINK_NUMERIC,"f"+ofToString(i+1));
     }
 

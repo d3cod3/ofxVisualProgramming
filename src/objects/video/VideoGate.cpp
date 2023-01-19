@@ -261,6 +261,8 @@ void VideoGate::resetInletsSettings(){
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
     this->addInlet(VP_LINK_NUMERIC,"open");
 
