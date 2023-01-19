@@ -54,6 +54,7 @@ public:
     void            removeObjectContent(bool removeFileFromData=false) override;
 
     bool            trigger;
+    bool            loaded;
 
     ImVec4          currentColor;
     ImVec4          pressColor;
