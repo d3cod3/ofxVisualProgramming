@@ -188,6 +188,20 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
 
 //--------------------------------------------------------------
 void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObjects){
+
+    // Continuosly update float type ONLY wireless links
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(int in=0;in<it->second->getNumInlets();in++){
+            for(int out=0;out<this->getNumOutlets();out++){
+                if(it->second->getInletWirelessReceive(in) && this->getOutletWirelessSend(out) && this->getOutletType(out) == it->second->getInletType(in) && this->getOutletType(out) == VP_LINK_NUMERIC && this->getOutletID(out) == it->second->getInletID(in)){
+                    if(it->second->inletsConnected[in]){
+                        it->second->_inletParams[in] = this->_outletParams[out];
+                    }
+                }
+            }
+        }
+    }
+
     // manually send data through wireless links ( if var ID, transport data )
     if(initWirelessLink && resetWirelessPin != -1){
         initWirelessLink = false;
