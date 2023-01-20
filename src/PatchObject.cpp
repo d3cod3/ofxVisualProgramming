@@ -158,13 +158,18 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
                 }
                 // send data through links
                 if(!outPut[i]->isDeactivated){
-                    patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID] = true;
-                    if(outPut[i]->type == VP_LINK_AUDIO && patchObjects[outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
-                        if(this->getIsPDSPPatchableObject() || this->getName() == "audio device"){
-                            this->pdspOut[outPut[i]->fromOutletID] >> patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID];
+                    if(!patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID]){
+                        patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID] = true;
+                        if(outPut[i]->type == VP_LINK_AUDIO && patchObjects[outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
+                            if(this->getIsPDSPPatchableObject() || this->getName() == "audio device"){
+                                this->pdspOut[outPut[i]->fromOutletID] >> patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID];
+                            }
                         }
+                        patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
+                    }else{
+                        patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
                     }
-                    patchObjects[outPut[i]->toObjectID]->_inletParams[outPut[i]->toInletID] = _outletParams[out];
+
                 }else{
                     patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID] = false;
                     if(outPut[i]->type == VP_LINK_AUDIO){
@@ -188,6 +193,8 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
 
 //--------------------------------------------------------------
 void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObjects){
+
+    if(willErase) return;
 
     // Continuosly update float type ONLY wireless links
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
