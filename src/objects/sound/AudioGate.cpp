@@ -105,6 +105,7 @@ void AudioGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void AudioGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
     
     if(this->inletsConnected[0]){
         if(static_cast<int>(floor(*(float *)&_inletParams[0])) != openInlet){
@@ -140,6 +141,8 @@ void AudioGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void AudioGate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -224,15 +227,21 @@ void AudioGate::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioGate::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     if(openInlet >= 1 && openInlet < this->numInlets){
-        *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[openInlet]);
+        if(this->inletsConnected[openInlet]){
+            *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[openInlet]);
+        }else{
+            static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+        }
     }else if(openInlet == 0){
-        *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
+        static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
     }
 }
 
@@ -262,7 +271,7 @@ void AudioGate::resetInletsSettings(){
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new ofSoundBuffer();
         static_cast<ofSoundBuffer *>(_inletParams[i])->set(0.0f);
     }
@@ -274,7 +283,7 @@ void AudioGate::resetInletsSettings(){
 
     this->addInlet(VP_LINK_NUMERIC,"open");
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i));
     }
 

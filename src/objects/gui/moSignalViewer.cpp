@@ -197,8 +197,8 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
             static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
         }
     }else{
-        *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
-        *static_cast<ofSoundBuffer *>(_outletParams[1]) *= 0.0f;
+        static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+        static_cast<ofSoundBuffer *>(_outletParams[1])->set(0.0f);
     }
 
 }

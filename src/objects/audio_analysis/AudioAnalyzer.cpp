@@ -93,6 +93,7 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         if(!isConnected){
@@ -163,6 +164,8 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void AudioAnalyzer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -227,11 +230,15 @@ void AudioAnalyzer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
+    unusedArgs(inputBuffer);
+
+    if(static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()) return;
+
     if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
 
         lastBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
@@ -250,6 +257,7 @@ void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
 
         // autocorrelation + normalization
         doAutoCorrelation(monoBuffer.getBuffer().data());
+
 
         // get volume
         detectRMS();
@@ -361,6 +369,7 @@ void AudioAnalyzer::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::doAutoCorrelation(float* signal){
+
     float sum;
     std::vector<float> autoCorrelationResults(bufferSize);
 
