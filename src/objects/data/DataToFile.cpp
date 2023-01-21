@@ -77,6 +77,7 @@ void DataToFile::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         if(*(float *)&_inletParams[1] < 1.0){
@@ -95,9 +96,9 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
     }
 
-    if(this->inletsConnected[0] && recordData){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && recordData){
         string temp = "";
-        for(int i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
             temp += ofToString(static_cast<vector<float> *>(_inletParams[0])->at(i));
             if(i<static_cast<vector<float> *>(_inletParams[0])->size()-1){
                 temp += ",";
@@ -110,6 +111,8 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void DataToFile::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -229,7 +232,7 @@ void DataToFile::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void DataToFile::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

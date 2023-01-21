@@ -241,7 +241,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     unusedArgs(patchObjects);
 
     // S
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
             if(i < static_cast<vector<float> *>(_inletParams[0])->size()){
                 seqSteps[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
@@ -250,7 +250,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     // A
-    if(this->inletsConnected[1]){
+    if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
             if(i < static_cast<vector<float> *>(_inletParams[1])->size()){
                 ctrl1Steps[i] = static_cast<vector<float> *>(_inletParams[1])->at(i);
@@ -259,7 +259,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     // B
-    if(this->inletsConnected[2]){
+    if(this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
             if(i < static_cast<vector<float> *>(_inletParams[2])->size()){
                 ctrl2Steps[i] = static_cast<vector<float> *>(_inletParams[2])->at(i);
@@ -268,7 +268,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     // C
-    if(this->inletsConnected[3]){
+    if(this->inletsConnected[3] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
             if(i < static_cast<vector<float> *>(_inletParams[3])->size()){
                 ctrl3Steps[i] = static_cast<vector<float> *>(_inletParams[3])->at(i);
@@ -277,7 +277,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     // D
-    if(this->inletsConnected[4]){
+    if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
             if(i < static_cast<vector<float> *>(_inletParams[4])->size()){
                 ctrl4Steps[i] = static_cast<vector<float> *>(_inletParams[4])->at(i);

@@ -135,6 +135,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(needToLoadScript  && filepath != "none"){
         needToLoadScript = false;
@@ -179,13 +180,14 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     ///////////////////////////////////////////
     // LUA UPDATE
     if(scriptLoaded && !isError){
 
         // receive external data
-        if(this->inletsConnected[0]){
+        if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
             for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
                 lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_updateMosaicData");
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,i+1);
@@ -318,12 +320,6 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    /*string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
-    if(ImGuiEx::getFileDialog(fileDialog, saveLuaScriptFlag, "Save new Lua script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".lua", newFileName, scaleFactor)){
-        lastLuaScript = fileDialog.selected_path;
-        luaScriptSaved = true;
-    }*/
-
     if(ImGuiEx::getFileDialog(fileDialog, loadLuaScriptFlag, "Select a lua script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".lua", "", scaleFactor)){
         lastLuaScript = fileDialog.selected_path;
         luaScriptLoaded = true;
@@ -417,6 +413,8 @@ void LuaScript::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void LuaScript::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     ///////////////////////////////////////////
     // LUA EXIT
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
@@ -556,6 +554,7 @@ void LuaScript::newScript(string scriptFile){
 
 //--------------------------------------------------------------
 void LuaScript::loadScript(string scriptFile){
+    //unusedArgs(scriptFile);
 
     currentScriptFile.open(filepath);
 

@@ -103,11 +103,13 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
+    unusedArgs(patchObjects);
 }
 
 //--------------------------------------------------------------
 void AudioDevice::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){
         drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
@@ -156,6 +158,8 @@ void AudioDevice::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioDevice::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
         OUT_CH[c].disconnectOut();
     }
@@ -182,15 +186,15 @@ void AudioDevice::audioInObject(ofSoundBuffer &inputBuffer){
             }
         }
     }
-
-
 }
 
 //--------------------------------------------------------------
 void AudioDevice::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     if(deviceLoaded && out_channels>0){
         for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
-            if(this->inletsConnected[c]){
+            if(this->inletsConnected[c] && !static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().empty()){
                 OUT_CH.at(c).copyInput(static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().data(),static_cast<ofSoundBuffer *>(_inletParams[c])->getNumFrames());
             }
         }

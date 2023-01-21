@@ -235,7 +235,7 @@ void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     if(openInlet >= 1 && openInlet < this->numInlets){
-        if(this->inletsConnected[openInlet]){
+        if(this->inletsConnected[openInlet] && !static_cast<ofSoundBuffer *>(_inletParams[openInlet])->getBuffer().empty()){
             *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[openInlet]);
         }else{
             static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);

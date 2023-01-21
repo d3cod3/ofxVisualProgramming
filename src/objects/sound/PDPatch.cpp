@@ -123,6 +123,7 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
 
     ch1IN.out_signal() >> this->pdspIn[0] >> mixIN;
     ch2IN.out_signal() >> this->pdspIn[1] >> mixIN;
@@ -138,6 +139,7 @@ void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(patchLoaded){
         patchLoaded = false;
@@ -167,8 +169,10 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         pd.startMessage();
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
-            pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+        if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
+                pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+            }
         }
         pd.finishList("fromMosaic");
     }
@@ -185,6 +189,8 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 //--------------------------------------------------------------
 void PDPatch::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){
@@ -290,6 +296,8 @@ void PDPatch::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void PDPatch::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -298,40 +306,37 @@ void PDPatch::removeObjectContent(bool removeFileFromData){
     }
 
     pd.clear();
-
-    if(removeFileFromData){
-        //removeFile(filepath);
-    }
 }
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
 
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        if(this->inletsConnected[0]){
+        if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         }else{
-            lastInputBuffer1 *= 0.0f;
+            lastInputBuffer1.set(0.0f);
         }
-        if(this->inletsConnected[1]){
+        if(this->inletsConnected[1] && !static_cast<ofSoundBuffer *>(_inletParams[1])->getBuffer().empty()){
             lastInputBuffer2 = *static_cast<ofSoundBuffer *>(_inletParams[1]);
         }else{
-            lastInputBuffer2 *= 0.0f;
+            lastInputBuffer2.set(0.0f);
         }
-        if(this->inletsConnected[2]){
+        if(this->inletsConnected[2] && !static_cast<ofSoundBuffer *>(_inletParams[2])->getBuffer().empty()){
             lastInputBuffer3 = *static_cast<ofSoundBuffer *>(_inletParams[2]);
         }else{
-            lastInputBuffer3 *= 0.0f;
+            lastInputBuffer3.set(0.0f);
         }
-        if(this->inletsConnected[3]){
+        if(this->inletsConnected[3] && !static_cast<ofSoundBuffer *>(_inletParams[3])->getBuffer().empty()){
             lastInputBuffer4 = *static_cast<ofSoundBuffer *>(_inletParams[3]);
         }else{
-            lastInputBuffer4 *= 0.0f;
+            lastInputBuffer4.set(0.0f);
         }
 
         lastInputBuffer.setChannel(lastInputBuffer1,0);
@@ -473,27 +478,35 @@ void PDPatch::print(const std::string& message) {
 
 //--------------------------------------------------------------
 void PDPatch::receiveBang(const std::string& dest) {
+    unusedArgs(dest);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: bang %s", dest.c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveFloat(const std::string& dest, float value) {
+    unusedArgs(dest,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: float %s: %f", dest.c_str(), value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveSymbol(const std::string& dest, const std::string& symbol) {
+    unusedArgs(dest,symbol);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: symbol %s: %s", dest.c_str(), symbol.c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveList(const std::string& dest, const List& list) {
+    unusedArgs(dest);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", dest.c_str());
 
     static_cast<vector<float> *>(_outletParams[4])->clear();
     static_cast<vector<float> *>(_outletParams[4])->assign(list.len(),0.0f);
 
-    for(int i = 0; i < list.len(); ++i) {
+    for(size_t i = 0; i < list.len(); ++i) {
         if(list.isFloat(i)){
             static_cast<vector<float> *>(_outletParams[4])->at(i) = list.getFloat(i);
         }
@@ -502,43 +515,59 @@ void PDPatch::receiveList(const std::string& dest, const List& list) {
 
 //--------------------------------------------------------------
 void PDPatch::receiveMessage(const std::string& dest, const std::string& msg, const List& list) {
+    unusedArgs(dest,msg,list);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: message %s: %s %s %s", dest.c_str(), msg.c_str(), list.toString().c_str(), list.types().c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveNoteOn(const int channel, const int pitch, const int velocity) {
+    unusedArgs(channel,pitch,velocity);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: note on: %i %i %i", channel, pitch, velocity);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveControlChange(const int channel, const int controller, const int value) {
+    unusedArgs(channel,controller,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: control change: %i %i %i", channel, controller, value);
 }
 
 //--------------------------------------------------------------
 // note: pgm nums are 1-128 to match pd
 void PDPatch::receiveProgramChange(const int channel, const int value) {
+    unusedArgs(channel,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: program change: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receivePitchBend(const int channel, const int value) {
+    unusedArgs(channel,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: pitch bend: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveAftertouch(const int channel, const int value) {
+    unusedArgs(channel,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: aftertouch: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receivePolyAftertouch(const int channel, const int pitch, const int value) {
+    unusedArgs(channel,pitch,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: poly aftertouch: %i %i %i", channel, pitch, value);
 }
 
 //--------------------------------------------------------------
 // note: pd adds +2 to the port num, so sending to port 3 in pd to [midiout], shows up at port 1 in ofxPd
 void PDPatch::receiveMidiByte(const int port, const int byte) {
+    unusedArgs(port,byte);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }
 

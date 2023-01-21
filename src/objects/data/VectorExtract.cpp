@@ -78,10 +78,12 @@ void VectorExtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VectorExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
     static_cast<vector<float> *>(_outletParams[0])->clear();
 
-    if(this->inletsConnected[0] && start < end){
-        for(size_t s=start;s<end;s++){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && start < end){
+        for(int s=start;s<end;s++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s));
         }
     }
@@ -102,6 +104,8 @@ void VectorExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void VectorExtract::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -150,7 +154,7 @@ void VectorExtract::drawObjectNodeConfig(){
         if(start < 0){
             start = 0;
         }
-        if(start > static_cast<vector<float> *>(_inletParams[0])->size()-2){
+        if(start > static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size())-2){
             start = static_cast<vector<float> *>(_inletParams[0])->size()-2;
         }
         this->setCustomVar(static_cast<float>(start),"START");
@@ -158,7 +162,7 @@ void VectorExtract::drawObjectNodeConfig(){
     ImGui::Spacing();
     int prevEnd = end;
     if(ImGui::InputInt("End",&end)){
-        if(end > start && end <= static_cast<vector<float> *>(_inletParams[0])->size()-1){
+        if(end > start && end <= static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size())-1){
             this->setCustomVar(static_cast<float>(end),"END");
         }else{
             end = prevEnd;
@@ -173,7 +177,7 @@ void VectorExtract::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VectorExtract::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 

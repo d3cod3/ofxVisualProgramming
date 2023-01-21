@@ -199,6 +199,7 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         pitch_float = ofClamp(*(float *)&_inletParams[0],0,127);
@@ -264,6 +265,8 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void Oscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(0);
 
 }
@@ -375,6 +378,8 @@ void Oscillator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Oscillator::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -402,6 +407,7 @@ void Oscillator::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void Oscillator::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
 
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {
         float sample = scope.getBuffer().at(i);

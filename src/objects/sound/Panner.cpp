@@ -97,6 +97,7 @@ void Panner::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         pan = ofClamp(*(float *)&_inletParams[1],-1.0f,1.0f);
@@ -113,6 +114,8 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 
 //--------------------------------------------------------------
 void Panner::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -167,6 +170,8 @@ void Panner::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Panner::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -190,11 +195,13 @@ void Panner::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void Panner::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void Panner::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     // STEREO SIGNAL BUFFERS
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
     static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);

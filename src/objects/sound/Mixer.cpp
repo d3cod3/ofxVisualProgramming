@@ -120,9 +120,10 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0]){
-        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+        for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
             if(i < signalInlets){
                 levels_float[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
                 levels_ctrl[i].set(levels_float[i]);
@@ -146,6 +147,8 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 //--------------------------------------------------------------
 void Mixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -230,6 +233,8 @@ void Mixer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Mixer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -339,11 +344,13 @@ void Mixer::resetInletsSettings(){
 
 //--------------------------------------------------------------
 void Mixer::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }

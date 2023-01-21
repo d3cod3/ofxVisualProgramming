@@ -259,10 +259,10 @@ void vpReceiver::audioOutObject(ofSoundBuffer &outBuffer){
     unusedArgs(outBuffer);
 
     if(receiveTypeIndex == VP_LINK_AUDIO){
-        if(this->inletsConnected[0] && isReceivingON){
+        if(this->inletsConnected[0] && isReceivingON && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         }else{
-            *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
+            static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
         }
     }
 

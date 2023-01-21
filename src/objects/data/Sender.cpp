@@ -106,7 +106,7 @@ void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
             *static_cast<string *>(_outletParams[0]) = "";
         }
     }else if(sendTypeIndex == VP_LINK_ARRAY){
-        if(this->inletsConnected[0] && isSendingON){
+        if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isSendingON){
             *static_cast<vector<float> *>(_outletParams[0]) = *static_cast<vector<float> *>(_inletParams[0]);
         }else{
             *static_cast<vector<float> *>(_outletParams[0]) = *emptyVector;
@@ -265,10 +265,10 @@ void vpSender::audioOutObject(ofSoundBuffer &outBuffer){
     unusedArgs(outBuffer);
 
     if(sendTypeIndex == VP_LINK_AUDIO){
-        if(this->inletsConnected[0] && isSendingON){
+        if(this->inletsConnected[0] && isSendingON && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         }else{
-            *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
+            static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
         }
     }
 
