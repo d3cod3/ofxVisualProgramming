@@ -267,6 +267,8 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             window->setWindowPosition(this->getCustomVar("OUTPUT_POSX"),this->getCustomVar("OUTPUT_POSY"));
             toggleWindowFullscreen();
         }
+
+        needReset = true;
     }
 
     // auto remove
@@ -491,6 +493,8 @@ void OutputWindow::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void OutputWindow::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
+
+    ofRemoveListener(window->events().draw,this,&OutputWindow::drawInWindow);
 
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();

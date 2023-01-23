@@ -51,8 +51,6 @@ BackgroundSubtraction::BackgroundSubtraction() : PatchObject("background subtrac
 
     this->initInletsState();
 
-    resetTextures(320,240);
-
     bgSubTech           = 0; // 0 abs, 1 lighter than, 2 darker than
 
     posX = posY = drawW = drawH = 0.0f;
@@ -101,6 +99,8 @@ void BackgroundSubtraction::newObject(){
 void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
+    resetTextures(320,240);
+
     bgSubTechVector.push_back("B&W ABS");
     bgSubTechVector.push_back("LIGHTER THAN");
     bgSubTechVector.push_back("DARKER THAN");
@@ -109,6 +109,7 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     // External background reset (BANG)
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
@@ -132,6 +133,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>>
 
 //--------------------------------------------------------------
 void BackgroundSubtraction::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     // UPDATE STUFF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
