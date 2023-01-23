@@ -73,7 +73,7 @@ common:
 
 
 linux64:
-        ADDON_DEPENDENCIES += ofxHapPlayer ofxNDI
+        ADDON_DEPENDENCIES += ofxNDI
         ADDON_SOURCES_EXCLUDE = src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 msys2:
@@ -83,4 +83,4 @@ vs:
         ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxHapPlayer ofxNDI ofxSyphon
+        ADDON_DEPENDENCIES += ofxNDI ofxSyphon
