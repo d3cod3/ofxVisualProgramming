@@ -104,7 +104,6 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
         if(!recorder.isRecording()){
-            recorder.setVideoCodec("hevc");
             recorder.setBitRate(20000);
             recorder.startCustomRecord();
             recButtonLabel = "STOP";
@@ -278,7 +277,6 @@ void VideoExporter::drawObjectNodeConfig(){
         }else{
             if(!recorder.isRecording()){
                 recorder.setBitRate(20000);
-                recorder.setVideoCodec("hevc");
                 recorder.startCustomRecord();
                 recButtonLabel = "STOP";
                 ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
@@ -304,7 +302,6 @@ void VideoExporter::drawObjectNodeConfig(){
             filepath += ".avi";
         }
         recorder.setOutputPath(filepath);
-        recorder.setVideoCodec("hevc");
         // prepare blank video file
         recorder.startCustomRecord();
         recorder.stop();
@@ -317,7 +314,6 @@ void VideoExporter::drawObjectNodeConfig(){
             filepath += ".mp4";
         }
         recorder.setOutputPath(filepath);
-        recorder.setVideoCodec("hevc");
         // prepare blank video file
         recorder.startCustomRecord();
         recorder.stop();
