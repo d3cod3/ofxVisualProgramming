@@ -92,6 +92,7 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         if(*(float *)&_inletParams[1] < 1.0){
@@ -119,6 +120,8 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void VideoExporter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
     if(this->inletsConnected[0]){
@@ -324,7 +327,7 @@ void VideoExporter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VideoExporter::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 

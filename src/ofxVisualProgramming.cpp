@@ -620,11 +620,14 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             inputBuffer.copyFrom(input, bufferSize, nChannels, audioSampleRate);
 
             // compute audio input
-            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                it->second->audioIn(inputBuffer);
+            if(!inputBuffer.getBuffer().empty()){
+                for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                    it->second->audioIn(inputBuffer);
+                }
+
+                lastInputBuffer = inputBuffer;
             }
 
-            lastInputBuffer = inputBuffer;
         }
         if(audioGUIOUTChannels > 0){
             // compute audio output

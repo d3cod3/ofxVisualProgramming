@@ -105,6 +105,8 @@ public:
     float               scaledObjW, scaledObjH;
     float               objOriginX, objOriginY;
 
+    bool                loaded;
+
 protected:
 
 

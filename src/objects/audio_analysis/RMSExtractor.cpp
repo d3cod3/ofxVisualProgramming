@@ -110,6 +110,8 @@ void RMSExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void RMSExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -139,7 +141,7 @@ void RMSExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 100.f,IM_COL32(255,255,120,255), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }
@@ -154,7 +156,7 @@ void RMSExtractor::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void RMSExtractor::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

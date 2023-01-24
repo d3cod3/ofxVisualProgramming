@@ -89,6 +89,8 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
     this->width         *= 2;
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -106,6 +108,12 @@ void SoundfilePlayer::newObject(){
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
+
+    this->setCustomVar(static_cast<float>(loop),"LOOP");
+    this->setCustomVar(static_cast<float>(speed),"SPEED");
+    this->setCustomVar(static_cast<float>(volume),"VOLUME");
+    this->setCustomVar(static_cast<float>(cueIN),"CUE_IN");
+    this->setCustomVar(static_cast<float>(cueOUT),"CUE_OUT");
 }
 
 //--------------------------------------------------------------
@@ -227,6 +235,24 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
             finishBang = false;
         }
 
+    }
+
+    if(!loaded){
+        loaded = true;
+
+        loop = static_cast<bool>(this->getCustomVar("LOOP"));
+        speed = static_cast<float>(this->getCustomVar("SPEED"));
+        volume = static_cast<float>(this->getCustomVar("VOLUME"));
+        cueIN = static_cast<double>(this->getCustomVar("CUE_IN"));
+        cueOUT = static_cast<double>(this->getCustomVar("CUE_OUT"));
+
+        if(playhead < cueIN){
+            playhead = cueIN;
+        }
+
+        if(playhead > cueOUT){
+            playhead = cueOUT;
+        }
     }
 
 }
@@ -371,12 +397,18 @@ void SoundfilePlayer::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     ImGui::PushItemWidth(130*scaleFactor);
-    ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
-    ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
+    if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
+        this->setCustomVar(speed,"SPEED");
+    }
+    if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
+        this->setCustomVar(volume,"VOLUME");
+    }
     ImGui::PopItemWidth();
     ImGui::Spacing();
     ImGui::Spacing();
-    ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
+    if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
+        this->setCustomVar(static_cast<float>(loop),"LOOP");
+    }
 
     ImGui::Spacing();
     float tempcueIN = cueIN;
@@ -385,7 +417,7 @@ void SoundfilePlayer::drawObjectNodeConfig(){
         if(playhead < cueIN){
             playhead = cueIN;
         }
-
+        this->setCustomVar(static_cast<float>(cueIN),"CUE_IN");
     }
     ImGui::Spacing();
     float tempcueOUT = cueOUT;
@@ -394,6 +426,7 @@ void SoundfilePlayer::drawObjectNodeConfig(){
         if(playhead > cueOUT){
             playhead = cueOUT;
         }
+        this->setCustomVar(static_cast<float>(cueOUT),"CUE_OUT");
     }
 
     ImGuiEx::ObjectInfo(
