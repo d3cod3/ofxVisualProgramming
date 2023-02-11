@@ -117,7 +117,12 @@ inline void drawTimecode(ImDrawList* drawList, int seconds, std::string pre="", 
 
     if(onDrawList){
         char temp[256];
+#if defined(TARGET_WIN32)
+        sprintf_s(temp,"%s %s:%s:%s", pre.c_str(), _sh.c_str(), _sm.c_str(), _ss.c_str());
+#else
         sprintf(temp,"%s %s:%s:%s", pre.c_str(), _sh.c_str(), _sm.c_str(), _ss.c_str());
+#endif
+
         drawList->AddText(ImGui::GetFont(), ImGui::GetFontSize()*fontScale, pos, IM_COL32_WHITE,temp, NULL, 0.0f);
     }else{
         ImGui::Text("%s %s:%s:%s", pre.c_str(), _sh.c_str(), _sm.c_str(), _ss.c_str());

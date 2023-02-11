@@ -67,6 +67,7 @@ KinectGrabber::KinectGrabber() : PatchObject("kinect grabber"){
 
     this->setIsResizable(true);
     this->setIsTextureObj(true);
+    this->setIsHardwareObj(true);
 
     prevW                   = this->width;
     prevH                   = this->height;
@@ -90,6 +91,7 @@ void KinectGrabber::newObject(){
 
 //--------------------------------------------------------------
 void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     int numKinects = ofxKinect::numAvailableDevices();
     if(numKinects > 0){

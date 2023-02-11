@@ -63,6 +63,7 @@ void OscSender::newObject(){
 
 //--------------------------------------------------------------
 void OscSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     initInlets();
 
@@ -70,6 +71,7 @@ void OscSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(loaded){
         for(int i=0;i<this->getNumInlets();i++){
@@ -84,10 +86,12 @@ void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
                     m.addStringArg(*static_cast<string *>(_inletParams[i]));
                     messageOK = true;
                 }else if(this->getInletType(i) == VP_LINK_ARRAY){
-                    for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
-                        m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
+                    if(!static_cast<vector<float> *>(_inletParams[i])->empty()){
+                        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
+                            m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
+                        }
+                        messageOK = true;
                     }
-                    messageOK = true;
                 }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
                     // note: the size of the image depends greatly on your network buffer sizes,
                     // if an image is too big the message won't come through
@@ -141,6 +145,8 @@ void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void OscSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -269,7 +275,7 @@ void OscSender::drawObjectNodeConfig(){
 
     prev_osc_labels = osc_labels;
 
-    for(int i=0;i<osc_labels.size();i++){
+    for(size_t i=0;i<osc_labels.size();i++){
         ImGui::PushID(i);
         if(osc_labels_type.at(i) == VP_LINK_STRING){
             ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(200,180,255,30));
@@ -303,7 +309,7 @@ void OscSender::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void OscSender::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

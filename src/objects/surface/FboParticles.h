@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2022 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,13 +36,15 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
+#include "ofxParticles.h"
 
-class CentroidExtractor : public PatchObject {
+#include "imgui_controls.h"
+
+class FboParticles : public PatchObject {
 
 public:
 
-    CentroidExtractor();
+    FboParticles();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -51,17 +53,38 @@ public:
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            drawObjectNodeConfig() override;
-
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    void            initResolution();
 
-    int             bufferSize;
-    int             spectrumSize;
+    void            initFBOEffect();
+    void            updateFBOEffect();
+    void            drawFBOEffect();
 
-    int             arrayPosition;
+    ofImage         *kuro;
 
-    bool            isNewConnection;
-    bool            isConnectionRight;
+    float           posX, posY, drawW, drawH;
+    float           scaledObjW, scaledObjH;
+    float           objOriginX, objOriginY;
+    float           canvasZoom;
+    float           prevW, prevH;
+
+    int             fboW, fboH;
+    ofRectangle     fboRect;
+
+    bool            loaded;
+
+    // EFFECT VARS
+    ofxParticleSystem   particleSystem;
+    ofxParticleEmitter  topEmitter;
+    float               rotAcc, gravAcc, fieldMult, drag;
+    ofFloatPixels       vectorField;
+
+    ofImage             pTex;
+
+    // EFFECT CONTROL
+    float               _x,_y;
+
 
 private:
 

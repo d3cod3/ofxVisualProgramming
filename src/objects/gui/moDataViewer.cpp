@@ -75,11 +75,12 @@ void moDataViewer::newObject(){
 
 //--------------------------------------------------------------
 void moDataViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
 void moDataViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(!loaded){
         loaded = true;
@@ -95,6 +96,8 @@ void moDataViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void moDataViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -128,6 +131,15 @@ void moDataViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_inletParams[0]), max, IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255));
         }
 
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
         _nodeCanvas.EndNodeContent();
     }
 
@@ -154,7 +166,7 @@ void moDataViewer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moDataViewer::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( moDataViewer , "data viewer", OFXVP_OBJECT_CAT_GUI)

@@ -117,7 +117,11 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     loadWindowSettings();
 
     ofGLFWWindowSettings settings;
-    settings.setGLVersion(4,1);
+#if defined(OFXVP_GL_VERSION_MAJOR) && defined(OFXVP_GL_VERSION_MINOR)
+    settings.setGLVersion(OFXVP_GL_VERSION_MAJOR,OFXVP_GL_VERSION_MINOR);
+#else
+    settings.setGLVersion(3,2);
+#endif
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;
@@ -263,6 +267,8 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             window->setWindowPosition(this->getCustomVar("OUTPUT_POSX"),this->getCustomVar("OUTPUT_POSY"));
             toggleWindowFullscreen();
         }
+
+        needReset = true;
     }
 
     // auto remove
@@ -276,6 +282,9 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void OutputWindow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
     // draw node texture preview with OF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -483,6 +492,10 @@ void OutputWindow::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void OutputWindow::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
+    ofRemoveListener(window->events().draw,this,&OutputWindow::drawInWindow);
+
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }
@@ -527,6 +540,8 @@ void OutputWindow::toggleWindowFullscreen(){
 
 //--------------------------------------------------------------
 void OutputWindow::drawInWindow(ofEventArgs &e){
+    unusedArgs(e);
+
     ofBackground(0);
 
     if(hideMouse){
@@ -536,6 +551,8 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
     }
 
     ofPushStyle();
+    ofPushView();
+    ofPushMatrix();
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         ofSetColor(255);
@@ -545,6 +562,8 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
             static_cast<ofTexture *>(_inletParams[0])->draw(thposX, thposY, thdrawW, thdrawH);
         }
     }
+    ofPopMatrix();
+    ofPopView();
     ofPopStyle();
 
 }
@@ -590,11 +609,7 @@ void OutputWindow::keyPressed(ofKeyEventArgs &e){
     }
 
     if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->hide){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
-        }else{
-            static_cast<LiveCoding *>(_inletParams[1])->liveEditor.keyPressed(e.key);
-        }
+        static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
     }
 }
 
@@ -603,21 +618,9 @@ void OutputWindow::keyReleased(ofKeyEventArgs &e){
     // OSX: CMD-F, WIN/LINUX: CTRL-F    (FULLSCREEN)
     if(e.hasModifier(MOD_KEY) && e.keycode == 70){
         toggleWindowFullscreen();
-    // OSX: CMD-E, WIN/LINUX: CTRL-E    (EXECUTE SCRIPT)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 69){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.saveFile(static_cast<LiveCoding *>(_inletParams[1])->filepath);
     // OSX: CMD-T, WIN/LINUX: CTRL-T    (HIDE LIVECODING EDITOR)
     }else if(e.hasModifier(MOD_KEY) && e.keycode == 84){
         static_cast<LiveCoding *>(_inletParams[1])->hide = !static_cast<LiveCoding *>(_inletParams[1])->hide;
-    // OSX: CMD-K, WIN/LINUX: CTRL-K    (TOGGLE AUTO FOCUS)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 75){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setAutoFocus(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getAutoFocus());
-    // OSX: CMD-L, WIN/LINUX: CTRL-L    (TOGGLE LINE WRAPPING)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 76){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setLineWrapping(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getLineWrapping());
-    // OSX: CMD-N, WIN/LINUX: CTRL-N    (TOGGLE LINE NUMBERS)
-    }else if(e.hasModifier(MOD_KEY) && e.keycode == 78){
-        static_cast<LiveCoding *>(_inletParams[1])->liveEditor.setLineNumbers(!static_cast<LiveCoding *>(_inletParams[1])->liveEditor.getLineNumbers());
     }
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
@@ -728,10 +731,6 @@ void OutputWindow::windowResized(ofResizeEventArgs &e){
 
     this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
     this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
-
-    if(this->inletsConnected[2]){
-        static_cast<ofxEditor *>(_inletParams[2])->resize(window->getWidth(),window->getHeight());
-    }
 }
 
 

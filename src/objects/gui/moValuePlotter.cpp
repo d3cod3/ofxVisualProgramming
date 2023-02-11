@@ -93,6 +93,8 @@ void moValuePlotter::newObject(){
 
 //--------------------------------------------------------------
 void moValuePlotter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadVariableName();
 }
 

@@ -24,11 +24,10 @@ meta:
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
-        ADDON_DEPENDENCIES = ofxAssimpModelLoader ofxGui ofxKinect ofxNetwork ofxOpenCv ofxOsc ofxSvg ofxVectorGraphics ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioAnalyzer ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxGLEditor
-        ADDON_DEPENDENCIES += ofxJSON ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
-        ADDON_DEPENDENCIES += ofxPDSP ofxTimeline ofxWarp
-        ADDON_DEPENDENCIES += ofxImGui
+        ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
+        ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxChromaKeyShader ofxCv ofxEasing ofxFFmpegRecorder ofxFft
+        ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
+        ADDON_DEPENDENCIES += ofxPd ofxPDSP ofxTimeline ofxWarp
 
 	# include search paths, this will be usually parsed from the file system
 	# but if the addon or addon libraries need special search paths they can be
@@ -74,10 +73,14 @@ common:
 
 
 linux64:
-        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
+        ADDON_DEPENDENCIES += ofxNDI
+        ADDON_SOURCES_EXCLUDE = src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 msys2:
-        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/scripting/PythonScript% src/objects/sound/PDPatch% src/objects/video/VideoSender% src/objects/video/VideoReceiver%
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
+
+vs:
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 osx:
-        ADDON_DEPENDENCIES += ofxPd ofxPdExternals ofxPython ofxNDI
+        ADDON_DEPENDENCIES += ofxNDI ofxSyphon

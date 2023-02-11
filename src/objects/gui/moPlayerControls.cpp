@@ -73,7 +73,7 @@ void moPlayerControls::newObject(){
 
 //--------------------------------------------------------------
 void moPlayerControls::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

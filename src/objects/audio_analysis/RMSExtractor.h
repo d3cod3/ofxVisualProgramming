@@ -36,8 +36,6 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
-
 class RMSExtractor : public PatchObject {
 
 public:

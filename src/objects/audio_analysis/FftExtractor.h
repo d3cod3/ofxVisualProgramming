@@ -54,12 +54,15 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    float           multiplier;
     
     int             bufferSize;
     int             spectrumSize;
 
     bool            isNewConnection;
     bool            isConnectionRight;
+
+    bool            loaded;
 
 private:
 

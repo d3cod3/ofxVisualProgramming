@@ -37,7 +37,6 @@
 #include "PatchObject.h"
 
 #include "ofxLua.h"
-#include "ofxEditor.h"
 #include "PathWatcher.h"
 
 #include "ImGuiFileBrowser.h"
@@ -45,7 +44,6 @@
 
 struct LiveCoding{
     ofxLua          lua;
-    ofxEditor       liveEditor;
     string          filepath;
     bool            hide;
 };
@@ -83,9 +81,6 @@ public:
 
     // ofxLua error callback
     void            errorReceived(std::string& msg) override;
-
-    ofxEditorSyntax         liveEditorSyntax;
-    ofxEditorColorScheme    liveEditorColors;
 
     PathWatcher         watcher;
     ofFile              currentScriptFile;

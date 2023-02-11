@@ -91,7 +91,11 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     fileDialog.setIsRetina(this->isRetina);
 
     ofGLFWWindowSettings settings;
-    settings.setGLVersion(4,1);
+#if defined(OFXVP_GL_VERSION_MAJOR) && defined(OFXVP_GL_VERSION_MINOR)
+    settings.setGLVersion(OFXVP_GL_VERSION_MAJOR,OFXVP_GL_VERSION_MINOR);
+#else
+    settings.setGLVersion(3,2);
+#endif
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;
@@ -290,6 +294,8 @@ void ProjectionMapping::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ProjectionMapping::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }

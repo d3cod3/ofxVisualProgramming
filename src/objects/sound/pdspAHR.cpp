@@ -38,7 +38,7 @@
 pdspAHR::pdspAHR() : PatchObject("AHR envelope"){
 
     this->numInlets  = 5;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
@@ -52,6 +52,8 @@ pdspAHR::pdspAHR() : PatchObject("AHR envelope"){
     *(float *)&_inletParams[4] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
+    _outletParams[1] = new float();         // AHR func
+    *(float *)&_outletParams[1] = 0.0f;
 
     this->initInletsState();
 
@@ -83,6 +85,7 @@ void pdspAHR::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"H");
     this->addInlet(VP_LINK_NUMERIC,"R");
     this->addOutlet(VP_LINK_AUDIO,"envelopedSignal");
+    this->addOutlet(VP_LINK_NUMERIC,"envelope");
 
     this->setCustomVar(attackHardness,"ATTACK_CURVE");
     this->setCustomVar(releaseHardness,"RELEASE_CURVE");
@@ -94,6 +97,8 @@ void pdspAHR::newObject(){
 
 //--------------------------------------------------------------
 void pdspAHR::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }
@@ -111,6 +116,7 @@ void pdspAHR::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     env.set(attackDuration,holdDuration,releaseDuration);
     env.setAttackCurve(attackHardness);
@@ -154,6 +160,8 @@ void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 //--------------------------------------------------------------
 void pdspAHR::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -204,6 +212,8 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(releaseHardness,"RELEASE_CURVE");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }
@@ -212,11 +222,13 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspAHR::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Standard AHR envelope.",
-                "https://mosaic.d3cod3.org/reference.php?r=ahr-envelop", scaleFactor);
+                "https://mosaic.d3cod3.org/reference.php?r=ahr-envelope", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void pdspAHR::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -241,6 +253,11 @@ void pdspAHR::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspAHR::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    // output envelope func
+    *(float *)&_outletParams[1] = env.meter_output();
+
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }

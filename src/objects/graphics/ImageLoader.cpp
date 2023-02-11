@@ -77,6 +77,7 @@ void ImageLoader::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 

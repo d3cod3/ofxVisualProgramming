@@ -96,6 +96,8 @@ void pdspCompressor::newObject(){
 
 //--------------------------------------------------------------
 void pdspCompressor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }
@@ -240,6 +242,8 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             knee_ctrl.set(knee);
             this->setCustomVar(knee,"KNEE");
         }
+
+        _nodeCanvas.EndNodeContent();
     }
 
 }

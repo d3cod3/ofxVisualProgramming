@@ -105,6 +105,7 @@ void ShaderObject::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 
@@ -155,7 +156,12 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 if(newVertGLSLFile.exists()){
                     copyFileToPatchFolder(this->patchFolderPath,newVertGLSLFile.getAbsolutePath());
                 }else{
-                    ofFile vertToRead(ofToDataPath("scripts/empty.vert"));
+                    ofFile vertToRead;
+                    if(ofIsGLProgrammableRenderer()){
+                      vertToRead.open(ofToDataPath("scripts/empty.vert"));
+                    }else{
+                      vertToRead.open(ofToDataPath("scripts/empty_120.vert"));
+                    }
                     ofFile patchFolderNewFrag(filepath);
                     string pf_fsName = patchFolderNewFrag.getFileName();
                     string pf_vsName = patchFolderNewFrag.getEnclosingDirectory()+patchFolderNewFrag.getFileName().substr(0,pf_fsName.find_last_of('.'))+".vert";
@@ -171,7 +177,12 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 if(newFragGLSLFile.exists()){
                     filepath = copyFileToPatchFolder(this->patchFolderPath,newFragGLSLFile.getAbsolutePath());
                 }else{
-                    ofFile fragToRead(ofToDataPath("scripts/empty.frag"));
+                    ofFile fragToRead;
+                    if(ofIsGLProgrammableRenderer()){
+                      fragToRead.open(ofToDataPath("scripts/empty.frag"));
+                    }else{
+                      fragToRead.open(ofToDataPath("scripts/empty_120.frag"));
+                    }
                     ofFile patchFolderNewVert(newVertOpened);
                     string pf_vsName = patchFolderNewVert.getFileName();
                     string pf_fsName = patchFolderNewVert.getEnclosingDirectory()+patchFolderNewVert.getFileName().substr(0,pf_vsName.find_last_of('.'))+".frag";
@@ -187,18 +198,29 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(shaderScriptSaved){
         shaderScriptSaved = false;
         // create and open the new one
-        ofFile fileToRead(ofToDataPath("scripts/empty.frag"));
+        ofFile fileToRead;
+        if(ofIsGLProgrammableRenderer()){
+          fileToRead.open(ofToDataPath("scripts/empty.frag"));
+        }else{
+          fileToRead.open(ofToDataPath("scripts/empty_120.frag"));
+        }
         ofFile newGLSLFile (lastShaderScript);
         ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"),true,true);
         ofFile correctedFileToRead(checkFileExtension(newGLSLFile.getAbsolutePath(), ofToUpper(newGLSLFile.getExtension()), "FRAG"));
 
-        ofFile vertToRead(ofToDataPath("scripts/empty.vert"));
+        ofFile vertToRead;
+        if(ofIsGLProgrammableRenderer()){
+          vertToRead.open(ofToDataPath("scripts/empty.vert"));
+        }else{
+          vertToRead.open(ofToDataPath("scripts/empty_120.vert"));
+        }
         string fsName = newGLSLFile.getFileName();
         string vsName = newGLSLFile.getEnclosingDirectory()+newGLSLFile.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
         ofFile newVertGLSLFile (vsName);
         ofFile::copyFromTo(vertToRead.getAbsolutePath(),newVertGLSLFile.getAbsolutePath(),true,true);
 
         currentScriptFile = correctedFileToRead;
+
         if (currentScriptFile.exists()){
             filepath = currentScriptFile.getAbsolutePath();
             loadScript(filepath);
@@ -222,6 +244,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void ShaderObject::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     ///////////////////////////////////////////
     // SHADER UPDATE
@@ -482,7 +505,7 @@ void ShaderObject::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "This object is a GLSL ( #version 120 ) container, capable of loading shaders and editing them in real-time. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
+                "This object is a GLSL ( #version 150 ) container, capable of loading shaders and editing them in real-time. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
                 "https://mosaic.d3cod3.org/reference.php?r=glsl-shader", scaleFactor);
 
     // file dialog
@@ -494,7 +517,7 @@ void ShaderObject::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ShaderObject::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
@@ -522,6 +545,8 @@ void ShaderObject::doFragmentShader(){
     // reset inlets
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
     this->numInlets = num;
 
     textures.clear();
@@ -556,12 +581,11 @@ void ShaderObject::doFragmentShader(){
     // INJECT SHADER FLOAT PARAMETER IN OBJECT GUI
     for (int i = 0; i < 10; i++){
         string searchFor = "param1f" + ofToString(i);
-        if(fragmentShader.find(searchFor) != static_cast<unsigned long>(-1)){
+        if(fragmentShader.find(searchFor) != string::npos){
             unsigned long subVarStart = fragmentShader.find(searchFor);
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
             string varName = fragmentShader.substr(subVarMiddle+3,subVarEnd-subVarMiddle-3);
-
             float tempValue = 0.0f;
             map<string,float>::const_iterator it = tempVars.find("GUI_FLOAT_"+varName);
             if(it!=tempVars.end()){
@@ -588,7 +612,7 @@ void ShaderObject::doFragmentShader(){
     // INJECT SHADER INT PARAMETER IN OBJECT GUI
     for (int i = 0; i < 10; i++){
         string searchFor = "param1i" + ofToString(i);
-        if(fragmentShader.find(searchFor) != static_cast<unsigned long>(-1)){
+        if(fragmentShader.find(searchFor) != string::npos){
             unsigned long subVarStart = fragmentShader.find(searchFor);
             unsigned long subVarMiddle = fragmentShader.find(";//",subVarStart);
             unsigned long subVarEnd = fragmentShader.find("@",subVarStart);
@@ -634,7 +658,9 @@ void ShaderObject::doFragmentShader(){
     this->saveConfig(false);
 
     // Compile the shader and load it to the GPU
-    quad.clear();
+    if (ofIsGLProgrammableRenderer()) {
+      quad.clear();
+    }
     shader->unload();
 
     if (!ofIsGLProgrammableRenderer()) {
@@ -642,12 +668,13 @@ void ShaderObject::doFragmentShader(){
             shader->setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
         }
         shader->setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
+        scriptLoaded = shader->linkProgram();
     }else{
         size_t lastindex = filepath.find_last_of(".");
         string rawname = filepath.substr(0, lastindex);
         shader->load(rawname);
+        scriptLoaded = shader->isLoaded();
     }
-    scriptLoaded = shader->isLoaded();
 
     if(scriptLoaded){
         ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
@@ -722,6 +749,8 @@ void ShaderObject::loadScript(string scriptFile){
     string vsName = tempCurrentFrag.getEnclosingDirectory()+tempCurrentFrag.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
     ofFile vertexShaderFile(vsName);
 
+    this->setSpecialName("| "+fsName.substr(0,fsName.find_last_of('.')));
+
     currentScriptFile.open(filepath);
 
     if(currentScriptFile.exists()){
@@ -742,20 +771,30 @@ void ShaderObject::loadScript(string scriptFile){
             size_t lastindex = filepath.find_last_of(".");
             string rawname = filepath.substr(0, lastindex);
             test.load(rawname);
+
+            if(test.isLoaded()){
+                test.unload();
+                watcher.removeAllPaths();
+                watcher.addPath(filepath);
+                if(vertexShader != ""){
+                    watcher.addPath(vertexShaderFile.getAbsolutePath());
+                }
+                doFragmentShader();
+            }
         }else{
             if(vertexShader != ""){
                 test.setupShaderFromSource(GL_VERTEX_SHADER, vertexShader);
             }
             test.setupShaderFromSource(GL_FRAGMENT_SHADER, fragmentShader);
-        }
-        if(test.isLoaded()){
-            test.unload();
-            watcher.removeAllPaths();
-            watcher.addPath(filepath);
-            if(vertexShader != ""){
-                watcher.addPath(vertexShaderFile.getAbsolutePath());
+
+            if(test.linkProgram()){
+                watcher.removeAllPaths();
+                watcher.addPath(filepath);
+                if(vertexShader != ""){
+                    watcher.addPath(vertexShaderFile.getAbsolutePath());
+                }
+                doFragmentShader();
             }
-            doFragmentShader();
         }
 
     }else{

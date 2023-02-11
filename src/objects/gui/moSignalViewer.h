@@ -59,7 +59,7 @@ public:
     void            audioInObject(ofSoundBuffer &inputBuffer) override;
     void            audioOutObject(ofSoundBuffer &outBuffer) override;
 
-    float           plot_data[1024];
+    float           *plot_data;
 
     int             bufferSize;
     int             sampleRate;

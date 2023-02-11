@@ -128,6 +128,8 @@ void Oscillator::newObject(){
 
 //--------------------------------------------------------------
 void Oscillator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }
@@ -197,6 +199,7 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         pitch_float = ofClamp(*(float *)&_inletParams[0],0,127);
@@ -262,6 +265,8 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void Oscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(0);
 
 }
@@ -288,10 +293,10 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.3f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.3f), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         char temp[128];
-        sprintf(temp,"%.2f Hz", pdsp::PitchToFreq::eval(pitch_float+detune_float+fine_float));
+        sprintf_s(temp,"%.2f Hz", pdsp::PitchToFreq::eval(pitch_float+detune_float+fine_float));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(ImGui::GetWindowPos().x + ((40*scaleFactor)*_nodeCanvas.GetCanvasScale()), ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y*0.24)), IM_COL32_WHITE,temp, NULL, 0.0f);
 
         ImGui::Spacing();
@@ -353,6 +358,8 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(noise_float,"NOISE_LEVEL");
         }
 
+        _nodeCanvas.EndNodeContent();
+
     }
 
 }
@@ -371,6 +378,8 @@ void Oscillator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Oscillator::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -385,6 +394,7 @@ void Oscillator::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
+            plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
                 static_cast<vector<float> *>(_outletParams[6])->push_back(0.0f);
                 plot_data[i] = 0.0f;
@@ -397,6 +407,7 @@ void Oscillator::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void Oscillator::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
 
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {
         float sample = scope.getBuffer().at(i);

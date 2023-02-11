@@ -86,7 +86,7 @@ void Map::newObject(){
 
 //--------------------------------------------------------------
 void Map::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
@@ -163,6 +163,8 @@ void Map::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),4*scaleFactor,IM_COL32(160,160,160,255),40);
         _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),4*scaleFactor,IM_COL32(160,160,160,255),40);
+
+        _nodeCanvas.EndNodeContent();
     }
 
 }

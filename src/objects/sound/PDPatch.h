@@ -30,9 +30,7 @@
 
 ==============================================================================*/
 
-#if defined(TARGET_WIN32)
-    // Unavailable on windows.
-#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
 #pragma once
 
@@ -42,7 +40,6 @@
 #include "IconsFontAwesome5.h"
 
 #include "ofxPd.h"
-#include "ofxPdExternals.h"
 
 
 using namespace pd;
@@ -126,14 +123,10 @@ public:
     imgui_addons::ImGuiFileBrowser          fileDialog;
 
     string              lastLoadedPatch;
-    string              prevExternalsFolder;
-    string              lastExternalsFolder;
     bool                loadPatchFlag;
     bool                savePatchFlag;
-    bool                setExternalFlag;
     bool                patchLoaded;
     bool                patchSaved;
-    bool                externalPathSaved;
 
 
     bool                loading;

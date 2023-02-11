@@ -85,6 +85,8 @@ void pdspBitNoise::newObject(){
 
 //--------------------------------------------------------------
 void pdspBitNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -181,6 +183,8 @@ void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             bits_ctrl.set(bits);
             this->setCustomVar(bits,"BITS");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

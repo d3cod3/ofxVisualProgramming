@@ -84,7 +84,7 @@ void StringConcat::newObject(){
 
 //--------------------------------------------------------------
 void StringConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
@@ -230,6 +230,8 @@ void StringConcat::resetInletsSettings(){
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
     for(size_t i=0;i<dataInlets;i++){
         this->addInlet(VP_LINK_STRING,"s"+ofToString(i+1));

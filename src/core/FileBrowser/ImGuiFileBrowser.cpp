@@ -24,8 +24,10 @@
 #include "dirent_win.h"
 #include <windows.h>
 #include <direct.h>
+#include <shlobj.h>
 #else
 #include <dirent.h>
+#include <pwd.h>
 #endif // defined (WIN32) || defined (_WIN32)
 
 namespace imgui_addons
@@ -63,7 +65,7 @@ namespace imgui_addons
         scaleFactor = 1.0f;
 
         #ifdef OSWIN
-        current_path = "./";
+        initCurrentPathWindows();
         #else
         initCurrentPath();
         #endif
@@ -160,6 +162,7 @@ namespace imgui_addons
                 if(current_path.empty())
                 {
                     #ifdef OSWIN
+                    initCurrentPathWindows();
                     show_error |= !(loadWindowsDrives());
                     #else
                     initCurrentPath();
@@ -761,7 +764,7 @@ namespace imgui_addons
         ImGui::PushItemWidth(ext_box_width);
         if(ImGui::BeginCombo("##FileTypes", valid_exts[selected_ext_idx].c_str()))
         {
-            for(int i = 0; i < valid_exts.size(); i++)
+            for(int i = 0; i < static_cast<int>(valid_exts.size()); i++)
             {
                 if(ImGui::Selectable(valid_exts[i].c_str(), selected_ext_idx == i))
                 {
@@ -881,7 +884,8 @@ namespace imgui_addons
         {
             current_dirlist.clear();
             #ifdef OSWIN
-            current_path = pathdir = "./";
+            initCurrentPathWindows();
+            pathdir = current_path;
             #else
             initCurrentPath();
             pathdir = current_path;
@@ -1241,8 +1245,7 @@ namespace imgui_addons
 
     //Windows Exclusive function
     #ifdef OSWIN
-    bool ImGuiFileBrowser::loadWindowsDrives()
-    {
+    bool ImGuiFileBrowser::loadWindowsDrives(){
         DWORD len = GetLogicalDriveStringsA(0,nullptr);
         char* drives = new char[len];
         if(!GetLogicalDriveStringsA(len,drives))
@@ -1266,6 +1269,20 @@ namespace imgui_addons
         delete[] drives;
         return true;
     }
+
+    void ImGuiFileBrowser::initCurrentPathWindows(){
+        wchar_t my_documents[1024];
+        HRESULT result = SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, my_documents);
+
+        if (SUCCEEDED(result)){
+            char str[1024];
+            wcstombs(str, my_documents, 1023);
+            current_path = std::string(str);
+            parsePathTabs(current_path);
+        }else{
+            current_path = "./";
+        }
+    }
     #endif
 
     //Unix only
@@ -1284,7 +1301,11 @@ namespace imgui_addons
         if(path_max_def)
             buffer = new char[PATH_MAX];
 
-        char* real_path = realpath("./", buffer);
+        //char* real_path = realpath("./", buffer);
+
+        struct passwd *pw = getpwuid(getuid());
+        char *real_path = pw->pw_dir;
+
         if (real_path == nullptr)
         {
             current_path = "/";

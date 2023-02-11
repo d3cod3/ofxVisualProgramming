@@ -45,9 +45,6 @@ MelBandsExtractor::MelBandsExtractor() : PatchObject("mel bands extractor"){
     _outletParams[0] = new vector<float>();  // MEL bands Data
 
     this->initInletsState();
-    
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
-    spectrumSize = (bufferSize/2) + 1;
 
     isNewConnection   = false;
     isConnectionRight = false;
@@ -64,6 +61,8 @@ void MelBandsExtractor::newObject(){
 
 //--------------------------------------------------------------
 void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -75,7 +74,7 @@ void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     }
 
     // INIT FFT BUFFER
-    for(int i=0;i<MELBANDS_BANDS_NUM;i++){
+    for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
         static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
     }
 
@@ -107,7 +106,7 @@ void MelBandsExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
         int index = 0;
-        for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MELBANDS_BANDS_NUM;i++){
+        for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS-1;i++){
             static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
             index++;
         }

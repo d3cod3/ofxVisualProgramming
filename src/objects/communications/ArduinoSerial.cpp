@@ -75,6 +75,7 @@ void ArduinoSerial::newObject(){
 
 //--------------------------------------------------------------
 void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     arduinoIcon->load("images/arduino.jpg");
 
@@ -83,7 +84,7 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 
     deviceList = serial.getDeviceList();
-    for(int i=0;i<deviceList.size();i++){
+    for(int i=0;i<static_cast<int>(deviceList.size());i++){
         ofLog(OF_LOG_NOTICE,"[%i] - %s",i,deviceList.at(i).getDeviceName().c_str());
         deviceNameList.push_back(deviceList.at(i).getDeviceName());
     }
@@ -98,13 +99,14 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(deviceNameList.size() > 0){
         if(ofGetElapsedTimeMillis()-resetTime > 40){
             resetTime = ofGetElapsedTimeMillis();
 
-            // SENDING DATA
-            if(this->inletsConnected[0]){
+            // SENDING DATA TO ARDUINO
+            if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
                 temp = "";
                 if(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) <= MAX_ARDUINO_SENDING_VECTOR_LENGTH){
                     temp += ofToString(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()));
@@ -123,7 +125,7 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             }
 
 
-            // RECEIVING DATA
+            // RECEIVING DATA FROM ARDUINO
             if(serial.available() > 0){
                 memset(bytesReturned, 0, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH);
                 memset(bytesReadString, 0, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH+1);
@@ -168,6 +170,8 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void ArduinoSerial::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){
@@ -218,7 +222,7 @@ void ArduinoSerial::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     if(ImGui::BeginCombo("Device", deviceNameList.at(serialDeviceID).c_str() )){
-        for(int i=0; i < deviceNameList.size(); ++i){
+        for(int i=0; i < static_cast<int>(deviceNameList.size()); ++i){
             bool is_selected = (serialDeviceID == i );
             if (ImGui::Selectable(deviceNameList.at(i).c_str(), is_selected)){
                 resetSERIALSettings(i,baudRateID);
@@ -230,7 +234,7 @@ void ArduinoSerial::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     if(ImGui::BeginCombo("Baudrate", baudrateList.at(baudRateID).c_str() )){
-        for(int i=0; i < baudrateList.size(); ++i){
+        for(int i=0; i < static_cast<int>(baudrateList.size()); ++i){
             bool is_selected = (baudRateID == i );
             if (ImGui::Selectable(baudrateList.at(i).c_str(), is_selected)){
                 resetSERIALSettings(serialDeviceID,i);
@@ -247,6 +251,8 @@ void ArduinoSerial::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ArduinoSerial::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(serial.isInitialized() && deviceNameList.size() > 0){
         serial.close();
     }

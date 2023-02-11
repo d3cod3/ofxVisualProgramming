@@ -1,12 +1,11 @@
 
 # ofxVisualProgramming - A visual-programming patching addon for OF
 
-> A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua and Python scripting interpreter, plus live compile of GLSL Shaders version 120 and live editing/execute Bash scripts(macOS & linux) capabilities.
+> A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua scripting interpreter, plus live compile of GLSL Shaders from version 150 to 410, and live editing/execute Bash scripts(macOS & linux) capabilities.
 
 ![Mosaic 0.4.0](https://github.com/d3cod3/Mosaic/raw/master/process/img/28_transparent_machines04.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V21B90C)
 
 Table of Contents
 =================
@@ -26,10 +25,11 @@ Table of Contents
 
 # OF COMPATIBLE RELEASE
 
-## 0.11.0 STABLE (official download from [OF site](https://openframeworks.cc/))
+## 0.11.2 STABLE (official download from [OF site](https://openframeworks.cc/))
 > Compiled/tested with QTCreator on osx/linux/windows
+> Working on native VisualStudio Windows compiling...
 
-If you want to build ofxVisualProgramming, just download OF0.11.0 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
+If you want to build ofxVisualProgramming, just download OF0.11.2 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
 
 # REFERENCE
 
@@ -46,11 +46,11 @@ So special thanks to all the precursors of this ideas, and more thanks to the [o
 
 This [addon](https://github.com/d3cod3/ofxVisualProgramming) is the core code of the project [Mosaic](https://github.com/d3cod3/Mosaic)![Mosaic logo](https://github.com/d3cod3/Mosaic/raw/master/process/logo/logo_150.png), maintained isolated in order to obtain a better modularized code structure, encourage contributions, simplify bug fixing and enhance code quality.
 
-This project deals with the idea of integrate/amplify man-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, GLSL, Python and BASH(macOS & linux) ).
+This project deals with the idea of integrate/amplify man-machine communication, offering a real-time flowchart based visual interface for high level creative coding. As live-coding scripting languages offer a high level coding environment, ofxVisualProgramming and the Mosaic Project as his parent layer container, aim at a high level visual-programming environment, with embedded multi scripting languages availability (Lua, GLSL, and BASH(macOS & linux) ).
 
 As this project is based on openFrameworks, one of the goals is to offer as more objects as possible, using the pre-defined OF classes for trans-media manipulation (audio, text, image, video, electronics, computer vision), plus all the gigantic ofxaddons ecosystem actually available (machine learning, protocols, web, hardware interface, among a lot more).
 
-While the described characteristics could potentially offer an extremely high complex result (OF and OFXADDONS ecosystem is really huge, and the possibility of multiple scripting languages could lead every unexperienced user to confusion), the idea behind the interface design aim at avoiding the "high complex" situation, embodying a direct and natural drag&drop connect/disconnet interface (mouse/trackpad) on the most basic level of interaction, adding text editing (keyboard) on a intermediate level of interaction (script editing), following most advanced level of interaction for experienced users (external devices communication, automated interaction, etc...)
+While the described characteristics could potentially offer an extremely high complex result (OF and OFXADDONS ecosystem is really huge, and the possibility of multiple scripting languages could lead every unexperienced user to confusion), the idea behind the interface design aim at avoiding the "high complex" situation, embodying a direct and natural drag&drop connect/disconnect interface (mouse/trackpad) on the most basic level of interaction, adding text editing (keyboard) on a intermediate level of interaction (script editing), following most advanced level of interaction for experienced users (external devices communication, automated interaction, etc...)
 
 
 #### KEYWORDS
@@ -60,7 +60,6 @@ mosaic, ofxVisualProgramming, openframeworks, linux, macOS, windows, creative-co
 
 In order to build ofxVisualProgramming, you'll need this addons:
 
-#### [ofxAudioAnalyzer](https://github.com/d3cod3/ofxAudioAnalyzer)
 
 #### [ofxAudioFile](https://github.com/npisanti/ofxAudioFile)
 
@@ -74,7 +73,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
-#### [ofxGLEditor](https://github.com/Akira-Hayasaka/ofxGLEditor)
+#### [ofxFft](https://github.com/kylemcdonald/ofxFft)
 
 #### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
 
@@ -82,7 +81,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
 
-#### [ofxLua](https://github.com/d3cod3/ofxLua)
+#### [ofxLua](https://github.com/danomatika/ofxLua)
 
 #### [ofxMidi](https://github.com/danomatika/ofxMidi)
 
@@ -92,11 +91,9 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPd](https://github.com/danomatika/ofxPd)
 
-#### [ofxPdExternals](https://github.com/d3cod3/ofxPdExternals)
+#### [ofxPDSP](https://github.com/d3cod3/ofxPDSP)
 
-#### [ofxPDSP](https://github.com/npisanti/ofxPDSP)
-
-#### [ofxPython](https://github.com/d3cod3/ofxPython)
+#### [ofxSyphon](https://github.com/d3cod3/ofxSyphon)
 
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
 
@@ -110,30 +107,28 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 # INSTALLING
 
-Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together all the others addons listed:
+Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together with all the others addons listed:
 
 ```bash
 cd <your_openframeworks_release_folder>/addons
 
-git clone https://github.com/d3cod3/ofxAudioAnalyzer
 git clone https://github.com/npisanti/ofxAudioFile
 git clone https://github.com/d3cod3/ofxBTrack
 git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
-git clone https://github.com/Akira-Hayasaka/ofxGLEditor
+git clone https://github.com/kylemcdonald/ofxFft
 git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
-git clone --branch=of-0.10.0 https://github.com/d3cod3/ofxLua
+git clone https://github.com/danomatika/ofxLua
 git clone https://github.com/danomatika/ofxMidi
 git clone https://github.com/d3cod3/ofxMtlMapping2D
 git clone https://github.com/d3cod3/ofxNDI
-git clone https://github.com/d3cod3/ofxPython
 git clone https://github.com/danomatika/ofxPd
-git clone https://github.com/d3cod3/ofxPdExternals
-git clone https://github.com/npisanti/ofxPDSP
+git clone https://github.com/d3cod3/ofxPDSP
+git clone https://github.com/d3cod3/ofxSyphon
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/d3cod3/ofxWarp
 git clone https://github.com/d3cod3/ofxVisualProgramming
@@ -353,9 +348,13 @@ image loader | X |
 kinect grabber | X |
 pixels to texture | X |
 texture crop | X |
+texture information | X |
+texture mixer | X |
 texture to pixels | X |
 texture transform | X |
 to grayscale texture | X |
+syphon sender | X |
+syphon receiver | X |
 video exporter | X |
 video feedback | X |
 video gate | X |
@@ -380,21 +379,17 @@ All contributions are made under the [MIT License](https://opensource.org/licens
 
 # CREDITS
 
-ofxAudioAnalyzer original addon by [Leonardo Zimmerman](https://github.com/leozimmerman)
-
 ofxAudioFile, ofxPDSP original addons by [Nicola Pisanti](https://github.com/npisanti)
 
 ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 
 ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
 
-ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
+ofxCv, ofxFft original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
-
-ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
 ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
 
@@ -408,7 +403,7 @@ ofxMtlMapping2D original addon by [morethanlogic](https://github.com/morethanlog
 
 ofxNDI original addon by [Thomas Geissl](https://github.com/thomasgeissl)
 
-ofxPython original addon by [Carles F. Julià](https://github.com/chaosct)
+ofxSyphon original addon by [Anthony Stellato](https://github.com/astellato)
 
 ofxTimeline original addon by [James George and YCAM Interlab](https://github.com/YCAMInterlab/ofxTimeline)
 

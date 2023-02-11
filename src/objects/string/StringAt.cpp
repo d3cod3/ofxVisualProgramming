@@ -69,7 +69,7 @@ void StringAt::newObject(){
 
 //--------------------------------------------------------------
 void StringAt::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

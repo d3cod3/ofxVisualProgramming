@@ -93,7 +93,7 @@ void OpticalFlow::newObject(){
 
 //--------------------------------------------------------------
 void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

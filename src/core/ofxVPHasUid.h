@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include <iostream>
+#include <algorithm>
+#include <ctype.h>
 #include "ofLog.h"
 
 class ofxVPHasUID {

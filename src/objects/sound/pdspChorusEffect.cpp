@@ -85,6 +85,8 @@ void pdspChorusEffect::newObject(){
 
 //--------------------------------------------------------------
 void pdspChorusEffect::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -183,6 +185,8 @@ void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             delay_ctrl.set(delay);
             this->setCustomVar(delay,"DELAY");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

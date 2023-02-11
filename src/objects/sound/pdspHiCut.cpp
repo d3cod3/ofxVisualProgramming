@@ -79,6 +79,8 @@ void pdspHiCut::newObject(){
 
 //--------------------------------------------------------------
 void pdspHiCut::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
     freqINFO->load("images/freq_graph.png");

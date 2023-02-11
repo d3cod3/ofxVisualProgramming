@@ -84,7 +84,7 @@ void MidiPad::newObject(){
 
 //--------------------------------------------------------------
 void MidiPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

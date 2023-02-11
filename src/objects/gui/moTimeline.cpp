@@ -113,7 +113,11 @@ void moTimeline::customReset(){
 void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     ofGLFWWindowSettings settings;
-    settings.setGLVersion(4,1);
+#if defined(OFXVP_GL_VERSION_MAJOR) && defined(OFXVP_GL_VERSION_MINOR)
+    settings.setGLVersion(OFXVP_GL_VERSION_MAJOR,OFXVP_GL_VERSION_MINOR);
+#else
+    settings.setGLVersion(3,2);
+#endif
     settings.shareContextWith = mainWindow;
     settings.decorated = true;
     settings.resizable = true;
@@ -226,7 +230,7 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     // pass timeline data to outlets (if any)
-    for(int i=0;i<actualTracks->size();i++){
+    for(int i=0;i<static_cast<int>(actualTracks->size());i++){
         if(this->getOutletType(i) == VP_LINK_NUMERIC){
             if(actualTracks->at(i).at(2) == 'S' || (actualTracks->at(i).at(0) == '_' && actualTracks->at(i).at(3) == 'S')){ // SWITCHES
                 ofxTLSwitches* tempMT = (ofxTLSwitches*)timeline->getTrack(actualTracks->at(i));
@@ -273,6 +277,8 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void moTimeline::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(glRenderer);
+
     localFont = font;
 }
 
@@ -453,12 +459,12 @@ void moTimeline::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moTimeline::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(window->getGLFWWindow() != nullptr){
         window->setWindowShouldClose();
     }
-    if(removeFileFromData){
-        removeFile(filepath);
-    }
+
 }
 
 //--------------------------------------------------------------
@@ -497,7 +503,7 @@ string moTimeline::getLoadingTimelineName(string path){
     ofDirectory dir(temppath);
     if(dir.isDirectory()){
         dir.listDir();
-        for(int i = 0; i < dir.size(); i++){
+        for(int i = 0; i < static_cast<int>(dir.size()); i++){
             size_t found = dir.getPath(i).find_last_of("/\\");
             string fileStr = dir.getPath(i).substr(found+1);
             size_t found2 = fileStr.find_first_of("_");
@@ -520,7 +526,7 @@ void moTimeline::autoAddTracks(string path){
     ofDirectory dir(temppath);
     if(dir.isDirectory()){
         dir.listDir();
-        for(int i = 0; i < dir.size(); i++){
+        for(int i = 0; i < static_cast<int>(dir.size()); i++){
             size_t found = dir.getPath(i).find_last_of("/\\");
             string fileStr = dir.getPath(i).substr(found+1);
             size_t found2 = fileStr.find_first_of("_");
@@ -623,7 +629,7 @@ void moTimeline::loadTimelineData(string folder){
     timeline->clear();
 
     vector<ofxTLTrack*> tempTracks = timeline->getPage("Page One")->getTracks();
-    for(int i=0;i<tempTracks.size();i++){
+    for(int i=0;i<static_cast<int>(tempTracks.size());i++){
         timeline->removeTrack(tempTracks.at(i));
     }
 
@@ -707,7 +713,7 @@ void moTimeline::saveOutletConfig(){
                                 XML.setValue("type",this->outletsType.at(j));
 
                                 // re-add previous links
-                                for(int z=0;z<tempLinks.size();z++){
+                                for(int z=0;z<static_cast<int>(tempLinks.size());z++){
                                     if(static_cast<int>(floor(tempLinks.at(z).x)) == j){
                                         int newTo = XML.addTag("to");
                                         if(XML.pushTag("to", newTo)){
@@ -740,10 +746,12 @@ void moTimeline::resetOutlets(){
 
     this->outPut.clear();
     this->outletsType.clear();
+    this->outletsIDs.clear();
+    this->outletsWirelessSend.clear();
 
     this->numOutlets = tempTracks.size();
 
-    for( int i = 0; i < tempTracks.size(); i++){
+    for( int i = 0; i < static_cast<int>(tempTracks.size()); i++){
         if(tempTracks.at(i)->getTrackType() == "Colors"){
             _outletParams[i] = new vector<float>();
             static_cast<vector<float> *>(_outletParams[i])->assign(3,0.0f);
@@ -791,6 +799,8 @@ void moTimeline::removeTrack(string &trackName){
 
 //--------------------------------------------------------------
 void moTimeline::drawInWindow(ofEventArgs &e){
+    unusedArgs(e);
+
     ofBackground(20);
     ofPushStyle();
     ofSetColor(255);

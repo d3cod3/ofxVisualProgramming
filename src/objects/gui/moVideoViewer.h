@@ -52,6 +52,8 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    ofImage         *kuro;
+
     float           posX, posY, drawW, drawH;
 
     float           prevW, prevH;

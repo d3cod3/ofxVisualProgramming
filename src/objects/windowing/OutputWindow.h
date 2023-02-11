@@ -38,10 +38,6 @@
 
 #include "ImGuiFileBrowser.h"
 
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-#include "ofxPython.h"
-#endif
-
 #include "ofxWarp.h"
 
 class OutputWindow : public PatchObject {

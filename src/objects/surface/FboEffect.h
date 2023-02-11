@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2022 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,13 +36,11 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
-
-class PowerExtractor : public PatchObject {
+class FboEffect : public PatchObject {
 
 public:
 
-    PowerExtractor();
+    FboEffect();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -51,16 +49,23 @@ public:
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            drawObjectNodeConfig() override;
-
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    int             bufferSize;
-    int             spectrumSize;
+    void            initResolution();
+    void            drawFBOEffect();
 
-    int             arrayPosition;
+    ofImage         *kuro;
 
-    bool            isNewConnection;
-    bool            isConnectionRight;
+    float           posX, posY, drawW, drawH;
+    float           scaledObjW, scaledObjH;
+    float           objOriginX, objOriginY;
+    float           canvasZoom;
+    float           prevW, prevH;
+
+    int             fboW, fboH;
+
+    bool            loaded;
+
 
 private:
 

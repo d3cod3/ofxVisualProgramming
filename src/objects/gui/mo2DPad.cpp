@@ -74,7 +74,7 @@ void mo2DPad::newObject(){
 
 //--------------------------------------------------------------
 void mo2DPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

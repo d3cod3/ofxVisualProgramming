@@ -75,6 +75,8 @@ void SignalTrigger::newObject(){
 
 //--------------------------------------------------------------
 void SignalTrigger::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
     pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };

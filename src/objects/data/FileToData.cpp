@@ -65,6 +65,7 @@ void FileToData::newObject(){
 
 //--------------------------------------------------------------
 void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 

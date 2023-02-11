@@ -108,6 +108,8 @@ void Spigot::newObject(){
 
 //--------------------------------------------------------------
 void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     empty->assign(1,0);
 
     // load kuro
@@ -125,8 +127,9 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
     
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
 
         for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
             if(s<5){
@@ -150,7 +153,7 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
         }else{
             *static_cast<string *>(_outletParams[1]) = "empty";
         }
-        if(isOpen[2]){
+        if(isOpen[2] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
             *static_cast<vector<float> *>(_outletParams[2]) = *static_cast<vector<float> *>(_inletParams[3]);
         }else{
             *static_cast<vector<float> *>(_outletParams[2]) = *empty;
@@ -178,6 +181,8 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 
 //--------------------------------------------------------------
 void Spigot::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -252,17 +257,21 @@ void Spigot::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Spigot::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     if(isOpen[4]){
-        if(this->inletsConnected[5]){
+        if(this->inletsConnected[5] && !static_cast<ofSoundBuffer *>(_inletParams[5])->getBuffer().empty()){
             *static_cast<ofSoundBuffer *>(_outletParams[4]) = *static_cast<ofSoundBuffer *>(_inletParams[5]);
+        }else{
+            static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
         }
     }else{
-        *static_cast<ofSoundBuffer *>(_outletParams[4]) *= 0.0f;
+        static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
     }
 }
 

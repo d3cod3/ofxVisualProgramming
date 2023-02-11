@@ -68,7 +68,9 @@ void moMessage::newObject(){
 
 //--------------------------------------------------------------
 void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
+    loadMessageSetting();
 }
 
 //--------------------------------------------------------------
@@ -119,7 +121,9 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (40*scaleFactor))); // Padding top
         ImGui::PushItemWidth(-24*scaleFactor);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, VHS_DGRAY);
-        ImGui::InputText("##source", &actualMessage);
+        if(ImGui::InputText("##source", &actualMessage)){
+            saveMessageSetting();
+        }
         ImGui::PopStyleColor(1);
         ImGui::PopItemWidth();
         ImGui::SameLine(); ImGuiEx::HelpMarker("Always check receiving objects reference for UPPERCASE/LOWERCASE messages.");
@@ -146,6 +150,41 @@ void moMessage::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void moMessage::removeObjectContent(bool removeFileFromData){
     
+}
+
+//--------------------------------------------------------------
+void moMessage::loadMessageSetting(){
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        int totalObjects = XML.getNumTags("object");
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    actualMessage = XML.getValue("text","none");
+                }
+                XML.popTag();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void moMessage::saveMessageSetting(){
+    ofxXmlSettings XML;
+
+    if (XML.loadFile(patchFile)){
+        int totalObjects = XML.getNumTags("object");
+        for(int i=0;i<totalObjects;i++){
+            if(XML.pushTag("object", i)){
+                if(XML.getValue("id", -1) == this->nId){
+                    XML.setValue("text",actualMessage);
+                }
+                XML.popTag();
+            }
+        }
+        XML.saveFile();
+    }
 }
 
 

@@ -83,6 +83,7 @@ void moSonogram::newObject(){
 
 //--------------------------------------------------------------
 void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     this->width     *= scaleFactor;
     this->height    *= scaleFactor;
@@ -100,7 +101,9 @@ void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[0]){
+    unusedArgs(patchObjects);
+
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
             resetTime = ofGetElapsedTimeMillis();
             if(timePosition >= static_cast<ofTexture *>(_outletParams[0])->getWidth()){
@@ -126,6 +129,7 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void moSonogram::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     // background
     if(scaledObjW*canvasZoom > 90.0f){
@@ -133,7 +137,7 @@ void moSonogram::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRend
         ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
     }
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         sonogram->begin();
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
@@ -220,7 +224,7 @@ void moSonogram::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moSonogram::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

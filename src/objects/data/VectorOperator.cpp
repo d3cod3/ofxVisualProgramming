@@ -69,6 +69,8 @@ void VectorOperator::newObject(){
 
 //--------------------------------------------------------------
 void VectorOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     operators_string.push_back("+");
     operators_string.push_back("-");
     operators_string.push_back("*");
@@ -77,6 +79,7 @@ void VectorOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void VectorOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(!loaded){
         loaded = true;
@@ -89,8 +92,8 @@ void VectorOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     }
 
     static_cast<vector<float> *>(_outletParams[0])->clear();
-    if(this->inletsConnected[0]){
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+        for(size_t s=0;s<static_cast<vector<float> *>(_inletParams[0])->size();s++){
             if(_operator == Vec_Operator_ADD){
                 static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)+number);
             }else if(_operator == Vec_Operator_SUBTRACT){
@@ -106,6 +109,8 @@ void VectorOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void VectorOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -137,7 +142,7 @@ void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::PushItemWidth(-50*scaleFactor);
         if(ImGui::BeginCombo("operator", operators_string.at(_operator).c_str() )){
-            for(int i=0; i < operators_string.size(); ++i){
+            for(int i=0; i < static_cast<int>(operators_string.size()); ++i){
                 bool is_selected = (_operator == i );
                 if (ImGui::Selectable(operators_string.at(i).c_str(), is_selected)){
                     _operator = i;
@@ -170,7 +175,7 @@ void VectorOperator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VectorOperator::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( VectorOperator, "vector operator", OFXVP_OBJECT_CAT_DATA)

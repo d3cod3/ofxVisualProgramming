@@ -76,7 +76,7 @@ void Clamp::newObject(){
 
 //--------------------------------------------------------------
 void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
@@ -139,6 +139,8 @@ void Clamp::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(ImGui::DragFloat("Max",&max,0.01f)){
             this->setCustomVar(static_cast<float>(max),"MAX");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

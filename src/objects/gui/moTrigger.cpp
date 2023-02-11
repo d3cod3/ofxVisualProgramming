@@ -50,6 +50,8 @@ moTrigger::moTrigger() : PatchObject("trigger"){
 
     trigger = false;
 
+    loaded              = false;
+
 }
 
 //--------------------------------------------------------------
@@ -58,10 +60,14 @@ void moTrigger::newObject(){
 
     this->addInlet(VP_LINK_NUMERIC,"trigger");
     this->addOutlet(VP_LINK_NUMERIC,"trigger");
+
+    this->setCustomVar(static_cast<float>(trigger),"VALUE");
 }
 
 //--------------------------------------------------------------
 void moTrigger::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
     releaseColor = { 0.f, 0.f, 0.f, 0.f };
 
@@ -70,6 +76,7 @@ void moTrigger::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
     
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0f){
@@ -81,10 +88,25 @@ void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         }
     }
     *(float *)&_outletParams[0] = static_cast<float>(trigger);
+
+    if(!loaded){
+        loaded = true;
+
+        trigger = static_cast<bool>(this->getCustomVar("VALUE"));
+        if(trigger){
+            currentColor = pressColor;
+        }else{
+            currentColor = releaseColor;
+        }
+    }
+
+    this->setCustomVar(static_cast<float>(trigger),"VALUE");
 }
 
 //--------------------------------------------------------------
 void moTrigger::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -117,6 +139,7 @@ void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if (state == SmartButtonState_Released){
             trigger = !trigger;
+
             if(trigger){
                 currentColor = pressColor;
             }else{
@@ -137,7 +160,7 @@ void moTrigger::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moTrigger::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 

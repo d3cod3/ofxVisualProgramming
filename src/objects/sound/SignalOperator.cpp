@@ -72,6 +72,7 @@ void SignalOperator::newObject(){
 
 //--------------------------------------------------------------
 void SignalOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     loadSettings();
 
@@ -83,6 +84,7 @@ void SignalOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void SignalOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(!loaded){
         loaded = true;
@@ -93,6 +95,8 @@ void SignalOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void SignalOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -124,7 +128,7 @@ void SignalOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::PushItemWidth(-50*scaleFactor);
         if(ImGui::BeginCombo("operator", operators_string.at(_operator).c_str() )){
-            for(int i=0; i < operators_string.size(); ++i){
+            for(int i=0; i < static_cast<int>(operators_string.size()); ++i){
                 bool is_selected = (_operator == i );
                 if (ImGui::Selectable(operators_string.at(i).c_str(), is_selected)){
                     _operator = i;
@@ -149,12 +153,14 @@ void SignalOperator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void SignalOperator::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void SignalOperator::audioOutObject(ofSoundBuffer &outputBuffer){
-    if(this->inletsConnected[0] && this->inletsConnected[1] && monoBuffer.getNumFrames() == static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames() && monoBuffer.getNumFrames() == static_cast<ofSoundBuffer *>(_inletParams[1])->getNumFrames()){
+    unusedArgs(outputBuffer);
+
+    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty() && this->inletsConnected[1] && !static_cast<ofSoundBuffer *>(_inletParams[1])->getBuffer().empty() && monoBuffer.getNumFrames() == static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames() && monoBuffer.getNumFrames() == static_cast<ofSoundBuffer *>(_inletParams[1])->getNumFrames()){
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
             if(_operator == Sig_Operator_ADD){
                 monoBuffer.getSample(i,0) = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i, 0) + static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0);
@@ -175,7 +181,7 @@ void SignalOperator::audioOutObject(ofSoundBuffer &outputBuffer){
 
             lastBuffer = monoBuffer;
         }
-    }else if(this->inletsConnected[0] && !this->inletsConnected[1]){
+    }else if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty() && !this->inletsConnected[1]){
         lastBuffer= *static_cast<ofSoundBuffer *>(_inletParams[0]);
     }else{
         lastBuffer = monoBuffer * 0.0f;

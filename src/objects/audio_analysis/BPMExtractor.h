@@ -36,8 +36,6 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
-
 class BPMExtractor : public PatchObject {
 
 public:

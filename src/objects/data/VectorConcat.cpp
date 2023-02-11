@@ -84,14 +84,16 @@ void VectorConcat::newObject(){
 
 //--------------------------------------------------------------
 void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
 void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
     static_cast<vector<float> *>(_outletParams[0])->clear();
     for(int i=0;i<this->numInlets;i++){
-        if(this->inletsConnected[i]){
+        if(this->inletsConnected[i] && !static_cast<vector<float> *>(_inletParams[i])->empty()){
             for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
                 static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[i])->at(s));
             }
@@ -115,6 +117,8 @@ void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void VectorConcat::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -200,7 +204,7 @@ void VectorConcat::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VectorConcat::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
@@ -226,14 +230,16 @@ void VectorConcat::resetInletsSettings(){
 
     this->numInlets = dataInlets;
 
-    for(size_t i=0;i<dataInlets;i++){
+    for(int i=0;i<dataInlets;i++){
         _inletParams[i] = new vector<float>();
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
-    for(size_t i=0;i<dataInlets;i++){
+    for(int i=0;i<dataInlets;i++){
         this->addInlet(VP_LINK_ARRAY,"v"+ofToString(i+1));
     }
 

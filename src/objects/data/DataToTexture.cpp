@@ -80,12 +80,14 @@ void DataToTexture::newObject(){
 
 //--------------------------------------------------------------
 void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     pix->allocate(320,240,OF_PIXELS_RGB);
 }
 
 //--------------------------------------------------------------
 void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(needReset){
         needReset = false;
@@ -93,8 +95,8 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        if(this->inletsConnected[0] || this->inletsConnected[1] || this->inletsConnected[2]){
-            for(int s=0;s<pix->size();s++){
+        if((this->inletsConnected[0] || this->inletsConnected[1] || this->inletsConnected[2]) && (!static_cast<vector<float> *>(_inletParams[0])->empty() || !static_cast<vector<float> *>(_inletParams[1])->empty() || !static_cast<vector<float> *>(_inletParams[2])->empty())){
+            for(size_t s=0;s<pix->size();s++){
                 int posR = 0;
                 int sampleR = 0;
                 int posG = 0;
@@ -102,23 +104,23 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
                 int posB = 0;
                 int sampleB = 0;
                 // RED
-                if(this->inletsConnected[0] && static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) > 0){
+                if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
                     posR = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()))));
                     sampleR = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(posR), -0.5f, 0.5f, 0, 255)));
                 }
                 // GREEN
-                if(this->inletsConnected[1] && static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()) > 0){
+                if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
                     posG = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()))));
                     sampleG = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[1])->at(posG), -0.5f, 0.5f, 0, 255)));
                 }
                 // BLUE
-                if(this->inletsConnected[2] && static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()) > 0){
+                if(this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()){
                     posB = static_cast<int>(floor(ofMap(s,0,pix->size(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()))));
                     sampleB = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[2])->at(posB), -0.5f, 0.5f, 0, 255)));
                 }
                 ofColor c(sampleR,sampleG,sampleB);
-                int x = s % pix->getWidth();
-                int y = static_cast<int>(ceil(s / pix->getWidth()));
+                size_t x = s % pix->getWidth();
+                size_t y = static_cast<size_t>(ceil(s / pix->getWidth()));
                 if(x >= 0 && x <= pix->getWidth() && y >= 0 && y <= pix->getHeight()){
                     pix->setColor(x,y,c);
                 }
@@ -145,7 +147,9 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void DataToTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    if(this->inletsConnected[0] || this->inletsConnected[1] || this->inletsConnected[2]){
+    unusedArgs(font,glRenderer);
+
+    if((this->inletsConnected[0] || this->inletsConnected[1] || this->inletsConnected[2]) && (!static_cast<vector<float> *>(_inletParams[0])->empty() || !static_cast<vector<float> *>(_inletParams[1])->empty() || !static_cast<vector<float> *>(_inletParams[2])->empty())){
         // draw node texture preview with OF
         if(scaledObjW*canvasZoom > 90.0f){
             drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);

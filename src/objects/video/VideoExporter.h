@@ -80,6 +80,7 @@ public:
 
     bool                exportVideoFlag;
 
+
 protected:
 
     string                  recButtonLabel;

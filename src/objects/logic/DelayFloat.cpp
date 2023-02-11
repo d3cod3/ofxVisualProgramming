@@ -82,7 +82,7 @@ void DelayFloat::newObject(){
 
 //--------------------------------------------------------------
 void DelayFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

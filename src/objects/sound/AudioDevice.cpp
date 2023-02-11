@@ -58,6 +58,7 @@ AudioDevice::AudioDevice() : PatchObject("audio device"){
     posX = posY = drawW = drawH = 0.0f;
 
     this->setIsTextureObj(true);
+    this->setIsHardwareObj(true);
     
 }
 
@@ -68,6 +69,8 @@ void AudioDevice::newObject(){
 
 //--------------------------------------------------------------
 void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadDeviceInfo();
 
     bg->load("images/audioDevice_bg.jpg");
@@ -100,11 +103,13 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
+    unusedArgs(patchObjects);
 }
 
 //--------------------------------------------------------------
 void AudioDevice::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){
         drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
@@ -153,6 +158,8 @@ void AudioDevice::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioDevice::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
         OUT_CH[c].disconnectOut();
     }
@@ -179,15 +186,15 @@ void AudioDevice::audioInObject(ofSoundBuffer &inputBuffer){
             }
         }
     }
-
-
 }
 
 //--------------------------------------------------------------
 void AudioDevice::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     if(deviceLoaded && out_channels>0){
         for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
-            if(this->inletsConnected[c]){
+            if(this->inletsConnected[c] && !static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().empty()){
                 OUT_CH.at(c).copyInput(static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().data(),static_cast<ofSoundBuffer *>(_inletParams[c])->getNumFrames());
             }
         }
@@ -196,6 +203,16 @@ void AudioDevice::audioOutObject(ofSoundBuffer &outputBuffer){
 
 //--------------------------------------------------------------
 void AudioDevice::resetSystemObject(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
     ofxXmlSettings XML;
 
     deviceLoaded      = false;
@@ -231,7 +248,7 @@ void AudioDevice::resetSystemObject(){
             _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
-        for( int i = 0; i < this->pdspOut.size(); i++){
+        for( unsigned int i = 0; i < this->pdspOut.size(); i++){
             this->pdspOut[i].disconnectOut();
         }
         this->pdspOut.clear();
@@ -247,18 +264,34 @@ void AudioDevice::resetSystemObject(){
 
         this->inletsType.clear();
         this->inletsNames.clear();
+        this->inletsIDs.clear();
+        this->inletsWirelessReceive.clear();
 
         for( int i = 0; i < out_channels; i++){
             this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
         }
 
         this->outletsType.clear();
+        this->outletsIDs.clear();
+        this->outletsWirelessSend.clear();
         for( int i = 0; i < in_channels; i++){
             this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
         }
 
         this->inletsConnected.clear();
         this->initInletsState();
+
+        for(int i=0;i<this->numInlets;i++){
+            if(i<static_cast<int>(tempInletsConn.size())){
+                if(tempInletsConn.at(i)){
+                    this->inletsConnected.push_back(true);
+                }else{
+                    this->inletsConnected.push_back(false);
+                }
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }
 
         this->height      = OBJECT_HEIGHT;
 
@@ -288,7 +321,7 @@ void AudioDevice::resetSystemObject(){
                         XML.popTag();
                     }
                 }else{
-                    // remove links to the this object
+                    // remove links to this object if exceed new inlets number
                     if(XML.pushTag("outlets")){
                         int totalLinks = XML.getNumTags("link");
                         for(int l=0;l<totalLinks;l++){
@@ -297,7 +330,7 @@ void AudioDevice::resetSystemObject(){
                                 vector<bool> delLinks;
                                 for(int t=0;t<totalTo;t++){
                                     if(XML.pushTag("to",t)){
-                                        if(XML.getValue("id", -1) == this->nId){
+                                        if(XML.getValue("id", -1) == this->nId && XML.getValue("inlet", -1) > this->getNumInlets()-1){
                                             delLinks.push_back(true);
                                         }else{
                                             delLinks.push_back(false);
@@ -324,10 +357,22 @@ void AudioDevice::resetSystemObject(){
 
         deviceLoaded      = true;
     }
+
+    this->saveConfig(false);
 }
 
 //--------------------------------------------------------------
 void AudioDevice::loadDeviceInfo(){
+
+    vector<bool> tempInletsConn;
+    for(int i=0;i<this->numInlets;i++){
+        if(this->inletsConnected[i]){
+            tempInletsConn.push_back(true);
+        }else{
+            tempInletsConn.push_back(false);
+        }
+    }
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
@@ -371,7 +416,7 @@ void AudioDevice::loadDeviceInfo(){
             _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
         }
 
-        for( int i = 0; i < this->pdspOut.size(); i++){
+        for( int i = 0; i < (int)this->pdspOut.size(); i++){
             this->pdspOut[i].disconnectOut();
         }
         this->pdspOut.clear();
@@ -401,6 +446,18 @@ void AudioDevice::loadDeviceInfo(){
 
         this->inletsConnected.clear();
         this->initInletsState();
+
+        for(int i=0;i<this->numInlets;i++){
+            if(i<static_cast<int>(tempInletsConn.size())){
+                if(tempInletsConn.at(i)){
+                    this->inletsConnected.push_back(true);
+                }else{
+                    this->inletsConnected.push_back(false);
+                }
+            }else{
+                this->inletsConnected.push_back(false);
+            }
+        }
 
         this->height      = OBJECT_HEIGHT;
 

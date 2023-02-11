@@ -74,6 +74,7 @@ void MidiSender::newObject(){
 
 //--------------------------------------------------------------
 void MidiSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     midiOut.listOutPorts();
     midiDevicesList = midiOut.getOutPortList();

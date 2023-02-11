@@ -74,6 +74,7 @@ void VideoExporter::newObject(){
 
 //--------------------------------------------------------------
 void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 
@@ -91,6 +92,7 @@ void VideoExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         if(*(float *)&_inletParams[1] < 1.0){
@@ -102,7 +104,6 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
         if(!recorder.isRecording()){
-            recorder.setVideoCodec("hevc");
             recorder.setBitRate(20000);
             recorder.startCustomRecord();
             recButtonLabel = "STOP";
@@ -118,6 +119,8 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void VideoExporter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
     if(this->inletsConnected[0]){
@@ -265,7 +268,7 @@ void VideoExporter::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
     char tmp[256];
-    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
@@ -274,7 +277,6 @@ void VideoExporter::drawObjectNodeConfig(){
         }else{
             if(!recorder.isRecording()){
                 recorder.setBitRate(20000);
-                recorder.setVideoCodec("hevc");
                 recorder.startCustomRecord();
                 recButtonLabel = "STOP";
                 ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
@@ -300,7 +302,6 @@ void VideoExporter::drawObjectNodeConfig(){
             filepath += ".avi";
         }
         recorder.setOutputPath(filepath);
-        recorder.setVideoCodec("hevc");
         // prepare blank video file
         recorder.startCustomRecord();
         recorder.stop();
@@ -313,7 +314,6 @@ void VideoExporter::drawObjectNodeConfig(){
             filepath += ".mp4";
         }
         recorder.setOutputPath(filepath);
-        recorder.setVideoCodec("hevc");
         // prepare blank video file
         recorder.startCustomRecord();
         recorder.stop();
@@ -323,7 +323,7 @@ void VideoExporter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VideoExporter::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 

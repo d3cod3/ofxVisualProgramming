@@ -76,6 +76,7 @@ void ColorPalette::newObject(){
 
 //--------------------------------------------------------------
 void ColorPalette::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     generationOptions.push_back("Random");
     generationOptions.push_back("Mono Chromatic");
@@ -93,8 +94,9 @@ void ColorPalette::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void ColorPalette::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         if(static_cast<vector<float> *>(_inletParams[0])->size() == 1){
             baseColor.set(static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(0));
         }else if(static_cast<vector<float> *>(_inletParams[0])->size() == 3){
@@ -119,7 +121,7 @@ void ColorPalette::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     }
 
     static_cast<vector<float> *>(_outletParams[0])->clear();
-    for(int i=0;i<palette.size();i++){
+    for(size_t i=0;i<palette.size();i++){
         static_cast<vector<float> *>(_outletParams[0])->push_back(palette.at(i).r);
         static_cast<vector<float> *>(_outletParams[0])->push_back(palette.at(i).g);
         static_cast<vector<float> *>(_outletParams[0])->push_back(palette.at(i).b);
@@ -129,11 +131,13 @@ void ColorPalette::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void ColorPalette::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     if(scaledObjW*canvasZoom > 90.0f){
         ofSetColor(34,34,34);
         ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
 
-        for(int i=0;i<palette.size();i++){
+        for(size_t i=0;i<palette.size();i++){
             ofSetColor(palette.at(i));
             float tw = (scaledObjW - (IMGUI_EX_NODE_PINS_WIDTH_SMALL*this->scaleFactor/canvasZoom))/palette.size();
             float th = scaledObjH;
@@ -192,7 +196,7 @@ void ColorPalette::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     if(ImGui::BeginCombo("Palette Type", generationOptions.at(selectedGeneration).c_str() )){
-        for(int i=0; i < generationOptions.size(); ++i){
+        for(int i=0; i < static_cast<int>(generationOptions.size()); ++i){
             bool is_selected = (selectedGeneration == i );
             if (ImGui::Selectable(generationOptions.at(i).c_str(), is_selected)){
                 selectedGeneration = i;
@@ -206,7 +210,7 @@ void ColorPalette::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     if(ImGui::BeginCombo("Color Channel", channelOptions.at(selectedChannel).c_str() )){
-        for(int i=0; i < channelOptions.size(); ++i){
+        for(int i=0; i < static_cast<int>(channelOptions.size()); ++i){
             bool is_selected = (selectedChannel == i );
             if (ImGui::Selectable(channelOptions.at(i).c_str(), is_selected)){
                 selectedChannel = i;
@@ -256,7 +260,7 @@ void ColorPalette::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ColorPalette::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

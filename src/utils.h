@@ -46,6 +46,15 @@
 
 #include "imgui_node_canvas.h"
 
+// MACROS
+#if defined(TARGET_LINUX) || defined(TARGET_OSX)
+#define sprintf_s(buf, ...) snprintf((buf), sizeof(buf), __VA_ARGS__)
+#endif
+
+// this macro is used to silent unused variables warnings on virtual functions
+template <typename... Ts> void unusedArgs(const Ts&...) {}
+
+
 //--------------------------------------------------------------
 inline std::string random_string( size_t length ){
 
@@ -113,6 +122,21 @@ static inline float hardClip(float x){
     float x2 = fabsf(x - 1.0f);
 
     return 0.5f * (x1 - x2);
+}
+
+//--------------------------------------------------------------
+inline ofVec3f ofRandVec3f() {
+    return ofVec3f(ofRandomf(),ofRandomf(),ofRandomf()).normalize().scale(ofRandomf());
+}
+
+//--------------------------------------------------------------
+inline float fastSqrt(float x) {
+    float xhalf = 0.5f * x;
+    int i = *(int*)&x;            // store floating-point bits in integer
+    i = 0x5f3759df - (i >> 1);    // initial guess for Newton's method
+    x = *(float*)&i;              // convert new bits into float
+    x = x*(1.5f - xhalf*x*x);     // One round of Newton's method
+    return 1.0f / x;
 }
 
 //--------------------------------------------------------------

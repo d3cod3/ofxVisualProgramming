@@ -63,7 +63,7 @@ void VideoReceiver::newObject(){
 
 //--------------------------------------------------------------
 void VideoReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 
 }
 

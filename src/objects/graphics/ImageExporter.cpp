@@ -72,11 +72,14 @@ void ImageExporter::newObject(){
 
 //--------------------------------------------------------------
 void ImageExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     fileDialog.setIsRetina(this->isRetina);
 }
 
 //--------------------------------------------------------------
 void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(isImageSaved){
         isImageSaved = false;
@@ -101,9 +104,11 @@ void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void ImageExporter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
     // draw node texture preview with OF
-    if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         if(scaledObjW*canvasZoom > 90.0f){
             drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
@@ -207,7 +212,7 @@ void ImageExporter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void ImageExporter::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

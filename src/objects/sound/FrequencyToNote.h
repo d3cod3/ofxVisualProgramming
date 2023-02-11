@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2023 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,13 +36,15 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
+// english musical notation: C  C#  D  D#  E  F  F#  G   G#   A  A#  B
+// latin musical notation:	 DO DO# RE RE# MI FA FA# SOL SOL# LA LA# SI
+// indian musical notation:  SA SA# RE RE# GA MA MA# PA  PA#  DA DA# NI
 
-class RollOffExtractor : public PatchObject {
+class FrequencyToNote : public PatchObject {
 
 public:
 
-    RollOffExtractor();
+    FrequencyToNote();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -54,13 +56,11 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    int             bufferSize;
-    int             spectrumSize;
+    float           frequencyToPitch(float freq);
 
-    int             arrayPosition;
-
-    bool            isNewConnection;
-    bool            isConnectionRight;
+    float                   frequency;
+    int                     lastNote;
+    bool                    loaded;
 
 private:
 

@@ -87,6 +87,8 @@ void pdspLFO::newObject(){
 
 //--------------------------------------------------------------
 void pdspLFO::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -187,6 +189,8 @@ void pdspLFO::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             phase_ctrl.set(phase);
             this->setCustomVar(phase,"PHASE");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

@@ -47,11 +47,6 @@ PitchExtractor::PitchExtractor() : PatchObject("pitch extractor"){
 
     this->initInletsState();
 
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
-    spectrumSize = (bufferSize/2) + 1;
-
-    arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 2;
-
     isNewConnection   = false;
     isConnectionRight = false;
 }
@@ -67,13 +62,15 @@ void PitchExtractor::newObject(){
 
 //--------------------------------------------------------------
 void PitchExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
-            arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 2;
+            arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS;
             XML.popTag();
         }
     }

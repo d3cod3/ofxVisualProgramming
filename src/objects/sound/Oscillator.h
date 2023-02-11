@@ -100,7 +100,7 @@ public:
     float                   pulse_float;
     float                   noise_float;
 
-    float                   plot_data[1024];
+    float                   *plot_data;
     int                     bufferSize;
     int                     sampleRate;
 

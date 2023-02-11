@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2023 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,16 +36,15 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
-
-class DissonanceExtractor : public PatchObject {
+class vpSender : public PatchObject {
 
 public:
 
-    DissonanceExtractor();
+    vpSender();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
@@ -54,18 +53,29 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    int             bufferSize;
-    int             spectrumSize;
+    void            audioOutObject(ofSoundBuffer &outBuffer) override;
 
-    int             arrayPosition;
+    void            initWireless();
+    void            changeDataType(int type,bool init=true);
 
-    bool            isNewConnection;
-    bool            isConnectionRight;
+
+    vector<string>              dataTypes;
+    string                      varName;
+    string                      prevVarName;
+    bool                        isSendingON;
+    int                         wirelessPin;
+    int                         sendTypeIndex;
+    bool                        resetLinks;
+
+    vector<float>               *emptyVector;
+    ofImage                     *kuro;
+
+    bool                        loaded;
+
 
 private:
 
     OBJECT_FACTORY_PROPS
-
 };
 
 #endif

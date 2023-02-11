@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
-    this->numInlets  = 5;
+    this->numInlets  = 4;
     this->numOutlets = 2;
 
     _inletParams[0] = new string();  // control
@@ -46,10 +46,8 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
     *(float *)&_inletParams[1] = 0.0f;
     _inletParams[2] = new float();  // speed
     *(float *)&_inletParams[2] = 0.0f;
-    _inletParams[3] = new float();  // volume
+    _inletParams[3] = new float();  // trigger
     *(float *)&_inletParams[3] = 0.0f;
-    _inletParams[4] = new float();  // trigger
-    *(float *)&_inletParams[4] = 0.0f;
 
     _outletParams[0] = new ofTexture(); // output
     _outletParams[1] = new float();  // finish bang
@@ -65,7 +63,6 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
     nameLabelLoaded     = false;
 
     loop                = false;
-    volume              = 0.0f;
     speed               = 1.0f;
 
     posX = posY = drawW = drawH = 0.0f;
@@ -96,7 +93,6 @@ void VideoPlayer::newObject(){
     this->addInlet(VP_LINK_STRING,"control");
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
-    this->addInlet(VP_LINK_NUMERIC,"volume");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 
     this->addOutlet(VP_LINK_TEXTURE,"output");
@@ -113,6 +109,7 @@ void VideoPlayer::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 
@@ -199,15 +196,9 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
             speed = *(float *)&_inletParams[2];
             video->setSpeed(speed);
         }
-        // volume
-        if(this->inletsConnected[3]){
-            volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
-            video->setVolume(volume);
-        }
-
         // trigger
-        if(this->inletsConnected[4]){
-            if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f){
+        if(this->inletsConnected[3]){
+            if(ofClamp(*(float *)&_inletParams[3],0.0f,1.0f) == 1.0f){
                 video->firstFrame();
                 video->play();
             }
@@ -216,6 +207,8 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             if(video->isPlaying()){ // play
                video->update();
+
+               //ofLog(OF_LOG_NOTICE,"%s: duration = %f",this->getName().c_str(),video->getDuration());
 
                // preload first video frame into outlet texture
                if(preloadFirstFrame && video->getCurrentFrame() > 0){
@@ -324,6 +317,7 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
     }
 
+
 }
 
 //--------------------------------------------------------------
@@ -350,7 +344,7 @@ void VideoPlayer::drawObjectNodeConfig(){
     if (ImGui::IsItemHovered()){
         ImGui::BeginTooltip();
         ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-        ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg");
+        ImGui::TextUnformatted("Open a video file. Compatible extensions: .mov .mp4 .mpg .mpeg .avi");
         ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }
@@ -393,10 +387,6 @@ void VideoPlayer::drawObjectNodeConfig(){
     if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
         video->setSpeed(speed);
     }
-    ImGui::PushItemWidth(130*this->scaleFactor);
-    if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
-        video->setVolume(volume);
-    }
     ImGui::Spacing();
     ImGui::Spacing();
     if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
@@ -408,11 +398,10 @@ void VideoPlayer::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
-
+            "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
+            "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
     // file dialog
-    if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".mov,.mp4,.mpg,.mpeg,.avi", "", scaleFactor)){
+    if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, "*.*", "", scaleFactor)){
         ofFile file (fileDialog.selected_path);
         if (file.exists()){
             filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
@@ -420,6 +409,8 @@ void VideoPlayer::drawObjectNodeConfig(){
             needToLoadVideo = true;
         }
     }
+
+
 }
 
 //--------------------------------------------------------------

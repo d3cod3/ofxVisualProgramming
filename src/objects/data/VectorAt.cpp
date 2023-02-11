@@ -68,11 +68,12 @@ void VectorAt::newObject(){
 
 //--------------------------------------------------------------
 void VectorAt::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
 void VectorAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(!loaded){
         loaded = true;
@@ -84,8 +85,8 @@ void VectorAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     }
 
     if(this->inletsConnected[0] && _inletParams[0]){
-        if(static_cast<vector<float> *>(_inletParams[0])->size() > 0){
-            if(vectorAt < static_cast<vector<float> *>(_inletParams[0])->size() && vectorAt >= 0){
+        if(!static_cast<vector<float> *>(_inletParams[0])->empty()){
+            if(vectorAt < static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) && vectorAt >= 0){
                 *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(vectorAt);
             }else{
                 *(float *)&_outletParams[0] = 0.0f;
@@ -102,6 +103,8 @@ void VectorAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
 //--------------------------------------------------------------
 void VectorAt::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -156,7 +159,7 @@ void VectorAt::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VectorAt::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 

@@ -87,6 +87,8 @@ void pdspDelay::newObject(){
 
 //--------------------------------------------------------------
 void pdspDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -179,6 +181,8 @@ void pdspDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FEEDBACK", &feedback, 0.0f, 1.0f, 100.0f)){
             this->setCustomVar(feedback,"FEEDBACK");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

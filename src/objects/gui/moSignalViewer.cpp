@@ -73,17 +73,23 @@ void moSignalViewer::newObject(){
 
 //--------------------------------------------------------------
 void moSignalViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
     this->pdspIn[0] >> this->pdspOut[0];
     this->pdspIn[0] >> this->pdspOut[1];
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
     if(this->inletsConnected[0]){
         *(float *)&_outletParams[3] = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
     }else{
@@ -93,7 +99,7 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void moSignalViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -121,7 +127,7 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         // draw signal RMS amplitude
         _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
@@ -140,6 +146,8 @@ void moSignalViewer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moSignalViewer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -157,6 +165,7 @@ void moSignalViewer::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
+            plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
                 static_cast<vector<float> *>(_outletParams[2])->push_back(0.0f);
                 plot_data[i] = 0.0f;
@@ -169,11 +178,13 @@ void moSignalViewer::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void moSignalViewer::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
+    unusedArgs(outBuffer);
+
     if(this->inletsConnected[0]){
         *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
@@ -186,8 +197,8 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
             static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
         }
     }else{
-        *static_cast<ofSoundBuffer *>(_outletParams[0]) *= 0.0f;
-        *static_cast<ofSoundBuffer *>(_outletParams[1]) *= 0.0f;
+        static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+        static_cast<ofSoundBuffer *>(_outletParams[1])->set(0.0f);
     }
 
 }

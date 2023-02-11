@@ -117,6 +117,7 @@ void LuaScript::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 
@@ -124,16 +125,6 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // load kuro
     kuro->load("images/kuro.jpg");
-
-    // init live coding editor
-    ofxEditor::loadFont(ofToDataPath(LIVECODING_FONT), 32);
-    liveEditorSyntax.loadFile(ofToDataPath(LUA_SYNTAX));
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.getSettings().addSyntax(&liveEditorSyntax);
-    liveEditorColors.loadFile(ofToDataPath(LIVECODING_COLORS));
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setColorScheme(&liveEditorColors);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setLineNumbers(true);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.setAutoFocus(true);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
 
     // init lua
     static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
@@ -144,6 +135,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(needToLoadScript  && filepath != "none"){
         needToLoadScript = false;
@@ -188,13 +180,14 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     ///////////////////////////////////////////
     // LUA UPDATE
     if(scriptLoaded && !isError){
 
         // receive external data
-        if(this->inletsConnected[0]){
+        if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
             for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
                 lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_updateMosaicData");
                 lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,i+1);
@@ -253,9 +246,6 @@ void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
         static_cast<LiveCoding *>(_outletParams[1])->lua.scriptDraw();
     }else{
         kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
-    }
-    if(!static_cast<LiveCoding *>(_outletParams[1])->hide){
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.draw();
     }
     ofPopMatrix();
     ofPopStyle();
@@ -330,12 +320,6 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    /*string newFileName = "luaScript_"+ofGetTimestampString("%y%m%d")+".lua";
-    if(ImGuiEx::getFileDialog(fileDialog, saveLuaScriptFlag, "Save new Lua script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".lua", newFileName, scaleFactor)){
-        lastLuaScript = fileDialog.selected_path;
-        luaScriptSaved = true;
-    }*/
-
     if(ImGuiEx::getFileDialog(fileDialog, loadLuaScriptFlag, "Select a lua script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".lua", "", scaleFactor)){
         lastLuaScript = fileDialog.selected_path;
         luaScriptLoaded = true;
@@ -429,6 +413,8 @@ void LuaScript::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void LuaScript::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     ///////////////////////////////////////////
     // LUA EXIT
     static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
@@ -454,8 +440,6 @@ void LuaScript::initResolution(){
 
     _outletParams[0] = new ofTexture();
     static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
 
 }
 
@@ -493,8 +477,6 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 
         _outletParams[0] = new ofTexture();
         static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.resize(output_width,output_height);
 
         tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
@@ -555,8 +537,6 @@ void LuaScript::openScript(string scriptFile){
 
             // then import the main script file
             filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-            static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
             reloadScript();
         }
     }
@@ -565,16 +545,16 @@ void LuaScript::openScript(string scriptFile){
 //--------------------------------------------------------------
 void LuaScript::newScript(string scriptFile){
     ofFile fileToRead(ofToDataPath("scripts/empty.lua"));
+
     ofFile newLuaFile (scriptFile);
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newLuaFile.getAbsolutePath(), ofToUpper(newLuaFile.getExtension()), "LUA"),true,true);
     filepath = scriptFile;
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-    static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     reloadScript();
 }
 
 //--------------------------------------------------------------
 void LuaScript::loadScript(string scriptFile){
+    //unusedArgs(scriptFile);
 
     currentScriptFile.open(filepath);
 
@@ -618,6 +598,7 @@ void LuaScript::loadScript(string scriptFile){
 
     // load lua Mosaic lib
     tempstring = ofBufferFromFile("livecoding/lua_mosaicLib.lua").getText();
+
     static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
 
     // finally load the script
@@ -632,10 +613,6 @@ void LuaScript::loadScript(string scriptFile){
         watcher.addPath(filepath);
         ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
         this->saveConfig(false);
-    }
-    if(static_cast<LiveCoding *>(_outletParams[1])->hide){
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.openFile(filepath);
-        static_cast<LiveCoding *>(_outletParams[1])->liveEditor.reset();
     }
     ///////////////////////////////////////////
 

@@ -72,7 +72,7 @@ void SineGenerator::newObject(){
 
 //--------------------------------------------------------------
 void SineGenerator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

@@ -90,18 +90,20 @@ void VectorGate::newObject(){
 
 //--------------------------------------------------------------
 void VectorGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
 void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
     static_cast<vector<float> *>(_outletParams[0])->clear();
 
     if(this->inletsConnected[0]){
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
     }
 
-    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
+    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet] && !static_cast<vector<float> *>(_inletParams[openInlet])->empty()){
         for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[openInlet])->size());s++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[openInlet])->at(s));
         }
@@ -126,6 +128,8 @@ void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void VectorGate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -210,7 +214,7 @@ void VectorGate::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VectorGate::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
@@ -239,16 +243,18 @@ void VectorGate::resetInletsSettings(){
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new vector<float>();
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
     this->addInlet(VP_LINK_NUMERIC,"open");
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         this->addInlet(VP_LINK_ARRAY,"v"+ofToString(i));
     }
 

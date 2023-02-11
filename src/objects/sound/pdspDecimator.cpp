@@ -72,6 +72,8 @@ void pdspDecimator::newObject(){
 
 //--------------------------------------------------------------
 void pdspDecimator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 

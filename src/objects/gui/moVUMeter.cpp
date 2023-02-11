@@ -63,15 +63,16 @@ void moVUMeter::newObject(){
 
 //--------------------------------------------------------------
 void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
 void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
-    RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
+        RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
         *(float *)&_outletParams[0] = RMS;
     }else{
         *(float *)&_outletParams[0] = 0.0f;
@@ -80,7 +81,7 @@ void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void moVUMeter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -121,7 +122,7 @@ void moVUMeter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moVUMeter::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI)

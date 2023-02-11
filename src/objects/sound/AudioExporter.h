@@ -59,13 +59,13 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            audioInObject(ofSoundBuffer &inputBuffer) override;
+    void            audioOutObject(ofSoundBuffer &inputBuffer) override;
 
     void            loadAudioSettings();
 
 
     ofxFFmpegRecorder   recorder;
-    float               plot_data[1024];
+    float               *plot_data;
 
     imgui_addons::ImGuiFileBrowser  fileDialog;
 

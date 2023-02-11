@@ -47,11 +47,6 @@ RMSExtractor::RMSExtractor() : PatchObject("rms extractor"){
 
     this->initInletsState();
 
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
-    spectrumSize = (bufferSize/2) + 1;
-
-    arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
-
     isNewConnection   = false;
     isConnectionRight = false;
 }
@@ -67,13 +62,15 @@ void RMSExtractor::newObject(){
 
 //--------------------------------------------------------------
 void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
-            arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM;
+            arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS - 1;
             XML.popTag();
         }
     }
@@ -113,6 +110,8 @@ void RMSExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void RMSExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -142,7 +141,7 @@ void RMSExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 100.f,IM_COL32(255,255,120,255), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }
@@ -157,7 +156,7 @@ void RMSExtractor::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void RMSExtractor::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)

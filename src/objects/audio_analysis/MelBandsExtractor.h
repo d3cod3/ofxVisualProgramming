@@ -37,8 +37,6 @@
 #include "PatchObject.h"
 #include "imgui_plot.h"
 
-#include "ofxAudioAnalyzer.h"
-
 class MelBandsExtractor : public PatchObject {
 
 public:

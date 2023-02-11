@@ -101,6 +101,8 @@ void pdspDucker::newObject(){
 
 //--------------------------------------------------------------
 void pdspDucker::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -241,6 +243,8 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "R. H.", &releaseHardness, 0.0f, 1.0f, 100.0f)){
             this->setCustomVar(releaseHardness,"RELEASE_CURVE");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

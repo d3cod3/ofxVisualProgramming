@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2021 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -30,78 +30,53 @@
 
 ==============================================================================*/
 
-#if defined(TARGET_WIN32)
-    // Unavailable on windows.
-#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
 #pragma once
 
 #include "PatchObject.h"
 
-#include "ofxPython.h"
-#include "PathWatcher.h"
-
-#include "ImGuiFileBrowser.h"
-#include "IconsFontAwesome5.h"
-
-
-class PythonScript : public PatchObject {
+class VideoMixer : public PatchObject {
 
 public:
 
-    PythonScript();
+    VideoMixer();
 
-    void            autoloadFile(string _fp) override;
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
     void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
     void            drawObjectNodeConfig() override;
 
     void            removeObjectContent(bool removeFileFromData=false) override;
-    
-    void            loadScript(string scriptFile);
-    void            clearScript();
-    void            reloadScript();
 
-    // Filepath watcher callback
-    void            pathChanged(const PathWatcher::Event &event);
+    void            initInlets();
+    void            resetInletsSettings();
 
-    ofxPython           python;
-    ofxPythonObject     klass;
-    ofxPythonObject     script;
-    ofxPythonObject     updatePython;
-    ofxPythonObject     updateMosaicList;
-    ofxPythonObject     updatePythonList;
-    ofxPythonObject     getPythonListSize;
+    ofImage         *kuro;
+    ofTextureData   texData;
+    ofTexture       *kuroTex;
 
-    PathWatcher         watcher;
-    ofFile              currentScriptFile;
-    bool                isNewObject;
+    ofFbo           *mixFbo;
+    vector<float>   alphas;
 
-    imgui_addons::ImGuiFileBrowser          fileDialog;
-    string                                  newScriptName;
+    int             canvasWidth, canvasHeight;
+    int             temp_width, temp_height;
 
-    ofImage             *pythonIcon;
-    float               posX, posY, drawW, drawH;
+    int             dataInlets;
+    bool            needReset;
+    bool            loaded;
 
-    float               scaledObjW, scaledObjH;
-    float               objOriginX, objOriginY;
-    float               canvasZoom;
+    float           posX, posY, drawW, drawH;
 
-    string              mosaicTableName;
-    string              pythonTableName;
-    string              tempstring;
+    float           scaledObjW, scaledObjH;
+    float           objOriginX, objOriginY;
+    float           canvasZoom;
 
-    string              lastPythonScript;
-    bool                loadPythonScriptFlag;
-    bool                savePythonScriptFlag;
+    float           prevW, prevH;
 
-
-protected:
-
-    bool                    needToLoadScript;
 
 private:
 

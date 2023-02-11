@@ -91,7 +91,7 @@ void BangMultiplexer::newObject(){
 
 //--------------------------------------------------------------
 void BangMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
@@ -162,7 +162,7 @@ void BangMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(int i=0;i<this->numInlets;i++){
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(60,60,60,255),2.0f);
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)+((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(60,60,60,255),2.0f);
-            sprintf(temp,"%.2f",*(float *)&_inletParams[i]);
+            sprintf_s(temp,"%.2f",*(float *)&_inletParams[i]);
             _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(window_pos.x+(20*this->scaleFactor),window_pos.y + ((IMGUI_EX_NODE_HEADER_HEIGHT-7)*this->scaleFactor) + (pinDistance/2) + pinDistance*i), IM_COL32_WHITE, temp, NULL, 0.0f);
         }
 
@@ -229,15 +229,17 @@ void BangMultiplexer::resetInletsSettings(){
 
     this->numInlets = floatInlets;
 
-    for(size_t i=0;i<floatInlets;i++){
+    for(int i=0;i<floatInlets;i++){
         _inletParams[i] = new float();
         *(float *)&_inletParams[i] = 0.0f;
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
-    for(size_t i=0;i<floatInlets;i++){
+    for(int i=0;i<floatInlets;i++){
         this->addInlet(VP_LINK_NUMERIC,"f"+ofToString(i+1));
     }
 

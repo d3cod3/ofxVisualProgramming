@@ -60,6 +60,7 @@ public:
 
 
     ofVideoPlayer*      video;
+
     float               posX, posY, drawW, drawH;
     bool                isNewObject;
     bool                isFileLoaded;
@@ -69,7 +70,6 @@ public:
     bool                finishBang;
     bool                preloadFirstFrame;
 
-    float               volume;
     float               speed;
     bool                loop;
 

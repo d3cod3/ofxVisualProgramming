@@ -66,7 +66,6 @@ public:
     pdsp::FMOperator        osc;
     pdsp::Saturator2        drive;
     pdsp::Compressor        compressor;
-    pdsp::LowShelfEQ        eq;
     pdsp::VAFilter          filter;
     pdsp::ADSR              ampEnv;
     pdsp::ADSR              modEnv;
@@ -75,12 +74,32 @@ public:
     pdsp::ValueControl      filter_freq_ctrl;
     pdsp::ValueControl      filter_res_ctrl;
 
+    pdsp::ValueControl      comp_ratio_ctrl;
+    pdsp::ValueControl      comp_A_ctrl;
+    pdsp::ValueControl      comp_R_ctrl;
+
     pdsp::Scope             scope;
     pdsp::TriggerControl    gate_ctrl;
+
+    float                   attackDuration;
+    float                   decayDuration;
+    float                   sustainLevel;
+    float                   releaseDuration;
+
+    float                   f_attackDuration;
+    float                   f_decayDuration;
+    float                   f_sustainLevel;
+    float                   f_releaseDuration;
+
+    float                   drivePower;
 
     float                   oscFreq;
     float                   filterFreq;
     float                   filterRes;
+
+    float                   compRatio;
+    float                   compAttack;
+    float                   compRelease;
 
     int                     bufferSize;
     int                     sampleRate;

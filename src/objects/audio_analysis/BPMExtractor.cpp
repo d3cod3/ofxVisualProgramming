@@ -51,11 +51,6 @@ BPMExtractor::BPMExtractor() : PatchObject("bpm extractor"){
 
     this->initInletsState();
 
-    bufferSize = MOSAIC_DEFAULT_BUFFER_SIZE;
-    spectrumSize = (bufferSize/2) + 1;
-
-    arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 9;
-
     isNewConnection     = false;
     isConnectionRight   = false;
 
@@ -76,13 +71,15 @@ void BPMExtractor::newObject(){
 
 //--------------------------------------------------------------
 void BPMExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     ofxXmlSettings XML;
 
     if (XML.loadFile(patchFile)){
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;
-            arrayPosition = bufferSize + spectrumSize + MELBANDS_BANDS_NUM + DCT_COEFF_NUM + HPCP_SIZE + TRISTIMULUS_BANDS_NUM + 9;
+            arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS + 1;
             XML.popTag();
         }
     }
@@ -160,7 +157,7 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - (50*scaleFactor), window_pos.y + window_size.y/2);
 
         char temp[32];
-        sprintf(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
+        sprintf_s(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, IM_COL32_WHITE,temp, NULL, 0.0f);
 
         if(*(float *)&_outletParams[0] > 0){

@@ -48,7 +48,7 @@ AudioExporter::AudioExporter() : PatchObject("audio exporter"){
     this->initInletsState();
 
     bang                = false;
-    isAudioINObject     = true;
+    isAudioOUTObject    = true;
 
     exportAudioFlag     = false;
 
@@ -69,6 +69,7 @@ void AudioExporter::newObject(){
 
 //--------------------------------------------------------------
 void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 
@@ -88,6 +89,7 @@ void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         if(*(float *)&_inletParams[1] < 1.0){
@@ -97,7 +99,7 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }
     }
 
-    if(this->inletsConnected[0] && filepath != "none" && bang){
+    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty() && filepath != "none" && bang){
         if(!recorder.isRecording()){
             recorder.startCustomAudioRecord();
             recButtonLabel = "STOP";
@@ -113,6 +115,8 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void AudioExporter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -141,9 +145,9 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(this->inletsConnected[0]){
+        if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             // draw waveform
-            ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+            ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImGui::GetWindowSize(), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
             // draw signal RMS amplitude
             _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
@@ -216,7 +220,7 @@ void AudioExporter::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_RED_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
     char tmp[256];
-    sprintf(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
+    sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
             ofLog(OF_LOG_WARNING,"There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!");
@@ -270,7 +274,7 @@ void AudioExporter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioExporter::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
@@ -282,6 +286,7 @@ void AudioExporter::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
+            plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
                 plot_data[i] = 0.0f;
             }
@@ -292,7 +297,9 @@ void AudioExporter::loadAudioSettings(){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::audioInObject(ofSoundBuffer &inputBuffer){
+void AudioExporter::audioOutObject(ofSoundBuffer &inputBuffer){
+    unusedArgs(inputBuffer);
+
     if(ofGetElapsedTimeMillis()-lastAudioTimeReset >= 1000){
         lastAudioTimeReset = ofGetElapsedTimeMillis();
         audioFPS = audioCounter;
@@ -301,7 +308,7 @@ void AudioExporter::audioInObject(ofSoundBuffer &inputBuffer){
         audioCounter++;
     }
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
         if(recorder.isRecording()){
             recorder.addBuffer(*static_cast<ofSoundBuffer *>(_inletParams[0]),audioFPS);
         }

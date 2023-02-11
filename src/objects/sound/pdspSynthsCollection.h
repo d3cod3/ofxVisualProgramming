@@ -85,7 +85,6 @@ struct BassPattern : public pdsp::Sequence{
 
         sequence = { 29.0f, 31.f, 34.f, 36.f, 38.f, 41.f, 43.f, 29.f };
 
-#endif
         
         code = [&] () noexcept {
             if (counter() == 4 ) resetCount(); 
@@ -115,7 +114,6 @@ struct BassPattern : public pdsp::Sequence{
                       
         };
 
-#endif
         
     }
 
@@ -125,7 +123,6 @@ struct BassPattern : public pdsp::Sequence{
     
 };
 
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class Zap : public pdsp::Patchable{
@@ -172,7 +169,6 @@ private:
 
 };
 
-#endif
 
 
 class Zaps {
@@ -215,7 +211,6 @@ private:
 
 };
 
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class SineBleep : public pdsp::Patchable{
@@ -240,7 +235,6 @@ private:
     
 };
 
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class KickSynth : public pdsp::Patchable{
@@ -268,7 +262,6 @@ private:
     pdsp::PatchNode     trigger_in;
 };
 
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class BassSynth : public pdsp::Patchable{
@@ -301,7 +294,6 @@ private:
     pdsp::PatchNode     trigger_in;
 };
 
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class SlideSynth : public pdsp::Patchable{
@@ -359,7 +351,6 @@ private:
 
 };
 
-#endif
 
 // ----------------------------------------------------------------------------------------------------------------------------
 class MultiSampler : public pdsp::Patchable{
@@ -422,7 +413,6 @@ private:
     std::vector<pdsp::SampleBuffer*> samples;
 };
 
-#endif
 
 
 // ----------------------------------------------------------------------------------------------------------------------------

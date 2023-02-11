@@ -74,6 +74,7 @@ void TimedSemaphore::newObject(){
 
 //--------------------------------------------------------------
 void TimedSemaphore::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     pressColor = { 250/255.0f, 250/255.0f, 5/255.0f, 1.0f };
     releaseColor = { 0.f, 0.f, 0.f, 0.f };

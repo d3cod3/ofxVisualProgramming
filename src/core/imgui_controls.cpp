@@ -284,6 +284,76 @@ bool Pad2D(ImDrawList* drawList, float width, float height,float *_x, float *_y)
 
 }
 
+bool Pad2D(float width, float height,float *_x, float *_y){
+
+    // visuals
+    enum { LINE_WIDTH = 2 }; // handlers: small lines width
+    enum { GRAB_RADIUS = 6 }; // handlers: circle radius
+
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvail().x;
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    ImGui::ItemSize(bb);
+
+    // background grid
+    if(Canvas.x >= 4){
+        for (int i = 0; i <= Canvas.x; i += static_cast<int>((Canvas.x / 4))) {
+            Window->DrawList->AddLine(
+                        ImVec2(bb.Min.x + i, bb.Min.y),
+                        ImVec2(bb.Min.x + i, bb.Max.y - 1),
+                        IM_COL32(255,255,255,20));
+        }
+    }
+
+    if(Canvas.y >= 4){
+        for (int i = 0; i <= Canvas.y; i += static_cast<int>((Canvas.y / 4))) {
+            Window->DrawList->AddLine(
+                        ImVec2(bb.Min.x, bb.Min.y + i),
+                        ImVec2(bb.Max.x - 1, bb.Min.y + i),
+                        IM_COL32(255,255,255,20));
+        }
+    }
+
+    Window->DrawList->AddLine(ImVec2(bb.Min.x + (Canvas.x* *_x), bb.Min.y),ImVec2(bb.Min.x + (Canvas.x* *_x), bb.Max.y - 1),ImGui::GetColorU32(ImGuiCol_TextDisabled),LINE_WIDTH);
+    Window->DrawList->AddLine(ImVec2(bb.Min.x, bb.Min.y + (Canvas.y* *_y)),ImVec2(bb.Max.x - 1, bb.Min.y + (Canvas.y* *_y)),ImGui::GetColorU32(ImGuiCol_TextDisabled),LINE_WIDTH);
+
+
+    // DRAG from circle
+    bool changed = false;
+
+    ImVec2 prevCursorPos = ImGui::GetCursorScreenPos();
+
+    ImGui::SetCursorScreenPos( ImVec2(bb.Min.x + (Canvas.x* *_x) - 4, bb.Min.y + (Canvas.y* *_y) - 4) );
+    ImGui::InvisibleButton( "circleGripBtn", ImVec2( 8, 8 )  );
+
+    static bool isDraggingCircle = false;
+    if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+        if(!isDraggingCircle){
+            isDraggingCircle=true;
+        }
+
+        ImVec2 _pos = ImClamp(ImVec2((ImGui::GetMousePos().x - bb.Min.x) / Canvas.x,(ImGui::GetMousePos().y - bb.Min.y) / Canvas.y),ImVec2(0.0f,0.0f),ImVec2(1.0f,1.0f));
+        *_x = _pos.x;
+        *_y = _pos.y;
+
+        changed = true;
+    }
+    else if(ImGui::IsItemDeactivated()){
+        if(isDraggingCircle) isDraggingCircle = false;
+    }
+
+    Window->DrawList->AddCircleFilled(ImVec2(bb.Min.x + (Canvas.x* *_x),bb.Min.y + (Canvas.y* *_y)), GRAB_RADIUS, IM_COL32(255,255,255,245), 6);
+
+    ImGui::SetCursorScreenPos(prevCursorPos);
+
+    return changed;
+
+}
+
 bool KnobFloat(ImDrawList* draw_list, float width, ImU32 color, const char* label, float* p_value, float v_min, float v_max,float v_step) {
     ImGuiIO& io = ImGui::GetIO();
     ImGuiStyle& style = ImGui::GetStyle();

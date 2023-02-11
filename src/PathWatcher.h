@@ -3,7 +3,7 @@
 	PathWatcher.h
 
 	Copyright (C) 2016 Dan Wilcox <danomatika@gmail.com>
-	
+
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
@@ -16,7 +16,7 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
-	
+
 	Adapted from https://github.com/NickHardeman/ofxFileWatcher
 
 ==============================================================================*/
@@ -30,6 +30,10 @@
 #include <atomic>
 #include <functional>
 #include <sys/stat.h>
+
+#ifdef TARGET_WIN32
+#include <io.h>
+#endif
 
 /// \class PathWatcher
 /// \brief watch file and directory paths for modifications
@@ -171,7 +175,7 @@ class PathWatcher {
 			}
 			mutex.unlock();
 		}
-	
+
 		/// remove a watched path by name
 		void removePathByName(const std::string &name) {
 			mutex.lock();
@@ -192,14 +196,19 @@ class PathWatcher {
 			paths.clear();
 			mutex.unlock();
 		}
-	
+
 		/// does a path exist?
 		static bool pathExists(const std::string & path) {
-			return access(path.c_str(), F_OK) == 0;
+			#ifdef TARGET_WIN32
+				return _access(path.c_str(), 0) == 0;
+			#else
+				return access(path.c_str(), F_OK) == 0;
+            #endif
+
 		}
 
 	/// \section Watching for Changes
-	
+
 		/// the type of change
 		enum ChangeType {
 			NONE,     //< path has not changed
@@ -207,7 +216,7 @@ class PathWatcher {
 			MODIFIED, //< path was modified
 			DELETED   //< path was deleted or moved
 		};
-	
+
 		/// a change event
 		struct Event {
 			ChangeType change = NONE; //< no change, created, modified, deleted
@@ -246,12 +255,12 @@ class PathWatcher {
 			mutex.unlock();
 			return changed;
 		}
-	
+
 		/// remove deleted paths automatically? (default: false)
 		void setRemoveDeletedPaths(bool remove) {
 			removeDeleted = remove;
 		}
-	
+
 		/// manually remove any deleted or non-existing paths
 		void removeDeletedPaths() {
 			auto iter = paths.begin();
@@ -263,14 +272,14 @@ class PathWatcher {
 				iter++;
 			}
 		}
-	
+
 	/// \section Event Queue
-	
+
 		/// returns true if there are any waiting events
 		bool waitingEvents() {
 			return !queue.empty();
 		}
-	
+
 		/// get the next event in the queue
 		/// returns an event with ChangeType of NONE if the queue is empty
 		Event nextEvent() {
@@ -284,9 +293,9 @@ class PathWatcher {
 				return e;
 			}
 		}
-	
+
 	/// \section Thread
-	
+
 		/// set optional callback to receive change events
 		///
 		/// called within the watcher's thread, so you will need
@@ -335,7 +344,7 @@ class PathWatcher {
 			this->callback = callback;
 			mutex.unlock();
 		}
-	
+
 		/// start a background thread to automatically check for changes,
 		/// sleep sets how often to check in ms
 		void start(unsigned int sleep=500) {
@@ -359,22 +368,22 @@ class PathWatcher {
 				thread = nullptr;
 			}
 		}
-	
+
 		/// is the thread currently running?
 		bool isRunning() {return running;}
 
 	protected:
-	
+
 		/// a path to watch
 		class Path {
-			
+
 			public:
-			
+
 				std::string path;    //< relative or absolute path
 				std::string name;	 //< optional contextual name
 				long modified = 0;   //< last modification st_mtime
 				bool exists = true;  //< does the path exist?
-			
+
 				/// create a new Path to watch with optional name
 				Path(const std::string &path, const std::string &name="") {
 					this->path = path;
@@ -386,7 +395,7 @@ class PathWatcher {
 						exists = false;
 					}
 				}
-			
+
 				/// returns detected change type or NONE
 				ChangeType changed() {
 					if(pathExists(path)) {
@@ -411,7 +420,7 @@ class PathWatcher {
 					}
 					return NONE;
 				}
-			
+
 				/// update modification time
 				void update() {
 					struct stat attributes;
@@ -422,12 +431,12 @@ class PathWatcher {
 
 		std::vector<Path> paths;         //< paths to watch
 		std::atomic<bool> removeDeleted; //< remove path when deleted?
-	
+
 		std::queue<Event> queue; //< event queue
-	
+
 		/// change event callback function pointer
 		std::function<void(const PathWatcher::Event &event)> callback = nullptr;
-	
+
 		std::atomic<bool> running;     //< is the thread running?
 		std::thread *thread = nullptr; //< thread
 		std::mutex mutex;              //< thread data mutex

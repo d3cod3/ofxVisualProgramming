@@ -37,3 +37,5 @@ obj/
 **/build-ofxVisualProgramming_example-Desktop-Release
 **/build-example_ImGui-Desktop-Debug
 **/build-example_ImGui-Desktop-Release
+bin/example_ofxVisualProgramming-Info.plist
+example_ofxVisualProgramming/bin/example_ofxVisualProgramming-Info.plist

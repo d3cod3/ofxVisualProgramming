@@ -52,6 +52,7 @@ LivePatching::LivePatching() : PatchObject("live patching"){
     posX = posY = drawW = drawH = 0.0f;
 
     this->setIsTextureObj(true);
+    this->setIsHardwareObj(true);
 
     alpha   = 127.0f;
 
@@ -71,7 +72,7 @@ void LivePatching::newObject(){
 
 //--------------------------------------------------------------
 void LivePatching::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-    
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------

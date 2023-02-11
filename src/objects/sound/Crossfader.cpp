@@ -76,6 +76,8 @@ void Crossfader::newObject(){
 
 //--------------------------------------------------------------
 void Crossfader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }
@@ -97,6 +99,7 @@ void Crossfader::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[2]){
         fade_value = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
@@ -113,6 +116,8 @@ void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void Crossfader::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -164,6 +169,8 @@ void Crossfader::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Crossfader::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -187,11 +194,13 @@ void Crossfader::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void Crossfader::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void Crossfader::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     // STEREO SIGNAL BUFFERS
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }

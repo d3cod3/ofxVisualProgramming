@@ -87,7 +87,7 @@ void ChromaKey::newObject(){
 
 //--------------------------------------------------------------
 void ChromaKey::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 
 }
 
@@ -102,9 +102,6 @@ void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
         greenSpillStrength  = this->getCustomVar("GREEN_SPILL_STRENGTH");
         chromaBlur          = this->getCustomVar("CHROMA_BLUR");
         multiplyFilterHue   = this->getCustomVar("MULT_FILTER_HUE");
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            chromakey->setbgColor(chromaBgColor);
-        }
     }
     
 }

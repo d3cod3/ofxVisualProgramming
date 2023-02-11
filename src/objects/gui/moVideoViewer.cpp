@@ -44,6 +44,8 @@ moVideoViewer::moVideoViewer() : PatchObject("video viewer"){
 
     _outletParams[0] = new ofTexture();  // texture
 
+    kuro        = new ofImage();
+
     posX = posY = drawW = drawH = 0.0f;
 
     this->width             *= 2;
@@ -74,14 +76,15 @@ void moVideoViewer::newObject(){
 
 //--------------------------------------------------------------
 void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
+    // load kuro
+    kuro->load("images/kuro.jpg");
 }
 
 //--------------------------------------------------------------
 void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
-    }
+    unusedArgs(patchObjects);
 
     if(!loaded){
         loaded = true;
@@ -94,7 +97,16 @@ void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void moVideoViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+    }else{
+        *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+    }
+
     // draw node texture preview with OF
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
         if(scaledObjW*canvasZoom > 90.0f){
@@ -162,7 +174,7 @@ void moVideoViewer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moVideoViewer::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)

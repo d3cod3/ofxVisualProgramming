@@ -77,6 +77,8 @@ void pdspDataOscillator::newObject(){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -99,6 +101,7 @@ void pdspDataOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     // PITCH
     if(this->inletsConnected[0]){
@@ -109,10 +112,10 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 
     // DATA
     if(datatable.ready()){
-        if(this->inletsConnected[1]){
+        if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
             if(datatable.ready()){
                 datatable.begin();
-                if(static_cast<vector<float> *>(_inletParams[1])->size() <= datatable.getTableLength()){
+                if(static_cast<vector<float> *>(_inletParams[1])->size() <= static_cast<size_t>(datatable.getTableLength())){
                     for(int n=0; n<static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()); n++){
                         int pos = static_cast<int>(floor(ofMap(n,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()),0,datatable.getTableLength())));
                         float sample = ofMap(static_cast<vector<float> *>(_inletParams[1])->at(n), 0.0f, 1.0f, -0.5f, 0.5f);
@@ -151,6 +154,8 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 
 //--------------------------------------------------------------
 void pdspDataOscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -177,10 +182,10 @@ void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         char temp[128];
-        sprintf(temp,"%.2f Hz", pdsp::PitchToFreq::eval(ofClamp(pitch,0,127)));
+        sprintf_s(temp,"%.2f Hz", pdsp::PitchToFreq::eval(ofClamp(pitch,0,127)));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(ImGui::GetWindowPos().x + ((40*scaleFactor)*_nodeCanvas.GetCanvasScale()), ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y*0.34)), IM_COL32_WHITE,temp, NULL, 0.0f);
 
         ImGui::Spacing();
@@ -192,6 +197,8 @@ void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(pitch,"PITCH");
             pitch_ctrl.set(pitch);
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 
@@ -206,6 +213,8 @@ void pdspDataOscillator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -220,6 +229,7 @@ void pdspDataOscillator::loadAudioSettings(){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);
 
+            plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
                 static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
                 plot_data[i] = 0.0f;
@@ -232,6 +242,7 @@ void pdspDataOscillator::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspDataOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
 
     for(size_t i = 0; i < scope.getBuffer().size(); i++) {
         float sample = scope.getBuffer().at(i);

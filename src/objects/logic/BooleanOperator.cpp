@@ -71,6 +71,8 @@ void BooleanOperator::newObject(){
 
 //--------------------------------------------------------------
 void BooleanOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     operators_string.push_back("&&");
     operators_string.push_back("||");
 }

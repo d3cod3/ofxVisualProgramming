@@ -91,7 +91,7 @@ void StringGate::newObject(){
 
 //--------------------------------------------------------------
 void StringGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
-
+    unusedArgs(mainWindow);
 }
 
 //--------------------------------------------------------------
@@ -238,16 +238,18 @@ void StringGate::resetInletsSettings(){
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new string();
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
     this->addInlet(VP_LINK_NUMERIC,"open");
 
-    for(size_t i=1;i<this->numInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         this->addInlet(VP_LINK_STRING,"s"+ofToString(i));
     }
 

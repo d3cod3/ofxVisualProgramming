@@ -97,6 +97,8 @@ void pdspReverb::newObject(){
 
 //--------------------------------------------------------------
 void pdspReverb::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }
@@ -218,6 +220,8 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "AMOUNT", &modAmount, 0.0f, 2.0f, 200.0f)){
             this->setCustomVar(modAmount,"MODAMOUNT");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

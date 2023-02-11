@@ -30,9 +30,7 @@
 
 ==============================================================================*/
 
-#if defined(TARGET_WIN32)
-    // Unavailable on windows.
-#elif !defined(OFXVP_BUILD_WITH_MINIMAL_OBJECTS)
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
 
 #include "PDPatch.h"
 
@@ -65,14 +63,10 @@ PDPatch::PDPatch() : PatchObject("pd patch"){
     isAudioOUTObject    = true;
 
     lastLoadedPatch     = "";
-    prevExternalsFolder = "/path_to_pd_externals";
-    lastExternalsFolder = "SET PD EXTERNAL FOLDER!";
     loadPatchFlag       = false;
     savePatchFlag       = false;
-    setExternalFlag     = false;
     patchLoaded         = false;
     patchSaved          = false;
-    externalPathSaved   = false;
     loading             = true;
 
     isPDSPPatchableObject   = true;
@@ -96,8 +90,6 @@ void PDPatch::newObject(){
     this->addOutlet(VP_LINK_AUDIO,"audioOut3");
     this->addOutlet(VP_LINK_AUDIO,"audioOut4");
     this->addOutlet(VP_LINK_ARRAY,"data");
-
-    this->setCustomVar(0.0f,"/path_to_pd_externals");
 }
 
 //--------------------------------------------------------------
@@ -110,6 +102,8 @@ void PDPatch::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     // init PD engine
     loadAudioSettings();
 
@@ -129,6 +123,7 @@ void PDPatch::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
 
     ch1IN.out_signal() >> this->pdspIn[0] >> mixIN;
     ch2IN.out_signal() >> this->pdspIn[1] >> mixIN;
@@ -144,6 +139,7 @@ void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(patchLoaded){
         patchLoaded = false;
@@ -171,32 +167,12 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         this->saveConfig(false);
     }
 
-    if(externalPathSaved){
-        externalPathSaved = false;
-        if(lastExternalsFolder != ""){
-            ofFile tempfile (lastExternalsFolder);
-            if(tempfile.exists() && tempfile.isDirectory()){
-                string temp = tempfile.getAbsolutePath().substr(0, tempfile.getAbsolutePath().size()-1);
-                pd.addToSearchPath(temp);
-                this->substituteCustomVar(prevExternalsFolder,temp.c_str());
-                prevExternalsFolder = lastExternalsFolder;
-                ofLog(OF_LOG_NOTICE,"PD Externals Folder set to: %s",temp.c_str());
-                this->saveConfig(false);
-                // load externals
-                #if defined(TARGET_LINUX) || defined(TARGET_OSX)
-                if(lastExternalsFolder != "SET PD EXTERNAL FOLDER!"){
-                    cyclone_setup();
-                    zexy_setup();
-                }
-                #endif
-            }
-        }
-    }
-
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         pd.startMessage();
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
-            pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+        if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
+                pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+            }
         }
         pd.finishList("fromMosaic");
     }
@@ -213,6 +189,8 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 //--------------------------------------------------------------
 void PDPatch::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){
@@ -225,7 +203,6 @@ void PDPatch::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRendere
 void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     loadPatchFlag   = false;
     savePatchFlag   = false;
-    setExternalFlag = false;
 
     // CONFIG GUI inside Menu
     if(_nodeCanvas.BeginNodeMenu()){
@@ -267,11 +244,6 @@ void PDPatch::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         patchLoaded = true;
     }
 
-    if(ImGuiEx::getFileDialog(fileDialog, setExternalFlag, "Select your PD external folder", imgui_addons::ImGuiFileBrowser::DialogMode::SELECT, "", "", scaleFactor)){
-        lastExternalsFolder = fileDialog.selected_path;
-        externalPathSaved = true;
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -280,7 +252,6 @@ void PDPatch::drawObjectNodeConfig(){
 
     loadPatchFlag   = false;
     savePatchFlag   = false;
-    setExternalFlag = false;
 
     ImGui::Spacing();
     ImGui::Text("Loaded PD Patch:");
@@ -290,8 +261,6 @@ void PDPatch::drawObjectNodeConfig(){
         ImGui::Text("%s",tempFilename.getFileName().c_str());
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
-    ImGui::Spacing();
-    ImGui::Text("%s",lastExternalsFolder.c_str());
 
     ImGui::Spacing();
     ImGui::Spacing();
@@ -305,10 +274,6 @@ void PDPatch::drawObjectNodeConfig(){
     ImGui::Spacing();
     if(ImGui::Button("Open",ImVec2(224*scaleFactor,26*scaleFactor))){
         loadPatchFlag = true;
-    }
-    ImGui::Spacing();
-    if(ImGui::Button("Set Externals Path",ImVec2(224*scaleFactor,26*scaleFactor))){
-        setExternalFlag = true;
     }
 
     ImGuiEx::ObjectInfo(
@@ -327,14 +292,12 @@ void PDPatch::drawObjectNodeConfig(){
         patchLoaded = true;
     }
 
-    if(ImGuiEx::getFileDialog(fileDialog, setExternalFlag, "Select your PD external folder", imgui_addons::ImGuiFileBrowser::DialogMode::SELECT, "", "", scaleFactor)){
-        lastExternalsFolder = fileDialog.selected_path;
-        externalPathSaved = true;
-    }
 }
 
 //--------------------------------------------------------------
 void PDPatch::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -343,34 +306,37 @@ void PDPatch::removeObjectContent(bool removeFileFromData){
     }
 
     pd.clear();
-
-    if(removeFileFromData){
-        removeFile(filepath);
-    }
 }
 
 //--------------------------------------------------------------
 void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
+    unusedArgs(inputBuffer);
+}
+
+//--------------------------------------------------------------
+void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        if(this->inletsConnected[0]){
+        if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
         }else{
-            lastInputBuffer1 *= 0.0f;
+            lastInputBuffer1.set(0.0f);
         }
-        if(this->inletsConnected[1]){
+        if(this->inletsConnected[1] && !static_cast<ofSoundBuffer *>(_inletParams[1])->getBuffer().empty()){
             lastInputBuffer2 = *static_cast<ofSoundBuffer *>(_inletParams[1]);
         }else{
-            lastInputBuffer2 *= 0.0f;
+            lastInputBuffer2.set(0.0f);
         }
-        if(this->inletsConnected[2]){
+        if(this->inletsConnected[2] && !static_cast<ofSoundBuffer *>(_inletParams[2])->getBuffer().empty()){
             lastInputBuffer3 = *static_cast<ofSoundBuffer *>(_inletParams[2]);
         }else{
-            lastInputBuffer3 *= 0.0f;
+            lastInputBuffer3.set(0.0f);
         }
-        if(this->inletsConnected[3]){
+        if(this->inletsConnected[3] && !static_cast<ofSoundBuffer *>(_inletParams[3])->getBuffer().empty()){
             lastInputBuffer4 = *static_cast<ofSoundBuffer *>(_inletParams[3]);
         }else{
-            lastInputBuffer4 *= 0.0f;
+            lastInputBuffer4.set(0.0f);
         }
 
         lastInputBuffer.setChannel(lastInputBuffer1,0);
@@ -385,10 +351,7 @@ void PDPatch::audioInObject(ofSoundBuffer &inputBuffer){
 
         pd.audioIn(lastInputBuffer.getBuffer().data(), lastInputBuffer.getNumFrames(), lastInputBuffer.getNumChannels());
     }
-}
 
-//--------------------------------------------------------------
-void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
         pd.audioOut(lastOutputBuffer.getBuffer().data(), lastOutputBuffer.getNumFrames(), 4);
     }else{
@@ -422,30 +385,6 @@ void PDPatch::loadAudioSettings(){
             bufferSize = XML.getValue("buffer_size",0);
             XML.popTag();
         }
-        int totalObjects = XML.getNumTags("object");
-
-        // Load object outlet config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    if (XML.pushTag("vars")){
-                        int totalVars = XML.getNumTags("var");
-
-                        for (int t=0;t<totalVars;t++){
-                            if(XML.pushTag("var",t)){
-                                prevExternalsFolder = XML.getValue("name","");
-                                lastExternalsFolder = prevExternalsFolder;
-                                ofLog(OF_LOG_NOTICE,"Externals folder: %s",lastExternalsFolder.c_str());
-                                XML.popTag();
-                            }
-                        }
-
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
-            }
-        }
     }
 
     lastInputBuffer.allocate(bufferSize,4);
@@ -461,14 +400,6 @@ void PDPatch::loadAudioSettings(){
     lastOutputBuffer4.allocate(bufferSize,1);
 
     pd.init(4,4,sampleRate,bufferSize/ofxPd::blockSize(),false);
-    // load externals
-#if defined(TARGET_LINUX) || defined(TARGET_OSX)
-    if(lastExternalsFolder != "SET PD EXTERNAL FOLDER!"){
-        cyclone_setup();
-        zexy_setup();
-    }
-#endif
-
 
     pd.subscribe("toMosaic");
 
@@ -504,13 +435,6 @@ void PDPatch::loadPatch(string scriptFile){
     filepath = scriptFile;
 
     currentPatchFile.open(filepath);
-
-    if(prevExternalsFolder != "" && prevExternalsFolder != "/path_to_pd_externals"){
-        ofFile tempfile (prevExternalsFolder);
-        if(tempfile.exists() && tempfile.isDirectory()){
-            pd.addToSearchPath(tempfile.getAbsolutePath());
-        }
-    }
 
     currentPatch = pd.openPatch(currentPatchFile.getAbsolutePath());
 
@@ -554,27 +478,35 @@ void PDPatch::print(const std::string& message) {
 
 //--------------------------------------------------------------
 void PDPatch::receiveBang(const std::string& dest) {
+    unusedArgs(dest);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: bang %s", dest.c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveFloat(const std::string& dest, float value) {
+    unusedArgs(dest,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: float %s: %f", dest.c_str(), value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveSymbol(const std::string& dest, const std::string& symbol) {
+    unusedArgs(dest,symbol);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: symbol %s: %s", dest.c_str(), symbol.c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveList(const std::string& dest, const List& list) {
+    unusedArgs(dest);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", dest.c_str());
 
     static_cast<vector<float> *>(_outletParams[4])->clear();
     static_cast<vector<float> *>(_outletParams[4])->assign(list.len(),0.0f);
 
-    for(int i = 0; i < list.len(); ++i) {
+    for(size_t i = 0; i < list.len(); ++i) {
         if(list.isFloat(i)){
             static_cast<vector<float> *>(_outletParams[4])->at(i) = list.getFloat(i);
         }
@@ -583,43 +515,59 @@ void PDPatch::receiveList(const std::string& dest, const List& list) {
 
 //--------------------------------------------------------------
 void PDPatch::receiveMessage(const std::string& dest, const std::string& msg, const List& list) {
+    unusedArgs(dest,msg,list);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic: message %s: %s %s %s", dest.c_str(), msg.c_str(), list.toString().c_str(), list.types().c_str());
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveNoteOn(const int channel, const int pitch, const int velocity) {
+    unusedArgs(channel,pitch,velocity);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: note on: %i %i %i", channel, pitch, velocity);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveControlChange(const int channel, const int controller, const int value) {
+    unusedArgs(channel,controller,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: control change: %i %i %i", channel, controller, value);
 }
 
 //--------------------------------------------------------------
 // note: pgm nums are 1-128 to match pd
 void PDPatch::receiveProgramChange(const int channel, const int value) {
+    unusedArgs(channel,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: program change: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receivePitchBend(const int channel, const int value) {
+    unusedArgs(channel,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: pitch bend: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receiveAftertouch(const int channel, const int value) {
+    unusedArgs(channel,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: aftertouch: %i %i", channel, value);
 }
 
 //--------------------------------------------------------------
 void PDPatch::receivePolyAftertouch(const int channel, const int pitch, const int value) {
+    unusedArgs(channel,pitch,value);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: poly aftertouch: %i %i %i", channel, pitch, value);
 }
 
 //--------------------------------------------------------------
 // note: pd adds +2 to the port num, so sending to port 3 in pd to [midiout], shows up at port 1 in ofxPd
 void PDPatch::receiveMidiByte(const int port, const int byte) {
+    unusedArgs(port,byte);
+
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }
 

@@ -34,7 +34,7 @@
 
 #include "ofMain.h"
 
-#include "config.h"
+#include "ofxVPConfig.h"
 
 #include "ofxInfiniteCanvas.h"
 #include "ofxPDSP.h"
@@ -60,6 +60,7 @@ public:
 
     void            setRetina(bool retina);
     void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
+    void            setupFailsafeWindow();
     void            update();
     void            updateCanvasViewport();
     void            draw();
@@ -98,6 +99,8 @@ public:
     bool            weAlreadyHaveObject(string name);
     void            deleteObject(int id);
     void            clearObjectsMap();
+    bool            isObjectInLibrary(string name);
+    bool            isObjectIDInPatchMap(int id);
 
     string          getSubpatchParent(string subpatchName);
 
@@ -112,6 +115,9 @@ public:
 
     void            setAudioInDevice(int ind);
     void            setAudioOutDevice(int ind);
+    void            setAudioDevices(int ind, int outd);
+    void            setAudioSampleRate(int sr);
+    void            setAudioBufferSize(int bs);
     void            activateDSP();
     void            deactivateDSP();
 
@@ -177,6 +183,8 @@ public:
     vector<string>                      audioDevicesStringOUT;
     vector<int>                         audioDevicesID_IN;
     vector<int>                         audioDevicesID_OUT;
+    vector<string>                      audioDevicesSR;
+    vector<string>                      audioDevicesBS;
     ofSoundStream                       soundStreamIN;
     ofSoundBuffer                       lastInputBuffer;
     ofPolyline                          inputBufferWaveform;
@@ -184,9 +192,16 @@ public:
     int                                 audioOUTDev;
     int                                 audioGUIINIndex;
     int                                 audioGUIOUTIndex;
+    int                                 audioGUIINChannels;
+    int                                 audioGUIOUTChannels;
+    int                                 audioGUISRIndex;
+    int                                 audioGUIBSIndex;
     int                                 audioSampleRate;
     int                                 audioBufferSize;
+    int                                 audioNumBuffers;
     int                                 bpm;
+    bool                                isInputDeviceAvailable;
+    bool                                isOutputDeviceAvailable;
     bool                                dspON;
 
     // MEMORY
@@ -196,6 +211,8 @@ public:
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
 
-    mutable ofMutex         vp_mutex;
+    mutable ofMutex                 vp_mutex;
+
+    shared_ptr<ofAppGLFWWindow>     failsafeWindow;
 
 };

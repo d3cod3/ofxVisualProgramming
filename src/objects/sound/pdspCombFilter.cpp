@@ -85,6 +85,8 @@ void pdspCombFilter::newObject(){
 
 //--------------------------------------------------------------
 void pdspCombFilter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
@@ -179,6 +181,8 @@ void pdspCombFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             feedback_ctrl.set(feedback);
             this->setCustomVar(static_cast<float>(feedback),"FEEDBACK");
         }
+
+        _nodeCanvas.EndNodeContent();
 
     }
 

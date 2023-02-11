@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2021 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,13 +36,16 @@
 
 #include "PatchObject.h"
 
-#include "ofxAudioAnalyzer.h"
+#include "IconsFontAwesome5.h"
 
-class InharmonicityExtractor : public PatchObject {
+#include "ofxSyphon.h"
+
+
+class SyphonSender : public PatchObject {
 
 public:
 
-    InharmonicityExtractor();
+    SyphonSender();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -54,13 +57,23 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    int             bufferSize;
-    int             spectrumSize;
 
-    int             arrayPosition;
 
-    bool            isNewConnection;
-    bool            isConnectionRight;
+    ofxSyphonServer     individualTextureSyphonServer;
+
+    bool                needToGrab;
+    bool                isSending;
+
+    float               posX, posY, drawW, drawH;
+    bool                isNewObject;
+
+    float               scaledObjW, scaledObjH;
+    float               objOriginX, objOriginY;
+    float               canvasZoom;
+
+protected:
+
+    string                  recButtonLabel;
 
 private:
 

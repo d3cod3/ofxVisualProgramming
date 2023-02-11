@@ -34,11 +34,13 @@
 
 #include "AudioAnalyzer.h"
 
+int	melBandsEdges[MEL_SCALE_CRITICAL_BANDS] = {100,200,300,400,510,630,770,920,1080,1270,1480,1720,2000,2320,2700,3150,3700,4400,5300,6400,7700,9500,12000,20000};
+
 //--------------------------------------------------------------
 AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
 
     this->numInlets  = 3;
-    this->numOutlets = 2;
+    this->numOutlets = 1;
 
     _inletParams[0] = new ofSoundBuffer();  // Audio stream
 
@@ -51,7 +53,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
 
     this->initInletsState();
 
-    isAudioINObject                 = true;
+    isAudioOUTObject                = true;
 
     smoothingValue                  = 0.0f;
     audioInputLevel                 = 1.0f;
@@ -84,11 +86,14 @@ void AudioAnalyzer::newObject(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 }
 
 //--------------------------------------------------------------
 void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         if(!isConnected){
@@ -103,27 +108,7 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
         if(isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
             // Get analysis data
-            rms = audioAnalyzer.getValue(RMS, 0, smoothingValue);
-            power   = audioAnalyzer.getValue(POWER, 0, smoothingValue);
-            pitchFreq = audioAnalyzer.getValue(PITCH_FREQ, 0, smoothingValue);
-            if(pitchFreq > 4186){
-                pitchFreq = 0;
-            }
-            hfc = audioAnalyzer.getValue(HFC, 0, smoothingValue);
-            centroid = audioAnalyzer.getValue(CENTROID, 0, smoothingValue);
-            centroidNorm = audioAnalyzer.getValue(CENTROID, 0, smoothingValue, TRUE);
-            inharmonicity   = audioAnalyzer.getValue(INHARMONICITY, 0, smoothingValue);
-            dissonance = audioAnalyzer.getValue(DISSONANCE, 0, smoothingValue);
-            rollOff = audioAnalyzer.getValue(ROLL_OFF, 0, smoothingValue);
-            rollOffNorm  = audioAnalyzer.getValue(ROLL_OFF, 0, smoothingValue, TRUE);
 
-            spectrum = audioAnalyzer.getValues(SPECTRUM, 0, smoothingValue);
-            melBands = audioAnalyzer.getValues(MEL_BANDS, 0, smoothingValue);
-            mfcc = audioAnalyzer.getValues(MFCC, 0, smoothingValue);
-            hpcp = audioAnalyzer.getValues(HPCP, 0, smoothingValue);
-            tristimulus = audioAnalyzer.getValues(TRISTIMULUS, 0, smoothingValue);
-
-            isOnset = audioAnalyzer.getOnsetValue(0);
 
             bpm     = beatTrack->getEstimatedBPM();
             beat    = beatTrack->hasBeat();
@@ -136,44 +121,23 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
             index += lastBuffer.getNumFrames();
             // SPECTRUM
-            for(int i=0;i<static_cast<int>(spectrum.size());i++){
-                // inv log100 scale
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = (pow(100,ofMap(spectrum[i], DB_MIN, DB_MAX, 0.000001f, 1.0f,true))-1.0f)/99.0f;
+            for(int i = 0; i < fftBinSize; i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = _s_spectrum[i];
             }
-            index += spectrum.size();
-            // MELBANDS
-            for(int i=0;i<static_cast<int>(melBands.size());i++){
-                // inv log100 scale
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = (pow(100,ofMap(melBands[i], DB_MIN, DB_MAX, 0.000001f, 1.0f, true))-1.0f)/99.0f;
+
+            index += fftBinSize;
+            // MEL BANDS
+            for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
+                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = _s_melBins[i];
             }
-            index += melBands.size();
-            // MFCC
-            for(int i=0;i<static_cast<int>(mfcc.size());i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = ofMap(mfcc[i], 0, MFCC_MAX_ESTIMATED_VALUE, 0.0f, 1.0f, true);
-            }
-            index += mfcc.size();
-            // HPCP
-            for(int i=0;i<static_cast<int>(hpcp.size());i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = hpcp[i];
-            }
-            index += hpcp.size();
-            // TRISTIMULUS
-            for(int i=0;i<static_cast<int>(tristimulus.size());i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = tristimulus[i];
-            }
-            index += tristimulus.size();
-            // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = rms;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+1) = power;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+2) = pitchFreq;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+3) = hfc;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+4) = centroidNorm;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+5) = inharmonicity;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+6) = dissonance;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+7) = rollOffNorm;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+8) = static_cast<float>(isOnset);
-            static_cast<vector<float> *>(_outletParams[0])->at(index+9) = bpm;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+10) = static_cast<float>(beat);
+
+            index += MEL_SCALE_CRITICAL_BANDS-1;
+
+            // SINGLE VALUES (RMS, PITCH, BPM, BEAT)
+            static_cast<vector<float> *>(_outletParams[0])->at(index) = _s_rms;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+1) = _s_pitch;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+2) = bpm;
+            static_cast<vector<float> *>(_outletParams[0])->at(index+3) = static_cast<float>(beat);
 
         }
     }else{
@@ -200,6 +164,8 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void AudioAnalyzer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -230,7 +196,7 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, 1024, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         // draw signal RMS amplitude
         _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y*0.5f),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y *0.5f * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
@@ -264,11 +230,15 @@ void AudioAnalyzer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::removeObjectContent(bool removeFileFromData){
-    //audioAnalyzer.exit();
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
+void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
+    unusedArgs(inputBuffer);
+
+    if(static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()) return;
+
     if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
 
         lastBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
@@ -283,11 +253,44 @@ void AudioAnalyzer::audioInObject(ofSoundBuffer &inputBuffer){
             static_cast<vector<float> *>(_outletParams[0])->at(i) = lastBuffer.getSample(i,0);
         }
 
-        // ESSENTIA Analyze Audio
         lastBuffer.copyTo(monoBuffer, lastBuffer.getNumFrames(), 1, 0);
-        audioAnalyzer.analyze(monoBuffer);
 
-        // BTrack
+        // autocorrelation + normalization
+        doAutoCorrelation(monoBuffer.getBuffer().data());
+
+
+        // get volume
+        detectRMS();
+
+        // get pitch
+        detectPitch();
+
+        // FFT Analyze Audio
+        fft->setSignal(autoCorrelationNorm);
+        memcpy(spectrum, fft->getAmplitude(), sizeof(float) * fftBinSize);
+
+        fft_StrongestBinValue	= 0.0f;
+
+        for(unsigned int j=0;j<MEL_SCALE_CRITICAL_BANDS-1;j++){
+            melBins[j] = 0.0f;
+        }
+
+        for(int i = 0; i < fftBinSize; i++){
+            // storing strongest bin for pitch detection
+            if(spectrum[i] > fft_StrongestBinValue){
+                fft_StrongestBinValue = spectrum[i];
+                fft_StrongestBinIndex = i;
+            }
+            // calculate Mel scale bins from fft bins
+            updateMelScale(i);
+        }
+
+        fft->setPolar(spectrum, fft->getPhase());
+        fft->clampSignal();
+
+        smoothingValues();
+
+        // BTrack (BPM and Beat tracker)
         beatTrack->audioIn(&monoBuffer.getBuffer()[0], bufferSize, 1);
 
         unique_lock<mutex> lock(audioMutex);
@@ -312,43 +315,156 @@ void AudioAnalyzer::loadAudioSettings(){
         beatTrack->setConfidentThreshold(0.35);
 
         // Audio Analysis
-        audioAnalyzer.setup(sampleRate, bufferSize, 1);
+        fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING);
+
+        fftBinSize              = fft->getBinSize();
+        fft_binSizeHz           = ((sampleRate/2)/(fftBinSize-1));
+        fft_StrongestBinValue   = 0.0f;
+        fft_StrongestBinIndex	= 0;
+        fft_pitchBin			= 0;
+
+        autoCorrelation			= new float[bufferSize];
+        autoCorrelationNorm		= new float[bufferSize];
+        spectrum                = new float[fftBinSize];
+        binsToMel               = new int[fftBinSize];
+        melBins                 = new float[MEL_SCALE_CRITICAL_BANDS];
+
+        _s_spectrum            = new float[fftBinSize];
+        _s_melBins             = new float[MEL_SCALE_CRITICAL_BANDS];
+
+
+        rms                     = 0.0f;
+        pitch                   = 0.0f;
+        _s_rms                  = 0.0f;
+        _s_pitch                = 0.0f;
+
+        setupMelScale();
 
         audioInputLevel = this->getCustomVar("INPUT_LEVEL");
-        smoothingValue = this->getCustomVar("SMOOTHING");
+        smoothingValue  = this->getCustomVar("SMOOTHING");
 
         _outletParams[0] = new vector<float>();
         // SIGNAL BUFFER
+        plot_data = new float[bufferSize];
         for(int i=0;i<bufferSize;i++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
             plot_data[i] = 0.0f;
         }
         // SPECTRUM
-        for(int i=0;i<(bufferSize/2)+1;i++){
+        for(int i=0;i<fftBinSize;i++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
         }
-        // MELBANDS
-        for(int i=0;i<MELBANDS_BANDS_NUM;i++){
+
+        // MEL BANDS
+        for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
         }
-        // MFCC
-        for(int i=0;i<DCT_COEFF_NUM;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-        }
-        // HPCP
-        for(int i=0;i<HPCP_SIZE;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-        }
-        // TRISTIMULUS
-        for(int i=0;i<TRISTIMULUS_BANDS_NUM;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
-        }
-        // SINGLE VALUES (RMS, POWER, PITCH, HFC, CENTROID, INHARMONICITY, DISSONANCE, ROLLOFF, ONSET, BPM, BEAT)
-        for(int i=0;i<11;i++){
+
+        // SINGLE VALUES (RMS, PITCH, BPM, BEAT)
+        for(int i=0;i<4;i++){
             static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
         }
     }
 }
+
+//--------------------------------------------------------------
+void AudioAnalyzer::doAutoCorrelation(float* signal){
+
+    float sum;
+    std::vector<float> autoCorrelationResults(bufferSize);
+
+    for (int i = 0; i < bufferSize; i++) {
+        sum = 0;
+        for (int j = 0; j < bufferSize-i; j++) {
+            sum += signal[j]*signal[j+i];
+        }
+        autoCorrelationResults[i]=sum;
+
+    }
+
+    memcpy(autoCorrelation, &autoCorrelationResults[0], bufferSize * sizeof(float));
+
+    float maxValue = 0;
+
+    for (int i=0;i<bufferSize;i++) {
+        if (fabs(autoCorrelationResults[i]) > maxValue){
+            maxValue = fabs(autoCorrelationResults[i]);
+        }
+    }
+
+    if (maxValue > 0){
+        for(int i=0;i<bufferSize;i++) {
+            autoCorrelationResults[i] /= maxValue;
+        }
+    }
+    memcpy(autoCorrelationNorm, &autoCorrelationResults[0], bufferSize * sizeof(float));
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::detectRMS(){
+    for (int i = 0; i < bufferSize; i++) {
+        rms += abs(autoCorrelation[i]);
+    }
+    rms /= bufferSize;
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::detectPitch(){
+    pitch = (fft_StrongestBinIndex*fft_binSizeHz) + (fft_binSizeHz/2.0f);
+
+    fft_pitchBin = pitch * fftBinSize /(sampleRate / 2);
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::setupMelScale(){
+    // setup Mel scale reduction (it depends on samplerate and buffersize)
+    // first bin is the 0 Hz component (a constant DC offset to the signal), we do not consider it
+    int tempFreq = 0;
+    for(unsigned int j=0;j<MEL_SCALE_CRITICAL_BANDS-1;j++){
+        melBins[j]	   = 0.0f;
+        for(int i = 0; i < fftBinSize; i++){
+            tempFreq = (int)((i*fft_binSizeHz) + (fft_binSizeHz/2.0f));
+            if(j == 0){
+                if(tempFreq <= melBandsEdges[j]){
+                    binsToMel[i] = j;
+                }else{
+                    i = fftBinSize;
+                }
+            }else if(j > 0){
+                if(tempFreq > melBandsEdges[j-1] && tempFreq <= melBandsEdges[j]){
+                    binsToMel[i] = j;
+                }
+            }
+        }
+    }
+    binsToMel[fft->getBinSize()-1] = 23;
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::updateMelScale(int i){
+    for(int j=0;j<MEL_SCALE_CRITICAL_BANDS-1;j++){
+        if(binsToMel[i] == j){
+            melBins[j] += spectrum[i];
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void AudioAnalyzer::smoothingValues(){
+    // volume detection
+    _s_rms = _s_rms*smoothingValue + (1.0-smoothingValue)*rms;
+    // pitch detection
+    _s_pitch = _s_pitch*smoothingValue + (1.0-smoothingValue)*pitch;
+    // fft spectrum
+    for(int i=0;i<fftBinSize;i++){
+        _s_spectrum[i] = _s_spectrum[i]*smoothingValue + (1.0-smoothingValue)*spectrum[i];
+    }
+    // bark scale bins
+    for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
+        _s_melBins[i] = _s_melBins[i]*smoothingValue + (1.0-smoothingValue)*melBins[i];
+    }
+}
+
 
 OBJECT_REGISTER( AudioAnalyzer , "audio analyzer", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 

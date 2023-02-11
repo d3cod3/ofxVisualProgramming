@@ -37,7 +37,7 @@
 //--------------------------------------------------------------
 SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
-    this->numInlets  = 5;
+    this->numInlets  = 7;
     this->numOutlets = 3;
 
     _inletParams[0] = new string();  // control
@@ -48,8 +48,12 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
     *(float *)&_inletParams[2] = 0.0f;
     _inletParams[3] = new float();  // volume
     *(float *)&_inletParams[3] = 0.0f;
-    _inletParams[4] = new float();  // trigger
+    _inletParams[4] = new float();  // cue IN
     *(float *)&_inletParams[4] = 0.0f;
+    _inletParams[5] = new float();  // cue OUT
+    *(float *)&_inletParams[5] = 0.0f;
+    _inletParams[6] = new float();  // trigger
+    *(float *)&_inletParams[6] = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new vector<float>(); // audio buffer
@@ -79,10 +83,13 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
 
     finishSemaphore     = false;
     finishBang          = false;
+    isNextCycle         = false;
 
     isPDSPPatchableObject   = true;
 
     this->width         *= 2;
+
+    loaded              = false;
 
 }
 
@@ -94,17 +101,25 @@ void SoundfilePlayer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"playhead");
     this->addInlet(VP_LINK_NUMERIC,"speed");
     this->addInlet(VP_LINK_NUMERIC,"volume");
+    this->addInlet(VP_LINK_NUMERIC,"cue in");
+    this->addInlet(VP_LINK_NUMERIC,"cue out");
     this->addInlet(VP_LINK_NUMERIC,"bang");
 
     this->addOutlet(VP_LINK_AUDIO,"audioFileSignal");
     this->addOutlet(VP_LINK_ARRAY,"dataBuffer");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
+
+    this->setCustomVar(static_cast<float>(loop),"LOOP");
+    this->setCustomVar(static_cast<float>(speed),"SPEED");
+    this->setCustomVar(static_cast<float>(volume),"VOLUME");
+    this->setCustomVar(static_cast<float>(cueIN),"CUE_IN");
+    this->setCustomVar(static_cast<float>(cueOUT),"CUE_OUT");
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::autoloadFile(string _fp){
     lastSoundfile = _fp;
-    //lastSoundfile = copyFileToPatchFolder(this->patchFolderPath,_fp);
+
     soundfileLoaded = true;
     loading = false;
     startTime = ofGetElapsedTimeMillis();
@@ -112,6 +127,7 @@ void SoundfilePlayer::autoloadFile(string _fp){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
 
     fileDialog.setIsRetina(this->isRetina);
 
@@ -131,6 +147,7 @@ void SoundfilePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
         soundfileLoaded = false;
@@ -197,13 +214,14 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
             volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
         }
 
-        // trigger
+        // cue IN
         if(this->inletsConnected[4]){
-            if(ofClamp(*(float *)&_inletParams[4],0.0f,1.0f) == 1.0f){
-                playhead = 0.0;
-                isPlaying = true;
-                finishSemaphore = true;
-            }
+            cueIN = static_cast<double>(ofClamp(*(float *)&_inletParams[4],0.0,cueOUT-2));
+        }
+
+        // cue OUT
+        if(this->inletsConnected[5]){
+            cueOUT = static_cast<double>(ofClamp(*(float *)&_inletParams[5],cueIN+2, audiofile.length()-2));
         }
 
         // outlet finish bang
@@ -219,10 +237,30 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
     }
 
+    if(!loaded){
+        loaded = true;
+
+        loop = static_cast<bool>(this->getCustomVar("LOOP"));
+        speed = static_cast<float>(this->getCustomVar("SPEED"));
+        volume = static_cast<float>(this->getCustomVar("VOLUME"));
+        cueIN = static_cast<double>(this->getCustomVar("CUE_IN"));
+        cueOUT = static_cast<double>(this->getCustomVar("CUE_OUT"));
+
+        if(playhead < cueIN){
+            playhead = cueIN;
+        }
+
+        if(playhead > cueOUT){
+            playhead = cueOUT;
+        }
+    }
+
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 
@@ -272,10 +310,10 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             // draw player state
             if(isPlaying){ // play
                 _nodeCanvas.getNodeDrawList()->AddTriangleFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())), ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(30*_nodeCanvas.GetCanvasScale())), IM_COL32(255, 255, 255, 120));
-            }else if(!isPlaying && playhead > 0.0){ // pause
+            }else if(!isPlaying && playhead > cueIN){ // pause
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(42*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(38*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
-            }else if(!isPlaying && playhead == 0.0){ // stop
+            }else if(!isPlaying && playhead == cueIN){ // stop
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+window_size.x-(50*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(40*_nodeCanvas.GetCanvasScale())),ImVec2(window_pos.x+window_size.x-(30*_nodeCanvas.GetCanvasScale()),window_pos.y+window_size.y-(20*_nodeCanvas.GetCanvasScale())),IM_COL32(255, 255, 255, 120));
             }
 
@@ -283,11 +321,19 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             float phx = ofMap( playhead, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + phx, ph_pos.y),ImVec2(ph_pos.x + phx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 255, 255, 160), 2.0f);
 
+            // draw cues IN OUT
+            float cinx = ofMap( cueIN, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + cinx, ph_pos.y),ImVec2(ph_pos.x + cinx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 0, 0, 160), 2.0f);
+            float coutx = ofMap( cueOUT, 0, audiofile.length()*0.98f, 1, (this->width*0.98f*_nodeCanvas.GetCanvasScale())-(31*this->scaleFactor) );
+            _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(ph_pos.x + coutx, ph_pos.y),ImVec2(ph_pos.x + coutx, window_size.y+ph_pos.y-(26*this->scaleFactor)),IM_COL32(255, 0, 0, 160), 2.0f);
+
         }else if(loadingFile){
             ImGui::Text("LOADING FILE...");
         }else if(!isNewObject && !audiofile.loaded()){
             ImGui::Text("FILE NOT FOUND!");
         }
+
+        _nodeCanvas.EndNodeContent();
     }
 
     // file dialog
@@ -329,14 +375,14 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
     if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = true;
-        playhead = 0.0;
+        playhead = cueIN;
         audioWasPlaying = true;
         finishSemaphore = true;
     }
     ImGui::SameLine();
     if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor,26*scaleFactor))){
         isPlaying = false;
-        playhead = 0.0;
+        playhead = cueIN;
         audioWasPlaying = false;
     }
     ImGui::PopStyleColor(3);
@@ -351,12 +397,37 @@ void SoundfilePlayer::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     ImGui::PushItemWidth(130*scaleFactor);
-    ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f);
-    ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f);
+    if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
+        this->setCustomVar(speed,"SPEED");
+    }
+    if(ImGui::SliderFloat("VOLUME",&volume,0.0f, 1.0f)){
+        this->setCustomVar(volume,"VOLUME");
+    }
     ImGui::PopItemWidth();
     ImGui::Spacing();
     ImGui::Spacing();
-    ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop);
+    if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
+        this->setCustomVar(static_cast<float>(loop),"LOOP");
+    }
+
+    ImGui::Spacing();
+    float tempcueIN = cueIN;
+    if(ImGui::SliderFloat("CUE IN",&tempcueIN,0.0, cueOUT-2)){
+        cueIN = static_cast<double>(tempcueIN);
+        if(playhead < cueIN){
+            playhead = cueIN;
+        }
+        this->setCustomVar(static_cast<float>(cueIN),"CUE_IN");
+    }
+    ImGui::Spacing();
+    float tempcueOUT = cueOUT;
+    if(ImGui::SliderFloat("CUE OUT",&tempcueOUT,cueIN+2, audiofile.length()-2)){
+        cueOUT = static_cast<double>(tempcueOUT);
+        if(playhead > cueOUT){
+            playhead = cueOUT;
+        }
+        this->setCustomVar(static_cast<float>(cueOUT),"CUE_OUT");
+    }
 
     ImGuiEx::ObjectInfo(
                 "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
@@ -375,21 +446,34 @@ void SoundfilePlayer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
-    }
-    if(removeFileFromData){
-        removeFile(filepath);
     }
 }
 
 //--------------------------------------------------------------
 void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    // trigger, this needs to run in audio thread
+    if(this->inletsConnected[6]){
+        if(ofClamp(*(float *)&_inletParams[6],0.0f,1.0f) == 1.0f && !isNextCycle){
+            isNextCycle = true;
+            playhead = cueIN;
+            isPlaying = true;
+            finishSemaphore = true;
+        }else if(playhead > 6000){
+            isNextCycle = false;
+        }
+    }
+
     if(isFileLoaded && audiofile.loaded() && isPlaying){
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
             int n = static_cast<int>(floor(playhead));
 
-            if(n < audiofile.length()-1){
+            if(static_cast<unsigned long long>(n) < cueOUT-1){
                 float fract = static_cast<float>(playhead - n);
                 float isample = audiofile.sample(n, 0)*(1.0f-fract) + audiofile.sample(n+1, 0)*fract; // linear interpolation
                 monoBuffer.getSample(i,0) = isample * volume;
@@ -407,9 +491,9 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
                 if(loop){
                     // backword
                     if(speed < 0.0){
-                        playhead = audiofile.length()-2;
+                        playhead = cueOUT;
                     }else if(speed > 0.0){
-                        playhead = 0.0;
+                        playhead = cueIN;
                     }
                 }
             }
@@ -466,9 +550,9 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     playhead = std::numeric_limits<int>::max();
     step = audiofile.samplerate() / sampleRate;
 
-    plot_data = new float[1024];
-    for( int x=0; x<1024; ++x){
-        int n = ofMap( x, 0, 1024, 0, audiofile.length(), true );
+    plot_data = new float[bufferSize];
+    for( int x=0; x<bufferSize; ++x){
+        int n = ofMap( x, 0, bufferSize, 0, audiofile.length(), true );
         plot_data[x] = hardClip(audiofile.sample( n, 0 ));
     }
 
@@ -476,7 +560,9 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
     monoBuffer.clear();
     monoBuffer = tmpBuffer;
 
-    playhead = 0.0;
+    cueIN = 0.0;
+    cueOUT = audiofile.length()-2;
+    playhead = cueIN;
 
     this->saveConfig(false);
 

@@ -63,26 +63,20 @@ public:
 
     void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
-    pdsp::Function          seq;
-    int                     step;
+    pdsp::Function                  seq;
+    std::atomic<int>                actualSteps;
+    std::atomic<int>                meter_step;
+
     int                     chapter;
     int                     maxChapter;
-    std::atomic<int>        actualSteps;
+    int                     manualSteps;
 
-    bool                    metro;
-    bool                    bang;
 
     float                   seqSteps[SEQUENCER_STEPS];
-
     float                   ctrl1Steps[SEQUENCER_STEPS];
     float                   ctrl2Steps[SEQUENCER_STEPS];
     float                   ctrl3Steps[SEQUENCER_STEPS];
     float                   ctrl4Steps[SEQUENCER_STEPS];
-
-    std::atomic<int>                                step_millis;
-    std::atomic<int>                                expected_step_millis;
-    std::chrono::steady_clock::time_point           clock_begin;
-    std::chrono::steady_clock::duration             time_span;
 
     bool                    loaded;
 

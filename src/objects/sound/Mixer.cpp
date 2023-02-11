@@ -97,6 +97,8 @@ void Mixer::newObject(){
 
 //--------------------------------------------------------------
 void Mixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
     loadAudioSettings();
 
 }
@@ -118,9 +120,10 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0]){
-        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+        for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
             if(i < signalInlets){
                 levels_float[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
                 levels_ctrl[i].set(levels_float[i]);
@@ -144,6 +147,8 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 //--------------------------------------------------------------
 void Mixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -228,6 +233,8 @@ void Mixer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Mixer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -260,6 +267,8 @@ void Mixer::initInlets(){
 //--------------------------------------------------------------
 void Mixer::resetInletsSettings(){
 
+    mix.disconnectIn();
+
     vector<bool> tempInletsConn;
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
@@ -281,21 +290,23 @@ void Mixer::resetInletsSettings(){
 
     _inletParams[0] = new vector<float>();
 
-    for(size_t i=0;i<signalInlets;i++){
+    for(int i=0;i<signalInlets;i++){
         _inletParams[i+1] = new ofSoundBuffer();
     }
 
     this->inletsType.clear();
     this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
     this->addInlet(VP_LINK_ARRAY,"control");
 
-    for(size_t i=0;i<signalInlets;i++){
+    for(int i=0;i<signalInlets;i++){
         this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i+1));
     }
 
     this->inletsConnected.clear();
-    for(int i=0;i<tempInletsConn.size();i++){
+    for(size_t i=0;i<tempInletsConn.size();i++){
         if(tempInletsConn.at(i)){
             this->inletsConnected.push_back(true);
         }else{
@@ -333,11 +344,13 @@ void Mixer::resetInletsSettings(){
 
 //--------------------------------------------------------------
 void Mixer::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
