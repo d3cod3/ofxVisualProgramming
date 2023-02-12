@@ -287,8 +287,8 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     // Calc zoom name
     if( !isNodeVisible ){
         curNodeData.zoomName = ImGuiExNodeZoom_Invisible;
-        //return false;
-    }else{
+        //return false; // Note: Commented so that pins and wires can still be drawn
+    } else {
         unsigned int curWidth = curNodeData.outerContentBox.GetSize().x;
         if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_SMALL )
             curNodeData.zoomName = ImGuiExNodeZoom_Imploded;
@@ -303,17 +303,17 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     // Adapt the layout for pins
     static int pinsWidth; pinsWidth = 0;
-    /*if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
-        // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
-        pinsWidth = 0;
-        if(_numLeftPins > 0 || _numLeftPins > 0)
-            pinsWidth = ImFloor(curNodeData.innerContentBox.GetSize().x);
-        if(_numLeftPins > 0 && _numLeftPins > 0)
-            pinsWidth *= .5f;
-    }
-    else{
-        pinsWidth = (curNodeData.zoomName >= ImGuiExNodeZoom_Large) ? IMGUI_EX_NODE_PINS_WIDTH_LARGE : (curNodeData.zoomName >= ImGuiExNodeZoom_Normal) ? IMGUI_EX_NODE_PINS_WIDTH_NORMAL : IMGUI_EX_NODE_PINS_WIDTH_SMALL;
-    }*/
+    // if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
+    //     // Behaviour: if there are any pins, show only pins. Else imploded still have small content.
+    //     pinsWidth = 0;
+    //     if(_numLeftPins > 0 || _numLeftPins > 0)
+    //         pinsWidth = ImFloor(curNodeData.innerContentBox.GetSize().x);
+    //     if(_numLeftPins > 0 && _numLeftPins > 0)
+    //         pinsWidth *= .5f;
+    // }
+    // else{
+    //     pinsWidth = (curNodeData.zoomName >= ImGuiExNodeZoom_Large) ? IMGUI_EX_NODE_PINS_WIDTH_LARGE : (curNodeData.zoomName >= ImGuiExNodeZoom_Normal) ? IMGUI_EX_NODE_PINS_WIDTH_NORMAL : IMGUI_EX_NODE_PINS_WIDTH_SMALL;
+    // }
 
 
 
@@ -350,11 +350,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     fg->AddRect(curNodeData.outerContentBox.Min, ImVec2(curNodeData.outerContentBox.Max.x,curNodeData.outerContentBox.Min.y+IMGUI_EX_NODE_HEADER_HEIGHT), IM_COL32(255,255,255,200));
     fg->AddRect(ImVec2(curNodeData.outerContentBox.Min.x, curNodeData.outerContentBox.Max.y-IMGUI_EX_NODE_FOOTER_HEIGHT), curNodeData.outerContentBox.Max, IM_COL32(255,255,255,200));
 #endif
+
     // Return early now that everything has been calc'd.
     if( !isNodeVisible ){
         nodeDrawList = ImGui::GetWindowDrawList(); // So that nodes can still draw pins !
         return false;
     }
+
     // Create node window
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));//IMGUI_EX_NODE_CONTENT_PADDING,IMGUI_EX_NODE_CONTENT_PADDING));
     ImGui::SetNextWindowPos(curNodeData.outerContentBox.Min);
@@ -569,14 +571,13 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         return false;
     }
 
-
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
     ImGui::BeginColumns("innerNode", 3,
-                        ImGuiColumnsFlags_NoBorder
-                        | ImGuiColumnsFlags_NoResize
+                        ImGuiOldColumnFlags_NoBorder
+                        | ImGuiOldColumnFlags_NoResize
                         //| ImGuiOldColumnFlags_NoPreserveWidths
-                        | ImGuiColumnsFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
+                        | ImGuiOldColumnFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
     // Column layout
     // Note: A column of 0 width will probably cause crashes
@@ -749,7 +750,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 ImGui::SetCursorScreenPos( pinLayout.curDrawPos + ImVec2( -pinLayout.pinSpace.x, 0)  );
             }
 
-
 # if __IMGUI_EX_NODECANVAS_DEBUG__
             ImGui::Button("##nodeBtn", pinLayout.pinSpace);
 # else
@@ -788,7 +788,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                         connectingColor.w = 0.4f;
                         const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                        canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                         // add link info
                         std::string _temp = _type+" "+_gui_label;
@@ -812,7 +812,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                         connectingColor.w = 0.4f;
                         const LinkBezierData link_data = get_link_renderable(canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                        canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                         // add link info
                         std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
@@ -881,7 +881,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
                 ImGui::EndDragDropTarget();
 
-
             }
 
         }
@@ -919,7 +918,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 }
 
             }
-
         }
 
         // right side (OUTLETS)
@@ -956,7 +954,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     }
                 }
 
-
                 static ImU32 _tempColor;
                 _tempColor = _color;
 
@@ -968,7 +965,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     _tempColor = IM_COL32(255,0,0,255);
                 }
 
-                canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
+                canvasDrawList->AddBezierCubic(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
             }
 
             // Draw pin
@@ -990,8 +987,6 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             if(_connected){
                 nodeDrawList->AddCircle(outletPinsPositions[nodeID][pinID],pinSpace * 0.9f, _color, 6);
             }
-
-
         }
     }
 
