@@ -185,7 +185,7 @@ void VideoTransform::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGL
             }
 
             scaledFbo->begin();
-            ofClear(0,0,0,255);
+            ofClear(0,0,0,0);
             bounds.set(_x,_y,_w,_h);
 
             ofPushMatrix();
