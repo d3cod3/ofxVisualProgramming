@@ -37,6 +37,10 @@
 #include "Tracy.hpp"
 #endif
 
+#if defined (TARGET_GLFW_WINDOW)
+#include "GLFW/glfw3.h"
+#endif
+
 //--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
 
@@ -216,7 +220,9 @@ void ofxVisualProgramming::setupFailsafeWindow(){
     failsafeWindow->setVerticalSync(false);
     failsafeWindow->setWindowPosition(0,0);
 
+    #if defined (TARGET_GLFW_WINDOW)
     glfwSetWindowCloseCallback(failsafeWindow->getGLFWWindow(),GL_FALSE);
+    #endif
 }
 
 //--------------------------------------------------------------
