@@ -143,7 +143,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     // Initialise GUI
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();
-        ofxVPGui->setup();//nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
+        //ofxVPGui->setup();//nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
         ofLogNotice("ofxVP","Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();");
     }
     else {
@@ -153,13 +153,14 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
 
         // Ensure ImGui gets loaded correctly
         if(ImGui::GetCurrentContext()==nullptr || !ImGui::GetCurrentContext()->Initialized){
-            ofxVPGui->setup();
+            //ofxVPGui->setup();
         }
 
         //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
+    ofxVPGui->setup();
 
-    nodeCanvas.setContext(ImGui::GetCurrentContext());
+    //nodeCanvas.setContext(ImGui::GetCurrentContext());
 
     nodeCanvas.setRetina(isRetina);
     profiler.setIsRetina(isRetina);
