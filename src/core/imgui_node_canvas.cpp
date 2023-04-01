@@ -762,7 +762,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             _str_label += std::to_string(_pinFlag);
 
             // update node active pin
-            if(ImGui::IsItemClicked()){ // || ImGui::IsItemHovered()
+            if(ImGui::IsItemClicked(ImGuiMouseButton_Left)){ // || ImGui::IsItemHovered()
                 activePin = _str_label;
                 activePinType = _type;
             }
@@ -931,7 +931,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
 
                 const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
 
-                if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
+                if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !isAnyCanvasNodeHovered){
                     if (is_hovered && !ImGui::GetIO().KeyShift){
                         if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
                             selected_links.push_back(_linksData.at(i)._linkID);
