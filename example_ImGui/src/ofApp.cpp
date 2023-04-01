@@ -78,10 +78,12 @@ void ofApp::draw(){
         }
     }
     ImGui::End();
-    myAppGui.end();
+    //myAppGui.end();
 
     // Draw to vp Gui
     visualProgramming->draw();
+
+    myAppGui.end();
 
     // Manually render ImGui once ofxVP rendered to it.
     myAppGui.draw();
