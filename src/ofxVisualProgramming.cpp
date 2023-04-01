@@ -39,6 +39,10 @@
 #include "Tracy.hpp"
 #endif
 
+#if defined (TARGET_GLFW_WINDOW)
+#include "GLFW/glfw3.h"
+#endif
+
 //--------------------------------------------------------------
 ofxVisualProgramming::ofxVisualProgramming(){
 
@@ -157,7 +161,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
         //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
     }
 
-    nodeCanvas.setContext(ImGui::GetCurrentContext());
+    //nodeCanvas.setContext(ImGui::GetCurrentContext());
 
     nodeCanvas.setRetina(isRetina);
     profiler.setIsRetina(isRetina);
@@ -218,7 +222,9 @@ void ofxVisualProgramming::setupFailsafeWindow(){
     failsafeWindow->setVerticalSync(false);
     failsafeWindow->setWindowPosition(0,0);
 
+    #if defined (TARGET_GLFW_WINDOW)
     glfwSetWindowCloseCallback(failsafeWindow->getGLFWWindow(),GL_FALSE);
+    #endif
 }
 
 //--------------------------------------------------------------
@@ -668,6 +674,19 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     bLoadingNewObject       = true;
 
     shared_ptr<PatchObject> tempObj = selectObject(name);
+
+    // selectObject can return nullptr !
+    if( tempObj.get() == nullptr ){
+        ofLogWarning("ofxVisualProgramming::addObject") << "The requested object « " << name << " » is not available !"
+#ifdef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+        << "\n(note: ofxVisualProgramming is compiling with OFXVP_BUILD_WITH_MINIMAL_OBJECTS enabled.)";
+#else
+        ;
+#endif
+        bLoadingNewObject = false;
+        return;
+    }
+
 
     tempObj->newObject();
     tempObj->setPatchfile(currentPatchFile);

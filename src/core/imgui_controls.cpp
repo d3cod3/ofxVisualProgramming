@@ -1,5 +1,4 @@
 #include "imgui_controls.h"
-
 #include "imgui_internal.h"
 
 namespace ImGuiEx {
