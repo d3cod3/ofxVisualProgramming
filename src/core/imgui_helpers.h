@@ -34,6 +34,7 @@
 
 #include "ofMain.h"
 #include "ofxImGui.h"
+#include "ImHelpers.h"
 #include "ImGuiFileBrowser.h"
 #include "imgui_node_canvas.h"
 #include "imgui_plot.h"

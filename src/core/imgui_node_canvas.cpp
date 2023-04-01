@@ -450,7 +450,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
 
-        if(ImGui::IsItemActive() && ImGui::IsItemClicked(ImGuiMouseButton_Left)){
+        if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
             activeNode = nId;
             if(ImGui::GetIO().KeyShift && name != "audio device"){
                 selected_nodes.push_back(nId);
@@ -462,21 +462,22 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             selected_nodes.clear();
         }
 
-        if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+        if(ImGui::IsItemHovered() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
             if(!isDraggingHeader){
                 mouseOffset = ImGui::GetMousePos()-curNodeData.outerContentBox.Min;
                 isDraggingHeader = true;
             }
-
+        }else if(ImGui::IsMouseDown(ImGuiMouseButton_Left) && isDraggingHeader && nId == activeNode){
 # if __IMGUI_EX_NODECANVAS_DEBUG__
             // Visualise mouse offset
             ImGui::GetForegroundDrawList()->AddLine(curNodeData.outerContentBox.Min,curNodeData.outerContentBox.Min+mouseOffset,ImGui::ColorConvertFloat4ToU32(ImVec4(0,1,0,1.f)));
 # endif
             _pos = (ImGui::GetMousePos()-mouseOffset)*(1.f/canvasView.scale)-canvasView.translation*(1.f/canvasView.scale);// ImGui::GetMouseDragDelta(0);
-        }
-        else if(ImGui::IsItemDeactivated()){
+        }else if(ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             if(isDraggingHeader) isDraggingHeader = false;
         }
+
+
 
         // Tab bar and widget info
         if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
@@ -519,7 +520,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-(18*scaleFactor), curNodeData.outerContentBox.Min.y + 1));
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,ImVec2(4,2));
             ImGui::Button("#",ImVec2(IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor,(IMGUI_EX_NODE_HEADER_HEIGHT-1)*scaleFactor));
-            if(ImGui::IsItemActivated()){
+            if(ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
                 nodeMenuIsOpen = true;
             }
             ImGui::PopStyleVar();
@@ -533,27 +534,34 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor )  );
             ImGui::InvisibleButton( "footerGripBtn", ImVec2( IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor, IMGUI_EX_NODE_FOOTER_HANDLE_SIZE*scaleFactor )  );
             static bool isDraggingFooter = false;
-            if(ImGui::IsItemActive() && ImGui::IsMouseDragging(0)){
+            if(ImGui::IsItemHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left)){
                 if(!isDraggingFooter){
                     isDraggingFooter=true;
+                    activeNode = nId;
                 }
-                // Constrained size
-                _size = ImMax(
-                            (ImGui::GetMousePos()-curNodeData.outerContentBox.Min)*(1.f/canvasView.scale),
-                            ImVec2(IMGUI_EX_NODE_MIN_WIDTH*scaleFactor,IMGUI_EX_NODE_MIN_HEIGHT*scaleFactor)
-                            );
-            }
-            else if(ImGui::IsItemDeactivated()){
+            }else if(!ImGui::IsItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
                 if(isDraggingFooter) isDraggingFooter = false;
             }
 
-            nodeDrawList->AddTriangleFilled(
-                        curNodeData.outerContentBox.Max-ImVec2( 0, IMGUI_EX_NODE_FOOTER_HEIGHT*2*scaleFactor ),
-                        curNodeData.outerContentBox.Max,
-                        curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HEIGHT*2*scaleFactor, 0 ),
-                        //ImGui::GetColorU32(ImGuiCol_ResizeGrip)
-                        ImGui::GetColorU32(ImGui::IsItemActive()?ImGuiCol_ResizeGripActive:ImGui::IsItemHovered()?ImGuiCol_ResizeGripHovered:ImGuiCol_ResizeGrip )
+            // Constrained size
+            if(isDraggingFooter && nId == activeNode){
+                _size = ImMax(
+                        (ImGui::GetMousePos()-curNodeData.outerContentBox.Min)*(1.f/canvasView.scale),
+                        ImVec2(IMGUI_EX_NODE_MIN_WIDTH*scaleFactor,IMGUI_EX_NODE_MIN_HEIGHT*scaleFactor)
                         );
+            }
+
+
+            if(ImGui::IsItemHovered()){
+                nodeDrawList->AddTriangleFilled(
+                            curNodeData.outerContentBox.Max-ImVec2( 0, IMGUI_EX_NODE_FOOTER_HEIGHT*2*scaleFactor ),
+                            curNodeData.outerContentBox.Max,
+                            curNodeData.outerContentBox.Max-ImVec2( IMGUI_EX_NODE_FOOTER_HEIGHT*2*scaleFactor, 0 ),
+                            //ImGui::GetColorU32(ImGuiCol_ResizeGrip)
+                            ImGui::GetColorU32(ImGui::IsMouseDown(ImGuiMouseButton_Left)?ImGuiCol_ResizeGripActive:ImGui::IsItemHovered()?ImGuiCol_ResizeGripHovered:ImGuiCol_ResizeGrip )
+                            );
+            }
+
         }
 
     }
@@ -765,11 +773,13 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             if(ImGui::IsItemClicked()){ // || ImGui::IsItemHovered()
                 activePin = _str_label;
                 activePinType = _type;
+                //std::cout << "Clicking PIN" << std::endl;
             }
 
 
             // Let this pin be draggable
-            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceNoHoldToOpenOthers|ImGuiDragDropFlags_SourceNoPreviewTooltip)){
+            if(ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceNoHoldToOpenOthers|ImGuiDragDropFlags_SourceNoPreviewTooltip)){
+                std::cout << "Begin Drag&Drop" << std::endl;
                 // draw dragging link creation
                 if( activePin == _str_label ){ // draw link from active pin only ( last clicked )
 
@@ -783,6 +793,8 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         // PAYLOAD
                         static int tmpNum=777;
                         ImGui::SetDragDropPayload(IMGUI_PAYLOAD_TYPE_PIN_FLOAT, &tmpNum, sizeof(int)); // Set payload to carry the index of our item (could be anything)
+
+                        std::cout << "Creating Link" << std::endl;
 
                         // add connecting link
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);

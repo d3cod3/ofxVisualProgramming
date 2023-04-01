@@ -10,6 +10,10 @@
 #include <cstdint>
 #include <map>
 
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+
 #include "imgui.h"
 
 float imMap(float value, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp=true);

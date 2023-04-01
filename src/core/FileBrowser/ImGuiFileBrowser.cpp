@@ -1,8 +1,6 @@
 #include "ImGuiFileBrowser.h"
 #include "IconsFontAwesome5.h"
-#ifndef IMGUI_DEFINE_MATH_OPERATORS
-#define IMGUI_DEFINE_MATH_OPERATORS
-#endif
+
 #include "imgui_internal.h"
 
 #include <iostream>
@@ -128,7 +126,7 @@ namespace imgui_addons
         max_size.x = io.DisplaySize.x;
         max_size.y = io.DisplaySize.y;
         ImGui::SetNextWindowSizeConstraints(min_size, max_size);
-        ImGui::SetNextWindowPos(io.DisplaySize * 0.5f, ImGuiCond_Appearing, ImVec2(0.5f,0.5f));
+        ImGui::SetNextWindowPos(io.DisplaySize * ImVec2(0.5f,0.5f), ImGuiCond_Appearing, ImVec2(0.5f,0.5f));
         ImGui::SetNextWindowSize(ImVec2(std::max(sz_xy.x, min_size.x), std::max(sz_xy.y, min_size.y)), ImGuiCond_Appearing);
 
         //Set Proper Filter Mode.
@@ -241,9 +239,9 @@ namespace imgui_addons
         //float list_item_height = GImGui->FontSize + style.ItemSpacing.y;
         std::string tmbFN, tmpSELFN;
 
-        ImVec2 pw_content_size = ImGui::GetWindowSize() - style.WindowPadding * 2.0;
+        ImVec2 pw_content_size = ImGui::GetWindowSize() - style.WindowPadding * ImVec2(2.0,2.0);
         ImVec2 sw_size = ImVec2(ImGui::CalcTextSize("Random").x + 140, style.WindowPadding.y * 2.0 + frame_height);
-        ImVec2 sw_content_size = sw_size - style.WindowPadding * 2.0;
+        ImVec2 sw_content_size = sw_size - style.WindowPadding * ImVec2(2.0,2.0);
         ImVec2 nw_size = ImVec2(pw_content_size.x - style.ItemSpacing.x - sw_size.x, sw_size.y);
 
 
@@ -482,7 +480,7 @@ namespace imgui_addons
         ImGuiIO& io = ImGui::GetIO();
 
         ImVec2 pw_pos = ImGui::GetWindowPos();
-        ImVec2 pw_content_sz = ImGui::GetWindowSize() - style.WindowPadding * 2.0;
+        ImVec2 pw_content_sz = ImGui::GetWindowSize() - style.WindowPadding * ImVec2(2.0,2.0);
         ImVec2 cursor_pos = ImGui::GetCursorPos();
 
         if(ext_box_width < 0.0)
@@ -725,7 +723,7 @@ namespace imgui_addons
 
             ImGui::BeginChild("##InputBarComboBox", input_combobox_sz, true, popupFlags);
 
-            ImVec2 listbox_size = input_combobox_sz - ImGui::GetStyle().WindowPadding * 2.0f;
+            ImVec2 listbox_size = input_combobox_sz - ImGui::GetStyle().WindowPadding * ImVec2(2.0,2.0);
             if(ImGui::BeginListBox("##InputBarComboBoxList", listbox_size))
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
@@ -1183,7 +1181,7 @@ namespace imgui_addons
 
     ImVec2 ImGuiFileBrowser::getButtonSize(std::string button_text)
     {
-        return (ImGui::CalcTextSize(button_text.c_str()) + ImGui::GetStyle().FramePadding * 2.0);
+        return (ImGui::CalcTextSize(button_text.c_str()) + ImGui::GetStyle().FramePadding * ImVec2(2.0,2.0));
     }
 
     void ImGuiFileBrowser::parsePathTabs(std::string path)
