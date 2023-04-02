@@ -59,7 +59,7 @@ public:
     ~ofxVisualProgramming();
 
     void            setRetina(bool retina);
-    void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
+    void            setup(string release="");
     void            setupFailsafeWindow();
     void            update();
     void            updateCanvasViewport();
@@ -125,7 +125,7 @@ public:
     ofxInfiniteCanvas               canvas;
     ofEasyCam                       easyCam;
     ofRectangle                     canvasViewport;
-    ofxImGui::Gui*                  ofxVPGui;
+    ofxImGui::Gui                   ofxVPGui;
     ImGuiEx::NodeCanvas             nodeCanvas;
     ImGuiEx::ProfilersWindow        profiler;
 

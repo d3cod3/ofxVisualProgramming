@@ -43,7 +43,7 @@ void ofApp::setup(){
 
     // Pass the variable to ofxVP if you're using your ImGui instance too
     visualProgramming = new ofxVisualProgramming();
-    visualProgramming->setup( &myAppGui );
+    visualProgramming->setup();
     visualProgramming->canvasViewport.set(glm::vec2(0,0), glm::vec2(ofGetWidth(), ofGetHeight()));
 
 }

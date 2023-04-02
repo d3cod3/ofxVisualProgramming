@@ -137,28 +137,28 @@ void ofxVisualProgramming::setRetina(bool retina){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
+void ofxVisualProgramming::setup(string release){
 
     // Load resources
     font->load(MAIN_FONT,fontSize);
 
     // Initialise GUI
-    if( _guiRef == nullptr ){
-        ofxVPGui = new ofxImGui::Gui();
-        ofxVPGui->setup();//(nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
-        ofLogNotice("ofxVP","Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();");
+    // Dummy call to IO which will crash if _guiRef is not initialised.
+    ImGui::GetIO();
+
+    // Register with ofxImGui and setup
+    ofxImGui::SetupState state = ofxVPGui.setup();
+    if(state & ofxImGui::SetupState::Success ){
+        if(state & ofxImGui::SetupState::Master ){
+            ofLogNotice("ofxVP::setup","The Gui is now owned by ofxVP. If your app has its own one, it's recommended to setup ImGui before.");
+        }
+        else if(state & ofxImGui::SetupState::Slave ) {
+            // Slave is OK
+        }
     }
     else {
-        ofxVPGui = _guiRef;
-        // Dummy call to IO which will crash if _guiRef is not initialised.
-        ImGui::GetIO();
-
-        // Ensure ImGui gets loaded correctly
-        if(ImGui::GetCurrentContext()==nullptr || !ImGui::GetCurrentContext()->Initialized){
-            ofxVPGui->setup();
-        }
-
-        //ofLogError("ofxVP") << "Setting up ImGui from reference instance." << (ImGui::GetCurrentContext()->Initialized?'1':'0');
+        ofLogError("ofxVP::setup","The Gui instance for ofxVP could not be setup!");
+        // todo: should this return ?
     }
 
     //nodeCanvas.setContext(ImGui::GetCurrentContext());
@@ -348,7 +348,7 @@ void ofxVisualProgramming::draw(){
     if( (ImGui::GetDrawData()!=NULL) )
         ofLogError("ofxVisualProgramming::draw", "Warning, you're calling draw after rendering ImGui. Please call before.");
 
-    ofxVPGui->begin();
+    ofxVPGui.begin();
 
     // DEBUG
     if(OFXVP_DEBUG){
@@ -409,7 +409,7 @@ void ofxVisualProgramming::draw(){
     nodeCanvas.End();
 
     // We're done drawing to IMGUI
-    ofxVPGui->end();
+    ofxVPGui.end();
 
     canvas.end();
 
