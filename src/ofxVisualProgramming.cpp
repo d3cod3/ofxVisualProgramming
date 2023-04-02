@@ -72,6 +72,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     lastAddedObjectID       = -1;
     bLoadingNewObject       = false;
     bLoadingNewPatch        = false;
+    bPopulatingObjectsMap   = false;
     clearingObjectsMap      = false;
 
     livePatchingObiID       = -1;
@@ -240,7 +241,10 @@ void ofxVisualProgramming::update(){
     }
 
     // Clear map from deleted objects
-    clearObjectsMap();
+    if(!bPopulatingObjectsMap){
+        clearObjectsMap();
+    }
+
 
     // update patch objects
     if(!bLoadingNewPatch && !patchObjects.empty()){
@@ -1584,6 +1588,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.popTag();
         }
 
+        bPopulatingObjectsMap   = true;
+
         int totalObjects = XML.getNumTags("object");
 
         if(totalObjects > 0){
@@ -1660,6 +1666,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
             }
         }
+
+        bPopulatingObjectsMap   = false;
 
         activateDSP();
 
