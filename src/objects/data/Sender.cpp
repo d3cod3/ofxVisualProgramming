@@ -282,7 +282,7 @@ void vpSender::initWireless(){
     changeDataType(sendTypeIndex);
 
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+    if(XML.load(this->patchFile)){
         int totalObjects = XML.getNumTags("object");
 
         // Get object inlets config
@@ -410,7 +410,7 @@ void vpSender::changeDataType(int type, bool init){
 
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
         int totalObjects = XML.getNumTags("object");
 
         // Save new object config
@@ -465,7 +465,7 @@ void vpSender::changeDataType(int type, bool init){
             }
         }
 
-        XML.saveFile();
+        XML.save(patchFile);
 
     }
 

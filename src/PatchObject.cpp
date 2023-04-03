@@ -624,7 +624,7 @@ bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engi
     ofxXmlSettings XML;
     bool loaded = false;
 
-    if (XML.loadFile(configFile)){
+    if (XML.load(configFile)){
 
         patchFile = configFile;
 
@@ -704,7 +704,7 @@ bool PatchObject::saveConfig(bool newConnection){
     bool saved = false;
 
     if(patchFile != ""){
-        if(XML.loadFile(patchFile)){
+        if(XML.load(patchFile)){
             int totalObjects = XML.getNumTags("object");
             // first save of the object
             if(nId == -1){
@@ -855,7 +855,7 @@ bool PatchObject::saveConfig(bool newConnection){
                     }
                 }
             }
-            saved = XML.saveFile();
+            saved = XML.save(patchFile);
         }
     }
 
@@ -869,7 +869,7 @@ bool PatchObject::removeLinkFromConfig(int outlet, int toObjectID, int toInletID
     bool saved = false;
 
     if(patchFile != ""){
-        if(XML.loadFile(patchFile)){
+        if(XML.load(patchFile)){
             int totalObjects = XML.getNumTags("object");
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
@@ -899,7 +899,7 @@ bool PatchObject::removeLinkFromConfig(int outlet, int toObjectID, int toInletID
             }
         }
 
-        saved = XML.saveFile();
+        saved = XML.save(patchFile);
     }
 
     return saved;
@@ -911,7 +911,7 @@ bool PatchObject::clearCustomVars(){
     bool saved = false;
 
     if(patchFile != ""){
-        if(XML.loadFile(patchFile)){
+        if(XML.load(patchFile)){
             int totalObjects = XML.getNumTags("object");
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
@@ -946,7 +946,7 @@ bool PatchObject::clearCustomVars(){
             }
         }
 
-        saved = XML.saveFile();
+        saved = XML.save(patchFile);
 
     }
 
@@ -960,7 +960,7 @@ map<string,float> PatchObject::loadCustomVars(){
     ofxXmlSettings XML;
 
     if(patchFile != ""){
-        if(XML.loadFile(patchFile)){
+        if(XML.load(patchFile)){
             int totalObjects = XML.getNumTags("object");
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){

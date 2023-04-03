@@ -513,7 +513,7 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 void SoundfilePlayer::loadSettings(){
     ofxXmlSettings XML;
 
-    if(XML.loadFile(patchFile)){
+    if(XML.load(patchFile)){
         if(XML.pushTag("settings")){
             sampleRate = static_cast<double>(XML.getValue("sample_rate_out",0));
             bufferSize = XML.getValue("buffer_size",0);

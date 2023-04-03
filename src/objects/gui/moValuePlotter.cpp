@@ -214,7 +214,7 @@ void moValuePlotter::removeObjectContent(bool removeFileFromData){
 void moValuePlotter::loadVariableName(){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
         int totalObjects = XML.getNumTags("object");
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
@@ -231,7 +231,7 @@ void moValuePlotter::loadVariableName(){
 void moValuePlotter::saveVariableName(){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
         int totalObjects = XML.getNumTags("object");
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
@@ -241,7 +241,7 @@ void moValuePlotter::saveVariableName(){
                 XML.popTag();
             }
         }
-        XML.saveFile();
+        XML.save(patchFile);
     }
 }
 

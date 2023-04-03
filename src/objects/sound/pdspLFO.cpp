@@ -219,7 +219,7 @@ void pdspLFO::removeObjectContent(bool removeFileFromData){
 void pdspLFO::loadAudioSettings(){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
         if (XML.pushTag("settings")){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);

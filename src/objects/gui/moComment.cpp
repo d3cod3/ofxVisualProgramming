@@ -186,7 +186,7 @@ void moComment::removeObjectContent(bool removeFileFromData){
 void moComment::loadCommentSetting(){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
         int totalObjects = XML.getNumTags("object");
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
@@ -203,7 +203,7 @@ void moComment::loadCommentSetting(){
 void moComment::saveCommentSetting(){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
         int totalObjects = XML.getNumTags("object");
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
@@ -213,7 +213,7 @@ void moComment::saveCommentSetting(){
                 XML.popTag();
             }
         }
-        XML.saveFile();
+        XML.save(patchFile);
     }
 }
 

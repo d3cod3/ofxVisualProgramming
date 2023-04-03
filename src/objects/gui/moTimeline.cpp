@@ -668,7 +668,7 @@ void moTimeline::updateOutletsConfig(){
 //--------------------------------------------------------------
 void moTimeline::saveOutletConfig(){
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+    if(XML.load(this->patchFile)){
         int totalObjects = XML.getNumTags("object");
 
         // Load Links
@@ -734,7 +734,7 @@ void moTimeline::saveOutletConfig(){
             }
         }
 
-        XML.saveFile();
+        XML.save(this->patchFile);
     }
 
     ofNotifyEvent(this->reconnectOutletsEvent, this->nId);

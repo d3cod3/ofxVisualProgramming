@@ -733,7 +733,7 @@ void ofxVisualProgramming::resetObject(int &id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
 
         ofxXmlSettings XML;
-        if (XML.loadFile(currentPatchFile)){
+        if (XML.load(currentPatchFile)){
 
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 vector<shared_ptr<PatchLink>> tempBuffer;
@@ -786,7 +786,7 @@ void ofxVisualProgramming::resetObject(int &id){
                 }
             }
 
-            XML.saveFile();
+            XML.save(currentPatchFile);
 
         }
     }
@@ -815,7 +815,7 @@ void ofxVisualProgramming::reconnectObjectOutlets(int &id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
 
         ofxXmlSettings XML;
-        if (XML.loadFile(currentPatchFile)){
+        if (XML.load(currentPatchFile)){
             int totalObjects = XML.getNumTags("object");
 
             // relink object outlets from XML
@@ -866,7 +866,7 @@ void ofxVisualProgramming::deleteObject(int id){
         int targetID = id;
         bool found = false;
         ofxXmlSettings XML;
-        if (XML.loadFile(currentPatchFile)){
+        if (XML.load(currentPatchFile)){
             int totalObjects = XML.getNumTags("object");
 
             for(int i=0;i<totalObjects;i++){
@@ -914,7 +914,7 @@ void ofxVisualProgramming::deleteObject(int id){
             // remove object
             if(found){
                 XML.removeTag("object", targetID);
-                XML.saveFile();
+                XML.save(currentPatchFile);
             }
         }
 
@@ -1041,7 +1041,7 @@ void ofxVisualProgramming::removeObject(int &id){
         int targetID = id;
         bool found = false;
         ofxXmlSettings XML;
-        if (XML.loadFile(currentPatchFile)){
+        if (XML.load(currentPatchFile)){
             int totalObjects = XML.getNumTags("object");
 
             for(int i=0;i<totalObjects;i++){
@@ -1089,7 +1089,7 @@ void ofxVisualProgramming::removeObject(int &id){
             // remove object
             if(found){
                 XML.removeTag("object", targetID);
-                XML.saveFile();
+                XML.save(currentPatchFile);
             }
         }
 
@@ -1253,9 +1253,9 @@ void ofxVisualProgramming::newPatch(string release){
 
     // set patch release
     ofxXmlSettings XML;
-    if (XML.loadFile(fileToRead.getAbsolutePath())){
+    if (XML.load(fileToRead.getAbsolutePath())){
         XML.setValue("release",release);
-        XML.saveFile();
+        XML.save(fileToRead.getAbsolutePath());
     }
 
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
@@ -1371,7 +1371,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
     ofxXmlSettings XML;
 
-    if (XML.loadFile(patchFile)){
+    if (XML.load(patchFile)){
 
         // Load main settings
         if (XML.pushTag("settings")){
@@ -1537,7 +1537,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.setValue("sample_rate_out",audioSampleRate);
             XML.setValue("input_channels",audioGUIINChannels);
             XML.setValue("output_channels",audioGUIOUTChannels);
-            XML.saveFile();
+            XML.save(patchFile);
 
             for(size_t bs=0;bs<audioDevicesBS.size();bs++){
                 if(ofToInt(audioDevicesBS.at(bs)) == audioBufferSize){
@@ -1743,10 +1743,10 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
 void ofxVisualProgramming::setPatchVariable(string var, int value){
     ofxXmlSettings XML;
 
-    if (XML.loadFile(currentPatchFile)){
+    if (XML.load(currentPatchFile)){
         if (XML.pushTag("settings")){
             XML.setValue(var,value);
-            XML.saveFile();
+            XML.save(currentPatchFile);
             XML.popTag();
         }
     }
