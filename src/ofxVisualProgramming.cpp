@@ -1461,7 +1461,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(!audioDevicesID_IN.empty()){
                     isInputDeviceAvailable = true;
                     // select the first one available
-                    audioGUIINIndex = audioDevicesID_IN.at(0);
+                    audioGUIINIndex = 0;
                     audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
                 }else{
                     isInputDeviceAvailable = false;
@@ -1486,7 +1486,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(!audioDevicesID_OUT.empty()){
                     isOutputDeviceAvailable = true;
                     // select the first one available
-                    audioGUIOUTIndex = audioDevicesID_OUT.at(0);
+                    audioGUIOUTIndex = 0;
                     audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
                 }else{
                     isOutputDeviceAvailable = false;
