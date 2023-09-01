@@ -54,8 +54,8 @@ VideoGrabber::VideoGrabber() :
 
     posX = posY = drawW = drawH = 0.0f;
 
-    camWidth            = 320;
-    camHeight           = 240;
+    camWidth            = 1280;
+    camHeight           = 720;
     temp_width          = camWidth;
     temp_height         = camHeight;
 
