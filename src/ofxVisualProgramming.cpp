@@ -660,6 +660,18 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
 
     shared_ptr<PatchObject> tempObj = selectObject(name);
 
+    // selectObject can return nullptr !
+    if( tempObj.get() == nullptr ){
+        ofLogWarning("ofxVisualProgramming::addObject") << "The requested object « " << name << " » is not available !"
+    #ifdef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+            << "\n(note: ofxVisualProgramming is compiling with OFXVP_BUILD_WITH_MINIMAL_OBJECTS enabled.)";
+    #else
+            ;
+    #endif
+        bLoadingNewObject = false;
+        return;
+    }
+
     tempObj->newObject();
     tempObj->setPatchfile(currentPatchFile);
     tempObj->setup(mainWindow);
