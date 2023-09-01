@@ -625,7 +625,9 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             // compute audio input
             if(!inputBuffer.getBuffer().empty()){
                 for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                    it->second->audioIn(inputBuffer);
+                    if(!it->second->getWillErase()){
+                        it->second->audioIn(inputBuffer);
+                    }
                 }
 
                 lastInputBuffer = inputBuffer;
@@ -635,7 +637,9 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
         if(audioGUIOUTChannels > 0){
             // compute audio output
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                it->second->audioOut(emptyBuffer);
+                if(!it->second->getWillErase()){
+                    it->second->audioOut(emptyBuffer);
+                }
             }
         }
 
