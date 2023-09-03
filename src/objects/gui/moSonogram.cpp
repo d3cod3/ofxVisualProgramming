@@ -146,13 +146,15 @@ void moSonogram::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRend
         ofPushMatrix();
         ofSetColor(0,0,0,0);
         ofDrawRectangle(0,0,static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
-            float valueDB = log10(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(s),0.0f,1.0f,1.0f,10.0f,true));
-            int colorIndex = static_cast<int>(floor(ofMap(valueDB,0.0f,1.0f,0,colors.size()-1,true)));
-            ofSetColor(0);
-            ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
-            ofSetColor(colors.at(colorIndex),255*valueDB);
-            ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
+        if(!static_cast<vector<float> *>(_inletParams[0])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+                float valueDB = log10(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(s),0.0f,1.0f,1.0f,10.0f,true));
+                int colorIndex = static_cast<int>(floor(ofMap(valueDB,0.0f,1.0f,0,colors.size()-1,true)));
+                ofSetColor(0);
+                ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
+                ofSetColor(colors.at(colorIndex),255*valueDB);
+                ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
+            }
         }
         ofPopMatrix();
         ofPopStyle();
