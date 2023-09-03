@@ -402,10 +402,12 @@ void AudioAnalyzer::doAutoCorrelation(float* signal){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::detectRMS(){
-    for (int i = 0; i < bufferSize; i++) {
+    /*for (int i = 0; i < bufferSize; i++) {
         rms += abs(autoCorrelation[i]);
     }
-    rms /= bufferSize;
+    rms /= bufferSize;*/
+
+    rms = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0);
 }
 
 //--------------------------------------------------------------
