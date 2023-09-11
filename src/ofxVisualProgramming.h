@@ -153,6 +153,7 @@ public:
     int                                 lastAddedObjectID;
     bool                                bLoadingNewObject;
     bool                                bLoadingNewPatch;
+    bool                                bPopulatingObjectsMap;
     bool                                clearingObjectsMap;
 
     // LOAD/SAVE

@@ -323,3 +323,5 @@ const std::string TYPE::objectCategory(CATEGORY);
 private:                                        \
     static const std::string objectName;        \
     static const std::string objectCategory;    \
+
+// ---------------------------------------------

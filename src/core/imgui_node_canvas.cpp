@@ -756,6 +756,8 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
             ImGui::InvisibleButton("nodeBtn", ImMax(ImVec2(pinLayout.pinSpace.x,pinLayout.pinSpace.y*.8f), ImVec2(1,1)));
 # endif
 
+            IM_ASSERT( _label != NULL );
+
             std::string _str_label(_label);
             std::string _gui_label(_label);
             _str_label += std::to_string(pinID);

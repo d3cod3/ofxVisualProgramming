@@ -417,7 +417,7 @@ void PlotBands(ImDrawList* drawList, float width, float height, std::vector<floa
     float bin_w = Canvas.x / data->size();
 
     for(unsigned int i=0;i<data->size();i++){
-        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(max-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i) + bin_w, bb.Max.y),color);
+        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(max-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i) + bin_w, bb.Max.y),color,0,0,1);
     }
 
 }

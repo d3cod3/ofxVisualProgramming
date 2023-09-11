@@ -66,6 +66,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     lastAddedObjectID       = -1;
     bLoadingNewObject       = false;
     bLoadingNewPatch        = false;
+    bPopulatingObjectsMap   = false;
     clearingObjectsMap      = false;
 
     livePatchingObiID       = -1;
@@ -225,7 +226,9 @@ void ofxVisualProgramming::update(){
     }
 
     // Clear map from deleted objects
-    clearObjectsMap();
+    if(!bPopulatingObjectsMap){
+        clearObjectsMap();
+    }
 
     // update patch objects
     if(!bLoadingNewPatch && !patchObjects.empty()){
@@ -622,7 +625,9 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             // compute audio input
             if(!inputBuffer.getBuffer().empty()){
                 for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                    it->second->audioIn(inputBuffer);
+                    if(!it->second->getWillErase()){
+                        it->second->audioIn(inputBuffer);
+                    }
                 }
 
                 lastInputBuffer = inputBuffer;
@@ -632,7 +637,9 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
         if(audioGUIOUTChannels > 0){
             // compute audio output
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                it->second->audioOut(emptyBuffer);
+                if(!it->second->getWillErase()){
+                    it->second->audioOut(emptyBuffer);
+                }
             }
         }
 
@@ -659,6 +666,18 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     bLoadingNewObject       = true;
 
     shared_ptr<PatchObject> tempObj = selectObject(name);
+
+    // selectObject can return nullptr !
+    if( tempObj.get() == nullptr ){
+        ofLogWarning("ofxVisualProgramming::addObject") << "The requested object « " << name << " » is not available !"
+    #ifdef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+            << "\n(note: ofxVisualProgramming is compiling with OFXVP_BUILD_WITH_MINIMAL_OBJECTS enabled.)";
+    #else
+            ;
+    #endif
+        bLoadingNewObject = false;
+        return;
+    }
 
     tempObj->newObject();
     tempObj->setPatchfile(currentPatchFile);
@@ -1449,7 +1468,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(!audioDevicesID_IN.empty()){
                     isInputDeviceAvailable = true;
                     // select the first one available
-                    audioGUIINIndex = audioDevicesID_IN.at(0);
+                    audioGUIINIndex = 0;
                     audioINDev = audioDevicesID_IN.at(audioGUIINIndex);
                 }else{
                     isInputDeviceAvailable = false;
@@ -1474,7 +1493,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 if(!audioDevicesID_OUT.empty()){
                     isOutputDeviceAvailable = true;
                     // select the first one available
-                    audioGUIOUTIndex = audioDevicesID_OUT.at(0);
+                    audioGUIOUTIndex = 0;
                     audioOUTDev = audioDevicesID_OUT.at(audioGUIOUTIndex);
                 }else{
                     isOutputDeviceAvailable = false;
@@ -1556,6 +1575,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.popTag();
         }
 
+        bPopulatingObjectsMap   = true;
+
         int totalObjects = XML.getNumTags("object");
 
         if(totalObjects > 0){
@@ -1632,6 +1653,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
             }
         }
+
+        bPopulatingObjectsMap   = false;
 
         activateDSP();
 

@@ -256,7 +256,9 @@ void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
         lastBuffer.copyTo(monoBuffer, lastBuffer.getNumFrames(), 1, 0);
 
         // autocorrelation + normalization
-        doAutoCorrelation(monoBuffer.getBuffer().data());
+        //doAutoCorrelation(monoBuffer.getBuffer().data());
+
+        memcpy(autoCorrelationNorm, &monoBuffer.getBuffer().data()[0], bufferSize * sizeof(float));
 
 
         // get volume
@@ -397,15 +399,19 @@ void AudioAnalyzer::doAutoCorrelation(float* signal){
             autoCorrelationResults[i] /= maxValue;
         }
     }
+
     memcpy(autoCorrelationNorm, &autoCorrelationResults[0], bufferSize * sizeof(float));
+
 }
 
 //--------------------------------------------------------------
 void AudioAnalyzer::detectRMS(){
-    for (int i = 0; i < bufferSize; i++) {
+    /*for (int i = 0; i < bufferSize; i++) {
         rms += abs(autoCorrelation[i]);
     }
-    rms /= bufferSize;
+    rms /= bufferSize;*/
+
+    rms = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0);
 }
 
 //--------------------------------------------------------------
