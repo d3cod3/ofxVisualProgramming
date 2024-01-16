@@ -58,7 +58,8 @@ pdspDataOscillator::pdspDataOscillator() : PatchObject("data oscillator"){
     loaded                  = false;
     reinitDataTable         = false;
 
-    this->height            *= 1.5f;
+    this->width             *= 1.0f;
+    this->height            *= 1.86f;
 
 }
 
@@ -193,7 +194,7 @@ void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Spacing();
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/6, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 127.0f, 1270.0f)){
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(pitch,"PITCH");
             pitch_ctrl.set(pitch);
         }

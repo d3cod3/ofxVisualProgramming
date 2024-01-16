@@ -37,6 +37,7 @@
 #include "PatchObject.h"
 
 #include "imgui_controls.h"
+#include "imgui-knobs.h"
 
 #define SEQUENCER_STEPS 64
 #define CHAPTER_STEPS 16

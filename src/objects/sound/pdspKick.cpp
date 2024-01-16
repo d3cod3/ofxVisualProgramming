@@ -83,8 +83,8 @@ pdspKick::pdspKick() : PatchObject("kick"){
     compAttack              = 2.0f;
     compRelease             = 2.0f;
 
-    this->width *= 2.0f;
-    this->height *= 3.7f;
+    this->width *= 2.06f;
+    this->height *= 4.6f;
 
 }
 
@@ -250,70 +250,71 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "A", &attackDuration, 0.0f, 1000.0f, 1000.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if(ImGuiKnobs::Knob( "A", &attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(attackDuration,"ATTACK");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "D", &decayDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "D", &decayDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(decayDuration,"DECAY");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "S", &sustainLevel, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob( "S", &sustainLevel, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(sustainLevel,"SUSTAIN");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "R", &releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "R", &releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(releaseDuration,"RELEASE");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ A", &f_attackDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "FREQ A", &f_attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(f_attackDuration,"FREQ_ATTACK");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ D", &f_decayDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "FREQ D", &f_decayDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(f_decayDuration,"FREQ_DECAY");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ S", &f_sustainLevel, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob( "FREQ S", &f_sustainLevel, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(f_sustainLevel,"FREQ_SUSTAIN");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ R", &f_releaseDuration, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "FREQ R", &f_releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(f_releaseDuration,"FREQ_RELEASE");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FREQ", &oscFreq, 0.0f, 100.0f, 100.0f)){
+        if(ImGuiKnobs::Knob( "FREQ", &oscFreq, 0.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
             osc_freq_ctrl.set(pdsp::f2p(oscFreq));
             this->setCustomVar(oscFreq,"OSC_FREQ");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. FREQ", &filterFreq, 0.0f, 8260.0f, 2065.0f)){
+        if(ImGuiKnobs::Knob( "F. FREQ", &filterFreq, 0.0f, 8260.0f, 10.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             filter_freq_ctrl.set(pdsp::f2p(filterFreq));
             this->setCustomVar(filterFreq,"FILTER_FREQ");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "F. RES", &filterRes, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob( "F. RES", &filterRes, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             filter_res_ctrl.set(filterRes);
             this->setCustomVar(filterRes,"FILTER_RES");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "RATIO", &compRatio, 1.0f, 40.0f, 400.0f)){
+        if(ImGuiKnobs::Knob( "RATIO", &compRatio, 1.0f, 40.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
             comp_ratio_ctrl.set(compRatio);
             this->setCustomVar(compRatio,"COMP_RATIO");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "COMP A", &compAttack, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "COMP A", &compAttack, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             comp_A_ctrl.set(compAttack);
             this->setCustomVar(compAttack,"COMP_A");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "COMP R", &compRelease, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob( "COMP R", &compRelease, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             comp_R_ctrl.set(compRelease);
             this->setCustomVar(compRelease,"COMP_R");
         }

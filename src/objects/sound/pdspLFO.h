@@ -35,7 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "imgui_controls.h"
+#include "imgui-knobs.h"
 
 class pdspLFO : public PatchObject{
 

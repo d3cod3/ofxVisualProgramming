@@ -35,7 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
-#include "imgui_controls.h"
+#include "imgui-knobs.h"
 
 enum Filter_Mode { Filter_Mode_LP, Filter_Mode_BP, Filter_Mode_HP, Filter_Mode_NOTCH, Filter_Mode_COUNT };
 

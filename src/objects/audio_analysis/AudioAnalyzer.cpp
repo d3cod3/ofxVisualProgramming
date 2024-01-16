@@ -67,7 +67,7 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
     isLoaded                        = false;
 
     this->width     *= 1.3f;
-    this->height    *= 1.8f;
+    this->height    *= 2.0f;
 }
 
 //--------------------------------------------------------------
@@ -208,11 +208,13 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Spacing();
         ImGui::Spacing();
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/7, IM_COL32(255,255,120,255), "level", &audioInputLevel, 0.0f, 1.0f, 100.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if (ImGuiKnobs::Knob("level", &audioInputLevel, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)) {
             this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
         }
+
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/7, IM_COL32(255,255,120,255), "smooth", &smoothingValue, 0.0f, 1.0f, 100.0f)){
+        if (ImGuiKnobs::Knob("smooth", &smoothingValue, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)) {
             this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
         }
 

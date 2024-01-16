@@ -70,7 +70,8 @@ pdspReverb::pdspReverb() : PatchObject("reverb"){
 
     loaded                  = false;
 
-    this->width *= 2.2f;
+    this->width *= 2.26f;
+    this->height *= 1.12f;
 
 }
 
@@ -136,6 +137,7 @@ void pdspReverb::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         time = ofClamp(*(float *)&_inletParams[1],0.0f,60.0f);
@@ -176,6 +178,7 @@ void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void pdspReverb::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
     ofSetColor(255);
 
 }
@@ -201,23 +204,24 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "TIME", &time, 0.0f, 60.0f, 2000.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if(ImGuiKnobs::Knob("TIME", &time, 0.0f, 60.0f, 0.05f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(time,"TIME");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "DENSITY", &density, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob("DENSITY", &density, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(density,"DENSITY");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "DAMPING", &damping, 0.0f, 2.0f, 200.0f)){
+        if(ImGuiKnobs::Knob("DAMPING", &damping, 0.0f, 2.0f, 0.002f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(damping,"DAMPING");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "SPEED", &modSpeed, 0.0f, 20.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob("SPEED", &modSpeed, 0.0f, 20.0f, 0.02f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(modSpeed,"MODSPEED");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "AMOUNT", &modAmount, 0.0f, 2.0f, 200.0f)){
+        if(ImGuiKnobs::Knob("AMOUNT", &modAmount, 0.0f, 2.0f, 0.002f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(modAmount,"MODAMOUNT");
         }
 
@@ -236,6 +240,7 @@ void pdspReverb::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspReverb::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -259,11 +264,12 @@ void pdspReverb::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspReverb::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void pdspReverb::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
     static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }

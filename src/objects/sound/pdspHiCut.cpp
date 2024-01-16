@@ -98,6 +98,7 @@ void pdspHiCut::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspHiCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         freq = ofClamp(*(float *)&_inletParams[1],20.0f,20000.0f);
@@ -114,6 +115,7 @@ void pdspHiCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void pdspHiCut::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
     // draw node texture preview with OF
     ofSetColor(255);
     if(scaledObjW*canvasZoom > 90.0f){
@@ -177,6 +179,7 @@ void pdspHiCut::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspHiCut::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -200,11 +203,12 @@ void pdspHiCut::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspHiCut::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void pdspHiCut::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }

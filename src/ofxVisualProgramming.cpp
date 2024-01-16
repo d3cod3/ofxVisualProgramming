@@ -158,6 +158,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     canvas.disableMouseInput();
     canvas.setbMouseInputEnabled(true);
     canvas.toggleOfCam();
+    canvas.setUseScale(false);
     easyCam.enableOrtho();
 
     // create failsafe window for always maintaining reference to shared context

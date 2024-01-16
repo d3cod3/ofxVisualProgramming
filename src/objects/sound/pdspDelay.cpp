@@ -65,7 +65,8 @@ pdspDelay::pdspDelay() : PatchObject("delay"){
 
     loaded                  = false;
 
-    this->width *= 2.0f;
+    this->width *= 2.06f;
+    this->height *= 1.12f;
 
 }
 
@@ -170,15 +171,16 @@ void pdspDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "TIME", &time, 0.0f, DELAY_MAX_TIME, 1000.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if(ImGuiKnobs::Knob("TIME", &time, 0.0f, DELAY_MAX_TIME, 10.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(time,"TIME");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "DAMPING", &damping, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob("DAMPING", &damping, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(damping,"DAMPING");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "FEEDBACK", &feedback, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob("FEEDBACK", &feedback, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             this->setCustomVar(feedback,"FEEDBACK");
         }
 

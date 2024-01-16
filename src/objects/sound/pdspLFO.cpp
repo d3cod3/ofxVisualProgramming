@@ -64,6 +64,7 @@ pdspLFO::pdspLFO() : PatchObject("lfo"){
     loaded                  = false;
 
     this->width             *= 1.3;
+    this->height            *= 1.1;
 
 }
 
@@ -123,7 +124,7 @@ void pdspLFO::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
+    unusedArgs(patchObjects);
     // retrig
     if(this->inletsConnected[0]){
         retrig_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
@@ -155,6 +156,7 @@ void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 //--------------------------------------------------------------
 void pdspLFO::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
     ofSetColor(0);
 }
 
@@ -179,13 +181,14 @@ void pdspLFO::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/6.5f, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 10.0f, 1000.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 10.0f, 0.01f, "%.5f", ImGuiKnobVariant_Wiper)){
             pitch_ctrl.set(pitch);
             this->setCustomVar(pitch,"FREQUENCY");
 
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(32*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/6.5f, IM_COL32(255,255,120,255), "phase", &phase, -1.0f, 1.0f, 200.0f)){
+        if(ImGuiKnobs::Knob("phase", &phase, -1.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             phase_ctrl.set(phase);
             this->setCustomVar(phase,"PHASE");
         }
@@ -210,6 +213,7 @@ void pdspLFO::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspLFO::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspOut.begin(); it != this->pdspOut.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -231,6 +235,7 @@ void pdspLFO::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspLFO::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
     // SIGNAL BUFFER
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope_tri.getBuffer().data(), bufferSize, 1, sampleRate);
     static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scope_sine.getBuffer().data(), bufferSize, 1, sampleRate);

@@ -64,6 +64,7 @@ pdspCombFilter::pdspCombFilter() : PatchObject("comb filter"){
     loaded                  = false;
 
     this->width *= 2.0f;
+    this->height *= 1.12f;
 
 }
 
@@ -167,17 +168,20 @@ void pdspCombFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 127.0f, 1270.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+
+
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
             pitch_ctrl.set(pitch);
             this->setCustomVar(static_cast<float>(pitch),"PITCH");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "damping", &damping, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob("damping", &damping, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             damping_ctrl.set(damping);
             this->setCustomVar(static_cast<float>(damping),"DAMPING");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "feedback", &feedback, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob("feedback", &feedback, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             feedback_ctrl.set(feedback);
             this->setCustomVar(static_cast<float>(feedback),"FEEDBACK");
         }

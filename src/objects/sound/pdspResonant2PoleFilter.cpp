@@ -64,7 +64,8 @@ pdspResonant2PoleFilter::pdspResonant2PoleFilter() : PatchObject("resonant filte
 
     loaded                  = false;
 
-    this->width *= 2.0f;
+    this->width *= 2.06f;
+    this->height *= 1.12f;
 
 }
 
@@ -124,6 +125,7 @@ void pdspResonant2PoleFilter::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         pitch = ofClamp(*(float *)&_inletParams[1],0.0f,127.0f);
@@ -155,6 +157,7 @@ void pdspResonant2PoleFilter::updateObjectContent(map<int,shared_ptr<PatchObject
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
     ofSetColor(255);
 }
 
@@ -179,17 +182,18 @@ void pdspResonant2PoleFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanva
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pitch", &pitch, 0.0f, 127.0f, 1270.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.3f, "%.2f", ImGuiKnobVariant_Wiper)){
             pitch_ctrl.set(pitch);
             this->setCustomVar(static_cast<float>(pitch),"PITCH");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "cutoff", &cutoff, 0.0f, 127.0f, 1270.0f)){
+        if(ImGuiKnobs::Knob("cutoff", &cutoff, 0.0f, 127.0f, 0.3f, "%.2f", ImGuiKnobVariant_Wiper)){
             cutoff_ctrl.set(cutoff);
             this->setCustomVar(cutoff,"CUTOFF");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "resonance", &resonance, 0.0f, 1.0f, 100.0f)){
+        if(ImGuiKnobs::Knob("resonance", &resonance, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             resonance_ctrl.set(resonance);
             this->setCustomVar(resonance,"RESONANCE");
         }
@@ -205,8 +209,8 @@ void pdspResonant2PoleFilter::drawObjectNodeConfig(){
 
     ImGui::Spacing();
     if(ImGui::BeginCombo("filter mode", filterModesString.at(filterMode).c_str() )){
-        for(int i=0; i < filterModesString.size(); ++i){
-            bool is_selected = (filterMode == i );
+        for(unsigned int i=0; i < filterModesString.size(); ++i){
+            bool is_selected = (filterMode == (int)i );
             if (ImGui::Selectable(filterModesString.at(i).c_str(), is_selected)){
                 filterMode = i;
                 mode_ctrl.set(filterMode);
@@ -224,6 +228,7 @@ void pdspResonant2PoleFilter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
     }
@@ -247,11 +252,12 @@ void pdspResonant2PoleFilter::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
     static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 

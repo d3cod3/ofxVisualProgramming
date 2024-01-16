@@ -64,6 +64,7 @@ pdspChorusEffect::pdspChorusEffect() : PatchObject("dimension chorus"){
     loaded                  = false;
 
     this->width *= 2.0f;
+    this->height *= 1.12f;
 
 }
 
@@ -168,20 +169,22 @@ void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "speed", &speed, 0.0f, 1.0f, 100.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+
+        if(ImGuiKnobs::Knob("speed", &speed, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
             speed_ctrl.set(speed);
             this->setCustomVar(speed,"SPEED");
 
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "depth", &depth, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob("depth", &depth, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             depth_ctrl.set(depth);
             this->setCustomVar(depth,"DEPTH");
 
 
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "delay", &delay, 0.0f, 1000.0f, 1000.0f)){
+        if(ImGuiKnobs::Knob("delay", &delay, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
             delay_ctrl.set(delay);
             this->setCustomVar(delay,"DELAY");
         }

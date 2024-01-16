@@ -36,7 +36,7 @@
 
 #include "PatchObject.h"
 
-#include "imgui_controls.h"
+#include "imgui-knobs.h"
 
 class pdspChorusEffect : public PatchObject{
 

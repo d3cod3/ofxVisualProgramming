@@ -69,8 +69,8 @@ pdspCompressor::pdspCompressor() : PatchObject("compressor"){
     ratio                   = 12.0f;
     knee                    = 0.0f;
 
-    this->width *= 2;
-    this->height *= 1.0f;
+    this->width *= 2.25f;
+    this->height *= 1.12f;
 
 }
 
@@ -218,27 +218,27 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "attack", &attack, 1.0f, 100.0f, 500.0f)){
+        if(ImGuiKnobs::Knob("attack", &attack, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
             attack_ctrl.set(attack);
             this->setCustomVar(attack,"ATTACK");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "release", &release, 1.0f, 100.0f, 500.0f)){
+        if(ImGuiKnobs::Knob("release", &release, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
             release_ctrl.set(release);
             this->setCustomVar(release,"RELEASE");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "thresh db", &thresh, -48.0f, 0.0f, 960.0f)){
+        if(ImGuiKnobs::Knob("thresh", &thresh, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper)){
             thresh_ctrl.set(thresh);
             this->setCustomVar(thresh,"THRESH");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "ratio", &ratio, 1.0f, 100.0f, 500.0f)){
+        if(ImGuiKnobs::Knob("ratio", &ratio, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
             ratio_ctrl.set(ratio);
             this->setCustomVar(ratio,"RATIO");
         }
         ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/12, IM_COL32(255,255,120,255), "knee db", &knee, -48.0f, 0.0f, 960.0f)){
+        if(ImGuiKnobs::Knob("knee", &knee, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper)){
             knee_ctrl.set(knee);
             this->setCustomVar(knee,"KNEE");
         }

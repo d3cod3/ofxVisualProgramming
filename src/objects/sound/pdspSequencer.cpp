@@ -127,8 +127,8 @@ pdspSequencer::pdspSequencer() : PatchObject("sequencer"){
     manualSteps             = CHAPTER_STEPS*(maxChapter+1);
     actualSteps             = CHAPTER_STEPS*(maxChapter+1);
 
-    this->width  *= 4.5f;
-    this->height *= 4.0f;
+    this->width  *= 6.64f;
+    this->height *= 5.6f;
 
 }
 
@@ -356,16 +356,16 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // gate leds
-            ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + (32*scaleFactor));
+            ImVec2 stepPos = ImVec2(window_pos.x - 10 + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + (32*scaleFactor));
             if((i + (chapter*CHAPTER_STEPS)) == static_cast<unsigned long>(meter_step) && seqSteps[i + (chapter*CHAPTER_STEPS)] > 0.0f){
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 5*scaleFactor, IM_COL32(255, 255, 120, 140), 40);
             }
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"S %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiKnobs::Knob(temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
                 this->setCustomVar(seqSteps[i + (chapter*CHAPTER_STEPS)],"S_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -376,7 +376,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"A %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiKnobs::Knob(temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
                 this->setCustomVar(ctrl1Steps[i + (chapter*CHAPTER_STEPS)],"A_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -387,7 +387,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"B %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiKnobs::Knob(temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
                 this->setCustomVar(ctrl2Steps[i + (chapter*CHAPTER_STEPS)],"B_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -398,7 +398,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"C %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiKnobs::Knob(temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
                 this->setCustomVar(ctrl3Steps[i + (chapter*CHAPTER_STEPS)],"C_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -409,7 +409,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"D %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (window_size.x-(46*scaleFactor))/39, IM_COL32(255,255,120,255), temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 100.0f)){
+            if(ImGuiKnobs::Knob(temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
                 this->setCustomVar(ctrl4Steps[i + (chapter*CHAPTER_STEPS)],"D_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -419,7 +419,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             // step leds
-            ImVec2 stepPos = ImVec2(window_pos.x + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + window_size.y - (40*scaleFactor));
+            ImVec2 stepPos = ImVec2(window_pos.x -10 + (window_size.x-(40*scaleFactor))/16 * (i+1),window_pos.y + window_size.y - (20*scaleFactor));
             if((i + (chapter*CHAPTER_STEPS)) == static_cast<size_t>(meter_step)){
                 _nodeCanvas.getNodeDrawList()->AddCircleFilled(stepPos, 6*scaleFactor, IM_COL32(182, 30, 41, 255), 40);
             }else{

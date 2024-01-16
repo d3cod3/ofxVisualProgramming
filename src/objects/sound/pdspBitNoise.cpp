@@ -62,7 +62,8 @@ pdspBitNoise::pdspBitNoise() : PatchObject("bit noise"){
 
     loaded                  = false;
 
-    this->width *= 2.0f;
+    this->width *= 2.12f;
+    this->height *= 1.12f;
 
 }
 
@@ -168,18 +169,18 @@ void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "pitch", &pitch, -100.0f, 150.0f, 1000.0f)){
+        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        if (ImGuiKnobs::Knob("pitch", &pitch, -100.0f, 150.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)) {
             pitch_ctrl.set(pitch);
             this->setCustomVar(pitch,"PITCH");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "decimation", &decimation, 1.0f, 200.0f, 1000.0f)){
+        if (ImGuiKnobs::Knob("decimation", &decimation, 1.0f, 200.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)) {
             decimation_ctrl.set(decimation);
             this->setCustomVar(decimation,"DECIMATION");
-
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiEx::KnobFloat(_nodeCanvas.getNodeDrawList(), (ImGui::GetWindowSize().x-(46*scaleFactor))/11, IM_COL32(255,255,120,255), "bits", &bits, 0.0f, 8.0f, 320.0f)){
+        if (ImGuiKnobs::Knob("bits", &bits, 0.0f, 8.0f, 0.07f, "%.2f", ImGuiKnobVariant_Wiper)) {
             bits_ctrl.set(bits);
             this->setCustomVar(bits,"BITS");
         }
