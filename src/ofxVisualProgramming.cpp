@@ -774,7 +774,11 @@ void ofxVisualProgramming::resetObject(int &id){
                 }
             }
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             XML.saveFile();
+#else
+            XML.save();
+#endif
 
         }
     }
@@ -902,7 +906,11 @@ void ofxVisualProgramming::deleteObject(int id){
             // remove object
             if(found){
                 XML.removeTag("object", targetID);
-                XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            XML.saveFile();
+#else
+            XML.save();
+#endif
             }
         }
 
@@ -1077,7 +1085,11 @@ void ofxVisualProgramming::removeObject(int &id){
             // remove object
             if(found){
                 XML.removeTag("object", targetID);
-                XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            XML.saveFile();
+#else
+            XML.save();
+#endif
             }
         }
 
@@ -1243,7 +1255,11 @@ void ofxVisualProgramming::newPatch(string release){
     ofxXmlSettings XML;
     if (XML.loadFile(fileToRead.getAbsolutePath())){
         XML.setValue("release",release);
-        XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            XML.saveFile();
+#else
+            XML.save();
+#endif
     }
 
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
@@ -1525,7 +1541,11 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             XML.setValue("sample_rate_out",audioSampleRate);
             XML.setValue("input_channels",audioGUIINChannels);
             XML.setValue("output_channels",audioGUIOUTChannels);
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             XML.saveFile();
+#else
+            XML.save();
+#endif
 
             for(size_t bs=0;bs<audioDevicesBS.size();bs++){
                 if(ofToInt(audioDevicesBS.at(bs)) == audioBufferSize){
@@ -1734,7 +1754,11 @@ void ofxVisualProgramming::setPatchVariable(string var, int value){
     if (XML.loadFile(currentPatchFile)){
         if (XML.pushTag("settings")){
             XML.setValue(var,value);
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             XML.saveFile();
+#else
+            XML.save();
+#endif
             XML.popTag();
         }
     }

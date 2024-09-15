@@ -391,7 +391,11 @@ void OscReceiver::resetOutlets(){
             }
         }
 
-        XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            XML.saveFile();
+#else
+            XML.save();
+#endif
     }
 
     this->saveConfig(false);

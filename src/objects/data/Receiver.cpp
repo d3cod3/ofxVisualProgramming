@@ -429,7 +429,11 @@ void vpReceiver::changeDataType(int type, bool init){
                 }
             }
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             XML.saveFile();
+#else
+            XML.save();
+#endif
 
         }
 

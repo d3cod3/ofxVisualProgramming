@@ -465,7 +465,11 @@ void vpSender::changeDataType(int type, bool init){
             }
         }
 
-        XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            XML.saveFile();
+#else
+            XML.save();
+#endif
 
     }
 

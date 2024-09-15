@@ -859,7 +859,11 @@ bool PatchObject::saveConfig(bool newConnection){
                     }
                 }
             }
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             saved = XML.saveFile();
+#else
+            saved = XML.save();
+#endif
         }
     }
 
@@ -904,6 +908,11 @@ bool PatchObject::removeLinkFromConfig(int outlet, int toObjectID, int toInletID
         }
 
         saved = XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            saved = XML.saveFile();
+#else
+            saved = XML.save();
+#endif
     }
 
     return saved;
@@ -950,7 +959,11 @@ bool PatchObject::clearCustomVars(){
             }
         }
 
-        saved = XML.saveFile();
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+            saved = XML.saveFile();
+#else
+            saved = XML.save();
+#endif
 
     }
 
