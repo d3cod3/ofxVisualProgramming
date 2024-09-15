@@ -73,8 +73,8 @@ common:
 
 
 linux64:
-        ADDON_DEPENDENCIES += ofxNDI
-        ADDON_SOURCES_EXCLUDE = src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
+        #ADDON_DEPENDENCIES += ofxNDI
+        ADDON_SOURCES_EXCLUDE = src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 msys2:
         ADDON_SOURCES_EXCLUDE = src/objects/scripting/BashScript% src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
