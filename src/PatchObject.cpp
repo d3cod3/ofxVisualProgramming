@@ -907,7 +907,6 @@ bool PatchObject::removeLinkFromConfig(int outlet, int toObjectID, int toInletID
             }
         }
 
-        saved = XML.saveFile();
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             saved = XML.saveFile();
 #else
