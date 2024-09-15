@@ -6,11 +6,12 @@
  *
  */
 
-#include "imgui_plot.h"
 
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
+
+#include "imgui_plot.h"
 #include "imgui_internal.h"
 
 float imMap(float value, float inputMin, float inputMax, float outputMin, float outputMax, bool clamp){
@@ -108,7 +109,11 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
     ImGui::ItemSize(total_bb, style.FramePadding.y);
     if (!ImGui::ItemAdd(total_bb, 0, &frame_bb))
         return status;
+#if IMGUI_VERSION_NUM >= 19010
+    const bool hovered = ImGui::ItemHoverable(frame_bb, id,ImGuiHoveredFlags_None);
+#else
     const bool hovered = ImGui::ItemHoverable(frame_bb, id);
+#endif
 
     ImGui::RenderFrame(
                 frame_bb.Min,
