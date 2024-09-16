@@ -43,6 +43,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <experimental/filesystem>
 
 #include "imgui_node_canvas.h"
 
