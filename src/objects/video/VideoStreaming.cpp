@@ -217,7 +217,7 @@ void VideoStreaming::drawObjectNodeConfig(){
     sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(224*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
+            ofLog(OF_LOG_WARNING,"%s","There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
         }else{
             if(!isSending){
                 isSending = true;
@@ -226,14 +226,14 @@ void VideoStreaming::drawObjectNodeConfig(){
                     recorder.setBitRate(20000);
                     recorder.startCustomStreaming();
                 }
-                ofLog(OF_LOG_NOTICE,"START VIDEO STREAMING");
+                ofLog(OF_LOG_NOTICE,"%s","START VIDEO STREAMING");
             }else{
                 isSending = false;
                 recButtonLabel = "START STREAMING";
                 if(recorder.isRecording()){
                     recorder.stop();
                 }
-                ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
+                ofLog(OF_LOG_NOTICE,"%s","STOP NDI VIDEO SENDER");
             }
         }
     }

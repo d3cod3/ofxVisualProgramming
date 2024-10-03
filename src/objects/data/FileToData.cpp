@@ -146,7 +146,7 @@ void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, openFileFlag, "Open a previously saved Mosaic data file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".txt", "", scaleFactor)){
-        ofLog(OF_LOG_NOTICE,"START IMPORTING DATA");
+        ofLog(OF_LOG_NOTICE,"%s","START IMPORTING DATA");
         ofFile file (fileDialog.selected_path);
         tmpFileName = file.getFileName();
         filepath = file.getAbsolutePath();
@@ -179,7 +179,7 @@ void FileToData::drawObjectNodeConfig(){
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, openFileFlag, "Open a previously saved Mosaic data file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".txt", "", scaleFactor)){
-        ofLog(OF_LOG_NOTICE,"START IMPORTING DATA");
+        ofLog(OF_LOG_NOTICE,"%s","START IMPORTING DATA");
         ofFile file (fileDialog.selected_path);
         tmpFileName = file.getFileName();
         filepath = file.getAbsolutePath();
@@ -221,7 +221,7 @@ void FileToData::loadDataFile(string filepath){
         }
     }
 
-    ofLog(OF_LOG_NOTICE,"FINISHED IMPORTING DATA");
+    ofLog(OF_LOG_NOTICE,"%s","FINISHED IMPORTING DATA");
 
     fileOpened = true;
 }

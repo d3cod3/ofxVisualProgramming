@@ -123,7 +123,7 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         if(midiDevicesList.size() > 0){
             midiOut.openPort(midiDeviceID);
         }else{
-            ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi sender object!");
+            ofLog(OF_LOG_WARNING,"%s","You have no MIDI devices available, please connect one in order to use the midi sender object!");
         }
     }
 
@@ -244,7 +244,7 @@ void MidiSender::rescanMIDI(){
     if(midiDevicesList.size() > 0){
         midiOut.openPort(midiDeviceID);
     }else{
-        ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi sender object!");
+        ofLog(OF_LOG_WARNING,"%s","You have no MIDI devices available, please connect one in order to use the midi sender object!");
     }
 }
 

@@ -196,19 +196,19 @@ void DataToFile::drawObjectNodeConfig(){
     sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
-            ofLog(OF_LOG_WARNING,"There is no data cable connected to the object inlet, connect something if you want to export it!");
+            ofLog(OF_LOG_WARNING,"%s","There is no data cable connected to the object inlet, connect something if you want to export it!");
         }else if(!fileSaved){
-            ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
+            ofLog(OF_LOG_WARNING,"%s","No file selected. Please select one before recording!");
         }else{
             if(fileSaved && !recordData){
                 recButtonLabel = "STOP";
                 // start recording data to file
                 recordData = true;
-                ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
+                ofLog(OF_LOG_NOTICE,"%s","START EXPORTING DATA");
             }else if(recordData){
                 recButtonLabel = "REC";
                 recordData = false;
-                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
+                ofLog(OF_LOG_NOTICE,"%s","FINISHED EXPORTING DATA");
             }
         }
     }
