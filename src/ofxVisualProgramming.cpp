@@ -1925,3 +1925,8 @@ void ofxVisualProgramming::deactivateDSP(){
     setPatchVariable("dsp",0);
     dspON = false;
 }
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::resetCanvas(){
+    canvas.reset();
+}

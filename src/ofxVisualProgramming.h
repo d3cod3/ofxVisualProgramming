@@ -121,6 +121,8 @@ public:
     void            activateDSP();
     void            deactivateDSP();
 
+    void            resetCanvas();
+
     // PATCH CANVAS
     ofxInfiniteCanvas               canvas;
     ofEasyCam                       easyCam;
