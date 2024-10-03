@@ -405,6 +405,10 @@ void ofxVisualProgramming::draw(){
 
     canvas.end();
 
+    if(OFXVP_DEBUG){
+        canvas.drawDebug();
+    }
+
     // Draw Bottom Bar
     ofSetColor(0,0,0,60);
     ofDrawRectangle(0,ofGetHeight() - (20*scaleFactor),ofGetWidth(),(20*scaleFactor));
@@ -1928,5 +1932,5 @@ void ofxVisualProgramming::deactivateDSP(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetCanvas(){
-    canvas.reset();
+    canvas.resetTranslation();
 }

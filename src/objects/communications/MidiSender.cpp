@@ -83,6 +83,7 @@ void MidiSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(midiDevicesList.size() > 0){
         if(midiOut.isOpen()){
@@ -130,7 +131,7 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void MidiSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -176,7 +177,7 @@ void MidiSender::drawObjectNodeConfig(){
     ImGui::Spacing();
     if(midiDevicesList.size() > 0){
         if(ImGui::BeginCombo("Device", midiDevicesList.at(midiDeviceID).c_str() )){
-            for(int i=0; i < midiDevicesList.size(); ++i){
+            for(int i=0; i < static_cast<int>(midiDevicesList.size()); ++i){
                 bool is_selected = (midiDeviceID == i );
                 if (ImGui::Selectable(midiDevicesList.at(i).c_str(), is_selected)){
                     resetMIDISettings(i);
@@ -204,6 +205,8 @@ void MidiSender::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void MidiSender::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(midiDevicesList.size() > 0){
         if(midiOut.isOpen()){
             midiOut.closePort();

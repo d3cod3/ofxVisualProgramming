@@ -107,11 +107,11 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             recorder.setBitRate(20000);
             recorder.startCustomRecord();
             recButtonLabel = "STOP";
-            ofLog(OF_LOG_NOTICE,"START EXPORTING VIDEO");
+            ofLog(OF_LOG_NOTICE,"%s","START EXPORTING VIDEO");
         }else if(recorder.isRecording()){
             recorder.stop();
             recButtonLabel = "REC";
-            ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING VIDEO");
+            ofLog(OF_LOG_NOTICE,"%s","FINISHED EXPORTING VIDEO");
         }
     }
 

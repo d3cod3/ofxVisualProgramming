@@ -189,9 +189,9 @@ void ImageExporter::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_RED_OVER);
     if(ImGui::Button(ICON_FA_CIRCLE " EXPORT",ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
-            ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
+            ofLog(OF_LOG_WARNING,"%s","There is no ofTexture connected to the object inlet, connect something if you want to export it as image!");
         }else if(lastImageFile == ""){
-            ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
+            ofLog(OF_LOG_WARNING,"%s","No file selected. Please select one before recording!");
         }else{
             saveImageFile();
         }

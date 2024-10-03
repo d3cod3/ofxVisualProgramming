@@ -90,10 +90,10 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     if(fileSaved && !recordData && bang){
         // start recording data to file
         recordData = true;
-        ofLog(OF_LOG_NOTICE,"START EXPORTING DATA");
+        ofLog(OF_LOG_NOTICE,"%s","START EXPORTING DATA");
     }else if(recordData && bang){
         recordData = false;
-        ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING DATA");
+        ofLog(OF_LOG_NOTICE,"%s","FINISHED EXPORTING DATA");
     }
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && recordData){

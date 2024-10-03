@@ -78,16 +78,17 @@ void SyphonSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void SyphonSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
         if(!isSending){
             isSending = true;
             recButtonLabel = "STOP";
-            ofLog(OF_LOG_NOTICE,"START NDI VIDEO SENDER");
+            ofLog(OF_LOG_NOTICE,"%s","START NDI VIDEO SENDER");
         }else{
             isSending = false;
             recButtonLabel = "BROADCAST";
-            ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
+            ofLog(OF_LOG_NOTICE,"%s","STOP NDI VIDEO SENDER");
         }
 
     }
@@ -96,6 +97,8 @@ void SyphonSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void SyphonSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
     if(this->inletsConnected[0]){
@@ -202,7 +205,7 @@ void SyphonSender::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void SyphonSender::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 

@@ -84,11 +84,13 @@ void SimpleRandom::newObject(){
 void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    ofSeedRandom(ofGetElapsedTimeMillis());
+    ofSetRandomSeed(ofGetElapsedTimeMillis());
 }
 
 //--------------------------------------------------------------
 void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
     if(this->inletsConnected[0]){
         if(*(float *)&_inletParams[0] < 1.0){
             bang = false;
@@ -123,6 +125,8 @@ void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
 //--------------------------------------------------------------
 void SimpleRandom::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 }
 

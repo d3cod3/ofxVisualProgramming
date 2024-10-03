@@ -86,6 +86,7 @@ void VideoStreaming::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
         if(!isSending){
@@ -95,14 +96,14 @@ void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
                 recorder.setBitRate(20000);
                 recorder.startCustomStreaming();
             }
-            ofLog(OF_LOG_NOTICE,"START VIDEO STREAMING");
+            ofLog(OF_LOG_NOTICE,"%s","START VIDEO STREAMING");
         }else{
             isSending = false;
             recButtonLabel = "START STREAMING";
             if(recorder.isRecording()){
                 recorder.stop();
             }
-            ofLog(OF_LOG_NOTICE,"STOP VIDEO STREAMING");
+            ofLog(OF_LOG_NOTICE,"%s","STOP VIDEO STREAMING");
         }
 
     }
@@ -111,6 +112,8 @@ void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void VideoStreaming::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
     if(this->inletsConnected[0]){
@@ -243,7 +246,7 @@ void VideoStreaming::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VideoStreaming::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 

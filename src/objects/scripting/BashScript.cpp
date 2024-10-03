@@ -125,6 +125,7 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     // listen to message control (_inletParams[0])
     if(this->inletsConnected[0]){
@@ -148,6 +149,7 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void BashScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
     ofSetColor(255);
     // draw node texture preview with OF
     if(scaledObjW*canvasZoom > 90.0f){
@@ -292,6 +294,8 @@ void BashScript::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void BashScript::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     std::unique_lock<std::mutex> lck(mutex);
     stopThread();
     condition.notify_all();
@@ -319,7 +323,7 @@ void BashScript::loadScript(string scriptFile){
             watcher.addPath(filepath);
 
             ofLog(OF_LOG_NOTICE,"[verbose] bash script: %s RUNNING!",filepath.c_str());
-            ofLog(OF_LOG_NOTICE," ");
+            ofLog(OF_LOG_NOTICE,"%s"," ");
 
             char buffer[128];
             _outletParams[0] = new string();

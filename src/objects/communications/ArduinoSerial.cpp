@@ -79,8 +79,8 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     arduinoIcon->load("images/arduino.jpg");
 
-    ofLog(OF_LOG_NOTICE," ");
-    ofLog(OF_LOG_NOTICE,"------------------- SERIAL DEVICES");
+    ofLog(OF_LOG_NOTICE,"%s"," ");
+    ofLog(OF_LOG_NOTICE,"%s","------------------- SERIAL DEVICES");
 
 
     deviceList = serial.getDeviceList();
@@ -162,7 +162,7 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             serial.setup(serialDeviceID, ofToInt(baudrateList.at(baudRateID)));
 
         }else{
-            ofLog(OF_LOG_WARNING,"You have no SERIAL devices available, please enable one in order to use the arduino serial object!");
+            ofLog(OF_LOG_WARNING,"%s","You have no SERIAL devices available, please enable one in order to use the arduino serial object!");
         }
     }
 

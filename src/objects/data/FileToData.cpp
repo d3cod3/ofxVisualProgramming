@@ -77,10 +77,11 @@ void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(fileOpened){
         fileOpened = false;
-        ofLog(OF_LOG_NOTICE,"FILE DATA IMPORTED!");
+        ofLog(OF_LOG_NOTICE,"%s","FILE DATA IMPORTED!");
         // start reading data from file
         readData = true;
     }
@@ -104,6 +105,8 @@ void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void FileToData::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
 }
@@ -186,7 +189,7 @@ void FileToData::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void FileToData::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
