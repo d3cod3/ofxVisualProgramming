@@ -81,6 +81,8 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
     preloadFirstFrame   = false;
 
+    loaded              = false;
+
     this->setIsResizable(true);
     this->setIsTextureObj(true);
 
@@ -97,6 +99,10 @@ void VideoPlayer::newObject(){
 
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_NUMERIC,"finish");
+
+    this->setCustomVar(static_cast<float>(loop),"LOOP");
+    this->setCustomVar(static_cast<float>(speed),"SPEED");
+
 }
 
 //--------------------------------------------------------------
@@ -127,6 +133,19 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         loadVideoFile();
     }
 
+    if(isFileLoaded && video->isLoaded() && !loaded){
+        loaded = true;
+
+        loop = static_cast<bool>(this->getCustomVar("LOOP"));
+        speed = static_cast<float>(this->getCustomVar("SPEED"));
+
+        if(loop){
+            video->setLoopState(OF_LOOP_NORMAL);
+        }else{
+            video->setLoopState(OF_LOOP_NONE);
+        }
+        video->setSpeed(speed);
+    }
 }
 
 //--------------------------------------------------------------
@@ -216,8 +235,8 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
                    video->stop();
                }
 
-               // bang on video end -- TODO FIX
-               if(video->getCurrentFrame() == video->getTotalNumFrames()){
+               // bang on video end
+               if(video->getIsMovieDone()){
                    finishBang = true;
                }
 
@@ -386,6 +405,7 @@ void VideoPlayer::drawObjectNodeConfig(){
     ImGui::PushItemWidth(130*this->scaleFactor);
     if(ImGui::SliderFloat("SPEED",&speed,-1.0f, 1.0f)){
         video->setSpeed(speed);
+        this->setCustomVar(speed,"SPEED");
     }
     ImGui::Spacing();
     ImGui::Spacing();
@@ -395,6 +415,7 @@ void VideoPlayer::drawObjectNodeConfig(){
         }else{
             video->setLoopState(OF_LOOP_NONE);
         }
+        this->setCustomVar(static_cast<float>(loop),"LOOP");
     }
 
     ImGuiEx::ObjectInfo(

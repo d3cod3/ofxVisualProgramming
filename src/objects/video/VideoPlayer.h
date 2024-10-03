@@ -87,6 +87,8 @@ public:
     float               objOriginX, objOriginY;
     float               canvasZoom;
 
+    bool                loaded;
+
 protected:
     bool                needToLoadVideo;
 
