@@ -272,7 +272,11 @@ void vpReceiver::audioOutObject(ofSoundBuffer &outBuffer){
 void vpReceiver::initWireless(){
 
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(this->patchFile)){
+#else
+    if (XML.load(this->patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         // Get object inlets config
@@ -403,7 +407,11 @@ void vpReceiver::changeDataType(int type, bool init){
     if(!init){ // remove links
         ofxXmlSettings XML;
 
-        if (XML.loadFile(patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+        if (XML.loadFile(this->patchFile)){
+#else
+        if (XML.load(this->patchFile)){
+#endif
             int totalObjects = XML.getNumTags("object");
 
             // Save new object config

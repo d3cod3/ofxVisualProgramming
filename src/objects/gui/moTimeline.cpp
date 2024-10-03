@@ -668,7 +668,11 @@ void moTimeline::updateOutletsConfig(){
 //--------------------------------------------------------------
 void moTimeline::saveOutletConfig(){
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         // Load Links

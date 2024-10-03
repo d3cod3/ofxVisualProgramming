@@ -292,7 +292,11 @@ void OscReceiver::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void OscReceiver::initOutlets(){
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(this->patchFile)){
+#else
+    if (XML.load(this->patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         // Load object outlet config
@@ -366,7 +370,11 @@ void OscReceiver::resetOutlets(){
     }
 
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(this->patchFile)){
+#else
+    if (XML.load(this->patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         // Save new object outlet config

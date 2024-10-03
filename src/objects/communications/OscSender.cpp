@@ -315,7 +315,11 @@ void OscSender::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void OscSender::initInlets(){
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(this->patchFile)){
+#else
+    if (XML.load(this->patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         // Get object inlets config
@@ -389,7 +393,11 @@ void OscSender::initInlets(){
 string OscSender::getHostFromConfig(){
 
     ofxXmlSettings XML;
-    if(XML.loadFile(this->patchFile)){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(this->patchFile)){
+#else
+    if (XML.load(this->patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         // Get object inlets config

@@ -217,7 +217,11 @@ void AudioDevice::resetSystemObject(){
 
     deviceLoaded      = false;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
 
         if (XML.pushTag("settings")){
@@ -379,7 +383,11 @@ void AudioDevice::loadDeviceInfo(){
 
     ofxXmlSettings XML;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         if (XML.pushTag("settings")){
             in_channels  = XML.getValue("input_channels",0);
             out_channels = XML.getValue("output_channels",0);

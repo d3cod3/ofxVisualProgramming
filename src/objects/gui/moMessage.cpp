@@ -156,7 +156,11 @@ void moMessage::removeObjectContent(bool removeFileFromData){
 void moMessage::loadMessageSetting(){
     ofxXmlSettings XML;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){
@@ -173,7 +177,11 @@ void moMessage::loadMessageSetting(){
 void moMessage::saveMessageSetting(){
     ofxXmlSettings XML;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         int totalObjects = XML.getNumTags("object");
         for(int i=0;i<totalObjects;i++){
             if(XML.pushTag("object", i)){

@@ -74,7 +74,11 @@ void FftExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     ofxXmlSettings XML;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         if (XML.pushTag("settings")){
             bufferSize = XML.getValue("buffer_size",0);
             spectrumSize = (bufferSize/2) + 1;

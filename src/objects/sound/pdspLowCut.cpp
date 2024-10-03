@@ -192,7 +192,11 @@ void pdspLowCut::removeObjectContent(bool removeFileFromData){
 void pdspLowCut::loadAudioSettings(){
     ofxXmlSettings XML;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
         if (XML.pushTag("settings")){
             sampleRate = XML.getValue("sample_rate_in",0);
             bufferSize = XML.getValue("buffer_size",0);

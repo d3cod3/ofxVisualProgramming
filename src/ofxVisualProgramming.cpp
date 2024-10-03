@@ -141,7 +141,8 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();
         ofxVPGui->setup();//nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
-        ofLogNotice("ofxVP","Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();");
+        string tmpstr = "Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();";
+        ofLogNotice("ofxVP","%s",tmpstr.c_str());
     }
     else {
         ofxVPGui = _guiRef;
@@ -334,8 +335,10 @@ void ofxVisualProgramming::draw(){
     // Already finished drawing to frame...
     // Please call ofxVP::draw() before rendering imgui.
     // Maybe you need to call it within your imgui draw() scope !
-    if( (ImGui::GetDrawData()!=NULL) )
-        ofLogError("ofxVisualProgramming::draw", "Warning, you're calling draw after rendering ImGui. Please call before.");
+    if( (ImGui::GetDrawData()!=NULL) ){
+        string tmpstr = "Warning, you're calling draw after rendering ImGui. Please call before.";
+        ofLogError("ofxVisualProgramming::draw", "%s",tmpstr.c_str());
+    }
 
     ofxVPGui->begin();
 
@@ -721,7 +724,12 @@ void ofxVisualProgramming::resetObject(int &id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
 
         ofxXmlSettings XML;
+
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
+#else
+        if (XML.load(currentPatchFile)){
+#endif
 
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 vector<shared_ptr<PatchLink>> tempBuffer;
@@ -807,7 +815,11 @@ void ofxVisualProgramming::reconnectObjectOutlets(int &id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
 
         ofxXmlSettings XML;
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
+#else
+        if (XML.load(currentPatchFile)){
+#endif
             int totalObjects = XML.getNumTags("object");
 
             // relink object outlets from XML
@@ -858,7 +870,11 @@ void ofxVisualProgramming::deleteObject(int id){
         int targetID = id;
         bool found = false;
         ofxXmlSettings XML;
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
+#else
+        if (XML.load(currentPatchFile)){
+#endif
             int totalObjects = XML.getNumTags("object");
 
             for(int i=0;i<totalObjects;i++){
@@ -1037,7 +1053,11 @@ void ofxVisualProgramming::removeObject(int &id){
         int targetID = id;
         bool found = false;
         ofxXmlSettings XML;
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
+#else
+        if (XML.load(currentPatchFile)){
+#endif
             int totalObjects = XML.getNumTags("object");
 
             for(int i=0;i<totalObjects;i++){
@@ -1253,7 +1273,11 @@ void ofxVisualProgramming::newPatch(string release){
 
     // set patch release
     ofxXmlSettings XML;
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(fileToRead.getAbsolutePath())){
+#else
+    if (XML.load(fileToRead.getAbsolutePath())){
+#endif
         XML.setValue("release",release);
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
             XML.saveFile();
@@ -1374,8 +1398,13 @@ void ofxVisualProgramming::openPatch(string patchFile){
 void ofxVisualProgramming::loadPatch(string patchFile){
 
     ofxXmlSettings XML;
+    string tstr;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(patchFile)){
+#else
+    if (XML.load(patchFile)){
+#endif
 
         // Load main settings
         if (XML.pushTag("settings")){
@@ -1414,7 +1443,8 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             audioDevicesStringOUT.clear();
             audioDevicesID_OUT.clear();
             audioDevicesSR.clear();
-            ofLog(OF_LOG_NOTICE,"------------------- AUDIO DEVICES");
+            tstr = "------------------- AUDIO DEVICES";
+            ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             for(size_t i=0;i<audioDevices.size();i++){
                 string tempSR = "";
                 for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
@@ -1576,18 +1606,22 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 engine->sequencer.setTempo(bpm);
 
                 if(isInputDeviceAvailable){
-                    ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
+                    tstr = "[verbose]------------------- Soundstream INPUT Started on";
+                    ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
                 }else{
-                    ofLog(OF_LOG_ERROR,"------------------------------ Soundstream INPUT OFF, no input audio device available");
+                    tstr = "------------------------------ Soundstream INPUT OFF, no input audio device available";
+                    ofLog(OF_LOG_ERROR,"%s",tstr.c_str());
                 }
 
                 if(isOutputDeviceAvailable){
-                    ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
+                    tstr = "[verbose]------------------- Soundstream OUTPUT Started on";
+                    ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
 
                 }else{
-                    ofLog(OF_LOG_ERROR,"------------------------------ Soundstream OUTPUT OFF, no output audio device available");
+                    tstr = "------------------------------ Soundstream OUTPUT OFF, no output audio device available";
+                    ofLog(OF_LOG_ERROR,"%s",tstr.c_str());
                 }
 
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -1751,7 +1785,11 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
 void ofxVisualProgramming::setPatchVariable(string var, int value){
     ofxXmlSettings XML;
 
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
     if (XML.loadFile(currentPatchFile)){
+#else
+    if (XML.load(currentPatchFile)){
+#endif
         if (XML.pushTag("settings")){
             XML.setValue(var,value);
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
@@ -1826,6 +1864,8 @@ void ofxVisualProgramming::setAudioBufferSize(int bs){
 //--------------------------------------------------------------
 void ofxVisualProgramming::activateDSP(){
 
+    string tstr;
+
     engine->setChannels(0,0);
 
     //ofLog(OF_LOG_NOTICE,"%i IN CH - %i OUT CH",audioGUIINChannels, audioGUIOUTChannels);
@@ -1841,18 +1881,22 @@ void ofxVisualProgramming::activateDSP(){
 
         if(isInputDeviceAvailable){
             engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-            ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream INPUT Started on");
+            tstr = "[verbose]------------------- Soundstream INPUT Started on";
+            ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i INPUT channels",audioDevices[audioINDev].name.c_str(),audioGUIINChannels);
         }else{
-            ofLog(OF_LOG_ERROR,"------------------------------ Soundstream INPUT OFF, no input audio device available");
+            tstr = "------------------------------ Soundstream INPUT OFF, no input audio device available";
+            ofLog(OF_LOG_ERROR,"%s",tstr.c_str());
         }
 
         if(isOutputDeviceAvailable){
             engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            ofLog(OF_LOG_NOTICE,"[verbose]------------------- Soundstream OUTPUT Started on");
+            tstr = "[verbose]------------------- Soundstream OUTPUT Started on";
+            ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i OUTPUT channels",audioDevices[audioOUTDev].name.c_str(),audioGUIOUTChannels);
         }else{
-            ofLog(OF_LOG_ERROR,"------------------------------ Soundstream OUTPUT OFF, no output audio device available");
+            tstr = "------------------------------ Soundstream OUTPUT OFF, no output audio device available";
+            ofLog(OF_LOG_ERROR,"%s",tstr.c_str());
         }
 
         engine->setup(audioSampleRate, audioBufferSize, audioNumBuffers);
@@ -1870,7 +1914,8 @@ void ofxVisualProgramming::activateDSP(){
         dspON = true;
     }else{
         deactivateDSP();
-        ofLog(OF_LOG_ERROR,"The selected audio devices couldn't be compatible or couldn't be properly installed in your system!");
+        tstr = "The selected audio devices couldn't be compatible or couldn't be properly installed in your system!";
+        ofLog(OF_LOG_ERROR,"%s",tstr.c_str());
     }
 
 }
