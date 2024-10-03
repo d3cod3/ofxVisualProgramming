@@ -122,7 +122,8 @@ void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
                         _tempBuffer->clear();
                         messageOK = true;
                     }else{
-                        ofLog(OF_LOG_ERROR,"The image you're trying to send via OSC is too big! Please choose an image below 1280x720 GRAYSCALE, or 640x480 RGB, or 640x360 RGBA");
+                        string tmpstr = "The image you're trying to send via OSC is too big! Please choose an image below 1280x720 GRAYSCALE, or 640x480 RGB, or 640x360 RGBA";
+                        ofLog(OF_LOG_ERROR,"%s",tmpstr.c_str());
                     }
                 }
                 if(messageOK){

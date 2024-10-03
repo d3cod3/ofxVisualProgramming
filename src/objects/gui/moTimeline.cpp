@@ -419,7 +419,8 @@ void moTimeline::drawObjectNodeConfig(){
     if(ImGui::Checkbox("Toggle BPM grid",&showBPMGrid)){
         timeline->setShowBPMGrid(showBPMGrid);
         if(showBPMGrid){
-            ofLog(OF_LOG_NOTICE,"Zoom IN on your timeline to make BPM Grid appear!");
+            string tmpstr = "Zoom IN on your timeline to make BPM Grid appear!";
+            ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
         }
     }
 

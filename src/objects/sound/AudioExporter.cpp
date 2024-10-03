@@ -103,11 +103,13 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         if(!recorder.isRecording()){
             recorder.startCustomAudioRecord();
             recButtonLabel = "STOP";
-            ofLog(OF_LOG_NOTICE,"START EXPORTING AUDIO");
+            string tmpstr = "START EXPORTING AUDIO";
+            ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
         }else if(recorder.isRecording()){
             recorder.stop();
             recButtonLabel = "REC";
-            ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING AUDIO");
+            string tmpstr = "FINISHED EXPORTING AUDIO";
+            ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
         }
     }
 
@@ -223,18 +225,22 @@ void AudioExporter::drawObjectNodeConfig(){
     sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0]){
-            ofLog(OF_LOG_WARNING,"There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!");
+            string tmpstr = "There is no ofSoundBuffer connected to the object inlet, connect something if you want to export it as audio!";
+            ofLog(OF_LOG_WARNING,"%s",tmpstr.c_str());
         }else if(filepath == "none"){
-            ofLog(OF_LOG_WARNING,"No file selected. Please select one before recording!");
+            string tmpstr = "No file selected. Please select one before recording!";
+            ofLog(OF_LOG_WARNING,"%s",tmpstr.c_str());
         }else{
             if(!recorder.isRecording()){
                 recorder.startCustomAudioRecord();
                 recButtonLabel = "STOP";
-                ofLog(OF_LOG_NOTICE,"START EXPORTING AUDIO");
+                string tmpstr = "START EXPORTING AUDIO";
+                ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
             }else if(recorder.isRecording()){
                 recorder.stop();
                 recButtonLabel = "REC";
-                ofLog(OF_LOG_NOTICE,"FINISHED EXPORTING AUDIO");
+                string tmpstr = "FINISHED EXPORTING AUDIO";
+                ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
             }
         }
     }
