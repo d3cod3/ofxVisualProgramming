@@ -119,7 +119,7 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             midiIn.addListener(this);
             midiIn.setVerbose(true);
         }else{
-            ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi receiver object!");
+            ofLog(OF_LOG_WARNING,"%s","You have no MIDI devices available, please connect one in order to use the midi receiver object!");
         }
     }
 
@@ -244,7 +244,7 @@ void MidiReceiver::rescanMIDI(){
         midiIn.addListener(this);
         midiIn.setVerbose(true);
     }else{
-        ofLog(OF_LOG_WARNING,"You have no MIDI devices available, please connect one in order to use the midi receiver object!");
+        ofLog(OF_LOG_WARNING,"%s","You have no MIDI devices available, please connect one in order to use the midi receiver object!");
     }
 }
 
