@@ -85,6 +85,8 @@ moTimeline::moTimeline() : PatchObject("timeline"){
     startTime               = ofGetElapsedTimeMillis();
     waitTime                = 100;
 
+    this->setIsSharedContextObj(true);
+
 }
 
 //--------------------------------------------------------------
@@ -462,8 +464,12 @@ void moTimeline::drawObjectNodeConfig(){
 void moTimeline::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 
+    ofRemoveListener(window->events().draw,this,&moTimeline::drawInWindow);
+
     if(window->getGLFWWindow() != nullptr){
-        window->setWindowShouldClose();
+        window->finishRender();
+        glfwHideWindow(window->getGLFWWindow());
+        //window->setWindowShouldClose();
     }
 
 }

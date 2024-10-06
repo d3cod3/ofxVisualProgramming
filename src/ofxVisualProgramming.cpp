@@ -81,7 +81,9 @@ ofxVisualProgramming::ofxVisualProgramming(){
     subpatchesTree[currentSubpatch] = rootBranch;
 
     resetTime               = ofGetElapsedTimeMillis();
+    deferredLoadTime        = ofGetElapsedTimeMillis();
     wait                    = 1000;
+    deferredLoad            = false;
 
     alphabet                = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXZY";
     newFileCounter          = 0;
@@ -218,9 +220,9 @@ void ofxVisualProgramming::setupFailsafeWindow(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::update(){
 
-    #ifdef MOSAIC_ENABLE_PROFILING
+#ifdef MOSAIC_ENABLE_PROFILING
     ZoneScopedN("ofxVisualProgramming::Update()");
-    #endif
+#endif
 
     // canvas init
     if(!inited){
@@ -230,6 +232,12 @@ void ofxVisualProgramming::update(){
     // Clear map from deleted objects
     if(!bPopulatingObjectsMap){
         clearObjectsMap();
+    }
+
+    // deferred patch objects load for sharing context objects ( instant load cause visualization errors in some cases )
+    if(deferredLoad && ofGetElapsedTimeMillis()-deferredLoadTime > wait){
+        deferredLoad = false;
+        loadPatchSharedContextObjects();
     }
 
     // update patch objects
@@ -247,7 +255,7 @@ void ofxVisualProgramming::update(){
 
         ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
 
-        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){ 
+        for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
             string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
 
             pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
@@ -295,9 +303,9 @@ void ofxVisualProgramming::updateCanvasViewport(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::draw(){
 
-    #ifdef MOSAIC_ENABLE_PROFILING
+#ifdef MOSAIC_ENABLE_PROFILING
     ZoneScopedN("ofxVisualProgramming::Draw()");
-    #endif
+#endif
 
     if(bLoadingNewPatch) return;
 
@@ -680,9 +688,9 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
         ofLogWarning("ofxVisualProgramming::addObject") << "The requested object « " << name << " » is not available !"
     #ifdef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
             << "\n(note: ofxVisualProgramming is compiling with OFXVP_BUILD_WITH_MINIMAL_OBJECTS enabled.)";
-    #else
+#else
             ;
-    #endif
+#endif
         bLoadingNewObject = false;
         return;
     }
@@ -927,9 +935,9 @@ void ofxVisualProgramming::deleteObject(int id){
             if(found){
                 XML.removeTag("object", targetID);
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
+                XML.saveFile();
 #else
-            XML.save();
+                XML.save();
 #endif
             }
         }
@@ -1036,6 +1044,18 @@ bool ofxVisualProgramming::isObjectIDInPatchMap(int id){
 }
 
 //--------------------------------------------------------------
+string ofxVisualProgramming::getObjectNameFromID(int id){
+    string name = "";
+    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        if(it->first == id){
+            name = it->second->getName();
+        }
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------
 string ofxVisualProgramming::getSubpatchParent(string subpatchName){
     for(map<string,vector<string>>::iterator it = subpatchesTree.begin(); it != subpatchesTree.end(); it++ ){
         for(unsigned int s=0;s<it->second.size();s++){
@@ -1110,9 +1130,9 @@ void ofxVisualProgramming::removeObject(int &id){
             if(found){
                 XML.removeTag("object", targetID);
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
+                XML.saveFile();
 #else
-            XML.save();
+                XML.save();
 #endif
             }
         }
@@ -1192,9 +1212,9 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         checkSpecialConnection(fromID,toID,linkType);
 
-        #ifdef NDEBUG
+#ifdef NDEBUG
         std::cout << "Connect from " << patchObjects[fromID]->getName() << " to " << patchObjects[toID]->getName() << std::endl;
-        #endif
+#endif
 
         connected = true;
     }
@@ -1284,9 +1304,9 @@ void ofxVisualProgramming::newPatch(string release){
 #endif
         XML.setValue("release",release);
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
+        XML.saveFile();
 #else
-            XML.save();
+        XML.save();
 #endif
     }
 
@@ -1330,7 +1350,7 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 
         // copy new data content
 #ifdef NDEBUG
-            std::cout << "Copying from  " << dataFolderOrigin.getAbsolutePath() << " to " << oldDataPath << std::endl;
+        std::cout << "Copying from  " << dataFolderOrigin.getAbsolutePath() << " to " << oldDataPath << std::endl;
 #endif
         if(dataFolderOrigin.canRead() && oldData.canWrite()){
             for(size_t i=0;i<dataFolderOrigin.getFiles().size();i++){
@@ -1639,7 +1659,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
         int totalObjects = XML.getNumTags("object");
 
         if(totalObjects > 0){
-            // Load all the patch objects
+            // load all the patch objects ( all the non GL sharing context )
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
                     string objname = XML.getValue("name","");
@@ -1647,7 +1667,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 
                     if(isObjectInLibrary(objname)){
                         shared_ptr<PatchObject> tempObj = selectObject(objname);
-                        if(tempObj != nullptr){
+                        if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
                             loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
                             if(loaded){
                                 tempObj->setPatchfile(currentPatchFile);
@@ -1661,9 +1681,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
 
-                                #ifdef NDEBUG
+#ifdef NDEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
-                                #endif
+#endif
 
                                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                             }
@@ -1673,7 +1693,116 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
             }
 
-            // Load Links
+            // Load Links ( of all the non GL sharing context )
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    string objname = XML.getValue("name","");
+                    if(isObjectInLibrary(objname)){
+                        shared_ptr<PatchObject> tempObj = selectObject(objname);
+                        if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
+                            int fromID = XML.getValue("id", -1);
+                            if (XML.pushTag("outlets")){
+                                int totalOutlets = XML.getNumTags("link");
+                                for(int j=0;j<totalOutlets;j++){
+                                    if (XML.pushTag("link",j)){
+                                        int linkType = XML.getValue("type", 0);
+                                        int totalLinks = XML.getNumTags("to");
+                                        for(int z=0;z<totalLinks;z++){
+                                            if(XML.pushTag("to",z)){
+                                                int toObjectID = XML.getValue("id", 0);
+                                                int toInletID = XML.getValue("inlet", 0);
+
+                                                // fix loading patches with non-existent objects (older OFXVP versions)
+                                                if(isObjectIDInPatchMap(toObjectID)){
+                                                    if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                        //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                    }
+                                                }
+
+                                                XML.popTag();
+                                            }
+                                        }
+                                        XML.popTag();
+                                    }
+                                }
+
+                                XML.popTag();
+                            }
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+        }
+
+        bPopulatingObjectsMap   = false;
+
+        activateDSP();
+
+    }
+
+    bLoadingNewPatch = false;
+
+    deferredLoadTime = ofGetElapsedTimeMillis();
+    deferredLoad = true;
+
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::loadPatchSharedContextObjects(){
+
+#ifdef NDEBUG
+    std::cout << "Loading GL sharing context objects" << std::endl;
+#endif
+
+    ofxXmlSettings XML;
+
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+    if (XML.loadFile(currentPatchFile)){
+#else
+    if (XML.load(currentPatchFile)){
+#endif
+
+        int totalObjects = XML.getNumTags("object");
+
+        if(totalObjects > 0){
+
+            // load the sharing context objects ( needs to be loaded at last )
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    string objname = XML.getValue("name","");
+                    bool loaded = false;
+
+                    if(isObjectInLibrary(objname)){
+                        shared_ptr<PatchObject> tempObj = selectObject(objname);
+                        if(tempObj != nullptr && tempObj->getIsSharedContextObject()){
+                            loaded = tempObj->loadConfig(mainWindow,*engine,i,currentPatchFile);
+                            if(loaded){
+                                tempObj->setPatchfile(currentPatchFile);
+                                tempObj->setIsRetina(isRetina);
+                                ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
+                                ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
+                                ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
+                                ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
+                                // Insert the new patch into the map
+                                patchObjects[tempObj->getId()] = tempObj;
+                                actualObjectID = tempObj->getId();
+                                lastAddedObjectID = tempObj->getId();
+
+#ifdef NDEBUG
+                                std::cout << "Loading "<< tempObj->getName() << std::endl;
+#endif
+
+                                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                            }
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+
+            // Load Links to shared context objects only
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
                     string objname = XML.getValue("name","");
@@ -1689,12 +1818,18 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                         if(XML.pushTag("to",z)){
                                             int toObjectID = XML.getValue("id", 0);
                                             int toInletID = XML.getValue("inlet", 0);
+                                            string toObjName = getObjectNameFromID(toObjectID);
 
-                                            // fix loading patches with non-existent objects (older OFXVP versions)
-                                            if(isObjectIDInPatchMap(toObjectID)){
-                                                if(connect(fromID,j,toObjectID,toInletID,linkType)){
-                                                    //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
-                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                            if(toObjName != ""){
+                                                shared_ptr<PatchObject> _tempToObj = selectObject(toObjName);
+                                                if(_tempToObj != nullptr && _tempToObj->getIsSharedContextObject()){
+                                                    // fix loading patches with non-existent objects (older OFXVP versions)
+                                                    if(isObjectIDInPatchMap(toObjectID)){
+                                                        if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                            //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                        }
+                                                    }
                                                 }
                                             }
 
@@ -1711,16 +1846,10 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     XML.popTag();
                 }
             }
+
         }
 
-        bPopulatingObjectsMap   = false;
-
-        activateDSP();
-
     }
-
-    bLoadingNewPatch = false;
-
 }
 
 //--------------------------------------------------------------

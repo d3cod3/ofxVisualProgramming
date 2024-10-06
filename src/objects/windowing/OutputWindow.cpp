@@ -82,6 +82,7 @@ OutputWindow::OutputWindow() : PatchObject("output window"){
     autoRemove          = false;
 
     this->setIsTextureObj(true);
+    this->setIsSharedContextObj(true);
 }
 
 //--------------------------------------------------------------
@@ -497,8 +498,11 @@ void OutputWindow::removeObjectContent(bool removeFileFromData){
     ofRemoveListener(window->events().draw,this,&OutputWindow::drawInWindow);
 
     if(window->getGLFWWindow() != nullptr){
-        window->setWindowShouldClose();
+        window->finishRender();
+        glfwHideWindow(window->getGLFWWindow());
+        //window->setWindowShouldClose();
     }
+
 }
 
 //--------------------------------------------------------------

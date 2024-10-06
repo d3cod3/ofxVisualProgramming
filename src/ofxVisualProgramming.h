@@ -101,6 +101,7 @@ public:
     void            clearObjectsMap();
     bool            isObjectInLibrary(string name);
     bool            isObjectIDInPatchMap(int id);
+    string          getObjectNameFromID(int id);
 
     string          getSubpatchParent(string subpatchName);
 
@@ -109,6 +110,7 @@ public:
     void            preloadPatch(string patchFile);
     void            openPatch(string patchFile);
     void            loadPatch(string patchFile);
+    void            loadPatchSharedContextObjects();
     void            reloadPatch();
     void            savePatchAs(string patchFile);
     void            setPatchVariable(string var, int value);
@@ -209,7 +211,9 @@ public:
 
     // MEMORY
     uint64_t                resetTime;
+    uint64_t                deferredLoadTime;
     uint64_t                wait;
+    bool                    deferredLoad;
 
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);

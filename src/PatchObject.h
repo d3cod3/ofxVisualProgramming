@@ -156,6 +156,7 @@ public:
     bool                    getIsAudioOUTObject() const { return isAudioOUTObject; }
     bool                    getIsPDSPPatchableObject() const { return isPDSPPatchableObject; }
     bool                    getIsTextureObject() const { return isTextureObject; }
+    bool                    getIsSharedContextObject() const { return isSharedContextObject; }
     bool                    getIsHardwareObject() const { return isHardwareObject; }
     int                     getInletType(int iid) const { return inletsType[iid]; }
     string                  getInletID(int iid) const { return inletsIDs[iid]; }
@@ -191,6 +192,7 @@ public:
     void                    setPatchfile(string pf);
 
     void                    setIsTextureObj(bool it) { isTextureObject = it; }
+    void                    setIsSharedContextObj(bool isc) { isSharedContextObject = isc; }
     void                    setIsHardwareObj(bool ih) { isHardwareObject = ih; }
     void                    setIsResizable(bool ir) { isResizable = ir; }
     void                    setIsRetina(bool ir) { isRetina = ir; if(isRetina) scaleFactor = 2.0f; }
@@ -279,6 +281,7 @@ protected:
     bool                    isAudioOUTObject;
     bool                    isPDSPPatchableObject;
     bool                    isTextureObject;
+    bool                    isSharedContextObject;
     bool                    isHardwareObject;
     bool                    isResizable;
     bool                    willErase;

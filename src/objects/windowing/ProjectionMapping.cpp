@@ -73,6 +73,7 @@ ProjectionMapping::ProjectionMapping() : PatchObject("projection mapping"){
     autoRemove          = false;
 
     this->setIsTextureObj(true);
+    this->setIsSharedContextObj(true);
 }
 
 //--------------------------------------------------------------
@@ -296,8 +297,13 @@ void ProjectionMapping::drawObjectNodeConfig(){
 void ProjectionMapping::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 
+    ofRemoveListener(window->events().draw,this,&ProjectionMapping::updateInWindow);
+    ofRemoveListener(window->events().draw,this,&ProjectionMapping::drawInWindow);
+
     if(window->getGLFWWindow() != nullptr){
-        window->setWindowShouldClose();
+        window->finishRender();
+        glfwHideWindow(window->getGLFWWindow());
+        //window->setWindowShouldClose();
     }
 }
 
