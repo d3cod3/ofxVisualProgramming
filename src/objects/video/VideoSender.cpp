@@ -79,16 +79,17 @@ void VideoSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
         if(!isSending){
             isSending = true;
             recButtonLabel = "STOP";
-            ofLog(OF_LOG_NOTICE,"START NDI VIDEO SENDER");
+            ofLog(OF_LOG_NOTICE,"%s","START NDI VIDEO SENDER");
         }else{
             isSending = false;
             recButtonLabel = "BROADCAST";
-            ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
+            ofLog(OF_LOG_NOTICE,"%s","STOP NDI VIDEO SENDER");
         }
 
     }
@@ -97,6 +98,8 @@ void VideoSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 
 //--------------------------------------------------------------
 void VideoSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
     ofSetColor(255);
 
     if(this->inletsConnected[0]){
@@ -198,16 +201,16 @@ void VideoSender::drawObjectNodeConfig(){
     sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(224*scaleFactor,26*scaleFactor))){
         if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            ofLog(OF_LOG_WARNING,"There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
+            ofLog(OF_LOG_WARNING,"%s","There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
         }else{
             if(!isSending){
                 isSending = true;
                 recButtonLabel = "STOP";
-                ofLog(OF_LOG_NOTICE,"START NDI VIDEO SENDER");
+                ofLog(OF_LOG_NOTICE,"%s","START NDI VIDEO SENDER");
             }else{
                 isSending = false;
                 recButtonLabel = "BROADCAST";
-                ofLog(OF_LOG_NOTICE,"STOP NDI VIDEO SENDER");
+                ofLog(OF_LOG_NOTICE,"%s","STOP NDI VIDEO SENDER");
             }
         }
     }
@@ -220,7 +223,7 @@ void VideoSender::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VideoSender::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 
