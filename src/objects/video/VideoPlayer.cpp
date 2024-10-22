@@ -164,7 +164,7 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
         isFileLoaded = true;
     }
 
-    if(isFileLoaded && video->isLoaded()){
+    if(isFileLoaded && video->isLoaded()    ){
 
         if(video->getWidth() != static_cast<ofTexture *>(_outletParams[0])->getWidth() || video->getHeight() != static_cast<ofTexture *>(_outletParams[0])->getHeight()){
             _outletParams[0] = new ofTexture();
@@ -180,8 +180,9 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
                 lastMessage = *static_cast<string *>(_inletParams[0]);
 
                 if(lastMessage == "play"){
-                    video->firstFrame();
                     video->play();
+                    video->firstFrame();
+
                     videoWasPlaying = true;
                 }else if(lastMessage == "pause"){
                     video->setPaused(true);
@@ -206,7 +207,7 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
         }
 
         // playhead
-        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f && *(float *)&_inletParams[1] != lastPlayhead){
+        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f && *(float *)&_inletParams[1] != lastPlayhead && video->isPlaying()){
             video->setPosition(*(float *)&_inletParams[1]);
             lastPlayhead = *(float *)&_inletParams[1];
         }
@@ -218,8 +219,8 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
         // trigger
         if(this->inletsConnected[3]){
             if(ofClamp(*(float *)&_inletParams[3],0.0f,1.0f) == 1.0f){
-                video->firstFrame();
                 video->play();
+                video->firstFrame();
             }
         }
 
@@ -304,7 +305,9 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 
             // draw position (timecode)
-            ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale()/this->scaleFactor);
+            if(video->isPlaying()){
+                ImGuiEx::drawTimecode(_nodeCanvas.getNodeDrawList(),static_cast<int>(ofClamp(floor(video->getPosition()*video->getDuration()),0,video->getDuration())),"",true,ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())),_nodeCanvas.GetCanvasScale()/this->scaleFactor);
+            }
 
             // draw player state
             if(video->isPlaying()){ // play
@@ -352,7 +355,9 @@ void VideoPlayer::drawObjectNodeConfig(){
     }else{
         ImGui::Text("%s",tempFilename.getFileName().c_str());
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
-        ImGuiEx::drawTimecode(ImGui::GetForegroundDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
+        if(video->isPlaying()){
+            ImGuiEx::drawTimecode(ImGui::GetForegroundDrawList(),static_cast<int>(ceil(video->getDuration())),"Duration: ");
+        }
         ImGui::Text("Resolution %.0fx%.0f",video->getWidth(),video->getHeight());
     }
 
@@ -376,8 +381,8 @@ void VideoPlayer::drawObjectNodeConfig(){
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
     if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*this->scaleFactor,26*this->scaleFactor))){
-        video->firstFrame();
         video->play();
+        video->firstFrame();
         videoWasPlaying = true;
     }
     ImGui::SameLine();

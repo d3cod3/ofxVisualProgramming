@@ -33,7 +33,7 @@ namespace ImGuiKnobs {
 
             auto *draw_list = ImGui::GetWindowDrawList();
 
-#if IMGUI_VERSION_NUM >= 19010
+#if IMGUI_VERSION_NUM >= 18910
             draw_list->AddBezierCubic(start, arc1, arc2, end, color, thickness, num_segments);
 #else
             draw_list->AddBezierCurve(start, arc1, arc2, end, color, thickness, num_segments);
@@ -82,7 +82,12 @@ namespace ImGuiKnobs {
                 if (!(flags & ImGuiKnobFlags_DragHorizontal)) {
                     drag_flags |= ImGuiSliderFlags_Vertical;
                 }
+#if IMGUI_VERSION_NUM >= 18910
+                value_changed = ImGui::DragBehavior(gid, data_type, p_value, speed, &v_min, &v_max, format, drag_flags);
+#else
                 value_changed = ImGui::DragBehavior(gid, data_type, p_value, speed, &v_min, &v_max, format, 1, drag_flags);
+#endif
+
 
                 angle_min = IMGUIKNOBS_PI * 0.75f;
                 angle_max = IMGUIKNOBS_PI * 2.25f;

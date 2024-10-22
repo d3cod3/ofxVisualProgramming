@@ -109,7 +109,7 @@ PlotStatus Plot(const char* label, const PlotConfig& conf) {
     ImGui::ItemSize(total_bb, style.FramePadding.y);
     if (!ImGui::ItemAdd(total_bb, 0, &frame_bb))
         return status;
-#if IMGUI_VERSION_NUM >= 19010
+#if IMGUI_VERSION_NUM >= 18910
     const bool hovered = ImGui::ItemHoverable(frame_bb, id,ImGuiHoveredFlags_None);
 #else
     const bool hovered = ImGui::ItemHoverable(frame_bb, id);

@@ -350,7 +350,7 @@ public:
         title.precision(2);
         title << std::fixed << "\uf085  Profiler [Rendering at " << 1.0f / avgFrameTime << "fps\t" << avgFrameTime * 1000.0f << "ms]###ProfilerWindow";
         //###AnimatedTitle
-        ImGui::Begin(title.str().c_str(), active, ImGuiWindowFlags_NoScrollbar);
+        ImGui::Begin(title.str().c_str(), active, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
         ImVec2 canvasSize = ImGui::GetContentRegionAvail();
 
         int sizeMargin = int(ImGui::GetStyle().ItemSpacing.y);

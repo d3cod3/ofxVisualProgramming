@@ -1,8 +1,8 @@
-#include "imgui_controls.h"
-
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
+
+#include "imgui_controls.h"
 #include "imgui_internal.h"
 
 namespace ImGuiEx {

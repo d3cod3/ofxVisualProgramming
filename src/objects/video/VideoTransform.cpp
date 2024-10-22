@@ -71,8 +71,8 @@ VideoTransform::VideoTransform() : PatchObject("texture transform"){
     _x = 0.0f;
     _y = 0.0f;
 
-    _w = STANDARD_TEXTURE_WIDTH;
-    _h = STANDARD_TEXTURE_HEIGHT;
+    _w = 100.0f;
+    _h = 100.0f;
 
     _maxW = STANDARD_TEXTURE_WIDTH;
     _maxH = STANDARD_TEXTURE_HEIGHT;
@@ -108,8 +108,8 @@ void VideoTransform::newObject(){
 
     this->setCustomVar(_x,"XPOS");
     this->setCustomVar(_y,"YPOS");
-    this->setCustomVar(STANDARD_TEXTURE_WIDTH,"WIDTH");
-    this->setCustomVar(STANDARD_TEXTURE_HEIGHT,"HEIGHT");
+    this->setCustomVar(_w,"WIDTH");
+    this->setCustomVar(_h,"HEIGHT");
     this->setCustomVar(angleX,"ANGLEX");
     this->setCustomVar(angleY,"ANGLEY");
     this->setCustomVar(angleZ,"ANGLEZ");
@@ -127,19 +127,19 @@ void VideoTransform::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 void VideoTransform::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _x = ofClamp(*(float *)&_inletParams[1],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _x = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
     }
 
     if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _y = ofClamp(*(float *)&_inletParams[2],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        _y = ofClamp(*(float *)&_inletParams[2],0.0f,100.0f);
     }
 
     if(this->inletsConnected[3] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _w = ofClamp(*(float *)&_inletParams[3],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _w = ofClamp(*(float *)&_inletParams[3],0.0f,100.0f);
     }
 
     if(this->inletsConnected[4] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _h = ofClamp(*(float *)&_inletParams[4],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        _h = ofClamp(*(float *)&_inletParams[4],0.0f,100.0f);
     }
 
     if(this->inletsConnected[5] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -186,7 +186,7 @@ void VideoTransform::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGL
 
             scaledFbo->begin();
             ofClear(0,0,0,255);
-            bounds.set(_x,_y,_w,_h);
+            bounds.set((_x/100.0f)*_maxW,(_y/100.0f)*_maxH,(_w/100.0f)*_maxW,(_h/100)*_maxH);
 
             ofPushMatrix();
             ofTranslate(bounds.x+(bounds.width/2),bounds.y+(bounds.height/2));
@@ -267,16 +267,16 @@ void VideoTransform::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void VideoTransform::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::PushItemWidth(130*this->scaleFactor);
-    if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
+    if(ImGui::SliderFloat("START X %",&_x, 0.0f, 100.0f)){
         this->setCustomVar(_x,"XPOS");
     }
-    if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
+    if(ImGui::SliderFloat("START Y %",&_y, 0.0f, 100.0f)){
         this->setCustomVar(_y,"YPOS");
     }
-    if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
+    if(ImGui::SliderFloat("WIDTH %",&_w, 0.0f, 100.0f)){
         this->setCustomVar(_w,"WIDTH");
     }
-    if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
+    if(ImGui::SliderFloat("HEIGHT %",&_h, 0.0f, 100.0f)){
         this->setCustomVar(_h,"HEIGHT");
     }
     ImGui::Spacing();
@@ -293,7 +293,7 @@ void VideoTransform::drawObjectNodeConfig(){
     ImGui::PopItemWidth();
 
     ImGuiEx::ObjectInfo(
-                "This object allows you to scale and rotate a texture.",
+                "This object allows you to translate, scale and rotate a texture.",
                 "https://mosaic.d3cod3.org/reference.php?r=video-transform", scaleFactor);
 }
 

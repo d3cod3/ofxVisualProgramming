@@ -369,7 +369,9 @@ void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if (ImGui::BeginMenu("CONFIG"))
         {
 
-            drawObjectNodeConfig(); this->configMenuWidth = ImGui::GetWindowWidth();
+            drawObjectNodeConfig();
+
+            this->configMenuWidth = ImGui::GetWindowWidth();
 
             ImGui::EndMenu();
         }
@@ -490,6 +492,7 @@ void ShaderObject::drawObjectNodeConfig(){
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,255,255,60));
         ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,255,255,60));
         ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(120,255,255,160));
+
         for(size_t i=0;i<shaderSliders.size();i++){
             if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
                 ImGui::SliderFloat(shaderSlidersLabel.at(i).c_str(),&shaderSliders.at(i),0.0f,10.0f);

@@ -234,12 +234,7 @@ void ImGuiEx::NodeCanvas::End(){
     isAnyCanvasNodeHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow); // not really needed anymore...
 
     // reset cursor pos to canvas window
-    ImGui::SetCursorPos(ImGui::GetWindowContentRegionMin());
-
-# if __IMGUI_EX_NODECANVAS_DEBUG__
-    // Visualise Canvas Window size
-    ImGui::GetForegroundDrawList()->AddRect(ImGui::GetWindowContentRegionMin(), ImGui::GetWindowContentRegionMax(), IM_COL32(255,255,0,255));
-# endif
+    ImGui::SetCursorPos(ImGui::GetContentRegionAvail());
 
     // Close Canvas window
     ImGui::PopStyleVar(); // restore min win size
@@ -425,9 +420,11 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                 ImGui::SameLine();
                 ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200,220,240,255));
                 ImGui::Text("%s", specialName.c_str()); // special name
+                ImGui::PopStyleColor(2);
             }else{
                 ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,255));
                 ImGui::Text("%s", name.c_str()); // title
+                ImGui::PopStyleColor();
             }
         }else{
             if(nId == activeNode){
@@ -436,9 +433,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                 ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,255));
             }
             ImGui::Text("%s", name.c_str()); // title
+            ImGui::PopStyleColor();
         }
 
-        ImGui::PopStyleColor();
+
 
         // Enable drag on title
         //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
@@ -478,40 +476,6 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
         // Tab bar and widget info
         if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
-
-            // Tabs
-            /*ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, curNodeData.outerContentBox.Min.y + 2));
-            if(ImGui::BeginTabBar("widgetTabs",ImGuiTabBarFlags_NoTooltip)){//, ImGuiTabBarFlags_FittingPolicyResizeDown)){
-
-                static bool tabInfoOpen = true, tabVisualiseOpen = false, tabParamsOpen = false;
-                ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH, ImGui::GetCursorScreenPos().y));
-                ImGui::SameLine();
-                //if(ImGui::BeginTabItem("i", &tabInfoOpen, ImGuiTabItemFlags_NoCloseButton | ImGuiTabItemFlags_NoCloseWithMiddleMouseButton )) ImGui::EndTabItem();
-                if((tabVisualiseOpen = ImGui::BeginTabItem("v",NULL, ImGuiTabItemFlags_NoCloseButton)))ImGui::EndTabItem();
-                if((tabParamsOpen = ImGui::BeginTabItem("p",NULL, ImGuiTabItemFlags_NoCloseButton)))ImGui::EndTabItem();
-                if((tabInfoOpen = ImGui::BeginTabItem("i",NULL, ImGuiTabItemFlags_NoCloseButton))) ImGui::EndTabItem();
-
-                // Set view state
-                curNodeData.viewName = tabInfoOpen ? ImGuiExNodeView_Info : tabVisualiseOpen ? ImGuiExNodeView_Visualise : tabParamsOpen ? ImGuiExNodeView_Params : ImGuiExNodeView_None;
-
-                // Node Menu Toggle
-                ImGui::SameLine();
-                ImGui::Button("#");
-                if(ImGui::IsItemActivated()){
-                    nodeMenuIsOpen = true;
-                }
-
-                ImGui::EndTabBar();
-
-                // draw line over tab bar to fit 100% width
-                nodeDrawList->AddLine(
-                            curNodeData.outerContentBox.Min+ImVec2(0,IMGUI_EX_NODE_HEADER_HEIGHT - 1),
-                            ImVec2( curNodeData.outerContentBox.Max.x, curNodeData.outerContentBox.Min.y + IMGUI_EX_NODE_HEADER_HEIGHT - 1),
-                            ImGui::GetColorU32(ImGuiCol_WindowBg)
-                            );
-            }*/
-
-            // NO TABS DESIGN -- TESTING
 
             // Node Menu Toggle
             ImGui::SetCursorScreenPos(ImVec2(curNodeData.outerContentBox.Max.x-(18*scaleFactor), curNodeData.outerContentBox.Min.y + 1));
@@ -573,10 +537,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     // The combination of a cliprect and columns allows us to set a clipping space for node widgets while reserving drawable space for pins, without having to add an extra window / childframe.
     ImGui::PushClipRect( curNodeData.leftPins.region.Min, curNodeData.rightPins.region.Max, true); // Inner space + Node Spaces
     ImGui::BeginColumns("innerNode", 3,
-                        ImGuiColumnsFlags_NoBorder
-                        | ImGuiColumnsFlags_NoResize
+                        ImGuiOldColumnFlags_NoBorder
+                        | ImGuiOldColumnFlags_NoResize
                         //| ImGuiOldColumnFlags_NoPreserveWidths
-                        | ImGuiColumnsFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
+                        | ImGuiOldColumnFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
     // Column layout
     // Note: A column of 0 width will probably cause crashes
@@ -728,6 +692,17 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
     IM_ASSERT(_pinFlag == ImGuiExNodePinsFlags_Left || _pinFlag == ImGuiExNodePinsFlags_Right); // Only left / right pins can be created
     IM_ASSERT(curNodeData.pinsFlags & _pinFlag); // Node was not created with correct flags
 
+
+    std::string _l = _label;
+    _l += std::to_string(pinID);
+    _l += _type;
+    if( _pinFlag==ImGuiExNodePinsFlags_Left ){
+        _l += "_inlet";
+    }else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
+        _l += "_outlet";
+    }
+    ImGui::PushID(_l.c_str());
+
     // Choose a side
     PinLayout& pinLayout = (_pinFlag==ImGuiExNodePinsFlags_Left) ? curNodeData.leftPins : curNodeData.rightPins;
     // Backup cursor
@@ -790,7 +765,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                         connectingColor.w = 0.4f;
                         const LinkBezierData link_data = get_link_renderable(pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                        canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                         // add link info
                         std::string _temp = _type+" "+_gui_label;
@@ -814,7 +789,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                         auto connectingColor = ImGui::ColorConvertU32ToFloat4(_color);
                         connectingColor.w = 0.4f;
                         const LinkBezierData link_data = get_link_renderable(canvasView.translation+(_linksData.at(0)._toPinPosition*canvasView.scale),ImGui::GetMousePos(),IMGUI_EX_NODE_LINK_LINE_SEGMENTS_PER_LENGTH);
-                        canvasDrawList->AddBezierCurve(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
+                        canvasDrawList->AddBezierCubic(link_data.bezier.p0,link_data.bezier.p1,link_data.bezier.p2,link_data.bezier.p3,ImGui::ColorConvertFloat4ToU32(connectingColor),IMGUI_EX_NODE_LINK_THICKNESS,link_data.num_segments);
 
                         // add link info
                         std::string _temp = _type+" "+_linksData.at(0)._linkLabel;
@@ -970,7 +945,7 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                     _tempColor = IM_COL32(255,0,0,255);
                 }
 
-                canvasDrawList->AddBezierCurve(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
+                canvasDrawList->AddBezierCubic(link_data.bezier.p0, link_data.bezier.p1, link_data.bezier.p2, link_data.bezier.p3, _tempColor, IMGUI_EX_NODE_LINK_THICKNESS, link_data.num_segments);
             }
 
             // Draw pin
@@ -1020,6 +995,8 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
         activePinType = "";
         connectType = 0;
     }
+
+    ImGui::PopID();
 
     return connectData;
 }

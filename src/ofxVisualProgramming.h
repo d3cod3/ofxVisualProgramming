@@ -64,6 +64,7 @@ public:
     void            update();
     void            updateCanvasViewport();
     void            draw();
+    void            closeDrawMainMenu();
     void            drawInspector();
     void            drawLivePatchingSession();
     void            drawSubpatchNavigation();
@@ -132,6 +133,7 @@ public:
     ofxImGui::Gui*                  ofxVPGui;
     ImGuiEx::NodeCanvas             nodeCanvas;
     ImGuiEx::ProfilersWindow        profiler;
+    bool                            isCanvasVisible;
 
 
     // PATCH DRAWING RESOURCES

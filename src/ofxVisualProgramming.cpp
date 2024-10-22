@@ -108,6 +108,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
 
     profilerActive          = false;
     inspectorActive         = false;
+    isCanvasVisible         = false;
 
     inited                  = false;
 
@@ -338,15 +339,6 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
-    // Set GUI context
-
-    // Already finished drawing to frame...
-    // Please call ofxVP::draw() before rendering imgui.
-    // Maybe you need to call it within your imgui draw() scope !
-    if( (ImGui::GetDrawData()!=NULL) ){
-        string tmpstr = "Warning, you're calling draw after rendering ImGui. Please call before.";
-        ofLogError("ofxVisualProgramming::draw", "%s",tmpstr.c_str());
-    }
 
     ofxVPGui->begin();
 
@@ -355,16 +347,11 @@ void ofxVisualProgramming::draw(){
         ImGui::ShowMetricsWindow();
     }
 
-    // PROFILER
-    if(profilerActive){
-        profiler.Render(&profilerActive);
-    }
-
     // Try to begin ImGui Canvas.
     // Should always return true, except if window is minimised or somehow not rendered.
     ImGui::SetNextWindowPos(ImVec2(canvasViewport.getTopLeft().x,canvasViewport.getTopLeft().y), ImGuiCond_Always );
     ImGui::SetNextWindowSize( ImVec2(canvasViewport.width, canvasViewport.height), ImGuiCond_Always );
-    bool isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
+    isCanvasVisible = nodeCanvas.Begin("ofxVPNodeCanvas" );
 
     // Render objects.
     if(!bLoadingNewPatch && !patchObjects.empty()){
@@ -397,17 +384,16 @@ void ofxVisualProgramming::draw(){
 
         profiler.gpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
 
-        // INSPECTOR
-        if(inspectorActive){
-            if(isCanvasVisible){
-                drawInspector();
-            }
-        }
     }
 
     // Close canvas
     nodeCanvas.End();
 
+
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::closeDrawMainMenu(){
     // We're done drawing to IMGUI
     ofxVPGui->end();
 
@@ -431,9 +417,9 @@ void ofxVisualProgramming::draw(){
     drawSubpatchNavigation();
 
     // Graphical Context
+    ofxVPGui->draw();
+
     canvas.update();
-
-
 }
 
 //--------------------------------------------------------------
@@ -442,7 +428,7 @@ void ofxVisualProgramming::drawInspector(){
     ImGui::SetNextWindowSize(ImVec2(ofGetWindowWidth()/4,ofGetWindowHeight()/2), ImGuiCond_Appearing );
     //ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-200,26*scaleFactor), ImGuiCond_Appearing);
 
-    ImGui::Begin("Inspector", &inspectorActive, ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin(ICON_FA_ADJUST "  Inspector", &inspectorActive, ImGuiWindowFlags_NoCollapse);
 
     // if object id exists
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
@@ -1105,15 +1091,17 @@ void ofxVisualProgramming::removeObject(int &id){
                                 if(XML.pushTag("link",l)){
                                     int totalTo = XML.getNumTags("to");
                                     for(int t=0;t<totalTo;t++){
-                                        if(XML.pushTag("to",t)){
-                                            bool delLink = false;
-                                            if(XML.getValue("id", -1) == id){
-                                                //ofLogNotice("remove link id",ofToString(XML.getValue("id", -1)));
-                                                delLink = true;
-                                            }
-                                            XML.popTag();
-                                            if(delLink){
-                                                XML.removeTag("to",t);
+                                        if(XML.tagExists("to",t)){
+                                            if(XML.pushTag("to",t)){
+                                                bool delLink = false;
+                                                if(XML.getValue("id", -1) == id){
+                                                    //ofLogNotice("remove link id",ofToString(XML.getValue("id", -1)));
+                                                    delLink = true;
+                                                }
+                                                XML.popTag();
+                                                if(delLink){
+                                                    XML.removeTag("to",t);
+                                                }
                                             }
                                         }
                                     }

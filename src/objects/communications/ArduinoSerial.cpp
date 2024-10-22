@@ -126,15 +126,17 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 
             // RECEIVING DATA FROM ARDUINO
-            if(serial.available() > 0){
-                memset(bytesReturned, 0, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH);
-                memset(bytesReadString, 0, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH+1);
+            if(serial.isInitialized()){
+                if(serial.available() > 0){
+                    memset(bytesReturned, 0, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH);
+                    memset(bytesReadString, 0, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH+1);
 
-                if(serial.readBytes(bytesReturned, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH) > 0){
-                    memcpy(bytesReadString, bytesReturned, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH);
+                    if(serial.readBytes(bytesReturned, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH) > 0){
+                        memcpy(bytesReadString, bytesReturned, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH);
 
-                    for(int i=0;i<MAX_ARDUINO_RECEIVING_VECTOR_LENGTH;i++){
-                        static_cast<vector<float> *>(_outletParams[0])->at(i) = static_cast<int>(bytesReadString[i]);
+                        for(int i=0;i<MAX_ARDUINO_RECEIVING_VECTOR_LENGTH;i++){
+                            static_cast<vector<float> *>(_outletParams[0])->at(i) = static_cast<int>(bytesReadString[i]);
+                        }
                     }
                 }
             }
@@ -158,11 +160,11 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             this->setCustomVar(static_cast<float>(baudRateID),"BAUDRATE_ID");
         }
 
-        if(deviceNameList.size() > 0){
+        if(deviceNameList.size() > 0 && serial.isInitialized()){
             serial.setup(serialDeviceID, ofToInt(baudrateList.at(baudRateID)));
 
         }else{
-            ofLog(OF_LOG_WARNING,"%s","You have no SERIAL devices available, please enable one in order to use the arduino serial object!");
+            ofLog(OF_LOG_WARNING,"%s","You have no valid SERIAL devices available, please connect one in order to use the arduino serial object!");
         }
     }
 

@@ -1,8 +1,10 @@
-#include "ImGuiFileBrowser.h"
-#include "IconsFontAwesome5.h"
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
+
+#include "ImGuiFileBrowser.h"
+#include "IconsFontAwesome5.h"
+
 #include "imgui_internal.h"
 
 #include <iostream>
@@ -288,66 +290,6 @@ namespace imgui_addons
         ImGui::PopItemWidth();
         ImGui::PopStyleColor();
 
-        /*for(int i = 0; i < current_dirlist.size(); i++)
-        {
-            if( ImGui::Button(current_dirlist[i].c_str()) )
-            {
-                //If last button clicked, nothing happens
-                if(i != current_dirlist.size() - 1)
-                    show_error |= !(onNavigationButtonClick(i));
-            }
-
-            //Draw Arrow Buttons
-            if(i != current_dirlist.size() - 1)
-            {
-                ImGui::SameLine(0,0);
-                float next_label_width = ImGui::CalcTextSize(current_dirlist[i+1].c_str()).x;
-
-                if(i+1 < current_dirlist.size() - 1)
-                    next_label_width += frame_height + ImGui::CalcTextSize(">>").x;
-
-                if(ImGui::GetCursorPosX() + next_label_width >= (nw_size.x - style.WindowPadding.x * 3.0))
-                {
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.01f));
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
-
-                    //Render a drop down of navigation items on button press
-                    if(ImGui::Button(">>"))
-                        ImGui::OpenPopup("##NavBarDropboxPopup");
-                    if(ImGui::BeginPopup("##NavBarDropboxPopup"))
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.125f, 0.125f, 0.125f, 1.0f));
-                        if(ImGui::ListBoxHeader("##NavBarDropBox", ImVec2(0, list_item_height* 5)))
-                        {
-                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.882f, 0.745f, 0.078f,1.0f));
-                            for(int j = i+1; j < current_dirlist.size(); j++)
-                            {
-                                if(ImGui::Selectable(current_dirlist[j].c_str(), false) && j != current_dirlist.size() - 1)
-                                {
-                                    show_error |= !(onNavigationButtonClick(j));
-                                    ImGui::CloseCurrentPopup();
-                                }
-                            }
-                            ImGui::PopStyleColor();
-                            ImGui::ListBoxFooter();
-                        }
-                        ImGui::PopStyleColor();
-                        ImGui::EndPopup();
-                    }
-                    ImGui::PopStyleColor(2);
-                    break;
-                }
-                else
-                {
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.01f));
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
-                    ImGui::ArrowButtonEx("##Right", ImGuiDir_Right, ImVec2(frame_height, frame_height), ImGuiButtonFlags_Disabled);
-                    ImGui::SameLine(0,0);
-                    ImGui::PopStyleColor(2);
-                }
-            }
-        }*/
-
         ImGui::PopStyleColor();
         ImGui::EndChild();
 
@@ -574,7 +516,7 @@ namespace imgui_addons
         float opensave_btn_width = getButtonSize("Open").x;     // Since both Open/Save are 4 characters long, width gonna be same.
         float selcan_btn_width = getButtonSize("Cancel").x;     // Since both Cancel/Select have same number of characters, so same width.
         //float newFolder_width = getButtonSize("New folder").x;
-        float buttons_xpos;
+        float buttons_xpos = 0;
 
         if (dialog_mode == DialogMode::SAVE || dialog_mode == DialogMode::OPEN){
             buttons_xpos = pw_size.x - opensave_btn_width - selcan_btn_width - style.ItemSpacing.x - style.WindowPadding.x;
@@ -708,7 +650,7 @@ namespace imgui_addons
                                         8 * ImGui::GetFrameHeight() + style.WindowPadding.y *  2.0f);
 
         // ImGui::GetFocusedFocusScope()
-        if(show_inputbar_combobox && ( ImGui::GetFocusScopeID() == focus_scope_id || ImGui::GetCurrentContext()->ActiveIdIsAlive == input_id  ))
+        if(show_inputbar_combobox && ( ImGui::GetCurrentFocusScope() == focus_scope_id || ImGui::GetCurrentContext()->ActiveIdIsAlive == input_id  ))
         {
             ImGuiWindowFlags popupFlags = ImGuiWindowFlags_NoTitleBar           |
                                           ImGuiWindowFlags_NoResize             |
@@ -728,7 +670,7 @@ namespace imgui_addons
 
             ImVec2 listbox_size = input_combobox_sz - ImGui::GetStyle().WindowPadding * 2.0f;
             // ImGui::BeginListBox
-            if(ImGui::ListBoxHeader("##InputBarComboBoxList", listbox_size))
+            if(ImGui::BeginListBox("##InputBarComboBoxList", listbox_size))
             {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
                 ImGui::PushFocusScope(focus_scope_id);
@@ -753,7 +695,7 @@ namespace imgui_addons
                 ImGui::PopFocusScope();
                 ImGui::PopStyleColor(1);
                 //ImGui::EndListBox()
-                ImGui::ListBoxFooter();
+                ImGui::EndListBox();
             }
             ImGui::EndChild();
             ImGui::PopStyleColor(2);
@@ -1037,7 +979,7 @@ namespace imgui_addons
         bool ret_val = false;
         if (ImGui::BeginPopupModal(repfile_modal_id.c_str(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize))
         {
-            float frame_height = ImGui::GetFrameHeightWithSpacing();
+            //float frame_height = ImGui::GetFrameHeightWithSpacing();
 
             std::string text = "A file with the following filename already exists. Are you sure you want to replace the existing file?";
             ImGui::TextWrapped("%s", text.c_str());
@@ -1315,7 +1257,65 @@ namespace imgui_addons
             current_dirlist.push_back("/");
         }
         else
+        {/*for(int i = 0; i < current_dirlist.size(); i++)
         {
+            if( ImGui::Button(current_dirlist[i].c_str()) )
+            {
+                //If last button clicked, nothing happens
+                if(i != current_dirlist.size() - 1)
+                    show_error |= !(onNavigationButtonClick(i));
+            }
+
+            //Draw Arrow Buttons
+            if(i != current_dirlist.size() - 1)
+            {
+                ImGui::SameLine(0,0);
+                float next_label_width = ImGui::CalcTextSize(current_dirlist[i+1].c_str()).x;
+
+                if(i+1 < current_dirlist.size() - 1)
+                    next_label_width += frame_height + ImGui::CalcTextSize(">>").x;
+
+                if(ImGui::GetCursorPosX() + next_label_width >= (nw_size.x - style.WindowPadding.x * 3.0))
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.01f));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
+
+                    //Render a drop down of navigation items on button press
+                    if(ImGui::Button(">>"))
+                        ImGui::OpenPopup("##NavBarDropboxPopup");
+                    if(ImGui::BeginPopup("##NavBarDropboxPopup"))
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.125f, 0.125f, 0.125f, 1.0f));
+                        if(ImGui::ListBoxHeader("##NavBarDropBox", ImVec2(0, list_item_height* 5)))
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.882f, 0.745f, 0.078f,1.0f));
+                            for(int j = i+1; j < current_dirlist.size(); j++)
+                            {
+                                if(ImGui::Selectable(current_dirlist[j].c_str(), false) && j != current_dirlist.size() - 1)
+                                {
+                                    show_error |= !(onNavigationButtonClick(j));
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+                            ImGui::PopStyleColor();
+                            ImGui::ListBoxFooter();
+                        }
+                        ImGui::PopStyleColor();
+                        ImGui::EndPopup();
+                    }
+                    ImGui::PopStyleColor(2);
+                    break;
+                }
+                else
+                {
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.01f));
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f,1.0f));
+                    ImGui::ArrowButtonEx("##Right", ImGuiDir_Right, ImVec2(frame_height, frame_height), ImGuiButtonFlags_Disabled);
+                    ImGui::SameLine(0,0);
+                    ImGui::PopStyleColor(2);
+                }
+            }
+        }*/
             current_path = std::string(real_path);
             current_path += "/";
             parsePathTabs(current_path);
