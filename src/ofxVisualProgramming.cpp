@@ -121,17 +121,10 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setRetina(bool retina){
+void ofxVisualProgramming::setRetina(bool retina, int retinaScale){
     isRetina = retina;
-
-    if(isRetina){
-        scaleFactor = 2;
-        fontSize    = 16;
-        canvas.setScale(2);
-    }else{
-        scaleFactor = 1;
-        fontSize    = 8;
-    }
+    scaleFactor = retinaScale;
+    fontSize    = 8*retinaScale;
 }
 
 //--------------------------------------------------------------

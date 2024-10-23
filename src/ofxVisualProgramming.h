@@ -58,7 +58,7 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            setRetina(bool retina);
+    void            setRetina(bool retina, int retinaScale=1);
     void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
     void            setupFailsafeWindow();
     void            update();

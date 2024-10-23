@@ -486,6 +486,11 @@ void moTimeline::initTimeline(){
 
     timeline->setWorkingFolder(this->filepath);
 
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    float xScreenContentScale, yScreenContentScale;
+    glfwGetMonitorContentScale(primaryMonitor, &xScreenContentScale, &yScreenContentScale);
+    timeline->retinaScale = yScreenContentScale;
+
     timeline->setup();
     timeline->setName(getLoadingTimelineName(this->filepath));
     timeline->disableEvents();
@@ -497,6 +502,7 @@ void moTimeline::initTimeline(){
     timeline->setBPM(this->getCustomVar("BPM"));
     timeline->enableSnapToBPM(true);
     timeline->setShowBPMGrid(false);
+
 
     autoAddTracks(this->filepath);
 
