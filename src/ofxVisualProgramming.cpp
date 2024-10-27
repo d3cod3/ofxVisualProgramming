@@ -76,9 +76,10 @@ ofxVisualProgramming::ofxVisualProgramming(){
 
 
     currentSubpatch         = "root";
+    newSubpatchName         = "";
 
-    vector<string> rootBranch;
-    subpatchesTree[currentSubpatch] = rootBranch;
+    vector<SubpatchConnection> rootBranch;
+    subpatchesMap[currentSubpatch] = rootBranch;
 
     resetTime               = ofGetElapsedTimeMillis();
     deferredLoadTime        = ofGetElapsedTimeMillis();
@@ -108,6 +109,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
 
     profilerActive          = false;
     inspectorActive         = false;
+    navigationActive        = false;
     isCanvasVisible         = false;
 
     inited                  = false;
@@ -136,7 +138,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     // Initialise GUI
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();
-        ofxVPGui->setup();//nullptr, true, ImGuiConfigFlags_NavEnableSetMousePos);
+        ofxVPGui->setup();
         string tmpstr = "Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();";
         ofLogNotice("ofxVP","%s",tmpstr.c_str());
     }
@@ -264,7 +266,7 @@ void ofxVisualProgramming::update(){
             // update scripts objects files map
             ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
             string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "PY" || fileExt == "SH"){
+            if(fileExt == "LUA" || fileExt == "SH"){
                 map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                 if (sofpIT == scriptsObjectsFilesPaths.end()){
                     // not found, insert it
@@ -285,6 +287,8 @@ void ofxVisualProgramming::update(){
         }
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
+
+        updateSubpatchNavigation();
     }
 
 }
@@ -292,6 +296,18 @@ void ofxVisualProgramming::update(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::updateCanvasViewport(){
     canvasViewport.set(0,20,ofGetWindowWidth(),ofGetWindowHeight()-20);
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::updateSubpatchNavigation(){
+    for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+        for(int z=0;z<it->second.size();z++){
+            if(it->second.at(z).objID != -1){
+                it->second.at(z).name = patchObjects[it->second.at(z).objID]->wirelessName;
+                it->second.at(z).type = patchObjects[it->second.at(z).objID]->wirelessType;
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------
@@ -348,7 +364,7 @@ void ofxVisualProgramming::draw(){
 
     // Render objects.
     if(!bLoadingNewPatch && !patchObjects.empty()){
-        ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
+        pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
 
             if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
@@ -406,9 +422,6 @@ void ofxVisualProgramming::closeDrawMainMenu(){
     ofPopStyle();
     ofPopView();
 
-    // Draw Subpatch Navigation
-    drawSubpatchNavigation();
-
     // Graphical Context
     ofxVPGui->draw();
 
@@ -464,9 +477,122 @@ void ofxVisualProgramming::drawLivePatchingSession(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawSubpatchNavigation(){
-    if(currentSubpatch != "root"){
-        // TODO
+    static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+    static ImGuiTreeNodeFlags leaf_flags = ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+    static int selection_mask = (1 << 0); // start selection on root
+    int node_clicked = -1;
+    int i = 0;
+
+    if(currentSubpatch == "root"){
+        selection_mask = (1 << 0);
     }
+
+    //ImGui::SetNextWindowSize(ImVec2(200*scaleFactor,400*scaleFactor), ImGuiCond_Appearing );
+
+    ImGui::Begin(ICON_FA_NETWORK_WIRED "  Patch Navigator", &navigationActive, ImGuiWindowFlags_NoCollapse);
+
+    ImGui::Spacing();
+    if(ImGui::Button(ICON_FA_PLUS_CIRCLE " Add Subpatch",ImVec2(-1,26*scaleFactor))){
+        newSubpatchName = "";
+        ImGui::OpenPopup("Add Subpatch");
+    }
+    if(ImGui::BeginPopup("Add Subpatch")){
+
+        ImGui::Text("Name: ");
+        ImGui::SameLine();
+        if(ImGui::InputText("##NewSubpatchNameInput", &newSubpatchName,ImGuiInputTextFlags_EnterReturnsTrue)){
+            if(newSubpatchName != ""){
+                // create subpatch
+                currentSubpatch         = newSubpatchName;
+                vector<SubpatchConnection> subpatchBranch;
+                subpatchesMap[currentSubpatch] = subpatchBranch;
+                selection_mask = (1 << (subpatchesMap.size()-1));
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Cancel")){
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if(ImGui::Button("Create")){
+            if(newSubpatchName != ""){
+                // create subpatch
+                currentSubpatch         = newSubpatchName;
+                vector<SubpatchConnection> subpatchBranch;
+                subpatchesMap[currentSubpatch] = subpatchBranch;
+                selection_mask = (1 << (subpatchesMap.size()-1));
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+
+    }
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+
+        ImGuiTreeNodeFlags node_flags = base_flags;
+        const bool is_selected = (selection_mask & (1 << i)) != 0;
+        if (is_selected) node_flags |= ImGuiTreeNodeFlags_Selected;
+
+        bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, it->first.c_str(), i);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
+            node_clicked = i;
+            currentSubpatch = it->first.c_str();
+        }
+
+        if (node_open){
+            for(int z=0;z<it->second.size();z++){
+                if(it->second.at(z).objID != -1){
+                    switch (it->second.at(z).type) {
+                        case VP_LINK_NUMERIC:
+                            ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1.00f,1.00f,1.00f,1.00f));
+                            break;
+                        case VP_LINK_STRING:
+                            ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(200.0f/255.0f,180.0f/255.0f,1.00f,1.00f));
+                            break;
+                        case VP_LINK_ARRAY:
+                            ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(120.0f/255.0f,180.0f/255.0f,120.0f/255.0f,1.00f));
+                            break;
+                        case VP_LINK_TEXTURE:
+                            ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(120.0f/255.0f,1.00f,1.00f,1.00f));
+                            break;
+                        case VP_LINK_AUDIO:
+                            ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(1.00f,1.00f,120.0f/255.0f,1.00f));
+                            break;
+                        default:
+                            ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5f,0.5f,0.5f,1.00f));
+                            break;
+                    }
+                    // draw gray if not active yet
+                    if(it->second.at(z).name == ""){
+                        ImGui::PopStyleColor(1);
+                        ImGui::PushStyleColor(ImGuiCol_Text,ImVec4(0.5f,0.5f,0.5f,1.00f));
+                    }
+                    if(it->second.at(z).inOut == 0){ // receiver
+                        ImGui::TreeNodeEx((void*)(intptr_t)z, leaf_flags, "Receiving\t<--\t%s", it->second.at(z).name.c_str());
+                    }else if(it->second.at(z).inOut == 1){ // sender
+                        ImGui::TreeNodeEx((void*)(intptr_t)z, leaf_flags, "Sending \t -->\t%s", it->second.at(z).name.c_str());
+                    }
+                    ImGui::PopStyleColor(1);
+                }
+            }
+            ImGui::TreePop();
+        }
+
+        if (node_clicked != -1){
+            // Update selection state
+            selection_mask = (1 << node_clicked);   // Click to single-select
+        }
+
+        i++;
+    }
+
+    ImGui::End();
 }
 
 //--------------------------------------------------------------
@@ -693,6 +819,20 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     if(saved){
         patchObjects[tempObj->getId()] = tempObj;
         lastAddedObjectID = tempObj->getId();
+
+        // store in a map all the wireless links objects reference, for the subpatch navigation window
+        if(name == "sender"){
+            SubpatchConnection _t;
+            _t.objID = tempObj->getId();
+            _t.inOut = 1;
+            subpatchesMap[currentSubpatch].push_back(_t);
+        }else if(name == "receiver"){
+            SubpatchConnection _t;
+            _t.objID = tempObj->getId();
+            _t.inOut = 0;
+            subpatchesMap[currentSubpatch].push_back(_t);
+        }
+
         nodeCanvas.setActiveNode(lastAddedObjectID);
     }
 
@@ -1035,19 +1175,6 @@ string ofxVisualProgramming::getObjectNameFromID(int id){
 }
 
 //--------------------------------------------------------------
-string ofxVisualProgramming::getSubpatchParent(string subpatchName){
-    for(map<string,vector<string>>::iterator it = subpatchesTree.begin(); it != subpatchesTree.end(); it++ ){
-        for(unsigned int s=0;s<it->second.size();s++){
-            if(it->second.at(s) == subpatchName){
-                return it->first;
-            }
-        }
-    }
-    // return root if subpatch searched do not exists
-    return "root";
-}
-
-//--------------------------------------------------------------
 void ofxVisualProgramming::removeObject(int &id){
     resetTime = ofGetElapsedTimeMillis();
 
@@ -1131,6 +1258,15 @@ void ofxVisualProgramming::removeObject(int &id){
             it->second->outPut = tempBuffer;
         }
 
+        // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
+        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+            for(int z=0;z<it->second.size();z++){
+                if(it->second.at(z).objID == id){
+                    it->second.at(z).objID = -1;
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -1372,6 +1508,14 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
 
         }
     }
+
+    // clear subpatch navigation data
+    subpatchesMap.clear();
+    currentSubpatch         = "root";
+    newSubpatchName         = "";
+    vector<SubpatchConnection> rootBranch;
+    subpatchesMap[currentSubpatch] = rootBranch;
+
     resetTime = ofGetElapsedTimeMillis();
     clearingObjectsMap = true;
 }
@@ -1653,14 +1797,32 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                             if(loaded){
                                 tempObj->setPatchfile(currentPatchFile);
                                 tempObj->setIsRetina(isRetina);
+                                string objSubpatch = XML.getValue("subpatch","");
+                                tempObj->setSubpatch(objSubpatch);
+                                if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
+                                    vector<SubpatchConnection> _sp;
+                                    subpatchesMap[objSubpatch] = _sp;
+                                }
                                 ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
                                 ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
                                 ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
                                 ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
-                                // Insert the new patch into the map
+                                // Insert the new object into the map
                                 patchObjects[tempObj->getId()] = tempObj;
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
+                                // if wireless object, add reference to subpatch data map
+                                if(objname == "sender"){
+                                    SubpatchConnection _t;
+                                    _t.objID = tempObj->getId();
+                                    _t.inOut = 1;
+                                    subpatchesMap[objSubpatch].push_back(_t);
+                                }else if(objname == "receiver"){
+                                    SubpatchConnection _t;
+                                    _t.objID = tempObj->getId();
+                                    _t.inOut = 0;
+                                    subpatchesMap[objSubpatch].push_back(_t);
+                                }
 
 #ifdef NDEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;

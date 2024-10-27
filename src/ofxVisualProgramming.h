@@ -50,6 +50,12 @@
 
 #define OFXVP_DEBUG 0
 
+struct SubpatchConnection{
+    int     objID;
+    string  name;
+    uint8_t type;   // LINK_TYPE
+    uint8_t inOut;  // 0 receive, 1 send
+};
 
 class ofxVisualProgramming : public pdsp::Wrapper {
     
@@ -63,6 +69,7 @@ public:
     void            setupFailsafeWindow();
     void            update();
     void            updateCanvasViewport();
+    void            updateSubpatchNavigation();
     void            draw();
     void            closeDrawMainMenu();
     void            drawInspector();
@@ -104,8 +111,6 @@ public:
     bool            isObjectIDInPatchMap(int id);
     string          getObjectNameFromID(int id);
 
-    string          getSubpatchParent(string subpatchName);
-
     void            newPatch(string release);
     void            newTempPatchFromFile(string patchFile);
     void            preloadPatch(string patchFile);
@@ -133,6 +138,7 @@ public:
     ofxImGui::Gui*                  ofxVPGui;
     ImGuiEx::NodeCanvas             nodeCanvas;
     ImGuiEx::ProfilersWindow        profiler;
+    ImGuiEx::ProfilerTask           *pt;
     bool                            isCanvasVisible;
 
 
@@ -151,8 +157,9 @@ public:
     vector<pair<int,int>>               leftToRightIndexOrder;
     vector<int>                         eraseIndexes;
 
-    map<string,vector<string>>          subpatchesTree;
-    string                              currentSubpatch;
+    map<string,vector<SubpatchConnection>>  subpatchesMap;
+    string                                  currentSubpatch;
+    string                                  newSubpatchName;
 
     int                                 selectedObjectID;
     int                                 actualObjectID;
@@ -175,6 +182,7 @@ public:
     shared_ptr<ofAppGLFWWindow>         mainWindow;
     bool                                profilerActive;
     bool                                inspectorActive;
+    bool                                navigationActive;
     bool                                inited;
 
     // LIVE PATCHING

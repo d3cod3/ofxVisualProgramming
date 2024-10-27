@@ -133,37 +133,7 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         loadVideoFile();
     }
 
-    if(isFileLoaded && video->isLoaded() && !loaded){
-        loaded = true;
-
-        loop = static_cast<bool>(this->getCustomVar("LOOP"));
-        speed = static_cast<float>(this->getCustomVar("SPEED"));
-
-        if(loop){
-            video->setLoopState(OF_LOOP_NORMAL);
-        }else{
-            video->setLoopState(OF_LOOP_NONE);
-        }
-        video->setSpeed(speed);
-    }
-}
-
-//--------------------------------------------------------------
-void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-
-    if(!isFileLoaded && video->isLoaded()){
-        video->setLoopState(OF_LOOP_NONE);
-        video->setVolume(0);
-        video->play();
-        preloadFirstFrame = true;
-
-        ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
-        //ofLog(OF_LOG_NOTICE,"Internal texture data type: %i",video->getTexture().getTextureData().glInternalFormat);
-
-        isFileLoaded = true;
-    }
-
+    /////////////////////////////////////////// VIDEO UPDATE
     if(isFileLoaded && video->isLoaded()    ){
 
         if(video->getWidth() != static_cast<ofTexture *>(_outletParams[0])->getWidth() || video->getHeight() != static_cast<ofTexture *>(_outletParams[0])->getHeight()){
@@ -251,6 +221,47 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
 
             }
 
+        }
+
+    }
+    ///////////////////////////////////////////
+
+    if(isFileLoaded && video->isLoaded() && !loaded){
+        loaded = true;
+
+        loop = static_cast<bool>(this->getCustomVar("LOOP"));
+        speed = static_cast<float>(this->getCustomVar("SPEED"));
+
+        if(loop){
+            video->setLoopState(OF_LOOP_NORMAL);
+        }else{
+            video->setLoopState(OF_LOOP_NONE);
+        }
+        video->setSpeed(speed);
+    }
+}
+
+//--------------------------------------------------------------
+void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    ofSetColor(255);
+
+    if(!isFileLoaded && video->isLoaded()){
+        video->setLoopState(OF_LOOP_NONE);
+        video->setVolume(0);
+        video->play();
+        preloadFirstFrame = true;
+
+        ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
+        //ofLog(OF_LOG_NOTICE,"Internal texture data type: %i",video->getTexture().getTextureData().glInternalFormat);
+
+        isFileLoaded = true;
+    }
+
+
+    /////////////////////////////////////////// VIDEO DRAW
+    if(isFileLoaded && video->isLoaded()    ){
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             // draw node texture preview with OF
             if(scaledObjW*canvasZoom > 90.0f){
                 drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);

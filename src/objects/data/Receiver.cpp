@@ -59,6 +59,8 @@ vpReceiver::vpReceiver() : PatchObject("receiver") {
     emptyVector             = new vector<float>();
     kuro                    = new ofImage();
 
+    this->wirelessType = receiveTypeIndex;
+
     loaded                  = false;
 
 }
@@ -192,6 +194,7 @@ void vpReceiver::drawObjectNodeConfig(){
     if(ofxImGui::VectorCombo("Data type", &typeIndex,dataTypes)){
         if(receiveTypeIndex != typeIndex){
             receiveTypeIndex = typeIndex;
+            this->wirelessType = receiveTypeIndex;
             this->setCustomVar(static_cast<float>(receiveTypeIndex),"DATA_TYPE");
             isReceivingON = false;
             this->closeWirelessLink(wirelessPin);
@@ -210,6 +213,7 @@ void vpReceiver::drawObjectNodeConfig(){
         if(varName != ""){
             isReceivingON = true;
             signalSendEvent = true;
+            this->wirelessName = varName;
         }else{
             isReceivingON = false;
         }
@@ -229,6 +233,7 @@ void vpReceiver::drawObjectNodeConfig(){
         isReceivingON = false;
         this->setInletID(wirelessPin,varName);
         this->setCustomVar(static_cast<float>(isReceivingON),"IS_RECEIVING");
+        this->wirelessName = "";
         if(prevVarName != "_unassigned"){
             this->substituteCustomVar(prevVarName,"_unassigned");
         }
@@ -270,6 +275,11 @@ void vpReceiver::audioOutObject(ofSoundBuffer &outBuffer){
 
 //--------------------------------------------------------------
 void vpReceiver::initWireless(){
+
+    receiveTypeIndex = static_cast<int>(this->getCustomVar("DATA_TYPE"));
+
+    changeDataType(receiveTypeIndex);
+    this->wirelessType = receiveTypeIndex;
 
     ofxXmlSettings XML;
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
@@ -315,6 +325,7 @@ void vpReceiver::initWireless(){
         this->setInletID(wirelessPin,varName);
         signalSendEvent = true;
         prevVarName = varName;
+        this->wirelessName = varName;
     }else if(varName == ""){
         prevVarName = "_unassigned";
     }

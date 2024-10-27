@@ -59,6 +59,8 @@ vpSender::vpSender() : PatchObject("sender") {
     emptyVector             = new vector<float>();
     kuro                    = new ofImage();
 
+    this->wirelessType = sendTypeIndex;
+
     loaded                  = false;
 }
 
@@ -86,7 +88,6 @@ void vpSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void vpSender::setupAudioOutObjectContent(pdsp::Engine &engine){
     unusedArgs(engine);
-
 }
 
 //--------------------------------------------------------------
@@ -194,6 +195,7 @@ void vpSender::drawObjectNodeConfig(){
             sendTypeIndex = typeIndex;
             this->setCustomVar(static_cast<float>(sendTypeIndex),"DATA_TYPE");
             isSendingON = false;
+            this->wirelessType = sendTypeIndex;
             this->closeWirelessLink(wirelessPin);
             this->setCustomVar(static_cast<float>(isSendingON),"IS_SENDING");
             if(prevVarName != "_unassigned"){
@@ -215,6 +217,7 @@ void vpSender::drawObjectNodeConfig(){
         this->setOutletID(wirelessPin,varName);
         if(varName != ""){
             this->openWirelessLink(wirelessPin);
+            this->wirelessName = varName;
         }
 
         // save it
@@ -233,6 +236,7 @@ void vpSender::drawObjectNodeConfig(){
         isSendingON = false;
         this->closeWirelessLink(wirelessPin);
         this->setCustomVar(static_cast<float>(isSendingON),"IS_SENDING");
+        this->wirelessName = "";
         if(prevVarName != "_unassigned"){
             this->substituteCustomVar(prevVarName,"_unassigned");
         }
@@ -280,6 +284,7 @@ void vpSender::initWireless(){
     sendTypeIndex = static_cast<int>(this->getCustomVar("DATA_TYPE"));
 
     changeDataType(sendTypeIndex);
+    this->wirelessType = sendTypeIndex;
 
     ofxXmlSettings XML;
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
@@ -318,6 +323,7 @@ void vpSender::initWireless(){
         this->setOutletID(wirelessPin,varName);
         this->openWirelessLink(wirelessPin);
         prevVarName = varName;
+        this->wirelessName = varName;
     }else if(varName == ""){
         prevVarName = "_unassigned";
     }

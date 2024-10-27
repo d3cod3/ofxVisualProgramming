@@ -126,6 +126,100 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
+    ///////////////////////////////////////////
+    // SHADER UPDATE
+    if(scriptLoaded){
+        // receive external data
+        for(int i=0;i<this->numInlets;i++){
+            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_TEXTURE && i < static_cast<int>(textures.size()) && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+                textures[i]->begin();
+                ofSetColor(255);
+                static_cast<ofTexture *>(_inletParams[i])->draw(0,0,output_width, output_height);
+                textures[i]->end();
+            }
+        }
+        pingPong->dst->begin();
+
+        ofClear(0);
+        shader->begin();
+        shader->setUniformTexture("backbuffer", pingPong->src->getTexture(),0);
+        for(int i=0;i<static_cast<int>(textures.size());i++){
+            string texName = "tex" + ofToString(i);
+            shader->setUniformTexture(texName.c_str(),textures[i]->getTexture(),i+1);
+        }
+        shader->setUniform2f("resolution",static_cast<float>(output_width),static_cast<float>(output_height));
+        shader->setUniform1f("time",static_cast<float>(ofGetElapsedTimef()));
+
+        for(int i=0;i<this->numInlets;i++){
+            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_NUMERIC){
+                shaderSliders.at(i-static_cast<int>(textures.size())) = *(float *)&_inletParams[i];
+            }
+        }
+
+        // set custom shader vars
+        string paramName, tempVarName;
+        for(size_t i=0;i<shaderSliders.size();i++){
+            if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
+                paramName = "param1f"+ofToString(shaderSlidersIndex[i]);
+                tempVarName = "GUI_FLOAT_"+shaderSlidersLabel.at(i);
+                shader->setUniform1f(paramName.c_str(), static_cast<float>(shaderSliders.at(i)));
+            }else if(shaderSlidersType.at(i) == ShaderSliderType_INT){
+                paramName = "param1i"+ofToString(shaderSlidersIndex[i]);
+                tempVarName = "GUI_INT_"+shaderSlidersLabel.at(i);
+                shader->setUniform1i(paramName.c_str(), static_cast<int>(floor(shaderSliders.at(i))));
+            }
+        }
+
+        ofSetColor(255,255);
+        if (ofIsGLProgrammableRenderer()) {
+            if (quad.getNumVertices() == 0) {
+                quad.clear();
+                quad.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
+                quad.addVertex(glm::vec3(0, 0, 0));			 quad.addTexCoord(glm::vec2(0, 0));
+                quad.addVertex(glm::vec3(output_width, 0, 0));		 quad.addTexCoord(glm::vec2(output_width, 0));
+                quad.addVertex(glm::vec3(output_width, output_width, 0)); quad.addTexCoord(glm::vec2(output_width, output_width));
+                quad.addVertex(glm::vec3(0, output_width, 0));	 quad.addTexCoord(glm::vec2(0, output_width));
+            }
+            quad.draw(OF_MESH_FILL);
+        }else{
+            glBegin(GL_QUADS);
+            glTexCoord2f(0, 0); glVertex3f(0, 0, 0);
+            glTexCoord2f(output_width, 0); glVertex3f(output_width, 0, 0);
+            glTexCoord2f(output_width, output_height); glVertex3f(output_width, output_height, 0);
+            glTexCoord2f(0,output_height);  glVertex3f(0,output_height, 0);
+            glEnd();
+        }
+
+        shader->end();
+
+        pingPong->dst->end();
+
+        pingPong->swap();
+
+    }
+    ///////////////////////////////////////////
+
+    /// ///////////////////////////////////////////
+    // SHADER DRAW
+    fbo->begin();
+    if(scriptLoaded){
+        ofPushView();
+        ofPushStyle();
+        ofPushMatrix();
+        ofEnableAlphaBlending();
+        ofSetColor(255);
+        pingPong->dst->draw(0,0,output_width, output_height);
+        ofPopMatrix();
+        ofPopStyle();
+        ofPopView();
+    }else{
+        kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
+    }
+    fbo->end();
+    *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
+    ///////////////////////////////////////////
+
+
     // Recursive reset for shader objects chain
     if(needReset){
         needReset = false;
@@ -245,99 +339,6 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 //--------------------------------------------------------------
 void ShaderObject::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-
-    ///////////////////////////////////////////
-    // SHADER UPDATE
-    if(scriptLoaded){
-        // receive external data
-        for(int i=0;i<this->numInlets;i++){
-            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_TEXTURE && i < static_cast<int>(textures.size()) && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
-                textures[i]->begin();
-                ofSetColor(255);
-                static_cast<ofTexture *>(_inletParams[i])->draw(0,0,output_width, output_height);
-                textures[i]->end();
-            }
-        }
-        pingPong->dst->begin();
-
-        ofClear(0);
-        shader->begin();
-        shader->setUniformTexture("backbuffer", pingPong->src->getTexture(),0);
-        for(int i=0;i<static_cast<int>(textures.size());i++){
-            string texName = "tex" + ofToString(i);
-            shader->setUniformTexture(texName.c_str(),textures[i]->getTexture(),i+1);
-        }
-        shader->setUniform2f("resolution",static_cast<float>(output_width),static_cast<float>(output_height));
-        shader->setUniform1f("time",static_cast<float>(ofGetElapsedTimef()));
-
-        for(int i=0;i<this->numInlets;i++){
-            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_NUMERIC){
-                shaderSliders.at(i-static_cast<int>(textures.size())) = *(float *)&_inletParams[i];
-            }
-        }
-
-        // set custom shader vars
-        string paramName, tempVarName;
-        for(size_t i=0;i<shaderSliders.size();i++){
-            if(shaderSlidersType.at(i) == ShaderSliderType_FLOAT){
-                paramName = "param1f"+ofToString(shaderSlidersIndex[i]);
-                tempVarName = "GUI_FLOAT_"+shaderSlidersLabel.at(i);
-                shader->setUniform1f(paramName.c_str(), static_cast<float>(shaderSliders.at(i)));
-            }else if(shaderSlidersType.at(i) == ShaderSliderType_INT){
-                paramName = "param1i"+ofToString(shaderSlidersIndex[i]);
-                tempVarName = "GUI_INT_"+shaderSlidersLabel.at(i);
-                shader->setUniform1i(paramName.c_str(), static_cast<int>(floor(shaderSliders.at(i))));
-            }
-        }
-
-        ofSetColor(255,255);
-        if (ofIsGLProgrammableRenderer()) {
-            if (quad.getNumVertices() == 0) {
-                quad.clear();
-                quad.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-                quad.addVertex(glm::vec3(0, 0, 0));			 quad.addTexCoord(glm::vec2(0, 0));
-                quad.addVertex(glm::vec3(output_width, 0, 0));		 quad.addTexCoord(glm::vec2(output_width, 0));
-                quad.addVertex(glm::vec3(output_width, output_width, 0)); quad.addTexCoord(glm::vec2(output_width, output_width));
-                quad.addVertex(glm::vec3(0, output_width, 0));	 quad.addTexCoord(glm::vec2(0, output_width));
-            }
-            quad.draw(OF_MESH_FILL);
-        }else{
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0); glVertex3f(0, 0, 0);
-            glTexCoord2f(output_width, 0); glVertex3f(output_width, 0, 0);
-            glTexCoord2f(output_width, output_height); glVertex3f(output_width, output_height, 0);
-            glTexCoord2f(0,output_height);  glVertex3f(0,output_height, 0);
-            glEnd();
-        }
-
-        shader->end();
-
-        pingPong->dst->end();
-
-        pingPong->swap();
-
-    }
-    ///////////////////////////////////////////
-
-    ///////////////////////////////////////////
-    // SHADER DRAW
-    fbo->begin();
-    if(scriptLoaded){
-        ofPushView();
-        ofPushStyle();
-        ofPushMatrix();
-        ofEnableAlphaBlending();
-        ofSetColor(255);
-        pingPong->dst->draw(0,0,output_width, output_height);
-        ofPopMatrix();
-        ofPopStyle();
-        ofPopView();
-    }else{
-        kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
-    }
-    fbo->end();
-    *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
-    ///////////////////////////////////////////
 
     ofSetColor(255);
     if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){

@@ -67,6 +67,9 @@ PatchObject::PatchObject(const std::string& _customUID ) : ofxVPHasUID(_customUI
     resetWirelessLink       = false;
     resetWirelessPin        = -1;
 
+    wirelessName            = "";
+    wirelessType            = -1;
+
     width       = OBJECT_WIDTH;
     height      = OBJECT_HEIGHT;
     headerHeight= HEADER_HEIGHT;

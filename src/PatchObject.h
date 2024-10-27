@@ -236,6 +236,10 @@ public:
 
     string                              specialLinkTypeName;
 
+    // Wireless object vars
+    string                              wirelessName;
+    int                                 wirelessType;
+
 protected:
 
     // Texture drawing object vars
