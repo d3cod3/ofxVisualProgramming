@@ -240,51 +240,6 @@ void pdspSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    // S
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-        for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[0])->size()){
-                seqSteps[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
-            }
-        }
-    }
-
-    // A
-    if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
-        for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[1])->size()){
-                ctrl1Steps[i] = static_cast<vector<float> *>(_inletParams[1])->at(i);
-            }
-        }
-    }
-
-    // B
-    if(this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()){
-        for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[2])->size()){
-                ctrl2Steps[i] = static_cast<vector<float> *>(_inletParams[2])->at(i);
-            }
-        }
-    }
-
-    // C
-    if(this->inletsConnected[3] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
-        for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[3])->size()){
-                ctrl3Steps[i] = static_cast<vector<float> *>(_inletParams[3])->at(i);
-            }
-        }
-    }
-
-    // D
-    if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
-        for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[4])->size()){
-                ctrl4Steps[i] = static_cast<vector<float> *>(_inletParams[4])->at(i);
-            }
-        }
-    }
-
     // steps
     if(this->inletsConnected[5]){
         manualSteps = static_cast<int>(ofClamp(*(float *)&_inletParams[5],1.0f,SEQUENCER_STEPS*1.0f));
@@ -480,6 +435,51 @@ void pdspSequencer::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void pdspSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
+
+    // S
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+        for(size_t i=0;i<SEQUENCER_STEPS;i++){
+            if(i < static_cast<vector<float> *>(_inletParams[0])->size()){
+                seqSteps[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            }
+        }
+    }
+
+    // A
+    if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
+        for(size_t i=0;i<SEQUENCER_STEPS;i++){
+            if(i < static_cast<vector<float> *>(_inletParams[1])->size()){
+                ctrl1Steps[i] = static_cast<vector<float> *>(_inletParams[1])->at(i);
+            }
+        }
+    }
+
+    // B
+    if(this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()){
+        for(size_t i=0;i<SEQUENCER_STEPS;i++){
+            if(i < static_cast<vector<float> *>(_inletParams[2])->size()){
+                ctrl2Steps[i] = static_cast<vector<float> *>(_inletParams[2])->at(i);
+            }
+        }
+    }
+
+    // C
+    if(this->inletsConnected[3] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
+        for(size_t i=0;i<SEQUENCER_STEPS;i++){
+            if(i < static_cast<vector<float> *>(_inletParams[3])->size()){
+                ctrl3Steps[i] = static_cast<vector<float> *>(_inletParams[3])->at(i);
+            }
+        }
+    }
+
+    // D
+    if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
+        for(size_t i=0;i<SEQUENCER_STEPS;i++){
+            if(i < static_cast<vector<float> *>(_inletParams[4])->size()){
+                ctrl4Steps[i] = static_cast<vector<float> *>(_inletParams[4])->at(i);
+            }
+        }
+    }
 }
 
 OBJECT_REGISTER( pdspSequencer, "sequencer", OFXVP_OBJECT_CAT_SOUND)
