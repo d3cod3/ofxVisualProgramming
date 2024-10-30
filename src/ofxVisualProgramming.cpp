@@ -123,10 +123,10 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setRetina(bool retina, int retinaScale){
+void ofxVisualProgramming::setRetina(bool retina, float retinaScale){
     isRetina = retina;
     scaleFactor = retinaScale;
-    fontSize    = 8*retinaScale;
+    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,8,28)));
 }
 
 //--------------------------------------------------------------
@@ -291,6 +291,11 @@ void ofxVisualProgramming::update(){
         updateSubpatchNavigation();
     }
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::updateRetina(float scale){
+    scaleFactor = scale;
 }
 
 //--------------------------------------------------------------
@@ -643,6 +648,12 @@ void ofxVisualProgramming::cleanPatchDataFolder(){
         }
     }
 
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::reloadFont(){
+    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,8,28)));
+    font->load(MAIN_FONT,fontSize);
 }
 
 //--------------------------------------------------------------

@@ -64,10 +64,11 @@ public:
     ofxVisualProgramming();
     ~ofxVisualProgramming();
 
-    void            setRetina(bool retina, int retinaScale=1);
+    void            setRetina(bool retina, float retinaScale=1);
     void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
     void            setupFailsafeWindow();
     void            update();
+    void            updateRetina(float scale);
     void            updateCanvasViewport();
     void            updateSubpatchNavigation();
     void            draw();
@@ -77,6 +78,7 @@ public:
     void            drawSubpatchNavigation();
     void            resetTempFolder();
     void            cleanPatchDataFolder();
+    void            reloadFont();
     void            exit();
 
     void            mouseMoved(ofMouseEventArgs &e);
@@ -146,7 +148,7 @@ public:
     ofTrueTypeFont                  *font;
     int                             fontSize;
     bool                            isRetina;
-    int                             scaleFactor;
+    float                           scaleFactor;
 
     // PUGG external plugins objects
     pugg::Kernel                    plugins_kernel;
