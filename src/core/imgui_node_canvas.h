@@ -56,8 +56,8 @@
 
 // Default values. You can override them in imconfig.h
 // Everything below is in screen pixels, actual size, non scaled.
-# define IMGUI_EX_NODE_MIN_WIDTH 40 // Minimum width. Items cannot be smaller.
-# define IMGUI_EX_NODE_MIN_HEIGHT 26 // Maximum height. Items cannot be smaller.
+# define IMGUI_EX_NODE_MIN_WIDTH 160 // Minimum width. Items cannot be smaller.
+# define IMGUI_EX_NODE_MIN_HEIGHT 120 // Minimum height. Items cannot be smaller.
 # define IMGUI_EX_NODE_HEADER_HEIGHT 20
 # define IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH 80 // Fixed needed width
 # define IMGUI_EX_NODE_MIN_WIDTH_SMALL (IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH + 40) // Min before entering simplified "imploded" render state. Advised to be 30px+ bigger then IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH

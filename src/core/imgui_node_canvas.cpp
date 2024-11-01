@@ -351,10 +351,12 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         return false;
     }
     // Create node window
+
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));//IMGUI_EX_NODE_CONTENT_PADDING,IMGUI_EX_NODE_CONTENT_PADDING));
+
     ImGui::SetNextWindowPos(curNodeData.outerContentBox.Min);
     ImGui::SetNextWindowSize(curNodeData.outerContentBox.GetSize());
-    //ImGui::SetNextWindowSize(ImVec2(curNodeData.outerContentBox.GetSize().x,0.0f));
+
     bool ret = ImGui::Begin(_id, NULL,
                             ImGuiWindowFlags_NoMove
                             | ImGuiWindowFlags_NoBackground
@@ -366,6 +368,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                             );
     // Save draw context
     nodeDrawList = ImGui::GetWindowDrawList();
+
     bool nodeMenuIsOpen = false;
 
     ImGui::PopStyleVar(1);
