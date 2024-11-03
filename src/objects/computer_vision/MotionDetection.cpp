@@ -188,7 +188,7 @@ void MotionDetection::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void MotionDetection::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

@@ -124,7 +124,9 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     initResolution();
 
     // load kuro
+    ofDisableArbTex();
     kuro->load("images/kuro.jpg");
+    ofEnableArbTex();
 
     // init lua
     static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
@@ -256,19 +258,6 @@ void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
 
-    ofSetColor(255);
-    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        // draw node texture preview with OF
-        if(scaledObjW*canvasZoom > 90.0f){
-            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-        }
-    }else{
-        // background
-        if(scaledObjW*canvasZoom > 90.0f){
-            ofSetColor(34,34,34);
-            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -298,9 +287,19 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT));
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            ImGui::Image(kuro->getTexture().getTextureData().textureID, ImVec2(scaledObjW, scaledObjH));
+            ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_SMALL+2, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
+            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+        }else{
+            ImGui::Image(kuro->getTexture().getTextureData().textureID, ImVec2(scaledObjW, scaledObjH));
+        }
+
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
@@ -426,6 +425,8 @@ void LuaScript::initResolution(){
     output_width = static_cast<int>(floor(this->getCustomVar("OUTPUT_WIDTH")));
     output_height = static_cast<int>(floor(this->getCustomVar("OUTPUT_HEIGHT")));
 
+    ofDisableArbTex();
+
     fbo = new ofFbo();
     fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
     fbo->begin();
@@ -441,6 +442,7 @@ void LuaScript::initResolution(){
     _outletParams[0] = new ofTexture();
     static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
 
+    ofEnableArbTex();
 }
 
 //--------------------------------------------------------------
@@ -463,6 +465,8 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
         this->setCustomVar(static_cast<float>(output_height),"OUTPUT_HEIGHT");
         this->saveConfig(false);
 
+        ofDisableArbTex();
+
         fbo = new ofFbo();
         fbo->allocate(output_width,output_height,GL_RGBA32F_ARB,4);
         fbo->begin();
@@ -477,6 +481,8 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
 
         _outletParams[0] = new ofTexture();
         static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+
+        ofEnableArbTex();
 
         tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
         static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);

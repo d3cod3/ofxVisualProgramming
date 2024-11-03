@@ -107,15 +107,12 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // GUI
     fileDialog.setIsRetina(this->isRetina);
 
+    ofDisableArbTex();
     bashIcon->load("images/bash.png");
+    ofEnableArbTex();
 
     // Load script
     watcher.start();
-    /*if(filepath == "none"){
-        isNewObject = true;
-        ofFile file (ofToDataPath("scripts/empty.sh"));
-        filepath = copyFileToPatchFolder(this->patchFolderPath,file.getAbsolutePath());
-    }*/
 
     if(!isThreadRunning()){
         startThread();
@@ -150,11 +147,6 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void BashScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-    ofSetColor(255);
-    // draw node texture preview with OF
-    if(scaledObjW*canvasZoom > 90.0f){
-        drawNodeOFTexture(bashIcon->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-    }
 }
 
 //--------------------------------------------------------------
@@ -181,9 +173,16 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        calcTextureDims(bashIcon->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(34.0/255.0, 34.0/255.0, 34.0/255.0, 1.0f)));
+        ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_SMALL+2, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
+        ImGui::Image((ImTextureID)(uintptr_t)bashIcon->getTexture().getTextureData().textureID, ImVec2(drawW, drawH));
+
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
@@ -194,16 +193,6 @@ void BashScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     canvasZoom = _nodeCanvas.GetCanvasScale();
 
     // file dialog
-    /*string newFileName = "bashScript_"+ofGetTimestampString("%y%m%d")+".sh";
-    if(ImGuiEx::getFileDialog(fileDialog, saveScriptFlag, "Save new bash script as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".sh", newFileName, scaleFactor)){
-        ofFile fileToRead(ofToDataPath("scripts/empty.sh"));
-        ofFile newBashFile (fileDialog.selected_path);
-        ofFile::copyFromTo(fileToRead.getAbsolutePath(),checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"),true,true);
-        filepath = copyFileToPatchFolder(this->patchFolderPath,checkFileExtension(newBashFile.getAbsolutePath(), ofToUpper(newBashFile.getExtension()), "SH"));
-        threadLoaded = false;
-        reloadScript();
-    }*/
-
     if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
         ofFile bashFile (fileDialog.selected_path);
         filepath = copyFileToPatchFolder(this->patchFolderPath,bashFile.getAbsolutePath());

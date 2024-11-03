@@ -433,3 +433,29 @@ inline void drawNodeOFTexture(ofTexture &tex, float &px, float &py, float &w, fl
     }
 
 }
+
+//--------------------------------------------------------------
+inline void calcTextureDims(ofTexture &tex, float &px, float &py, float &w, float &h, float originX, float originY, float scaledW, float scaledH, float zoom, float retinaScale=1.0f, bool hasInlets=true){
+
+    if(tex.isAllocated()){
+        if(tex.getWidth()/tex.getHeight() >= scaledW/scaledH){
+            if(tex.getWidth() > tex.getHeight()){   // horizontal texture
+                w           = scaledW;
+                h           = (scaledW/tex.getWidth())*tex.getHeight();
+                px          = 0;
+                py          = (scaledH-h)/2.0f;
+            }else{ // vertical texture
+                w           = (tex.getWidth()*scaledH)/tex.getHeight();
+                h           = scaledH;
+                px          = (scaledW-w)/2.0f;
+                py          = 0;
+            }
+        }else{ // always considered vertical texture
+            w               = (tex.getWidth()*scaledH)/tex.getHeight();
+            h               = scaledH;
+            px              = (scaledW-w)/2.0f;
+            py              = 0;
+        }
+    }
+
+}

@@ -124,7 +124,7 @@ void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void SignalTrigger::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------

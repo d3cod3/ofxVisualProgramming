@@ -73,7 +73,9 @@ void AudioDevice::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     loadDeviceInfo();
 
+    ofDisableArbTex();
     bg->load("images/audioDevice_bg.jpg");
+    ofEnableArbTex();
 
 }
 
@@ -110,10 +112,6 @@ void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 void AudioDevice::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
-    // draw node texture preview with OF
-    if(scaledObjW*canvasZoom > 90.0f){
-        drawNodeOFTexture(bg->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-    }
 }
 
 //--------------------------------------------------------------
@@ -135,9 +133,12 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_NORMAL, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
+        ImGui::Image(bg->getTexture().getTextureData().textureID, ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()));
+
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
@@ -152,7 +153,7 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void AudioDevice::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
-                "Mosaic system object, which means that it cannot be added/deleted, but appears when you configure the sound system from the Sound menu. The audio device object is a virtual direct connection to the audio hardware.",
+                "Mosaic system object, which means that it cannot be added/deleted. The audio device object is a virtual direct connection to the audio hardware.",
                 "https://mosaic.d3cod3.org/reference.php?r=audio-device", scaleFactor);
 }
 

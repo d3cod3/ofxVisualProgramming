@@ -113,6 +113,8 @@ void VideoMixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     texData.textureTarget = GL_TEXTURE_2D;
     texData.bFlipTexture = true;
 
+    ofDisableArbTex();
+
     kuroTex = new ofTexture();
     kuroTex->clear();
     kuroTex->allocate(texData);
@@ -123,6 +125,8 @@ void VideoMixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     glColor4f(0.0f,0.0f,0.0f,1.0f);
     ofDrawRectangle(0,0,canvasWidth, canvasHeight);
     mixFbo->end();
+
+    ofEnableArbTex();
 
 }
 
@@ -171,28 +175,13 @@ void VideoMixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRend
     ofDrawRectangle(0,0,canvasWidth,canvasHeight);
 
     for(int i=0;i<dataInlets;i++){
-        if(this->inletsConnected[i]){
+        if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
             ofSetColor(255,255,255,alphas.at(i));
             static_cast<ofTexture *>(_inletParams[i])->draw(0,0,canvasWidth,canvasHeight);
         }
     }
 
     mixFbo->end();
-
-    // DRAW
-    ofSetColor(255);
-    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        // draw node texture preview with OF
-        if(scaledObjW*canvasZoom > 90.0f && this->width > 120 && this->height > 70){
-            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-        }
-    }else{
-        // background
-        if(scaledObjW*canvasZoom > 90.0f){
-            ofSetColor(34,34,34);
-            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
-        }
-    }
 
 }
 
@@ -220,9 +209,20 @@ void VideoMixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+            ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_SMALL+2, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
+            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+        }else{
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        }
+
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
@@ -254,7 +254,7 @@ void VideoMixer::drawObjectNodeConfig(){
     }
     ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
     ImGui::Spacing();
-    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+    if(ImGui::Button("SET",ImVec2(224*scaleFactor,26*scaleFactor))){
         this->setCustomVar(static_cast<float>(dataInlets),"NUM_INLETS");
         needReset = true;
     }
@@ -357,6 +357,8 @@ void VideoMixer::resetInletsSettings(){
         this->setCustomVar(static_cast<float>(canvasWidth),"CANVAS_WIDTH");
         this->setCustomVar(static_cast<float>(canvasHeight),"CANVAS_HEIGHT");
 
+        ofDisableArbTex();
+
         mixFbo = new ofFbo();
         mixFbo->allocate(canvasWidth, canvasHeight, GL_RGBA);
         mixFbo->begin();
@@ -366,6 +368,8 @@ void VideoMixer::resetInletsSettings(){
 
         _outletParams[0] = new ofTexture();
         static_cast<ofTexture *>(_outletParams[0])->allocate(canvasWidth,canvasHeight,GL_RGB);
+
+        ofEnableArbTex();
 
     }
 

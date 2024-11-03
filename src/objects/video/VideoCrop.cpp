@@ -62,8 +62,8 @@ VideoCrop::VideoCrop() : PatchObject("texture crop"){
     _x = 0.0f;
     _y = 0.0f;
 
-    _w = STANDARD_TEXTURE_WIDTH;
-    _h = STANDARD_TEXTURE_HEIGHT;
+    _w = 100.0f;
+    _h = 100.0f;
 
     _maxW = STANDARD_TEXTURE_WIDTH;
     _maxH = STANDARD_TEXTURE_HEIGHT;
@@ -108,19 +108,19 @@ void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _x = ofClamp(*(float *)&_inletParams[1],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _x = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
     }
 
     if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _y = ofClamp(*(float *)&_inletParams[2],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        _y = ofClamp(*(float *)&_inletParams[2],0.0f,100.0f);
     }
 
     if(this->inletsConnected[3] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _w = ofClamp(*(float *)&_inletParams[3],0.0f,static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _w = ofClamp(*(float *)&_inletParams[3],0.0f,100.0f);
     }
 
     if(this->inletsConnected[4] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _h = ofClamp(*(float *)&_inletParams[4],0.0f,static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        _h = ofClamp(*(float *)&_inletParams[4],0.0f,100.0f);
     }
 
     if(!loaded){
@@ -145,14 +145,16 @@ void VideoCrop::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             if(!needToGrab){
                 needToGrab = true;
+                ofDisableArbTex();
                 croppedFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA );
+                ofEnableArbTex();
                 _maxW = static_cast<ofTexture *>(_inletParams[0])->getWidth();
                 _maxH = static_cast<ofTexture *>(_inletParams[0])->getHeight();
             }
 
             croppedFbo->begin();
             ofClear(0,0,0,255);
-            bounds.set(_x,_y,_w,_h);
+            bounds.set((_x/100.0f)*_maxW,(_y/100.0f)*_maxH,(_w/100.0f)*_maxW,(_h/100)*_maxH);
             ofSetColor(255);
             drawTextureCropInsideRect(static_cast<ofTexture *>(_inletParams[0]),0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),bounds);
             croppedFbo->end();
@@ -163,20 +165,6 @@ void VideoCrop::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
         needToGrab = false;
     }
 
-    // DRAW
-    ofSetColor(255);
-    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-        // draw node texture preview with OF
-        if(scaledObjW*canvasZoom > 90.0f){
-            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-        }
-    }else{
-        // background
-        if(scaledObjW*canvasZoom > 90.0f){
-            ofSetColor(34,34,34);
-            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
-        }
-    }
 }
 
 //--------------------------------------------------------------
@@ -199,9 +187,20 @@ void VideoCrop::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+            ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_SMALL+2, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
+            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+        }else{
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        }
+
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
@@ -226,16 +225,16 @@ void VideoCrop::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void VideoCrop::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::PushItemWidth(130*this->scaleFactor);
-    if(ImGui::SliderFloat("START X",&_x, 0.0f, _maxW)){
+    if(ImGui::SliderFloat("START X %",&_x, 0.0f, 100.0f)){
         this->setCustomVar(_x,"XPOS");
     }
-    if(ImGui::SliderFloat("START Y",&_y, 0.0f, _maxH)){
+    if(ImGui::SliderFloat("START Y %",&_y, 0.0f, 100.0f)){
         this->setCustomVar(_y,"YPOS");
     }
-    if(ImGui::SliderFloat("WIDTH",&_w, 0, _maxW)){
+    if(ImGui::SliderFloat("WIDTH %",&_w, 0, 100.0f)){
         this->setCustomVar(_w,"WIDTH");
     }
-    if(ImGui::SliderFloat("HEIGHT",&_h, 0, _maxH)){
+    if(ImGui::SliderFloat("HEIGHT %",&_h, 0, 100.0f)){
         this->setCustomVar(_h,"HEIGHT");
     }
     ImGui::PopItemWidth();

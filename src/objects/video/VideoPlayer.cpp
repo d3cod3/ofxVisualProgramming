@@ -55,7 +55,8 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
     this->initInletsState();
 
-    video = new ofVideoPlayer();
+    video       = new ofVideoPlayer();
+    videoFbo    = new ofFbo();
 
     lastMessage         = "";
     isNewObject         = false;
@@ -140,8 +141,15 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
             _outletParams[0] = new ofTexture();
             static_cast<ofTexture *>(_outletParams[0])->allocate(video->getWidth(),video->getHeight(),GL_RGB);
             static_cast<ofTexture *>(_outletParams[0])->clear();
+            ofDisableArbTex();
+            videoFbo = new ofFbo();
+            videoFbo->allocate(video->getWidth(), video->getHeight(), GL_RGB, 1 );
+            ofEnableArbTex();
         }else{
-            static_cast<ofTexture *>(_outletParams[0])->loadData(video->getPixels());
+            if(videoFbo->isAllocated()){
+                *static_cast<ofTexture *>(_outletParams[0]) = videoFbo->getTexture();
+            }
+
         }
 
         // listen to message control (_inletParams[0])
@@ -257,26 +265,14 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
         isFileLoaded = true;
     }
 
-
-    /////////////////////////////////////////// VIDEO DRAW
-    if(isFileLoaded && video->isLoaded()    ){
-
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            // draw node texture preview with OF
-            if(scaledObjW*canvasZoom > 90.0f){
-                drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-            }
-        }
-
-    }else{
-        // background
-        if(scaledObjW*canvasZoom > 90.0f){
-            ofSetColor(34,34,34);
-            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
-        }
+    if(videoFbo->isAllocated()){
+        videoFbo->begin();
+        ofClear(0,0,0,255);
+        ofSetColor(255);
+        video->draw(0,0);
+        videoFbo->end();
     }
 
-    ///////////////////////////////////////////
 }
 
 //--------------------------------------------------------------
@@ -303,15 +299,29 @@ void VideoPlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImVec2 window_pos = ImGui::GetWindowPos();
-        ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 ph_pos = ImVec2(window_pos.x + (20*this->scaleFactor), window_pos.y + (20*this->scaleFactor));
+        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        if(isFileLoaded && video->isLoaded()){
+            if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+                calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+                _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+                ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_SMALL+2, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
+                ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            }
+        }else{
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        }
+
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
         scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+
+        window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 ph_pos = ImVec2(window_pos.x + (20*this->scaleFactor), window_pos.y + (20*this->scaleFactor));
 
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
 
@@ -452,13 +462,12 @@ void VideoPlayer::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void VideoPlayer::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+
     if(video->isLoaded()){
         video->stop();
         video->setVolume(0);
         video->close();
-    }
-    if(removeFileFromData){
-        //removeFile(filepath);
     }
 }
 
@@ -467,8 +476,13 @@ void VideoPlayer::loadVideoFile(){
     if(filepath != "none"){
         filepath = forceCheckMosaicDataPath(filepath);
         isNewObject = false;
-        //video->setUseTexture(false);
+
         video->load(filepath);
+
+        ofDisableArbTex();
+        videoFbo = new ofFbo();
+        videoFbo->allocate(video->getWidth(), video->getHeight(), GL_RGB, 1);
+        ofEnableArbTex();
 
         ofFile tempFile(filepath);
         videoName = tempFile.getFileName();

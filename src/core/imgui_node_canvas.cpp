@@ -296,6 +296,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     }
     curNodeData.viewName = ImGuiExNodeView_None;
 
+
     // Adapt the layout for pins
     static int pinsWidth; pinsWidth = 0;
     /*if(curNodeData.zoomName == ImGuiExNodeZoom_Imploded){
@@ -327,7 +328,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_SMALL*scaleFactor;
         curNodeData.pinsFlags |= ImGuiExNodePinsFlags_Right;
         curNodeData.rightPins.region.Min.x -= pinsWidth;
-        curNodeData.innerContentBox.Max.x -= pinsWidth;
+        curNodeData.innerContentBox.Max.x -= pinsWidth-1;
 
         curNodeData.rightPins.numPins = _numRightPins;
         curNodeData.rightPins.pinSpace = ImVec2(curNodeData.rightPins.region.GetSize().x, curNodeData.rightPins.region.GetSize().y / _numRightPins);
@@ -596,10 +597,10 @@ void ImGuiEx::NodeCanvas::EndNode() {
             ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding bottom
             ImGui::EndColumns();
             ImGui::PopClipRect(); // Inner space + nodes
-        }
+        }*/
 
         // Always pop these ()
-        ImGui::PopClipRect();*/
+        ImGui::PopClipRect();
 
         //ImGui::EndGroup();
         ImGui::PopID();

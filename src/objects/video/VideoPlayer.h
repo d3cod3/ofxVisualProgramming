@@ -60,6 +60,7 @@ public:
 
 
     ofVideoPlayer*      video;
+    ofFbo               *videoFbo;
 
     float               posX, posY, drawW, drawH;
     bool                isNewObject;

@@ -109,7 +109,7 @@ void TextureInformation::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 
 //--------------------------------------------------------------
 void TextureInformation::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
