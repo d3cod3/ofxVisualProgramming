@@ -2025,6 +2025,13 @@ void ofxVisualProgramming::reloadPatch(){
 
     patchObjects.clear();
 
+    // clear subpatch navigation data
+    subpatchesMap.clear();
+    currentSubpatch         = "root";
+    newSubpatchName         = "";
+    vector<SubpatchConnection> rootBranch;
+    subpatchesMap[currentSubpatch] = rootBranch;
+
     // load new patch
     loadPatch(currentPatchFile);
 }
