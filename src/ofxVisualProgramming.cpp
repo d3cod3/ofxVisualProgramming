@@ -1809,6 +1809,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                 tempObj->setPatchfile(currentPatchFile);
                                 tempObj->setIsRetina(isRetina);
                                 string objSubpatch = XML.getValue("subpatch","");
+                                if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
                                 tempObj->setSubpatch(objSubpatch);
                                 if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
                                     vector<SubpatchConnection> _sp;
@@ -1935,6 +1936,13 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                             if(loaded){
                                 tempObj->setPatchfile(currentPatchFile);
                                 tempObj->setIsRetina(isRetina);
+                                string objSubpatch = XML.getValue("subpatch","");
+                                if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
+                                tempObj->setSubpatch(objSubpatch);
+                                if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
+                                    vector<SubpatchConnection> _sp;
+                                    subpatchesMap[objSubpatch] = _sp;
+                                }
                                 ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
                                 ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
                                 ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
