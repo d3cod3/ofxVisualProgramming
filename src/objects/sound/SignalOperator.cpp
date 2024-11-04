@@ -124,7 +124,7 @@ void SignalOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (28*scaleFactor))); // Padding top
+        ImGui::Dummy(ImVec2(-1,2)); // Padding top
 
         ImGui::PushItemWidth(-50*scaleFactor);
         if(ImGui::BeginCombo("operator", operators_string.at(_operator).c_str() )){
