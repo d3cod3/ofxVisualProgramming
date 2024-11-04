@@ -37,15 +37,17 @@
 //--------------------------------------------------------------
 VideoMixer::VideoMixer() : PatchObject("texture mixer"){
 
-    this->numInlets  = 6;
+    this->numInlets  = 7;
     this->numOutlets = 1;
 
-    _inletParams[0] = new ofTexture();  // tex1
-    _inletParams[1] = new ofTexture();  // tex2
-    _inletParams[2] = new ofTexture();  // tex3
-    _inletParams[3] = new ofTexture();  // tex4
-    _inletParams[4] = new ofTexture();  // tex5
-    _inletParams[5] = new ofTexture();  // tex6
+    _inletParams[0] = new vector<float>(); // alphas
+
+    _inletParams[1] = new ofTexture();  // tex1
+    _inletParams[2] = new ofTexture();  // tex2
+    _inletParams[3] = new ofTexture();  // tex3
+    _inletParams[4] = new ofTexture();  // tex4
+    _inletParams[5] = new ofTexture();  // tex5
+    _inletParams[6] = new ofTexture();  // tex6
 
     _outletParams[0] = new ofTexture(); // texture output
 
@@ -54,6 +56,7 @@ VideoMixer::VideoMixer() : PatchObject("texture mixer"){
     posX = posY = drawW = drawH = 0.0f;
 
     dataInlets      = 6;
+    finalTextureInlets = dataInlets;
 
     needReset       = false;
     loaded          = false;
@@ -80,6 +83,7 @@ VideoMixer::VideoMixer() : PatchObject("texture mixer"){
 void VideoMixer::newObject(){
     PatchObject::setName( this->objectName );
 
+    this->addInlet(VP_LINK_ARRAY,"alphas");
     this->addInlet(VP_LINK_TEXTURE,"t0");
     this->addInlet(VP_LINK_TEXTURE,"t1");
     this->addInlet(VP_LINK_TEXTURE,"t2");
@@ -140,6 +144,15 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         *static_cast<ofTexture *>(_outletParams[0]) = *kuroTex;
     }
 
+    // get alphas from data inlet
+    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+            if(s<32){
+                alphas.at(s) = static_cast<vector<float> *>(_inletParams[0])->at(s);
+            }
+        }
+    }
+
 
     if(needReset){
         needReset = false;
@@ -174,9 +187,9 @@ void VideoMixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRend
     ofSetColor(0,0,0);
     ofDrawRectangle(0,0,canvasWidth,canvasHeight);
 
-    for(int i=0;i<dataInlets;i++){
+    for(int i=1;i<=finalTextureInlets;i++){
         if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
-            ofSetColor(255,255,255,alphas.at(i));
+            ofSetColor(255,255,255,alphas.at(i-1));
             static_cast<ofTexture *>(_inletParams[i])->draw(0,0,canvasWidth,canvasHeight);
         }
     }
@@ -303,7 +316,9 @@ void VideoMixer::removeObjectContent(bool removeFileFromData){
 void VideoMixer::initInlets(){
     dataInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = dataInlets;
+    finalTextureInlets = dataInlets;
+
+    this->numInlets = dataInlets+1;
 
     resetInletsSettings();
 }
@@ -320,9 +335,13 @@ void VideoMixer::resetInletsSettings(){
         }
     }
 
-    this->numInlets = dataInlets;
+    finalTextureInlets = dataInlets;
 
-    for(int i=0;i<this->numInlets;i++){
+    this->numInlets = dataInlets+1;
+
+    _inletParams[0] = new vector<float>();
+
+    for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new ofTexture();
     }
 
@@ -331,7 +350,9 @@ void VideoMixer::resetInletsSettings(){
     this->inletsIDs.clear();
     this->inletsWirelessReceive.clear();
 
-    for(int i=0;i<this->numInlets;i++){
+    this->addInlet(VP_LINK_ARRAY,"alphas");
+
+    for(int i=1;i<this->numInlets;i++){
         this->addInlet(VP_LINK_TEXTURE,"t"+ofToString(i));
     }
 

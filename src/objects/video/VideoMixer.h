@@ -66,6 +66,7 @@ public:
     int             temp_width, temp_height;
 
     int             dataInlets;
+    int             finalTextureInlets;
     bool            needReset;
     bool            loaded;
 
