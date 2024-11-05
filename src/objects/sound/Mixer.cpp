@@ -265,6 +265,8 @@ void Mixer::initInlets(){
 
     signalInlets = this->getCustomVar("NUM_INLETS");
 
+    this->numInlets = signalInlets+1;
+
     resetInletsSettings();
 }
 
@@ -293,9 +295,11 @@ void Mixer::resetInletsSettings(){
     }
 
     _inletParams[0] = new vector<float>();
+    static_cast<vector<float> *>(_inletParams[0])->clear();
+    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets,0.0f);
 
-    for(int i=0;i<signalInlets;i++){
-        _inletParams[i+1] = new ofSoundBuffer();
+    for(int i=1;i<this->numInlets;i++){
+        _inletParams[i] = new ofSoundBuffer();
     }
 
     this->inletsType.clear();
@@ -305,14 +309,18 @@ void Mixer::resetInletsSettings(){
 
     this->addInlet(VP_LINK_ARRAY,"control");
 
-    for(int i=0;i<signalInlets;i++){
+    for(int i=1;i<this->numInlets;i++){
         this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i+1));
     }
 
     this->inletsConnected.clear();
-    for(size_t i=0;i<tempInletsConn.size();i++){
-        if(tempInletsConn.at(i)){
-            this->inletsConnected.push_back(true);
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
+            }else{
+                this->inletsConnected.push_back(false);
+            }
         }else{
             this->inletsConnected.push_back(false);
         }
@@ -336,9 +344,6 @@ void Mixer::resetInletsSettings(){
 
         this->pdspIn[i+1] >> levels[i] >> mix;
     }
-
-    static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets,0.0f);
 
     ofNotifyEvent(this->resetEvent, this->nId);
 
