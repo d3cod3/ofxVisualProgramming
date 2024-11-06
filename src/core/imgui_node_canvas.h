@@ -249,11 +249,9 @@ struct NodeCanvas {
     //void SetDisplayRect(const ImRect& _rect);
 
     // Retina stuff
-    void setRetina(bool retina){
+    void setRetina(bool retina,float sf){
         isRetina = retina;
-        if(retina){
-            scaleFactor = 2.0f;
-        }
+        scaleFactor = sf;
     }
 
     // Query GUI if any nodes are hovered

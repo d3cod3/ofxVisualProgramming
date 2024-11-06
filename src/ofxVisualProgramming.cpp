@@ -126,7 +126,7 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 void ofxVisualProgramming::setRetina(bool retina, float retinaScale){
     isRetina = retina;
     scaleFactor = retinaScale;
-    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,8,28)));
+    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,8,32)));
 }
 
 //--------------------------------------------------------------
@@ -150,7 +150,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
 
     nodeCanvas.setContext(ImGui::GetCurrentContext());
 
-    nodeCanvas.setRetina(isRetina);
+    nodeCanvas.setRetina(isRetina,scaleFactor);
     profiler.setIsRetina(isRetina);
 
     // Set pan-zoom canvas
