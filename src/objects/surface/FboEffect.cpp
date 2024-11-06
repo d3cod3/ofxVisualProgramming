@@ -66,7 +66,7 @@ FboEffect::FboEffect() : PatchObject("fbo effect"){
 
 //--------------------------------------------------------------
 void FboEffect::newObject(){
-    PatchObject::setName( this->objectName );
+    //PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_FBO,"fboIN");
     this->addOutlet(VP_LINK_FBO,"fboOUT");
@@ -239,6 +239,6 @@ void FboEffect::initResolution(){
 
 }
 
-OBJECT_REGISTER( FboEffect, "fbo effect", OFXVP_OBJECT_CAT_SURFACE)
+//OBJECT_REGISTER( FboEffect, "fbo effect", OFXVP_OBJECT_CAT_SURFACE)
 
 #endif

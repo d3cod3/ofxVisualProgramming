@@ -64,7 +64,7 @@ FboComposer::FboComposer() : PatchObject("fbo composer"){
 
 //--------------------------------------------------------------
 void FboComposer::newObject(){
-    PatchObject::setName( this->objectName );
+    //PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_TEXTURE,"texture");
     this->addOutlet(VP_LINK_FBO,"fbo");
@@ -212,6 +212,6 @@ void FboComposer::initResolution(){
 
 }
 
-OBJECT_REGISTER( FboComposer, "fbo composer", OFXVP_OBJECT_CAT_SURFACE)
+//OBJECT_REGISTER( FboComposer, "fbo composer", OFXVP_OBJECT_CAT_SURFACE)
 
 #endif

@@ -73,7 +73,7 @@ FboParticles::FboParticles() : PatchObject("fbo particles"){
 
 //--------------------------------------------------------------
 void FboParticles::newObject(){
-    PatchObject::setName( this->objectName );
+    //PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_FBO,"fboIN");
     this->addInlet(VP_LINK_NUMERIC,"x");
@@ -318,6 +318,6 @@ void FboParticles::initResolution(){
 
 }
 
-OBJECT_REGISTER( FboParticles, "fbo particles", OFXVP_OBJECT_CAT_SURFACE)
+//OBJECT_REGISTER( FboParticles, "fbo particles", OFXVP_OBJECT_CAT_SURFACE)
 
 #endif
