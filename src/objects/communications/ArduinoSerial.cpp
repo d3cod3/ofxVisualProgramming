@@ -201,13 +201,13 @@ void ArduinoSerial::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImGui::SetCursorPos(ImVec2(posX+IMGUI_EX_NODE_PINS_WIDTH_NORMAL, posY+IMGUI_EX_NODE_HEADER_HEIGHT));
-        ImGui::Image(arduinoIcon->getTexture().getTextureData().textureID, ImVec2(scaledObjW, scaledObjH));
+        ImGui::Image(arduinoIcon->getTexture().getTextureData().textureID, ImVec2(this->width-IMGUI_EX_NODE_PINS_WIDTH_NORMAL-IMGUI_EX_NODE_PINS_WIDTH_SMALL,this->height-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT));
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
         //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        //scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        //scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }

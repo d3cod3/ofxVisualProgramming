@@ -103,18 +103,19 @@ void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
         outletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
     }
 
-    // previously set with setIsRetina()
-    if(isRetina){
-        width           *= 2;
-        height          *= 2;
-        headerHeight    *= 2;
-        fontSize         = 16;
-        scaleFactor      = 2.0f;
-        configMenuWidth  *= 2;
-    }
-
     setupObjectContent(mainWindow);
 
+}
+
+//--------------------------------------------------------------
+void PatchObject::setIsRetina(bool ir, float sf){
+    isRetina = ir;
+    scaleFactor = sf;
+    width               *= scaleFactor;
+    height              *= scaleFactor;
+    headerHeight        *= scaleFactor;
+    configMenuWidth     *= scaleFactor;
+    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,MIN_OF_GUI_FONT_SIZE,MAX_OF_GUI_FONT_SIZE)));
 }
 
 //--------------------------------------------------------------
@@ -272,6 +273,15 @@ void PatchObject::draw(ofTrueTypeFont *font){
 void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(willErase) return;
+
+    // check min width and height
+    if(this->width < OBJECT_WIDTH*scaleFactor){
+        this->width = OBJECT_WIDTH*scaleFactor;
+    }
+
+    if(this->height < OBJECT_HEIGHT*scaleFactor){
+        this->height = OBJECT_HEIGHT*scaleFactor;
+    }
 
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );

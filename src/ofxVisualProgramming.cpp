@@ -126,7 +126,7 @@ ofxVisualProgramming::~ofxVisualProgramming(){
 void ofxVisualProgramming::setRetina(bool retina, float retinaScale){
     isRetina = retina;
     scaleFactor = retinaScale;
-    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,8,32)));
+    fontSize = static_cast<int>(floor(ofMap(scaleFactor,1,6,MIN_OF_GUI_FONT_SIZE,MAX_OF_GUI_FONT_SIZE)));
 }
 
 //--------------------------------------------------------------
@@ -815,8 +815,8 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     tempObj->setPatchfile(currentPatchFile);
     tempObj->setup(mainWindow);
     tempObj->setupDSP(*engine);
-    tempObj->move(static_cast<int>(pos.x-(OBJECT_STANDARD_WIDTH/2*scaleFactor)),static_cast<int>(pos.y-(OBJECT_STANDARD_HEIGHT/2*scaleFactor)));
-    tempObj->setIsRetina(isRetina);
+    tempObj->setIsRetina(isRetina,scaleFactor);
+    tempObj->move(static_cast<int>(pos.x),static_cast<int>(pos.y));
     tempObj->setSubpatch(currentSubpatch);
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
     ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
@@ -1807,7 +1807,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                             loaded = tempObj->loadConfig(mainWindow,*engine,i,patchFile);
                             if(loaded){
                                 tempObj->setPatchfile(currentPatchFile);
-                                tempObj->setIsRetina(isRetina);
+                                tempObj->setIsRetina(isRetina,scaleFactor);
                                 string objSubpatch = XML.getValue("subpatch","");
                                 if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
                                 tempObj->setSubpatch(objSubpatch);
@@ -1935,7 +1935,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                             loaded = tempObj->loadConfig(mainWindow,*engine,i,currentPatchFile);
                             if(loaded){
                                 tempObj->setPatchfile(currentPatchFile);
-                                tempObj->setIsRetina(isRetina);
+                                tempObj->setIsRetina(isRetina,scaleFactor);
                                 string objSubpatch = XML.getValue("subpatch","");
                                 if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
                                 tempObj->setSubpatch(objSubpatch);
@@ -2207,7 +2207,7 @@ void ofxVisualProgramming::activateDSP(){
         bool found = weAlreadyHaveObject("audio device");
 
         if(!found){
-            glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+            glm::vec3 temp = canvas.screenToWorld(glm::vec3((ofGetScreenWidth()/2 - OBJECT_WIDTH/2*scaleFactor)/scaleFactor,(ofGetScreenHeight()/2 + OBJECT_HEIGHT*scaleFactor)/scaleFactor,0));
             addObject("audio device",ofVec2f(temp.x,temp.y));
         }
         resetSystemObjects();

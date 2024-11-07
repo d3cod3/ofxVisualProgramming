@@ -195,11 +195,12 @@ public:
     void                    setIsSharedContextObj(bool isc) { isSharedContextObject = isc; }
     void                    setIsHardwareObj(bool ih) { isHardwareObject = ih; }
     void                    setIsResizable(bool ir) { isResizable = ir; }
-    void                    setIsRetina(bool ir) { isRetina = ir; if(isRetina) scaleFactor = 2.0f; }
+    void                    setIsRetina(bool ir, float sf);
     void                    setIsActive(bool ia) { bActive = ia; }
     void                    setWillErase(bool e) { willErase = e; }
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
     void                    setConfigmenuWidth(float cmw) { configMenuWidth = cmw; }
+    void                    setDimensions(float w, float h) { width = w; height = h;}
     void                    setSubpatch(string sp) { subpatchName = sp; }
     void                    setInletID(int inlet, string ID) { inletsIDs[inlet] = ID; }
     void                    setOutletID(int outlet, string ID) { outletsIDs[outlet] = ID; }
