@@ -275,13 +275,13 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     if(willErase) return;
 
     // check min width and height
-    if(this->width < OBJECT_WIDTH*scaleFactor){
+    /*if(this->width < OBJECT_WIDTH*scaleFactor){
         this->width = OBJECT_WIDTH*scaleFactor;
     }
 
     if(this->height < OBJECT_HEIGHT*scaleFactor){
         this->height = OBJECT_HEIGHT*scaleFactor;
-    }
+    }*/
 
     ImVec2 imPos( this->getPos() );
     ImVec2 imSize( this->width, this->height );

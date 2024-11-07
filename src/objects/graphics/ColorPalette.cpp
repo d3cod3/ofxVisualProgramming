@@ -57,6 +57,7 @@ ColorPalette::ColorPalette() : PatchObject("color palette"){
     spread              = 0.2;
 
     this->setIsTextureObj(true);
+    this->setIsResizable(true);
 
 }
 
@@ -156,12 +157,12 @@ void ColorPalette::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
+        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor);
 
-        calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        //calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
         for(size_t i=0;i<palette.size();i++){
-            float tw = (scaledObjW - (IMGUI_EX_NODE_PINS_WIDTH_SMALL*this->scaleFactor/canvasZoom))/palette.size();
+            float tw = scaledObjW/palette.size();
             float th = scaledObjH;
             _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos + ImVec2(tw*i,0),window_pos + ImVec2(tw*i,0) + ImVec2(tw, th),ImGui::GetColorU32(ImVec4(palette.at(i).r, palette.at(i).g, palette.at(i).b, 1.0f)));
         }
@@ -170,8 +171,8 @@ void ColorPalette::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // get imgui node translated/scaled position/dimension for drawing textures in OF
         //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+        scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
 
         _nodeCanvas.EndNodeContent();
     }

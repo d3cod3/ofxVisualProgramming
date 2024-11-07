@@ -158,6 +158,7 @@ public:
     map<string,string>                  scriptsObjectsFilesPaths;
     vector<pair<int,int>>               leftToRightIndexOrder;
     vector<int>                         eraseIndexes;
+    ofPoint                             nextObjectPosition;
 
     map<string,vector<SubpatchConnection>>  subpatchesMap;
     string                                  currentSubpatch;

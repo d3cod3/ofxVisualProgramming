@@ -288,6 +288,8 @@ void ofxVisualProgramming::update(){
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
 
+        nextObjectPosition = patchObjects[lastAddedObjectID]->getPos()+ofPoint((OBJECT_WIDTH+40)*scaleFactor,40*scaleFactor);
+
         updateSubpatchNavigation();
     }
 
@@ -1285,7 +1287,7 @@ void ofxVisualProgramming::removeObject(int &id){
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
     if(!patchObjects[id]->getIsHardwareObject()){
-        addObject(patchObjects[id]->getName(),patchObjects[id]->getPos());
+        addObject(patchObjects[id]->getName(),nextObjectPosition);
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
     }
