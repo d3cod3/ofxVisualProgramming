@@ -291,7 +291,8 @@ void ofxVisualProgramming::update(){
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
 
         if(patchObjects[lastAddedObjectID] != nullptr){
-            nextObjectPosition = patchObjects[lastAddedObjectID]->getPos()+ofPoint((OBJECT_WIDTH+40)/scaleFactor,40/scaleFactor);
+            nextObjectPosition = (patchObjects[lastAddedObjectID]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[lastAddedObjectID]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
+
         }
 
         updateSubpatchNavigation();
