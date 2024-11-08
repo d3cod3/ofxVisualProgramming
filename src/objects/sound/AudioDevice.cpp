@@ -112,6 +112,9 @@ void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 void AudioDevice::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
+    if(this->height < OBJECT_HEIGHT*scaleFactor){
+        this->height = OBJECT_HEIGHT*scaleFactor;
+    }
 }
 
 //--------------------------------------------------------------
@@ -139,8 +142,8 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // get imgui node translated/scaled position/dimension for drawing textures in OF
         //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        //scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
-        //scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }
