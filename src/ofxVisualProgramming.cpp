@@ -288,7 +288,7 @@ void ofxVisualProgramming::update(){
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
 
-        nextObjectPosition = patchObjects[lastAddedObjectID]->getPos()+ofPoint((OBJECT_WIDTH+40)*scaleFactor,40*scaleFactor);
+        nextObjectPosition = patchObjects[lastAddedObjectID]->getPos()+ofPoint((OBJECT_WIDTH+40)/scaleFactor,40/scaleFactor);
 
         updateSubpatchNavigation();
     }
@@ -982,8 +982,12 @@ void ofxVisualProgramming::reconnectObjectOutlets(int &id){
                                             int toObjectID = XML.getValue("id", 0);
                                             int toInletID = XML.getValue("inlet", 0);
 
-                                            if(connect(fromID,j,toObjectID,toInletID,linkType)){
-                                                //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                            // fix loading patches with non-existent objects (older OFXVP versions)
+                                            if(isObjectIDInPatchMap(toObjectID)){
+                                                if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                    //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                }
                                             }
 
                                             XML.popTag();
