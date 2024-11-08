@@ -226,11 +226,13 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(needReset){
         needReset = false;
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
-                for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
-                    if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                        if(it->second->getName() == "lua script" || it->second->getName() == "glsl shader"){
-                            it->second->resetResolution(this->getId(),output_width,output_height);
+            if(it->second != nullptr){
+                if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                    for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                        if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                            if(it->second->getName() == "lua script" || it->second->getName() == "glsl shader"){
+                                it->second->resetResolution(this->getId(),output_width,output_height);
+                            }
                         }
                     }
                 }

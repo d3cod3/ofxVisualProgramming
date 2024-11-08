@@ -87,13 +87,15 @@ void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
         if(!isNewConnection){
             isNewConnection = true;
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
-                    for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
-                        if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                            if(it->second->getName() == "audio analyzer" || it->second->getName() == "file to data"){
-                                isConnectionRight = true;
+                if(it->second != nullptr){
+                    if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                        for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                            if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                                if(it->second->getName() == "audio analyzer" || it->second->getName() == "file to data"){
+                                    isConnectionRight = true;
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                 }

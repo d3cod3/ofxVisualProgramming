@@ -244,7 +244,9 @@ void ofxVisualProgramming::update(){
         // left to right computing order
         leftToRightIndexOrder.clear();
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
+            if(it->second != nullptr){
+                leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
+            }
         }
         // sort the vector by it's pair first value (object X position)
         sort(leftToRightIndexOrder.begin(),leftToRightIndexOrder.end());
@@ -288,7 +290,9 @@ void ofxVisualProgramming::update(){
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
 
-        nextObjectPosition = patchObjects[lastAddedObjectID]->getPos()+ofPoint((OBJECT_WIDTH+40)/scaleFactor,40/scaleFactor);
+        if(patchObjects[lastAddedObjectID] != nullptr){
+            nextObjectPosition = patchObjects[lastAddedObjectID]->getPos()+ofPoint((OBJECT_WIDTH+40)/scaleFactor,40/scaleFactor);
+        }
 
         updateSubpatchNavigation();
     }
@@ -325,6 +329,7 @@ void ofxVisualProgramming::draw(){
 #endif
 
     if(bLoadingNewPatch) return;
+    if(bLoadingNewObject) return;
 
     // LIVE PATCHING SESSION
     drawLivePatchingSession();
@@ -662,7 +667,9 @@ void ofxVisualProgramming::reloadFont(){
 void ofxVisualProgramming::exit(){
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->removeObjectContent();
+        if(it->second != nullptr){
+            it->second->removeObjectContent();
+        }
     }
 
     if(dspON){
@@ -759,8 +766,10 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
             // compute audio input
             if(!inputBuffer.getBuffer().empty()){
                 for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                    if(!it->second->getWillErase()){
-                        it->second->audioIn(inputBuffer);
+                    if(it->second != nullptr){
+                        if(!it->second->getWillErase()){
+                            it->second->audioIn(inputBuffer);
+                        }
                     }
                 }
 
@@ -771,8 +780,10 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
         if(audioGUIOUTChannels > 0){
             // compute audio output
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                if(!it->second->getWillErase()){
-                    it->second->audioOut(emptyBuffer);
+                if(it->second != nullptr){
+                    if(!it->second->getWillErase()){
+                        it->second->audioOut(emptyBuffer);
+                    }
                 }
             }
         }
@@ -876,21 +887,23 @@ void ofxVisualProgramming::resetObject(int &id){
 #endif
 
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                vector<shared_ptr<PatchLink>> tempBuffer;
-                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                    if(it->second->outPut[j]->toObjectID == id){
-                        if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
-                            tempBuffer.push_back(it->second->outPut[j]);
-                            if(it->second->outPut[j]->type == VP_LINK_AUDIO){
-                                // reconnect dsp link
-                                patchObjects[it->first]->pdspOut[it->second->outPut[j]->fromOutletID] >> patchObjects[id]->pdspIn[it->second->outPut[j]->toInletID];
+                if(it->second != nullptr){
+                    vector<shared_ptr<PatchLink>> tempBuffer;
+                    for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                        if(it->second->outPut[j]->toObjectID == id){
+                            if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
+                                tempBuffer.push_back(it->second->outPut[j]);
+                                if(it->second->outPut[j]->type == VP_LINK_AUDIO){
+                                    // reconnect dsp link
+                                    patchObjects[it->first]->pdspOut[it->second->outPut[j]->fromOutletID] >> patchObjects[id]->pdspIn[it->second->outPut[j]->toInletID];
+                                }
                             }
+                        }else{
+                            tempBuffer.push_back(it->second->outPut[j]);
                         }
-                    }else{
-                        tempBuffer.push_back(it->second->outPut[j]);
                     }
+                    it->second->outPut = tempBuffer;
                 }
-                it->second->outPut = tempBuffer;
             }
 
             int totalObjects = XML.getNumTags("object");
@@ -940,16 +953,18 @@ void ofxVisualProgramming::resetObject(int &id){
 void ofxVisualProgramming::resetObject(int id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<shared_ptr<PatchLink>> tempBuffer;
-            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                if(it->second->outPut[j]->toObjectID != id){
-                    tempBuffer.push_back(it->second->outPut[j]);
-                }else{
-                    it->second->outPut[j]->isDisabled = true;
-                    patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+            if(it->second != nullptr){
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                    if(it->second->outPut[j]->toObjectID != id){
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }else{
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
                 }
+                it->second->outPut = tempBuffer;
             }
-            it->second->outPut = tempBuffer;
         }
     }
 }
@@ -1079,16 +1094,18 @@ void ofxVisualProgramming::deleteObject(int id){
         }
 
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<shared_ptr<PatchLink>> tempBuffer;
-            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                if(it->second->outPut[j]->toObjectID != id){
-                    tempBuffer.push_back(it->second->outPut[j]);
-                }else{
-                    it->second->outPut[j]->isDisabled = true;
-                    patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+            if(it->second != nullptr){
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                    if(it->second->outPut[j]->toObjectID != id){
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }else{
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
                 }
+                it->second->outPut = tempBuffer;
             }
-            it->second->outPut = tempBuffer;
         }
 
     }
@@ -1100,8 +1117,10 @@ void ofxVisualProgramming::clearObjectsMap(){
         resetTime = ofGetElapsedTimeMillis();
         eraseIndexes.clear();
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(it->second->getWillErase()){
-                eraseIndexes.push_back(it->first);
+            if(it->second != nullptr){
+                if(it->second->getWillErase()){
+                    eraseIndexes.push_back(it->first);
+                }
             }
         }
         for(int x=0;x<static_cast<int>(eraseIndexes.size());x++){
@@ -1170,9 +1189,11 @@ bool ofxVisualProgramming::isObjectIDInPatchMap(int id){
     bool exists = false;
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->first == id){
-            exists = true;
-            break;
+        if(it->second != nullptr){
+            if(it->first == id){
+                exists = true;
+                break;
+            }
         }
     }
 
@@ -1183,8 +1204,10 @@ bool ofxVisualProgramming::isObjectIDInPatchMap(int id){
 string ofxVisualProgramming::getObjectNameFromID(int id){
     string name = "";
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->first == id){
-            name = it->second->getName();
+        if(it->second != nullptr){
+            if(it->first == id){
+                name = it->second->getName();
+            }
         }
     }
 
@@ -1195,10 +1218,15 @@ string ofxVisualProgramming::getObjectNameFromID(int id){
 void ofxVisualProgramming::removeObject(int &id){
     resetTime = ofGetElapsedTimeMillis();
 
+    bLoadingNewObject = true;
+
     if ( (id != -1) && (patchObjects[id] != nullptr) && (patchObjects[id]->getName() != "audio device") ){
 
         int targetID = id;
         bool found = false;
+
+        if(targetID == lastAddedObjectID) lastAddedObjectID=0;
+
         ofxXmlSettings XML;
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
@@ -1263,16 +1291,18 @@ void ofxVisualProgramming::removeObject(int &id){
         }
 
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<shared_ptr<PatchLink>> tempBuffer;
-            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                if(it->second->outPut[j]->toObjectID != id){
-                    tempBuffer.push_back(it->second->outPut[j]);
-                }else{
-                    it->second->outPut[j]->isDisabled = true;
-                    patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+            if(it->second != nullptr){
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                    if(it->second->outPut[j]->toObjectID != id){
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }else{
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
                 }
+                it->second->outPut = tempBuffer;
             }
-            it->second->outPut = tempBuffer;
         }
 
         // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
@@ -1285,6 +1315,8 @@ void ofxVisualProgramming::removeObject(int &id){
             }
         }
     }
+
+    bLoadingNewObject = false;
 }
 
 //--------------------------------------------------------------
@@ -1339,9 +1371,9 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
             patchObjects[toID]->_inletParams[toInlet] = new ofSoundBuffer();
             if(patchObjects[fromID]->getIsPDSPPatchableObject() && patchObjects[toID]->getIsPDSPPatchableObject()){
                 patchObjects[fromID]->pdspOut[fromOutlet] >> patchObjects[toID]->pdspIn[toInlet];
-            }else if(patchObjects[fromID]->getName() == "audio device" && patchObjects[toID]->getIsPDSPPatchableObject()){
+            }/*else if(patchObjects[fromID]->getName() == "audio device" && patchObjects[toID]->getIsPDSPPatchableObject()){
                 patchObjects[fromID]->pdspOut[fromOutlet] >> patchObjects[toID]->pdspIn[toInlet];
-            }
+            }*/
         }
 
         checkSpecialConnection(fromID,toID,linkType);
@@ -1373,13 +1405,15 @@ void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int link
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSystemObjects(){
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getIsSystemObject()){
-            it->second->resetSystemObject();
-            if(it->second->getName() != "audio device"){
-                resetObject(it->second->getId());
-            }
-            if(it->second->getIsAudioOUTObject()){
-                it->second->setupAudioOutObjectContent(*engine);
+        if(it->second != nullptr){
+            if(it->second->getIsSystemObject()){
+                it->second->resetSystemObject();
+                if(it->second->getName() != "audio device"){
+                    resetObject(it->second->getId());
+                }
+                if(it->second->getIsAudioOUTObject()){
+                    it->second->setupAudioOutObjectContent(*engine);
+                }
             }
         }
     }
@@ -1388,11 +1422,13 @@ void ofxVisualProgramming::resetSystemObjects(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSpecificSystemObjects(string name){
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getIsSystemObject() && it->second->getName() == name){
-            it->second->resetSystemObject();
-            resetObject(it->second->getId());
-            if(it->second->getIsAudioOUTObject()){
-                it->second->setupAudioOutObjectContent(*engine);
+        if(it->second != nullptr){
+            if(it->second->getIsSystemObject() && it->second->getName() == name){
+                it->second->resetSystemObject();
+                resetObject(it->second->getId());
+                if(it->second->getIsAudioOUTObject()){
+                    it->second->setupAudioOutObjectContent(*engine);
+                }
             }
         }
     }
@@ -1402,9 +1438,12 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
 bool ofxVisualProgramming::weAlreadyHaveObject(string name){
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getName() == name){
-            return true;
+        if(it->second != nullptr){
+            if(it->second->getName() == name){
+                return true;
+            }
         }
+
     }
 
     return false;
@@ -1509,20 +1548,21 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
 
     // clear previous patch
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        if(it->second->getName() != "audio device"){
-            it->second->setWillErase(true);
-        }else{
-            for(int in=0;in<it->second->getNumInlets();in++){
-                it->second->inletsConnected[in] = false;
-                it->second->pdspIn[in].disconnectIn();
+        if(it->second != nullptr){
+            if(it->second->getName() != "audio device"){
+                it->second->setWillErase(true);
+            }else{
+                for(int in=0;in<it->second->getNumInlets();in++){
+                    it->second->inletsConnected[in] = false;
+                    it->second->pdspIn[in].disconnectIn();
+                }
+
+                it->second->outPut.clear();
+
+                //glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
+                //it->second->move(temp.x,temp.y);
+                it->second->setWillErase(true);
             }
-
-            it->second->outPut.clear();
-
-            //glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-            //it->second->move(temp.x,temp.y);
-            it->second->setWillErase(true);
-
         }
     }
 
@@ -2026,7 +2066,9 @@ void ofxVisualProgramming::reloadPatch(){
 
     // clear previous patch
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->removeObjectContent();
+        if(it->second != nullptr){
+            it->second->removeObjectContent();
+        }
     }
 
     patchObjects.clear();
@@ -2084,7 +2126,9 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
     dataFolderOrigin.copyTo(tp,true,true);
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        it->second->setPatchfile(currentPatchFile);
+        if(it->second != nullptr){
+            it->second->setPatchfile(currentPatchFile);
+        }
     }
 
 }

@@ -51,6 +51,7 @@ AudioDevice::AudioDevice() : PatchObject("audio device"){
 
     isAudioINObject     = true;
     isAudioOUTObject    = true;
+    isPDSPPatchableObject = true;
 
     deviceLoaded        = false;
 
@@ -280,6 +281,7 @@ void AudioDevice::resetSystemObject(){
         }
 
         this->outletsType.clear();
+        this->outletsNames.clear();
         this->outletsIDs.clear();
         this->outletsWirelessSend.clear();
         for( int i = 0; i < in_channels; i++){
@@ -323,6 +325,7 @@ void AudioDevice::resetSystemObject(){
                             int newLink = XML.addTag("link");
                             if(XML.pushTag("link",newLink)){
                                 XML.setValue("type",this->outletsType.at(j));
+                                XML.setValue("name",this->outletsNames.at(j));
                                 XML.popTag();
                             }
                         }
@@ -455,6 +458,7 @@ void AudioDevice::loadDeviceInfo(){
 
         if(isNewObject){
             this->outletsType.clear();
+            this->outletsNames.clear();
             for( int i = 0; i < in_channels; i++){
                 this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
             }

@@ -90,11 +90,13 @@ void SigMult::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         gainValue = ofClamp(*(float *)&_inletParams[1],0.0f,12.0f);
-        gain_ctrl.set(gainValue);
     }
+
+    gain_ctrl.set(gainValue);
 
     if(!loaded){
         loaded = true;
@@ -106,8 +108,7 @@ void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 //--------------------------------------------------------------
 void SigMult::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(0);
-
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -188,13 +189,19 @@ void SigMult::loadAudioSettings(){
 
 //--------------------------------------------------------------
 void SigMult::audioInObject(ofSoundBuffer &inputBuffer){
-
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
 void SigMult::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    if(this->inletsConnected[0]){
+        static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    }else{
+        static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+    }
 }
 
 

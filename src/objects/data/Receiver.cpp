@@ -129,11 +129,13 @@ void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     if(signalSendEvent){
         signalSendEvent = false;
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            for(int wid=0;wid<it->second->getNumOutlets();wid++){
-                if(it->second->getOutletWirelessSend(wid) && it->second->getOutletID(wid) == this->varName && this->varName != ""){
-                    it->second->closeWirelessLink(wid);
-                    it->second->openWirelessLink(wid);
-                    break;
+            if(it->second != nullptr){
+                for(int wid=0;wid<it->second->getNumOutlets();wid++){
+                    if(it->second->getOutletWirelessSend(wid) && it->second->getOutletID(wid) == this->varName && this->varName != ""){
+                        it->second->closeWirelessLink(wid);
+                        it->second->openWirelessLink(wid);
+                        break;
+                    }
                 }
             }
         }

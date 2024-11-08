@@ -124,16 +124,18 @@ void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     if(resetLinks){
         resetLinks = false;
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            vector<shared_ptr<PatchLink>> tempBuffer;
-            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                if(it->second->outPut[j]->toObjectID != this->getId()){
-                    tempBuffer.push_back(it->second->outPut[j]);
-                }else{
-                    it->second->outPut[j]->isDisabled = true;
-                    patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+            if(it->second != nullptr){
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                    if(it->second->outPut[j]->toObjectID != this->getId()){
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }else{
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
                 }
+                it->second->outPut = tempBuffer;
             }
-            it->second->outPut = tempBuffer;
         }
     }
 

@@ -175,15 +175,17 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         bool isSpecialLink = false;
         if(this->inletsConnected[0]){
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
-                    for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
-                        if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                            fromObjID = it->first;
-                            fromOutletID = it->second->outPut[o]->fromOutletID;
-                            if(it->second->getName() == "lua script" || it->second->getName() == "glsl shader"){
-                                it->second->resetResolution(this->getId(),this->output_width,this->output_height);
-                                isSpecialLink = true;
-                                break;
+                if(it->second != nullptr){
+                    if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                        for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                            if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                                fromObjID = it->first;
+                                fromOutletID = it->second->outPut[o]->fromOutletID;
+                                if(it->second->getName() == "lua script" || it->second->getName() == "glsl shader"){
+                                    it->second->resetResolution(this->getId(),this->output_width,this->output_height);
+                                    isSpecialLink = true;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -210,15 +212,17 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     // Manage the different scripts reference available (ofxLua)
     if(!isNewScriptConnected && this->inletsConnected[1]){
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
-                for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
-                    if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
-                        if(it->second->getName() == "lua script"){
-                            _inletParams[1] = new LiveCoding();
-                        }else{
-                            _inletParams[1] = nullptr;
+            if(it->second != nullptr){
+                if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
+                    for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
+                        if(!it->second->outPut[o]->isDisabled && it->second->outPut[o]->toObjectID == this->getId()){
+                            if(it->second->getName() == "lua script"){
+                                _inletParams[1] = new LiveCoding();
+                            }else{
+                                _inletParams[1] = nullptr;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }

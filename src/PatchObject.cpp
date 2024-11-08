@@ -166,7 +166,7 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
                     if(!patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID]){
                         patchObjects[outPut[i]->toObjectID]->inletsConnected[outPut[i]->toInletID] = true;
                         if(outPut[i]->type == VP_LINK_AUDIO && patchObjects[outPut[i]->toObjectID]->getIsPDSPPatchableObject()){
-                            if(this->getIsPDSPPatchableObject() || this->getName() == "audio device"){
+                            if(this->getIsPDSPPatchableObject()){ //  || this->getName() == "audio device"
                                 this->pdspOut[outPut[i]->fromOutletID] >> patchObjects[outPut[i]->toObjectID]->pdspIn[outPut[i]->toInletID];
                             }
                         }
@@ -203,15 +203,18 @@ void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObj
 
     // Continuosly update float type ONLY wireless links
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        for(int in=0;in<it->second->getNumInlets();in++){
-            for(int out=0;out<this->getNumOutlets();out++){
-                if(it->second->getInletWirelessReceive(in) && this->getOutletWirelessSend(out) && this->getOutletType(out) == it->second->getInletType(in) && this->getOutletType(out) == VP_LINK_NUMERIC && this->getOutletID(out) == it->second->getInletID(in)){
-                    if(it->second->inletsConnected[in]){
-                        it->second->_inletParams[in] = this->_outletParams[out];
+        if(it->second != nullptr){
+            for(int in=0;in<it->second->getNumInlets();in++){
+                for(int out=0;out<this->getNumOutlets();out++){
+                    if(it->second->getInletWirelessReceive(in) && this->getOutletWirelessSend(out) && this->getOutletType(out) == it->second->getInletType(in) && this->getOutletType(out) == VP_LINK_NUMERIC && this->getOutletID(out) == it->second->getInletID(in)){
+                        if(it->second->inletsConnected[in]){
+                            it->second->_inletParams[in] = this->_outletParams[out];
+                        }
                     }
                 }
             }
         }
+
     }
 
     // manually send data through wireless links ( if var ID, transport data )
@@ -219,15 +222,17 @@ void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObj
         initWirelessLink = false;
         if(this->getOutletWirelessSend(resetWirelessPin)){
             for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                for(int in=0;in<it->second->getNumInlets();in++){
-                    if(this->getOutletType(resetWirelessPin) == it->second->getInletType(in) && this->getOutletID(resetWirelessPin) == it->second->getInletID(in) && it->second->getInletWirelessReceive(in)){
-                        if(!it->second->inletsConnected[in]){ // open wireless transport
-                            it->second->inletsConnected[in] = true;
-                            if(this->getOutletType(resetWirelessPin) == VP_LINK_AUDIO && this->getIsPDSPPatchableObject() && it->second->getIsPDSPPatchableObject()){
-                               this->pdspOut[resetWirelessPin] >> it->second->pdspIn[in];
+                if(it->second != nullptr){
+                    for(int in=0;in<it->second->getNumInlets();in++){
+                        if(this->getOutletType(resetWirelessPin) == it->second->getInletType(in) && this->getOutletID(resetWirelessPin) == it->second->getInletID(in) && it->second->getInletWirelessReceive(in)){
+                            if(!it->second->inletsConnected[in]){ // open wireless transport
+                                it->second->inletsConnected[in] = true;
+                                if(this->getOutletType(resetWirelessPin) == VP_LINK_AUDIO && this->getIsPDSPPatchableObject() && it->second->getIsPDSPPatchableObject()){
+                                    this->pdspOut[resetWirelessPin] >> it->second->pdspIn[in];
+                                }
+                                it->second->_inletParams[in] = this->_outletParams[resetWirelessPin];
+                                //std::cout << "Wireless connection ON between " << this->getName() << " and " << it->second->getName() << std::endl;
                             }
-                            it->second->_inletParams[in] = this->_outletParams[resetWirelessPin];
-                            //std::cout << "Wireless connection ON between " << this->getName() << " and " << it->second->getName() << std::endl;
                         }
                     }
                 }
@@ -241,15 +246,17 @@ void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObj
     if(resetWirelessLink && resetWirelessPin != -1){
         resetWirelessLink = false;
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-            if(this->getId() != it->first){
-                for(int in=0;in<it->second->getNumInlets();in++){
-                    if(this->getOutletType(resetWirelessPin) == it->second->getInletType(in) && this->getOutletID(resetWirelessPin) == it->second->getInletID(in)){
-                        if(it->second->inletsConnected[in]){ // close wireless transport
-                            it->second->inletsConnected[in] = false;
-                            if(this->getOutletType(resetWirelessPin) == VP_LINK_AUDIO && this->getIsPDSPPatchableObject() && it->second->getIsPDSPPatchableObject() && it->second->pdspIn[in].getInputsList().size() > 0){
-                                it->second->pdspIn[in].disconnectIn();
+            if(it->second != nullptr){
+                if(this->getId() != it->first){
+                    for(int in=0;in<it->second->getNumInlets();in++){
+                        if(this->getOutletType(resetWirelessPin) == it->second->getInletType(in) && this->getOutletID(resetWirelessPin) == it->second->getInletID(in)){
+                            if(it->second->inletsConnected[in]){ // close wireless transport
+                                it->second->inletsConnected[in] = false;
+                                if(this->getOutletType(resetWirelessPin) == VP_LINK_AUDIO && this->getIsPDSPPatchableObject() && it->second->getIsPDSPPatchableObject() && it->second->pdspIn[in].getInputsList().size() > 0){
+                                    it->second->pdspIn[in].disconnectIn();
+                                }
+                                //std::cout << "Wireless connection OFF between " << this->getName() << " and " << it->second->getName() << std::endl;
                             }
-                            //std::cout << "Wireless connection OFF between " << this->getName() << " and " << it->second->getName() << std::endl;
                         }
                     }
                 }
@@ -310,17 +317,19 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             // if connected, get link origin (outlet origin position and link id)
             if(inletsConnected[i]){
                 for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-                    for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-                        if(it->second->outPut[j]->toObjectID == nId && it->second->outPut[j]->toInletID == i){
-                            ImGuiEx::ofxVPLinkData tvpld;
-                            tvpld._toPinPosition = it->second->outPut[j]->posFrom;
-                            tvpld._linkID = it->second->outPut[j]->id;
-                            tvpld._linkLabel = it->second->getOutletName(it->second->outPut[j]->fromOutletID);
-                            tvpld._fromObjectID = it->second->getId();
-                            tvpld._fromPinID = it->second->outPut[j]->fromOutletID;
+                    if(it->second != nullptr){
+                        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                            if(it->second->outPut[j]->toObjectID == nId && it->second->outPut[j]->toInletID == i){
+                                ImGuiEx::ofxVPLinkData tvpld;
+                                tvpld._toPinPosition = it->second->outPut[j]->posFrom;
+                                tvpld._linkID = it->second->outPut[j]->id;
+                                tvpld._linkLabel = it->second->getOutletName(it->second->outPut[j]->fromOutletID);
+                                tvpld._fromObjectID = it->second->getId();
+                                tvpld._fromPinID = it->second->outPut[j]->fromOutletID;
 
-                            tempLinkData.push_back(tvpld);
-                            break;
+                                tempLinkData.push_back(tvpld);
+                                break;
+                            }
                         }
                     }
                 }
@@ -529,9 +538,9 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
             _inletParams[toInlet] = new ofSoundBuffer();
             if(patchObjects[fromObjectID]->getIsPDSPPatchableObject() && getIsPDSPPatchableObject()){
                 patchObjects[fromObjectID]->pdspOut[fromOutlet] >> pdspIn[toInlet];
-            }else if(patchObjects[fromObjectID]->getName() == "audio device" && getIsPDSPPatchableObject()){
+            }/*else if(patchObjects[fromObjectID]->getName() == "audio device" && getIsPDSPPatchableObject()){
                 patchObjects[fromObjectID]->pdspOut[fromOutlet] >> pdspIn[toInlet];
-            }
+            }*/
         }
 
         // check special connections
@@ -556,38 +565,40 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
 void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectInlet){
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-            if(it->second->outPut[j]->toObjectID == this->getId() && it->second->outPut[j]->toInletID == objectInlet){
-                // remove link
-                vector<bool> tempEraseLinks;
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(it->second->outPut[s]->toObjectID == this->getId() && it->second->outPut[s]->toInletID == objectInlet){
-                        tempEraseLinks.push_back(true);
-                    }else{
-                        tempEraseLinks.push_back(false);
-                    }
-                }
-
-                vector<shared_ptr<PatchLink>> tempBuffer;
-                tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
-
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(!tempEraseLinks[s]){
-                        tempBuffer.push_back(it->second->outPut[s]);
-                    }else{
-                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
-                        this->inletsConnected[objectInlet] = false;
-                        if(this->getIsPDSPPatchableObject()){
-                            this->pdspIn[objectInlet].disconnectIn();
+        if(it->second != nullptr){
+            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                if(it->second->outPut[j]->toObjectID == this->getId() && it->second->outPut[j]->toInletID == objectInlet){
+                    // remove link
+                    vector<bool> tempEraseLinks;
+                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                        if(it->second->outPut[s]->toObjectID == this->getId() && it->second->outPut[s]->toInletID == objectInlet){
+                            tempEraseLinks.push_back(true);
+                        }else{
+                            tempEraseLinks.push_back(false);
                         }
                     }
+
+                    vector<shared_ptr<PatchLink>> tempBuffer;
+                    tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
+
+                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                        if(!tempEraseLinks[s]){
+                            tempBuffer.push_back(it->second->outPut[s]);
+                        }else{
+                            it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
+                            this->inletsConnected[objectInlet] = false;
+                            if(this->getIsPDSPPatchableObject()){
+                                this->pdspIn[objectInlet].disconnectIn();
+                            }
+                        }
+                    }
+
+                    it->second->outPut = tempBuffer;
+
+                    break;
                 }
 
-                it->second->outPut = tempBuffer;
-
-                break;
             }
-
         }
 
     }
@@ -597,43 +608,44 @@ void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects,
 void PatchObject::disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID){
 
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
-        for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
-            if(it->second->outPut[j]->id == linkID){
-                // remove link
-                vector<bool> tempEraseLinks;
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(it->second->outPut[s]->id == linkID){
-                        tempEraseLinks.push_back(true);
-                    }else{
-                        tempEraseLinks.push_back(false);
+        if(it->second != nullptr){
+            for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                if(it->second->outPut[j]->id == linkID){
+                    // remove link
+                    vector<bool> tempEraseLinks;
+                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                        if(it->second->outPut[s]->id == linkID){
+                            tempEraseLinks.push_back(true);
+                        }else{
+                            tempEraseLinks.push_back(false);
+                        }
                     }
-                }
 
-                vector<shared_ptr<PatchLink>> tempBuffer;
-                tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
+                    vector<shared_ptr<PatchLink>> tempBuffer;
+                    tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
 
-                for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
-                    if(!tempEraseLinks[s]){
-                        tempBuffer.push_back(it->second->outPut[s]);
-                    }else{
-                        it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
-                        if(patchObjects[it->second->outPut[j]->toObjectID] != nullptr){
-                            patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
-                            if(patchObjects[it->second->outPut[j]->toObjectID]->getIsPDSPPatchableObject()){
-                                patchObjects[it->second->outPut[j]->toObjectID]->pdspIn[it->second->outPut[j]->toInletID].disconnectIn();
+                    for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
+                        if(!tempEraseLinks[s]){
+                            tempBuffer.push_back(it->second->outPut[s]);
+                        }else{
+                            it->second->removeLinkFromConfig(it->second->outPut[s]->fromOutletID,it->second->outPut[s]->toObjectID,it->second->outPut[s]->toInletID);
+                            if(patchObjects[it->second->outPut[j]->toObjectID] != nullptr){
+                                patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                                if(patchObjects[it->second->outPut[j]->toObjectID]->getIsPDSPPatchableObject()){
+                                    patchObjects[it->second->outPut[j]->toObjectID]->pdspIn[it->second->outPut[j]->toInletID].disconnectIn();
+                                }
                             }
                         }
                     }
+
+                    it->second->outPut = tempBuffer;
+
+                    break;
                 }
-
-                it->second->outPut = tempBuffer;
-
-                break;
             }
-
         }
-
     }
+
 }
 
 //---------------------------------------------------------------------------------- LOAD/SAVE
