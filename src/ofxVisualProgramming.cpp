@@ -1936,11 +1936,55 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                     XML.popTag();
                 }
             }
+
         }
 
         bPopulatingObjectsMap   = false;
 
         activateDSP();
+
+        if(totalObjects > 0){
+            // activate all audio PDSP connection
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    string objname = XML.getValue("name","");
+                    if(isObjectInLibrary(objname)){
+                        shared_ptr<PatchObject> tempObj = selectObject(objname);
+                        if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
+                            int fromID = XML.getValue("id", -1);
+                            if (XML.pushTag("outlets")){
+                                int totalOutlets = XML.getNumTags("link");
+                                for(int j=0;j<totalOutlets;j++){
+                                    if (XML.pushTag("link",j)){
+                                        int linkType = XML.getValue("type", 0);
+                                        if(linkType == VP_LINK_AUDIO){
+                                            int totalLinks = XML.getNumTags("to");
+                                            for(int z=0;z<totalLinks;z++){
+                                                if(XML.pushTag("to",z)){
+                                                    int toObjectID = XML.getValue("id", 0);
+                                                    int toInletID = XML.getValue("inlet", 0);
+
+                                                    if(patchObjects[fromID]->getIsAudioOUTObject() && patchObjects[toObjectID]->getIsAudioINObject()){
+                                                        patchObjects[fromID]->pdspOut[j] >> patchObjects[toObjectID]->pdspIn[toInletID];
+                                                    }
+                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+                                                    XML.popTag();
+                                                }
+                                            }
+                                        }
+                                        XML.popTag();
+                                    }
+                                }
+
+                                XML.popTag();
+                            }
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+        }
 
     }
 
