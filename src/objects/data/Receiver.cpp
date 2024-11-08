@@ -178,7 +178,7 @@ void vpReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         if(isReceivingON){
-            ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (23*scaleFactor))); // Padding top
+            ImGui::Dummy(ImVec2(-1,6*scaleFactor)); // Padding top
             ImGui::Text("%s",varName.c_str());
         }
 
