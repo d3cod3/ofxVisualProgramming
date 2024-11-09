@@ -496,10 +496,6 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
     int node_clicked = -1;
     int i = 0;
 
-    if(currentSubpatch == "root"){
-        selection_mask = (1 << 0);
-    }
-
     //ImGui::SetNextWindowSize(ImVec2(200*scaleFactor,400*scaleFactor), ImGuiCond_Appearing );
 
     ImGui::Begin(ICON_FA_NETWORK_WIRED "  Patch Navigator", &navigationActive, ImGuiWindowFlags_NoCollapse);
@@ -519,7 +515,7 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
                 currentSubpatch         = newSubpatchName;
                 vector<SubpatchConnection> subpatchBranch;
                 subpatchesMap[currentSubpatch] = subpatchBranch;
-                selection_mask = (1 << (subpatchesMap.size()-1));
+                selection_mask = (1 << getSubpatchIndex(currentSubpatch));
             }
             ImGui::CloseCurrentPopup();
         }
@@ -534,7 +530,7 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
                 currentSubpatch         = newSubpatchName;
                 vector<SubpatchConnection> subpatchBranch;
                 subpatchesMap[currentSubpatch] = subpatchBranch;
-                selection_mask = (1 << (subpatchesMap.size()-1));
+                selection_mask = (1 << getSubpatchIndex(currentSubpatch));
             }
             ImGui::CloseCurrentPopup();
         }
@@ -552,7 +548,17 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
         const bool is_selected = (selection_mask & (1 << i)) != 0;
         if (is_selected) node_flags |= ImGuiTreeNodeFlags_Selected;
 
-        bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, it->first.c_str(), i);
+        string rName = "[ ";
+        rName += it->first;
+        rName += " ]";
+        bool node_open;
+        if(it->first == "root") {
+            node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, rName.c_str(), i);
+        }else{
+            node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, it->first.c_str(), i);
+        }
+
+
         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
             node_clicked = i;
             currentSubpatch = it->first.c_str();
@@ -1213,6 +1219,18 @@ string ofxVisualProgramming::getObjectNameFromID(int id){
     }
 
     return name;
+}
+
+//--------------------------------------------------------------
+int ofxVisualProgramming::getSubpatchIndex(string name){
+    int ind = 0;
+    for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+        if(it->first == name){
+            return ind;
+        }
+        ind++;
+    }
+    return 0;
 }
 
 //--------------------------------------------------------------

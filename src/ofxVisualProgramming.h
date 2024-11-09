@@ -112,6 +112,7 @@ public:
     bool            isObjectInLibrary(string name);
     bool            isObjectIDInPatchMap(int id);
     string          getObjectNameFromID(int id);
+    int             getSubpatchIndex(string name);
 
     void            newPatch(string release);
     void            newTempPatchFromFile(string patchFile);
