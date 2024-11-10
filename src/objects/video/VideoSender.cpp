@@ -59,6 +59,7 @@ VideoSender::VideoSender() : PatchObject("video sender"){
     recButtonLabel      = "BROADCAST";
 
     this->setIsTextureObj(true);
+    this->setIsResizable(true);
 }
 
 //--------------------------------------------------------------
@@ -73,8 +74,15 @@ void VideoSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
     captureFbo.allocate( STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT, GL_RGB );
-    ndiSender.setMetaData("Mosaic NDI sender", "video sender", "ofxNDI", "0.0.0", "", "", "");
 
+    if(ndiSender.setup("Mosaic NDI Video sender")) {
+        video_.setup(ndiSender);
+        int frame_rate_n, frame_rate_d;
+        NDIlib_frame_format_type_e frame_format_type;
+        genlock_.setup();
+        video_.getVideoFormat(frame_rate_n, frame_rate_d, frame_format_type);
+        genlock_.setVideoFormat(frame_rate_n, frame_rate_d, frame_format_type);
+    }
 }
 
 //--------------------------------------------------------------
@@ -118,22 +126,14 @@ void VideoSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
             if(isSending) {
                 reader.readToPixels(captureFbo, capturePix,OF_IMAGE_COLOR); // ofxFastFboReader
                 if(capturePix.getWidth() > 0 && capturePix.getHeight() > 0) {
-                    ndiSender.send(capturePix);
+                    if(genlock_.waitVideo()) {
+                        video_.send(capturePix);
+                    }
                 }
-            }
-
-            if(scaledObjW*canvasZoom > 90.0f){
-                // draw node texture preview with OF
-                drawNodeOFTexture(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             }
 
         }
     }else{
-
-        if(scaledObjW*canvasZoom > 90.0f){
-            ofSetColor(34,34,34);
-            ofDrawRectangle(objOriginX - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom), objOriginY-(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor/canvasZoom),scaledObjW + (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/canvasZoom),scaledObjH + (((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor)/canvasZoom) );
-        }
 
         captureFbo.begin();
         ofClear(0,0,0,255);
@@ -167,14 +167,25 @@ void VideoSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
+        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            calcTextureDims(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+            ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
+            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+        }else{
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        }
+
         // get imgui node translated/scaled position/dimension for drawing textures in OF
-        objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
-        objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
-        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor/_nodeCanvas.GetCanvasScale());
-        scaledObjH = this->height - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale());
+        //objOriginX = (ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor) - _nodeCanvas.GetCanvasTranslation().x)/_nodeCanvas.GetCanvasScale();
+        //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
+        scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+        scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
 
 
-        ImVec2 window_pos = ImGui::GetWindowPos();
+        window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*this->scaleFactor), window_pos.y + (40*this->scaleFactor));
         if (isSending){

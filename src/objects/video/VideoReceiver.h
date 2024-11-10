@@ -36,7 +36,9 @@
 
 #include "PatchObject.h"
 
-#include "ofxNDIGrabber.h"
+#include "ofxNDIReceiver.h"
+#include "ofxNDIRecvStream.h"
+#include "ofxNDIFinder.h"
 
 class VideoReceiver : public PatchObject {
 
@@ -54,14 +56,29 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    ofxNDIGrabber       ndiGrabber;
-    bool                needToGrab;
+    ofxNDIReceiver              ndiReceiver;
+    ofxNDIFinder                finder_;
+    ofxNDIRecvVideoFrameSync    video_;
+    ofPixels                    pixels_;
 
-    float               posX, posY, drawW, drawH;
+    vector<string>              sourcesVector;
+    vector<int>                 sourcesID;
 
-    float               scaledObjW, scaledObjH;
-    float               objOriginX, objOriginY;
-    float               canvasZoom;
+    string                      sourceName;
+    int                         sourceID;
+
+    bool                        needToGrab;
+    bool                        isOneSourceAvailable;
+
+    float                       posX, posY, drawW, drawH;
+
+    float                       scaledObjW, scaledObjH;
+    float                       objOriginX, objOriginY;
+    float                       canvasZoom;
+
+    float                       prevW, prevH;
+
+    bool                        loaded;
 
 private:
 
