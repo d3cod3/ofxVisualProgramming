@@ -79,15 +79,47 @@ void VideoSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         video_.setup(ndiSender);
         int frame_rate_n, frame_rate_d;
         NDIlib_frame_format_type_e frame_format_type;
-        genlock_.setup();
         video_.getVideoFormat(frame_rate_n, frame_rate_d, frame_format_type);
-        genlock_.setVideoFormat(frame_rate_n, frame_rate_d, frame_format_type);
     }
 }
 
 //--------------------------------------------------------------
 void VideoSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
+
+    if(this->inletsConnected[0]){
+        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+            if(!needToGrab){
+                needToGrab = true;
+                ofDisableArbTex();
+                captureFbo.allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB );
+                capturePix.allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), OF_IMAGE_COLOR );
+                ofEnableArbTex();
+            }
+
+            captureFbo.begin();
+            ofClear(0,0,0,255);
+            ofSetColor(255);
+            static_cast<ofTexture *>(_inletParams[0])->draw(0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            captureFbo.end();
+
+            if(isSending && captureFbo.isAllocated()) {
+                reader.readToPixels(captureFbo, capturePix,OF_IMAGE_COLOR); // ofxFastFboReader
+                if(capturePix.getWidth() > 0 && capturePix.getHeight() > 0) {
+                    capturePix.setImageType(OF_IMAGE_COLOR_ALPHA);
+                    video_.send(capturePix);
+                }
+            }
+
+        }
+    }else{
+
+        captureFbo.begin();
+        ofClear(0,0,0,255);
+        captureFbo.end();
+
+        needToGrab = false;
+    }
 
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
         if(!isSending){
@@ -107,40 +139,6 @@ void VideoSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 //--------------------------------------------------------------
 void VideoSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-
-    ofSetColor(255);
-
-    if(this->inletsConnected[0]){
-        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            if(!needToGrab){
-                needToGrab = true;
-                captureFbo.allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB );
-            }
-
-            captureFbo.begin();
-            ofClear(0,0,0,255);
-            ofSetColor(255);
-            static_cast<ofTexture *>(_inletParams[0])->draw(0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-            captureFbo.end();
-
-            if(isSending) {
-                reader.readToPixels(captureFbo, capturePix,OF_IMAGE_COLOR); // ofxFastFboReader
-                if(capturePix.getWidth() > 0 && capturePix.getHeight() > 0) {
-                    if(genlock_.waitVideo()) {
-                        video_.send(capturePix);
-                    }
-                }
-            }
-
-        }
-    }else{
-
-        captureFbo.begin();
-        ofClear(0,0,0,255);
-        captureFbo.end();
-
-        needToGrab = false;
-    }
 
 }
 

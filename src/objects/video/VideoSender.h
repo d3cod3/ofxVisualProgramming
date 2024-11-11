@@ -39,7 +39,6 @@
 #include "IconsFontAwesome5.h"
 
 #include "ofxNDISender.h"
-#include "ofxNDIGenlock.h"
 #include "ofxNDISendStream.h"
 #include "ofxFastFboReader.h"
 
@@ -64,7 +63,6 @@ public:
 
     ofxNDISender        ndiSender;
     ofxNDISendVideo     video_;
-    ofxNDIGenlock       genlock_;
     ofxFastFboReader    reader;
     ofFbo               captureFbo;
     ofPixels            capturePix;

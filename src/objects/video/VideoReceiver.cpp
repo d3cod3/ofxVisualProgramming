@@ -108,12 +108,14 @@ void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     // connect source
-    if(needToGrab && ndiReceiver.isConnected() && isOneSourceAvailable){
+    if(needToGrab && isOneSourceAvailable){
         needToGrab = false;
         auto sources = finder_.getSources();
-        if(sources.size() > sourceID) {
+        if(sources.size() > static_cast<size_t>(sourceID)) {
             if(ndiReceiver.isSetup() ? (ndiReceiver.changeConnection(sources[sourceID]), true) : ndiReceiver.setup(sources[sourceID])) {
+                ofDisableArbTex();
                 video_.setup(ndiReceiver);
+                ofEnableArbTex();
             }
         }
 
@@ -127,7 +129,9 @@ void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
                 static_cast<ofTexture *>(_outletParams[0])->loadData(pixels_);
             }else{
+                ofDisableArbTex();
                 static_cast<ofTexture *>(_outletParams[0])->allocate(pixels_.getWidth(), pixels_.getHeight(), GL_RGB );
+                ofEnableArbTex();
             }
         }
     }
