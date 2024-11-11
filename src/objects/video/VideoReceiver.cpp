@@ -96,7 +96,7 @@ void VideoReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             return result;
     });
     sourcesID.assign(sourcesVector.size(),0);
-    for(int i=0;i<sourcesVector.size();i++){
+    for(size_t i=0;i<sourcesVector.size();i++){
         sourcesID.at(i) = i;
     }
 
