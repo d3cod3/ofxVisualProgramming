@@ -142,8 +142,6 @@ void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 void VideoGate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
-    ofSetColor(255);
-
 }
 
 //--------------------------------------------------------------

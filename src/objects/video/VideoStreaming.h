@@ -74,6 +74,11 @@ public:
     float               objOriginX, objOriginY;
     float               canvasZoom;
 
+    float               prevW, prevH;
+    bool                loaded;
+
+
+
 protected:
 
     string                  recButtonLabel;

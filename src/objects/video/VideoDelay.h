@@ -70,6 +70,7 @@ public:
     float                   halfscale;
     bool                    needToGrab;
 
+    float                   prevW, prevH;
     bool                    loaded;
 
 private:

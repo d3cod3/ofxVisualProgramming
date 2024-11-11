@@ -66,6 +66,8 @@ OpticalFlow::OpticalFlow() : PatchObject("optical flow"){
     fbPolyN             = 7.0f;
     fbWinSize           = 32.0f;
 
+    prevW               = this->width;
+    prevH               = this->height;
     loaded              = false;
 
     this->setIsTextureObj(true);
@@ -90,6 +92,9 @@ void OpticalFlow::newObject(){
     this->setCustomVar(fbPolyN,"FB_POLY_N");
     this->setCustomVar(fbWinSize,"FB_WIN_SIZE");
 
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+
 }
 
 //--------------------------------------------------------------
@@ -99,23 +104,7 @@ void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    if(!loaded){
-        loaded = true;
-
-        fbUseGaussian = static_cast<bool>(floor(this->getCustomVar("FB_USE_GAUSSIAN")));
-        fbPyrScale = this->getCustomVar("FB_PYR_SCALE");
-        fbLevels = this->getCustomVar("FB_LEVELS");
-        fbWinSize = this->getCustomVar("FB_WIN_SIZE");
-        fbIterations = this->getCustomVar("FB_ITERATIONS");
-        fbPolyN = this->getCustomVar("FB_POLY_N");
-        fbPolySigma = this->getCustomVar("FB_POLY_SIGMA");
-    }
-
-}
-
-//--------------------------------------------------------------
-void OpticalFlow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(patchObjects);
 
     // OPTICAL FLOW UPDATE
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -165,6 +154,29 @@ void OpticalFlow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
     }else{
         isFBOAllocated = false;
     }
+
+    if(!loaded){
+        loaded = true;
+
+        fbUseGaussian = static_cast<bool>(floor(this->getCustomVar("FB_USE_GAUSSIAN")));
+        fbPyrScale = this->getCustomVar("FB_PYR_SCALE");
+        fbLevels = this->getCustomVar("FB_LEVELS");
+        fbWinSize = this->getCustomVar("FB_WIN_SIZE");
+        fbIterations = this->getCustomVar("FB_ITERATIONS");
+        fbPolyN = this->getCustomVar("FB_POLY_N");
+        fbPolySigma = this->getCustomVar("FB_POLY_SIGMA");
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+
+}
+
+//--------------------------------------------------------------
+void OpticalFlow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
     // OPTICAL FLOW DRAW
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
@@ -225,6 +237,15 @@ void OpticalFlow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

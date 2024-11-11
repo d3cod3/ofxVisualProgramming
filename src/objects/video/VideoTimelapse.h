@@ -101,6 +101,7 @@ public:
     size_t                  resetTime;
     size_t                  wait;
 
+    float                   prevW, prevH;
     bool                    loaded;
 
 private:

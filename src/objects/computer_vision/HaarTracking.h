@@ -73,6 +73,9 @@ public:
 
     bool                            loadHaarConfigFlag;
 
+    float                       prevW, prevH;
+    bool                        loaded;
+
 protected:
 
 

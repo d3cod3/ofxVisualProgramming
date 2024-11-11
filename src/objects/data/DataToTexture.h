@@ -58,6 +58,7 @@ public:
     ofPixels                *pix;
     ofPixels                *scaledPix;
 
+    float                   prevW, prevH;
     bool                    loaded;
     bool                    needReset;
 

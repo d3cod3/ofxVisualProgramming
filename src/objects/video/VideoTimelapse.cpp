@@ -62,6 +62,8 @@ VideoTimelapse::VideoTimelapse() : PatchObject("video timedelay"){
     resetTime       = ofGetElapsedTimeMillis();
     wait            = 1000/static_cast<int>(ofGetFrameRate());
 
+    prevW               = this->width;
+    prevH               = this->height;
     loaded = false;
 
     this->setIsTextureObj(true);
@@ -79,6 +81,9 @@ void VideoTimelapse::newObject(){
     this->addOutlet(VP_LINK_TEXTURE,"timeDelayedOutput");
 
     this->setCustomVar(static_cast<float>(nDelayFrames),"DELAY_FRAMES");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -93,6 +98,7 @@ void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 
 //--------------------------------------------------------------
 void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         if(nDelayFrames != static_cast<int>(floor(*(float *)&_inletParams[1]))){
@@ -107,17 +113,6 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
             videoBuffer->setup(nDelayFrames);
         }
     }
-
-    if(!loaded){
-        loaded = true;
-        nDelayFrames = this->getCustomVar("DELAY_FRAMES");
-        videoBuffer->setup(nDelayFrames);
-    }
-    
-}
-
-//--------------------------------------------------------------
-void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE
     if(this->inletsConnected[0]){
@@ -150,6 +145,24 @@ void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGL
     }else{
         *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
     }
+
+    if(!loaded){
+        loaded = true;
+        nDelayFrames = this->getCustomVar("DELAY_FRAMES");
+        videoBuffer->setup(nDelayFrames);
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+    
+}
+
+//--------------------------------------------------------------
+void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
 
 }
 
@@ -189,6 +202,15 @@ void VideoTimelapse::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

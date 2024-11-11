@@ -60,6 +60,9 @@ ChromaKey::ChromaKey() : PatchObject("chroma key"){
     chromaBlur          = 1408.0f;
     multiplyFilterHue   = 0.2625f;
 
+    prevW               = this->width;
+    prevH               = this->height;
+
     loaded              = false;
 
     this->setIsTextureObj(true);
@@ -84,6 +87,9 @@ void ChromaKey::newObject(){
     this->setCustomVar(greenSpillStrength,"GREEN_SPILL_STRENGTH");
     this->setCustomVar(chromaBlur,"CHROMA_BLUR");
     this->setCustomVar(multiplyFilterHue,"MULT_FILTER_HUE");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -94,21 +100,7 @@ void ChromaKey::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void ChromaKey::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-    if(!loaded){
-        loaded = true;
-        chromaBgColor.set(this->getCustomVar("RED"),this->getCustomVar("GREEN"),this->getCustomVar("BLUE"));
-        baseMaskStrength    = this->getCustomVar("BASE_MASK_STRENGTH");
-        chromaMaskStrength  = this->getCustomVar("CHROMA_MASK_STRENGTH");
-        greenSpillStrength  = this->getCustomVar("GREEN_SPILL_STRENGTH");
-        chromaBlur          = this->getCustomVar("CHROMA_BLUR");
-        multiplyFilterHue   = this->getCustomVar("MULT_FILTER_HUE");
-    }
-    
-}
-
-//--------------------------------------------------------------
-void ChromaKey::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(patchObjects);
 
     // UPDATE SHADER
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -127,6 +119,27 @@ void ChromaKey::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
     }else{
         isInputConnected = false;
     }
+
+    if(!loaded){
+        loaded = true;
+        chromaBgColor.set(this->getCustomVar("RED"),this->getCustomVar("GREEN"),this->getCustomVar("BLUE"));
+        baseMaskStrength    = this->getCustomVar("BASE_MASK_STRENGTH");
+        chromaMaskStrength  = this->getCustomVar("CHROMA_MASK_STRENGTH");
+        greenSpillStrength  = this->getCustomVar("GREEN_SPILL_STRENGTH");
+        chromaBlur          = this->getCustomVar("CHROMA_BLUR");
+        multiplyFilterHue   = this->getCustomVar("MULT_FILTER_HUE");
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+    
+}
+
+//--------------------------------------------------------------
+void ChromaKey::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -170,6 +183,15 @@ void ChromaKey::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

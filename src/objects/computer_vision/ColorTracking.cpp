@@ -65,6 +65,9 @@ ColorTracking::ColorTracking() : PatchObject("color tracking"){
 
     isFBOAllocated      = false;
 
+    prevW               = this->width;
+    prevH               = this->height;
+
     loaded              = false;
 
     this->setIsTextureObj(true);
@@ -88,6 +91,9 @@ void ColorTracking::newObject(){
     this->setCustomVar(targetColor.r,"RED");
     this->setCustomVar(targetColor.g,"GREEN");
     this->setCustomVar(targetColor.b,"BLUE");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -100,29 +106,6 @@ void ColorTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(!loaded){
-        loaded = true;
-
-        threshold = this->getCustomVar("THRESHOLD");
-        minAreaRadius = this->getCustomVar("MIN_AREA_RADIUS");
-        maxAreaRadius = this->getCustomVar("MAX_AREA_RADIUS");
-
-        contourFinder->setMinAreaRadius(minAreaRadius);
-        contourFinder->setMaxAreaRadius(maxAreaRadius);
-        contourFinder->setThreshold(threshold);
-        contourFinder->setFindHoles(false);
-        // set color
-        contourFinder->setTargetColor(targetColor, TRACK_COLOR_HS);
-        // wait for half a second before forgetting something
-        contourFinder->getTracker().setPersistence(60);
-        // an object can move up to 32 pixels per frame
-        contourFinder->getTracker().setMaximumDistance(64);
-    }
-    
-}
-
-//--------------------------------------------------------------
-void ColorTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         // UPDATE STUFF
@@ -233,6 +216,44 @@ void ColorTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLR
 
             }
 
+        }
+
+    }else{
+        isFBOAllocated = false;
+    }
+
+    if(!loaded){
+        loaded = true;
+
+        threshold = this->getCustomVar("THRESHOLD");
+        minAreaRadius = this->getCustomVar("MIN_AREA_RADIUS");
+        maxAreaRadius = this->getCustomVar("MAX_AREA_RADIUS");
+
+        contourFinder->setMinAreaRadius(minAreaRadius);
+        contourFinder->setMaxAreaRadius(maxAreaRadius);
+        contourFinder->setThreshold(threshold);
+        contourFinder->setFindHoles(false);
+        // set color
+        contourFinder->setTargetColor(targetColor, TRACK_COLOR_HS);
+        // wait for half a second before forgetting something
+        contourFinder->getTracker().setPersistence(60);
+        // an object can move up to 32 pixels per frame
+        contourFinder->getTracker().setMaximumDistance(64);
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+    
+}
+
+//--------------------------------------------------------------
+void ColorTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(glRenderer);
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(outputFBO->isAllocated()){
             outputFBO->begin();
 
             ofClear(0,0,0,255);
@@ -266,13 +287,8 @@ void ColorTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLR
             }
 
             outputFBO->end();
-
         }
-
-    }else{
-        isFBOAllocated = false;
     }
-
 }
 
 //--------------------------------------------------------------
@@ -315,6 +331,15 @@ void ColorTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

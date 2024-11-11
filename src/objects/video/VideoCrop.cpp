@@ -106,6 +106,7 @@ void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         _x = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
@@ -122,23 +123,6 @@ void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     if(this->inletsConnected[4] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         _h = ofClamp(*(float *)&_inletParams[4],0.0f,100.0f);
     }
-
-    if(!loaded){
-        loaded = true;
-        _x = this->getCustomVar("XPOS");
-        _y = this->getCustomVar("YPOS");
-        _w = this->getCustomVar("WIDTH");
-        _h = this->getCustomVar("HEIGHT");
-        prevW = this->getCustomVar("OBJ_WIDTH");
-        prevH = this->getCustomVar("OBJ_HEIGHT");
-        this->width             = prevW;
-        this->height            = prevH;
-    }
-    
-}
-
-//--------------------------------------------------------------
-void VideoCrop::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE
     if(this->inletsConnected[0]){
@@ -164,6 +148,24 @@ void VideoCrop::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
     }else{
         needToGrab = false;
     }
+
+    if(!loaded){
+        loaded = true;
+        _x = this->getCustomVar("XPOS");
+        _y = this->getCustomVar("YPOS");
+        _w = this->getCustomVar("WIDTH");
+        _h = this->getCustomVar("HEIGHT");
+        prevW = this->getCustomVar("OBJ_WIDTH");
+        prevH = this->getCustomVar("OBJ_HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+    
+}
+
+//--------------------------------------------------------------
+void VideoCrop::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
 }
 

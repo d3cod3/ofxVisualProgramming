@@ -69,6 +69,7 @@ public:
 
     bool                        newConnection;
 
+    float                       prevW, prevH;
     bool                        loaded;
 
 

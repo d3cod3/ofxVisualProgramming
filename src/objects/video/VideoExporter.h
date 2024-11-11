@@ -80,6 +80,9 @@ public:
 
     bool                exportVideoFlag;
 
+    float               prevW, prevH;
+    bool                loaded;
+
 
 protected:
 

@@ -76,6 +76,7 @@ public:
     float                       fbPolyN;
     float                       fbWinSize;
 
+    float                       prevW, prevH;
     bool                        loaded;
     
 

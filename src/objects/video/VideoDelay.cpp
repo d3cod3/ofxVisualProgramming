@@ -68,6 +68,8 @@ VideoDelay::VideoDelay() : PatchObject("video feedback"){
     scaleTo         = 1.0f;
     needToGrab      = false;
 
+    prevW           = this->width;
+    prevH           = this->height;
     loaded          = false;
 
     this->setIsTextureObj(true);
@@ -91,6 +93,9 @@ void VideoDelay::newObject(){
     this->setCustomVar(_y,"POSY");
     this->setCustomVar(static_cast<float>(scaleTo),"SCALE");
     this->setCustomVar(static_cast<float>(alphaTo),"ALPHA");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -100,6 +105,7 @@ void VideoDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
         _x = ofClamp(*(float *)&_inletParams[1],-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
@@ -116,19 +122,6 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     if(this->inletsConnected[4]){
         alphaTo = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
     }
-
-    if(!loaded && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        loaded = true;
-        _x = ofClamp(this->getCustomVar("POSX"),-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
-        _y = ofClamp(this->getCustomVar("POSY"),-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
-        scaleTo = this->getCustomVar("SCALE");
-        alphaTo = this->getCustomVar("ALPHA");
-    }
-    
-}
-
-//--------------------------------------------------------------
-void VideoDelay::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // UPDATE
     alpha       = .995 * alpha + .005 * alphaTo;
@@ -168,6 +161,25 @@ void VideoDelay::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRend
         needToGrab = false;
     }
 
+    if(!loaded && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        loaded = true;
+        _x = ofClamp(this->getCustomVar("POSX"),-static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getWidth());
+        _y = ofClamp(this->getCustomVar("POSY"),-static_cast<ofTexture *>(_inletParams[0])->getHeight(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+        scaleTo = this->getCustomVar("SCALE");
+        alphaTo = this->getCustomVar("ALPHA");
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+    
+}
+
+//--------------------------------------------------------------
+void VideoDelay::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
 }
 
 //--------------------------------------------------------------
@@ -206,6 +218,15 @@ void VideoDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

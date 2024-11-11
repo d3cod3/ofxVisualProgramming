@@ -66,17 +66,18 @@ void PixelsToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 
 //--------------------------------------------------------------
 void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
-}
-
-//--------------------------------------------------------------
-void PixelsToTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         if(static_cast<ofPixels *>(_inletParams[0])->getWidth() > 0 && static_cast<ofPixels *>(_inletParams[0])->getHeight() > 0){
             static_cast<ofTexture *>(_outletParams[0])->loadData(*static_cast<ofPixels *>(_inletParams[0]));
         }
     }
+}
+
+//--------------------------------------------------------------
+void PixelsToTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
 }
 

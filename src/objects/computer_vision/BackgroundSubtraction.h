@@ -85,6 +85,7 @@ public:
     bool                        erode;
     bool                        dilate;
 
+    float                       prevW, prevH;
 
     bool                        loaded;
 

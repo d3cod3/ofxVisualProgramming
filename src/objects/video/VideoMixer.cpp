@@ -153,6 +153,20 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         }
     }
 
+    mixFbo->begin();
+
+    ofSetColor(0,0,0);
+    ofDrawRectangle(0,0,canvasWidth,canvasHeight);
+
+    for(int i=1;i<=finalTextureInlets;i++){
+        if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+            ofSetColor(255,255,255,alphas.at(i-1));
+            static_cast<ofTexture *>(_inletParams[i])->draw(0,0,canvasWidth,canvasHeight);
+        }
+    }
+
+    mixFbo->end();
+
 
     if(needReset){
         needReset = false;
@@ -179,22 +193,6 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 //--------------------------------------------------------------
 void VideoMixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-
-    ofSetColor(255);
-
-    mixFbo->begin();
-
-    ofSetColor(0,0,0);
-    ofDrawRectangle(0,0,canvasWidth,canvasHeight);
-
-    for(int i=1;i<=finalTextureInlets;i++){
-        if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
-            ofSetColor(255,255,255,alphas.at(i-1));
-            static_cast<ofTexture *>(_inletParams[i])->draw(0,0,canvasWidth,canvasHeight);
-        }
-    }
-
-    mixFbo->end();
 
 }
 

@@ -82,6 +82,8 @@ VideoPlayer::VideoPlayer() : PatchObject("video player"){
 
     preloadFirstFrame   = false;
 
+    prevW               = this->width;
+    prevH               = this->height;
     loaded              = false;
 
     this->setIsResizable(true);
@@ -103,6 +105,9 @@ void VideoPlayer::newObject(){
 
     this->setCustomVar(static_cast<float>(loop),"LOOP");
     this->setCustomVar(static_cast<float>(speed),"SPEED");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 
 }
 
@@ -234,25 +239,7 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
     }
     ///////////////////////////////////////////
 
-    if(isFileLoaded && video->isLoaded() && !loaded){
-        loaded = true;
-
-        loop = static_cast<bool>(this->getCustomVar("LOOP"));
-        speed = static_cast<float>(this->getCustomVar("SPEED"));
-
-        if(loop){
-            video->setLoopState(OF_LOOP_NORMAL);
-        }else{
-            video->setLoopState(OF_LOOP_NONE);
-        }
-        video->setSpeed(speed);
-    }
-}
-
-//--------------------------------------------------------------
-void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
-
+    /////////////////////////////////////////// VIDEO DRAW
     if(!isFileLoaded && video->isLoaded()){
         video->setLoopState(OF_LOOP_NONE);
         video->setVolume(0);
@@ -272,6 +259,30 @@ void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
         video->draw(0,0);
         videoFbo->end();
     }
+    ///////////////////////////////////////////
+
+    if(isFileLoaded && video->isLoaded() && !loaded){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+
+        loop = static_cast<bool>(this->getCustomVar("LOOP"));
+        speed = static_cast<float>(this->getCustomVar("SPEED"));
+
+        if(loop){
+            video->setLoopState(OF_LOOP_NORMAL);
+        }else{
+            video->setLoopState(OF_LOOP_NONE);
+        }
+        video->setSpeed(speed);
+    }
+}
+
+//--------------------------------------------------------------
+void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
 }
 

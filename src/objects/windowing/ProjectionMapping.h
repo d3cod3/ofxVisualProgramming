@@ -95,6 +95,9 @@ public:
 
     bool                                    autoRemove;
 
+    float                                   prevW, prevH;
+    bool                                    loaded;
+
     OBJECT_FACTORY_PROPS
 };
 

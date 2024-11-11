@@ -85,8 +85,8 @@ void KinectGrabber::newObject(){
     this->setCustomVar(nearThreshold,"NEAR_THRESH");
     this->setCustomVar(farThreshold,"FAR_THRESH");
 
-    this->setCustomVar(prevW,"OBJ_WIDTH");
-    this->setCustomVar(prevH,"OBJ_HEIGHT");
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -115,34 +115,6 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         }
     }
 
-    if(!loaded){
-        loaded = true;
-        if(weHaveKinect){
-
-            ofDisableArbTex();
-
-            colorCleanImage.allocate(kinectWidth, kinectHeight);
-            cleanImage.allocate(kinectWidth, kinectHeight);
-            grayThreshNear.allocate(kinectWidth, kinectHeight);
-            grayThreshFar.allocate(kinectWidth, kinectHeight);
-
-            ofEnableArbTex();
-
-            loadKinectSettings();
-
-            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
-            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
-            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
-
-        }
-    }
-
-}
-
-//--------------------------------------------------------------
-void KinectGrabber::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
     // KINECT UPDATE
     if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected()){
         static_cast<ofxKinect *>(_outletParams[2])->update();
@@ -170,6 +142,40 @@ void KinectGrabber::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLR
             *static_cast<ofTexture *>(_outletParams[1]) = colorCleanImage.getTexture();
         }
     }
+
+    if(!loaded){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+
+        if(weHaveKinect){
+
+            ofDisableArbTex();
+
+            colorCleanImage.allocate(kinectWidth, kinectHeight);
+            cleanImage.allocate(kinectWidth, kinectHeight);
+            grayThreshNear.allocate(kinectWidth, kinectHeight);
+            grayThreshFar.allocate(kinectWidth, kinectHeight);
+
+            ofEnableArbTex();
+
+            loadKinectSettings();
+
+            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
+            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
+            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
+            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
+
+        }
+    }
+
+}
+
+//--------------------------------------------------------------
+void KinectGrabber::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
 
 }
 
@@ -215,11 +221,11 @@ void KinectGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // save object dimensions (for resizable ones)
         if(this->width != prevW){
             prevW = this->width;
-            this->setCustomVar(prevW,"OBJ_WIDTH");
+            this->setCustomVar(prevW,"WIDTH");
         }
         if(this->height != prevH){
             prevH = this->height;
-            this->setCustomVar(prevH,"OBJ_HEIGHT");
+            this->setCustomVar(prevH,"HEIGHT");
         }
 
         _nodeCanvas.EndNodeContent();

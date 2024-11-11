@@ -160,29 +160,6 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     }
     ///////////////////////////////////////////
 
-    if(luaScriptLoaded){
-        luaScriptLoaded = false;
-        openScript(lastLuaScript);
-    }
-
-    if(luaScriptSaved){
-        luaScriptSaved = false;
-        newScript(lastLuaScript);
-    }
-
-    if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
-        loaded = true;
-        prevW = this->getCustomVar("WIDTH");
-        prevH = this->getCustomVar("HEIGHT");
-        this->width             = prevW;
-        this->height            = prevH;
-        reloadScript();
-    }
-}
-
-//--------------------------------------------------------------
-void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    unusedArgs(font,glRenderer);
 
     ///////////////////////////////////////////
     // LUA UPDATE
@@ -233,6 +210,7 @@ void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
     }
     ///////////////////////////////////////////
 
+
     ///////////////////////////////////////////
     // LUA DRAW
     fbo->begin();
@@ -257,6 +235,32 @@ void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
 
     *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
+
+
+    if(luaScriptLoaded){
+        luaScriptLoaded = false;
+        openScript(lastLuaScript);
+    }
+
+    if(luaScriptSaved){
+        luaScriptSaved = false;
+        newScript(lastLuaScript);
+    }
+
+    if(!loaded && ofGetElapsedTimeMillis()-loadTime > 1000){
+        loaded = true;
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+        reloadScript();
+    }
+}
+
+//--------------------------------------------------------------
+void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+
 
 }
 

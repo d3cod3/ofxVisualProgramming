@@ -154,26 +154,6 @@ void VideoTransform::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
         angleZ = ofClamp(*(float *)&_inletParams[7],0.0f,360.0f);
     }
 
-    if(!loaded){
-        loaded = true;
-        _x = this->getCustomVar("XPOS");
-        _y = this->getCustomVar("YPOS");
-        _w = this->getCustomVar("WIDTH");
-        _h = this->getCustomVar("HEIGHT");
-        angleX = this->getCustomVar("ANGLEX");
-        angleY = this->getCustomVar("ANGLEY");
-        angleZ = this->getCustomVar("ANGLEZ");
-        prevW = this->getCustomVar("OBJ_WIDTH");
-        prevH = this->getCustomVar("OBJ_HEIGHT");
-        this->width             = prevW;
-        this->height            = prevH;
-    }
-
-}
-
-//--------------------------------------------------------------
-void VideoTransform::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-
     // UPDATE
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -205,6 +185,28 @@ void VideoTransform::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGL
     }else{
         needToGrab = false;
     }
+
+    if(!loaded){
+        loaded = true;
+        _x = this->getCustomVar("XPOS");
+        _y = this->getCustomVar("YPOS");
+        _w = this->getCustomVar("WIDTH");
+        _h = this->getCustomVar("HEIGHT");
+        angleX = this->getCustomVar("ANGLEX");
+        angleY = this->getCustomVar("ANGLEY");
+        angleZ = this->getCustomVar("ANGLEZ");
+        prevW = this->getCustomVar("OBJ_WIDTH");
+        prevH = this->getCustomVar("OBJ_HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+
+}
+
+//--------------------------------------------------------------
+void VideoTransform::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
+
 
 }
 

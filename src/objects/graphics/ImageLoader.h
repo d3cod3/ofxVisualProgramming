@@ -76,6 +76,9 @@ public:
     bool                loadImgFlag;
     bool                isImageLoaded;
 
+    float               prevW, prevH;
+    bool                loaded;
+
 protected:
 
 

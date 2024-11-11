@@ -73,6 +73,8 @@ public:
     float                       chromaBlur;
     float                       multiplyFilterHue;
 
+    float                       prevW, prevH;
+
     bool                        loaded;
 
     

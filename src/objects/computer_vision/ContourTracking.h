@@ -71,6 +71,8 @@ public:
     float                       minAreaRadius;
     float                       maxAreaRadius;
 
+    float                       prevW, prevH;
+
     bool                        loaded;
 
 private:

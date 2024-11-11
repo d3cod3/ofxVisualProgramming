@@ -104,6 +104,7 @@ public:
     float                                   canvasZoom;
 
     bool                                    loaded;
+    float                                   prevW, prevH;
     bool                                    autoRemove;
 
 private:

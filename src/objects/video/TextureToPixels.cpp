@@ -67,15 +67,16 @@ void TextureToPixels::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 //--------------------------------------------------------------
 void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*static_cast<ofPixels *>(_outletParams[0]));
+    }
 }
 
 //--------------------------------------------------------------
 void TextureToPixels::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*static_cast<ofPixels *>(_outletParams[0]));
-    }
 }
 
 //--------------------------------------------------------------

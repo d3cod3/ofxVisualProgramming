@@ -75,6 +75,9 @@ public:
     bool                saveImgFlag;
     bool                isImageSaved;
 
+    float               prevW, prevH;
+    bool                loaded;
+
 protected:
 
 

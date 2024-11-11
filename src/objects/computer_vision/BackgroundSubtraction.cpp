@@ -69,6 +69,8 @@ BackgroundSubtraction::BackgroundSubtraction() : PatchObject("background subtrac
     erode               = false;
     dilate              = false;
 
+    prevW               = this->width;
+    prevH               = this->height;
     loaded              = false;
 
     this->setIsTextureObj(true);
@@ -94,6 +96,9 @@ void BackgroundSubtraction::newObject(){
     this->setCustomVar(static_cast<float>(adaptive),"ADAPTIVE");
     this->setCustomVar(static_cast<float>(erode),"ERODE");
     this->setCustomVar(static_cast<float>(dilate),"DILATE");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -116,25 +121,6 @@ void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>>
     if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0f){
         bLearnBackground = true;
     }
-
-    if(!loaded){
-        loaded = true;
-
-        bgSubTech = static_cast<int>(floor(this->getCustomVar("SUBTRACTION_TECHNIQUE")));
-        threshold = this->getCustomVar("THRESHOLD");
-        brightness = this->getCustomVar("BRIGHTNESS");
-        contrast = this->getCustomVar("CONTRAST");
-        blur = this->getCustomVar("BLUR");
-        adaptSpeed = this->getCustomVar("ADAPT_SPEED");
-        adaptive = static_cast<bool>(floor(this->getCustomVar("ADAPTIVE")));
-        erode = static_cast<bool>(floor(this->getCustomVar("ERODE")));
-        dilate = static_cast<bool>(floor(this->getCustomVar("DILATE")));
-    }
-}
-
-//--------------------------------------------------------------
-void BackgroundSubtraction::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    unusedArgs(font,glRenderer);
 
     // UPDATE STUFF
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -204,6 +190,29 @@ void BackgroundSubtraction::drawObjectContent(ofTrueTypeFont *font, shared_ptr<o
     }
     //////////////////////////////////////////////
 
+    if(!loaded){
+        loaded = true;
+
+        bgSubTech = static_cast<int>(floor(this->getCustomVar("SUBTRACTION_TECHNIQUE")));
+        threshold = this->getCustomVar("THRESHOLD");
+        brightness = this->getCustomVar("BRIGHTNESS");
+        contrast = this->getCustomVar("CONTRAST");
+        blur = this->getCustomVar("BLUR");
+        adaptSpeed = this->getCustomVar("ADAPT_SPEED");
+        adaptive = static_cast<bool>(floor(this->getCustomVar("ADAPTIVE")));
+        erode = static_cast<bool>(floor(this->getCustomVar("ERODE")));
+        dilate = static_cast<bool>(floor(this->getCustomVar("DILATE")));
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+}
+
+//--------------------------------------------------------------
+void BackgroundSubtraction::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -246,6 +255,15 @@ void BackgroundSubtraction::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas 
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

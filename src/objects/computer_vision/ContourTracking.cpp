@@ -64,6 +64,8 @@ ContourTracking::ContourTracking() : PatchObject("contour tracking"){
     minAreaRadius       = 10.0f;
     maxAreaRadius       = 200.0f;
 
+    prevW               = this->width;
+    prevH               = this->height;
     loaded              = false;
 
     this->setIsTextureObj(true);
@@ -86,6 +88,9 @@ void ContourTracking::newObject(){
     this->setCustomVar(threshold,"THRESHOLD");
     this->setCustomVar(minAreaRadius,"MIN_AREA_RADIUS");
     this->setCustomVar(maxAreaRadius,"MAX_AREA_RADIUS");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -96,29 +101,8 @@ void ContourTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 
 //--------------------------------------------------------------
 void ContourTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
-    if(!loaded){
-        loaded = true;
-
-        invertBW = static_cast<int>(floor(this->getCustomVar("INVERT_BW")));
-        threshold = this->getCustomVar("THRESHOLD");
-        minAreaRadius = this->getCustomVar("MIN_AREA_RADIUS");
-        maxAreaRadius = this->getCustomVar("MAX_AREA_RADIUS");
-
-        contourFinder->setMinAreaRadius(minAreaRadius);
-        contourFinder->setMaxAreaRadius(maxAreaRadius);
-        contourFinder->setThreshold(threshold);
-        contourFinder->setFindHoles(false);
-        // wait for 60 frames before forgetting something
-        contourFinder->getTracker().setPersistence(60);
-        // an object can move up to 64 pixels per frame
-        contourFinder->getTracker().setMaximumDistance(64);
-    }
-    
-}
-
-//--------------------------------------------------------------
-void ContourTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
 
         // UPDATE STUFF
@@ -235,6 +219,43 @@ void ContourTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseG
 
             }
 
+        }
+
+    }else{
+        isFBOAllocated = false;
+    }
+
+    if(!loaded){
+        loaded = true;
+
+        invertBW = static_cast<int>(floor(this->getCustomVar("INVERT_BW")));
+        threshold = this->getCustomVar("THRESHOLD");
+        minAreaRadius = this->getCustomVar("MIN_AREA_RADIUS");
+        maxAreaRadius = this->getCustomVar("MAX_AREA_RADIUS");
+
+        contourFinder->setMinAreaRadius(minAreaRadius);
+        contourFinder->setMaxAreaRadius(maxAreaRadius);
+        contourFinder->setThreshold(threshold);
+        contourFinder->setFindHoles(false);
+        // wait for 60 frames before forgetting something
+        contourFinder->getTracker().setPersistence(60);
+        // an object can move up to 64 pixels per frame
+        contourFinder->getTracker().setMaximumDistance(64);
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+    
+}
+
+//--------------------------------------------------------------
+void ContourTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(glRenderer);
+
+    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(outputFBO->isAllocated()){
             outputFBO->begin();
 
             ofClear(0,0,0,255);
@@ -273,11 +294,7 @@ void ContourTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseG
 
             outputFBO->end();
         }
-
-    }else{
-        isFBOAllocated = false;
     }
-
 }
 
 //--------------------------------------------------------------
@@ -321,6 +338,15 @@ void ContourTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

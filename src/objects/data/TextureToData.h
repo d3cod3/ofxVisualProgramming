@@ -62,6 +62,9 @@ public:
     float           objOriginX, objOriginY;
     float           canvasZoom;
 
+    float           prevW, prevH;
+    bool            loaded;
+
 private:
 
     OBJECT_FACTORY_PROPS

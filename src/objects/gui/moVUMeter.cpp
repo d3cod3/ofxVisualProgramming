@@ -70,7 +70,6 @@ void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-
     if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
         RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
         *(float *)&_outletParams[0] = RMS;

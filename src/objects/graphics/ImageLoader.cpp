@@ -57,6 +57,10 @@ ImageLoader::ImageLoader() : PatchObject("image loader"){
     imgName = "";
     imgPath = "";
 
+    prevW               = this->width;
+    prevH               = this->height;
+    loaded              = false;
+
     this->setIsTextureObj(true);
     this->setIsResizable(true);
 
@@ -67,6 +71,9 @@ void ImageLoader::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addOutlet(VP_LINK_TEXTURE,"image");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -108,6 +115,15 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
     if(isImageLoaded){
         isImageLoaded = false;
         loadImageFile();
+    }
+
+    if(!loaded){
+        loaded = true;
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
     }
     
 }
@@ -155,6 +171,15 @@ void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

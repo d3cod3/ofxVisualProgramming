@@ -84,6 +84,9 @@ OutputWindow::OutputWindow() : PatchObject("output window"){
     this->setIsTextureObj(true);
     this->setIsSharedContextObj(true);
     this->setIsResizable(true);
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 }
 
 //--------------------------------------------------------------
@@ -109,6 +112,9 @@ void OutputWindow::newObject(){
     this->setCustomVar(edgeR,"EDGE_RIGHT");
     this->setCustomVar(edgeT,"EDGE_TOP");
     this->setCustomVar(edgeB,"EDGE_BOTTOM");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -244,6 +250,10 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         edgeR = this->getCustomVar("EDGE_RIGHT");
         edgeT = this->getCustomVar("EDGE_TOP");
         edgeB = this->getCustomVar("EDGE_BOTTOM");
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
 
         // setup drawing  dimensions
         if(inletsConnected[0]){
@@ -336,6 +346,15 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

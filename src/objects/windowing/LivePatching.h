@@ -59,6 +59,7 @@ public:
 
     float           alpha;
 
+    float           prevW, prevH;
     bool            loaded;
 
 private:

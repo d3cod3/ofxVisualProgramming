@@ -58,6 +58,10 @@ VideoStreaming::VideoStreaming() : PatchObject("video streaming"){
 
     this->setIsTextureObj(true);
     this->setIsResizable(true);
+
+    prevW               = this->width;
+    prevH               = this->height;
+    loaded              = false;
 }
 
 //--------------------------------------------------------------
@@ -67,6 +71,9 @@ void VideoStreaming::newObject(){
     this->addInlet(VP_LINK_TEXTURE,"input");
 
     this->addInlet(VP_LINK_NUMERIC,"bang");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -109,14 +116,6 @@ void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
     }
 
-}
-
-//--------------------------------------------------------------
-void VideoStreaming::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    unusedArgs(font,glRenderer);
-
-    ofSetColor(255);
-
     if(this->inletsConnected[0]){
         if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
             if(!needToGrab){
@@ -148,6 +147,21 @@ void VideoStreaming::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGL
 
         needToGrab = false;
     }
+
+    if(!loaded){
+        loaded = true;
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+
+}
+
+//--------------------------------------------------------------
+void VideoStreaming::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -191,6 +205,14 @@ void VideoStreaming::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
 
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImGui::GetWindowSize();

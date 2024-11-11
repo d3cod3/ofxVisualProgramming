@@ -60,6 +60,10 @@ HaarTracking::HaarTracking() : PatchObject("haar tracking"){
 
     loadHaarConfigFlag  = false;
 
+    prevW               = this->width;
+    prevH               = this->height;
+    loaded              = false;
+
     this->setIsTextureObj(true);
     this->setIsResizable(true);
 
@@ -73,6 +77,9 @@ void HaarTracking::newObject(){
 
     this->addOutlet(VP_LINK_TEXTURE,"output");
     this->addOutlet(VP_LINK_ARRAY,"haarBlobsData");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -99,11 +106,7 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    
-}
-
-//--------------------------------------------------------------
-void HaarTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(patchObjects);
 
     // HAAR Tracking UPDATE
     if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
@@ -155,39 +158,52 @@ void HaarTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRe
         isFBOAllocated = false;
     }
 
+
+    if(!loaded){
+        loaded = true;
+
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
+    }
+}
+
+//--------------------------------------------------------------
+void HaarTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+
     // HAAR Tracking DRAW
-    ofSetColor(255);
     if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        if(outputFBO->isAllocated()){
+            outputFBO->begin();
 
-        outputFBO->begin();
+            ofClear(0,0,0,255);
 
-        ofClear(0,0,0,255);
+            ofSetColor(255);
+            static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
 
-        ofSetColor(255);
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+            for(int i = 0; i < haarFinder->size(); i++) {
+                ofNoFill();
 
-        for(int i = 0; i < haarFinder->size(); i++) {
-            ofNoFill();
+                // haar blobs
+                ofRectangle object = haarFinder->getObjectSmoothed(i);
+                ofSetLineWidth(2);
+                ofDrawRectangle(object);
 
-            // haar blobs 
-            ofRectangle object = haarFinder->getObjectSmoothed(i);
-            ofSetLineWidth(2);
-            ofDrawRectangle(object);
+                // haar blobs labels
+                ofSetLineWidth(1);
+                ofFill();
+                ofPoint center = object.getCenter();
+                ofPushMatrix();
+                ofTranslate(center.x, center.y);
+                int label = haarFinder->getLabel(i);
+                string msg = ofToString(label) + ":" + ofToString(haarFinder->getTracker().getAge(label));
+                font->drawString(msg,0,0);
+                ofPopMatrix();
+            }
 
-            // haar blobs labels
-            ofSetLineWidth(1);
-            ofFill();
-            ofPoint center = object.getCenter();
-            ofPushMatrix();
-            ofTranslate(center.x, center.y);
-            int label = haarFinder->getLabel(i);
-            string msg = ofToString(label) + ":" + ofToString(haarFinder->getTracker().getAge(label));
-            font->drawString(msg,0,0);
-            ofPopMatrix();
+            outputFBO->end();
         }
-
-        outputFBO->end();
-
     }
 
 }
@@ -232,6 +248,15 @@ void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }

@@ -57,6 +57,10 @@ LivePatching::LivePatching() : PatchObject("live patching"){
 
     alpha   = 127.0f;
 
+    prevW   = this->width;
+    prevH   = this->height;
+
+
     loaded  = false;
 
 }
@@ -69,6 +73,9 @@ void LivePatching::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"alpha");
 
     this->setCustomVar(alpha,"ALPHA");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -88,6 +95,10 @@ void LivePatching::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(!loaded){
         loaded = true;
         alpha = this->getCustomVar("ALPHA");
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
     }
 }
 
@@ -135,6 +146,15 @@ void LivePatching::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         //objOriginY = (ImGui::GetWindowPos().y - _nodeCanvas.GetCanvasTranslation().y)/_nodeCanvas.GetCanvasScale();
         scaledObjW = this->width - (IMGUI_EX_NODE_PINS_WIDTH_NORMAL+IMGUI_EX_NODE_PINS_WIDTH_SMALL)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
         scaledObjH = this->height - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor/_nodeCanvas.GetCanvasScale();
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
 
         _nodeCanvas.EndNodeContent();
     }
