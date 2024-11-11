@@ -95,6 +95,7 @@ void ToGrayScaleTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 
         static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
 
+        pix->setImageType(OF_IMAGE_COLOR);
         colorImg->setFromPixels(*pix);
         colorImg->updateTexture();
 
