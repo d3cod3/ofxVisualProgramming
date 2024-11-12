@@ -436,6 +436,8 @@ void pdspSequencer::removeObjectContent(bool removeFileFromData){
 void pdspSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
+    seq.timing = actualSteps.load();
+
     // S
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
