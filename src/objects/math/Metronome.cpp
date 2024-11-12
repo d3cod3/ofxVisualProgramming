@@ -56,6 +56,8 @@ Metronome::Metronome() :
     _outletParams[1] = new float(); // system bpm bang
     *(float *)&_outletParams[1] = 0.0f;
 
+    isAudioOUTObject        = true;
+
     this->initInletsState();
 
     resetTime = ofGetElapsedTimeMillis();
@@ -93,35 +95,17 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
 
-    metroTime = ofGetElapsedTimeMillis();
+}
+
+//--------------------------------------------------------------
+void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && static_cast<int>(floor(*(float *)&_inletParams[0])) != timeSetting.get()){
         timeSetting.get() = static_cast<int>(floor(*(float *)&_inletParams[0]));
         this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
-    }
-
-    if(this->inletsConnected[1]){
-        sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
-    }
-
-    if(sync){
-        resetTime = ofGetElapsedTimeMillis();
-    }
-
-    if(metroTime-resetTime > timeSetting.get()){
-        resetTime = ofGetElapsedTimeMillis();
-        *(float *)&_outletParams[0] = 1.0f;
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
-    }
-
-    if(bpmMetro){
-        bpmMetro = false;
-        *(float *)&_outletParams[1] = 1.0f;
-    }else{
-        *(float *)&_outletParams[1] = 0.0f;
     }
 
     if(!loaded){
@@ -182,6 +166,36 @@ void Metronome::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void Metronome::removeObjectContent(bool removeFileFromData){
     
+}
+
+//--------------------------------------------------------------
+void Metronome::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    metroTime = ofGetElapsedTimeMillis();
+
+    if(this->inletsConnected[1]){
+        sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
+    }
+
+    if(sync){
+        resetTime = ofGetElapsedTimeMillis();
+    }
+
+    if(metroTime-resetTime > timeSetting.get()){
+        resetTime = ofGetElapsedTimeMillis();
+        *(float *)&_outletParams[0] = 1.0f;
+    }else{
+        *(float *)&_outletParams[0] = 0.0f;
+    }
+
+    if(bpmMetro){
+        bpmMetro = false;
+        *(float *)&_outletParams[1] = 1.0f;
+    }else{
+        *(float *)&_outletParams[1] = 0.0f;
+    }
+
 }
 
 OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH)
