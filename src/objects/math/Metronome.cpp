@@ -60,8 +60,8 @@ Metronome::Metronome() :
 
     this->initInletsState();
 
-    resetTime = ofGetElapsedTimeMillis();
-    metroTime = ofGetElapsedTimeMillis();
+    resetTime = ofGetElapsedTimeMicros();
+    metroTime = ofGetElapsedTimeMicros();
 
     sync                = false;
 
@@ -90,7 +90,11 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     systemBPM.code = [&]() noexcept {
         // BPM metronome
-        if(systemBPM.frame()%4==0) bpmMetro = true;
+        if(systemBPM.frame()%4==0){
+            *(float *)&_outletParams[1] = 1.0f;
+        }else{
+            *(float *)&_outletParams[1] = 0.0f;
+        }
     };
 }
 
@@ -102,6 +106,7 @@ void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
 
 //--------------------------------------------------------------
 void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && static_cast<int>(floor(*(float *)&_inletParams[0])) != timeSetting.get()){
         timeSetting.get() = static_cast<int>(floor(*(float *)&_inletParams[0]));
@@ -117,7 +122,7 @@ void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
 //--------------------------------------------------------------
 void Metronome::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -165,36 +170,36 @@ void Metronome::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Metronome::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void Metronome::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-    metroTime = ofGetElapsedTimeMillis();
+    metroTime = ofGetElapsedTimeMicros();
 
     if(this->inletsConnected[1]){
         sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
     }
 
     if(sync){
-        resetTime = ofGetElapsedTimeMillis();
+        resetTime = ofGetElapsedTimeMicros();
     }
 
-    if(metroTime-resetTime > timeSetting.get()){
-        resetTime = ofGetElapsedTimeMillis();
+    if(metroTime-resetTime > static_cast<size_t>(timeSetting.get()*1000.0f)){
+        resetTime = ofGetElapsedTimeMicros();
         *(float *)&_outletParams[0] = 1.0f;
     }else{
         *(float *)&_outletParams[0] = 0.0f;
     }
 
-    if(bpmMetro){
+   /* if(bpmMetro){
         bpmMetro = false;
         *(float *)&_outletParams[1] = 1.0f;
     }else{
         *(float *)&_outletParams[1] = 0.0f;
-    }
+    }*/
 
 }
 

@@ -52,6 +52,8 @@ moBang::moBang() :
     _outletParams[1] = new string(); // output string
     *static_cast<string *>(_outletParams[1]) = "";
 
+    isAudioOUTObject        = true;
+
     this->initInletsState();
 
     bang            = false;
@@ -80,33 +82,20 @@ void moBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void moBang::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+}
+
+//--------------------------------------------------------------
 void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-            isBangFinished = true;
-        }else{
-            bang = true;
-        }
-    }
-
-    if(bang && isBangFinished){
-        isBangFinished = false;
-
-        *(float *)&_outletParams[0] = static_cast<float>(bang);
-        *static_cast<string *>(_outletParams[1]) = "bang";
-
-    }else{
-        *(float *)&_outletParams[0] = 0;
-        *static_cast<string *>(_outletParams[1]) = "";
-    }
+    unusedArgs(patchObjects);
 
 }
 
 //--------------------------------------------------------------
 void moBang::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -137,14 +126,14 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // BANG (PD Style) button
         auto state = ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
 
-        if (state == SmartButtonState_Pressed || bang){
+        if (state == SmartButtonState_Pressed){
             currentColor = pressColor;
             if(!bang && !this->inletsConnected[0]){
                 bang = true;
             }
         }
 
-        if(state == SmartButtonState_Released || !bang){
+        if(state == SmartButtonState_Released){
             currentColor = releaseColor;
             if(bang && !this->inletsConnected[0]){
                 bang = false;
@@ -166,7 +155,37 @@ void moBang::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moBang::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void moBang::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+            isBangFinished = true;
+        }else{
+            bang = true;
+        }
+    }
+
+    if(bang && isBangFinished){
+        isBangFinished = false;
+
+        currentColor = pressColor;
+
+        *(float *)&_outletParams[0] = static_cast<float>(bang);
+        *static_cast<string *>(_outletParams[1]) = "bang";
+
+    }else{
+        currentColor = releaseColor;
+
+        *(float *)&_outletParams[0] = 0;
+        *static_cast<string *>(_outletParams[1]) = "";
+    }
+
 }
 
 OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)
