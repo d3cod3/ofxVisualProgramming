@@ -96,7 +96,9 @@ void StringGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void StringGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    static_cast<vector<float> *>(_outletParams[0])->clear();
+    unusedArgs(patchObjects);
+
+    *static_cast<string *>(_outletParams[0]) = "";
 
     if(this->inletsConnected[0]){
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
@@ -125,7 +127,7 @@ void StringGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
 //--------------------------------------------------------------
 void StringGate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -209,7 +211,7 @@ void StringGate::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void StringGate::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------

@@ -216,9 +216,6 @@ void Metronome::removeObjectContent(bool removeFileFromData){
 void Metronome::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-
-
-
 }
 
 OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH)

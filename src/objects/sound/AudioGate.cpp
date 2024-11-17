@@ -106,20 +106,12 @@ void AudioGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void AudioGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
-    
+
     if(this->inletsConnected[0]){
         if(static_cast<int>(floor(*(float *)&_inletParams[0])) != openInlet){
             changedOpenInlet = true;
         }
         openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-    }
-
-    if(changedOpenInlet){
-        changedOpenInlet = false;
-        this->pdspOut[0].disconnectIn();
-        if(openInlet >= 1 && openInlet < this->numInlets){
-            this->pdspIn[openInlet] >> this->pdspOut[0];
-        }
     }
 
     if(needReset){
@@ -233,6 +225,14 @@ void AudioGate::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void AudioGate::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
+
+    if(changedOpenInlet){
+        changedOpenInlet = false;
+        this->pdspOut[0].disconnectIn();
+        if(openInlet >= 1 && openInlet < this->numInlets){
+            this->pdspIn[openInlet] >> this->pdspOut[0];
+        }
+    }
 
     if(openInlet >= 1 && openInlet < this->numInlets){
         if(this->inletsConnected[openInlet] && !static_cast<ofSoundBuffer *>(_inletParams[openInlet])->getBuffer().empty()){

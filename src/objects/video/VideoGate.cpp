@@ -95,7 +95,9 @@ void VideoGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
     // load kuro
+    ofDisableArbTex();
     kuro->load("images/kuro.jpg");
+    ofEnableArbTex();
 
     texData.width = kuro->getWidth();
     texData.height = kuro->getHeight();

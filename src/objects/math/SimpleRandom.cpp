@@ -57,6 +57,8 @@ SimpleRandom::SimpleRandom() :
 
     this->initInletsState();
 
+    isAudioOUTObject        = true;
+
     bang            = false;
 
     forceInt        = false;
@@ -88,24 +90,14 @@ void SimpleRandom::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void SimpleRandom::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+}
+
+//--------------------------------------------------------------
 void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
-
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-        }else{
-            bang = true;
-        }
-    }
-    if(bang){
-        if(forceInt){
-            *(float *)&_outletParams[0] = floor(ofRandom(lastMinRange.get(),lastMaxRange.get()));
-        }else{
-            *(float *)&_outletParams[0] = ofRandom(lastMinRange.get(),lastMaxRange.get());
-        }
-
-    }
 
     if(this->inletsConnected[1] || this->inletsConnected[2]){
         if(lastMinRange.get() != *(float *)&_inletParams[1] || lastMaxRange.get() != *(float *)&_inletParams[2]){
@@ -184,7 +176,26 @@ void SimpleRandom::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void SimpleRandom::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void SimpleRandom::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else if(!bang){
+            bang = true;
+            if(forceInt){
+                *(float *)&_outletParams[0] = floor(ofRandom(lastMinRange.get(),lastMaxRange.get()));
+            }else{
+                *(float *)&_outletParams[0] = ofRandom(lastMinRange.get(),lastMaxRange.get());
+            }
+        }
+    }
+
 }
 
 OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH)

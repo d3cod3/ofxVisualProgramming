@@ -54,6 +54,8 @@ Counter::Counter() : PatchObject("counter"){
 
     this->initInletsState();
 
+    isAudioOUTObject        = true;
+
     bang                = false;
     _st                 = 0;
     _en                 = 1;
@@ -84,38 +86,19 @@ void Counter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Counter::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
 
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-        }else{
-            bang = true;
-        }
-    }
+}
+
+//--------------------------------------------------------------
+void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(!this->inletsConnected[1]){
         if(resetCounter){
             resetCounter = false;
             *(float *)&_outletParams[0] = _st;
-        }
-    }
-
-    if(bang){
-        int tempEnd = 1;
-        if(this->inletsConnected[2]){
-            tempEnd = static_cast<int>(*(float *)&_inletParams[2]);
-        }else{
-            tempEnd = _en;
-        }
-        if(*(float *)&_outletParams[0] < tempEnd){
-            *(float *)&_outletParams[0] += 1;
-        }else{
-            if(this->inletsConnected[1]){
-                *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
-            }else{
-                *(float *)&_outletParams[0] = _st;
-            }
         }
     }
 
@@ -142,7 +125,7 @@ void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 //--------------------------------------------------------------
 void Counter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -201,6 +184,35 @@ void Counter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Counter::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void Counter::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else if(!bang){
+            bang = true;
+            int tempEnd = 1;
+            if(this->inletsConnected[2]){
+                tempEnd = static_cast<int>(*(float *)&_inletParams[2]);
+            }else{
+                tempEnd = _en;
+            }
+            if(*(float *)&_outletParams[0] < tempEnd){
+                *(float *)&_outletParams[0] += 1;
+            }else{
+                if(this->inletsConnected[1]){
+                    *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+                }else{
+                    *(float *)&_outletParams[0] = _st;
+                }
+            }
+        }
+    }
 
 }
 

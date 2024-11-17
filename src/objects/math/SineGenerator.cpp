@@ -54,6 +54,8 @@ SineGenerator::SineGenerator() : PatchObject("sine generator")
     angle = 0.0f;
     increment = TWO_PI/360.0f;
 
+    isAudioOUTObject        = true;
+
     loaded  = false;
 
 }
@@ -76,25 +78,17 @@ void SineGenerator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void SineGenerator::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+}
+
+//--------------------------------------------------------------
 void SineGenerator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-        }else{
-            bang = true;
-        }
-    }
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         increment = ofClamp(*(float *)&_inletParams[1],0.0f,PI);
-    }
-
-    if(bang){
-        angle += increment;
-        if(angle >= TWO_PI || angle < 0.0f){
-            angle = 0.0f;
-        }
-        *(float *)&_outletParams[0] = static_cast<float>(sin(angle));
     }
 
     if(!loaded){
@@ -105,7 +99,7 @@ void SineGenerator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
 //--------------------------------------------------------------
 void SineGenerator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -151,6 +145,25 @@ void SineGenerator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void SineGenerator::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void SineGenerator::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else if(!bang){
+            bang = true;
+            angle += increment;
+            if(angle >= TWO_PI || angle < 0.0f){
+                angle = 0.0f;
+            }
+            *(float *)&_outletParams[0] = static_cast<float>(sin(angle));
+        }
+    }
 
 }
 

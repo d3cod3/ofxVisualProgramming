@@ -118,17 +118,6 @@ void pdspAHR::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspAHR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    env.set(attackDuration,holdDuration,releaseDuration);
-    env.setAttackCurve(attackHardness);
-    env.setReleaseCurve(releaseHardness);
-
-    // bang --> trigger envelope
-    if(this->inletsConnected[1]){
-        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
-    }else{
-        gate_ctrl.off();
-    }
-
     // A
     if(this->inletsConnected[2]){
         attackDuration = ofClamp(*(float *)&_inletParams[2],0.0f,std::numeric_limits<float>::max());
@@ -249,6 +238,17 @@ void pdspAHR::loadAudioSettings(){
 //--------------------------------------------------------------
 void pdspAHR::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
+
+    env.set(attackDuration,holdDuration,releaseDuration);
+    env.setAttackCurve(attackHardness);
+    env.setReleaseCurve(releaseHardness);
+
+    // bang --> trigger envelope
+    if(this->inletsConnected[1]){
+        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
+    }else{
+        gate_ctrl.off();
+    }
 
     // output envelope func
     *(float *)&_outletParams[1] = env.meter_output();

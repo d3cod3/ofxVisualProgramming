@@ -113,7 +113,9 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     empty->assign(1,0);
 
     // load kuro
+    ofDisableArbTex();
     kuro->load("images/kuro.jpg");
+    ofEnableArbTex();
 
     labels.at(0) = "float";
     labels.at(1) = "string";

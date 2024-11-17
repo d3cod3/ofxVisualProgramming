@@ -124,21 +124,6 @@ void pdspADSR::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspADSR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    env.set(attackDuration,decayDuration,sustainLevel,releaseDuration);
-    env.setAttackCurve(attackHardness);
-    env.setReleaseCurve(releaseHardness);
-
-    // bang --> trigger envelope
-    if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] == 1.0f){
-            gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
-        }else{
-            gate_ctrl.off();
-        }
-    }else{
-        gate_ctrl.off();
-    }
-
     // A
     if(this->inletsConnected[2]){
         attackDuration = ofClamp(*(float *)&_inletParams[2],0.0f,std::numeric_limits<float>::max());
@@ -269,6 +254,21 @@ void pdspADSR::loadAudioSettings(){
 //--------------------------------------------------------------
 void pdspADSR::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
+
+    env.set(attackDuration,decayDuration,sustainLevel,releaseDuration);
+    env.setAttackCurve(attackHardness);
+    env.setReleaseCurve(releaseHardness);
+
+    // bang --> trigger envelope
+    if(this->inletsConnected[1]){
+        if(*(float *)&_inletParams[1] == 1.0f){
+            gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
+        }else{
+            gate_ctrl.off();
+        }
+    }else{
+        gate_ctrl.off();
+    }
 
     // output envelope func
     *(float *)&_outletParams[1] = env.meter_output();

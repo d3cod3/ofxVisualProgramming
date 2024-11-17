@@ -54,6 +54,8 @@ CosineGenerator::CosineGenerator() : PatchObject("cosine generator")
     angle = 0.0f;
     increment = TWO_PI/360.0f;
 
+    isAudioOUTObject        = true;
+
     loaded  = false;
 
 }
@@ -76,25 +78,17 @@ void CosineGenerator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
+void CosineGenerator::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+}
+
+//--------------------------------------------------------------
 void CosineGenerator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-        }else{
-            bang = true;
-        }
-    }
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
         increment = ofClamp(*(float *)&_inletParams[1],0.0f,PI);
-    }
-
-    if(bang){
-        angle += increment;
-        if(angle >= TWO_PI || angle < 0.0f){
-            angle = 0.0f;
-        }
-        *(float *)&_outletParams[0] = static_cast<float>(cos(angle));
     }
 
     if(!loaded){
@@ -105,7 +99,7 @@ void CosineGenerator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
 //--------------------------------------------------------------
 void CosineGenerator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -151,6 +145,25 @@ void CosineGenerator::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void CosineGenerator::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void CosineGenerator::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
+    if(this->inletsConnected[0]){
+        if(*(float *)&_inletParams[0] < 1.0){
+            bang = false;
+        }else if(!bang){
+            bang = true;
+            angle += increment;
+            if(angle >= TWO_PI || angle < 0.0f){
+                angle = 0.0f;
+            }
+            *(float *)&_outletParams[0] = static_cast<float>(cos(angle));
+        }
+    }
 
 }
 

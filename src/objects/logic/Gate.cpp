@@ -61,7 +61,7 @@ Gate::Gate() : PatchObject("gate"){
 
     floatInlets      = 6;
 
-    needReset       = false;
+    needReset       = true;
     loaded          = false;
 
     openInlet   = 0;
@@ -106,22 +106,11 @@ void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void Gate::setupAudioOutObjectContent(pdsp::Engine &engine){
     unusedArgs(engine);
 
-    // ---- this code runs in the audio thread ----
-    sync.code = [&]() noexcept {
-        if(this->inletsConnected[0]){
-            openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-        }
-
-        if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
-        }
-    };
-
 }
 
 //--------------------------------------------------------------
 void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    
+    unusedArgs(patchObjects);
 
     if(needReset){
         needReset = false;
@@ -142,7 +131,7 @@ void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
 //--------------------------------------------------------------
 void Gate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -229,13 +218,22 @@ void Gate::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void Gate::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void Gate::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
+    *(float *)&_outletParams[0] = 0.0f;
+
+    if(this->inletsConnected[0]){
+        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+    }
+
+    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
+        *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
+    }
 }
 
 //--------------------------------------------------------------

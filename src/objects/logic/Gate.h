@@ -58,7 +58,6 @@ public:
     void            initInlets();
     void            resetInletsSettings();
 
-    pdsp::Function  sync;
 
     int             openInlet;
 
