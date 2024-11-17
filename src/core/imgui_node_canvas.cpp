@@ -550,7 +550,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
     // Note: A column of 0 width will probably cause crashes
     ImGui::SetColumnOffset(0,0);
     ImGui::SetColumnOffset(1, std::max(curNodeData.leftPins.region.GetSize().x, 1.f));
-    ImGui::SetColumnOffset(2, std::max(curNodeData.innerContentBox.Max.x-curNodeData.leftPins.region.Min.x, 2.f));
+    ImGui::SetColumnOffset(2, std::max(curNodeData.innerContentBox.Max.x-curNodeData.leftPins.region.Min.x, 1.f));
 
     // move to middle column where the user can draw
     ImGui::NextColumn();
