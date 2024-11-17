@@ -59,6 +59,7 @@ public:
 
     pdsp::Function          systemBPM;
     bool                    bpmMetro;
+    double                  mbpm;
 
     size_t                  resetTime;
     size_t                  metroTime;

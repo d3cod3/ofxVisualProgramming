@@ -60,6 +60,8 @@ public:
     bool            bang;
     bool            isBangFinished;
 
+    pdsp::Function  sync;
+
     ImVec4          currentColor;
     ImVec4          pressColor;
     ImVec4          releaseColor;

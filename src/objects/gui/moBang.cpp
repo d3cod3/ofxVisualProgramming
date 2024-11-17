@@ -85,6 +85,33 @@ void moBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void moBang::setupAudioOutObjectContent(pdsp::Engine &engine){
     unusedArgs(engine);
 
+    // ---- this code runs in the audio thread ----
+    sync.code = [&]() noexcept {
+        if(this->inletsConnected[0]){
+            if(*(float *)&_inletParams[0] < 1.0){
+                bang = false;
+                isBangFinished = true;
+            }else{
+                bang = true;
+            }
+        }
+
+        if(bang && isBangFinished){
+            isBangFinished = false;
+
+            currentColor = pressColor;
+
+            *(float *)&_outletParams[0] = static_cast<float>(bang);
+            *static_cast<string *>(_outletParams[1]) = "bang";
+
+        }else{
+            currentColor = releaseColor;
+
+            *(float *)&_outletParams[0] = 0;
+            *static_cast<string *>(_outletParams[1]) = "";
+        }
+    };
+
 }
 
 //--------------------------------------------------------------
@@ -161,30 +188,6 @@ void moBang::removeObjectContent(bool removeFileFromData){
 //--------------------------------------------------------------
 void moBang::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
-
-    if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
-            bang = false;
-            isBangFinished = true;
-        }else{
-            bang = true;
-        }
-    }
-
-    if(bang && isBangFinished){
-        isBangFinished = false;
-
-        currentColor = pressColor;
-
-        *(float *)&_outletParams[0] = static_cast<float>(bang);
-        *static_cast<string *>(_outletParams[1]) = "bang";
-
-    }else{
-        currentColor = releaseColor;
-
-        *(float *)&_outletParams[0] = 0;
-        *static_cast<string *>(_outletParams[1]) = "";
-    }
 
 }
 

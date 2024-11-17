@@ -83,7 +83,7 @@ pdspKick::pdspKick() : PatchObject("kick"){
     compAttack              = 2.0f;
     compRelease             = 2.0f;
 
-    this->width *= 2.06f;
+    this->width *= 2.1f;
     this->height *= 4.6f;
 
 }
@@ -177,13 +177,6 @@ void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
     ampEnv.set(attackDuration,decayDuration,sustainLevel,releaseDuration);
     modEnv.set(f_attackDuration,f_decayDuration,f_sustainLevel,f_releaseDuration);
-
-    // bang --> trigger envelope
-    if(this->inletsConnected[0]){
-        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
-    }else{
-        gate_ctrl.off();
-    }
 
     if(this->inletsConnected[1]){
         oscFreq = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
@@ -362,6 +355,13 @@ void pdspKick::loadAudioSettings(){
 //--------------------------------------------------------------
 void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
+
+    // bang --> trigger envelope
+    if(this->inletsConnected[0]){
+        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
+    }else{
+        gate_ctrl.off();
+    }
 
     // output envelope func
     *(float *)&_outletParams[1] = ampEnv.meter_output();

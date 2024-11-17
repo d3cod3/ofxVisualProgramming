@@ -88,7 +88,34 @@ void Metronome::newObject(){
 void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
+}
+
+//--------------------------------------------------------------
+void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
+
+    // ---- this code runs in the audio thread ----
     systemBPM.code = [&]() noexcept {
+        // metronome
+        metroTime = ofGetElapsedTimeMicros();
+
+        if(this->inletsConnected[1]){
+            sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
+        }
+
+        if(sync){
+            resetTime = ofGetElapsedTimeMicros();
+        }
+
+        if(metroTime-resetTime > static_cast<size_t>(timeSetting.get()*1000.0f)){
+            resetTime = ofGetElapsedTimeMicros();
+            *(float *)&_outletParams[0] = 1.0f;
+        }else{
+            *(float *)&_outletParams[0] = 0.0f;
+        }
+
+        // Mosaic main BPM
+        mbpm = engine.sequencer.getTempo();
+
         // BPM metronome
         if(systemBPM.frame()%4==0){
             *(float *)&_outletParams[1] = 1.0f;
@@ -96,11 +123,6 @@ void Metronome::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
             *(float *)&_outletParams[1] = 0.0f;
         }
     };
-}
-
-//--------------------------------------------------------------
-void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
-    unusedArgs(engine);
 
 }
 
@@ -149,7 +171,24 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(255,255,255,255), this->scaleFactor);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(170,170,170,255), this->scaleFactor);
+
+        // draw System BPM
+        ImVec2 window_pos = ImGui::GetWindowPos();
+        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - 50*scaleFactor, window_pos.y + window_size.y - 38*scaleFactor);
+        ImVec2 posFirst = ImVec2(window_pos.x + window_size.x - 50*scaleFactor, window_pos.y + 38*scaleFactor);
+
+        char temp[32];
+        sprintf_s(temp,"%.1f",static_cast<float>(60.0f/(timeSetting.get()/1000.0f)));
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), posFirst, IM_COL32_WHITE,temp, NULL, 0.0f);
+        sprintf_s(temp,"%i",static_cast<int>(mbpm));
+        _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, IM_COL32_WHITE,temp, NULL, 0.0f);
+
+        if(*(float *)&_outletParams[1] > 0){
+            // draw system BPM beat
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x + (32*scaleFactor),pos.y + (8*scaleFactor)), 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
+        }
 
         _nodeCanvas.EndNodeContent();
     }
@@ -164,7 +203,7 @@ void Metronome::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "Sends a bang with the time periodicity you specify in milliseconds.",
+                "Sends a bang with the time periodicity you specify in milliseconds. The second outlet return the bang from Mosaic main BPM",
                 "https://mosaic.d3cod3.org/reference.php?r=metronome", scaleFactor);
 }
 
@@ -177,29 +216,8 @@ void Metronome::removeObjectContent(bool removeFileFromData){
 void Metronome::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-    metroTime = ofGetElapsedTimeMicros();
 
-    if(this->inletsConnected[1]){
-        sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
-    }
 
-    if(sync){
-        resetTime = ofGetElapsedTimeMicros();
-    }
-
-    if(metroTime-resetTime > static_cast<size_t>(timeSetting.get()*1000.0f)){
-        resetTime = ofGetElapsedTimeMicros();
-        *(float *)&_outletParams[0] = 1.0f;
-    }else{
-        *(float *)&_outletParams[0] = 0.0f;
-    }
-
-   /* if(bpmMetro){
-        bpmMetro = false;
-        *(float *)&_outletParams[1] = 1.0f;
-    }else{
-        *(float *)&_outletParams[1] = 0.0f;
-    }*/
 
 }
 

@@ -335,7 +335,7 @@ void SoundfilePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     }
 
     // file dialog
-    if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac", "", scaleFactor)){
+    if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac,.WAV,.MP3,.OGG,.FLAC", "", scaleFactor)){
         ofFile file (fileDialog.selected_path);
         if (file.exists()){
             lastSoundfile = file.getAbsolutePath();
@@ -428,11 +428,11 @@ void SoundfilePlayer::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files.",
+                "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files. In case of needed realtime audio precision, use Sample Player object.",
                 "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
 
     // file dialog
-    if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac", "", scaleFactor)){
+    if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac,.WAV,.MP3,.OGG,.FLAC", "", scaleFactor)){
         ofFile file (fileDialog.selected_path);
         if (file.exists()){
             lastSoundfile = file.getAbsolutePath();
