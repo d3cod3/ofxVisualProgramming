@@ -224,6 +224,7 @@ public:
     bool                                dspON;
 
     // MEMORY
+    uint64_t                loadPatchTime;
     uint64_t                resetTime;
     uint64_t                deferredLoadTime;
     uint64_t                wait;

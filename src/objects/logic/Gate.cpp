@@ -66,6 +66,8 @@ Gate::Gate() : PatchObject("gate"){
 
     openInlet   = 0;
 
+    isAudioOUTObject        = true;
+
     this->initInletsState();
 
     this->setIsResizable(true);
@@ -101,15 +103,25 @@ void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
+void Gate::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+    // ---- this code runs in the audio thread ----
+    sync.code = [&]() noexcept {
+        if(this->inletsConnected[0]){
+            openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        }
+
+        if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
+            *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
+        }
+    };
+
+}
+
+//--------------------------------------------------------------
 void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     
-    if(this->inletsConnected[0]){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
-    }
-
-    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
-    }
 
     if(needReset){
         needReset = false;
@@ -218,6 +230,12 @@ void Gate::drawObjectNodeConfig(){
 //--------------------------------------------------------------
 void Gate::removeObjectContent(bool removeFileFromData){
     
+}
+
+//--------------------------------------------------------------
+void Gate::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
+
 }
 
 //--------------------------------------------------------------

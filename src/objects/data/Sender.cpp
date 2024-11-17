@@ -81,7 +81,9 @@ void vpSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     emptyVector->assign(1,0);
 
     // load kuro
+    ofDisableArbTex();
     kuro->load("images/kuro.jpg");
+    ofEnableArbTex();
 
 }
 
@@ -273,9 +275,11 @@ void vpSender::audioOutObject(ofSoundBuffer &outBuffer){
     if(sendTypeIndex == VP_LINK_AUDIO){
         if(this->inletsConnected[0] && isSendingON && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
-        }else{
-            static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
-        }
+        }/*else{
+            if(static_cast<ofSoundBuffer *>(_outletParams[0]) != nullptr && static_cast<ofSoundBuffer *>(_outletParams[0])->getBuffer().empty()){
+                static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+            }
+        }*/
     }
 
 }

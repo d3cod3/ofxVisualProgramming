@@ -310,7 +310,7 @@ void Mixer::resetInletsSettings(){
     this->addInlet(VP_LINK_ARRAY,"control");
 
     for(int i=1;i<this->numInlets;i++){
-        this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i+1));
+        this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i));
     }
 
     this->inletsConnected.clear();

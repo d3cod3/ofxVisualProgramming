@@ -82,7 +82,9 @@ void vpReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     emptyVector->assign(1,0);
 
     // load kuro
+    ofDisableArbTex();
     kuro->load("images/kuro.jpg");
+    ofEnableArbTex();
 
     receiveTypeIndex = static_cast<int>(this->getCustomVar("DATA_TYPE"));
     changeDataType(receiveTypeIndex);
@@ -268,9 +270,12 @@ void vpReceiver::audioOutObject(ofSoundBuffer &outBuffer){
     if(receiveTypeIndex == VP_LINK_AUDIO){
         if(this->inletsConnected[0] && isReceivingON && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
             *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
-        }else{
-            static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
-        }
+        }/*else{
+            if(static_cast<ofSoundBuffer *>(_outletParams[0]) != nullptr && static_cast<ofSoundBuffer *>(_outletParams[0])->getBuffer().empty()){
+                static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+            }
+
+        }*/
     }
 
 }
@@ -335,6 +340,7 @@ void vpReceiver::initWireless(){
 
 //--------------------------------------------------------------
 void vpReceiver::changeDataType(int type, bool init){
+
     // disconnect everything if connected
     for(map<int,pdsp::PatchNode>::iterator it = this->pdspIn.begin(); it != this->pdspIn.end(); it++ ){
         it->second.disconnectAll();
@@ -346,7 +352,7 @@ void vpReceiver::changeDataType(int type, bool init){
     this->pdspIn.clear();
     this->pdspOut.clear();
 
-    // stop and reset sending
+    // stop and reset receiving
     isReceivingON = false;
 
     // change inlet and outlet data type

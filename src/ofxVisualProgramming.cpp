@@ -81,6 +81,7 @@ ofxVisualProgramming::ofxVisualProgramming(){
     vector<SubpatchConnection> rootBranch;
     subpatchesMap[currentSubpatch] = rootBranch;
 
+    loadPatchTime           = ofGetElapsedTimeMillis();
     resetTime               = ofGetElapsedTimeMillis();
     deferredLoadTime        = ofGetElapsedTimeMillis();
     wait                    = 1000;
@@ -1621,6 +1622,8 @@ void ofxVisualProgramming::openPatch(string patchFile){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::loadPatch(string patchFile){
+
+    loadPatchTime           = ofGetElapsedTimeMillis();
 
     ofxXmlSettings XML;
     string tstr;

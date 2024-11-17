@@ -44,6 +44,7 @@ public:
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
@@ -52,8 +53,12 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    void            audioOutObject(ofSoundBuffer &outputBuffer) override;
+
     void            initInlets();
     void            resetInletsSettings();
+
+    pdsp::Function  sync;
 
     int             openInlet;
 
