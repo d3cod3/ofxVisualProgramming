@@ -1929,21 +1929,23 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                 for(int j=0;j<totalOutlets;j++){
                                     if (XML.pushTag("link",j)){
                                         int linkType = XML.getValue("type", 0);
-                                        int totalLinks = XML.getNumTags("to");
-                                        for(int z=0;z<totalLinks;z++){
-                                            if(XML.pushTag("to",z)){
-                                                int toObjectID = XML.getValue("id", 0);
-                                                int toInletID = XML.getValue("inlet", 0);
+                                        if(linkType != VP_LINK_AUDIO){
+                                            int totalLinks = XML.getNumTags("to");
+                                            for(int z=0;z<totalLinks;z++){
+                                                if(XML.pushTag("to",z)){
+                                                    int toObjectID = XML.getValue("id", 0);
+                                                    int toInletID = XML.getValue("inlet", 0);
 
-                                                // fix loading patches with non-existent objects (older OFXVP versions)
-                                                if(isObjectIDInPatchMap(toObjectID)){
-                                                    if(connect(fromID,j,toObjectID,toInletID,linkType)){
-                                                        //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
-                                                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                    // fix loading patches with non-existent objects (older OFXVP versions)
+                                                    if(isObjectIDInPatchMap(toObjectID)){
+                                                        if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                            //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                        }
                                                     }
-                                                }
 
-                                                XML.popTag();
+                                                    XML.popTag();
+                                                }
                                             }
                                         }
                                         XML.popTag();
@@ -1985,10 +1987,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                                     int toObjectID = XML.getValue("id", 0);
                                                     int toInletID = XML.getValue("inlet", 0);
 
-                                                    if(patchObjects[fromID]->getIsAudioOUTObject() && patchObjects[toObjectID]->getIsAudioINObject()){
-                                                        patchObjects[fromID]->pdspOut[j] >> patchObjects[toObjectID]->pdspIn[toInletID];
+                                                    if(isObjectIDInPatchMap(toObjectID)){
+                                                        if(connect(fromID,j,toObjectID,toInletID,linkType)){
+                                                            //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),z,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                        }
                                                     }
-                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
                                                     XML.popTag();
                                                 }
