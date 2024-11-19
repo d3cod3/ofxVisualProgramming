@@ -48,7 +48,7 @@ Gate::Gate() : PatchObject("gate"){
     _inletParams[3] = new float();  // float3
     _inletParams[4] = new float();  // float4
     _inletParams[5] = new float();  // float5
-    _inletParams[6] = new float();  // float5
+    _inletParams[6] = new float();  // float6
     *(float *)&_inletParams[1] = 0.0f;
     *(float *)&_inletParams[2] = 0.0f;
     *(float *)&_inletParams[3] = 0.0f;
@@ -59,7 +59,7 @@ Gate::Gate() : PatchObject("gate"){
     _outletParams[0] = new float(); // output numeric
     *(float *)&_outletParams[0] = 0.0f;
 
-    floatInlets      = 6;
+    floatInlets     = this->numInlets-1;
 
     needReset       = true;
     loaded          = false;
@@ -87,6 +87,7 @@ void Gate::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"f3");
     this->addInlet(VP_LINK_NUMERIC,"f4");
     this->addInlet(VP_LINK_NUMERIC,"f5");
+    this->addInlet(VP_LINK_NUMERIC,"f6");
 
     this->addOutlet(VP_LINK_NUMERIC,"output");
 
@@ -119,12 +120,13 @@ void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded  = true;
-        initInlets();
+
         prevW = this->getCustomVar("WIDTH");
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
         openInlet = this->getCustomVar("OPEN");
+        initInlets();
     }
     
 }
@@ -202,6 +204,9 @@ void Gate::drawObjectNodeConfig(){
     if(ImGui::InputInt("Inlets",&floatInlets)){
         if(floatInlets > MAX_INLETS-1){
             floatInlets = MAX_INLETS-1;
+        }
+        if(floatInlets < 2){
+            floatInlets = 2;
         }
     }
     ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
