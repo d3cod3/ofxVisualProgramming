@@ -137,7 +137,7 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::Dummy(ImVec2(-1,2)); // Padding top
         ImGui::PushItemWidth(-1);
         if(ImGui::DragFloat("", &number,0.1f)){
             this->setCustomVar(number,"NUMBER");

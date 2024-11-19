@@ -145,7 +145,8 @@ void Crossfader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        //ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::Dummy(ImVec2(-1,2)); // Padding top
         ImGui::PushItemWidth(-1);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));

@@ -86,7 +86,7 @@ void Panner::setupAudioOutObjectContent(pdsp::Engine &engine){
     pan_ctrl.set(0.0f);
     pan_ctrl.enableSmoothing(50.0f);
 
-    this->pdspIn[0] >> panner.in_signal();
+    this->pdspIn[0] >> panner;
 
     panner.out_L() >> this->pdspOut[0];
     panner.out_R() >> this->pdspOut[1];
@@ -101,14 +101,14 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 
     if(this->inletsConnected[1]){
         pan = ofClamp(*(float *)&_inletParams[1],-1.0f,1.0f);
-        pan_ctrl.set(pan);
     }
 
     if(!loaded){
         loaded = true;
         pan = this->getCustomVar("PAN");
-        pan_ctrl.set(ofClamp(pan,-1.0f,1.0f));
     }
+
+    pan_ctrl.set(ofClamp(pan,-1.0f,1.0f));
 
 }
 
