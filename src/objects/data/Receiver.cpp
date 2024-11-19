@@ -86,8 +86,8 @@ void vpReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     kuro->load("images/kuro.jpg");
     ofEnableArbTex();
 
-    receiveTypeIndex = static_cast<int>(this->getCustomVar("DATA_TYPE"));
-    changeDataType(receiveTypeIndex);
+    // init wireless receiver
+    initWireless();
 
 }
 
@@ -132,11 +132,13 @@ void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         signalSendEvent = false;
         for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
-                for(int wid=0;wid<it->second->getNumOutlets();wid++){
-                    if(it->second->getOutletWirelessSend(wid) && it->second->getOutletID(wid) == this->varName && this->varName != ""){
-                        it->second->closeWirelessLink(wid);
-                        it->second->openWirelessLink(wid);
-                        break;
+                if(it->second->getName() == "sender"){
+                    for(int wid=0;wid<it->second->getNumOutlets();wid++){
+                        if(it->second->getOutletWirelessSend(wid) && it->second->getOutletID(wid) == this->varName && this->varName != ""){
+                            it->second->closeWirelessLink(wid);
+                            it->second->openWirelessLink(wid);
+                            break;
+                        }
                     }
                 }
             }
@@ -145,8 +147,6 @@ void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     if(!loaded){
         loaded = true;
-
-        initWireless();
     }
 }
 

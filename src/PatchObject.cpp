@@ -204,11 +204,15 @@ void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObj
     // Continuosly update float type ONLY wireless links
     for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
-            for(int in=0;in<it->second->getNumInlets();in++){
-                for(int out=0;out<this->getNumOutlets();out++){
-                    if(it->second->getInletWirelessReceive(in) && this->getOutletWirelessSend(out) && this->getOutletType(out) == it->second->getInletType(in) && this->getOutletType(out) == VP_LINK_NUMERIC && this->getOutletID(out) == it->second->getInletID(in)){
-                        if(it->second->inletsConnected[in]){
-                            it->second->_inletParams[in] = this->_outletParams[out];
+            if(it->second->getName() == "receiver"){
+                for(int in=0;in<it->second->getNumInlets();in++){
+                    for(int out=0;out<this->getNumOutlets();out++){
+                        if(outletsIDs.size() > out){
+                            if(it->second->getInletWirelessReceive(in) && this->getOutletWirelessSend(out) && this->getOutletType(out) == it->second->getInletType(in) && this->getOutletType(out) == VP_LINK_NUMERIC && this->getOutletID(out) == it->second->getInletID(in)){
+                                if(it->second->inletsConnected[in]){
+                                    it->second->_inletParams[in] = this->_outletParams[out];
+                                }
+                            }
                         }
                     }
                 }
