@@ -116,7 +116,6 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 void Panner::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
-    ofSetColor(255);
 }
 
 //--------------------------------------------------------------
