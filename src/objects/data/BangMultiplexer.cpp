@@ -40,18 +40,10 @@ BangMultiplexer::BangMultiplexer() : PatchObject("bang multiplexer"){
     this->numInlets  = 6;
     this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // float1
-    _inletParams[1] = new float();  // float2
-    _inletParams[2] = new float();  // float3
-    _inletParams[3] = new float();  // float4
-    _inletParams[4] = new float();  // float5
-    _inletParams[5] = new float();  // float6
-    *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 0.0f;
-    *(float *)&_inletParams[3] = 0.0f;
-    *(float *)&_inletParams[4] = 0.0f;
-    *(float *)&_inletParams[5] = 0.0f;
+    for(size_t i=0;i<32;i++){
+        _inletParams[i] = new float();
+        *(float *)&_inletParams[i] = 0.0f;
+    }
 
     _outletParams[0] = new float();  // output
     *(float *)&_outletParams[0] = 0.0f;
@@ -74,12 +66,9 @@ BangMultiplexer::BangMultiplexer() : PatchObject("bang multiplexer"){
 void BangMultiplexer::newObject(){
     PatchObject::setName( this->objectName );
 
-    this->addInlet(VP_LINK_NUMERIC,"f1");
-    this->addInlet(VP_LINK_NUMERIC,"f2");
-    this->addInlet(VP_LINK_NUMERIC,"f3");
-    this->addInlet(VP_LINK_NUMERIC,"f4");
-    this->addInlet(VP_LINK_NUMERIC,"f5");
-    this->addInlet(VP_LINK_NUMERIC,"f6");
+    for(size_t i=0;i<32;i++){
+        this->addInlet(VP_LINK_NUMERIC,"f"+ofToString(i+1));
+    }
 
     this->addOutlet(VP_LINK_NUMERIC,"bang");
 
@@ -92,6 +81,8 @@ void BangMultiplexer::newObject(){
 //--------------------------------------------------------------
 void BangMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
+
+    initInlets();
 }
 
 //--------------------------------------------------------------
@@ -115,7 +106,7 @@ void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
     if(!loaded){
         loaded  = true;
-        initInlets();
+
         prevW = this->getCustomVar("WIDTH");
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
@@ -125,7 +116,7 @@ void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
 //--------------------------------------------------------------
 void BangMultiplexer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -188,6 +179,9 @@ void BangMultiplexer::drawObjectNodeConfig(){
         if(floatInlets > MAX_INLETS){
             floatInlets = MAX_INLETS;
         }
+        if(floatInlets < 2){
+            floatInlets = 2;
+        }
     }
     ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
     ImGui::Spacing();
@@ -210,7 +204,7 @@ void BangMultiplexer::removeObjectContent(bool removeFileFromData){
 void BangMultiplexer::initInlets(){
     floatInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = floatInlets;
+    //this->numInlets = floatInlets;
 
     resetInletsSettings();
 }

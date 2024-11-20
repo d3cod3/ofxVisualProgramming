@@ -42,12 +42,9 @@ VideoMixer::VideoMixer() : PatchObject("texture mixer"){
 
     _inletParams[0] = new vector<float>(); // alphas
 
-    _inletParams[1] = new ofTexture();  // tex1
-    _inletParams[2] = new ofTexture();  // tex2
-    _inletParams[3] = new ofTexture();  // tex3
-    _inletParams[4] = new ofTexture();  // tex4
-    _inletParams[5] = new ofTexture();  // tex5
-    _inletParams[6] = new ofTexture();  // tex6
+    for(size_t i=1;i<32;i++){
+        _inletParams[i] = new ofTexture();
+    }
 
     _outletParams[0] = new ofTexture(); // texture output
 
@@ -84,12 +81,10 @@ void VideoMixer::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_ARRAY,"alphas");
-    this->addInlet(VP_LINK_TEXTURE,"t0");
-    this->addInlet(VP_LINK_TEXTURE,"t1");
-    this->addInlet(VP_LINK_TEXTURE,"t2");
-    this->addInlet(VP_LINK_TEXTURE,"t3");
-    this->addInlet(VP_LINK_TEXTURE,"t4");
-    this->addInlet(VP_LINK_TEXTURE,"t5");
+
+    for(size_t i=1;i<32;i++){
+        this->addInlet(VP_LINK_TEXTURE,"t"+ofToString(i));
+    }
 
     this->addOutlet(VP_LINK_TEXTURE,"output");
 
@@ -101,7 +96,7 @@ void VideoMixer::newObject(){
     this->setCustomVar(static_cast<float>(canvasHeight),"CANVAS_HEIGHT");
 
     for(int i=0;i<32;i++){
-        this->setCustomVar(alphas.at(i),"T"+ofToString(i)+"_alpha");
+        this->setCustomVar(alphas.at(i),"T"+ofToString(i+1)+"_alpha");
     }
 }
 
@@ -131,6 +126,8 @@ void VideoMixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     mixFbo->end();
 
     ofEnableArbTex();
+
+    initInlets();
 
 }
 
@@ -183,10 +180,10 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         this->height            = prevH;
 
         for(int i=0;i<32;i++){
-            alphas.at(i) = this->getCustomVar("T"+ofToString(i)+"_alpha");
+            alphas.at(i) = this->getCustomVar("T"+ofToString(i+1)+"_alpha");
         }
 
-        initInlets();
+
     }
 }
 
@@ -262,6 +259,9 @@ void VideoMixer::drawObjectNodeConfig(){
         if(dataInlets > MAX_INLETS){
             dataInlets = MAX_INLETS;
         }
+        if(dataInlets < 2){
+            dataInlets = 2;
+        }
     }
     ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
     ImGui::Spacing();
@@ -291,9 +291,9 @@ void VideoMixer::drawObjectNodeConfig(){
 
     ImGui::PushItemWidth(130*this->scaleFactor);
     for(int i=0;i<dataInlets;i++){
-        string tempstr = "T"+ofToString(i)+" alpha";
+        string tempstr = "T"+ofToString(i+1)+" alpha";
         if(ImGui::SliderFloat(tempstr.c_str(),&alphas.at(i), 0.0f, 255.0f)){
-            this->setCustomVar(alphas.at(i),"T"+ofToString(i)+"_alpha");
+            this->setCustomVar(alphas.at(i),"T"+ofToString(i+1)+"_alpha");
         }
     }
     ImGui::PopItemWidth();
@@ -314,9 +314,9 @@ void VideoMixer::removeObjectContent(bool removeFileFromData){
 void VideoMixer::initInlets(){
     dataInlets = this->getCustomVar("NUM_INLETS");
 
-    finalTextureInlets = dataInlets;
+    //finalTextureInlets = dataInlets;
 
-    this->numInlets = dataInlets+1;
+    //this->numInlets = dataInlets+1;
 
     resetInletsSettings();
 }

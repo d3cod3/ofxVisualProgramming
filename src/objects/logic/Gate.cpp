@@ -43,18 +43,11 @@ Gate::Gate() : PatchObject("gate"){
     _inletParams[0] = new float();  // open
     *(float *)&_inletParams[0] = 0.0f;
 
-    _inletParams[1] = new float();  // float1
-    _inletParams[2] = new float();  // float2
-    _inletParams[3] = new float();  // float3
-    _inletParams[4] = new float();  // float4
-    _inletParams[5] = new float();  // float5
-    _inletParams[6] = new float();  // float6
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 0.0f;
-    *(float *)&_inletParams[3] = 0.0f;
-    *(float *)&_inletParams[4] = 0.0f;
-    *(float *)&_inletParams[5] = 0.0f;
-    *(float *)&_inletParams[6] = 0.0f;
+
+    for(size_t i=1;i<32;i++){
+        _inletParams[i] = new float();
+        *(float *)&_inletParams[i] = 0.0f;
+    }
 
     _outletParams[0] = new float(); // output numeric
     *(float *)&_outletParams[0] = 0.0f;
@@ -82,12 +75,9 @@ void Gate::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_NUMERIC,"open");
-    this->addInlet(VP_LINK_NUMERIC,"f1");
-    this->addInlet(VP_LINK_NUMERIC,"f2");
-    this->addInlet(VP_LINK_NUMERIC,"f3");
-    this->addInlet(VP_LINK_NUMERIC,"f4");
-    this->addInlet(VP_LINK_NUMERIC,"f5");
-    this->addInlet(VP_LINK_NUMERIC,"f6");
+    for(size_t i=1;i<32;i++){
+        this->addInlet(VP_LINK_NUMERIC,"f"+ofToString(i));
+    }
 
     this->addOutlet(VP_LINK_NUMERIC,"output");
 
@@ -101,6 +91,8 @@ void Gate::newObject(){
 //--------------------------------------------------------------
 void Gate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
+
+    initInlets();
 }
 
 //--------------------------------------------------------------
@@ -126,7 +118,7 @@ void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
         this->width             = prevW;
         this->height            = prevH;
         openInlet = this->getCustomVar("OPEN");
-        initInlets();
+
     }
     
 }
@@ -245,7 +237,7 @@ void Gate::audioOutObject(ofSoundBuffer &outputBuffer){
 void Gate::initInlets(){
     floatInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = floatInlets+1;
+    //this->numInlets = floatInlets+1;
 
     resetInletsSettings();
 }
