@@ -57,6 +57,8 @@ Panner::Panner() : PatchObject("panner"){
 
     loaded                  = false;
 
+    this->height *= 1.1;
+
 }
 
 //--------------------------------------------------------------
@@ -142,18 +144,12 @@ void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
-        ImGui::PushItemWidth(-1);
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
-        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
-        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
-        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
-        if(ImGui::SliderFloat("",&pan,-1.0f, 1.0f)){
+        ImGui::Dummy(ImVec2(20.0f*scaleFactor,0.0f));ImGui::SameLine();
+
+        if(ImGuiKnobs::Knob("", &pan, -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
             pan_ctrl.set(pan);
             this->setCustomVar(pan,"PAN");
         }
-        ImGui::PopStyleColor(4);
-        ImGui::PopItemWidth();
 
         _nodeCanvas.EndNodeContent();
     }

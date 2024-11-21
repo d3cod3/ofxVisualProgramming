@@ -36,6 +36,8 @@
 
 #include "PatchObject.h"
 
+#include "imgui-knobs.h"
+
 class Panner : public PatchObject{
 
 public:
