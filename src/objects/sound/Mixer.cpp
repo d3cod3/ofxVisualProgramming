@@ -38,33 +38,44 @@
 Mixer::Mixer() : PatchObject("mixer"){
 
     this->numInlets  = 7;
-    this->numOutlets = 1;
+    this->numOutlets = 2;
 
     _inletParams[0] = new vector<float>();
 
-    _inletParams[1] = new ofSoundBuffer();  // audio input 1
-    _inletParams[2] = new ofSoundBuffer();  // audio input 2
-    _inletParams[3] = new ofSoundBuffer();  // audio input 3
-    _inletParams[4] = new ofSoundBuffer();  // audio input 4
-    _inletParams[5] = new ofSoundBuffer();  // audio input 5
-    _inletParams[6] = new ofSoundBuffer();  // audio input 6
+    for(size_t i=1;i<32;i++){
+        _inletParams[i] = new ofSoundBuffer();
+    }
 
-    _outletParams[0] = new ofSoundBuffer(); // audio output
+    _outletParams[0] = new ofSoundBuffer(); // audio output L
+    _outletParams[1] = new ofSoundBuffer(); // audio output R
 
     this->initInletsState();
 
     signalInlets    = this->numInlets-1;
 
+    gainL           = new pdsp::Amp[signalInlets];
+    gainR           = new pdsp::Amp[signalInlets];
+
     levels          = new pdsp::Amp[signalInlets];
     levels_ctrl     = new pdsp::ValueControl[signalInlets];
     levels_float    = new float[signalInlets];
 
-    needReset       = false;
-    loaded          = false;
+    gainL_ctrl       = new pdsp::ValueControl[signalInlets];
+    gainR_ctrl       = new pdsp::ValueControl[signalInlets];
+    pans_float      = new float[signalInlets];
 
     isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
+
+    needReset       = false;
+    loaded          = false;
+
+    sliderW         = 56.0f;
+
+    //this->setIsResizable(true);
+
+    this->height *= 2.36f;
 
 
 }
@@ -74,20 +85,25 @@ void Mixer::newObject(){
     PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_ARRAY,"control");
-    this->addInlet(VP_LINK_AUDIO,"s1");
-    this->addInlet(VP_LINK_AUDIO,"s2");
-    this->addInlet(VP_LINK_AUDIO,"s3");
-    this->addInlet(VP_LINK_AUDIO,"s4");
-    this->addInlet(VP_LINK_AUDIO,"s5");
-    this->addInlet(VP_LINK_AUDIO,"s6");
 
-    this->addOutlet(VP_LINK_AUDIO,"mainOutput");
+    for(size_t i=1;i<32;i++){
+        this->addInlet(VP_LINK_AUDIO,"s"+ofToString(i));
+    }
+
+    this->addOutlet(VP_LINK_AUDIO,"mainLeft");
+    this->addOutlet(VP_LINK_AUDIO,"mainRight");
 
     this->setCustomVar(static_cast<float>(signalInlets),"NUM_INLETS");
 
+    mainlevel_float = 1.0f;
+
+    this->setCustomVar(mainlevel_float,"MAIN_LEVEL");
+
     for(int i=0;i<signalInlets;i++){
         levels_float[i] = 1.0f;
+        pans_float[i] = 0.0f;
         this->setCustomVar(levels_float[i],"LEVEL_"+ofToString(i+1));
+        this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
     }
 
     static_cast<vector<float> *>(_inletParams[0])->clear();
@@ -101,47 +117,72 @@ void Mixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     loadAudioSettings();
 
+    initInlets();
+
 }
 
 //--------------------------------------------------------------
 void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
+
+    mainLevel_ctrl >> mainLevel.in_mod();
+    mainLevel_ctrl.set(mainlevel_float);
+    mainLevel_ctrl.enableSmoothing(50.0f);
 
     for(int i=0;i<signalInlets;i++){
         levels_ctrl[i] >> levels[i].in_mod();
         levels_ctrl[i].set(levels_float[i]);
         levels_ctrl[i].enableSmoothing(50.0f);
 
-        this->pdspIn[i+1] >> levels[i] >> mix;
+        gainL_ctrl[i] >> gainL[i].in_mod();
+        gainR_ctrl[i] >> gainR[i].in_mod();
+        gainL_ctrl[i].set(pans_float[i]);
+        gainL_ctrl[i].enableSmoothing(50.0f);
+        gainR_ctrl[i].set(pans_float[i]);
+        gainR_ctrl[i].enableSmoothing(50.0f);
+
+        this->pdspIn[i+1] >> levels[i] >> gainL[i] >> mixL;
+        this->pdspIn[i+1] >> levels[i] >> gainR[i] >> mixR;
+
+
     }
 
-    mix >> this->pdspOut[0];
-    mix >> scope >> engine.blackhole();
+    mixL >> mainLevel >> this->pdspOut[0];
+    mixR >> mainLevel >> this->pdspOut[1];
+    mixL >> mainLevel >> scopeL >> engine.blackhole();
+    mixR >> mainLevel >> scopeR >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
 void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
+    mainLevel_ctrl.set(mainlevel_float);
+
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
             if(i < signalInlets){
                 levels_float[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
-                levels_ctrl[i].set(levels_float[i]);
             }
+        }
+    }
+
+    for(int i=0;i<signalInlets;i++){
+        gainL_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,1.0f,0.0f));
+        gainR_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,0.0f,1.0f));
+        levels_ctrl[i].set(levels_float[i]);
+        if(!this->inletsConnected[i+1]){
+            gainL_ctrl[i].set(0.0f);
+            gainR_ctrl[i].set(0.0f);
         }
     }
 
     if(needReset){
         needReset = false;
-        for(int i=0;i<signalInlets;i++){
-            this->pdspIn[i+1].disconnectAll();
-        }
         resetInletsSettings();
     }
 
     if(!loaded){
         loaded  = true;
-        initInlets();
     }
 }
 
@@ -175,9 +216,9 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
+        char temp[32];
 
-        float sliderW = (this->width*_nodeCanvas.GetCanvasScale() - (30*scaleFactor) - (8*scaleFactor*(this->numInlets-1)))/this->numInlets;
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
 
         for(int i=0;i<this->numInlets-1;i++){
             if (i > 0) ImGui::SameLine();
@@ -188,7 +229,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
             ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
 
-            ImGui::VSliderFloat("##v", ImVec2(sliderW, this->height*_nodeCanvas.GetCanvasScale() - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &levels_float[i], 0.0f, 1.0f, "");
+            ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &levels_float[i], 0.0f, 1.0f, "");
             if (ImGui::IsItemActive() || ImGui::IsItemHovered()){
                 ImGui::SetTooltip("s%i %.2f", i+1, levels_float[i]);
                 levels_ctrl[i].set(levels_float[i]);
@@ -198,8 +239,39 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PopID();
         }
 
-        ImGui::SameLine();ImGui::Dummy(ImVec2(sliderW/4.0f,1));ImGui::SameLine();
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW/2.0f, this->height*_nodeCanvas.GetCanvasScale() - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
+        ImGui::SameLine();ImGui::Dummy(ImVec2(sliderW*scaleFactor/8.0f,1));ImGui::SameLine();
+
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
+        ImGui::VSliderFloat("##main_volume", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &mainlevel_float, 0.0f, 1.0f, "");
+        if(ImGui::IsItemActive() || ImGui::IsItemHovered()){
+            ImGui::SetTooltip("Main Volume %.2f", mainlevel_float);
+            this->setCustomVar(mainlevel_float,"MAIN_LEVEL");
+        }
+        ImGui::PopStyleColor(4);
+
+        ImGui::SameLine();
+
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
+        ImGui::SameLine();
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[1])->getRMSAmplitude(), false);
+
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+
+        for(int i=0;i<signalInlets;i++){
+            sprintf_s(temp,"PAN s%i",i+1);
+            if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
+                if(this->inletsConnected[i+1]){
+                    gainL_ctrl[i].set(ofMap(pans_float[i],-1.0f,1.0f,1.0f,0.0f));
+                    gainR_ctrl[i].set(ofMap(pans_float[i],-1.0f,1.0f,0.0f,1.0f));
+                }
+                this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
+            }
+            if (i < this->numInlets-1) ImGui::SameLine();
+
+        }
 
         _nodeCanvas.EndNodeContent();
     }
@@ -210,14 +282,14 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Mixer::drawObjectNodeConfig(){
     ImGui::Spacing();
     if(ImGui::InputInt("Inlets",&signalInlets)){
-        if(signalInlets > MAX_INLETS){
-            signalInlets = MAX_INLETS;
+        if(signalInlets > MAX_INLETS-1){
+            signalInlets = MAX_INLETS-1;
         }
         if(signalInlets < 2){
             signalInlets = 2;
         }
     }
-    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
     ImGui::Spacing();
     if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
         this->setCustomVar(static_cast<float>(signalInlets),"NUM_INLETS");
@@ -225,7 +297,7 @@ void Mixer::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "Line mixer, mix up to 32 audio signals",
+                "Line mixer, mix up to 31 audio signals",
                 "https://mosaic.d3cod3.org/reference.php?r=mixer", scaleFactor);
 }
 
@@ -263,7 +335,7 @@ void Mixer::initInlets(){
 
     signalInlets = this->getCustomVar("NUM_INLETS");
 
-    this->numInlets = signalInlets+1;
+    //this->numInlets = signalInlets+1;
 
     resetInletsSettings();
 }
@@ -271,7 +343,12 @@ void Mixer::initInlets(){
 //--------------------------------------------------------------
 void Mixer::resetInletsSettings(){
 
-    mix.disconnectIn();
+    mixL.disconnectIn();
+    mixR.disconnectIn();
+
+    for(int i=0;i<signalInlets;i++){
+        this->pdspIn[i+1].disconnectAll();
+    }
 
     vector<bool> tempInletsConn;
     for(int i=0;i<this->numInlets;i++){
@@ -284,13 +361,7 @@ void Mixer::resetInletsSettings(){
 
     this->numInlets = signalInlets+1;
 
-    this->width = 20 + signalInlets*42 + 42 + 10; // inlets gap + sliders + vumeter + outlets gap
-
-    if(signalInlets <= 8){
-        this->height = OBJECT_HEIGHT;
-    }else if(signalInlets > 8 && this->numInlets <= 32){
-        this->height = OBJECT_HEIGHT*2;
-    }
+    this->width = 20*scaleFactor + signalInlets*(sliderW+6.0f)*scaleFactor + sliderW*scaleFactor/8.0f + sliderW*scaleFactor + (sliderW*scaleFactor*2) + 10*scaleFactor; // inlets gap + sliders + gap + main + vumeters + outlets gap
 
     _inletParams[0] = new vector<float>();
     static_cast<vector<float> *>(_inletParams[0])->clear();
@@ -324,9 +395,19 @@ void Mixer::resetInletsSettings(){
         }
     }
 
+    mainlevel_float = this->getCustomVar("MAIN_LEVEL");
+    mainLevel_ctrl.set(mainlevel_float);
+
+    gainL           = new pdsp::Amp[signalInlets];
+    gainR           = new pdsp::Amp[signalInlets];
+
     levels          = new pdsp::Amp[signalInlets];
     levels_ctrl     = new pdsp::ValueControl[signalInlets];
     levels_float    = new float[signalInlets];
+
+    gainL_ctrl       = new pdsp::ValueControl[signalInlets];
+    gainR_ctrl       = new pdsp::ValueControl[signalInlets];
+    pans_float      = new float[signalInlets];
 
     for(int i=0;i<signalInlets;i++){
         levels_float[i] = 1.0f;
@@ -335,12 +416,29 @@ void Mixer::resetInletsSettings(){
         }else{
             this->setCustomVar(levels_float[i],"LEVEL_"+ofToString(i+1));
         }
+        pans_float[i] = 0.0f;
+        if(this->existsCustomVar("PAN_"+ofToString(i+1))){
+            pans_float[i] = this->getCustomVar("PAN_"+ofToString(i+1));
+        }else{
+            this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
+        }
 
         levels_ctrl[i] >> levels[i].in_mod();
         levels_ctrl[i].set(levels_float[i]);
         levels_ctrl[i].enableSmoothing(50.0f);
 
-        this->pdspIn[i+1] >> levels[i] >> mix;
+
+        gainL_ctrl[i] >> gainL[i].in_mod();
+        gainR_ctrl[i] >> gainR[i].in_mod();
+        gainL_ctrl[i].set(pans_float[i]);
+        gainL_ctrl[i].enableSmoothing(50.0f);
+        gainR_ctrl[i].set(pans_float[i]);
+        gainR_ctrl[i].enableSmoothing(50.0f);
+
+        this->pdspIn[i+1] >> levels[i] >> gainL[i] >> mixL;
+        this->pdspIn[i+1] >> levels[i] >> gainR[i] >> mixR;
+
+
     }
 
     ofNotifyEvent(this->resetEvent, this->nId);
@@ -359,7 +457,8 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND)

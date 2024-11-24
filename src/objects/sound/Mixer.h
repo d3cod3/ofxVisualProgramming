@@ -36,6 +36,8 @@
 
 #include "PatchObject.h"
 
+#include "imgui-knobs.h"
+
 class Mixer : public PatchObject{
 
 public:
@@ -61,12 +63,24 @@ public:
     void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
 
-    pdsp::PatchNode         mix;
+    pdsp::PatchNode         mixL,mixR;
+    pdsp::Amp*              gainL;
+    pdsp::Amp*              gainR;
+    pdsp::Amp               mainLevel;
     pdsp::Amp*              levels;
-    pdsp::ValueControl*     levels_ctrl;
-    float*                  levels_float;
 
-    pdsp::Scope             scope;
+    pdsp::ValueControl      mainLevel_ctrl;
+    pdsp::ValueControl*     levels_ctrl;
+    pdsp::ValueControl*     gainL_ctrl;
+    pdsp::ValueControl*     gainR_ctrl;
+
+    float                   mainlevel_float;
+    float*                  levels_float;
+    float*                  pans_float;
+
+    pdsp::Scope             scopeL, scopeR;
+
+    float                   sliderW;
 
     int                     bufferSize;
     int                     sampleRate;
