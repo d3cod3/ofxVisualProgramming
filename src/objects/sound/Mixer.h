@@ -64,13 +64,9 @@ public:
 
 
     pdsp::PatchNode         mixL,mixR;
-    pdsp::Amp*              gainL;
-    pdsp::Amp*              gainR;
-    pdsp::Amp               mainLevel;
-    pdsp::Amp*              levels;
+    pdsp::Amp*              levelsL;
+    pdsp::Amp*              levelsR;
 
-    pdsp::ValueControl      mainLevel_ctrl;
-    pdsp::ValueControl*     levels_ctrl;
     pdsp::ValueControl*     gainL_ctrl;
     pdsp::ValueControl*     gainR_ctrl;
 

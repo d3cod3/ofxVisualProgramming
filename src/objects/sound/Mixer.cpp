@@ -53,11 +53,9 @@ Mixer::Mixer() : PatchObject("mixer"){
 
     signalInlets    = this->numInlets-1;
 
-    gainL           = new pdsp::Amp[signalInlets];
-    gainR           = new pdsp::Amp[signalInlets];
+    levelsL         = new pdsp::Amp[signalInlets];
+    levelsR         = new pdsp::Amp[signalInlets];
 
-    levels          = new pdsp::Amp[signalInlets];
-    levels_ctrl     = new pdsp::ValueControl[signalInlets];
     levels_float    = new float[signalInlets];
 
     gainL_ctrl       = new pdsp::ValueControl[signalInlets];
@@ -124,39 +122,29 @@ void Mixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 
-    mainLevel_ctrl >> mainLevel.in_mod();
-    mainLevel_ctrl.set(mainlevel_float);
-    mainLevel_ctrl.enableSmoothing(50.0f);
-
     for(int i=0;i<signalInlets;i++){
-        levels_ctrl[i] >> levels[i].in_mod();
-        levels_ctrl[i].set(levels_float[i]);
-        levels_ctrl[i].enableSmoothing(50.0f);
-
-        gainL_ctrl[i] >> gainL[i].in_mod();
-        gainR_ctrl[i] >> gainR[i].in_mod();
-        gainL_ctrl[i].set(pans_float[i]);
+        gainL_ctrl[i] >> levelsL[i].in_mod();
+        gainL_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,1.0f,0.0f)*levels_float[i]*mainlevel_float);
         gainL_ctrl[i].enableSmoothing(50.0f);
-        gainR_ctrl[i].set(pans_float[i]);
+        gainR_ctrl[i] >> levelsR[i].in_mod();
+        gainR_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,0.0f,1.0f)*levels_float[i]*mainlevel_float);
         gainR_ctrl[i].enableSmoothing(50.0f);
 
-        this->pdspIn[i+1] >> levels[i] >> gainL[i] >> mixL;
-        this->pdspIn[i+1] >> levels[i] >> gainR[i] >> mixR;
+        this->pdspIn[i+1] >> levelsL[i] >> mixL;
+        this->pdspIn[i+1] >> levelsR[i] >> mixR;
 
 
     }
 
-    mixL >> mainLevel >> this->pdspOut[0];
-    mixR >> mainLevel >> this->pdspOut[1];
-    mixL >> mainLevel >> scopeL >> engine.blackhole();
-    mixR >> mainLevel >> scopeR >> engine.blackhole();
+    mixL >> this->pdspOut[0];
+    mixR >> this->pdspOut[1];
+    mixL >> scopeL >> engine.blackhole();
+    mixR >> scopeR >> engine.blackhole();
 }
 
 //--------------------------------------------------------------
 void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
-
-    mainLevel_ctrl.set(mainlevel_float);
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
@@ -167,13 +155,8 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     }
 
     for(int i=0;i<signalInlets;i++){
-        gainL_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,1.0f,0.0f));
-        gainR_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,0.0f,1.0f));
-        levels_ctrl[i].set(levels_float[i]);
-        if(!this->inletsConnected[i+1]){
-            gainL_ctrl[i].set(0.0f);
-            gainR_ctrl[i].set(0.0f);
-        }
+        gainL_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,1.0f,0.0f)*levels_float[i]*mainlevel_float);
+        gainR_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,0.0f,1.0f)*levels_float[i]*mainlevel_float);
     }
 
     if(needReset){
@@ -232,7 +215,6 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &levels_float[i], 0.0f, 1.0f, "");
             if (ImGui::IsItemActive() || ImGui::IsItemHovered()){
                 ImGui::SetTooltip("s%i %.2f", i+1, levels_float[i]);
-                levels_ctrl[i].set(levels_float[i]);
                 this->setCustomVar(levels_float[i],"LEVEL_"+ofToString(i+1));
             }
             ImGui::PopStyleColor(4);
@@ -263,10 +245,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(int i=0;i<signalInlets;i++){
             sprintf_s(temp,"PAN s%i",i+1);
             if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
-                if(this->inletsConnected[i+1]){
-                    gainL_ctrl[i].set(ofMap(pans_float[i],-1.0f,1.0f,1.0f,0.0f));
-                    gainR_ctrl[i].set(ofMap(pans_float[i],-1.0f,1.0f,0.0f,1.0f));
-                }
+
                 this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
             }
             if (i < this->numInlets-1) ImGui::SameLine();
@@ -396,13 +375,9 @@ void Mixer::resetInletsSettings(){
     }
 
     mainlevel_float = this->getCustomVar("MAIN_LEVEL");
-    mainLevel_ctrl.set(mainlevel_float);
 
-    gainL           = new pdsp::Amp[signalInlets];
-    gainR           = new pdsp::Amp[signalInlets];
-
-    levels          = new pdsp::Amp[signalInlets];
-    levels_ctrl     = new pdsp::ValueControl[signalInlets];
+    levelsL         = new pdsp::Amp[signalInlets];
+    levelsR         = new pdsp::Amp[signalInlets];
     levels_float    = new float[signalInlets];
 
     gainL_ctrl       = new pdsp::ValueControl[signalInlets];
@@ -423,20 +398,16 @@ void Mixer::resetInletsSettings(){
             this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
         }
 
-        levels_ctrl[i] >> levels[i].in_mod();
-        levels_ctrl[i].set(levels_float[i]);
-        levels_ctrl[i].enableSmoothing(50.0f);
 
-
-        gainL_ctrl[i] >> gainL[i].in_mod();
-        gainR_ctrl[i] >> gainR[i].in_mod();
-        gainL_ctrl[i].set(pans_float[i]);
+        gainL_ctrl[i] >> levelsL[i].in_mod();
+        gainL_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,1.0f,0.0f)*levels_float[i]*mainlevel_float);
         gainL_ctrl[i].enableSmoothing(50.0f);
-        gainR_ctrl[i].set(pans_float[i]);
+        gainR_ctrl[i] >> levelsR[i].in_mod();
+        gainR_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,0.0f,1.0f)*levels_float[i]*mainlevel_float);
         gainR_ctrl[i].enableSmoothing(50.0f);
 
-        this->pdspIn[i+1] >> levels[i] >> gainL[i] >> mixL;
-        this->pdspIn[i+1] >> levels[i] >> gainR[i] >> mixR;
+        this->pdspIn[i+1] >> levelsL[i] >> mixL;
+        this->pdspIn[i+1] >> levelsR[i] >> mixR;
 
 
     }
