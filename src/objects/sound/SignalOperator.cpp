@@ -45,6 +45,7 @@ SignalOperator::SignalOperator() : PatchObject("signal operator"){
 
     _outletParams[0] = new ofSoundBuffer();
 
+    isAudioINObject         = true;
     isAudioOUTObject        = true;
     isPDSPPatchableObject   = true;
 
@@ -83,6 +84,14 @@ void SignalOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
+void SignalOperator::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+    buffer.out_signal() >> this->pdspOut[0];
+
+}
+
+//--------------------------------------------------------------
 void SignalOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
@@ -97,7 +106,6 @@ void SignalOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 void SignalOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
-    ofSetColor(255);
 }
 
 //--------------------------------------------------------------
@@ -188,6 +196,8 @@ void SignalOperator::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 
     *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastBuffer;
+
+    buffer.copyInput(lastBuffer.getBuffer().data(),lastBuffer.getNumFrames());
 
 }
 

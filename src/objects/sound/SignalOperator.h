@@ -46,6 +46,7 @@ public:
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
+    void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
     void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
 
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
@@ -62,6 +63,8 @@ public:
     ofSoundBuffer           lastBuffer;
     ofSoundBuffer           monoBuffer;
     short                   *shortBuffer;
+
+    pdsp::ExternalInput     buffer;
 
     vector<string>          operators_string;
     int                     _operator;
