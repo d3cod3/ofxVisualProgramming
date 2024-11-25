@@ -323,7 +323,7 @@ void ProjectionMapping::drawObjectNodeConfig(){
 void ProjectionMapping::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 
-    ofRemoveListener(window->events().draw,this,&ProjectionMapping::updateInWindow);
+    ofRemoveListener(window->events().update,this,&ProjectionMapping::updateInWindow);
     ofRemoveListener(window->events().draw,this,&ProjectionMapping::drawInWindow);
 
     if(window->getGLFWWindow() != nullptr){
