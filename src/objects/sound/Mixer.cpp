@@ -154,7 +154,7 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
         }
     }
 
-    for(int i=0;i<signalInlets;i++){
+    for(int i=0;i<this->numInlets-1;i++){
         gainL_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,1.0f,0.0f)*levels_float[i]*mainlevel_float);
         gainR_ctrl[i].set(ofMap(ofClamp(pans_float[i],-1.0f,1.0f),-1.0f,1.0f,0.0f,1.0f)*levels_float[i]*mainlevel_float);
     }
@@ -242,7 +242,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        for(int i=0;i<signalInlets;i++){
+        for(int i=0;i<this->numInlets-1;i++){
             sprintf_s(temp,"PAN s%i",i+1);
             if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
 

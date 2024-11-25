@@ -70,7 +70,7 @@ pdspReverb::pdspReverb() : PatchObject("reverb"){
 
     loaded                  = false;
 
-    this->width *= 2.26f;
+    this->width *= 2.3f;
     this->height *= 1.12f;
 
 }
