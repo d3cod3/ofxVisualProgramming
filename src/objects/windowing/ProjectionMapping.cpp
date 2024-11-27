@@ -149,6 +149,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 
 //--------------------------------------------------------------
 void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(warpingConfigLoaded){
         warpingConfigLoaded = false;
@@ -328,8 +329,11 @@ void ProjectionMapping::removeObjectContent(bool removeFileFromData){
 
     if(window->getGLFWWindow() != nullptr){
         window->finishRender();
+        #ifdef TARGET_LINUX
         glfwHideWindow(window->getGLFWWindow());
-        //window->setWindowShouldClose();
+        #else
+        window->setWindowShouldClose();
+        #endif
     }
 }
 
@@ -343,6 +347,7 @@ void ProjectionMapping::toggleWindowFullscreen(){
 
 //--------------------------------------------------------------
 void ProjectionMapping::updateInWindow(ofEventArgs &e){
+    unusedArgs(e);
 
     _mapping->update();
 
@@ -358,6 +363,8 @@ void ProjectionMapping::updateInWindow(ofEventArgs &e){
 
 //--------------------------------------------------------------
 void ProjectionMapping::drawInWindow(ofEventArgs &e){
+    unusedArgs(e);
+
     ofBackground(0);
 
     _mapping->bindBackground();

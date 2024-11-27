@@ -522,8 +522,11 @@ void OutputWindow::removeObjectContent(bool removeFileFromData){
 
     if(window->getGLFWWindow() != nullptr){
         window->finishRender();
+        #ifdef TARGET_LINUX
         glfwHideWindow(window->getGLFWWindow());
-        //window->setWindowShouldClose();
+        #else
+        window->setWindowShouldClose();
+        #endif
     }
 
 }
