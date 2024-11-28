@@ -169,16 +169,6 @@ void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         this->saveConfig(false);
     }
 
-    if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        pd.startMessage();
-        if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
-            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
-                pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
-            }
-        }
-        pd.finishList("fromMosaic");
-    }
-
     while(watcher.waitingEvents()) {
         pathChanged(watcher.nextEvent());
     }
@@ -352,6 +342,14 @@ void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
         ch4IN.copyInput(lastInputBuffer4.getBuffer().data(),lastInputBuffer4.getNumFrames());
 
         pd.audioIn(lastInputBuffer.getBuffer().data(), lastInputBuffer.getNumFrames(), lastInputBuffer.getNumChannels());
+
+        pd.startMessage();
+        if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
+                pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+            }
+        }
+        pd.finishList("fromMosaic");
     }
 
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
