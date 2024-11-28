@@ -3,7 +3,7 @@
 
 > A collection of visual interactive objects to create/develop in a dataflow+live-coding patching environment. Embedded with Lua scripting interpreter, plus live compile of GLSL Shaders from version 150 to 410, and live editing/execute Bash scripts(macOS & linux) capabilities.
 
-![Mosaic 0.4.0](https://github.com/d3cod3/Mosaic/raw/master/process/img/28_transparent_machines04.jpg)
+![Mosaic 0.6.9](https://github.com/d3cod3/Mosaic/raw/master/process/img/31_sintax03.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
 
@@ -25,11 +25,10 @@ Table of Contents
 
 # OF COMPATIBLE RELEASE
 
-## 0.11.2 STABLE (official download from [OF site](https://openframeworks.cc/))
-> Compiled/tested with QTCreator on osx/linux/windows
-> Working on native VisualStudio Windows compiling...
+## 0.12.0 STABLE (official download from [OF site](https://openframeworks.cc/))
+> Compiled/tested with QTCreator on osx/linux
 
-If you want to build ofxVisualProgramming, just download OF0.11.2 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
+If you want to build ofxVisualProgramming, just download OF0.12.0 for your OS (osx, linux, windows) and follow the setup guide for [qtcreator](https://www.qt.io/) IDE.
 
 # REFERENCE
 
@@ -89,6 +88,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxNDI](https://github.com/d3cod3/ofxNDI)
 
+#### [ofxOpenDHT](https://github.com/d3cod3/ofxOpenDHT)
+
 #### [ofxPd](https://github.com/danomatika/ofxPd)
 
 #### [ofxPDSP](https://github.com/d3cod3/ofxPDSP)
@@ -99,11 +100,11 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxWarp](https://github.com/d3cod3/ofxWarp)
 
->Some addons are forks of the original, due to some mods, compatibility with OF0.10.1 and the intention of cross-platform compiling (osx,linux,win)
+>Some addons are forks of the original, due to some mods, compatibility with OF0.12.0 and the intention of cross-platform compiling (osx,linux)
 
 # COMPILING
 
-**MACOS/LINUX/WINDOWS compiling with qtcreator 4.6.1**
+**MACOS/LINUX compiling with qtcreator 4.6.1**
 
 # INSTALLING
 
@@ -125,7 +126,8 @@ git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone https://github.com/danomatika/ofxLua
 git clone https://github.com/danomatika/ofxMidi
 git clone https://github.com/d3cod3/ofxMtlMapping2D
-git clone https://github.com/d3cod3/ofxNDI
+git clone --branch=NDI5 https://github.com/d3cod3/ofxNDI
+git clone https://github.com/d3cod3/ofxOpenDHT
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPDSP
 git clone https://github.com/d3cod3/ofxSyphon
@@ -328,8 +330,10 @@ mixer | X |
 note to frequency | X |
 oscillator | X |
 panner | X |
+parametric EQ | | X
 pd patch | X |
 quad panner | X |
+quantizer | | X
 resonant filter | X |
 reverb | X |
 sample and hold | | X
