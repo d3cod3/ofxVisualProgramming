@@ -61,6 +61,7 @@ Constant::Constant() :
     bang                = false;
     nextFrame           = true;
     loaded              = false;
+    varName             = "";
 
     this->height        /= 2;
 
@@ -113,6 +114,10 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     if(!loaded){
         loaded = true;
         inputValueNew = this->getCustomVar("NUMBER");
+        if(filepath != "" && filepath.find("|") != filepath.npos){
+            varName = filepath.substr(filepath.find("|")+2,filepath.size());
+            this->setSpecialName("| "+varName);
+        }
     }
 
 }
@@ -120,7 +125,6 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 //--------------------------------------------------------------
 void Constant::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-    ofSetColor(255);
 }
 
 //--------------------------------------------------------------

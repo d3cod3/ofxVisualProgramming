@@ -54,6 +54,7 @@ public:
 
     bool                loaded;
     float               value;
+    string              varName;
 
 private:
 
