@@ -559,6 +559,32 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
             node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, it->first.c_str(), i);
         }
 
+        // drop object id to subpatch name to change object subpatch
+        if (ImGui::BeginDragDropTarget()){
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SUBPATCH_NAME")){
+                int move_from = *(const int*)payload->Data;
+                std::string move_to = it->first;
+
+                // disconnect object links ( in and out)
+                disconnectObject(move_from);
+                // switch object subpatch
+                patchObjects[move_from]->setSubpatch(move_to);
+                // add new subpatches map reference for wireless objects ( sender and receiver )
+                if(patchObjects[move_from]->getName() == "sender"){
+                    SubpatchConnection _t;
+                    _t.objID = move_from;
+                    _t.inOut = 1;
+                    subpatchesMap[move_to].push_back(_t);
+                }else if(patchObjects[move_from]->getName() == "receiver"){
+                    SubpatchConnection _t;
+                    _t.objID = move_from;
+                    _t.inOut = 0;
+                    subpatchesMap[move_to].push_back(_t);
+                }
+
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
             node_clicked = i;
@@ -1347,6 +1373,112 @@ void ofxVisualProgramming::duplicateObject(int &id){
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
     }
+}
+
+//--------------------------------------------------------------
+void ofxVisualProgramming::disconnectObject(int id){
+    resetTime = ofGetElapsedTimeMillis();
+
+    bLoadingNewObject = true;
+
+    if ( (id != -1) && (patchObjects[id] != nullptr) && (patchObjects[id]->getName() != "audio device") ){
+
+        bool found = false;
+
+        ofxXmlSettings XML;
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+        if (XML.loadFile(currentPatchFile)){
+#else
+        if (XML.load(currentPatchFile)){
+#endif
+            int totalObjects = XML.getNumTags("object");
+
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) == id){
+                        found = true;
+                    }
+                    XML.popTag();
+                }
+            }
+
+            // remove links to the selected object
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) != id){
+                        //ofLogNotice("id",ofToString(XML.getValue("id", -1)));
+                        if(XML.pushTag("outlets")){
+                            int totalLinks = XML.getNumTags("link");
+                            for(int l=0;l<totalLinks;l++){
+                                if(XML.pushTag("link",l)){
+                                    int totalTo = XML.getNumTags("to");
+                                    for(int t=0;t<totalTo;t++){
+                                        if(XML.tagExists("to",t)){
+                                            if(XML.pushTag("to",t)){
+                                                bool delLink = false;
+                                                if(XML.getValue("id", -1) == id){
+                                                    //ofLogNotice("remove link id",ofToString(XML.getValue("id", -1)));
+                                                    delLink = true;
+                                                }
+                                                XML.popTag();
+                                                if(delLink){
+                                                    XML.removeTag("to",t);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    XML.popTag();
+                                }
+                            }
+                            XML.popTag();
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+            // save patch
+            if(found){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+                XML.saveFile();
+#else
+                XML.save();
+#endif
+            }
+        }
+
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(it->second != nullptr){
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                    if(it->second->outPut[j]->toObjectID != id){
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }else{
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
+                }
+                it->second->outPut = tempBuffer;
+            }
+        }
+
+        // disconnect all object links to other objects
+        for(size_t i=0;i<patchObjects[id]->outPut.size();i++){
+            patchObjects[id]->disconnectLink(patchObjects,patchObjects[id]->outPut.at(i)->id);
+        }
+
+        // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
+        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+            for(int z=0;z<it->second.size();z++){
+                if(it->second.at(z).objID == id){
+                    it->second.at(z).objID = -1;
+                    break;
+                }
+            }
+        }
+
+    }
+
+    bLoadingNewObject = false;
 }
 
 //--------------------------------------------------------------

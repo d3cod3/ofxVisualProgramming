@@ -101,6 +101,7 @@ public:
     void            reconnectObjectOutlets(int &id);
     void            removeObject(int &id);
     void            duplicateObject(int &id);
+    void            disconnectObject(int id);
 
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
