@@ -184,7 +184,8 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     // load all plugins
     for(unsigned int i = 0; i < pluginsDir.size(); i++){
         ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
-        plugins_kernel.load_plugin(pluginsDir.getFile(i).getAbsolutePath().c_str());
+        string tmpPlugPath = pluginsDir.getFile(i).getAbsolutePath();
+        plugins_kernel.load_plugin(tmpPlugPath);
     }
 
     // Create new empty file patch
