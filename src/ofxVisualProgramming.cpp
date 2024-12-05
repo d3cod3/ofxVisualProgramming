@@ -727,7 +727,7 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
     canvas.mouseDragged(e);
@@ -750,6 +750,9 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
+    setPatchVariable("canvasTranslationX",canvas.getTranslation().x);
+    setPatchVariable("canvasTranslationY",canvas.getTranslation().y);
+
     canvas.mouseReleased(e);
 
 }
@@ -757,7 +760,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())// | ImGui::IsAnyWindowHovered() )
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())
         return;
 
     canvas.mouseScrolled(e);
@@ -1772,6 +1775,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             // Setup projector dimension
             output_width = XML.getValue("output_width",0);
             output_height = XML.getValue("output_height",0);
+            // setup canvas
+            glm::vec3 tr = glm::vec3(XML.getValue("canvasTranslationX",0),XML.getValue("canvasTranslationY",0),0);
+            if(tr.x != 0 && tr.y != 0){
+                canvas.setTranslation(tr);
+                canvas.initialTranslation = tr;
+            }
 
             // setup audio
             dspON = XML.getValue("dsp",0);
