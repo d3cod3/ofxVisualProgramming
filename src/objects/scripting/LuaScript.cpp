@@ -621,7 +621,7 @@ void LuaScript::loadScript(string scriptFile){
     if(scriptLoaded  && !isError){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
-        ofLog(OF_LOG_NOTICE,"[verbose] lua script: %s loaded & running!",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"-- lua script: %s loaded & running!",filepath.c_str());
         this->saveConfig(false);
     }
     ///////////////////////////////////////////

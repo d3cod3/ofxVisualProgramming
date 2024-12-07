@@ -311,7 +311,7 @@ void BashScript::loadScript(string scriptFile){
             watcher.removeAllPaths();
             watcher.addPath(filepath);
 
-            ofLog(OF_LOG_NOTICE,"[verbose] bash script: %s RUNNING!",filepath.c_str());
+            ofLog(OF_LOG_NOTICE,"-- bash script: %s RUNNING!",filepath.c_str());
             ofLog(OF_LOG_NOTICE,"%s"," ");
 
             char buffer[128];
@@ -326,7 +326,7 @@ void BashScript::loadScript(string scriptFile){
                 }
             }
             //ofLog(OF_LOG_NOTICE,"%s",static_cast<string *>(_outletParams[0])->c_str());
-            ofLog(OF_LOG_NOTICE,"[verbose]bash script: %s EXECUTED!",filepath.c_str());
+            ofLog(OF_LOG_NOTICE,"-- bash script: %s EXECUTED!",filepath.c_str());
 
             this->saveConfig(false);
 

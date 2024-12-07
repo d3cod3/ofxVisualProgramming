@@ -1976,7 +1976,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 engine->sequencer.setTempo(bpm);
 
                 if(isInputDeviceAvailable){
-                    tstr = "[verbose]------------------- Soundstream INPUT Started on";
+                    tstr = "------------------- Soundstream INPUT Started on";
                     ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
                 }else{
@@ -1985,7 +1985,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
 
                 if(isOutputDeviceAvailable){
-                    tstr = "[verbose]------------------- Soundstream OUTPUT Started on";
+                    tstr = "------------------- Soundstream OUTPUT Started on";
                     ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
 
@@ -2445,7 +2445,7 @@ void ofxVisualProgramming::activateDSP(){
 
         if(isInputDeviceAvailable){
             engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-            tstr = "[verbose]------------------- Soundstream INPUT Started on";
+            tstr = "------------------- Soundstream INPUT Started on";
             ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i INPUT channels",audioDevices[audioINDev].name.c_str(),audioGUIINChannels);
         }else{
@@ -2455,7 +2455,7 @@ void ofxVisualProgramming::activateDSP(){
 
         if(isOutputDeviceAvailable){
             engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            tstr = "[verbose]------------------- Soundstream OUTPUT Started on";
+            tstr = "------------------- Soundstream OUTPUT Started on";
             ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i OUTPUT channels",audioDevices[audioOUTDev].name.c_str(),audioGUIOUTChannels);
         }else{

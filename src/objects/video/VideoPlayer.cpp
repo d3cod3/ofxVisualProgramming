@@ -246,7 +246,7 @@ void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         video->play();
         preloadFirstFrame = true;
 
-        ofLog(OF_LOG_NOTICE,"[verbose] video file loaded: %s",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"-- video file loaded: %s",filepath.c_str());
         //ofLog(OF_LOG_NOTICE,"Internal texture data type: %i",video->getTexture().getTextureData().glInternalFormat);
 
         isFileLoaded = true;

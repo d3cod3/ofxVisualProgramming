@@ -684,7 +684,7 @@ void ShaderObject::doFragmentShader(){
     }
 
     if(scriptLoaded){
-        ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
+        ofLog(OF_LOG_NOTICE,"-- SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
     }
 }
 

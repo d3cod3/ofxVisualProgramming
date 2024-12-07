@@ -450,7 +450,7 @@ void PDPatch::loadPatch(string scriptFile){
         watcher.removeAllPaths();
         watcher.addPath(filepath);
 
-        ofLog(OF_LOG_NOTICE,"[verbose] PD patch: %s loaded & running!",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"-- PD patch: %s loaded & running!",filepath.c_str());
     }
 
 }

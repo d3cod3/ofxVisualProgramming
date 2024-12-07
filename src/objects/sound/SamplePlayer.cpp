@@ -177,7 +177,7 @@ void SamplePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(!isFileLoaded && sampleBuffer.loaded() && sampleBuffer.fileSampleRate > 100){
         isFileLoaded = true;
-        ofLog(OF_LOG_NOTICE,"[verbose] sound file loaded: %s, Sample Rate: %s, Audiofile length: %s",filepath.c_str(), ofToString(sampleBuffer.fileSampleRate).c_str(), ofToString(sampleBuffer.length).c_str());
+        ofLog(OF_LOG_NOTICE,"-- sound file loaded: %s, Sample Rate: %s, Audiofile length: %s",filepath.c_str(), ofToString(sampleBuffer.fileSampleRate).c_str(), ofToString(sampleBuffer.length).c_str());
     }
 
     if(isFileLoaded && sampleBuffer.loaded()){
