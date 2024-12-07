@@ -77,6 +77,11 @@ inline std::string random_string( size_t length ){
 }
 
 //--------------------------------------------------------------
+inline bool containString(string str1, string str2) {
+    return (str1.find(str2) != string::npos);
+}
+
+//--------------------------------------------------------------
 inline std::string& fix_newlines(std::string& s){
     size_t start_pos = 0;
     while((start_pos = s.find("\\n", start_pos)) != std::string::npos) {
