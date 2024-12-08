@@ -73,6 +73,10 @@ void moMultiSlider::newObject(){
 
     values.assign(numSliders,0.0f);
 
+    for(int i=0;i<numSliders;i++){
+        this->setCustomVar(values[i],"SLIDERVALUE_"+ofToString(i+1));
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -106,10 +110,20 @@ void moMultiSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
         values.assign(numSliders,0.0f);
 
+        for(int i=0;i<numSliders;i++){
+            if(this->existsCustomVar("SLIDERVALUE_"+ofToString(i+1))){
+                values[i] = this->getCustomVar("SLIDERVALUE_"+ofToString(i+1));
+            }else{
+                this->setCustomVar(values[i],"SLIDERVALUE_"+ofToString(i+1));
+            }
+        }
+
         this->width = 20*scaleFactor + numSliders*(sliderW+9.0f)*scaleFactor + 10*scaleFactor;
         if(this->width < OBJECT_WIDTH*scaleFactor){
             this->width = OBJECT_WIDTH*scaleFactor;
         }
+
+        this->saveConfig(false);
     }
 
     if(!loaded){
@@ -124,6 +138,16 @@ void moMultiSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         static_cast<vector<float> *>(_outletParams[0])->assign(numSliders,0.0f);
 
         values.assign(numSliders,0.0f);
+
+        for(int i=0;i<numSliders;i++){
+            if(this->existsCustomVar("SLIDERVALUE_"+ofToString(i+1))){
+                values[i] = this->getCustomVar("SLIDERVALUE_"+ofToString(i+1));
+            }else{
+                this->setCustomVar(values[i],"SLIDERVALUE_"+ofToString(i+1));
+            }
+        }
+
+        this->saveConfig(false);
     }
 
 
@@ -169,6 +193,7 @@ void moMultiSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, this->height - 36.0f*scaleFactor), &values[i], 0.0f, 1.0f, "");
             if (ImGui::IsItemActive() || ImGui::IsItemHovered()){
                 ImGui::SetTooltip("s%i %.2f", i+1, values[i]);
+                this->setCustomVar(values[i],"SLIDERVALUE_"+ofToString(i+1));
             }
             ImGui::PopStyleColor(4);
             ImGui::PopID();
@@ -189,7 +214,7 @@ void moMultiSlider::drawObjectNodeConfig(){
             newNumSliders = 2;
         }
     }
-    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 32 inlets max.");
     ImGui::Spacing();
     if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
         this->setCustomVar(static_cast<float>(numSliders),"NUM_SLIDERS");
@@ -206,6 +231,6 @@ void moMultiSlider::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moMultiSlider, "multi slider", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moMultiSlider, "multislider", OFXVP_OBJECT_CAT_GUI)
 
 #endif
