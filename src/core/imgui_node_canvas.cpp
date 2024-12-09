@@ -235,6 +235,7 @@ void ImGuiEx::NodeCanvas::End(){
 
     // reset cursor pos to canvas window
     ImGui::SetCursorPos(ImGui::GetContentRegionAvail());
+    ImGui::Dummy({1,1}); // Needed since ImGui 1.90 ??
 
     // Close Canvas window
     ImGui::PopStyleVar(); // restore min win size
@@ -592,18 +593,20 @@ void ImGuiEx::NodeCanvas::EndNode() {
     if(curNodeData.zoomName > ImGuiExNodeZoom_Invisible ){
 
         // Only pop these if content is drawn
-        /*if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
+        if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
             //ImGui::PopItemWidth();
             ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding bottom
-            ImGui::EndColumns();
+            ImGui::EndColumns(); // Pop Node columns
             ImGui::PopClipRect(); // Inner space + nodes
-        }*/
+        }
 
-        // Always pop these ()
+        // Pope the global node cliprect
         ImGui::PopClipRect();
 
         //ImGui::EndGroup();
         ImGui::PopID();
+
+        // Close node "window"
         ImGui::End();
 
     }
@@ -1033,6 +1036,7 @@ void ImGuiEx::NodeCanvas::EndNodeMenu(){
 }
 
 // For drawing content to the node
+// Only call BeginNodeContent() when this returned true
 bool ImGuiEx::NodeCanvas::BeginNodeContent( const ImGuiExNodeView& _renderingView ){
     // Check ImGui Callstack
     IM_ASSERT(isDrawingCanvas == true); // Please Call between Begin() and End()
@@ -1075,16 +1079,18 @@ void ImGuiEx::NodeCanvas::EndNodeContent(){
 
     if(curNodeData.zoomName > ImGuiExNodeZoom_Invisible ){
 
+        // Note: These lines below were not possible here because EndNodeContent() is not guaranteed to be called.
+        // Note: Can't close node attributes from nodeContent ! (affected objects: AudioDAC object, etc.)
         // Only pop these if content is drawn
-        if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
-            //ImGui::PopItemWidth();
-            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor)); // Padding bottom
-            ImGui::EndColumns();
-            ImGui::PopClipRect(); // Inner space + nodes
-        }
+        // if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
+        //     //ImGui::PopItemWidth();
+        //     ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor)); // Padding bottom
+        //     ImGui::EndColumns();
+        //     ImGui::PopClipRect(); // Inner space + nodes
+        // }
 
         // Always pop these ()
-        ImGui::PopClipRect();
+        //ImGui::PopClipRect();
 
     }
 }
