@@ -64,8 +64,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxBTrack](https://github.com/d3cod3/ofxBTrack)
 
-#### [ofxChromaKeyShader](https://github.com/d3cod3/ofxChromaKeyShader)
-
 #### [ofxCv](https://github.com/kylemcdonald/ofxCv)
 
 #### [ofxEasing](https://github.com/arturoc/ofxEasing)
@@ -115,7 +113,6 @@ cd <your_openframeworks_release_folder>/addons
 
 git clone https://github.com/npisanti/ofxAudioFile
 git clone https://github.com/d3cod3/ofxBTrack
-git clone https://github.com/d3cod3/ofxChromaKeyShader
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
@@ -386,8 +383,6 @@ All contributions are made under the [MIT License](https://opensource.org/licens
 ofxAudioFile, ofxPDSP original addons by [Nicola Pisanti](https://github.com/npisanti)
 
 ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
-
-ofxChromaKeyShader original addon by [Eric Koo](https://github.com/musiko)
 
 ofxCv, ofxFft original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 
