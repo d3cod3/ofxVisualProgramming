@@ -1406,6 +1406,11 @@ void ofxVisualProgramming::disconnectObject(int id){
                 }
             }
 
+            // disconnect all object links to other objects
+            for(size_t i=0;i<patchObjects[id]->outPut.size();i++){
+                patchObjects[id]->disconnectLink(patchObjects,patchObjects[id]->outPut.at(i)->id);
+            }
+
             // remove links to the selected object
             for(int i=0;i<totalObjects;i++){
                 if(XML.pushTag("object", i)){
@@ -1463,11 +1468,6 @@ void ofxVisualProgramming::disconnectObject(int id){
                 }
                 it->second->outPut = tempBuffer;
             }
-        }
-
-        // disconnect all object links to other objects
-        for(size_t i=0;i<patchObjects[id]->outPut.size();i++){
-            patchObjects[id]->disconnectLink(patchObjects,patchObjects[id]->outPut.at(i)->id);
         }
 
         // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
