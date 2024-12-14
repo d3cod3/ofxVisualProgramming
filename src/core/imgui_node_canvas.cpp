@@ -235,6 +235,7 @@ void ImGuiEx::NodeCanvas::End(){
 
     // reset cursor pos to canvas window
     ImGui::SetCursorPos(ImGui::GetContentRegionAvail());
+    ImGui::Dummy({1,1}); // Needed since ImGui 1.90 ??
 
     // Close Canvas window
     ImGui::PopStyleVar(); // restore min win size
@@ -382,6 +383,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     // Draw Outer region
     {
+
         // Node BG fill
         if(curNodeData.zoomName < ImGuiExNodeZoom_Small || !isTextureNode){
             nodeDrawList->AddRectFilled( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max, ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f));
@@ -440,12 +442,8 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             ImGui::PopStyleColor();
         }
 
-
-
         // Enable drag on title
-        //unsigned int curTabsWidth = (curNodeData.zoomName > ImGuiExNodeZoom_Imploded) ? IMGUI_EX_NODE_HEADER_TOOLBAR_WIDTH : 0;
         ImGui::SetCursorScreenPos( curNodeData.outerContentBox.Min );
-        //ImGui::InvisibleButton( "headerGripBtn", ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor )  );
         ImGui::InvisibleButton( "headerGripBtn", ImMax(ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor ), ImVec2(1,1))  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
@@ -477,6 +475,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         else if(ImGui::IsItemDeactivated()){
             if(isDraggingHeader) isDraggingHeader = false;
         }
+
 
         // Tab bar and widget info
         if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
@@ -546,6 +545,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
                         //| ImGuiOldColumnFlags_NoPreserveWidths
                         | ImGuiOldColumnFlags_NoForceWithinWindow // important so there's no weird auto adjustments.
                         );
+
     // Column layout
     // Note: A column of 0 width will probably cause crashes
     ImGui::SetColumnOffset(0,0);
@@ -554,15 +554,6 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
     // move to middle column where the user can draw
     ImGui::NextColumn();
-
-    // Draw column BG, to mask overlapping nodes
-    /*if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
-        ImGui::GetWindowDrawList()->AddRectFilled(curNodeData.innerContentBox.Min, curNodeData.innerContentBox.Max, ImGui::GetColorU32(ImGuiCol_FrameBg, 999.f) );
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING));// Padding top
-    }*/
-
-    // By default, try to draw full width
-    //ImGui::PushItemWidth(-1.0f); // Todo: doesn't seem have any effect...
 
     // Allow User to catch the menu and extend it
     if( nodeMenuIsOpen ){
@@ -575,6 +566,15 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             if(ImGui::MenuItem("Delete")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DeleteNode;
             //if(ImGui::MenuItem("Copy")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_CopyNode;
             if(ImGui::MenuItem("Duplicate")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DuplicateNode;
+            ImGui::Selectable("Drag to Subpatch");
+            // drag node id
+            if(name != "audio device" && name != "live patching"){
+                if (ImGui::BeginDragDropSource()){
+
+                    ImGui::SetDragDropPayload("SUBPATCH_NAME", &nId, sizeof(int));
+                    ImGui::EndDragDropSource();
+                }
+            }
         }
         ImGui::EndPopup();
     }
@@ -591,19 +591,18 @@ void ImGuiEx::NodeCanvas::EndNode() {
 
     if(curNodeData.zoomName > ImGuiExNodeZoom_Invisible ){
 
-        // Only pop these if content is drawn
-        /*if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
-            //ImGui::PopItemWidth();
+        if( curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
             ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING)); // Padding bottom
-            ImGui::EndColumns();
+            ImGui::EndColumns(); // Pop Node columns
             ImGui::PopClipRect(); // Inner space + nodes
-        }*/
+        }
 
-        // Always pop these ()
+        // Pop the global node cliprect
         ImGui::PopClipRect();
 
         //ImGui::EndGroup();
         ImGui::PopID();
+        // Close node "window"
         ImGui::End();
 
     }
@@ -619,52 +618,6 @@ void ImGuiEx::NodeCanvas::SetTransform(const ImVec2& _origin, float _scale){
 
     canvasView.setTransform( _origin, _scale );
 }
-
-// Pin functions
-//void ImGuiEx::NodeCanvas::BeginNodePins(  const int& _numPins, const ImGuiExNodePinsFlags& _pinFlags ){
-//    // Check ImGui Callstack
-//    IM_ASSERT(isDrawingCanvas == true); // Please Call between Begin() and End()
-//    IM_ASSERT(isDrawingNode == true); // Please Call between BeginNode() and EndNode()
-//    //IM_ASSERT(isDrawingPin == false); // Forgot to call EndNodePins() ?
-
-//    // Modify layout and init draw data
-//    int pinsWidth = IMGUI_EX_NODE_PINS_WIDTH_SMALL; // todo: adapt to layout here
-//    if( _pinFlags==ImGuiExNodePinsFlags_Left ){
-//        curNodeData.leftPins.region.Max.x += pinsWidth;
-//        curNodeData.innerContentBox.Min.x += pinsWidth;
-
-//        curNodeData.leftPins.numPins = _numPins;
-//        curNodeData.leftPins.pinSpace = (curNodeData.leftPins.region.GetSize() / ImVec2(_numPins, _numPins));
-//        curNodeData.leftPins.curDrawPos = curNodeData.leftPins.region.Min;
-//    }
-//    else if( _pinFlags==ImGuiExNodePinsFlags_Right ){
-//        curNodeData.rightPins.region.Min.x -= pinsWidth;
-//        curNodeData.innerContentBox.Max.x -= pinsWidth;
-
-//        curNodeData.rightPins.numPins = _numPins;
-//        curNodeData.rightPins.pinSpace = (curNodeData.rightPins.region.GetSize() / ImVec2(_numPins, _numPins));
-//        curNodeData.rightPins.curDrawPos = curNodeData.rightPins.region.Min;
-//    }
-
-//    // todo
-//    // Push clip rect to endure not to draw over content
-
-//    // Set pins draw state
-//    //curPinsNum = _numPins;
-//    //isDrawingPin = true;
-//    //curPinFlags = _pinFlags;
-//}
-//void ImGuiEx::NodeCanvas::EndNodePins(){
-//    // Check ImGui Callstack
-//    IM_ASSERT(isDrawingCanvas == true); // Please Call between Begin() and End()
-//    IM_ASSERT(isDrawingNode == true); // Please Call between BeginNode() and EndNode()
-//    //IM_ASSERT(isDrawingPin == true); // Forgot to call BeginNodePins() ?
-
-//    // Set pins state
-//    //curPinsNum = 0;
-//    //isDrawingPin = false;
-//    //curPinFlags = ImGuiExNodePinsFlags_Left; // resets
-//}
 
 ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, const int pinID, const char* _label, std::vector<ofxVPLinkData>& _linksData, std::string _type, bool _wireless, bool _connected, const ImU32& _color, const ImGuiExNodePinsFlags& _pinFlag ){
 
@@ -906,7 +859,9 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
         // right side (OUTLETS)
         else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
             // Update pin position
-            outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
+            if(outletPinsPositions.find(nodeID) != outletPinsPositions.end()){
+                outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
+            }
 
             // draw links (OUTLETS to INLETS ONLY)
             for(unsigned int i=0;i<_linksData.size();i++){
@@ -1033,6 +988,7 @@ void ImGuiEx::NodeCanvas::EndNodeMenu(){
 }
 
 // For drawing content to the node
+// Only call BeginNodeContent() when this returned true
 bool ImGuiEx::NodeCanvas::BeginNodeContent( const ImGuiExNodeView& _renderingView ){
     // Check ImGui Callstack
     IM_ASSERT(isDrawingCanvas == true); // Please Call between Begin() and End()
@@ -1075,16 +1031,18 @@ void ImGuiEx::NodeCanvas::EndNodeContent(){
 
     if(curNodeData.zoomName > ImGuiExNodeZoom_Invisible ){
 
+        // Note: These lines below were not possible here because EndNodeContent() is not guaranteed to be called.
+        // Note: Can't close node attributes from nodeContent ! (affected objects: AudioDAC object, etc.)
         // Only pop these if content is drawn
-        if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
-            //ImGui::PopItemWidth();
-            ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor)); // Padding bottom
-            ImGui::EndColumns();
-            ImGui::PopClipRect(); // Inner space + nodes
-        }
+        //if( true || curNodeData.zoomName > ImGuiExNodeZoom_Imploded ){
+        //    //ImGui::PopItemWidth();
+        //    ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor)); // Padding bottom
+        //    ImGui::EndColumns();
+        //    ImGui::PopClipRect(); // Inner space + nodes
+        //}
 
         // Always pop these ()
-        ImGui::PopClipRect();
+        //ImGui::PopClipRect();
 
     }
 }

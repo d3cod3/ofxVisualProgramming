@@ -52,6 +52,7 @@ public:
 
     ofxVPObjectParameter<float> inputValueNew;
     bool                        bang;
+    bool                        isON;
     bool                        nextFrame;
     string                      varName;
 

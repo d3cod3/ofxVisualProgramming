@@ -53,6 +53,7 @@ moSlider::moSlider() : PatchObject("slider"){
 
     loaded              = false;
     value               = 0.0f;
+    varName             = "";
 
 }
 
@@ -73,7 +74,7 @@ void moSlider::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
         value = *(float *)&_inletParams[0];
@@ -84,6 +85,11 @@ void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     if(!loaded){
         loaded = true;
         value = this->getCustomVar("VALUE");
+
+        if(filepath != "" && filepath.find("|") != filepath.npos){
+            varName = filepath.substr(filepath.find("|")+2,filepath.size());
+            this->setSpecialName("| "+varName);
+        }
     }
 
     this->setCustomVar(static_cast<float>(value),"VALUE");
@@ -91,7 +97,7 @@ void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
 //--------------------------------------------------------------
 void moSlider::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -128,6 +134,17 @@ void moSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void moSlider::drawObjectNodeConfig(){
+
+    ImGui::Spacing();
+    ImGui::PushItemWidth(80*scaleFactor);
+    ImGui::InputText("Variable name",&varName);
+    ImGui::Spacing();
+    if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
+        this->setSpecialName("| "+varName);
+        filepath = this->getSpecialName();
+        this->saveConfig(false);
+    }
+
     ImGuiEx::ObjectInfo(
                 "Basic slider. Interactively adjust a numeric float value (with a range from 0.0 to 1.0) to send it to other objects.",
                 "https://mosaic.d3cod3.org/reference.php?r=slider", scaleFactor);
@@ -135,7 +152,7 @@ void moSlider::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moSlider::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI)

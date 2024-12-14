@@ -249,7 +249,7 @@ namespace imgui_addons
         ImVec2 nw_size = ImVec2(pw_content_size.x - style.ItemSpacing.x - sw_size.x, sw_size.y);
 
 
-        ImGui::BeginChild("##NavigationWindow", nw_size, true, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar);
+        ImGui::BeginChild("##NavigationWindow", nw_size, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY,  ImGuiWindowFlags_NoScrollbar);
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.25f, 0.5f, 1.0f,1.0f));
 
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.125f, 0.125f, 0.125f, 1.0f));
@@ -294,7 +294,7 @@ namespace imgui_addons
         ImGui::EndChild();
 
         ImGui::SameLine();
-        ImGui::BeginChild("##SearchWindow", sw_size, true, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar);
+        ImGui::BeginChild("##SearchWindow", sw_size, ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoScrollbar);
 
         //Render Search/Filter bar
         float marker_width = ImGui::CalcTextSize("(?)").x + style.ItemSpacing.x;

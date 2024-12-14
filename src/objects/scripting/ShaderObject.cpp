@@ -375,7 +375,7 @@ void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated() && kuro->getTexture().isAllocated()){
             calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::Image(kuro->getTexture().getTextureData().textureID, ImVec2(scaledObjW, scaledObjH));
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
@@ -684,7 +684,7 @@ void ShaderObject::doFragmentShader(){
     }
 
     if(scriptLoaded){
-        ofLog(OF_LOG_NOTICE,"[verbose] SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
+        ofLog(OF_LOG_NOTICE,"-- SHADER: %s [%ix%i] loaded on GPU!",filepath.c_str(),output_width,output_height);
     }
 }
 

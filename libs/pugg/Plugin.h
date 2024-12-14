@@ -41,6 +41,7 @@ public:
 		_handle = LoadLibraryA(filename.c_str());
 #else
 		_handle = dlopen(filename.c_str(), RTLD_NOW);
+        if(!_handle) fprintf(stderr, "dlopen failed: %s\n", dlerror());
 #endif
         return (_handle != NULL);
     }

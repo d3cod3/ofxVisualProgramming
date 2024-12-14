@@ -105,7 +105,7 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         ofDisableArbTex();
         static_cast<ofTexture *>(_outletParams[0])->allocate(img->getPixels());
         ofEnableArbTex();
-        ofLog(OF_LOG_NOTICE,"[verbose] image file loaded: %s",filepath.c_str());
+        ofLog(OF_LOG_NOTICE,"-- image file loaded: %s",filepath.c_str());
     }
 
     if(img->isAllocated()){

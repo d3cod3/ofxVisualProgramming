@@ -184,7 +184,8 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     // load all plugins
     for(unsigned int i = 0; i < pluginsDir.size(); i++){
         ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
-        plugins_kernel.load_plugin(pluginsDir.getFile(i).getAbsolutePath().c_str());
+        string tmpPlugPath = pluginsDir.getFile(i).getAbsolutePath();
+        plugins_kernel.load_plugin(tmpPlugPath);
     }
 
     // Create new empty file patch
@@ -267,26 +268,30 @@ void ofxVisualProgramming::update(){
             pt[i].endTime = ofGetElapsedTimef();
 
             // update scripts objects files map
-            ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-            string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "SH"){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                if (sofpIT == scriptsObjectsFilesPaths.end()){
-                    // not found, insert it
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-                }
-            }else if(fileExt == "FRAG"){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                if (sofpIT == scriptsObjectsFilesPaths.end()){
-                    // not found, insert FRAG
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-                    // insert VERT
-                    string fsName = tempsofp.getFileName();
-                    string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
-                    ofFile newVertGLSLFile (vsName);
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
+            std::ifstream testPath(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+            if(testPath){ // file exists
+                ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+                string fileExt = ofToUpper(tempsofp.getExtension());
+                if(fileExt == "LUA" || fileExt == "SH"){
+                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    if (sofpIT == scriptsObjectsFilesPaths.end()){
+                        // not found, insert it
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                    }
+                }else if(fileExt == "FRAG"){
+                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    if (sofpIT == scriptsObjectsFilesPaths.end()){
+                        // not found, insert FRAG
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                        // insert VERT
+                        string fsName = tempsofp.getFileName();
+                        string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+                        ofFile newVertGLSLFile (vsName);
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
+                    }
                 }
             }
+
         }
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
@@ -559,6 +564,32 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
             node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, it->first.c_str(), i);
         }
 
+        // drop object id to subpatch name to change object subpatch
+        if (ImGui::BeginDragDropTarget()){
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SUBPATCH_NAME")){
+                int move_from = *(const int*)payload->Data;
+                std::string move_to = it->first;
+
+                // disconnect object links ( in and out)
+                disconnectObject(move_from);
+                // switch object subpatch
+                patchObjects[move_from]->setSubpatch(move_to);
+                // add new subpatches map reference for wireless objects ( sender and receiver )
+                if(patchObjects[move_from]->getName() == "sender"){
+                    SubpatchConnection _t;
+                    _t.objID = move_from;
+                    _t.inOut = 1;
+                    subpatchesMap[move_to].push_back(_t);
+                }else if(patchObjects[move_from]->getName() == "receiver"){
+                    SubpatchConnection _t;
+                    _t.objID = move_from;
+                    _t.inOut = 0;
+                    subpatchesMap[move_to].push_back(_t);
+                }
+
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()){
             node_clicked = i;
@@ -700,7 +731,7 @@ void ofxVisualProgramming::mouseMoved(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )// || ImGui::IsAnyWindowHovered())
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
     canvas.mouseDragged(e);
@@ -723,6 +754,9 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
+    setPatchVariable("canvasTranslationX",canvas.getTranslation().x);
+    setPatchVariable("canvasTranslationY",canvas.getTranslation().y);
+
     canvas.mouseReleased(e);
 
 }
@@ -730,7 +764,7 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
 
-    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())// | ImGui::IsAnyWindowHovered() )
+    if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())
         return;
 
     canvas.mouseScrolled(e);
@@ -1350,6 +1384,112 @@ void ofxVisualProgramming::duplicateObject(int &id){
 }
 
 //--------------------------------------------------------------
+void ofxVisualProgramming::disconnectObject(int id){
+    resetTime = ofGetElapsedTimeMillis();
+
+    bLoadingNewObject = true;
+
+    if ( (id != -1) && (patchObjects[id] != nullptr) && (patchObjects[id]->getName() != "audio device") ){
+
+        bool found = false;
+
+        ofxXmlSettings XML;
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+        if (XML.loadFile(currentPatchFile)){
+#else
+        if (XML.load(currentPatchFile)){
+#endif
+            int totalObjects = XML.getNumTags("object");
+
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) == id){
+                        found = true;
+                    }
+                    XML.popTag();
+                }
+            }
+
+            // disconnect all object links to other objects
+            for(size_t i=0;i<patchObjects[id]->outPut.size();i++){
+                patchObjects[id]->disconnectLink(patchObjects,patchObjects[id]->outPut.at(i)->id);
+            }
+
+            // remove links to the selected object
+            for(int i=0;i<totalObjects;i++){
+                if(XML.pushTag("object", i)){
+                    if(XML.getValue("id", -1) != id){
+                        //ofLogNotice("id",ofToString(XML.getValue("id", -1)));
+                        if(XML.pushTag("outlets")){
+                            int totalLinks = XML.getNumTags("link");
+                            for(int l=0;l<totalLinks;l++){
+                                if(XML.pushTag("link",l)){
+                                    int totalTo = XML.getNumTags("to");
+                                    for(int t=0;t<totalTo;t++){
+                                        if(XML.tagExists("to",t)){
+                                            if(XML.pushTag("to",t)){
+                                                bool delLink = false;
+                                                if(XML.getValue("id", -1) == id){
+                                                    //ofLogNotice("remove link id",ofToString(XML.getValue("id", -1)));
+                                                    delLink = true;
+                                                }
+                                                XML.popTag();
+                                                if(delLink){
+                                                    XML.removeTag("to",t);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    XML.popTag();
+                                }
+                            }
+                            XML.popTag();
+                        }
+                    }
+                    XML.popTag();
+                }
+            }
+            // save patch
+            if(found){
+#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
+                XML.saveFile();
+#else
+                XML.save();
+#endif
+            }
+        }
+
+        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            if(it->second != nullptr){
+                vector<shared_ptr<PatchLink>> tempBuffer;
+                for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
+                    if(it->second->outPut[j]->toObjectID != id){
+                        tempBuffer.push_back(it->second->outPut[j]);
+                    }else{
+                        it->second->outPut[j]->isDisabled = true;
+                        patchObjects[it->second->outPut[j]->toObjectID]->inletsConnected[it->second->outPut[j]->toInletID] = false;
+                    }
+                }
+                it->second->outPut = tempBuffer;
+            }
+        }
+
+        // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
+        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+            for(int z=0;z<it->second.size();z++){
+                if(it->second.at(z).objID == id){
+                    it->second.at(z).objID = -1;
+                    break;
+                }
+            }
+        }
+
+    }
+
+    bLoadingNewObject = false;
+}
+
+//--------------------------------------------------------------
 bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType){
     bool connected = false;
 
@@ -1639,6 +1779,12 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             // Setup projector dimension
             output_width = XML.getValue("output_width",0);
             output_height = XML.getValue("output_height",0);
+            // setup canvas
+            glm::vec3 tr = glm::vec3(XML.getValue("canvasTranslationX",0),XML.getValue("canvasTranslationY",0),0);
+            if(tr.x != 0 && tr.y != 0){
+                canvas.setTranslation(tr);
+                canvas.initialTranslation = tr;
+            }
 
             // setup audio
             dspON = XML.getValue("dsp",0);
@@ -1834,7 +1980,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 engine->sequencer.setTempo(bpm);
 
                 if(isInputDeviceAvailable){
-                    tstr = "[verbose]------------------- Soundstream INPUT Started on";
+                    tstr = "------------------- Soundstream INPUT Started on";
                     ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioINDev].name.c_str());
                 }else{
@@ -1843,7 +1989,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                 }
 
                 if(isOutputDeviceAvailable){
-                    tstr = "[verbose]------------------- Soundstream OUTPUT Started on";
+                    tstr = "------------------- Soundstream OUTPUT Started on";
                     ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
                     ofLog(OF_LOG_NOTICE,"Audio device: %s",audioDevices[audioOUTDev].name.c_str());
 
@@ -2303,7 +2449,7 @@ void ofxVisualProgramming::activateDSP(){
 
         if(isInputDeviceAvailable){
             engine->setInputDeviceID(audioDevices[audioINDev].deviceID);
-            tstr = "[verbose]------------------- Soundstream INPUT Started on";
+            tstr = "------------------- Soundstream INPUT Started on";
             ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i INPUT channels",audioDevices[audioINDev].name.c_str(),audioGUIINChannels);
         }else{
@@ -2313,7 +2459,7 @@ void ofxVisualProgramming::activateDSP(){
 
         if(isOutputDeviceAvailable){
             engine->setOutputDeviceID(audioDevices[audioOUTDev].deviceID);
-            tstr = "[verbose]------------------- Soundstream OUTPUT Started on";
+            tstr = "------------------- Soundstream OUTPUT Started on";
             ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
             ofLog(OF_LOG_NOTICE,"Audio device: %s, with %i OUTPUT channels",audioDevices[audioOUTDev].name.c_str(),audioGUIOUTChannels);
         }else{

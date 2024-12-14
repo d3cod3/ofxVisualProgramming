@@ -144,9 +144,12 @@ void pdspLowCut::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.13f, 0.13f, 0.13f, 1.0f)));
-        calcTextureDims(freqINFO->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-        ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-        ImGui::Image(freqINFO->getTexture().getTextureData().textureID, ImVec2(drawW, drawH));
+
+        if(freqINFO->getTexture().isAllocated()){
+            calcTextureDims(freqINFO->getTexture(), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
+            ImGui::Image(freqINFO->getTexture().getTextureData().textureID, ImVec2(drawW, drawH));
+        }
 
         window_pos = ImGui::GetWindowPos();
         _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x ,window_pos.y + window_size.y),ImVec2(window_pos.x + ofMap(freq,20.0f,20000.0f,20*scaleFactor,window_size.x-(20*scaleFactor)),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),IM_COL32(255,255,120,160),2.0f);

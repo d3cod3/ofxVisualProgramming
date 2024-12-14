@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2024 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,13 +36,11 @@
 
 #include "PatchObject.h"
 
-#include "ofxChromaKeyShader.h"
-
-class ChromaKey : public PatchObject {
+class moMultiToggle : public PatchObject {
 
 public:
 
-    ChromaKey();
+    moMultiToggle();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -54,30 +52,15 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
-    void            updateChromaVars();
 
+    float               toggleW;
+    int                 numToggles;
+    int                 newNumToggles;
+    bool                loaded;
+    bool*               values;
 
-    ofxChromaKeyShader          *chromakey;
-    bool                        isInputConnected;
+    bool                needReset;
 
-    float                       posX, posY, drawW, drawH;
-    float                       scaledObjW, scaledObjH;
-    float                       objOriginX, objOriginY;
-    float                       canvasZoom;
-
-
-    ofFloatColor                chromaBgColor;
-    float                       baseMaskStrength;
-    float                       chromaMaskStrength;
-    float                       greenSpillStrength;
-    float                       chromaBlur;
-    float                       multiplyFilterHue;
-
-    float                       prevW, prevH;
-
-    bool                        loaded;
-
-    
 private:
 
     OBJECT_FACTORY_PROPS

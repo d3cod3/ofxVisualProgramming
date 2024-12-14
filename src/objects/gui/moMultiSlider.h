@@ -2,7 +2,7 @@
 
     ofxVisualProgramming: A visual programming patching environment for OF
 
-    Copyright (c) 2018 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+    Copyright (c) 2024 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
 
     ofxVisualProgramming is distributed under the MIT License.
     This gives everyone the freedoms to use ofxVisualProgramming in any context:
@@ -36,11 +36,11 @@
 
 #include "PatchObject.h"
 
-class moSlider : public PatchObject {
+class moMultiSlider : public PatchObject {
 
 public:
 
-    moSlider();
+    moMultiSlider();
 
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
@@ -52,9 +52,14 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+
+    float               sliderW;
+    int                 numSliders;
+    int                 newNumSliders;
     bool                loaded;
-    float               value;
-    string              varName;
+    std::vector<float>  values;
+
+    bool                needReset;
 
 private:
 

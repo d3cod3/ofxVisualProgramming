@@ -58,6 +58,15 @@ public:
     ofPixels                *pix;
     ofPixels                *scaledPix;
 
+    ofColor                 c;
+    size_t                  x,y;
+    int                     posR;
+    int                     sampleR;
+    int                     posG;
+    int                     sampleG;
+    int                     posB;
+    int                     sampleB;
+
     float                   prevW, prevH;
     bool                    loaded;
     bool                    needReset;

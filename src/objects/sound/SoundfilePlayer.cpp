@@ -170,7 +170,7 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
     if(!isFileLoaded && audiofile.loaded() && audiofile.samplerate() > 100){
         isFileLoaded = true;
-        ofLog(OF_LOG_NOTICE,"[verbose] sound file loaded: %s, Sample Rate: %s, Audiofile length: %s",filepath.c_str(), ofToString(audiofile.samplerate()).c_str(), ofToString(audiofile.length()).c_str());
+        ofLog(OF_LOG_NOTICE,"-- sound file loaded: %s, Sample Rate: %s, Audiofile length: %s",filepath.c_str(), ofToString(audiofile.samplerate()).c_str(), ofToString(audiofile.length()).c_str());
     }
 
     if(isFileLoaded && audiofile.loaded()){

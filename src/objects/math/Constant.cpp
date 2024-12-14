@@ -60,7 +60,10 @@ Constant::Constant() :
 
     bang                = false;
     nextFrame           = true;
+    isON                = false;
+
     loaded              = false;
+    varName             = "";
 
     this->height        /= 2;
 
@@ -76,6 +79,7 @@ void Constant::newObject(){
     this->addOutlet(VP_LINK_STRING,"numberString");
 
     this->setCustomVar(static_cast<float>(inputValueNew.get()),"NUMBER");
+    this->setCustomVar(static_cast<float>(isON),"ON");
 }
 
 //--------------------------------------------------------------
@@ -87,7 +91,7 @@ void Constant::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0]){
+    if(this->inletsConnected[0] && !isON){
         if(*(float *)&_inletParams[0] < 1.0){
             bang = false;
         }else{
@@ -113,6 +117,12 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     if(!loaded){
         loaded = true;
         inputValueNew = this->getCustomVar("NUMBER");
+        isON = static_cast<bool>(this->getCustomVar("ON"));
+        bang = isON;
+        if(filepath != "" && filepath.find("|") != filepath.npos){
+            varName = filepath.substr(filepath.find("|")+2,filepath.size());
+            this->setSpecialName("| "+varName);
+        }
     }
 
 }
@@ -120,7 +130,6 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 //--------------------------------------------------------------
 void Constant::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-    ofSetColor(255);
 }
 
 //--------------------------------------------------------------
@@ -171,6 +180,13 @@ void Constant::drawObjectNodeConfig(){
         filepath = this->getSpecialName();
         this->saveConfig(false);
     }
+    ImGui::Spacing();
+    ImGui::Spacing();
+    if(ImGui::Checkbox("ON",&isON)){
+        this->setCustomVar(static_cast<float>(isON),"ON");
+        bang = isON;
+    }
+
 
 
     ImGuiEx::ObjectInfo(

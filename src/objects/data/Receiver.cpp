@@ -145,6 +145,14 @@ void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         }
     }
 
+    if(static_cast<int>(this->outletsType.size()) > this->numOutlets){
+        // reset outlets to numOutlets
+        this->outletsType.resize(this->numOutlets);
+        this->outletsNames.resize(this->numOutlets);
+        this->outletsIDs.resize(this->numOutlets);
+        this->outletsWirelessSend.resize(this->numOutlets);
+    }
+
     if(!loaded){
         loaded = true;
     }
@@ -318,14 +326,6 @@ void vpReceiver::initWireless(){
         }
     }
 
-    if(static_cast<int>(this->outletsType.size()) > this->numOutlets){
-        // reset outlets to numOutlets
-        this->outletsType.resize(this->numOutlets);
-        this->outletsNames.resize(this->numOutlets);
-        this->outletsIDs.resize(this->numOutlets);
-        this->outletsWirelessSend.resize(this->numOutlets);
-    }
-
     isReceivingON = this->getCustomVar("IS_RECEIVING");
 
     if(isReceivingON && varName != ""){
@@ -441,13 +441,11 @@ void vpReceiver::changeDataType(int type, bool init){
                         XML.removeTag("outlets");
                         int newOutlets = XML.addTag("outlets");
                         if(XML.pushTag("outlets",newOutlets)){
-                            for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
-                                int newLink = XML.addTag("link");
-                                if(XML.pushTag("link",newLink)){
-                                    XML.setValue("type",this->outletsType.at(j));
-                                    XML.setValue("name",this->outletsNames.at(j));
-                                    XML.popTag();
-                                }
+                            int newLink = XML.addTag("link");
+                            if(XML.pushTag("link",newLink)){
+                                XML.setValue("type",this->outletsType.at(0));
+                                XML.setValue("name",this->outletsNames.at(0));
+                                XML.popTag();
                             }
                             XML.popTag();
                         }
