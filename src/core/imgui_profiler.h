@@ -109,7 +109,7 @@ public:
         }
         currFrameIndex = (currFrameIndex + 1) % frames.size();
 
-        RebuildTaskStats(currFrameIndex, 300/*frames.size()*/);
+        RebuildTaskStats(currFrameIndex, frames.size()/*frames.size()*/);
     }
 
     void RenderTimings(int graphWidth, int legendWidth, int height, int frameIndexOffset)
@@ -136,12 +136,15 @@ private:
         for (size_t frameNumber = 0; frameNumber < framesCount; frameNumber++)
         {
             size_t frameIndex = (endFrame - 1 - frameNumber + frames.size()) % frames.size();
-            auto &frame = frames[frameIndex];
-            for (size_t taskIndex = 0; taskIndex < frame.tasks.size(); taskIndex++)
-            {
-                auto &task = frame.tasks[taskIndex];
-                auto &stats = taskStats[frame.taskStatsIndex[taskIndex]];
-                stats.maxTime = std::max(stats.maxTime, task.endTime - task.startTime);
+            if(frameIndex < frames.size()){
+                auto &frame = frames[frameIndex];
+                for (size_t taskIndex = 0; taskIndex < frame.tasks.size(); taskIndex++)
+                {
+                    auto &task = frame.tasks[taskIndex];
+                    auto &stats = taskStats[frame.taskStatsIndex[taskIndex]];
+
+                    stats.maxTime = std::max(stats.maxTime, task.endTime - task.startTime);
+                }
             }
         }
         std::vector<size_t> statPriorities;
@@ -296,9 +299,9 @@ private:
 
     struct TaskStats
     {
-        double maxTime;
-        size_t priorityOrder;
-        size_t onScreenIndex;
+        double maxTime = -1.0f;
+        size_t priorityOrder = size_t(-1);
+        size_t onScreenIndex = size_t(-1);
     };
 
     std::vector<TaskStats> taskStats;

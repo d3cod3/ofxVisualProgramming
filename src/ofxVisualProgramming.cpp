@@ -268,26 +268,30 @@ void ofxVisualProgramming::update(){
             pt[i].endTime = ofGetElapsedTimef();
 
             // update scripts objects files map
-            ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-            string fileExt = ofToUpper(tempsofp.getExtension());
-            if(fileExt == "LUA" || fileExt == "SH"){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                if (sofpIT == scriptsObjectsFilesPaths.end()){
-                    // not found, insert it
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-                }
-            }else if(fileExt == "FRAG"){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
-                if (sofpIT == scriptsObjectsFilesPaths.end()){
-                    // not found, insert FRAG
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
-                    // insert VERT
-                    string fsName = tempsofp.getFileName();
-                    string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
-                    ofFile newVertGLSLFile (vsName);
-                    scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
+            std::ifstream testPath(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+            if(testPath){ // file exists
+                ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
+                string fileExt = ofToUpper(tempsofp.getExtension());
+                if(fileExt == "LUA" || fileExt == "SH"){
+                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    if (sofpIT == scriptsObjectsFilesPaths.end()){
+                        // not found, insert it
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                    }
+                }else if(fileExt == "FRAG"){
+                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    if (sofpIT == scriptsObjectsFilesPaths.end()){
+                        // not found, insert FRAG
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                        // insert VERT
+                        string fsName = tempsofp.getFileName();
+                        string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+                        ofFile newVertGLSLFile (vsName);
+                        scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
+                    }
                 }
             }
+
         }
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());

@@ -859,7 +859,9 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
         // right side (OUTLETS)
         else if( _pinFlag==ImGuiExNodePinsFlags_Right ){
             // Update pin position
-            outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
+            if(outletPinsPositions.find(nodeID) != outletPinsPositions.end()){
+                outletPinsPositions[nodeID][pinID] = pinLayout.curDrawPos + ImVec2( IMGUI_EX_NODE_PIN_WIDTH*scaleFactor * -.5f, pinLayout.pinSpace.y * .5f);
+            }
 
             // draw links (OUTLETS to INLETS ONLY)
             for(unsigned int i=0;i<_linksData.size();i++){
