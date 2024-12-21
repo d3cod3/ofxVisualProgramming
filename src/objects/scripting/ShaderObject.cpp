@@ -42,6 +42,10 @@ ShaderObject::ShaderObject() : PatchObject("glsl shader"){
 
     _outletParams[0] = new ofTexture();     // output
 
+    for(size_t i=0;i<32;i++){
+        this->inletsConnected.push_back(false);
+    }
+
     scriptLoaded        = false;
     isNewObject         = false;
     reloading           = false;

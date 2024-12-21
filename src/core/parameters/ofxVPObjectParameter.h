@@ -56,7 +56,7 @@ public:
     // Returns true if successfully parsed the value.
     virtual bool unSerialize( const std::string _serialized ){
 #ifdef DEBUG
-        ofLogError("ofxVPBaseParameter", "Unserialize() is unimplemented, please implement it for your specific data type before using it.");
+        ofLogError("ofxVPBaseParameter","%s", "Unserialize() is unimplemented, please implement it for your specific data type before using it.");
 #endif
         // set empty value ?
         //this->value = new T(_serialized);
