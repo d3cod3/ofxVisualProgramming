@@ -123,10 +123,6 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     // init path watcher
     watcher.start();
 
-    if(filepath != "none"){
-        loadScript(filepath);
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -341,6 +337,10 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
+
+        if(filepath != "none"){
+            loadScript(filepath);
+        }
     }
 }
 
