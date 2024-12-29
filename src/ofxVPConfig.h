@@ -33,7 +33,7 @@
 #pragma once
 
 #define PACKAGE_OFXVP       "ofxVisualProgramming"
-#define	VERSION_OFXVP       "0.1.0"
+#define	VERSION_OFXVP       "0.7.2"
 #define DESCRIPTION_OFXVP   "A visual programming patching environment for OF"
 
 
