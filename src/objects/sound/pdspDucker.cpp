@@ -216,22 +216,22 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(0,4*scaleFactor));
 
-        if(ImGuiKnobs::Knob("DUCK", &ducking, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("DUCK", &ducking, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             duck_ctrl.set(ducking);
             this->setCustomVar(ducking,"DUCKING");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("A", &attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("A", &attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             attack_ctrl.set(attackDuration);
             this->setCustomVar(attackDuration,"ATTACK");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("H", &holdDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("H", &holdDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             hold_ctrl.set(holdDuration);
             this->setCustomVar(holdDuration,"HOLD");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("R", &releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("R", &releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             release_ctrl.set(releaseDuration);
             this->setCustomVar(releaseDuration,"RELEASE");
         }

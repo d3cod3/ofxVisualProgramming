@@ -244,70 +244,70 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImGui::Dummy(ImVec2(0,4*scaleFactor));
-        if(ImGuiKnobs::Knob( "A", &attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "A", &attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(attackDuration,"ATTACK");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "D", &decayDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "D", &decayDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(decayDuration,"DECAY");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "S", &sustainLevel, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "S", &sustainLevel, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(sustainLevel,"SUSTAIN");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "R", &releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "R", &releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(releaseDuration,"RELEASE");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        if(ImGuiKnobs::Knob( "FREQ A", &f_attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "FREQ A", &f_attackDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(f_attackDuration,"FREQ_ATTACK");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "FREQ D", &f_decayDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "FREQ D", &f_decayDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(f_decayDuration,"FREQ_DECAY");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "FREQ S", &f_sustainLevel, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "FREQ S", &f_sustainLevel, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(f_sustainLevel,"FREQ_SUSTAIN");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "FREQ R", &f_releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "FREQ R", &f_releaseDuration, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(f_releaseDuration,"FREQ_RELEASE");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        if(ImGuiKnobs::Knob( "FREQ", &oscFreq, 0.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "FREQ", &oscFreq, 0.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             osc_freq_ctrl.set(pdsp::f2p(oscFreq));
             this->setCustomVar(oscFreq,"OSC_FREQ");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "F. FREQ", &filterFreq, 0.0f, 8260.0f, 10.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "F. FREQ", &filterFreq, 0.0f, 8260.0f, 10.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             filter_freq_ctrl.set(pdsp::f2p(filterFreq));
             this->setCustomVar(filterFreq,"FILTER_FREQ");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "F. RES", &filterRes, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "F. RES", &filterRes, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             filter_res_ctrl.set(filterRes);
             this->setCustomVar(filterRes,"FILTER_RES");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
 
-        if(ImGuiKnobs::Knob( "RATIO", &compRatio, 1.0f, 40.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "RATIO", &compRatio, 1.0f, 40.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             comp_ratio_ctrl.set(compRatio);
             this->setCustomVar(compRatio,"COMP_RATIO");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "COMP A", &compAttack, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "COMP A", &compAttack, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             comp_A_ctrl.set(compAttack);
             this->setCustomVar(compAttack,"COMP_A");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob( "COMP R", &compRelease, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob( "COMP R", &compRelease, 0.0f, 1000.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             comp_R_ctrl.set(compRelease);
             this->setCustomVar(compRelease,"COMP_R");
         }

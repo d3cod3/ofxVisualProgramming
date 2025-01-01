@@ -171,13 +171,15 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(170,170,170,255), this->scaleFactor);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(170,170,170,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         // draw System BPM
         ImVec2 window_pos = ImGui::GetWindowPos();
-        ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 pos = ImVec2(window_pos.x + window_size.x - 50*scaleFactor, window_pos.y + window_size.y - 38*scaleFactor);
-        ImVec2 posFirst = ImVec2(window_pos.x + window_size.x - 50*scaleFactor, window_pos.y + 38*scaleFactor);
+        ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,100)*scaleFactor), window_pos.y + window_size.y - (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,82)*scaleFactor));
+        ImVec2 posFirst = ImVec2(window_pos.x + window_size.x - (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,100)*scaleFactor), window_pos.y + (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,82)*scaleFactor));
+
+        float radius = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,8)*scaleFactor;
 
         char temp[32];
         sprintf_s(temp,"%.1f",static_cast<float>(60.0f/(timeSetting.get()/1000.0f)));
@@ -187,7 +189,7 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         if(*(float *)&_outletParams[1] > 0){
             // draw system BPM beat
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x + (32*scaleFactor),pos.y + (8*scaleFactor)), 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x + (28*scaleFactor*_nodeCanvas.GetCanvasScale()),pos.y + (8*scaleFactor)), radius, IM_COL32(255, 255, 120, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();

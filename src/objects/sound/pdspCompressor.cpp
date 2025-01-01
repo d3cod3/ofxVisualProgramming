@@ -218,27 +218,27 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
 
-        if(ImGuiKnobs::Knob("attack", &attack, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("attack", &attack, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             attack_ctrl.set(attack);
             this->setCustomVar(attack,"ATTACK");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("release", &release, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("release", &release, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             release_ctrl.set(release);
             this->setCustomVar(release,"RELEASE");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("thresh", &thresh, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("thresh", &thresh, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             thresh_ctrl.set(thresh);
             this->setCustomVar(thresh,"THRESH");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("ratio", &ratio, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("ratio", &ratio, 1.0f, 100.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             ratio_ctrl.set(ratio);
             this->setCustomVar(ratio,"RATIO");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("knee", &knee, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("knee", &knee, -48.0f, 0.0f, 0.1f, "%.2fdb", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             knee_ctrl.set(knee);
             this->setCustomVar(knee,"KNEE");
         }

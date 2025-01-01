@@ -305,7 +305,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
         ImVec2 window_pos = ImGui::GetWindowPos();
-        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
 
         char temp[32];
 
@@ -320,7 +320,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"S %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiKnobs::Knob(temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+            if(ImGuiKnobs::Knob(temp, &seqSteps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
                 this->setCustomVar(seqSteps[i + (chapter*CHAPTER_STEPS)],"S_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -331,7 +331,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"A %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiKnobs::Knob(temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+            if(ImGuiKnobs::Knob(temp, &ctrl1Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
                 this->setCustomVar(ctrl1Steps[i + (chapter*CHAPTER_STEPS)],"A_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -342,7 +342,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"B %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiKnobs::Knob(temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+            if(ImGuiKnobs::Knob(temp, &ctrl2Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
                 this->setCustomVar(ctrl2Steps[i + (chapter*CHAPTER_STEPS)],"B_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -353,7 +353,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"C %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiKnobs::Knob(temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+            if(ImGuiKnobs::Knob(temp, &ctrl3Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
                 this->setCustomVar(ctrl3Steps[i + (chapter*CHAPTER_STEPS)],"C_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){
@@ -364,7 +364,7 @@ void pdspSequencer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor));
         for(size_t i=0;i<CHAPTER_STEPS;i++){
             sprintf_s(temp,"D %s",to_string(i+1+ (chapter*CHAPTER_STEPS)).c_str());
-            if(ImGuiKnobs::Knob(temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+            if(ImGuiKnobs::Knob(temp, &ctrl4Steps[i + (chapter*CHAPTER_STEPS)], 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
                 this->setCustomVar(ctrl4Steps[i + (chapter*CHAPTER_STEPS)],"D_"+ofToString(i+1+ (chapter*CHAPTER_STEPS)));
             }
             if(i<15){

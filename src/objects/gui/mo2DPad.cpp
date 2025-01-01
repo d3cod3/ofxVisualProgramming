@@ -130,7 +130,7 @@ void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::Pad2D(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26,&_x,&_y)){
+        if(ImGuiEx::Pad2D(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor),&_x,&_y)){
             this->setCustomVar(static_cast<float>(_x),"XPOS");
             this->setCustomVar(static_cast<float>(_y),"YPOS");
         }

@@ -144,9 +144,9 @@ void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(20.0f*scaleFactor,0.0f));ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2((this->width/2 - 26*this->scaleFactor) *_nodeCanvas.GetCanvasScale(), (this->height/2 - 48*this->scaleFactor) *_nodeCanvas.GetCanvasScale()));
 
-        if(ImGuiKnobs::Knob("", &pan, -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
+        if(ImGuiKnobs::Knob("", &pan, -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             pan_ctrl.set(pan);
             this->setCustomVar(pan,"PAN");
         }
@@ -160,7 +160,7 @@ void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Panner::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Basic stereo panner",
-                "https://mosaic.d3cod3.org/reference.php?r=panner", scaleFactor);
+                "https://mosaic.d3cod3.org/reference.php?r=panner", this->scaleFactor);
 }
 
 //--------------------------------------------------------------

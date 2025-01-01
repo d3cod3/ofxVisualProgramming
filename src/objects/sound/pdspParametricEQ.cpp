@@ -223,15 +223,15 @@ void pdspParametricEQ::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 
         // LF
-        if(ImGuiKnobs::Knob("Freq Hz", &float_l1freq, 20.0f, 500.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("Freq Hz", &float_l1freq, 20.0f, 500.0f, 1.0f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(float_l1freq,"LF_FREQ");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("Q", &float_l1Q, 0.3f, 20.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("Q", &float_l1Q, 0.3f, 20.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(float_l1Q,"LF_Q");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("Gain dB", &float_l1gain, -20.0f, 20.0f, 0.1f, "%.2fdB", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("Gain dB", &float_l1gain, -20.0f, 20.0f, 0.1f, "%.2fdB", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(float_l1gain,"LF_GAIN");
         }
 

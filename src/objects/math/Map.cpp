@@ -150,19 +150,19 @@ void Map::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImVec2 window_pos = ImGui::GetWindowPos();
-        ImVec2 window_size = ImGui::GetWindowSize();
+        ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
         float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
         float valuePercentage = ofMap(*(float *)&_outletParams[0],outMin,outMax,0.0f,1.0f,true);
 
         // vertical ranges
-        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*1)),ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*3)),IM_COL32(60,60,60,255),2.0f);
-        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*4)),IM_COL32(60,60,60,255),2.0f);
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*1)),ImVec2(window_pos.x + (50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*3)),IM_COL32(60,60,60,255),2.0f);
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (130*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2)),ImVec2(window_pos.x + (130*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*4)),IM_COL32(60,60,60,255),2.0f);
 
         // value
-        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),IM_COL32(90,90,90,255),2.0f);
+        _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),ImVec2(window_pos.x + (130*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),IM_COL32(90,90,90,255),2.0f);
 
-        _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),4*scaleFactor,IM_COL32(160,160,160,255),40);
-        _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (130*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),4*scaleFactor,IM_COL32(160,160,160,255),40);
+        _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*2)*valuePercentage) + pinDistance),4*scaleFactor*_nodeCanvas.GetCanvasScale(),IM_COL32(160,160,160,255),40);
+        _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(window_pos.x + (130*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + ((pinDistance*4)*valuePercentage)),4*scaleFactor*_nodeCanvas.GetCanvasScale(),IM_COL32(160,160,160,255),40);
 
         _nodeCanvas.EndNodeContent();
     }

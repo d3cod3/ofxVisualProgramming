@@ -134,7 +134,7 @@ void VectorExtract::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,10*scaleFactor));
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/2 *_nodeCanvas.GetCanvasScale()) - (6*scaleFactor)));
         if(static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()) > 0){
             ImGui::Text("size\nrange");
             ImGui::SameLine();
@@ -161,7 +161,7 @@ void VectorExtract::drawObjectNodeConfig(){
     }
     ImGui::Spacing();
     int prevEnd = end;
-    if(ImGui::InputInt("End",&end)){
+    if(ImGui::InputInt("Size",&end)){
         if(end > start && end <= static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size())-1){
             this->setCustomVar(static_cast<float>(end),"END");
         }else{

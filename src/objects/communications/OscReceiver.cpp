@@ -416,7 +416,8 @@ string OscReceiver::getLocalIP(){
     string cmd = "";
     FILE *execFile;
 #ifdef TARGET_LINUX
-    cmd = "ifconfig | grep -w 'inet' | grep -v 127.0.0.1 | awk '{print $2}'";
+    //cmd = "ifconfig | grep -w 'inet' | grep -v 127.0.0.1 | awk '{print $2}'";
+    cmd = "ifconfig | grep -w 'flags=4163' -A 1 | grep -w 'inet' | grep -v 127.0.0.1 | awk '{print $2}'";
     execFile = popen(cmd.c_str(), "r");
 #elif defined(TARGET_OSX)
     cmd = "ifconfig | grep -w 'inet' | grep -v 127.0.0.1 | awk '{print $2}'";

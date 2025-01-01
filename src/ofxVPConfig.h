@@ -62,6 +62,10 @@
 #define MAX_OF_GUI_FONT_SIZE    36
 #define MIN_IMGUI_FONT_SIZE     10
 #define MAX_IMGUI_FONT_SIZE     56
+#define MIN_KNOB_SCALE          1
+#define MAX_KNOB_SCALE          126
+#define CANVAS_MIN_SCALE        0.2f
+#define CANVAS_MAX_SCALE        2.0f
 
 #define OBJECT_WIDTH            OBJECT_STANDARD_WIDTH
 #define OBJECT_HEIGHT           OBJECT_STANDARD_HEIGHT

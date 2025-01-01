@@ -56,6 +56,8 @@ MidiSender::MidiSender() : PatchObject("midi sender"){
     trigger             = false;
     lastNote            = 0.0f;
 
+    this->width         *= 2;
+
     loaded              = false;
 
 }

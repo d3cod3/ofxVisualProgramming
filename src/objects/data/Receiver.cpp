@@ -188,7 +188,7 @@ void vpReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         if(isReceivingON){
-            ImGui::Dummy(ImVec2(-1,6*scaleFactor)); // Padding top
+            ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/2 *_nodeCanvas.GetCanvasScale()) - (2*scaleFactor)));
             ImGui::Text("%s",varName.c_str());
         }
 

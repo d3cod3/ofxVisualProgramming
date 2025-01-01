@@ -139,7 +139,7 @@ void BooleanOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/4)); // Padding top
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), this->height/2 *_nodeCanvas.GetCanvasScale()));
 
         ImGui::PushItemWidth(-50*scaleFactor);
         if(ImGui::BeginCombo("operator", operators_string.at(_operator).c_str() )){
@@ -155,8 +155,11 @@ void BooleanOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
 
         if(bang){
-            ImVec2 pos = ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - (30*this->scaleFactor), ImGui::GetWindowPos().y + (40*this->scaleFactor));
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(250, 250, 5, 255), 40);
+            ImVec2 window_pos = ImGui::GetWindowPos();
+            ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
+            ImVec2 pos = ImVec2(window_pos.x + window_size.x - (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,10,60)*scaleFactor), window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,40)*scaleFactor));
+            float radius = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,20)*scaleFactor;
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, radius, IM_COL32(250, 250, 5, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();

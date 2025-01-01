@@ -212,7 +212,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
             ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
 
-            ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &levels_float[i], 0.0f, 1.0f, "");
+            ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale()), &levels_float[i], 0.0f, 1.0f, "");
             if (ImGui::IsItemActive() || ImGui::IsItemHovered()){
                 ImGui::SetTooltip("s%i %.2f", i+1, levels_float[i]);
                 this->setCustomVar(levels_float[i],"LEVEL_"+ofToString(i+1));
@@ -227,7 +227,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
         ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
         ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
-        ImGui::VSliderFloat("##main_volume", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &mainlevel_float, 0.0f, 1.0f, "");
+        ImGui::VSliderFloat("##main_volume", ImVec2(sliderW*scaleFactor, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale()), &mainlevel_float, 0.0f, 1.0f, "");
         if(ImGui::IsItemActive() || ImGui::IsItemHovered()){
             ImGui::SetTooltip("Main Volume %.2f", mainlevel_float);
             this->setCustomVar(mainlevel_float,"MAIN_LEVEL");
@@ -236,21 +236,23 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::SameLine();
 
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
         ImGui::SameLine();
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[1])->getRMSAmplitude(), false);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), static_cast<ofSoundBuffer *>(_outletParams[1])->getRMSAmplitude(), false);
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor*_nodeCanvas.GetCanvasScale()));
 
         for(int i=0;i<this->numInlets-1;i++){
             sprintf_s(temp,"PAN s%i",i+1);
-            if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
+            if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
 
                 this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
             }
             if (i < this->numInlets-1) ImGui::SameLine();
 
         }
+
+        sliderW = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,126);
 
         _nodeCanvas.EndNodeContent();
     }
@@ -340,7 +342,7 @@ void Mixer::resetInletsSettings(){
 
     this->numInlets = signalInlets+1;
 
-    this->width = 20*scaleFactor + signalInlets*(sliderW+6.0f)*scaleFactor + sliderW*scaleFactor/8.0f + sliderW*scaleFactor + (sliderW*scaleFactor*2) + 10*scaleFactor; // inlets gap + sliders + gap + main + vumeters + outlets gap
+    this->width = 20*scaleFactor + signalInlets*(56.0f+6.0f)*scaleFactor + 56.0f*scaleFactor/8.0f + 56.0f*scaleFactor + (56.0f*scaleFactor*2) + 10*scaleFactor; // inlets gap + sliders + gap + main + vumeters + outlets gap
 
     _inletParams[0] = new vector<float>();
     static_cast<vector<float> *>(_inletParams[0])->clear();

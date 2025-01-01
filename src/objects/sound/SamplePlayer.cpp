@@ -257,7 +257,7 @@ void SamplePlayer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
         if(isFileLoaded && sampleBuffer.loaded()){
             ImVec2 window_pos = ImGui::GetWindowPos();
-            ImVec2 window_size = ImGui::GetWindowSize();
+            ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
             ImVec2 ph_pos = ImVec2(window_pos.x + (20*scaleFactor), window_pos.y + (20*scaleFactor));
 
             objOriginX = ImGui::GetWindowPos().x + ((IMGUI_EX_NODE_PINS_WIDTH_NORMAL - 1)*this->scaleFactor);

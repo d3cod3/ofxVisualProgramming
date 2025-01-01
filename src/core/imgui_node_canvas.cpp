@@ -247,6 +247,79 @@ void ImGuiEx::NodeCanvas::End(){
     canvasDrawList = nullptr;
 }
 
+void ImGuiEx::NodeCanvas::Update(){
+    UpdateCanvasRect();
+    UpdateCanvasScrollZoom();
+    UpdateCanvasGrid(ImGui::GetWindowDrawList());
+}
+
+void ImGuiEx::NodeCanvas::UpdateCanvasRect(){
+    canvasView.mousePos = ImGui::GetMousePos();
+    canvasView.position = ImGui::GetWindowPos();
+    canvasView.size = ImGui::GetContentRegionAvail();
+    canvasView.rectCanvas = ImRect(canvasView.position, canvasView.position + canvasView.size);
+}
+
+void ImGuiEx::NodeCanvas::UpdateCanvasScrollZoom(){
+    const ImGuiIO& io = ImGui::GetIO();
+    bool dragCond = canvasView.state == ImGuiExCanvasState::DragingInput || canvasView.state == ImGuiExCanvasState::DragingOutput;
+    if (canvasView.state != ImGuiExCanvasState::None && (ImGui::IsMouseDown(0) == false || dragCond) && canvasView.rectCanvas.Contains(canvasView.mousePos))
+    {
+        if (ImGui::IsMouseDragging(1))
+        {
+            canvasView.scroll += io.MouseDelta;
+        }
+        ImVec2 focus = (canvasView.mousePos - canvasView.scroll - canvasView.position) / canvasView.scale;
+        auto zoom = static_cast<int>(io.MouseWheel);
+        if (zoom < 0)
+        {
+            while (zoom < 0)
+            {
+                canvasView.scale = ImMax(canvasView.scaleMin, canvasView.scale - canvasView.deltaScale);
+                zoom += 1;
+            }
+        }
+        if (zoom > 0)
+        {
+            while (zoom > 0)
+            {
+                canvasView.scale = ImMin(canvasView.scaleMax, canvasView.scale + canvasView.deltaScale);
+                zoom -= 1;
+            }
+        }
+        if (ImGui::IsMouseClicked(2))
+        {
+            canvasView.scale = 1.0f;
+        }
+        ImVec2 shift = canvasView.scroll + (focus * canvasView.scale);
+        canvasView.scroll += canvasView.mousePos - shift - canvasView.position;
+    }
+
+    canvasView.translation = canvasView.scroll;
+}
+
+void ImGuiEx::NodeCanvas::UpdateCanvasGrid(ImDrawList* drawList) const{
+    const float grid = 32.0f * canvasView.scale;
+    float x = std::fmod(canvasView.scroll.x, grid);
+    float y = std::fmod(canvasView.scroll.y, grid);
+    auto markX = static_cast<int>(canvasView.scroll.x / grid);
+    auto markY = static_cast<int>(canvasView.scroll.y / grid);
+    while (x < canvasView.size.x)
+    {
+        ImColor color = markX % 5 ? ImColor(0.5f, 0.5f, 0.5f, 0.05f) : ImColor(1.0f, 1.0f, 1.0f, 0.05f);
+        drawList->AddLine(ImVec2(x, 0.0f) + canvasView.position, ImVec2(x, canvasView.size.y) + canvasView.position, color, 0.1f);
+        x += grid;
+        markX -= 1;
+    }
+    while (y < canvasView.size.y)
+    {
+        ImColor color = markY % 5 ? ImColor(0.5f, 0.5f, 0.5f, 0.05f) : ImColor(1.0f, 1.0f, 1.0f, 0.05f);
+        drawList->AddLine(ImVec2(0.0f, y) + canvasView.position, ImVec2(canvasView.size.x, y) + canvasView.position, color, 0.1f);
+        y += grid;
+        markY -= 1;
+    }
+}
+
 void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
     // Only use between NodeCanvas::Begin() and End().
     IM_ASSERT(isDrawingCanvas == true);  // forgot to Begin();
@@ -285,15 +358,17 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         curNodeData.zoomName = ImGuiExNodeZoom_Invisible;
         //return false;
     }else{
-        unsigned int curWidth = curNodeData.outerContentBox.GetSize().x;
-        if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_SMALL )
+        //unsigned int curWidth = curNodeData.outerContentBox.GetSize().x;
+        /*if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_SMALL )
             curNodeData.zoomName = ImGuiExNodeZoom_Imploded;
         else if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_NORMAL )
             curNodeData.zoomName = ImGuiExNodeZoom_Small;
         else if( curWidth < IMGUI_EX_NODE_MIN_WIDTH_LARGE )
             curNodeData.zoomName = ImGuiExNodeZoom_Normal;
         else
-            curNodeData.zoomName = ImGuiExNodeZoom_Large;
+            curNodeData.zoomName = ImGuiExNodeZoom_Large;*/
+
+        curNodeData.zoomName = ImGuiExNodeZoom_Normal;
     }
     curNodeData.viewName = ImGuiExNodeView_None;
 

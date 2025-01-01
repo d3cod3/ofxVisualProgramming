@@ -155,7 +155,7 @@ void MelBandsExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw MEL BANDS
-        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_outletParams[0]));
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor), static_cast<vector<float> *>(_outletParams[0]));
 
         _nodeCanvas.EndNodeContent();
     }

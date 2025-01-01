@@ -55,6 +55,8 @@ MidiReceiver::MidiReceiver() : PatchObject("midi receiver"){
 
     midiDeviceID        = 0;
 
+    this->width         *= 2;
+
     loaded              = false;
 
 }

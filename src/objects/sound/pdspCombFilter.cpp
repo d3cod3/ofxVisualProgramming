@@ -168,20 +168,20 @@ void pdspCombFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(0,4*scaleFactor));
+        ImGui::Dummy(ImVec2(0,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,-20,40)*scaleFactor));
 
 
-        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             pitch_ctrl.set(pitch);
             this->setCustomVar(static_cast<float>(pitch),"PITCH");
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob("damping", &damping, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::SameLine();ImGui::Dummy(ImVec2(ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,90)*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiKnobs::Knob("damping", &damping, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             damping_ctrl.set(damping);
             this->setCustomVar(static_cast<float>(damping),"DAMPING");
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob("feedback", &feedback, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::SameLine();ImGui::Dummy(ImVec2(ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,90)*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiKnobs::Knob("feedback", &feedback, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             feedback_ctrl.set(feedback);
             this->setCustomVar(static_cast<float>(feedback),"FEEDBACK");
         }

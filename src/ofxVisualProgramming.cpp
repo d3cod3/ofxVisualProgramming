@@ -154,13 +154,6 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     nodeCanvas.setRetina(isRetina,scaleFactor);
     profiler.setIsRetina(isRetina);
 
-    // Set pan-zoom canvas
-    canvas.disableMouseInput();
-    canvas.setbMouseInputEnabled(true);
-    canvas.toggleOfCam();
-    canvas.setUseScale(false);
-    easyCam.enableOrtho();
-
     // create failsafe window for always maintaining reference to shared context
     setupFailsafeWindow();
 
@@ -345,9 +338,6 @@ void ofxVisualProgramming::draw(){
     ofPushStyle();
     ofPushMatrix();
 
-    // Init canvas
-    nodeCanvas.SetTransform( ImVec2(canvas.getTranslation().x,canvas.getTranslation().y), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
-
     // DEBUG
     if(OFXVP_DEBUG){
         ofSetColor(0,255,255,236);
@@ -357,16 +347,12 @@ void ofxVisualProgramming::draw(){
         ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 6);
     }
 
-
-    canvas.begin(canvasViewport);
-
     ofEnableAlphaBlending();
     ofSetCurveResolution(50);
     ofSetColor(255);
     ofSetLineWidth(1);
 
     livePatchingObiID = -1;
-
 
     ofxVPGui->begin();
 
@@ -414,6 +400,8 @@ void ofxVisualProgramming::draw(){
 
     }
 
+    nodeCanvas.Update();
+
     // Close canvas
     nodeCanvas.End();
 
@@ -424,12 +412,6 @@ void ofxVisualProgramming::draw(){
 void ofxVisualProgramming::closeDrawMainMenu(){
     // We're done drawing to IMGUI
     ofxVPGui->end();
-
-    canvas.end();
-
-    if(OFXVP_DEBUG){
-        canvas.drawDebug();
-    }
 
     // Draw Bottom Bar
     ofSetColor(0,0,0,60);
@@ -444,7 +426,6 @@ void ofxVisualProgramming::closeDrawMainMenu(){
     // Graphical Context
     ofxVPGui->draw();
 
-    canvas.update();
 }
 
 //--------------------------------------------------------------
@@ -734,8 +715,6 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
-    canvas.mouseDragged(e);
-
 }
 
 //--------------------------------------------------------------
@@ -743,8 +722,6 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
-
-    canvas.mousePressed(e);
 
 }
 
@@ -754,10 +731,8 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
-    setPatchVariable("canvasTranslationX",canvas.getTranslation().x);
-    setPatchVariable("canvasTranslationY",canvas.getTranslation().y);
-
-    canvas.mouseReleased(e);
+    setPatchVariable("canvasTranslationX",nodeCanvas.GetCanvasTranslation().x);
+    setPatchVariable("canvasTranslationY",nodeCanvas.GetCanvasTranslation().y);
 
 }
 
@@ -767,7 +742,6 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())
         return;
 
-    canvas.mouseScrolled(e);
 }
 
 //--------------------------------------------------------------
@@ -1721,9 +1695,6 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
                 }
 
                 it->second->outPut.clear();
-
-                //glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-                //it->second->move(temp.x,temp.y);
                 it->second->setWillErase(true);
             }
         }
@@ -1783,10 +1754,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             output_width = XML.getValue("output_width",0);
             output_height = XML.getValue("output_height",0);
             // setup canvas
-            glm::vec3 tr = glm::vec3(XML.getValue("canvasTranslationX",0),XML.getValue("canvasTranslationY",0),0);
+            ImVec2 tr = ImVec2(XML.getValue("canvasTranslationX",0),XML.getValue("canvasTranslationY",0));
             if(tr.x != 0 && tr.y != 0){
-                canvas.setTranslation(tr);
-                canvas.initialTranslation = tr;
+                nodeCanvas.SetCanvasTranslation(tr);
             }
 
             // setup audio
@@ -2477,8 +2447,7 @@ void ofxVisualProgramming::activateDSP(){
         bool found = weAlreadyHaveObject("audio device");
 
         if(!found){
-            glm::vec3 temp = canvas.screenToWorld(glm::vec3((ofGetScreenWidth()/2 - OBJECT_WIDTH/2*scaleFactor)/scaleFactor,(ofGetScreenHeight()/2 + OBJECT_HEIGHT*scaleFactor)/scaleFactor,0));
-            addObject("audio device",ofVec2f(temp.x,temp.y));
+            addObject("audio device",ofVec2f((ofGetScreenWidth()/2 - OBJECT_WIDTH/2*scaleFactor)/scaleFactor,(ofGetScreenHeight()/2 + OBJECT_HEIGHT*scaleFactor)/scaleFactor));
         }
         resetSystemObjects();
 
@@ -2500,5 +2469,5 @@ void ofxVisualProgramming::deactivateDSP(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetCanvas(){
-    canvas.resetTranslation();
+    nodeCanvas.resetCanvas();
 }

@@ -26,7 +26,7 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxCv ofxEasing ofxFFmpegRecorder ofxFft
-        ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
+        ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxOpenDHT ofxPd ofxPDSP ofxTimeline ofxWarp
 
 	# include search paths, this will be usually parsed from the file system

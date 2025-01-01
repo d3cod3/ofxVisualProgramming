@@ -36,7 +36,6 @@
 
 #include "ofxVPConfig.h"
 
-#include "ofxInfiniteCanvas.h"
 #include "ofxPDSP.h"
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
@@ -136,8 +135,6 @@ public:
     void            resetCanvas();
 
     // PATCH CANVAS
-    ofxInfiniteCanvas               canvas;
-    ofEasyCam                       easyCam;
     ofRectangle                     canvasViewport;
     ofxImGui::Gui*                  ofxVPGui;
     ImGuiEx::NodeCanvas             nodeCanvas;

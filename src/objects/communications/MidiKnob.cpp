@@ -126,7 +126,7 @@ void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,10)); // Padding top
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/4 *_nodeCanvas.GetCanvasScale()) - (6*scaleFactor)));
 
         if(ImGui::InputInt("CONTROL",&lastControl)){
             savedControl = lastControl;
@@ -134,10 +134,9 @@ void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         }
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2));
-        ImGui::Dummy(ImVec2((ImGui::GetWindowSize().x-46)/2 - (ImGui::GetWindowSize().x-46)/6,1)); ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2((this->width/2 - 26*this->scaleFactor) *_nodeCanvas.GetCanvasScale(), (this->height - 110*this->scaleFactor) * _nodeCanvas.GetCanvasScale()));
 
-        ImGuiKnobs::Knob("value", &actualValue, 0.0f, 127.0f, 0.1f, "%.0f", ImGuiKnobVariant_Wiper);
+        ImGuiKnobs::Knob("value", &actualValue, 0.0f, 127.0f, 0.1f, "%.0f", ImGuiKnobVariant_Stepped,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

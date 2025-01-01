@@ -136,7 +136,7 @@ void FileToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (16*scaleFactor))); // Padding top
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/2 *_nodeCanvas.GetCanvasScale()) - (6*scaleFactor)));
         if(ImGui::Button(ICON_FA_FILE,ImVec2(-1,26*scaleFactor))){
             openFileFlag = true;
         }

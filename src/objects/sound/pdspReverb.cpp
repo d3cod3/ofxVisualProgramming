@@ -204,24 +204,24 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(0,4*scaleFactor));
-        if(ImGuiKnobs::Knob("TIME", &time, 0.0f, 60.0f, 0.05f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::Dummy(ImVec2(0,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,-20,40)*scaleFactor));
+        if(ImGuiKnobs::Knob("TIME", &time, 0.0f, 60.0f, 0.05f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(time,"TIME");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("DENSITY", &density, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("DENSITY", &density, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(density,"DENSITY");
         }
         ImGui::SameLine();ImGui::Dummy(ImVec2(6*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob("DAMPING", &damping, 0.0f, 2.0f, 0.002f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("DAMPING", &damping, 0.0f, 2.0f, 0.002f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(damping,"DAMPING");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("SPEED", &modSpeed, 0.0f, 20.0f, 0.02f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("SPEED", &modSpeed, 0.0f, 20.0f, 0.02f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(modSpeed,"MODSPEED");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("AMOUNT", &modAmount, 0.0f, 2.0f, 0.002f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("AMOUNT", &modAmount, 0.0f, 2.0f, 0.002f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(modAmount,"MODAMOUNT");
         }
 

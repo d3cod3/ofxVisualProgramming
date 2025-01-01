@@ -49,10 +49,12 @@
 # define __IMGUI_EX_NODECANVAS_DEBUG__ 0 // enable for debugging layout
 # pragma once
 
-# include <imgui.h>
-# include <imgui_internal.h> // Access to more advanced ImGui variables.
+#include <imgui.h>
+#include <imgui_internal.h> // Access to more advanced ImGui variables.
 
 #include <map>
+
+#include "ofxVPConfig.h"
 
 // Default values. You can override them in imconfig.h
 // Everything below is in screen pixels, actual size, non scaled.
@@ -118,15 +120,49 @@ enum ImGuiExNodeView_ {
     ImGuiExNodeView_Any        = ImGuiExNodeView_Params | ImGuiExNodeView_Visualise | ImGuiExNodeView_Info
 };
 
+enum class ImGuiExCanvasState
+{
+    None = 0,
+    Default,
+    HoveringNode,
+    HoveringInput,
+    HoveringOutput,
+    Draging,
+    DragingInput,
+    DragingOutput,
+    Selecting
+};
+
 // extend ImGui in ImGuiEx namespace
 namespace ImGuiEx {
 
+
+
 // Defines Canvas View data
 struct NodeCanvasView {
+    bool mNodeDrag = false; // For node drag modification.
+    bool modifFlag = false; // Modification flag.
+
+    ImGuiExCanvasState state = ImGuiExCanvasState::Default;
+
     ImVec2 translation = ImVec2(0,0);
     float  scale  = 1.0f;
-    //ImRect contentRect = ImRect(ImVec2(0,0), ImVec2(0,0));
-    //ImRect screenRect = ImRect(ImVec2(0,0), ImVec2(100,100));
+    const float scaleMin = CANVAS_MIN_SCALE;
+    const float scaleMax = CANVAS_MAX_SCALE;
+    const float deltaScale = 0.05f;
+
+    ImVec2 position;
+    ImVec2 size;
+    ImVec2 scroll;
+    ImVec2 mousePos;
+
+    ImRect rectCanvas;
+
+    bool draggingOutOfCanvas = false;
+    ImVec2 distFromClickToCenter;
+    ImVec2 clickPosAtTheEdge;
+
+    ImRect rectSelecting;
 
     NodeCanvasView() = default;
     NodeCanvasView(const ImVec2& _offset, float _scale) :
@@ -137,6 +173,7 @@ struct NodeCanvasView {
         translation = ImFloor(_offset);
         scale = _scale;
     }
+
 };
 
 // Layout for pins data
@@ -189,14 +226,6 @@ struct NodeLayoutData {
     }
 };
 
-struct ofxVPLinkData{
-    int         _fromObjectID;
-    int         _fromPinID;
-    int         _linkID;
-    std::string _linkLabel;
-    ImVec2      _toPinPosition;
-};
-
 struct NodeConnectData{
     int connectType; // 1 connect, 2 disconnect, 3 re-connect
     int linkID;
@@ -206,15 +235,47 @@ struct NodeConnectData{
     int toInletPinID;
 };
 
+struct NodeFlag {
+    NodeFlag() = delete;
+    static const unsigned int Default = 0;
+    static const unsigned int Visible = 1 << 0;
+    static const unsigned int Hovered = 1 << 1;
+    static const unsigned int Selected = 1 << 2;
+    static const unsigned int Collapsed = 1 << 3;
+    static const unsigned int Disabled = 1 << 4;
+    static const unsigned int Highlighted = 1 << 5;
+};
+
+enum class ofxVPLinkPosition
+{
+    NONE,
+    LINK_RIGHT,
+    LINK_LEFT_OVER,
+    LINK_LEFT_UNDER,
+    LINK_LEFT_MID
+};
+
+struct ofxVPLinkData{
+    int         _fromObjectID;
+    int         _fromPinID;
+    int         _linkID;
+    std::string _linkLabel;
+    ImVec2      _toPinPosition;
+};
 
 struct NodeCanvas {
 
     // Setup a drawing canvas space
     // Uses ImGui available space except if over-ridden with SetNextWindowPos and Size.
-    bool Begin(const char* _id );
+    bool Begin( const char* _id );
 
     // Must be called only when Begin() returned true.
     void End();
+
+    void Update();
+    void UpdateCanvasRect();
+    void UpdateCanvasScrollZoom();
+    void UpdateCanvasGrid(ImDrawList* drawList) const;
 
     // Draws the frame border
     void DrawFrameBorder(const bool& _drawOnForeground=true) const;
@@ -268,8 +329,12 @@ struct NodeCanvas {
     // Returns origin of the view.
     const ImVec2& GetCanvasTranslation() const { return canvasView.translation; }
 
+    void SetCanvasTranslation(ImVec2 t) { canvasView.scroll = t; }
+
     // Returns scale of the view.
     float GetCanvasScale() const { return canvasView.scale; }
+
+    void resetCanvas() { canvasView.scroll = ImVec2(0,0); canvasView.scale  = 1.0f; }
 
     // Returns data about the current node.
     // Useful inside: scale, niewName, scaleName, etc.
@@ -319,9 +384,6 @@ struct NodeCanvas {
     ImGuiContext* getContext() { return context; }
 
 private:
-//    void pushNodeWorkRect();
-//    void popNodeWorkRect();
-//    ImRect canvasWorkRectBackup;
 
     // context
     ImGuiContext* context;
@@ -339,6 +401,11 @@ private:
     NodeCanvasView  canvasView;
     ImDrawList* canvasDrawList = nullptr;
     ImDrawList* nodeDrawList = nullptr;
+
+    // Dragging
+    bool draggingOutOfCanvas = false;
+    ImVec2 distFromClickToCenter;
+    ImVec2 clickPosAtTheEdge;
 
     // Patch Control data
     std::map<int,std::map<int,ImVec2>>  inletPinsPositions;

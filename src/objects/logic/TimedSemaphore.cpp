@@ -51,6 +51,8 @@ TimedSemaphore::TimedSemaphore() : PatchObject("timed semaphore"){
 
     this->initInletsState();
 
+    isAudioOUTObject    = true;
+
     bang                = false;
 
     loadStart           = true;
@@ -83,27 +85,37 @@ void TimedSemaphore::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
+void TimedSemaphore::setupAudioOutObjectContent(pdsp::Engine &engine){
+    unusedArgs(engine);
+
+    // ---- this code runs in the audio thread ----
+    sync.code = [&]() noexcept {
+        if(this->inletsConnected[0] && loadStart){
+            if(*(float *)&_inletParams[0] == 1.0 && !bang){
+                bang        = true;
+                loadStart   = false;
+                startTime   = ofGetElapsedTimeMillis();
+            }
+        }else{
+          bang        = false;
+        }
+
+        *(float *)&_outletParams[0] = static_cast<float>(bang);
+    };
+
+}
+
+//--------------------------------------------------------------
 void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
       wait = static_cast<int>(floor(*(float *)&_inletParams[1]));
     }
 
-    if(this->inletsConnected[0] && loadStart){
-        if(*(float *)&_inletParams[0] == 1.0 && !bang){
-            bang        = true;
-            loadStart   = false;
-            startTime   = ofGetElapsedTimeMillis();
-        }
-    }else{
-      bang        = false;
-    }
-
     if(!loadStart && (ofGetElapsedTimeMillis()-startTime > wait)){
         loadStart   = true;
     }
-    
-    *(float *)&_outletParams[0] = static_cast<float>(bang);
 
     if(!loaded){
         loaded = true;
@@ -114,7 +126,7 @@ void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
 //--------------------------------------------------------------
 void TimedSemaphore::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 
 }
 
@@ -143,8 +155,9 @@ void TimedSemaphore::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImVec2 window_pos = ImGui::GetWindowPos();
-        ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*this->scaleFactor), window_pos.y + (40*this->scaleFactor));
+        ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,10,60)*scaleFactor), window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,40)*scaleFactor));
+        float radius = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,20)*scaleFactor;
 
         // BANG (PD Style) button
         ImGuiEx::BangButton("", currentColor, ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y));
@@ -156,9 +169,9 @@ void TimedSemaphore::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
 
         if(loadStart){
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(5, 250, 5, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, radius, IM_COL32(5, 250, 5, 255), 40);
         }else{
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10*this->scaleFactor, IM_COL32(250, 5, 5, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, radius, IM_COL32(250, 5, 5, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();
@@ -184,6 +197,12 @@ void TimedSemaphore::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void TimedSemaphore::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void TimedSemaphore::audioOutObject(ofSoundBuffer &outputBuffer){
+    unusedArgs(outputBuffer);
 
 }
 
