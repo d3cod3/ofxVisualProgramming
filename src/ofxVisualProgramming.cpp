@@ -112,6 +112,10 @@ ofxVisualProgramming::ofxVisualProgramming(){
     inspectorActive         = false;
     navigationActive        = false;
     isCanvasVisible         = false;
+    isCanvasActive          = true;
+    isOverProfiler          = false;
+    isOverInspector         = false;
+    isOverSubpatchNavigator = false;
 
     inited                  = false;
 
@@ -288,6 +292,7 @@ void ofxVisualProgramming::update(){
         }
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
+        isOverProfiler = profiler.isMouseOver;
 
         if(patchObjects[lastAddedObjectID] != nullptr){
             nextObjectPosition = (patchObjects[lastAddedObjectID]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[lastAddedObjectID]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
@@ -400,7 +405,11 @@ void ofxVisualProgramming::draw(){
 
     }
 
-    nodeCanvas.Update();
+    nodeCanvas.UpdateCanvasRect();
+    if(isCanvasActive){
+        nodeCanvas.UpdateCanvasScrollZoom();
+    }
+    nodeCanvas.UpdateCanvasGrid(ImGui::GetWindowDrawList());
 
     // Close canvas
     nodeCanvas.End();
@@ -435,6 +444,8 @@ void ofxVisualProgramming::drawInspector(){
     //ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-200,26*scaleFactor), ImGuiCond_Appearing);
 
     ImGui::Begin(ICON_FA_ADJUST "  Inspector", &inspectorActive, ImGuiWindowFlags_NoCollapse);
+
+    isOverInspector = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
 
     // if object id exists
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
@@ -486,6 +497,8 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
     //ImGui::SetNextWindowSize(ImVec2(200*scaleFactor,400*scaleFactor), ImGuiCond_Appearing );
 
     ImGui::Begin(ICON_FA_NETWORK_WIRED "  Patch Navigator", &navigationActive, ImGuiWindowFlags_NoCollapse);
+
+    isOverSubpatchNavigator = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
 
     ImGui::Spacing();
     if(ImGui::Button(ICON_FA_PLUS_CIRCLE " Add Subpatch",ImVec2(-1,26*scaleFactor))){

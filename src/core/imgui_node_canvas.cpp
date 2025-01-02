@@ -223,6 +223,7 @@ bool ImGuiEx::NodeCanvas::Begin(const char* _id){
     canDrawNode = ret;
     isDrawingCanvas = true;
     isDrawingNode = false;
+
     return ret;
 }
 
@@ -232,6 +233,7 @@ void ImGuiEx::NodeCanvas::End(){
     IM_ASSERT(isDrawingNode == false); // Forgot to call EndNode()
 
     isAnyCanvasNodeHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow); // not really needed anymore...
+
 
     // reset cursor pos to canvas window
     ImGui::SetCursorPos(ImGui::GetContentRegionAvail());

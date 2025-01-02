@@ -141,6 +141,7 @@ public:
     ImGuiEx::ProfilersWindow        profiler;
     ImGuiEx::ProfilerTask           *pt;
     bool                            isCanvasVisible;
+    bool                            isCanvasActive;
 
 
     // PATCH DRAWING RESOURCES
@@ -185,6 +186,9 @@ public:
     bool                                profilerActive;
     bool                                inspectorActive;
     bool                                navigationActive;
+    bool                                isOverProfiler;
+    bool                                isOverInspector;
+    bool                                isOverSubpatchNavigator;
     bool                                inited;
 
     // LIVE PATCHING
