@@ -831,7 +831,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::addObject(string name,ofVec2f pos){
+void ofxVisualProgramming::addObject(string name,ofVec2f pos,std::string fp){
 
     // check if object exists
     bool exists = isObjectInLibrary(name);
@@ -869,6 +869,9 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     tempObj->setIsRetina(isRetina,scaleFactor);
     tempObj->move(static_cast<int>(pos.x),static_cast<int>(pos.y));
     tempObj->setSubpatch(currentSubpatch);
+    if(fp != "none"){
+        tempObj->setFilepath(fp);
+    }
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
     ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
     ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
@@ -1406,7 +1409,12 @@ void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
     if(!patchObjects[id]->getIsHardwareObject()){
          ofVec3f tempPosition = (patchObjects[id]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[id]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
-        addObject(patchObjects[id]->getName(),tempPosition);
+         std::ifstream testPath(patchObjects[id]->getFilepath());
+         if(testPath){ // object has a file in filepath
+             addObject(patchObjects[id]->getName(),tempPosition,patchObjects[id]->getFilepath());
+         }else{
+             addObject(patchObjects[id]->getName(),tempPosition);
+         }
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
     }

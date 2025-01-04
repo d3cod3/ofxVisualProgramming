@@ -89,12 +89,6 @@ void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     fileDialog.setIsRetina(this->isRetina);
 
-    if(filepath == "none"){
-        isNewObject = true;
-    }else{
-        loadImageFile();
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -124,6 +118,12 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
+
+        if(filepath == "none"){
+            isNewObject = true;
+        }else{
+            loadImageFile();
+        }
     }
     
 }

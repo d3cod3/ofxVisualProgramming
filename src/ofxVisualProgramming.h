@@ -92,7 +92,7 @@ public:
     void            activeObject(int oid);
 
     shared_ptr<PatchObject>    selectObject(string objname);
-    void            addObject(string name, ofVec2f pos);
+    void            addObject(string name, ofVec2f pos,std::string fp="none");
     shared_ptr<PatchObject>    getLastAddedObject();
 
     void            resetObject(int &id);
