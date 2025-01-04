@@ -154,8 +154,8 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     }
 
     nodeCanvas.setContext(ImGui::GetCurrentContext());
-
     nodeCanvas.setRetina(isRetina,scaleFactor);
+
     profiler.setIsRetina(isRetina);
 
     // create failsafe window for always maintaining reference to shared context
@@ -406,10 +406,20 @@ void ofxVisualProgramming::draw(){
     }
 
     nodeCanvas.UpdateCanvasRect();
+    nodeCanvas.setCanvasActive(isCanvasActive);
     if(isCanvasActive){
         nodeCanvas.UpdateCanvasScrollZoom();
+        if(!nodeCanvas.isAnyNodeFocused()){
+            nodeCanvas.UserInteraction();
+            nodeCanvas.DrawSelecting();
+            nodeCanvas.UpdateNodesFlags();
+        }
+        //nodeCanvas.CanvasPopupMenu();
+    }else{
+        nodeCanvas.setCanvasViewToDefault();
     }
     nodeCanvas.UpdateCanvasGrid(ImGui::GetWindowDrawList());
+
 
     // Close canvas
     nodeCanvas.End();
@@ -580,7 +590,6 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
                     _t.inOut = 0;
                     subpatchesMap[move_to].push_back(_t);
                 }
-
             }
             ImGui::EndDragDropTarget();
         }
@@ -887,6 +896,14 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
         }
 
         nodeCanvas.setActiveNode(lastAddedObjectID);
+        nodeCanvas.addNodeToMap(lastAddedObjectID,name);
+
+        //nodeCanvas.debugNodeMap();
+
+        if(patchObjects[lastAddedObjectID] != nullptr){
+            nextObjectPosition = (patchObjects[lastAddedObjectID]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[lastAddedObjectID]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
+
+        }
     }
 
     bLoadingNewObject       = false;
@@ -1057,10 +1074,13 @@ void ofxVisualProgramming::reconnectObjectOutlets(int &id){
 void ofxVisualProgramming::deleteObject(int id){
     resetTime = ofGetElapsedTimeMillis();
 
-    if ((id != -1) && (patchObjects[id] != nullptr)){
+    if ((id != -1) && (patchObjects[id] != nullptr) && (patchObjects[id]->getName() != "audio device") ){
 
         int targetID = id;
         bool found = false;
+
+        if(targetID == lastAddedObjectID) lastAddedObjectID=0;
+
         ofxXmlSettings XML;
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
@@ -1137,7 +1157,21 @@ void ofxVisualProgramming::deleteObject(int id){
             }
         }
 
+        // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
+        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+            for(int z=0;z<it->second.size();z++){
+                if(it->second.at(z).objID == id){
+                    it->second.at(z).objID = -1;
+                    break;
+                }
+            }
+        }
+
+        nodeCanvas.removeNodeFromMap(id);
+
     }
+
+    bLoadingNewObject = false;
 }
 
 //--------------------------------------------------------------
@@ -1358,6 +1392,10 @@ void ofxVisualProgramming::removeObject(int &id){
                 }
             }
         }
+
+        nodeCanvas.removeNodeFromMap(id);
+
+        //nodeCanvas.debugNodeMap();
     }
 
     bLoadingNewObject = false;
@@ -1367,7 +1405,8 @@ void ofxVisualProgramming::removeObject(int &id){
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
     if(!patchObjects[id]->getIsHardwareObject()){
-        addObject(patchObjects[id]->getName(),nextObjectPosition);
+         ofVec3f tempPosition = (patchObjects[id]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[id]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
+        addObject(patchObjects[id]->getName(),tempPosition);
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
     }
@@ -1713,6 +1752,9 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
         }
     }
 
+    // clear canvas nodes map
+    nodeCanvas.clearNodesMap();
+
     // clear subpatch navigation data
     subpatchesMap.clear();
     currentSubpatch         = "root";
@@ -2023,6 +2065,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                 patchObjects[tempObj->getId()] = tempObj;
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
+                                nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
                                 // if wireless object, add reference to subpatch data map
                                 if(objname == "sender"){
                                     SubpatchConnection _t;
@@ -2200,7 +2243,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                                 patchObjects[tempObj->getId()] = tempObj;
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
-
+                                nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
 #ifdef NDEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
@@ -2259,6 +2302,8 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
             }
 
         }
+
+        //nodeCanvas.debugNodeMap();
 
     }
 }

@@ -130,7 +130,8 @@ enum class ImGuiExCanvasState
     Draging,
     DragingInput,
     DragingOutput,
-    Selecting
+    Selecting,
+    SelectedNode
 };
 
 // extend ImGui in ImGuiEx namespace
@@ -235,15 +236,21 @@ struct NodeConnectData{
     int toInletPinID;
 };
 
-struct NodeFlag {
-    NodeFlag() = delete;
-    static const unsigned int Default = 0;
-    static const unsigned int Visible = 1 << 0;
-    static const unsigned int Hovered = 1 << 1;
-    static const unsigned int Selected = 1 << 2;
-    static const unsigned int Collapsed = 1 << 3;
-    static const unsigned int Disabled = 1 << 4;
-    static const unsigned int Highlighted = 1 << 5;
+enum NodeFlag {
+    Default = 0,
+    Visible = 1 << 0,
+    Hovered = 1 << 1,
+    Selected = 1 << 2,
+    Collapsed = 1 << 3,
+    Disabled = 1 << 4,
+    Highlighted = 1 << 5
+};
+
+struct NodeInfo {
+    int         id;
+    std::string name;
+    ImRect      nodeRect;
+    NodeFlag    flag;
 };
 
 enum class ofxVPLinkPosition
@@ -272,13 +279,29 @@ struct NodeCanvas {
     // Must be called only when Begin() returned true.
     void End();
 
+    // User Interaction
+    void UserInteraction();
+    void MouseMove();
+    void MouseLeftButtonDoubleClick();
+    void MouseRightButtonDoubleClick();
+    void MouseLeftButtonSingleClick();
+    void MouseRightButtonSingleClick();
+    void MouseLeftButtonDrag();
+    void MouseLeftButtonRelease();
+    void MouseRightButtonRelease();
+
     void Update();
     void UpdateCanvasRect();
     void UpdateCanvasScrollZoom();
     void UpdateCanvasGrid(ImDrawList* drawList) const;
+    void UpdateNodesFlags();
+
+    void CanvasPopupMenu();
 
     // Draws the frame border
     void DrawFrameBorder(const bool& _drawOnForeground=true) const;
+
+    void DrawSelecting() const;
 
     // Draw Child windows (aka Nodes) on the canvas.
     // position and size may change be updated after function call.
@@ -315,10 +338,16 @@ struct NodeCanvas {
         scaleFactor = sf;
     }
 
-    // Query GUI if any nodes are hovered
+    // Query GUI if any nodes are focused
     bool isAnyNodeHovered() const {
         //IM_ASSERT(isDrawingCanvas == true);  // dont call while drawing !
         return isAnyCanvasNodeHovered;
+    }
+
+    // Query GUI if any nodes are focused
+    bool isAnyNodeFocused() const {
+        //IM_ASSERT(isDrawingCanvas == true);  // dont call while drawing !
+        return isAnyCanvasNodeFocused;
     }
 
     // Returns current view data.
@@ -348,9 +377,6 @@ struct NodeCanvas {
         IM_ASSERT(nodeDrawList != nullptr);
         return nodeDrawList;
     }
-
-    // Returns selected nodes
-    std::vector<int> getSelectedNodes(){ return selected_nodes; }
 
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
@@ -383,6 +409,38 @@ struct NodeCanvas {
     void setContext(ImGuiContext* _c){ context = _c; }
     ImGuiContext* getContext() { return context; }
 
+    void addNodeToMap(int _id, std::string _name) {
+        NodeInfo ni; ni.id = _id;
+        ni.name = _name;
+        ni.nodeRect = ImRect(0,0,IMGUI_EX_NODE_MIN_WIDTH,IMGUI_EX_NODE_MIN_HEIGHT);
+        ni.flag = NodeFlag::Default; existingNodes[_id]=ni;
+    }
+    void removeNodeFromMap(int _id) { existingNodes.erase(_id); }
+    void clearNodesMap() { existingNodes.clear(); }
+    void debugNodeMap() {
+        for(std::map<int,NodeInfo>::iterator it = existingNodes.begin(); it != existingNodes.end(); it++ ){
+            std::cout << "NodeMap[" << it->first << "] --> " << it->second.id << " : " << it->second.name << " --> " << it->second.nodeRect.GetWidth() << "x" << it->second.nodeRect.GetHeight() << " at " << it->second.nodeRect.GetCenter().x << "," << it->second.nodeRect.GetCenter().y << std::endl;
+        }
+    }
+
+    // Returns selected nodes
+    std::vector<int>& getSelectedNodesId(){
+        std::vector<int> *temp = new std::vector<int>();
+        for(std::map<int,NodeInfo>::iterator it = existingNodes.begin(); it != existingNodes.end(); it++ ){
+            if(it->second.flag == NodeFlag::Selected){
+                temp->push_back(it->second.id);
+            }
+        }
+        return *temp;
+    }
+
+    void setCanvasActive(bool ca) { isCanvasActive = ca; }
+    void setCanvasViewToDefault() { canvasView.state = ImGuiExCanvasState::Default; UpdateNodesFlags(); }
+
+    // Events
+    ofEvent<std::vector<int>>   removeSelectionEvent;
+    ofEvent<std::vector<int>>   duplicateSelectionEvent;
+
 private:
 
     // context
@@ -394,7 +452,9 @@ private:
     bool canDrawNode = false;
     bool isDrawingMenu = false;
     bool isDrawingContent = false;
+    bool isCanvasActive = false;
     bool isAnyCanvasNodeHovered = false;
+    bool isAnyCanvasNodeFocused = false;
 
     // State data
     NodeLayoutData curNodeData;
@@ -410,12 +470,16 @@ private:
     // Patch Control data
     std::map<int,std::map<int,ImVec2>>  inletPinsPositions;
     std::map<int,std::map<int,ImVec2>>  outletPinsPositions;
-    std::vector<int> selected_nodes; // for group actions (copy, duplicate, delete)                 -- TO IMPLEMENT
-    std::vector<int> selected_links; // for delete links (one or multiple)                          -- IMPLEMENTED
-    std::vector<int> deactivated_links; // for activating/deactivating links (one or multiple)      -- IMPLEMENTED
+    std::map<int,NodeInfo> existingNodes;
+    std::vector<int> selected_links; // for delete links (one or multiple)
+    std::vector<int> deactivated_links; // for activating/deactivating links (one or multiple)
+    NodeInfo* hoveredNode       = nullptr; // Hovered node
+    NodeInfo* interactedNode    = nullptr; // Node under interaction
     std::string activePin;
     std::string activePinType;
     int         activeNode = 0; // for node inspector
+
+
 
     // retina stuff
     bool isRetina = false;

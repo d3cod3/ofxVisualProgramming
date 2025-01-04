@@ -434,7 +434,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
         linksDeactivated    = _nodeCanvas.getDeactivatedLinks();
 
         // Refresh objects selected to eventually duplicate or delete ( cmd-d or backsapce )
-        objectsSelected = _nodeCanvas.getSelectedNodes();
+        objectsSelected = _nodeCanvas.getSelectedNodesId();
 
         // Let objects draw their own Gui
         this->drawObjectNodeGui( _nodeCanvas );
@@ -1194,6 +1194,7 @@ void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> 
 //--------------------------------------------------------------
 void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
+        // DELETE SELECTED OBJECTS
         if(e.key == OF_KEY_BACKSPACE){
             for (int j=0;j<static_cast<int>(linksToDisconnect.size());j++){
                 disconnectLink(patchObjects,linksToDisconnect.at(j));
@@ -1202,16 +1203,20 @@ void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>>
 
             for(int j=0;j<static_cast<int>(objectsSelected.size());j++){
                 if(objectsSelected.at(j) == this->nId){
-                    ofNotifyEvent(removeEvent, objectsSelected.at(j));
-                    this->setWillErase(true);
+                    if(this->getName() != "audio device"){
+                        ofNotifyEvent(removeEvent, objectsSelected.at(j));
+                        this->setWillErase(true);
+                    }
                 }
             }
-            objectsSelected.clear();
+            //objectsSelected.clear();
         // OSX: CMD-D, WIN/LINUX: CTRL-D    (DUPLICATE SELECTED OBJECTS)
         }else if(e.hasModifier(MOD_KEY) && e.keycode == 68){
             for(int j=0;j<static_cast<int>(objectsSelected.size());j++){
                 if(objectsSelected.at(j) == this->nId){
-                    ofNotifyEvent(duplicateEvent, objectsSelected.at(j));
+                    if(!this->getIsHardwareObject()){
+                        ofNotifyEvent(duplicateEvent, objectsSelected.at(j));
+                    }
                 }
             }
         }

@@ -43,6 +43,9 @@
 ==============================================================================*/
 
 #define IMGUI_DEFINE_MATH_OPERATORS
+
+#include "ofEvents.h"
+
 #include "imgui_node_canvas.h"
 #include <type_traits>
 #include <bitset> // bitset::count
@@ -202,6 +205,10 @@ bool ImGuiEx::NodeCanvas::Begin(const char* _id){
                             ImGuiWindowFlags_NoScrollbar |
                             ImGuiWindowFlags_NoMouseInputs
                             );
+
+    isAnyCanvasNodeHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow);
+    isAnyCanvasNodeFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow);
+
     ImGui::PopStyleVar();
 
     // Allow tinier windows for nodes.
@@ -232,9 +239,6 @@ void ImGuiEx::NodeCanvas::End(){
     IM_ASSERT(isDrawingCanvas == true); // // Begin() wasn't called
     IM_ASSERT(isDrawingNode == false); // Forgot to call EndNode()
 
-    isAnyCanvasNodeHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow); // not really needed anymore...
-
-
     // reset cursor pos to canvas window
     ImGui::SetCursorPos(ImGui::GetContentRegionAvail());
     ImGui::Dummy({1,1}); // Needed since ImGui 1.90 ??
@@ -249,10 +253,167 @@ void ImGuiEx::NodeCanvas::End(){
     canvasDrawList = nullptr;
 }
 
+void ImGuiEx::NodeCanvas::UserInteraction(){
+    MouseMove();
+    if (ImGui::IsMouseDoubleClicked(0))
+    {
+        MouseLeftButtonDoubleClick();
+        return;
+    }
+    if (ImGui::IsMouseDoubleClicked(1))
+    {
+        MouseRightButtonDoubleClick();
+        return;
+    }
+    if (ImGui::IsMouseClicked(0))
+    {
+        MouseLeftButtonSingleClick();   // Set dragging states.
+        return;
+    }
+    if (ImGui::IsMouseDragging(0))
+    {
+        MouseLeftButtonDrag();          // Set selecting state.
+        return;
+    }
+    if (ImGui::IsMouseReleased(0))
+    {
+        MouseLeftButtonRelease();
+        return;
+    }
+    if (ImGui::IsMouseReleased(1))
+    {
+        MouseRightButtonRelease();
+        return;
+    }
+}
+
+void ImGuiEx::NodeCanvas::MouseMove(){
+    bool condition = (canvasView.state == ImGuiExCanvasState::None) || (canvasView.state == ImGuiExCanvasState::Default) || (canvasView.state == ImGuiExCanvasState::HoveringNode) ||
+            (canvasView.state == ImGuiExCanvasState::HoveringInput) || (canvasView.state == ImGuiExCanvasState::HoveringOutput);
+    if (condition == true){
+        if (hoveredNode == nullptr){
+            canvasView.state = ImGuiExCanvasState::Default;
+            interactedNode = nullptr;
+        }else{
+            interactedNode = hoveredNode;
+            canvasView.state = ImGuiExCanvasState::HoveringNode;
+        }
+    }
+}
+
+void ImGuiEx::NodeCanvas::MouseLeftButtonDoubleClick(){
+    if (canvasView.state == ImGuiExCanvasState::HoveringNode){
+
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringInput){
+
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringOutput){
+
+    }
+}
+
+void ImGuiEx::NodeCanvas::MouseRightButtonDoubleClick(){
+    if (canvasView.state == ImGuiExCanvasState::HoveringNode){
+
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringNode){
+
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringInput){
+
+    }
+}
+
+void ImGuiEx::NodeCanvas::MouseLeftButtonSingleClick(){
+
+    if (canvasView.state == ImGuiExCanvasState::Default){
+
+    }else if (canvasView.state == ImGuiExCanvasState::SelectedNode && !isAnyCanvasNodeHovered){
+        // deselect nodes on clicking on patch
+        canvasView.state = ImGuiExCanvasState::Default;
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringNode){
+        canvasView.state = ImGuiExCanvasState::Draging; // SetState:Draging
+
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringInput){
+
+    }else if (canvasView.state == ImGuiExCanvasState::HoveringOutput){
+        canvasView.state = ImGuiExCanvasState::DragingOutput; // SetState:DragingOutput
+    }
+
+}
+
+void ImGuiEx::NodeCanvas::MouseRightButtonSingleClick(){
+
+}
+
+void ImGuiEx::NodeCanvas::MouseLeftButtonDrag(){
+    const ImGuiIO& io = ImGui::GetIO();
+    if (canvasView.state == ImGuiExCanvasState::Default){
+
+        canvasView.state = ImGuiExCanvasState::Selecting; // SetState:Selecting
+    }else if (canvasView.state == ImGuiExCanvasState::Selecting){
+        const ImVec2 pos = canvasView.mousePos - ImGui::GetMouseDragDelta(0);
+        canvasView.rectSelecting.Min = ImMin(pos, canvasView.mousePos);
+        canvasView.rectSelecting.Max = ImMax(pos, canvasView.mousePos);
+    }else if (canvasView.state == ImGuiExCanvasState::Draging){
+
+    }else if (canvasView.state == ImGuiExCanvasState::DragingInput){
+
+    }else if (canvasView.state == ImGuiExCanvasState::DragingOutput){
+
+    }
+}
+
+void ImGuiEx::NodeCanvas::MouseLeftButtonRelease(){
+    if (canvasView.state == ImGuiExCanvasState::None){
+
+    }else if (canvasView.state == ImGuiExCanvasState::Default){
+
+    }else if (canvasView.state == ImGuiExCanvasState::Selecting){
+        canvasView.rectSelecting = ImRect();
+        canvasView.state = ImGuiExCanvasState::SelectedNode;
+    }else if (canvasView.state == ImGuiExCanvasState::SelectedNode && !isAnyCanvasNodeHovered){
+        canvasView.state = ImGuiExCanvasState::Default;
+    }else if (canvasView.state == ImGuiExCanvasState::Draging){
+        canvasView.state = ImGuiExCanvasState::HoveringNode; //SetState:HoveringNode
+    }else if (canvasView.state == ImGuiExCanvasState::DragingInput || canvasView.state == ImGuiExCanvasState::DragingOutput){
+        canvasView.state = ImGuiExCanvasState::Default;
+    }
+}
+
+void ImGuiEx::NodeCanvas::MouseRightButtonRelease(){
+    // Open canvas selection popup menu.
+    const ImGuiIO& io = ImGui::GetIO();
+    if (canvasView.state != ImGuiExCanvasState::None && canvasView.rectCanvas.Contains(canvasView.mousePos) && ImGui::IsMouseDown(0) == false && ImGui::IsMouseReleased(1)){
+        if (io.MouseDragMaxDistanceSqr[1] < (io.MouseDragThreshold * io.MouseDragThreshold)){
+            bool someObjectsSelected = false;
+            if(getSelectedNodesId().size()>0){
+                someObjectsSelected = true;
+            }
+            if (someObjectsSelected){
+                ImGui::OpenPopup("CanvasPopupMenu");
+            }
+        }
+    }
+}
+
+void ImGuiEx::NodeCanvas::CanvasPopupMenu(){
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+    if (ImGui::BeginPopup("CanvasPopupMenu")){
+        /*if (ImGui::MenuItem("Delete selection")){
+
+        }
+        if (ImGui::MenuItem("Duplicate selection")){
+
+        }*/
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleVar();
+}
+
 void ImGuiEx::NodeCanvas::Update(){
     UpdateCanvasRect();
     UpdateCanvasScrollZoom();
     UpdateCanvasGrid(ImGui::GetWindowDrawList());
+    UpdateNodesFlags();
 }
 
 void ImGuiEx::NodeCanvas::UpdateCanvasRect(){
@@ -322,6 +483,45 @@ void ImGuiEx::NodeCanvas::UpdateCanvasGrid(ImDrawList* drawList) const{
     }
 }
 
+void ImGuiEx::NodeCanvas::UpdateNodesFlags(){
+    hoveredNode = nullptr; // Important.
+    if (existingNodes.empty()) return;
+
+    ImVec2 offset = canvasView.position + canvasView.scroll;
+    ImRect canvas(canvasView.position, canvasView.position + canvasView.size);
+
+    for(std::map<int,NodeInfo>::iterator it = existingNodes.begin(); it != existingNodes.end(); it++ ){
+
+        // Unset hovered flag
+        if(canvasView.state == ImGuiExCanvasState::Default || canvasView.state == ImGuiExCanvasState::Selecting){
+            it->second.flag = NodeFlag::Default;
+        }
+
+
+        // GET NODE AREA
+        ImRect nodeArea = it->second.nodeRect;
+        nodeArea.Min *= canvasView.scale;
+        nodeArea.Max *= canvasView.scale;
+        nodeArea.Translate(offset);
+        nodeArea.ClipWith(canvas);
+
+        // Hovered Node Condition
+        if (canvasView.state != ImGuiExCanvasState::None && canvasView.state != ImGuiExCanvasState::SelectedNode && hoveredNode == nullptr && (nodeArea.Contains(canvasView.mousePos))){
+            hoveredNode = &it->second;
+            hoveredNode->flag = NodeFlag::Hovered;
+        }
+
+        // Selecting node
+        if (canvasView.state == ImGuiExCanvasState::Selecting){
+            if (canvasView.rectSelecting.Overlaps(nodeArea)){
+                it->second.flag = NodeFlag::Selected;
+                continue;
+            }
+
+        }
+    }
+}
+
 void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
     // Only use between NodeCanvas::Begin() and End().
     IM_ASSERT(isDrawingCanvas == true);  // forgot to Begin();
@@ -338,19 +538,33 @@ void ImGuiEx::NodeCanvas::DrawFrameBorder(const bool& _drawOnForeground) const {
                 );
 }
 
+void ImGuiEx::NodeCanvas::DrawSelecting() const{
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    if (canvasView.state == ImGuiExCanvasState::Selecting){
+        drawList->AddRectFilled(canvasView.rectSelecting.Min, canvasView.rectSelecting.Max, ImColor(140/255.0f,145/255.0f,216/255.0f, 0.05f));
+        drawList->AddRect(canvasView.rectSelecting.Min, canvasView.rectSelecting.Max, ImColor(1.0f, 1.0f, 1.0f, 0.1f));
+    }
+}
+
 
 // always use EndNode() even if returns false. Like ImGui Windows.
 bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name, ImVec2& _pos, ImVec2& _size, const int& _numLeftPins, const int& _numRightPins, const bool& canResize, const bool& isTextureNode ){
     // Check callstack
     IM_ASSERT(isDrawingCanvas == true);  // forgot to End();
     IM_ASSERT(canDrawNode == true); // Don't call if Begin() returned false
-    IM_ASSERT(isDrawingNode == false); // Finish your previous node before staring a new one !
+    IM_ASSERT(isDrawingNode == false); // Finish your previous node before staring a new one !77
+
+    //const ImGuiIO& io = ImGui::GetIO();
 
     // Precalc some vars
     ImVec2 nodeScale = ImVec2(1,1)*canvasView.scale;
     curNodeData = NodeLayoutData(canvasView.translation + _pos*nodeScale, _size*nodeScale, canvasView.scale, scaleFactor );
     isDrawingNode = true; // to allow End() call
     curNodeData.menuActions = ImGuiExNodeMenuActionFlags_None; // reset menu flags
+
+    // Set node rect
+    existingNodes[nId].nodeRect.Min = _pos;
+    existingNodes[nId].nodeRect.Max = _pos+_size;
 
     // Is the node out of sight on canvas ?
     bool isNodeVisible = ImGui::IsRectVisible( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max );
@@ -486,7 +700,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
 
         // Node border (surrounding)
         ImU32 _tempColor = IM_COL32(0,0,0,0);
-        if (std::find(selected_nodes.begin(), selected_nodes.end(),nId)!=selected_nodes.end()){ // selected
+        if (existingNodes[nId].flag == NodeFlag::Selected){ // selected
             _tempColor = IM_COL32(255,0,0,255);
         }
         nodeDrawList->AddRect( curNodeData.outerContentBox.Min, curNodeData.outerContentBox.Max, _tempColor );
@@ -524,17 +738,10 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
         ImGui::InvisibleButton( "headerGripBtn", ImMax(ImVec2( curNodeData.outerContentBox.GetSize().x-IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor, IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor ), ImVec2(1,1))  );
         static ImVec2 mouseOffset(0,0);
         static bool isDraggingHeader = false;
+        static bool isDraggingSelection = false;
 
         if(ImGui::IsItemActive() && ImGui::IsItemClicked(ImGuiMouseButton_Left)){
             activeNode = nId;
-            if(ImGui::GetIO().KeyShift && name != "audio device"){
-                selected_nodes.push_back(nId);
-            }
-        }
-
-        // deselect nodes on clicking on patch
-        if(ImGui::IsMouseClicked(ImGuiMouseButton_Left) && !isAnyCanvasNodeHovered){
-            selected_nodes.clear();
         }
 
         if(ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
@@ -548,9 +755,14 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             ImGui::GetForegroundDrawList()->AddLine(curNodeData.outerContentBox.Min,curNodeData.outerContentBox.Min+mouseOffset,ImGui::ColorConvertFloat4ToU32(ImVec4(0,1,0,1.f)));
 # endif
             _pos = (ImGui::GetMousePos()-mouseOffset)*(1.f/canvasView.scale)-canvasView.translation*(1.f/canvasView.scale);// ImGui::GetMouseDragDelta(0);
-        }
-        else if(ImGui::IsItemDeactivated()){
+        }else if(existingNodes[nId].flag == NodeFlag::Selected && canvasView.state == ImGuiExCanvasState::SelectedNode && ImGui::IsMouseDragging(ImGuiMouseButton_Left)){
+
+            existingNodes[nId].nodeRect.Translate(ImGui::GetIO().MouseDelta / canvasView.scale);
+            _pos = existingNodes[nId].nodeRect.Min;
+
+        }else if(ImGui::IsItemDeactivated()){
             if(isDraggingHeader) isDraggingHeader = false;
+            if(isDraggingSelection) isDraggingSelection = false;
         }
 
 
@@ -645,7 +857,7 @@ bool ImGuiEx::NodeCanvas::BeginNode( int nId, const char* _id, std::string name,
             if(ImGui::MenuItem("Duplicate")) curNodeData.menuActions |= ImGuiExNodeMenuActionFlags_DuplicateNode;
             ImGui::Selectable("Drag to Subpatch");
             // drag node id
-            if(name != "audio device" && name != "live patching"){
+            if(name != "live patching"){
                 if (ImGui::BeginDragDropSource()){
 
                     ImGui::SetDragDropPayload("SUBPATCH_NAME", &nId, sizeof(int));
@@ -947,16 +1159,16 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
 
                 if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
-                    if (is_hovered && !ImGui::GetIO().KeyShift){
+                    if (is_hovered && ofGetKeyPressed(OF_KEY_CONTROL)){
                         if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
                             selected_links.push_back(_linksData.at(i)._linkID);
                         }
-                    }else if(!is_hovered && !ImGui::GetIO().KeyShift){
+                    }else if(!is_hovered && !ofGetKeyPressed(OF_KEY_SHIFT) && !ofGetKeyPressed(OF_KEY_CONTROL)){
                         std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID);
                         if (it!=selected_links.end()){
                             selected_links.erase(it);
                         }
-                    }else if(is_hovered && ImGui::GetIO().KeyShift){
+                    }else if(is_hovered && ofGetKeyPressed(OF_KEY_SHIFT)){
                         // deactivate if activated
                         if (std::find(deactivated_links.begin(), deactivated_links.end(),_linksData.at(i)._linkID)==deactivated_links.end()){
                             deactivated_links.push_back(_linksData.at(i)._linkID);
