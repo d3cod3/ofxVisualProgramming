@@ -1,0 +1,239 @@
+/*==============================================================================
+
+    ofxVisualProgramming: A visual programming patching environment for OF
+
+    Copyright (c) 2025 Emanuele Mazza aka n3m3da <emanuelemazza@d3cod3.org>
+
+    ofxVisualProgramming is distributed under the MIT License.
+    This gives everyone the freedoms to use ofxVisualProgramming in any context:
+    commercial or non-commercial, public or private, open or closed source.
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+
+    See https://github.com/d3cod3/ofxVisualProgramming for documentation
+
+==============================================================================*/
+
+#ifndef OFXVP_BUILD_WITH_MINIMAL_OBJECTS
+
+#include "moPianoKeyboard.h"
+
+static bool has_black(int key) {
+    return (!((key - 1) % 7 == 0 || (key - 1) % 7 == 3) && key != 51);
+}
+
+//--------------------------------------------------------------
+moPianoKeyboard::moPianoKeyboard() : PatchObject("piano keyboard"){
+
+    this->numInlets  = 2;
+    this->numOutlets = 2;
+
+    _inletParams[0] = new float();  // pitch (index)
+    *(float *)&_inletParams[0] = 0.0f;
+    _inletParams[1] = new float();  // velocity
+    *(float *)&_inletParams[1] = 0.0f;
+
+    _outletParams[0] = new float(); // pitch
+    *(float *)&_outletParams[0] = 0.0f;
+    _outletParams[1] = new float(); // velocity
+    *(float *)&_outletParams[1] = 0.0f;
+
+    this->initInletsState();
+
+    pitch       = 0;
+    loaded      = false;
+
+    this->width *= 6.74f;
+
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::newObject(){
+    PatchObject::setName( this->objectName );
+
+    this->addInlet(VP_LINK_NUMERIC,"pitch");
+    this->addInlet(VP_LINK_NUMERIC,"velocity");
+
+    this->addOutlet(VP_LINK_NUMERIC,"pitch");
+    this->addOutlet(VP_LINK_NUMERIC,"velocity");
+
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
+    unusedArgs(mainWindow);
+
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+    unusedArgs(patchObjects);
+
+    if(this->inletsConnected[0] && this->inletsConnected[1]){
+        key_states[static_cast<int>(*(float *)&_inletParams[0])] = static_cast<int>(*(float *)&_inletParams[1]);
+        *(float *)&_outletParams[0] = *(float *)&_inletParams[0];
+        *(float *)&_outletParams[1] = *(float *)&_inletParams[1];
+
+    }else{
+        *(float *)&_outletParams[0] = pitch;
+        *(float *)&_outletParams[1] = 127.0f;
+    }
+
+    if(!loaded){
+        loaded = true;
+
+    }
+
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+    unusedArgs(font,glRenderer);
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
+
+    // CONFIG GUI inside Menu
+    if(_nodeCanvas.BeginNodeMenu()){
+        ImGui::Separator();
+        ImGui::Separator();
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("CONFIG"))
+        {
+
+            drawObjectNodeConfig(); this->configMenuWidth = ImGui::GetWindowWidth();
+
+
+            ImGui::EndMenu();
+        }
+        _nodeCanvas.EndNodeMenu();
+    }
+
+    // Visualize (Object main view)
+    if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
+
+
+
+        ImDrawList *draw_list = ImGui::GetWindowDrawList();
+        ImVec2 p = ImGui::GetCursorScreenPos();     
+
+        int width = 20*_nodeCanvas.GetCanvasScale()*scaleFactor;
+        int cur_key = 21;
+        for (int key = 0; key < 52; key++) {
+            ImU32 col = White;
+            ImRect tecla = ImRect(ImVec2(p.x + key * width + (width/4), p.y),ImVec2(p.x + key * width + width - (width/4), p.y + ((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)));
+            bool is_segment_hovered = tecla.Contains(ImGui::GetIO().MousePos) && !this->inletsConnected[0] && !this->inletsConnected[1];
+
+            if ((key_states[cur_key] || is_segment_hovered)) {
+                if(ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)){
+                    col = Yellow;
+                    pitch = cur_key;
+                }else{
+                    col = Gray;
+                    pitch = 0;
+                }
+            }
+            draw_list->AddRectFilled(
+                        ImVec2(p.x + key * width, p.y),
+                        ImVec2(p.x + key * width + width, p.y + ((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)),
+                        col, 0, ImDrawFlags_RoundCornersAll);
+            draw_list->AddRect(
+                        ImVec2(p.x + key * width, p.y),
+                        ImVec2(p.x + key * width + width, p.y + ((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)),
+                        Black, 0, ImDrawFlags_RoundCornersAll);
+            cur_key++;
+            if (has_black(key)) {
+                cur_key++;
+            }
+
+        }
+        cur_key = 22;
+        for (int key = 0; key < 52; key++) {
+            if (has_black(key)) {
+                ImU32 col = Black;
+                ImRect tecla = ImRect(ImVec2(p.x + key * width + width * 3 / 4, p.y),ImVec2(p.x + key * width + width * 5 / 4 + 1, p.y + (((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/3*2)));
+                bool is_segment_hovered = tecla.Contains(ImGui::GetIO().MousePos) && !this->inletsConnected[0] && !this->inletsConnected[1];
+
+                if ((key_states[cur_key] || is_segment_hovered)) {
+                    if(ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)){
+                        col = Yellow;
+                        pitch = cur_key;
+                    }else{
+                        col = Gray;
+                        pitch = 0;
+                    }
+                }
+                draw_list->AddRectFilled(
+                            ImVec2(p.x + key * width + width * 3 / 4, p.y),
+                            ImVec2(p.x + key * width + width * 5 / 4 + 1, p.y + (((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/3*2)),
+                            col, 0, ImDrawFlags_RoundCornersAll);
+                draw_list->AddRect(
+                            ImVec2(p.x + key * width + width * 3 / 4, p.y),
+                            ImVec2(p.x + key * width + width * 5 / 4 + 1, p.y + (((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/3*2)),
+                            Black, 0, ImDrawFlags_RoundCornersAll);
+
+                cur_key += 2;
+            } else {
+                cur_key++;
+            }
+        }
+
+        _nodeCanvas.EndNodeContent();
+    }
+
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::drawObjectNodeConfig(){
+    ImGuiEx::ObjectInfo(
+                "An interactive piano keyboard, it can be used to play notes or to visualize MIDI notes from an external MIDI device ( via midi receiver object )",
+                "https://mosaic.d3cod3.org/reference.php?r=piano-keyboard", scaleFactor);
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::removeObjectContent(bool removeFileFromData){
+    unusedArgs(removeFileFromData);
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::keyup(int key) {
+    key_states[key] = 0;
+}
+
+//--------------------------------------------------------------
+void moPianoKeyboard::keydown(int key, int velocity) {
+    key_states[key] = velocity;
+}
+//--------------------------------------------------------------
+std::vector<int> moPianoKeyboard::current_notes() {
+    std::vector<int> result{};
+    for (int i = 0; i < 256; i++) {
+        if (key_states[i]) {
+            result.push_back(i);
+        }
+    }
+    return result;
+}
+
+
+OBJECT_REGISTER( moPianoKeyboard, "piano keyboard", OFXVP_OBJECT_CAT_GUI)
+
+#endif

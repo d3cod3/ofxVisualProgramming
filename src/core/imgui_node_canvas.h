@@ -365,6 +365,9 @@ struct NodeCanvas {
 
     void resetCanvas() { canvasView.scroll = ImVec2(0,0); canvasView.scale  = 1.0f; }
 
+    // Get mouse position over canvas
+    ImVec2 GetMousePosition() { return canvasView.mousePos; }
+
     // Returns data about the current node.
     // Useful inside: scale, niewName, scaleName, etc.
     const NodeLayoutData& GetNodeData() const {
