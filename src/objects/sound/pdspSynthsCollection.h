@@ -45,7 +45,7 @@
 struct BassPattern : public pdsp::Sequence{
     
     // helper routine to add notes to the score
-    // this routin also add a message for stopping the note
+    // this routine also add a message for stopping the note
     // so we have to be careful that notes durations don't overlap
     void note(double step16, float gate, float pitch, float slew, double duration){    
         message( step16 ,           gate,  0  ); // adds a trigger on to the gate output
