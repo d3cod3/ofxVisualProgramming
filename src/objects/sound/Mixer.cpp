@@ -105,7 +105,7 @@ void Mixer::newObject(){
     }
 
     static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets,0.0f);
+    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets*2,0.0f);
 
 }
 
@@ -133,7 +133,6 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
         this->pdspIn[i+1] >> levelsL[i] >> mixL;
         this->pdspIn[i+1] >> levelsR[i] >> mixR;
 
-
     }
 
     mixL >> this->pdspOut[0];
@@ -148,8 +147,10 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
-            if(i < signalInlets){
+            if(i < signalInlets){ // volumes
                 levels_float[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            }else if(i >= signalInlets && i < signalInlets*2){ // pans
+                pans_float[i-signalInlets] = static_cast<vector<float> *>(_inletParams[0])->at(i);
             }
         }
     }
@@ -262,7 +263,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void Mixer::drawObjectNodeConfig(){
     ImGui::Spacing();
-    if(ImGui::InputInt("Inlets",&signalInlets)){
+    if(ImGui::InputInt("Channels",&signalInlets)){
         if(signalInlets > MAX_INLETS-1){
             signalInlets = MAX_INLETS-1;
         }
@@ -270,7 +271,7 @@ void Mixer::drawObjectNodeConfig(){
             signalInlets = 2;
         }
     }
-    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 channels max.");
     ImGui::Spacing();
     if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
         this->setCustomVar(static_cast<float>(signalInlets),"NUM_INLETS");
@@ -278,7 +279,7 @@ void Mixer::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "Line mixer, mix up to 31 audio signals",
+                "Line mixer, mix up to 31 audio signals. Volumes and panning can be controlled from the first data inlet, for example with a 6 channels mixer, the first inlet can receive a data cable ( green ) with 12 numbers, the first 6 will control volumes, and the last 6 will control panning.)",
                 "https://mosaic.d3cod3.org/reference.php?r=mixer", scaleFactor);
 }
 
@@ -346,7 +347,7 @@ void Mixer::resetInletsSettings(){
 
     _inletParams[0] = new vector<float>();
     static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets,0.0f);
+    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets*2,0.0f);
 
     for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new ofSoundBuffer();
