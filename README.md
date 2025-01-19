@@ -6,8 +6,6 @@
 ![Mosaic 0.6.9](https://github.com/d3cod3/Mosaic/raw/master/process/img/31_sintax03.jpg)
 Screenshot from project [Mosaic](http://mosaic.d3cod3.org/), embedding ofxVisualProgramming
 
-[<img src="https://api.gitsponsors.com/api/badge/img?id=137724379" height="20">](https://api.gitsponsors.com/api/badge/link?p=tgnYu66qaW28hhsub8U73h/4TnJi8aLTLGgzmMfYEZ7DY8cNqS2Un7vgPqVX7SlYqFwRY5qd+e2oo6aDUARjNSjzZDoQLpPOhgddP/VgXVmErTr5zRyPCS9nC9xEO7Uz)
-
 
 Table of Contents
 =================
