@@ -60,13 +60,18 @@ public:
     void            newMidiMessage(ofxMidiMessage& msg) override;
     
 
-    ofxMidiIn               midiIn;
-    ofxMidiMessage          lastMessage;
+    ofxMidiIn                   midiIn;
+    ofxMidiMessage              lastMessage;
+    std::vector<ofxMidiMessage> midiMessages; ///< received messages
+    std::size_t                 maxMessages = 16; ///< max number of messages to keep track of
+    std::map<int,int>           midinotes;
 
-    vector<string>          midiDevicesList;
-    int                     midiDeviceID;
+    std::vector<std::string>    midiDevicesList;
+    int                         midiDeviceID;
 
-    bool                    loaded;
+    std::vector<float>          emptyVec;
+    bool                        isLogging;
+    bool                        loaded;
 
 protected:
 

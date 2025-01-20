@@ -56,6 +56,7 @@ public:
     void                keydown(int key, int velocity);
     std::vector<int>    current_notes();
 
+    std::vector<float>          emptyVec;
 
     int                     pitch;
     bool                    loaded;

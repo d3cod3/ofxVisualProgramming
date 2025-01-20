@@ -41,18 +41,12 @@ static bool has_black(int key) {
 //--------------------------------------------------------------
 moPianoKeyboard::moPianoKeyboard() : PatchObject("piano keyboard"){
 
-    this->numInlets  = 2;
-    this->numOutlets = 2;
+    this->numInlets  = 1;
+    this->numOutlets = 1;
 
-    _inletParams[0] = new float();  // pitch (index)
-    *(float *)&_inletParams[0] = 0.0f;
-    _inletParams[1] = new float();  // velocity
-    *(float *)&_inletParams[1] = 0.0f;
+    _inletParams[0] = new vector<float>(); // midi notes array ( polyphony )
 
-    _outletParams[0] = new float(); // pitch
-    *(float *)&_outletParams[0] = 0.0f;
-    _outletParams[1] = new float(); // velocity
-    *(float *)&_outletParams[1] = 0.0f;
+    _outletParams[0] = new vector<float>(); // notes
 
     this->initInletsState();
 
@@ -67,11 +61,9 @@ moPianoKeyboard::moPianoKeyboard() : PatchObject("piano keyboard"){
 void moPianoKeyboard::newObject(){
     PatchObject::setName( this->objectName );
 
-    this->addInlet(VP_LINK_NUMERIC,"pitch");
-    this->addInlet(VP_LINK_NUMERIC,"velocity");
+    this->addInlet(VP_LINK_ARRAY,"midi notes");
 
-    this->addOutlet(VP_LINK_NUMERIC,"pitch");
-    this->addOutlet(VP_LINK_NUMERIC,"velocity");
+    this->addOutlet(VP_LINK_ARRAY,"notes");
 
 }
 
@@ -79,20 +71,41 @@ void moPianoKeyboard::newObject(){
 void moPianoKeyboard::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
+    static_cast<vector<float> *>(_outletParams[0])->assign(128,0.0f);
 }
 
 //--------------------------------------------------------------
 void moPianoKeyboard::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && this->inletsConnected[1]){
-        key_states[static_cast<int>(*(float *)&_inletParams[0])] = static_cast<int>(*(float *)&_inletParams[1]);
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[0];
-        *(float *)&_outletParams[1] = *(float *)&_inletParams[1];
+    if(this->inletsConnected[0]){
+        for(size_t i =0;i<256;i++){
+            key_states[i] = 0;
+        }
+        for(size_t i=0;i<static_cast<vector<float> *>(_outletParams[0])->size();i++){
+            static_cast<vector<float> *>(_outletParams[0])->at(i) = 0;
+        }
+        if(static_cast<vector<float> *>(_inletParams[0])->size()>2){
+            for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size()-2;i++){
+                key_states[static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1))] = static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+2));
+                if(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1)) >= 21 && static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1)) <= 108){
+                    static_cast<vector<float> *>(_outletParams[0])->at(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1))) = static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+2));
+                }else{
+                    static_cast<vector<float> *>(_outletParams[0])->at(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1))) = 0;
+                }
+                i++;
+            }
+        }
 
     }else{
-        *(float *)&_outletParams[0] = pitch;
-        *(float *)&_outletParams[1] = 127.0f;
+        for(size_t i=0;i<static_cast<vector<float> *>(_outletParams[0])->size();i++){
+            if(i == pitch && pitch >= 21 && pitch <= 108){
+                static_cast<vector<float> *>(_outletParams[0])->at(i) = 127;
+            }else{
+                static_cast<vector<float> *>(_outletParams[0])->at(i) = 0;
+            }
+        }
+
     }
 
     if(!loaded){
@@ -138,12 +151,13 @@ void moPianoKeyboard::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for (int key = 0; key < 52; key++) {
             ImU32 col = White;
             ImRect tecla = ImRect(ImVec2(p.x + key * width + (width/4), p.y),ImVec2(p.x + key * width + width - (width/4), p.y + ((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)));
-            bool is_segment_hovered = tecla.Contains(ImGui::GetIO().MousePos) && !this->inletsConnected[0] && !this->inletsConnected[1];
+            bool is_segment_hovered = tecla.Contains(ImGui::GetIO().MousePos) && !this->inletsConnected[0];
 
             if ((key_states[cur_key] || is_segment_hovered)) {
-                if(ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)){
+                if(ofGetMousePressed(OF_MOUSE_BUTTON_LEFT) && is_segment_hovered){
                     col = Yellow;
                     pitch = cur_key;
+
                 }else{
                     col = Gray;
                     pitch = 0;
@@ -168,12 +182,13 @@ void moPianoKeyboard::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             if (has_black(key)) {
                 ImU32 col = Black;
                 ImRect tecla = ImRect(ImVec2(p.x + key * width + width * 3 / 4, p.y),ImVec2(p.x + key * width + width * 5 / 4 + 1, p.y + (((this->height*_nodeCanvas.GetCanvasScale()*scaleFactor)-IMGUI_EX_NODE_HEADER_HEIGHT-IMGUI_EX_NODE_FOOTER_HEIGHT)/3*2)));
-                bool is_segment_hovered = tecla.Contains(ImGui::GetIO().MousePos) && !this->inletsConnected[0] && !this->inletsConnected[1];
+                bool is_segment_hovered = tecla.Contains(ImGui::GetIO().MousePos) && !this->inletsConnected[0];
 
                 if ((key_states[cur_key] || is_segment_hovered)) {
-                    if(ofGetMousePressed(OF_MOUSE_BUTTON_LEFT)){
+                    if(ofGetMousePressed(OF_MOUSE_BUTTON_LEFT) && is_segment_hovered){
                         col = Yellow;
                         pitch = cur_key;
+
                     }else{
                         col = Gray;
                         pitch = 0;

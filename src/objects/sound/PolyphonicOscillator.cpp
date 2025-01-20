@@ -245,16 +245,29 @@ void PolyphonicOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> 
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && static_cast<vector<float> *>(_inletParams[0])->size()>0){
+        size_t counter = 0;
+        size_t activeVoices = 0;
         for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
-            if(i<MAX_OSC_VOICES){
-                pitch_float.at(i) = ofClamp(static_cast<vector<float> *>(_inletParams[0])->at(i),0,127);
-                pitch_ctrl.at(i).set(pitch_float.at(i));
-                voice_float.at(i) = 1.0f/static_cast<vector<float> *>(_inletParams[0])->size();
-                voice_ctrl.at(i).set(voice_float.at(i));
+            if(static_cast<vector<float> *>(_inletParams[0])->at(i) > 0){
+                activeVoices++;
             }
         }
-        if(static_cast<vector<float> *>(_inletParams[0])->size() <= MAX_OSC_VOICES){
-            for(size_t i=static_cast<vector<float> *>(_inletParams[0])->size()-1;i<MAX_OSC_VOICES;i++){
+        if(activeVoices > MAX_OSC_VOICES){
+            activeVoices = MAX_OSC_VOICES;
+        }
+        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
+            if(static_cast<vector<float> *>(_inletParams[0])->at(i) > 0){
+                if(counter<MAX_OSC_VOICES){
+                    pitch_float.at(counter) = i;
+                    pitch_ctrl.at(counter).set(pitch_float.at(counter));
+                    voice_float.at(counter) = 1.0f/activeVoices;
+                    voice_ctrl.at(counter).set(voice_float.at(counter));
+                    counter++;
+                }
+            }
+        }
+        if(counter < MAX_OSC_VOICES){
+            for(size_t i=counter;i<MAX_OSC_VOICES;i++){
                 pitch_float.at(i) = 0.0f;
                 pitch_ctrl.at(i).set(pitch_float.at(i));
                 voice_float.at(i) = 0.0f;
