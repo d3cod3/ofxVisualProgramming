@@ -83,6 +83,11 @@ public:
     float                   float_m2freq, float_m2Q, float_m2gain;
     float                   float_h1freq, float_h1Q, float_h1gain;
 
+    std::vector<float>      *l1Filter;
+    std::vector<float>      *m1Filter;
+    std::vector<float>      *m2Filter;
+    std::vector<float>      *h1Filter;
+    std::vector<float>      *parametricFilter;
 
     int                     bufferSize;
     int                     sampleRate;

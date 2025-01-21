@@ -427,4 +427,62 @@ void PlotBands(ImDrawList* drawList, float width, float height, std::vector<floa
 
 }
 
+void PlotSpectrum(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max, bool useCanvas, ImU32 color){
+
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvail().x;
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    if(useCanvas) ImGui::ItemSize(bb);
+
+    float bin_w = Canvas.x / data->size();
+    int data_size = data->size()+3;
+
+    ImVec2 *points = new ImVec2[data_size];
+    points[0] = ImVec2(bb.Min.x,bb.Max.y);
+    for(unsigned int i=0;i<data->size();i++){
+        points[i+1] = ImVec2( bb.Min.x + (bin_w*i),bb.Min.y+(Canvas.y*(max-data->at(i))) );
+    }
+    points[data->size()+1] = ImVec2(bb.Max.x,bb.Max.y);
+    points[data->size()+2] = ImVec2(bb.Min.x,bb.Max.y);
+
+    drawList->AddConcavePolyFilled(points,data_size,color);
+}
+
+void PlotEQFilter(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max, bool useCanvas, ImU32 color){
+
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvail().x;
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    if(useCanvas) ImGui::ItemSize(bb);
+
+    float bin_w = Canvas.x / data->size();
+
+    ImVec2 *points = new ImVec2[data->size()];
+    for(unsigned int i=0;i<data->size();i++){
+        points[i] = ImVec2( bb.Min.x + (bin_w*i),bb.Min.y+(Canvas.y*(data->at(i)*-1*max)) - height/2 );
+    }
+    drawList->AddPolyline(points,data->size(),color,0,3);
+}
+
+void PlotEQPoint(ImDrawList* drawList,ImVec2 pos,float width, float height, float max,ImU32 color){
+    ImGuiWindow* Window = ImGui::GetCurrentWindow();
+
+    // prepare canvas
+    const float dim = width > 0 ? width : ImGui::GetContentRegionAvail().x;
+    ImVec2 Canvas(dim, height);
+
+    ImRect bb(Window->DC.CursorPos, Window->DC.CursorPos + Canvas);
+    //ImGui::ItemSize(bb);
+
+    drawList->AddCircleFilled(ImVec2(bb.Min.x + pos.x,bb.Min.y + (Canvas.y*pos.y*-1*max) - height/2), 4, color,20);
+}
+
 }
