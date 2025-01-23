@@ -46,15 +46,17 @@ Constant::Constant() :
 
     // Bind Inlets to values
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
-    *(float *)&_inletParams[1] = inputValueNew.get(); // value
+    _inletParams[1] = new float();
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = inputValueNew.get(); // value
 
     // Bind outlets to values
-    *(float *)&_outletParams[0] = inputValueNew.get(); // float output
+    _outletParams[0] = new float();
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = inputValueNew.get(); // float output
 
      _outletParams[1] = new string(); // string output
-     *static_cast<string *>(_outletParams[1]) = "";
+     *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[1]) = "";
 
     this->initInletsState();
 
@@ -92,7 +94,7 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && !isON){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else{
             bang = true;
@@ -100,18 +102,18 @@ void Constant::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     }
 
     if(this->inletsConnected[1]){
-      inputValueNew = *(float *)&_inletParams[1]; 
+      inputValueNew = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
 
     if(!nextFrame){
         nextFrame = true;
-        *(float *)&_outletParams[0] = inputValueNew;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = inputValueNew;
     }
 
     if(bang){
         nextFrame = false;
-        *(float *)&_outletParams[0] = inputValueNew+0.00001f;
-        *static_cast<string *>(_outletParams[1]) = ofToString( inputValueNew.get() );
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = inputValueNew+0.00001f;
+        *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[1]) = ofToString( inputValueNew.get() );
     }
 
     if(!loaded){

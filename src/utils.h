@@ -38,6 +38,10 @@
 #include <pwd.h>
 #endif
 
+#if __cplusplus>=202002L
+#    include <bit>
+#endif
+
 #include <math.h>
 #include <random>
 #include <string>
@@ -53,6 +57,26 @@
 
 // this macro is used to silent unused variables warnings on virtual functions
 template <typename... Ts> void unusedArgs(const Ts&...) {}
+
+// Normal cast for almost any type
+template<typename TYPE>
+inline TYPE* ofxVP_CAST_PIN_PTR(void*& _pinData){
+    return static_cast<TYPE*>(_pinData);
+}
+// Specialisations/Exceptions : only float is using bit-cast style type-punning
+// Basically it reads/writes the address of a pointer as a value using a bitswap, instead of writing the value to the pointed address.
+// Note: Accessing the pointer normally will naturally crash the program; it's accessing an invalid memory address.
+// Info: https://tttapa.github.io/Pages/Programming/Cpp/Practices/type-punning.html
+template<>
+inline float* ofxVP_CAST_PIN_PTR(void*& _pinData){
+    // Compile-time check, will warn on platforms where this technique doesn't work !
+    static_assert(sizeof(float) == sizeof(uint32_t));
+#if __cplusplus>=202002L // C++20 brings native bitcast support !
+    return std::bit_cast<float*>(&_pinData);
+#else
+    return reinterpret_cast<float *>(&_pinData);
+#endif
+};
 
 
 //--------------------------------------------------------------

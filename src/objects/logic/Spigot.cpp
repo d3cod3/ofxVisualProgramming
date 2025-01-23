@@ -43,10 +43,10 @@ Spigot::Spigot() : PatchObject("spigot"){
     _inletParams[0] = new vector<float>();  // state
 
     _inletParams[1] = new float();  // float
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _inletParams[2] = new string();  // string
-    *static_cast<string *>(_inletParams[2]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[2]) = "";
 
     _inletParams[3] = new vector<float>(); // vector
 
@@ -55,10 +55,10 @@ Spigot::Spigot() : PatchObject("spigot"){
     _inletParams[5] = new ofSoundBuffer();  // signal
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     _outletParams[1] = new string();  // string
-    *static_cast<string *>(_outletParams[1]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[1]) = "";
 
     _outletParams[2] = new vector<float>(); // vector
 
@@ -146,24 +146,24 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
         }
 
         if(isOpen[0]){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
         }else{
-            *(float *)&_outletParams[0] = -1.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = -1.0f;
         }
         if(isOpen[1]){
-            *static_cast<string *>(_outletParams[1]) = *static_cast<string *>(_inletParams[2]);
+            *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[1]) = *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[2]);
         }else{
-            *static_cast<string *>(_outletParams[1]) = "empty";
+            *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[1]) = "empty";
         }
         if(isOpen[2] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
-            *static_cast<vector<float> *>(_outletParams[2]) = *static_cast<vector<float> *>(_inletParams[3]);
+            *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[2]) = *ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3]);
         }else{
-            *static_cast<vector<float> *>(_outletParams[2]) = *empty;
+            *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[2]) = *empty;
         }
         if(isOpen[3]){
-            *static_cast<ofTexture *>(_outletParams[3]) = *static_cast<ofTexture *>(_inletParams[4]);
+            *ofxVP_CAST_PIN_PTR<ofTexture>(this->_outletParams[3]) = *ofxVP_CAST_PIN_PTR<ofTexture>(this->_inletParams[4]);
         }else{
-            *static_cast<ofTexture *>(_outletParams[3]) = kuro->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(this->_outletParams[3]) = kuro->getTexture();
         }
 
     }
@@ -268,7 +268,7 @@ void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
 
     if(isOpen[4]){
         if(this->inletsConnected[5] && !static_cast<ofSoundBuffer *>(_inletParams[5])->getBuffer().empty()){
-            *static_cast<ofSoundBuffer *>(_outletParams[4]) = *static_cast<ofSoundBuffer *>(_inletParams[5]);
+            *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(this->_outletParams[4]) = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(this->_inletParams[5]);
         }else{
             static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
         }
