@@ -175,14 +175,25 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
 #elif defined(TARGET_WIN32)
     pluginsDir.allowExt("dll");
 #endif
-    pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
-    pluginsDir.sort();
+
+    bool hasPlugins = false;
+    try{
+        pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
+        pluginsDir.sort();
+        hasPlugins = pluginsDir.size() > 0;
+    }
+    catch(std::exception& e){
+        // This can throw with OS file permission problems.
+        ofLog(OF_LOG_WARNING,"Loading plugins: Can't load the plugins folder `%s`. Error: %s", pluginsDir.getOriginalDirectory().c_str(), e.what());
+    }
 
     // load all plugins
-    for(unsigned int i = 0; i < pluginsDir.size(); i++){
-        ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
-        string tmpPlugPath = pluginsDir.getFile(i).getAbsolutePath();
-        plugins_kernel.load_plugin(tmpPlugPath);
+    if(hasPlugins){
+        for(unsigned int i = 0; i < pluginsDir.size(); i++){
+            ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
+            string tmpPlugPath = pluginsDir.getFile(i).getAbsolutePath();
+            plugins_kernel.load_plugin(tmpPlugPath);
+        }
     }
 
     // Create new empty file patch
