@@ -339,7 +339,9 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), tempLinkData, getInletTypeName(i), getInletWirelessReceive(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+            std::ostringstream inletInfo;
+            inletInfo << inletsNames.at(i); // << " " << _inletParams[i];
+            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletInfo.str().c_str(), tempLinkData, getInletTypeName(i), getInletWirelessReceive(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
 
             inletsPositions[i] = _nodeCanvas.getInletPosition(nId,i);
 
@@ -397,7 +399,10 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), tempLinkData, getOutletTypeName(i), getOutletWirelessSend(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
+            std::ostringstream outletInfo;
+            outletInfo << getOutletName(i); // << " " << _outletParams[i];
+
+            _nodeCanvas.AddNodePin( nId, i, outletInfo.str().c_str(), tempLinkData, getOutletTypeName(i), getOutletWirelessSend(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
 
             outletsPositions[i] = _nodeCanvas.getOutletPosition(nId,i);
         }
