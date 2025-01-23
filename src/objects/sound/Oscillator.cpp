@@ -201,13 +201,23 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
+    // silence pitch 0
+    if(pitch_float <= 0.0f){
+        level_float = 0.0f;
+        level_ctrl.set(level_float);
+    }
+
     if(this->inletsConnected[0]){
         pitch_float = ofClamp(*(float *)&_inletParams[0],0,127);
         pitch_ctrl.set(pitch_float);
     }
 
     if(this->inletsConnected[1]){
-        level_float = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        if(pitch_float > 0.0f){
+            level_float = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        }else{
+            level_float = 0.0f;
+        }
         level_ctrl.set(level_float);
     }
 
@@ -314,8 +324,12 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("level", &level_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
-            level_ctrl.set(level_float);
-            this->setCustomVar(level_float,"LEVEL");
+            if(pitch_float > 0.0f){
+                level_ctrl.set(level_float);
+                this->setCustomVar(level_float,"LEVEL");
+            }else{
+                level_float = 0.0f;
+            }
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("detune", &detune_float, -12.0f, 12.0f, 0.005f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
