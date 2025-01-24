@@ -282,6 +282,30 @@ static inline float gaussianFn(float x, float amplitude, float center, float wid
 }
 
 //--------------------------------------------------------------
+static inline float lowShelfFn(float x, float amplitude, float center, float width){
+    float base = (x - center) / width; // divide top by bottom
+    base *= base * -.5; // square top and bottom, multiply by -1/2
+    base = exp(base); // take pow(e, base)
+    if(x < center){
+        return amplitude;
+    }else{
+        return amplitude * base;
+    }
+}
+
+//--------------------------------------------------------------
+static inline float hiShelfFn(float x, float amplitude, float center, float width){
+    float base = (x - center) / width; // divide top by bottom
+    base *= base * -.5; // square top and bottom, multiply by -1/2
+    base = exp(base); // take pow(e, base)
+    if(x > center){
+        return amplitude;
+    }else{
+        return amplitude * base;
+    }
+}
+
+//--------------------------------------------------------------
 inline std::string execCmd(const char* cmd){
     char buffer[128];
     std::string result = "";
