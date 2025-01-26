@@ -1586,7 +1586,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         checkSpecialConnection(fromID,toID,linkType);
 
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
         std::cout << "Connect from " << patchObjects[fromID]->getName() << " to " << patchObjects[toID]->getName() << std::endl;
 #endif
 
@@ -1716,12 +1716,12 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
         // remove previous data content
         ofDirectory oldData;
         oldData.listDir(ofToDataPath("temp/data/",true));
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
         std::cout << "Removing content from directory: " << oldData.getAbsolutePath() << std::endl;
 #endif
         for(size_t i=0;i<oldData.getFiles().size();i++){
             oldData.getFile(i).remove();
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
             std::cout << "Removing file: " << oldData.getFile(i).getAbsolutePath() << std::endl;
 #endif
         }
@@ -1730,7 +1730,7 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 
 
         // copy new data content
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
         std::cout << "Copying from  " << dataFolderOrigin.getAbsolutePath() << " to " << oldDataPath << std::endl;
 #endif
         if(dataFolderOrigin.canRead() && oldData.canWrite()){
@@ -2098,7 +2098,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                     subpatchesMap[objSubpatch].push_back(_t);
                                 }
 
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
 
@@ -2218,7 +2218,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 //--------------------------------------------------------------
 void ofxVisualProgramming::loadPatchSharedContextObjects(){
 
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
     std::cout << "Loading GL sharing context objects" << std::endl;
 #endif
 
@@ -2263,7 +2263,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
                                 nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
-#ifdef NDEBUG
+#ifdef MOSAIC_DEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
 
