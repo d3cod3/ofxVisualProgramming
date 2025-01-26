@@ -58,6 +58,9 @@
 // this macro is used to silent unused variables warnings on virtual functions
 template <typename... Ts> void unusedArgs(const Ts&...) {}
 
+// ---------------------------------------------
+// ofxVP_CAST_PIN_PTR template by @Daandelange
+
 // Normal cast for almost any type
 template<typename TYPE>
 inline TYPE* ofxVP_CAST_PIN_PTR(void*& _pinData){
@@ -77,6 +80,7 @@ inline float* ofxVP_CAST_PIN_PTR(void*& _pinData){
     return reinterpret_cast<float *>(&_pinData);
 #endif
 };
+// ---------------------------------------------
 
 
 //--------------------------------------------------------------
