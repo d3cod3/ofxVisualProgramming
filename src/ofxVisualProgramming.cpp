@@ -355,13 +355,13 @@ void ofxVisualProgramming::draw(){
     ofPushMatrix();
 
     // DEBUG
-    if(OFXVP_DEBUG){
-        ofSetColor(0,255,255,236);
-        ofNoFill();
-        ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
-        ofFill();
-        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 6);
-    }
+#ifdef OFXVP_DEBUG
+    ofSetColor(0,255,255,236);
+    ofNoFill();
+    ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
+    ofFill();
+    ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 6);
+#endif
 
     ofEnableAlphaBlending();
     ofSetCurveResolution(50);
@@ -373,9 +373,9 @@ void ofxVisualProgramming::draw(){
     ofxVPGui->begin();
 
     // DEBUG
-    if(OFXVP_DEBUG){
-        ImGui::ShowMetricsWindow();
-    }
+#ifdef OFXVP_DEBUG
+    ImGui::ShowMetricsWindow();
+#endif
 
     // Try to begin ImGui Canvas.
     // Should always return true, except if window is minimised or somehow not rendered.
@@ -1586,7 +1586,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         checkSpecialConnection(fromID,toID,linkType);
 
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
         std::cout << "Connect from " << patchObjects[fromID]->getName() << " to " << patchObjects[toID]->getName() << std::endl;
 #endif
 
@@ -1716,12 +1716,12 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
         // remove previous data content
         ofDirectory oldData;
         oldData.listDir(ofToDataPath("temp/data/",true));
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
         std::cout << "Removing content from directory: " << oldData.getAbsolutePath() << std::endl;
 #endif
         for(size_t i=0;i<oldData.getFiles().size();i++){
             oldData.getFile(i).remove();
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
             std::cout << "Removing file: " << oldData.getFile(i).getAbsolutePath() << std::endl;
 #endif
         }
@@ -1730,7 +1730,7 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 
 
         // copy new data content
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
         std::cout << "Copying from  " << dataFolderOrigin.getAbsolutePath() << " to " << oldDataPath << std::endl;
 #endif
         if(dataFolderOrigin.canRead() && oldData.canWrite()){
@@ -2098,7 +2098,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                     subpatchesMap[objSubpatch].push_back(_t);
                                 }
 
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
 
@@ -2218,7 +2218,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 //--------------------------------------------------------------
 void ofxVisualProgramming::loadPatchSharedContextObjects(){
 
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
     std::cout << "Loading GL sharing context objects" << std::endl;
 #endif
 
@@ -2263,7 +2263,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
                                 nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
-#ifdef MOSAIC_DEBUG
+#ifdef OFXVP_DEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
 

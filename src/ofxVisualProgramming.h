@@ -47,8 +47,6 @@
 #include "PatchObject.h"
 
 
-#define OFXVP_DEBUG 0
-
 struct SubpatchConnection{
     int     objID;
     string  name;
