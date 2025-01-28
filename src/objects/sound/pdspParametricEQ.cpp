@@ -35,30 +35,6 @@
 #include "pdspParametricEQ.h"
 
 //--------------------------------------------------------------
-static inline float lowShelfFn(float x, float amplitude, float center, float width){
-    float base = (x - center) / width; // divide top by bottom
-    base *= base * -.5; // square top and bottom, multiply by -1/2
-    base = exp(base); // take pow(e, base)
-    if(x < center){
-        return amplitude;
-    }else{
-        return amplitude * base;
-    }
-}
-
-//--------------------------------------------------------------
-static inline float hiShelfFn(float x, float amplitude, float center, float width){
-    float base = (x - center) / width; // divide top by bottom
-    base *= base * -.5; // square top and bottom, multiply by -1/2
-    base = exp(base); // take pow(e, base)
-    if(x > center){
-        return amplitude;
-    }else{
-        return amplitude * base;
-    }
-}
-
-//--------------------------------------------------------------
 pdspParametricEQ::pdspParametricEQ() : PatchObject("parametric EQ"){
 
     this->numInlets  = 1;
@@ -97,7 +73,7 @@ pdspParametricEQ::pdspParametricEQ() : PatchObject("parametric EQ"){
 
 //--------------------------------------------------------------
 void pdspParametricEQ::newObject(){
-    PatchObject::setName( "parametric EQ" );
+    PatchObject::setName( this->objectName );
 
     this->addInlet(VP_LINK_AUDIO,"signal");
 
@@ -105,21 +81,21 @@ void pdspParametricEQ::newObject(){
     this->addOutlet(VP_LINK_ARRAY,"spectrum data");
 
     // LF, LMF, HMF, HF
-    this->setCustomVar(float_l1freq,"LF_FREQ");
-    this->setCustomVar(float_l1Q,"LF_Q");
-    this->setCustomVar(float_l1gain,"LF_GAIN");
+    this->setCustomVar(static_cast<float>(float_l1freq),"LF_FREQ");
+    this->setCustomVar(static_cast<float>(float_l1Q),"LF_Q");
+    this->setCustomVar(static_cast<float>(float_l1gain),"LF_GAIN");
 
-    this->setCustomVar(float_m1freq,"LMF_FREQ");
-    this->setCustomVar(float_m1Q,"LMF_Q");
-    this->setCustomVar(float_m1gain,"LMF_GAIN");
+    this->setCustomVar(static_cast<float>(float_m1freq),"LMF_FREQ");
+    this->setCustomVar(static_cast<float>(float_m1Q),"LMF_Q");
+    this->setCustomVar(static_cast<float>(float_m1gain),"LMF_GAIN");
 
-    this->setCustomVar(float_m2freq,"HMF_FREQ");
-    this->setCustomVar(float_m2Q,"HMF_Q");
-    this->setCustomVar(float_m2gain,"HMF_GAIN");
+    this->setCustomVar(static_cast<float>(float_m2freq),"HMF_FREQ");
+    this->setCustomVar(static_cast<float>(float_m2Q),"HMF_Q");
+    this->setCustomVar(static_cast<float>(float_m2gain),"HMF_GAIN");
 
-    this->setCustomVar(float_h1freq,"HF_FREQ");
-    this->setCustomVar(float_h1Q,"HF_Q");
-    this->setCustomVar(float_h1gain,"HF_GAIN");
+    this->setCustomVar(static_cast<float>(float_h1freq),"HF_FREQ");
+    this->setCustomVar(static_cast<float>(float_h1Q),"HF_Q");
+    this->setCustomVar(static_cast<float>(float_h1gain),"HF_GAIN");
 }
 
 //--------------------------------------------------------------
@@ -177,8 +153,8 @@ void pdspParametricEQ::setupAudioOutObjectContent(pdsp::Engine &engine){
     h1_gain.set(float_h1gain);
     h1_gain.enableSmoothing(50.0f);
 
-    this->pdspIn[0] >> l1 >> m1 >> m2 >> h1 >> this->pdspOut[0]; //
-    this->pdspIn[0] >> l1 >> m1 >> m2 >> h1 >> scope >> engine.blackhole();
+    this->pdspIn[0] >> l1 >> m1 >> m2 >> h1 >> this->pdspOut[0];
+    h1 >> scope >> engine.blackhole();
 
 }
 
@@ -186,36 +162,43 @@ void pdspParametricEQ::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspParametricEQ::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    l1_freq.set(float_l1freq);
-    l1_Q.set(float_l1Q);
-    l1_gain.set(float_l1gain);
-
-    m1_freq.set(float_m1freq);
-    m1_Q.set(float_m1Q);
-    m1_gain.set(float_m1gain);
-
-    m2_freq.set(float_m2freq);
-    m2_Q.set(float_m2Q);
-    m2_gain.set(float_m2gain);
-
-    h1_freq.set(float_h1freq);
-    h1_Q.set(float_h1Q);
-    h1_gain.set(float_h1gain);
-
-
     if(!loaded){
         loaded = true;
-        float_l1freq=this->getCustomVar("LF_FREQ"), float_l1Q=this->getCustomVar("LF_Q"), float_l1gain=this->getCustomVar("LF_GAIN");
-        float_m1freq=this->getCustomVar("LMF_FREQ"), float_m1Q=this->getCustomVar("LMF_Q"), float_m1gain=this->getCustomVar("LMF_GAIN");
-        float_m2freq=this->getCustomVar("HMF_FREQ"), float_m2Q=this->getCustomVar("HMF_Q"), float_m2gain=this->getCustomVar("HMF_GAIN");
-        float_h1freq=this->getCustomVar("HF_FREQ"), float_h1Q=this->getCustomVar("HF_Q"), float_h1gain=this->getCustomVar("HF_GAIN");
+
+        float_l1freq = static_cast<float>(this->getCustomVar("LF_FREQ"));
+        float_l1Q = static_cast<float>(this->getCustomVar("LF_Q"));
+        float_l1gain = static_cast<float>(this->getCustomVar("LF_GAIN"));
+        float_m1freq = static_cast<float>(this->getCustomVar("LMF_FREQ"));
+        float_m1Q = static_cast<float>(this->getCustomVar("LMF_Q"));
+        float_m1gain = static_cast<float>(this->getCustomVar("LMF_GAIN"));
+        float_m2freq = static_cast<float>(this->getCustomVar("HMF_FREQ"));
+        float_m2Q = static_cast<float>(this->getCustomVar("HMF_Q"));
+        float_m2gain = static_cast<float>(this->getCustomVar("HMF_GAIN"));
+        float_h1freq = static_cast<float>(this->getCustomVar("HF_FREQ"));
+        float_h1Q = static_cast<float>(this->getCustomVar("HF_Q"));
+        float_h1gain = static_cast<float>(this->getCustomVar("HF_GAIN"));
+
+        l1_freq.set(float_l1freq);
+        l1_Q.set(float_l1Q);
+        l1_gain.set(float_l1gain);
+
+        m1_freq.set(float_m1freq);
+        m1_Q.set(float_m1Q);
+        m1_gain.set(float_m1gain);
+
+        m2_freq.set(float_m2freq);
+        m2_Q.set(float_m2Q);
+        m2_gain.set(float_m2gain);
+
+        h1_freq.set(float_h1freq);
+        h1_Q.set(float_h1Q);
+        h1_gain.set(float_h1gain);
     }
 }
 
 //--------------------------------------------------------------
 void pdspParametricEQ::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-
 }
 
 //--------------------------------------------------------------
@@ -259,56 +242,68 @@ void pdspParametricEQ::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         // LF
         ImGui::Dummy(ImVec2(-1,14*scaleFactor));
         if(ImGuiKnobs::Knob("LF Freq", &float_l1freq, 20.0f, 500.0f, 1.0f, "%.2fHz", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            l1_freq.set(float_l1freq);
             this->setCustomVar(float_l1freq,"LF_FREQ");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("LF Q", &float_l1Q, 0.3f, 20.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            l1_Q.set(float_l1Q);
             this->setCustomVar(float_l1Q,"LF_Q");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("LF Gain", &float_l1gain, -20.0f, 20.0f, 0.1f, "%.2fdB", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            l1_gain.set(float_l1gain);
             this->setCustomVar(float_l1gain,"LF_GAIN");
         }
 
         // LMF
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("LMF Freq", &float_m1freq, 30.0f, 2000.0f, 10.0f, "%.2fHz", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            m1_freq.set(float_m1freq);
             this->setCustomVar(float_m1freq,"LMF_FREQ");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("LMF Q", &float_m1Q, 0.3f, 20.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            m1_Q.set(float_m1Q);
             this->setCustomVar(float_m1Q,"LMF_Q");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("LMF Gain", &float_m1gain, -20.0f, 20.0f, 0.1f, "%.2fdB", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            m1_gain.set(float_m1gain);
             this->setCustomVar(float_m1gain,"LMF_GAIN");
         }
 
         // HMF
         ImGui::Dummy(ImVec2(-1,14*scaleFactor));
         if(ImGuiKnobs::Knob("HMF Freq", &float_m2freq, 500.0f, 5000.0f, 10.0f, "%.2fHz", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            m2_freq.set(float_m2freq);
             this->setCustomVar(float_m2freq,"HMF_FREQ");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("HMF Q", &float_m2Q, 0.3f, 20.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            m2_Q.set(float_m2Q);
             this->setCustomVar(float_m2Q,"HMF_Q");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("HMF Gain", &float_m2gain, -20.0f, 20.0f, 0.1f, "%.2fdB", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            m2_gain.set(float_m2gain);
             this->setCustomVar(float_m2gain,"HMF_GAIN");
         }
 
         // HF
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("HF Freq", &float_h1freq, 1000.0f, 20000.0f, 10.0f, "%.2fHz", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            h1_freq.set(float_h1freq);
             this->setCustomVar(float_h1freq,"HF_FREQ");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("HF Q", &float_h1Q, 0.3f, 20.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            h1_Q.set(float_h1Q);
             this->setCustomVar(float_h1Q,"HF_Q");
         }
         ImGui::SameLine();
         if(ImGuiKnobs::Knob("HF Gain", &float_h1gain, -20.0f, 20.0f, 0.1f, "%.2fdB", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            h1_gain.set(float_h1gain);
             this->setCustomVar(float_h1gain,"HF_GAIN");
         }
 
@@ -321,7 +316,7 @@ void pdspParametricEQ::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void pdspParametricEQ::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
-                "Parametric Equalizer.",
+                "Multiband Parametric Equalizer.",
                 "https://mosaic.d3cod3.org/reference.php?r=parametric-eq", scaleFactor);
 }
 
@@ -369,8 +364,15 @@ void pdspParametricEQ::loadAudioSettings(){
             m2Filter->push_back(0.0f);
             h1Filter->push_back(0.0f);
             parametricFilter->push_back(0.0f);
+
+            spectrum[i] = 0.0f;
         }
     }
+}
+
+//--------------------------------------------------------------
+void pdspParametricEQ::audioInObject(ofSoundBuffer &inputBuffer){
+    unusedArgs(inputBuffer);
 }
 
 //--------------------------------------------------------------
@@ -387,7 +389,7 @@ void pdspParametricEQ::audioOutObject(ofSoundBuffer &outputBuffer){
 
     // SPECTRUM
     for(size_t i = 0; i < fft->getBinSize(); i++){
-        size_t pos = static_cast<int>(floor((std::log(i+20 / 20.f) / std::log(512.f))*fft->getBinSize()));
+        size_t pos = static_cast<int>(floor((std::log(i+20 / 20.f) / std::log(1024.f))*fft->getBinSize()));
         if(pos < fft->getBinSize()){
             static_cast<vector<float> *>(_outletParams[1])->at(pos) = spectrum[i];
         }
