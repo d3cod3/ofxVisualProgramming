@@ -195,7 +195,31 @@ void pdspAddressSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> 
         loaded = true;
         manualSteps = static_cast<int>(this->getCustomVar("MANUAL_STEPS"));
         rev = static_cast<bool>(this->getCustomVar("REVERSE"));
+
         scaleMode = static_cast<int>(this->getCustomVar("SCALE_MODE"));
+        if(scaleMode == Scale_Mode_d4){
+            scaleMultiplier = 1.0f/4.0f;
+        }else if(scaleMode == Scale_Mode_d3){
+            scaleMultiplier = 1.0f/3.0f;
+        }else if(scaleMode == Scale_Mode_d2_5){
+            scaleMultiplier = 1.0f/2.5f;
+        }else if(scaleMode == Scale_Mode_d2){
+            scaleMultiplier = 1.0f/2.0f;
+        }else if(scaleMode == Scale_Mode_d1_5){
+            scaleMultiplier = 1.0f/1.5f;
+        }else if(scaleMode == Scale_Mode_x1){
+            scaleMultiplier = 1.0f;
+        }else if(scaleMode == Scale_Mode_x1_5){
+            scaleMultiplier = 1.5f;
+        }else if(scaleMode == Scale_Mode_x2){
+            scaleMultiplier = 2.0f;
+        }else if(scaleMode == Scale_Mode_x2_5){
+            scaleMultiplier = 2.5f;
+        }else if(scaleMode == Scale_Mode_x3){
+            scaleMultiplier = 3.0f;
+        }else if(scaleMode == Scale_Mode_x4){
+            scaleMultiplier = 4.0f;
+        }
 
         actualSteps = manualSteps;
         for(size_t i=0;i<8;i++){
