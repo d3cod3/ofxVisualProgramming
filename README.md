@@ -73,8 +73,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFft](https://github.com/kylemcdonald/ofxFft)
 
-#### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
-
 #### [ofxImGui](https://github.com/d3cod3/ofxImGui)
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
@@ -118,7 +116,6 @@ git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/kylemcdonald/ofxFft
-git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone https://github.com/danomatika/ofxLua
@@ -262,6 +259,7 @@ Sound | Ready
 ADSR envelope | X |
 AHR envelope | X |
 amplifier | X |
+address sequencer | X |
 audio exporter | X |
 bit cruncher | X |
 bit noise | X |
@@ -297,6 +295,7 @@ signal gate | X |
 signal operator | X |
 signal trigger | X |
 soundfile player | X |
+summer mixer | X |
 
 Texture | Ready
 ---------- | ----------
@@ -345,8 +344,6 @@ ofxCv, ofxFft original addons by [Kyle McDonald](https://github.com/kylemcdonald
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
-
-ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
 
 ofxImGui original addon by [Jason Van Cleave](https://github.com/jvcleave)
 
