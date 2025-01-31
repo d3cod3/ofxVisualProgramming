@@ -295,7 +295,7 @@ signal gate | X |
 signal operator | X |
 signal trigger | X |
 soundfile player | X |
-summer mixer | X |
+summing mixer | X |
 
 Texture | Ready
 ---------- | ----------
