@@ -1159,11 +1159,21 @@ ImGuiEx::NodeConnectData ImGuiEx::NodeCanvas::AddNodePin( const int nodeID, cons
                 const bool is_hovered = is_mouse_hovering_near_link(link_data.bezier);
 
                 if(ImGui::IsMouseClicked(0) && !isAnyCanvasNodeHovered){
+#ifdef TARGET_OSX
+                    if (is_hovered && ofGetKeyPressed(OF_KEY_COMMAND)){
+#else
                     if (is_hovered && ofGetKeyPressed(OF_KEY_CONTROL)){
+#endif
+
                         if (std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID)==selected_links.end()){
                             selected_links.push_back(_linksData.at(i)._linkID);
                         }
+#ifdef TARGET_OSX
+                    }else if(!is_hovered && !ofGetKeyPressed(OF_KEY_SHIFT) && !ofGetKeyPressed(OF_KEY_COMMAND)){
+#else
                     }else if(!is_hovered && !ofGetKeyPressed(OF_KEY_SHIFT) && !ofGetKeyPressed(OF_KEY_CONTROL)){
+#endif
+
                         std::vector<int>::iterator it = std::find(selected_links.begin(), selected_links.end(),_linksData.at(i)._linkID);
                         if (it!=selected_links.end()){
                             selected_links.erase(it);
