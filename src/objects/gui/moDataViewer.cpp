@@ -128,7 +128,7 @@ void moDataViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         // draw data
         if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-            ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26, static_cast<vector<float> *>(_inletParams[0]), max, IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255));
+            ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor), static_cast<vector<float> *>(_inletParams[0]), max, IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255));
         }
 
         if(this->width != prevW){

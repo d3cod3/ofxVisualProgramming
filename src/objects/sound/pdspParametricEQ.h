@@ -58,11 +58,17 @@ public:
 
     void            removeObjectContent(bool removeFileFromData=false) override;
 
+    void            audioInObject(ofSoundBuffer &inputBuffer) override;
     void            audioOutObject(ofSoundBuffer &outputBuffer) override;
 
 
     void            loadAudioSettings();
 
+
+    ofxFft                  *fft;
+    float                   *spectrum;
+
+    pdsp::Scope             scope;
 
     pdsp::LowShelfEQ        l1;
     pdsp::PeakEQ            m1, m2;
@@ -73,16 +79,16 @@ public:
     pdsp::ValueControl      m2_freq, m2_Q, m2_gain;
     pdsp::ValueControl      h1_freq, h1_Q, h1_gain;
 
-    pdsp::Scope             scope;
-
-    ofxFft                  *fft;
-    float                   *spectrum;
-
     float                   float_l1freq, float_l1Q, float_l1gain;
     float                   float_m1freq, float_m1Q, float_m1gain;
     float                   float_m2freq, float_m2Q, float_m2gain;
     float                   float_h1freq, float_h1Q, float_h1gain;
 
+    std::vector<float>      *l1Filter;
+    std::vector<float>      *m1Filter;
+    std::vector<float>      *m2Filter;
+    std::vector<float>      *h1Filter;
+    std::vector<float>      *parametricFilter;
 
     int                     bufferSize;
     int                     sampleRate;

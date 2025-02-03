@@ -117,4 +117,10 @@ void VUMeter(ImDrawList* drawList, float width, float height,float _vol, bool ho
 
 void PlotBands(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max=1.0f, ImU32 color=IM_COL32(255,255,120,255));
 
+void PlotSpectrum(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max=1.0f, bool useCanvas=true, ImU32 color=IM_COL32(255,255,255,150));
+
+void PlotEQFilter(ImDrawList* drawList, float width, float height, std::vector<float> *data, float max=1.0f, bool useCanvas=true, ImU32 color=IM_COL32(255,255,255,255));
+
+void PlotEQPoint(ImDrawList* drawList,ImVec2 pos,float width, float height,float max,ImU32 color=IM_COL32(255,255,255,255));
+
 }

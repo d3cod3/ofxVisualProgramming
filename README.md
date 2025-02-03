@@ -18,6 +18,7 @@ Table of Contents
    * [INSTALLING](#installing)
    * [USAGE](#usage)
    * [CONTRIBUTING](#contributing)
+   * [COLLECTIONS](#collections)
    * [OBJECTS LIST](#objects_list)
    * [LICENSE](#license)
    * [CREDITS](#credits)
@@ -72,8 +73,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFft](https://github.com/kylemcdonald/ofxFft)
 
-#### [ofxJSON](https://github.com/jeffcrouse/ofxJSON)
-
 #### [ofxImGui](https://github.com/d3cod3/ofxImGui)
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
@@ -117,7 +116,6 @@ git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/kylemcdonald/ofxFft
-git clone https://github.com/jeffcrouse/ofxJSON
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone https://github.com/danomatika/ofxLua
@@ -135,55 +133,8 @@ git clone https://github.com/d3cod3/ofxVisualProgramming
 
 # USAGE
 
-In ofApp.h include the ofxVisualProgramming addon:
+Check [Mosaic](https://github.com/d3cod3/Mosaic) project to look at a ofxVisualProgramming addon usage and implementation
 
-```c
-
-#include "ofMain.h"
-
-#include "ofxVisualProgramming.h"
-
-class ofApp : public ofBaseApp{
-
-public:
-    void setup();
-    void update();
-    void draw();
-    // ....
-    // ....
-
-    ofxVisualProgramming    *visualProgramming; /**/
-
-};
-
-```
-
-then in ofApp.cpp:
-
-```c
-
-#include "ofApp.h"
-
-//--------------------------------------------------------------
-void ofApp::setup(){
-    ofSetWindowTitle("ofxVisualProgramming Example");
-
-    visualProgramming = new ofxVisualProgramming();
-    visualProgramming->setup();
-}
-
-//--------------------------------------------------------------
-void ofApp::update(){
-    visualProgramming->update();
-}
-
-//--------------------------------------------------------------
-void ofApp::draw(){
-    ofBackground(20);
-    visualProgramming->draw();
-}
-
-```
 
 # CONTRIBUTING
 
@@ -191,6 +142,11 @@ Contributing to the project adding new objects is relatively easy, as ofxVisualP
 
 You can find the repo of the plugin template here: [ofxMosaicPlugin](https://github.com/d3cod3/ofxMosaicPlugin), with some generic objects templates and more detailed info in the readme.
 
+# COLLECTIONS
+
+A list of contributed collections of new objects
+
+- [ofxVPObjectsDaan](https://github.com/Daandelange/ofxVPObjectsDaan) by [@Daandelange](https://github.com/Daandelange)
 
 # OBJECTS LIST
 
@@ -198,20 +154,10 @@ Audio Analysis | Ready
 ---------- | ----------
 audio analyzer | X |
 bpm extractor | X |
-centroid extractor | X |
-dissonance extractor | X |
 fft extractor | X |
-hfc extractor | X |
-hpcp extractor | X |
-inharmonicity extractor | X |
 mel bands extractor | X |
-mfcc extractor | X |
-onset extractor | X |
 pitch extractor | X |
-power extractor | X |
 rms extractor | X |
-rolloff extractor | X |
-tristimulus extractor | X |
 
 Communications | Ready
 ---------- | ----------
@@ -229,7 +175,6 @@ osc sender | X  |
 Computer Vision | Ready
 ---------- | ----------
 background subtraction | X  |
-chroma key | X  |
 color tracking | X  |
 contour tracking | X  |
 haar tracking | X |
@@ -241,10 +186,13 @@ Data | Ready
 bang multiplexer | X  |
 bang to float | X  |
 color palette | X  |
+data to file | X  |
 data to texture | X  |
 file to data | X  |
 float multiplexer | X  |
 floats to vector | X  |
+receiver | X  |
+sender | X  |
 texture to data | X  |
 vector at | X  |
 vector concat | X  |
@@ -259,6 +207,9 @@ bang | X |
 comment | X |
 data viewer | X |
 message | X |
+multislider | X |
+multitoggle | X |
+piano keyboard | X |
 player controls | X |
 signal viewer | X |
 slider | X |
@@ -286,10 +237,10 @@ Math | Ready
 ---------- | ----------
 1D noise | X |
 clamp | X |
-constant | X |
 cosine generator | X |
 map | X |
 metronome | X |
+number | X |
 operator | X |
 simple random | X |
 sine generator | X |
@@ -300,8 +251,7 @@ Scripting | Ready
 bash script | X |
 glsl shader | X |
 lua script | X |
-python script | X |
-scheme script | |
+scheme live coding | X |
 
 
 Sound | Ready
@@ -309,6 +259,7 @@ Sound | Ready
 ADSR envelope | X |
 AHR envelope | X |
 amplifier | X |
+address sequencer | X |
 audio exporter | X |
 bit cruncher | X |
 bit noise | X |
@@ -319,6 +270,7 @@ data oscillator | X |
 decimator | X |
 delay | X |
 dimension chorus | X |
+frequency to note | X |
 high pass | X |
 kick | X |
 lfo | X |
@@ -327,13 +279,15 @@ mixer | X |
 note to frequency | X |
 oscillator | X |
 panner | X |
-parametric EQ | | X
+parametric EQ | X |
 pd patch | X |
+polyphonic oscillator | X |
 quad panner | X |
-quantizer | | X
+quantizer | X |
 resonant filter | X |
 reverb | X |
 sample and hold | | X
+sample player | X |
 saturator | | X
 sequencer | X |
 sidechain compressor | X |
@@ -341,6 +295,7 @@ signal gate | X |
 signal operator | X |
 signal trigger | X |
 soundfile player | X |
+summing mixer | X |
 
 Texture | Ready
 ---------- | ----------
@@ -349,20 +304,20 @@ image loader | X |
 kinect grabber | X |
 pixels to texture | X |
 texture crop | X |
+texture gate | X |
 texture information | X |
 texture mixer | X |
 texture to pixels | X |
 texture transform | X |
 to grayscale texture | X |
-syphon sender | X |
-syphon receiver | X |
+syphon sender ( osx only ) | X |
+syphon receiver ( osx only ) | X |
 video exporter | X |
 video feedback | X |
-video gate | X |
 video grabber | X |
 video player | X |
-video receiver | X |
-video sender | X |
+video receiver ( osx only ) | X |
+video sender ( osx only ) | X |
 video streaming | X |
 video timedelay | X |
 
@@ -389,8 +344,6 @@ ofxCv, ofxFft original addons by [Kyle McDonald](https://github.com/kylemcdonald
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
-
-ofxJSON original addon by [Jeff Crouse](https://github.com/jeffcrouse/)
 
 ofxImGui original addon by [Jason Van Cleave](https://github.com/jvcleave)
 

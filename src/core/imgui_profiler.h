@@ -356,6 +356,8 @@ public:
         ImGui::Begin(title.str().c_str(), active, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse);
         ImVec2 canvasSize = ImGui::GetContentRegionAvail();
 
+        isMouseOver = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
+
         int sizeMargin = int(ImGui::GetStyle().ItemSpacing.y);
         int maxGraphHeight = 300*scaleFactor;
         int availableGraphHeight = (int(canvasSize.y) - sizeMargin) / 2;
@@ -400,6 +402,7 @@ public:
 
     bool isRetina;
     float scaleFactor;
+    bool  isMouseOver;
 
 };
 

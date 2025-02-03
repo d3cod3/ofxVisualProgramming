@@ -182,18 +182,18 @@ void pdspResonant2PoleFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanva
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(0,4*scaleFactor));
-        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.3f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::Dummy(ImVec2(0,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,-20,40)*scaleFactor));
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 127.0f, 0.3f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             pitch_ctrl.set(pitch);
             this->setCustomVar(static_cast<float>(pitch),"PITCH");
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob("cutoff", &cutoff, 0.0f, 127.0f, 0.3f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::SameLine();ImGui::Dummy(ImVec2(ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,90)*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiKnobs::Knob("cutoff", &cutoff, 0.0f, 127.0f, 0.3f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             cutoff_ctrl.set(cutoff);
             this->setCustomVar(cutoff,"CUTOFF");
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(40*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob("resonance", &resonance, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::SameLine();ImGui::Dummy(ImVec2(ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,90)*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiKnobs::Knob("resonance", &resonance, 0.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             resonance_ctrl.set(resonance);
             this->setCustomVar(resonance,"RESONANCE");
         }

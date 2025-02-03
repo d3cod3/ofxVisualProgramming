@@ -49,10 +49,12 @@
 # define __IMGUI_EX_NODECANVAS_DEBUG__ 0 // enable for debugging layout
 # pragma once
 
-# include <imgui.h>
-# include <imgui_internal.h> // Access to more advanced ImGui variables.
+#include <imgui.h>
+#include <imgui_internal.h> // Access to more advanced ImGui variables.
 
 #include <map>
+
+#include "ofxVPConfig.h"
 
 // Default values. You can override them in imconfig.h
 // Everything below is in screen pixels, actual size, non scaled.
@@ -118,15 +120,50 @@ enum ImGuiExNodeView_ {
     ImGuiExNodeView_Any        = ImGuiExNodeView_Params | ImGuiExNodeView_Visualise | ImGuiExNodeView_Info
 };
 
+enum class ImGuiExCanvasState
+{
+    None = 0,
+    Default,
+    HoveringNode,
+    HoveringInput,
+    HoveringOutput,
+    Draging,
+    DragingInput,
+    DragingOutput,
+    Selecting,
+    SelectedNode
+};
+
 // extend ImGui in ImGuiEx namespace
 namespace ImGuiEx {
 
+
+
 // Defines Canvas View data
 struct NodeCanvasView {
+    bool mNodeDrag = false; // For node drag modification.
+    bool modifFlag = false; // Modification flag.
+
+    ImGuiExCanvasState state = ImGuiExCanvasState::Default;
+
     ImVec2 translation = ImVec2(0,0);
     float  scale  = 1.0f;
-    //ImRect contentRect = ImRect(ImVec2(0,0), ImVec2(0,0));
-    //ImRect screenRect = ImRect(ImVec2(0,0), ImVec2(100,100));
+    const float scaleMin = CANVAS_MIN_SCALE;
+    const float scaleMax = CANVAS_MAX_SCALE;
+    const float deltaScale = 0.05f;
+
+    ImVec2 position;
+    ImVec2 size;
+    ImVec2 scroll;
+    ImVec2 mousePos;
+
+    ImRect rectCanvas;
+
+    bool draggingOutOfCanvas = false;
+    ImVec2 distFromClickToCenter;
+    ImVec2 clickPosAtTheEdge;
+
+    ImRect rectSelecting;
 
     NodeCanvasView() = default;
     NodeCanvasView(const ImVec2& _offset, float _scale) :
@@ -137,6 +174,7 @@ struct NodeCanvasView {
         translation = ImFloor(_offset);
         scale = _scale;
     }
+
 };
 
 // Layout for pins data
@@ -189,14 +227,6 @@ struct NodeLayoutData {
     }
 };
 
-struct ofxVPLinkData{
-    int         _fromObjectID;
-    int         _fromPinID;
-    int         _linkID;
-    std::string _linkLabel;
-    ImVec2      _toPinPosition;
-};
-
 struct NodeConnectData{
     int connectType; // 1 connect, 2 disconnect, 3 re-connect
     int linkID;
@@ -206,18 +236,72 @@ struct NodeConnectData{
     int toInletPinID;
 };
 
+enum NodeFlag {
+    Default = 0,
+    Visible = 1 << 0,
+    Hovered = 1 << 1,
+    Selected = 1 << 2,
+    Collapsed = 1 << 3,
+    Disabled = 1 << 4,
+    Highlighted = 1 << 5
+};
+
+struct NodeInfo {
+    int         id;
+    std::string name;
+    ImRect      nodeRect;
+    NodeFlag    flag;
+};
+
+enum class ofxVPLinkPosition
+{
+    NONE,
+    LINK_RIGHT,
+    LINK_LEFT_OVER,
+    LINK_LEFT_UNDER,
+    LINK_LEFT_MID
+};
+
+struct ofxVPLinkData{
+    int         _fromObjectID;
+    int         _fromPinID;
+    int         _linkID;
+    std::string _linkLabel;
+    ImVec2      _toPinPosition;
+};
 
 struct NodeCanvas {
 
     // Setup a drawing canvas space
     // Uses ImGui available space except if over-ridden with SetNextWindowPos and Size.
-    bool Begin(const char* _id );
+    bool Begin( const char* _id );
 
     // Must be called only when Begin() returned true.
     void End();
 
+    // User Interaction
+    void UserInteraction();
+    void MouseMove();
+    void MouseLeftButtonDoubleClick();
+    void MouseRightButtonDoubleClick();
+    void MouseLeftButtonSingleClick();
+    void MouseRightButtonSingleClick();
+    void MouseLeftButtonDrag();
+    void MouseLeftButtonRelease();
+    void MouseRightButtonRelease();
+
+    void Update();
+    void UpdateCanvasRect();
+    void UpdateCanvasScrollZoom();
+    void UpdateCanvasGrid(ImDrawList* drawList) const;
+    void UpdateNodesFlags();
+
+    void CanvasPopupMenu();
+
     // Draws the frame border
     void DrawFrameBorder(const bool& _drawOnForeground=true) const;
+
+    void DrawSelecting() const;
 
     // Draw Child windows (aka Nodes) on the canvas.
     // position and size may change be updated after function call.
@@ -254,10 +338,16 @@ struct NodeCanvas {
         scaleFactor = sf;
     }
 
-    // Query GUI if any nodes are hovered
+    // Query GUI if any nodes are focused
     bool isAnyNodeHovered() const {
         //IM_ASSERT(isDrawingCanvas == true);  // dont call while drawing !
         return isAnyCanvasNodeHovered;
+    }
+
+    // Query GUI if any nodes are focused
+    bool isAnyNodeFocused() const {
+        //IM_ASSERT(isDrawingCanvas == true);  // dont call while drawing !
+        return isAnyCanvasNodeFocused;
     }
 
     // Returns current view data.
@@ -268,8 +358,15 @@ struct NodeCanvas {
     // Returns origin of the view.
     const ImVec2& GetCanvasTranslation() const { return canvasView.translation; }
 
+    void SetCanvasTranslation(ImVec2 t) { canvasView.scroll = t; }
+
     // Returns scale of the view.
     float GetCanvasScale() const { return canvasView.scale; }
+
+    void resetCanvas() { canvasView.scroll = ImVec2(0,0); canvasView.scale  = 1.0f; }
+
+    // Get mouse position over canvas
+    ImVec2 GetMousePosition() { return canvasView.mousePos; }
 
     // Returns data about the current node.
     // Useful inside: scale, niewName, scaleName, etc.
@@ -283,9 +380,6 @@ struct NodeCanvas {
         IM_ASSERT(nodeDrawList != nullptr);
         return nodeDrawList;
     }
-
-    // Returns selected nodes
-    std::vector<int> getSelectedNodes(){ return selected_nodes; }
 
     // Returns selected links
     std::vector<int> getSelectedLinks(){ return selected_links; }
@@ -318,10 +412,39 @@ struct NodeCanvas {
     void setContext(ImGuiContext* _c){ context = _c; }
     ImGuiContext* getContext() { return context; }
 
+    void addNodeToMap(int _id, std::string _name) {
+        NodeInfo ni; ni.id = _id;
+        ni.name = _name;
+        ni.nodeRect = ImRect(0,0,IMGUI_EX_NODE_MIN_WIDTH,IMGUI_EX_NODE_MIN_HEIGHT);
+        ni.flag = NodeFlag::Default; existingNodes[_id]=ni;
+    }
+    void removeNodeFromMap(int _id) { existingNodes.erase(_id); }
+    void clearNodesMap() { existingNodes.clear(); }
+    void debugNodeMap() {
+        for(std::map<int,NodeInfo>::iterator it = existingNodes.begin(); it != existingNodes.end(); it++ ){
+            std::cout << "NodeMap[" << it->first << "] --> " << it->second.id << " : " << it->second.name << " --> " << it->second.nodeRect.GetWidth() << "x" << it->second.nodeRect.GetHeight() << " at " << it->second.nodeRect.GetCenter().x << "," << it->second.nodeRect.GetCenter().y << std::endl;
+        }
+    }
+
+    // Returns selected nodes
+    std::vector<int>& getSelectedNodesId(){
+        std::vector<int> *temp = new std::vector<int>();
+        for(std::map<int,NodeInfo>::iterator it = existingNodes.begin(); it != existingNodes.end(); it++ ){
+            if(it->second.flag == NodeFlag::Selected){
+                temp->push_back(it->second.id);
+            }
+        }
+        return *temp;
+    }
+
+    void setCanvasActive(bool ca) { isCanvasActive = ca; }
+    void setCanvasViewToDefault() { canvasView.state = ImGuiExCanvasState::Default; UpdateNodesFlags(); }
+
+    // Events
+    ofEvent<std::vector<int>>   removeSelectionEvent;
+    ofEvent<std::vector<int>>   duplicateSelectionEvent;
+
 private:
-//    void pushNodeWorkRect();
-//    void popNodeWorkRect();
-//    ImRect canvasWorkRectBackup;
 
     // context
     ImGuiContext* context;
@@ -332,7 +455,9 @@ private:
     bool canDrawNode = false;
     bool isDrawingMenu = false;
     bool isDrawingContent = false;
+    bool isCanvasActive = false;
     bool isAnyCanvasNodeHovered = false;
+    bool isAnyCanvasNodeFocused = false;
 
     // State data
     NodeLayoutData curNodeData;
@@ -340,15 +465,24 @@ private:
     ImDrawList* canvasDrawList = nullptr;
     ImDrawList* nodeDrawList = nullptr;
 
+    // Dragging
+    bool draggingOutOfCanvas = false;
+    ImVec2 distFromClickToCenter;
+    ImVec2 clickPosAtTheEdge;
+
     // Patch Control data
     std::map<int,std::map<int,ImVec2>>  inletPinsPositions;
     std::map<int,std::map<int,ImVec2>>  outletPinsPositions;
-    std::vector<int> selected_nodes; // for group actions (copy, duplicate, delete)                 -- TO IMPLEMENT
-    std::vector<int> selected_links; // for delete links (one or multiple)                          -- IMPLEMENTED
-    std::vector<int> deactivated_links; // for activating/deactivating links (one or multiple)      -- IMPLEMENTED
+    std::map<int,NodeInfo> existingNodes;
+    std::vector<int> selected_links; // for delete links (one or multiple)
+    std::vector<int> deactivated_links; // for activating/deactivating links (one or multiple)
+    NodeInfo* hoveredNode       = nullptr; // Hovered node
+    NodeInfo* interactedNode    = nullptr; // Node under interaction
     std::string activePin;
     std::string activePinType;
     int         activeNode = 0; // for node inspector
+
+
 
     // retina stuff
     bool isRetina = false;

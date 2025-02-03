@@ -89,12 +89,6 @@ void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     fileDialog.setIsRetina(this->isRetina);
 
-    if(filepath == "none"){
-        isNewObject = true;
-    }else{
-        loadImageFile();
-    }
-
 }
 
 //--------------------------------------------------------------
@@ -124,6 +118,12 @@ void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         prevH = this->getCustomVar("HEIGHT");
         this->width             = prevW;
         this->height            = prevH;
+
+        if(filepath == "none"){
+            isNewObject = true;
+        }else{
+            loadImageFile();
+        }
     }
     
 }
@@ -156,14 +156,11 @@ void ImageLoader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
-
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
         if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
             calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
-            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
             ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
-        }else{
-            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

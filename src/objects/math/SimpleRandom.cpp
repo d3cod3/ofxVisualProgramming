@@ -146,7 +146,7 @@ void SimpleRandom::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(255,255,255,255), this->scaleFactor);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

@@ -201,13 +201,23 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
+    // silence pitch 0
+    if(pitch_float <= 0.0f){
+        level_float = 0.0f;
+        level_ctrl.set(level_float);
+    }
+
     if(this->inletsConnected[0]){
         pitch_float = ofClamp(*(float *)&_inletParams[0],0,127);
         pitch_ctrl.set(pitch_float);
     }
 
     if(this->inletsConnected[1]){
-        level_float = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        if(pitch_float > 0.0f){
+            level_float = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        }else{
+            level_float = 0.0f;
+        }
         level_ctrl.set(level_float);
     }
 
@@ -308,53 +318,57 @@ void Oscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*scaleFactor));
 
-        if(ImGuiKnobs::Knob("pitch", &pitch_float, 0.0f, 127.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("pitch", &pitch_float, 0.0f, 127.0f, 0.1f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             this->setCustomVar(pitch_float,"PITCH");
             pitch_ctrl.set(pitch_float);
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("level", &level_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
-            level_ctrl.set(level_float);
-            this->setCustomVar(level_float,"LEVEL");
+        if(ImGuiKnobs::Knob("level", &level_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
+            if(pitch_float > 0.0f){
+                level_ctrl.set(level_float);
+                this->setCustomVar(level_float,"LEVEL");
+            }else{
+                level_float = 0.0f;
+            }
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("detune", &detune_float, -12.0f, 12.0f, 0.005f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("detune", &detune_float, -12.0f, 12.0f, 0.005f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             detuneCoarse_ctrl.set(detune_float);
             this->setCustomVar(detune_float,"DETUNE_COARSE");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("fine", &fine_float, -1.0f, 1.0f, 0.005f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("fine", &fine_float, -1.0f, 1.0f, 0.005f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             detuneFine_ctrl.set(fine_float);
             this->setCustomVar(fine_float,"DETUNE_FINE");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("pw", &pw_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("pw", &pw_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             pw_ctrl.set(pw_float);
             this->setCustomVar(pw_float,"PULSE_WIDTH");
         }
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
-        if(ImGuiKnobs::Knob("sine", &sine_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("sine", &sine_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             sine_ctrl.set(sine_float);
             this->setCustomVar(sine_float,"SINE_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("triangle", &triangle_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("triangle", &triangle_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             triangle_ctrl.set(triangle_float);
             this->setCustomVar(triangle_float,"TRIANGLE_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("saw", &saw_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("saw", &saw_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             saw_ctrl.set(saw_float);
             this->setCustomVar(saw_float,"SAW_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("pulse", &pulse_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("pulse", &pulse_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             pulse_ctrl.set(pulse_float);
             this->setCustomVar(pulse_float,"PULSE_LEVEL");
         }
         ImGui::SameLine();
-        if(ImGuiKnobs::Knob("noise", &noise_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)){
+        if(ImGuiKnobs::Knob("noise", &noise_float, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             noise_ctrl.set(noise_float);
             this->setCustomVar(noise_float,"NOISE_LEVEL");
         }

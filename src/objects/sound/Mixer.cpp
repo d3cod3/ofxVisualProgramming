@@ -105,7 +105,7 @@ void Mixer::newObject(){
     }
 
     static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets,0.0f);
+    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets*2,0.0f);
 
 }
 
@@ -133,7 +133,6 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
         this->pdspIn[i+1] >> levelsL[i] >> mixL;
         this->pdspIn[i+1] >> levelsR[i] >> mixR;
 
-
     }
 
     mixL >> this->pdspOut[0];
@@ -148,8 +147,10 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
         for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
-            if(i < signalInlets){
+            if(i < signalInlets){ // volumes
                 levels_float[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            }else if(i >= signalInlets && i < signalInlets*2){ // pans
+                pans_float[i-signalInlets] = static_cast<vector<float> *>(_inletParams[0])->at(i);
             }
         }
     }
@@ -212,7 +213,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
             ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
 
-            ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &levels_float[i], 0.0f, 1.0f, "");
+            ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale()), &levels_float[i], 0.0f, 1.0f, "");
             if (ImGui::IsItemActive() || ImGui::IsItemHovered()){
                 ImGui::SetTooltip("s%i %.2f", i+1, levels_float[i]);
                 this->setCustomVar(levels_float[i],"LEVEL_"+ofToString(i+1));
@@ -227,7 +228,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));
         ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(255,255,120,60));
         ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(255,255,120,160));
-        ImGui::VSliderFloat("##main_volume", ImVec2(sliderW*scaleFactor, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor)), &mainlevel_float, 0.0f, 1.0f, "");
+        ImGui::VSliderFloat("##main_volume", ImVec2(sliderW*scaleFactor, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale()), &mainlevel_float, 0.0f, 1.0f, "");
         if(ImGui::IsItemActive() || ImGui::IsItemHovered()){
             ImGui::SetTooltip("Main Volume %.2f", mainlevel_float);
             this->setCustomVar(mainlevel_float,"MAIN_LEVEL");
@@ -236,21 +237,23 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::SameLine();
 
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
         ImGui::SameLine();
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, 150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor), static_cast<ofSoundBuffer *>(_outletParams[1])->getRMSAmplitude(), false);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), static_cast<ofSoundBuffer *>(_outletParams[1])->getRMSAmplitude(), false);
 
-        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*8*scaleFactor));
+        ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor*_nodeCanvas.GetCanvasScale()));
 
         for(int i=0;i<this->numInlets-1;i++){
             sprintf_s(temp,"PAN s%i",i+1);
-            if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped)){
+            if(ImGuiKnobs::Knob(temp, &pans_float[i], -1.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Stepped,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
 
                 this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
             }
             if (i < this->numInlets-1) ImGui::SameLine();
 
         }
+
+        sliderW = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,126);
 
         _nodeCanvas.EndNodeContent();
     }
@@ -260,7 +263,7 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void Mixer::drawObjectNodeConfig(){
     ImGui::Spacing();
-    if(ImGui::InputInt("Inlets",&signalInlets)){
+    if(ImGui::InputInt("Channels",&signalInlets)){
         if(signalInlets > MAX_INLETS-1){
             signalInlets = MAX_INLETS-1;
         }
@@ -268,7 +271,7 @@ void Mixer::drawObjectNodeConfig(){
             signalInlets = 2;
         }
     }
-    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 inlets max.");
+    ImGui::SameLine(); ImGuiEx::HelpMarker("You can set 31 channels max.");
     ImGui::Spacing();
     if(ImGui::Button("APPLY",ImVec2(224*scaleFactor,26*scaleFactor))){
         this->setCustomVar(static_cast<float>(signalInlets),"NUM_INLETS");
@@ -276,7 +279,7 @@ void Mixer::drawObjectNodeConfig(){
     }
 
     ImGuiEx::ObjectInfo(
-                "Line mixer, mix up to 31 audio signals",
+                "Line mixer, mix up to 31 audio signals. Volumes and panning can be controlled from the first data inlet, for example with a 6 channels mixer, the first inlet can receive a data cable ( green ) with 12 numbers, the first 6 will control volumes, and the last 6 will control panning.)",
                 "https://mosaic.d3cod3.org/reference.php?r=mixer", scaleFactor);
 }
 
@@ -340,11 +343,11 @@ void Mixer::resetInletsSettings(){
 
     this->numInlets = signalInlets+1;
 
-    this->width = 20*scaleFactor + signalInlets*(sliderW+6.0f)*scaleFactor + sliderW*scaleFactor/8.0f + sliderW*scaleFactor + (sliderW*scaleFactor*2) + 10*scaleFactor; // inlets gap + sliders + gap + main + vumeters + outlets gap
+    this->width = 20*scaleFactor + signalInlets*(56.0f+6.0f)*scaleFactor + 56.0f*scaleFactor/8.0f + 56.0f*scaleFactor + (56.0f*scaleFactor*2) + 10*scaleFactor; // inlets gap + sliders + gap + main + vumeters + outlets gap
 
     _inletParams[0] = new vector<float>();
     static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets,0.0f);
+    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets*2,0.0f);
 
     for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new ofSoundBuffer();

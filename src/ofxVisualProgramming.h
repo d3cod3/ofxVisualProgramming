@@ -36,7 +36,6 @@
 
 #include "ofxVPConfig.h"
 
-#include "ofxInfiniteCanvas.h"
 #include "ofxPDSP.h"
 #include "ofxImGui.h"
 #include "imgui_node_canvas.h"
@@ -47,8 +46,6 @@
 #include "Kernel.h"
 #include "PatchObject.h"
 
-
-#define OFXVP_DEBUG 0
 
 struct SubpatchConnection{
     int     objID;
@@ -93,7 +90,7 @@ public:
     void            activeObject(int oid);
 
     shared_ptr<PatchObject>    selectObject(string objname);
-    void            addObject(string name, ofVec2f pos);
+    void            addObject(string name, ofVec2f pos,std::string fp="none");
     shared_ptr<PatchObject>    getLastAddedObject();
 
     void            resetObject(int &id);
@@ -136,14 +133,13 @@ public:
     void            resetCanvas();
 
     // PATCH CANVAS
-    ofxInfiniteCanvas               canvas;
-    ofEasyCam                       easyCam;
     ofRectangle                     canvasViewport;
     ofxImGui::Gui*                  ofxVPGui;
     ImGuiEx::NodeCanvas             nodeCanvas;
     ImGuiEx::ProfilersWindow        profiler;
     ImGuiEx::ProfilerTask           *pt;
     bool                            isCanvasVisible;
+    bool                            isCanvasActive;
 
 
     // PATCH DRAWING RESOURCES
@@ -188,6 +184,9 @@ public:
     bool                                profilerActive;
     bool                                inspectorActive;
     bool                                navigationActive;
+    bool                                isOverProfiler;
+    bool                                isOverInspector;
+    bool                                isOverSubpatchNavigator;
     bool                                inited;
 
     // LIVE PATCHING

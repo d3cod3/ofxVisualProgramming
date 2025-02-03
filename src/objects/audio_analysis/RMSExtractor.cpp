@@ -147,7 +147,7 @@ void RMSExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f,IM_COL32(255,255,120,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor*_nodeCanvas.GetCanvasScale());
 
         _nodeCanvas.EndNodeContent();
     }

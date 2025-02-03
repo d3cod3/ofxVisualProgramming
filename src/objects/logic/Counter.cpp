@@ -152,9 +152,9 @@ void Counter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,6*scaleFactor)); // Padding top
+        ImGui::SetCursorPos(ImVec2((this->width*0.5f*_nodeCanvas.GetCanvasScale()),IMGUI_EX_NODE_HEADER_HEIGHT*1.4*scaleFactor));
 
-        ImGui::Dummy(ImVec2(this->width/3.5f,1)); ImGui::SameLine(); ImGui::Text("%i",static_cast<int>(floor(*(float *)&_outletParams[0])));
+        ImGui::Text("%i",static_cast<int>(floor(*(float *)&_outletParams[0])));
 
         ImGui::Dummy(ImVec2(-1,6*scaleFactor));
 

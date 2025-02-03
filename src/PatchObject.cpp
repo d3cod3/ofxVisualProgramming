@@ -339,7 +339,9 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletsNames.at(i).c_str(), tempLinkData, getInletTypeName(i), getInletWirelessReceive(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
+            std::ostringstream inletInfo;
+            inletInfo << inletsNames.at(i); // << " " << _inletParams[i];
+            ImGuiEx::NodeConnectData connectData = _nodeCanvas.AddNodePin( nId, i, inletInfo.str().c_str(), tempLinkData, getInletTypeName(i), getInletWirelessReceive(i), inletsConnected[i], IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Left );
 
             inletsPositions[i] = _nodeCanvas.getInletPosition(nId,i);
 
@@ -397,7 +399,10 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
                 }
             }
 
-            _nodeCanvas.AddNodePin( nId, i, getOutletName(i).c_str(), tempLinkData, getOutletTypeName(i), getOutletWirelessSend(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
+            std::ostringstream outletInfo;
+            outletInfo << getOutletName(i); // << " " << _outletParams[i];
+
+            _nodeCanvas.AddNodePin( nId, i, outletInfo.str().c_str(), tempLinkData, getOutletTypeName(i), getOutletWirelessSend(i), getIsOutletConnected(i), IM_COL32(pinCol.r,pinCol.g,pinCol.b,pinCol.a), ImGuiExNodePinsFlags_Right );
 
             outletsPositions[i] = _nodeCanvas.getOutletPosition(nId,i);
         }
@@ -434,7 +439,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
         linksDeactivated    = _nodeCanvas.getDeactivatedLinks();
 
         // Refresh objects selected to eventually duplicate or delete ( cmd-d or backsapce )
-        objectsSelected = _nodeCanvas.getSelectedNodes();
+        objectsSelected = _nodeCanvas.getSelectedNodesId();
 
         // Let objects draw their own Gui
         this->drawObjectNodeGui( _nodeCanvas );
@@ -1194,6 +1199,7 @@ void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> 
 //--------------------------------------------------------------
 void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
+        // DELETE SELECTED OBJECTS
         if(e.key == OF_KEY_BACKSPACE){
             for (int j=0;j<static_cast<int>(linksToDisconnect.size());j++){
                 disconnectLink(patchObjects,linksToDisconnect.at(j));
@@ -1202,16 +1208,20 @@ void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>>
 
             for(int j=0;j<static_cast<int>(objectsSelected.size());j++){
                 if(objectsSelected.at(j) == this->nId){
-                    ofNotifyEvent(removeEvent, objectsSelected.at(j));
-                    this->setWillErase(true);
+                    if(this->getName() != "audio device"){
+                        ofNotifyEvent(removeEvent, objectsSelected.at(j));
+                        this->setWillErase(true);
+                    }
                 }
             }
-            objectsSelected.clear();
+            //objectsSelected.clear();
         // OSX: CMD-D, WIN/LINUX: CTRL-D    (DUPLICATE SELECTED OBJECTS)
         }else if(e.hasModifier(MOD_KEY) && e.keycode == 68){
             for(int j=0;j<static_cast<int>(objectsSelected.size());j++){
                 if(objectsSelected.at(j) == this->nId){
-                    ofNotifyEvent(duplicateEvent, objectsSelected.at(j));
+                    if(!this->getIsHardwareObject()){
+                        ofNotifyEvent(duplicateEvent, objectsSelected.at(j));
+                    }
                 }
             }
         }

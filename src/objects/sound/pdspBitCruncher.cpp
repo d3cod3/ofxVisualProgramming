@@ -108,7 +108,7 @@ void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
 //--------------------------------------------------------------
 void pdspBitCruncher::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
-    ofSetColor(255);
+    unusedArgs(font,glRenderer);
 }
 
 //--------------------------------------------------------------
@@ -135,7 +135,7 @@ void pdspBitCruncher::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (26*scaleFactor))); // Padding top
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/2 *_nodeCanvas.GetCanvasScale()) - (6*scaleFactor)));
         ImGui::PushItemWidth(-1);
         ImGui::PushStyleColor(ImGuiCol_FrameBg, IM_COL32(255,255,120,30));
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(255,255,120,60));

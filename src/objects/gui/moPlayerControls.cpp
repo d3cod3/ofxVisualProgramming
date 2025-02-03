@@ -153,11 +153,11 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_Button, VHS_BLUE);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
-        if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor,26*scaleFactor))){
+        if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor*_nodeCanvas.GetCanvasScale(),26*scaleFactor*_nodeCanvas.GetCanvasScale()))){
             *static_cast<string *>(_outletParams[0]) = "play";
         }
         ImGui::SameLine();
-        if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor,26*scaleFactor))){
+        if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor*_nodeCanvas.GetCanvasScale(),26*scaleFactor*_nodeCanvas.GetCanvasScale()))){
             *static_cast<string *>(_outletParams[0]) = "stop";
         }
         ImGui::PopStyleColor(3);
@@ -165,7 +165,7 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_Button, VHS_YELLOW);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_YELLOW_OVER);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_YELLOW_OVER);
-        if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*scaleFactor,26*scaleFactor))){
+        if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*scaleFactor*_nodeCanvas.GetCanvasScale(),26*scaleFactor*_nodeCanvas.GetCanvasScale()))){
             pause = !pause;
             if(pause){
                 *static_cast<string *>(_outletParams[0]) = "pause";

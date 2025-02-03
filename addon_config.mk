@@ -26,7 +26,7 @@ common:
 	# or use += in several lines
         ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
         ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxCv ofxEasing ofxFFmpegRecorder ofxFft
-        ADDON_DEPENDENCIES += ofxJSON ofxImGui ofxInfiniteCanvas ofxLua ofxMidi ofxMtlMapping2D
+        ADDON_DEPENDENCIES += ofxGLEditor ofxImGui ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxOpenDHT ofxPd ofxPDSP ofxTimeline ofxWarp
 
 	# include search paths, this will be usually parsed from the file system
@@ -74,6 +74,7 @@ common:
 
 linux64:
         #ADDON_DEPENDENCIES += ofxNDI
+        ADDON_DEPENDENCIES += ofxScheme
         ADDON_SOURCES_EXCLUDE = src/objects/video/VideoSender% src/objects/video/VideoReceiver% src/objects/video/SyphonSender% src/objects/video/SyphonReceiver%
 
 msys2:
@@ -84,3 +85,4 @@ vs:
 
 osx:
         ADDON_DEPENDENCIES += ofxNDI ofxSyphon
+        ADDON_SOURCES_EXCLUDE = src/objects/scripting/SchemeScript%

@@ -181,14 +181,14 @@ void pdspLFO::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(0,4*scaleFactor));
-        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 10.0f, 0.01f, "%.5f", ImGuiKnobVariant_Wiper)){
+        ImGui::Dummy(ImVec2(0,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,-20,40)*scaleFactor));
+        if(ImGuiKnobs::Knob("pitch", &pitch, 0.0f, 10.0f, 0.01f, "%.5f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             pitch_ctrl.set(pitch);
             this->setCustomVar(pitch,"FREQUENCY");
 
         }
-        ImGui::SameLine();ImGui::Dummy(ImVec2(32*scaleFactor,-1));ImGui::SameLine();
-        if(ImGuiKnobs::Knob("phase", &phase, -1.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper)){
+        ImGui::SameLine();ImGui::Dummy(ImVec2(ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,0,80)*scaleFactor,-1));ImGui::SameLine();
+        if(ImGuiKnobs::Knob("phase", &phase, -1.0f, 1.0f, 0.001f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*this->scaleFactor)){
             phase_ctrl.set(phase);
             this->setCustomVar(phase,"PHASE");
         }

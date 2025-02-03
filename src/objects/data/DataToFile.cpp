@@ -141,18 +141,19 @@ void DataToFile::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,ImGui::GetWindowSize().y/2 - (16*scaleFactor))); // Padding top
+        ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/2 *_nodeCanvas.GetCanvasScale()) - (6*scaleFactor)));
         if(ImGui::Button(ICON_FA_FILE_UPLOAD,ImVec2(-1,26*scaleFactor))){
             exportFileFlag = true;
         }
 
         ImVec2 window_pos = ImGui::GetWindowPos();
-        ImVec2 window_size = ImGui::GetWindowSize();
-        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (30*scaleFactor), window_pos.y + (40*scaleFactor));
+        ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
+        ImVec2 pos = ImVec2(window_pos.x + window_size.x - (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,10,60)*scaleFactor), window_pos.y + IMGUI_EX_NODE_HEADER_HEIGHT + (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,40)*scaleFactor));
+        float radius = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,1,20)*scaleFactor;
         if (recordData){
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(255, 0, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, radius, IM_COL32(255, 0, 0, 255), 40);
         }else{
-            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, 10, IM_COL32(0, 255, 0, 255), 40);
+            _nodeCanvas.getNodeDrawList()->AddCircleFilled(pos, radius, IM_COL32(0, 255, 0, 255), 40);
         }
 
         _nodeCanvas.EndNodeContent();

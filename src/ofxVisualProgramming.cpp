@@ -112,6 +112,10 @@ ofxVisualProgramming::ofxVisualProgramming(){
     inspectorActive         = false;
     navigationActive        = false;
     isCanvasVisible         = false;
+    isCanvasActive          = true;
+    isOverProfiler          = false;
+    isOverInspector         = false;
+    isOverSubpatchNavigator = false;
 
     inited                  = false;
 
@@ -150,16 +154,9 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     }
 
     nodeCanvas.setContext(ImGui::GetCurrentContext());
-
     nodeCanvas.setRetina(isRetina,scaleFactor);
-    profiler.setIsRetina(isRetina);
 
-    // Set pan-zoom canvas
-    canvas.disableMouseInput();
-    canvas.setbMouseInputEnabled(true);
-    canvas.toggleOfCam();
-    canvas.setUseScale(false);
-    easyCam.enableOrtho();
+    profiler.setIsRetina(isRetina);
 
     // create failsafe window for always maintaining reference to shared context
     setupFailsafeWindow();
@@ -178,14 +175,25 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
 #elif defined(TARGET_WIN32)
     pluginsDir.allowExt("dll");
 #endif
-    pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
-    pluginsDir.sort();
+
+    bool hasPlugins = false;
+    try{
+        pluginsDir.listDir(ofToDataPath(PLUGINS_FOLDER));
+        pluginsDir.sort();
+        hasPlugins = pluginsDir.size() > 0;
+    }
+    catch(std::exception& e){
+        // This can throw with OS file permission problems.
+        ofLog(OF_LOG_WARNING,"Loading plugins: Can't load the plugins folder `%s`. Error: %s", pluginsDir.getOriginalDirectory().c_str(), e.what());
+    }
 
     // load all plugins
-    for(unsigned int i = 0; i < pluginsDir.size(); i++){
-        ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
-        string tmpPlugPath = pluginsDir.getFile(i).getAbsolutePath();
-        plugins_kernel.load_plugin(tmpPlugPath);
+    if(hasPlugins){
+        for(unsigned int i = 0; i < pluginsDir.size(); i++){
+            ofLog(OF_LOG_NOTICE,"Loading plugin: %s",pluginsDir.getFile(i).getFileName().c_str());
+            string tmpPlugPath = pluginsDir.getFile(i).getAbsolutePath();
+            plugins_kernel.load_plugin(tmpPlugPath);
+        }
     }
 
     // Create new empty file patch
@@ -295,6 +303,7 @@ void ofxVisualProgramming::update(){
         }
 
         profiler.cpuGraph.LoadFrameData(pt,leftToRightIndexOrder.size());
+        isOverProfiler = profiler.isMouseOver;
 
         if(patchObjects[lastAddedObjectID] != nullptr){
             nextObjectPosition = (patchObjects[lastAddedObjectID]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[lastAddedObjectID]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
@@ -345,20 +354,14 @@ void ofxVisualProgramming::draw(){
     ofPushStyle();
     ofPushMatrix();
 
-    // Init canvas
-    nodeCanvas.SetTransform( ImVec2(canvas.getTranslation().x,canvas.getTranslation().y), canvas.getScale() );//canvas.getScrollPosition(), canvas.getScale(true) );
-
     // DEBUG
-    if(OFXVP_DEBUG){
-        ofSetColor(0,255,255,236);
-        ofNoFill();
-        ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
-        ofFill();
-        ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 6);
-    }
-
-
-    canvas.begin(canvasViewport);
+#ifdef OFXVP_DEBUG
+    ofSetColor(0,255,255,236);
+    ofNoFill();
+    ofDrawRectangle( canvasViewport.x, canvasViewport.y, canvasViewport.width, canvasViewport.height);
+    ofFill();
+    ofDrawCircle(ofGetMouseX(), ofGetMouseY(), 6);
+#endif
 
     ofEnableAlphaBlending();
     ofSetCurveResolution(50);
@@ -367,13 +370,12 @@ void ofxVisualProgramming::draw(){
 
     livePatchingObiID = -1;
 
-
     ofxVPGui->begin();
 
     // DEBUG
-    if(OFXVP_DEBUG){
-        ImGui::ShowMetricsWindow();
-    }
+#ifdef OFXVP_DEBUG
+    ImGui::ShowMetricsWindow();
+#endif
 
     // Try to begin ImGui Canvas.
     // Should always return true, except if window is minimised or somehow not rendered.
@@ -414,6 +416,22 @@ void ofxVisualProgramming::draw(){
 
     }
 
+    nodeCanvas.UpdateCanvasRect();
+    nodeCanvas.setCanvasActive(isCanvasActive);
+    if(isCanvasActive){
+        nodeCanvas.UpdateCanvasScrollZoom();
+        if(!nodeCanvas.isAnyNodeFocused()){
+            nodeCanvas.UserInteraction();
+            nodeCanvas.DrawSelecting();
+            nodeCanvas.UpdateNodesFlags();
+        }
+        //nodeCanvas.CanvasPopupMenu();
+    }else{
+        nodeCanvas.setCanvasViewToDefault();
+    }
+    nodeCanvas.UpdateCanvasGrid(ImGui::GetWindowDrawList());
+
+
     // Close canvas
     nodeCanvas.End();
 
@@ -424,12 +442,6 @@ void ofxVisualProgramming::draw(){
 void ofxVisualProgramming::closeDrawMainMenu(){
     // We're done drawing to IMGUI
     ofxVPGui->end();
-
-    canvas.end();
-
-    if(OFXVP_DEBUG){
-        canvas.drawDebug();
-    }
 
     // Draw Bottom Bar
     ofSetColor(0,0,0,60);
@@ -444,7 +456,6 @@ void ofxVisualProgramming::closeDrawMainMenu(){
     // Graphical Context
     ofxVPGui->draw();
 
-    canvas.update();
 }
 
 //--------------------------------------------------------------
@@ -454,6 +465,8 @@ void ofxVisualProgramming::drawInspector(){
     //ImGui::SetNextWindowPos(ImVec2(ofGetWindowWidth()-200,26*scaleFactor), ImGuiCond_Appearing);
 
     ImGui::Begin(ICON_FA_ADJUST "  Inspector", &inspectorActive, ImGuiWindowFlags_NoCollapse);
+
+    isOverInspector = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
 
     // if object id exists
     if(patchObjects.find(nodeCanvas.getActiveNode()) != patchObjects.end()){
@@ -505,6 +518,8 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
     //ImGui::SetNextWindowSize(ImVec2(200*scaleFactor,400*scaleFactor), ImGuiCond_Appearing );
 
     ImGui::Begin(ICON_FA_NETWORK_WIRED "  Patch Navigator", &navigationActive, ImGuiWindowFlags_NoCollapse);
+
+    isOverSubpatchNavigator = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootWindow) || ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows);
 
     ImGui::Spacing();
     if(ImGui::Button(ICON_FA_PLUS_CIRCLE " Add Subpatch",ImVec2(-1,26*scaleFactor))){
@@ -586,7 +601,6 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
                     _t.inOut = 0;
                     subpatchesMap[move_to].push_back(_t);
                 }
-
             }
             ImGui::EndDragDropTarget();
         }
@@ -734,8 +748,6 @@ void ofxVisualProgramming::mouseDragged(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
-    canvas.mouseDragged(e);
-
 }
 
 //--------------------------------------------------------------
@@ -743,8 +755,6 @@ void ofxVisualProgramming::mousePressed(ofMouseEventArgs &e){
 
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
-
-    canvas.mousePressed(e);
 
 }
 
@@ -754,10 +764,8 @@ void ofxVisualProgramming::mouseReleased(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered() )
         return;
 
-    setPatchVariable("canvasTranslationX",canvas.getTranslation().x);
-    setPatchVariable("canvasTranslationY",canvas.getTranslation().y);
-
-    canvas.mouseReleased(e);
+    setPatchVariable("canvasTranslationX",nodeCanvas.GetCanvasTranslation().x);
+    setPatchVariable("canvasTranslationY",nodeCanvas.GetCanvasTranslation().y);
 
 }
 
@@ -767,7 +775,6 @@ void ofxVisualProgramming::mouseScrolled(ofMouseEventArgs &e){
     if(ImGui::IsAnyItemActive() || nodeCanvas.isAnyNodeHovered() || ImGui::IsAnyItemHovered())
         return;
 
-    canvas.mouseScrolled(e);
 }
 
 //--------------------------------------------------------------
@@ -835,7 +842,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::addObject(string name,ofVec2f pos){
+void ofxVisualProgramming::addObject(string name,ofVec2f pos,std::string fp){
 
     // check if object exists
     bool exists = isObjectInLibrary(name);
@@ -873,6 +880,9 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
     tempObj->setIsRetina(isRetina,scaleFactor);
     tempObj->move(static_cast<int>(pos.x),static_cast<int>(pos.y));
     tempObj->setSubpatch(currentSubpatch);
+    if(fp != "none"){
+        tempObj->setFilepath(fp);
+    }
     ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
     ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
     ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
@@ -900,6 +910,14 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos){
         }
 
         nodeCanvas.setActiveNode(lastAddedObjectID);
+        nodeCanvas.addNodeToMap(lastAddedObjectID,name);
+
+        //nodeCanvas.debugNodeMap();
+
+        if(patchObjects[lastAddedObjectID] != nullptr){
+            nextObjectPosition = (patchObjects[lastAddedObjectID]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[lastAddedObjectID]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
+
+        }
     }
 
     bLoadingNewObject       = false;
@@ -1070,10 +1088,13 @@ void ofxVisualProgramming::reconnectObjectOutlets(int &id){
 void ofxVisualProgramming::deleteObject(int id){
     resetTime = ofGetElapsedTimeMillis();
 
-    if ((id != -1) && (patchObjects[id] != nullptr)){
+    if ((id != -1) && (patchObjects[id] != nullptr) && (patchObjects[id]->getName() != "audio device") ){
 
         int targetID = id;
         bool found = false;
+
+        if(targetID == lastAddedObjectID) lastAddedObjectID=0;
+
         ofxXmlSettings XML;
 #if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
         if (XML.loadFile(currentPatchFile)){
@@ -1150,7 +1171,21 @@ void ofxVisualProgramming::deleteObject(int id){
             }
         }
 
+        // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
+        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+            for(int z=0;z<it->second.size();z++){
+                if(it->second.at(z).objID == id){
+                    it->second.at(z).objID = -1;
+                    break;
+                }
+            }
+        }
+
+        nodeCanvas.removeNodeFromMap(id);
+
     }
+
+    bLoadingNewObject = false;
 }
 
 //--------------------------------------------------------------
@@ -1371,6 +1406,10 @@ void ofxVisualProgramming::removeObject(int &id){
                 }
             }
         }
+
+        nodeCanvas.removeNodeFromMap(id);
+
+        //nodeCanvas.debugNodeMap();
     }
 
     bLoadingNewObject = false;
@@ -1380,7 +1419,13 @@ void ofxVisualProgramming::removeObject(int &id){
 void ofxVisualProgramming::duplicateObject(int &id){
     // disable duplicate for hardware&system related objects
     if(!patchObjects[id]->getIsHardwareObject()){
-        addObject(patchObjects[id]->getName(),nextObjectPosition);
+         ofVec3f tempPosition = (patchObjects[id]->getPos()/ofPoint(scaleFactor,scaleFactor)) + (ofPoint(patchObjects[id]->getObjectWidth()+40,40)/ofPoint(scaleFactor,scaleFactor));
+         std::ifstream testPath(patchObjects[id]->getFilepath());
+         if(testPath){ // object has a file in filepath
+             addObject(patchObjects[id]->getName(),tempPosition,patchObjects[id]->getFilepath());
+         }else{
+             addObject(patchObjects[id]->getName(),tempPosition);
+         }
     }else{
         ofLog(OF_LOG_NOTICE,"'%s' is one of the Mosaic objects that can't (for now) be duplicated due to hardware/system related issues.",patchObjects[id]->getName().c_str());
     }
@@ -1541,7 +1586,7 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         checkSpecialConnection(fromID,toID,linkType);
 
-#ifdef NDEBUG
+#ifdef OFXVP_DEBUG
         std::cout << "Connect from " << patchObjects[fromID]->getName() << " to " << patchObjects[toID]->getName() << std::endl;
 #endif
 
@@ -1671,12 +1716,12 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
         // remove previous data content
         ofDirectory oldData;
         oldData.listDir(ofToDataPath("temp/data/",true));
-#ifdef NDEBUG
+#ifdef OFXVP_DEBUG
         std::cout << "Removing content from directory: " << oldData.getAbsolutePath() << std::endl;
 #endif
         for(size_t i=0;i<oldData.getFiles().size();i++){
             oldData.getFile(i).remove();
-#ifdef NDEBUG
+#ifdef OFXVP_DEBUG
             std::cout << "Removing file: " << oldData.getFile(i).getAbsolutePath() << std::endl;
 #endif
         }
@@ -1685,7 +1730,7 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 
 
         // copy new data content
-#ifdef NDEBUG
+#ifdef OFXVP_DEBUG
         std::cout << "Copying from  " << dataFolderOrigin.getAbsolutePath() << " to " << oldDataPath << std::endl;
 #endif
         if(dataFolderOrigin.canRead() && oldData.canWrite()){
@@ -1721,13 +1766,13 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
                 }
 
                 it->second->outPut.clear();
-
-                //glm::vec3 temp = canvas.screenToWorld(glm::vec3(ofGetWindowWidth()/2,ofGetWindowHeight()/2 + 100,0));
-                //it->second->move(temp.x,temp.y);
                 it->second->setWillErase(true);
             }
         }
     }
+
+    // clear canvas nodes map
+    nodeCanvas.clearNodesMap();
 
     // clear subpatch navigation data
     subpatchesMap.clear();
@@ -1783,10 +1828,9 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             output_width = XML.getValue("output_width",0);
             output_height = XML.getValue("output_height",0);
             // setup canvas
-            glm::vec3 tr = glm::vec3(XML.getValue("canvasTranslationX",0),XML.getValue("canvasTranslationY",0),0);
+            ImVec2 tr = ImVec2(XML.getValue("canvasTranslationX",0),XML.getValue("canvasTranslationY",0));
             if(tr.x != 0 && tr.y != 0){
-                canvas.setTranslation(tr);
-                canvas.initialTranslation = tr;
+                nodeCanvas.SetCanvasTranslation(tr);
             }
 
             // setup audio
@@ -2040,6 +2084,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                 patchObjects[tempObj->getId()] = tempObj;
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
+                                nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
                                 // if wireless object, add reference to subpatch data map
                                 if(objname == "sender"){
                                     SubpatchConnection _t;
@@ -2053,7 +2098,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                                     subpatchesMap[objSubpatch].push_back(_t);
                                 }
 
-#ifdef NDEBUG
+#ifdef OFXVP_DEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
 
@@ -2173,7 +2218,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
 //--------------------------------------------------------------
 void ofxVisualProgramming::loadPatchSharedContextObjects(){
 
-#ifdef NDEBUG
+#ifdef OFXVP_DEBUG
     std::cout << "Loading GL sharing context objects" << std::endl;
 #endif
 
@@ -2217,8 +2262,8 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                                 patchObjects[tempObj->getId()] = tempObj;
                                 actualObjectID = tempObj->getId();
                                 lastAddedObjectID = tempObj->getId();
-
-#ifdef NDEBUG
+                                nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
+#ifdef OFXVP_DEBUG
                                 std::cout << "Loading "<< tempObj->getName() << std::endl;
 #endif
 
@@ -2276,6 +2321,8 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
             }
 
         }
+
+        //nodeCanvas.debugNodeMap();
 
     }
 }
@@ -2477,8 +2524,7 @@ void ofxVisualProgramming::activateDSP(){
         bool found = weAlreadyHaveObject("audio device");
 
         if(!found){
-            glm::vec3 temp = canvas.screenToWorld(glm::vec3((ofGetScreenWidth()/2 - OBJECT_WIDTH/2*scaleFactor)/scaleFactor,(ofGetScreenHeight()/2 + OBJECT_HEIGHT*scaleFactor)/scaleFactor,0));
-            addObject("audio device",ofVec2f(temp.x,temp.y));
+            addObject("audio device",ofVec2f((ofGetScreenWidth()/2 - OBJECT_WIDTH/2*scaleFactor)/scaleFactor,(ofGetScreenHeight()/2 + OBJECT_HEIGHT*scaleFactor)/scaleFactor));
         }
         resetSystemObjects();
 
@@ -2500,5 +2546,5 @@ void ofxVisualProgramming::deactivateDSP(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetCanvas(){
-    canvas.resetTranslation();
+    nodeCanvas.resetCanvas();
 }

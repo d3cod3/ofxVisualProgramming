@@ -38,6 +38,10 @@
 #include <pwd.h>
 #endif
 
+#if __cplusplus>=202002L
+#    include <bit>
+#endif
+
 #include <math.h>
 #include <random>
 #include <string>
@@ -53,6 +57,30 @@
 
 // this macro is used to silent unused variables warnings on virtual functions
 template <typename... Ts> void unusedArgs(const Ts&...) {}
+
+// ---------------------------------------------
+// ofxVP_CAST_PIN_PTR template by @Daandelange
+
+// Normal cast for almost any type
+template<typename TYPE>
+inline TYPE* ofxVP_CAST_PIN_PTR(void*& _pinData){
+    return static_cast<TYPE*>(_pinData);
+}
+// Specialisations/Exceptions : only float is using bit-cast style type-punning
+// Basically it reads/writes the address of a pointer as a value using a bitswap, instead of writing the value to the pointed address.
+// Note: Accessing the pointer normally will naturally crash the program; it's accessing an invalid memory address.
+// Info: https://tttapa.github.io/Pages/Programming/Cpp/Practices/type-punning.html
+template<>
+inline float* ofxVP_CAST_PIN_PTR(void*& _pinData){
+    // Compile-time check, will warn on platforms where this technique doesn't work !
+    static_assert(sizeof(float) == sizeof(uint32_t));
+#if __cplusplus>=202002L // C++20 brings native bitcast support !
+    return std::bit_cast<float*>(&_pinData);
+#else
+    return reinterpret_cast<float *>(&_pinData);
+#endif
+};
+// ---------------------------------------------
 
 
 //--------------------------------------------------------------
@@ -258,6 +286,30 @@ static inline float gaussianFn(float x, float amplitude, float center, float wid
 }
 
 //--------------------------------------------------------------
+static inline float lowShelfFn(float x, float amplitude, float center, float width){
+    float base = (x - center) / width; // divide top by bottom
+    base *= base * -.5; // square top and bottom, multiply by -1/2
+    base = exp(base); // take pow(e, base)
+    if(x < center){
+        return amplitude;
+    }else{
+        return amplitude * base;
+    }
+}
+
+//--------------------------------------------------------------
+static inline float hiShelfFn(float x, float amplitude, float center, float width){
+    float base = (x - center) / width; // divide top by bottom
+    base *= base * -.5; // square top and bottom, multiply by -1/2
+    base = exp(base); // take pow(e, base)
+    if(x > center){
+        return amplitude;
+    }else{
+        return amplitude * base;
+    }
+}
+
+//--------------------------------------------------------------
 inline std::string execCmd(const char* cmd){
     char buffer[128];
     std::string result = "";
@@ -443,22 +495,24 @@ inline void drawNodeOFTexture(ofTexture &tex, float &px, float &py, float &w, fl
 inline void calcTextureDims(ofTexture &tex, float &px, float &py, float &w, float &h, float originX, float originY, float scaledW, float scaledH, float zoom, float retinaScale=1.0f, bool hasInlets=true){
 
     if(tex.isAllocated()){
-        if(tex.getWidth()/tex.getHeight() >= scaledW/scaledH){
+        float newScaledW = scaledW*zoom;
+        float newScaledH = scaledH*zoom;
+        if(tex.getWidth()/tex.getHeight() >= newScaledW/newScaledH){
             if(tex.getWidth() > tex.getHeight()){   // horizontal texture
-                w           = scaledW;
-                h           = (scaledW/tex.getWidth())*tex.getHeight();
+                w           = newScaledW;
+                h           = (newScaledW/tex.getWidth())*tex.getHeight();
                 px          = 0;
-                py          = (scaledH-h)/2.0f;
+                py          = (newScaledH-h)/2.0f;
             }else{ // vertical texture
-                w           = (tex.getWidth()*scaledH)/tex.getHeight();
-                h           = scaledH;
-                px          = (scaledW-w)/2.0f;
+                w           = (tex.getWidth()*newScaledH)/tex.getHeight();
+                h           = newScaledH;
+                px          = (newScaledW-w)/2.0f;
                 py          = 0;
             }
         }else{ // always considered vertical texture
-            w               = (tex.getWidth()*scaledH)/tex.getHeight();
-            h               = scaledH;
-            px              = (scaledW-w)/2.0f;
+            w               = (tex.getWidth()*newScaledH)/tex.getHeight();
+            h               = newScaledH;
+            px              = (newScaledW-w)/2.0f;
             py              = 0;
         }
     }

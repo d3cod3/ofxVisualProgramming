@@ -134,7 +134,7 @@ void moMultiToggle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             }
         }
 
-        this->width = 20*scaleFactor + numToggles*(toggleW+9.0f)*scaleFactor + 10*scaleFactor;
+        this->width = 20*scaleFactor + numToggles*(toggleW+8.0f)*scaleFactor + 10*scaleFactor;
         if(this->width < OBJECT_WIDTH*scaleFactor){
             this->width = OBJECT_WIDTH*scaleFactor;
         }
@@ -200,7 +200,8 @@ void moMultiToggle::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGui::Dummy(ImVec2(-1,2.0f)); // Padding top
+        ImGui::SetCursorPos(ImVec2(((this->width*_nodeCanvas.GetCanvasScale())/2.0f)-(((toggleW+8.0)*scaleFactor)*numToggles/2.0f)+(8.0f*scaleFactor),(IMGUI_EX_NODE_HEADER_HEIGHT*scaleFactor)+(this->height*_nodeCanvas.GetCanvasScale()/2.0f)-(toggleW*scaleFactor)));
+
         for(int i=0;i<numToggles;i++){
             if (i > 0) ImGui::SameLine();
 

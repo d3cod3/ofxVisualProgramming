@@ -196,10 +196,10 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw waveform
-        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y*0.5f), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
+        ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale()), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         // draw signal RMS amplitude
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,ImGui::GetWindowSize().y*0.5f),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y *0.5f * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*0.5f*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale() * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -209,12 +209,12 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Spacing();
 
         ImGui::Dummy(ImVec2(0,4*scaleFactor));
-        if (ImGuiKnobs::Knob("level", &audioInputLevel, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)) {
+        if (ImGuiKnobs::Knob("level", &audioInputLevel, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*scaleFactor)) {
             this->setCustomVar(static_cast<float>(audioInputLevel),"INPUT_LEVEL");
         }
 
         ImGui::SameLine();
-        if (ImGuiKnobs::Knob("smooth", &smoothingValue, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper)) {
+        if (ImGuiKnobs::Knob("smooth", &smoothingValue, 0.0f, 1.0f, 0.01f, "%.2f", ImGuiKnobVariant_Wiper,ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,MIN_KNOB_SCALE,MAX_KNOB_SCALE)*scaleFactor)) {
             this->setCustomVar(static_cast<float>(smoothingValue),"SMOOTHING");
         }
 

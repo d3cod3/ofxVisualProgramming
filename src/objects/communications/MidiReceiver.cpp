@@ -38,7 +38,7 @@
 MidiReceiver::MidiReceiver() : PatchObject("midi receiver"){
 
     this->numInlets  = 0;
-    this->numOutlets = 5;
+    this->numOutlets = 6;
 
     _outletParams[0] = new float();         // channel
     *(float *)&_outletParams[0] = 0.0f;
@@ -50,10 +50,14 @@ MidiReceiver::MidiReceiver() : PatchObject("midi receiver"){
     *(float *)&_outletParams[3] = 0.0f;
     _outletParams[4] = new float();         // velocity
     *(float *)&_outletParams[4] = 0.0f;
+    _outletParams[5] = new vector<float>(); // midi notes array ( polyphony )
 
     this->initInletsState();
 
     midiDeviceID        = 0;
+    isLogging           = false;
+
+    this->width         *= 2;
 
     loaded              = false;
 
@@ -68,6 +72,7 @@ void MidiReceiver::newObject(){
     this->addOutlet(VP_LINK_NUMERIC,"value");
     this->addOutlet(VP_LINK_NUMERIC,"pitch");
     this->addOutlet(VP_LINK_NUMERIC,"velocity");
+    this->addOutlet(VP_LINK_ARRAY,"midi notes");
 
     this->setCustomVar(static_cast<float>(midiDeviceID),"DEVICE_ID");
 }
@@ -79,6 +84,8 @@ void MidiReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     midiIn.listInPorts();
     midiDevicesList = midiIn.getInPortList();
 
+    emptyVec.assign(1,0.0f);
+
 }
 
 //--------------------------------------------------------------
@@ -86,17 +93,57 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     if(midiDevicesList.size() > 0){
         if(midiIn.isOpen()){
+            /// queued message handling
+            if(midiIn.hasWaitingMessages()) {
+                ofxMidiMessage message;
+
+                // add the latest message to the message queue
+                while(midiIn.getNextMessage(message)) {
+                    midiMessages.push_back(message);
+                }
+
+                // remove any old messages if we have too many
+                while(midiMessages.size() > maxMessages) {
+                    midiMessages.erase(midiMessages.begin());
+                }
+            }
+            // last message data
             *(float *)&_outletParams[0] = lastMessage.channel;
             *(float *)&_outletParams[1] = lastMessage.control;
             *(float *)&_outletParams[2] = lastMessage.value;
             *(float *)&_outletParams[3] = lastMessage.pitch;
             *(float *)&_outletParams[4] = lastMessage.velocity;
+            // message queue data
+            static_cast<vector<float> *>(_outletParams[5])->clear();
+            static_cast<vector<float> *>(_outletParams[5])->push_back(0); // vector first position save number of notes ON
+
+            for(size_t i=0;i<midiMessages.size();i++){
+                ofxMidiMessage &message = midiMessages[i];
+                // store pitch, velocity in midinotes map
+                if(message.status == MIDI_NOTE_ON){
+                    midinotes[message.pitch] = message.velocity;
+                }else if(message.status == MIDI_NOTE_OFF){
+                    midinotes[message.pitch] = 0;
+                }
+            }
+
+            for(map<int,int>::iterator it = midinotes.begin(); it != midinotes.end(); it++ ){
+                if(it->second > 0){
+                    static_cast<vector<float> *>(_outletParams[5])->at(0) += 1;
+                    static_cast<vector<float> *>(_outletParams[5])->push_back(it->first);
+                    static_cast<vector<float> *>(_outletParams[5])->push_back(it->second);
+                }
+            }
+
+
         }else{
             *(float *)&_outletParams[0] = 0.0f;
             *(float *)&_outletParams[1] = 0.0f;
             *(float *)&_outletParams[2] = 0.0f;
             *(float *)&_outletParams[3] = 0.0f;
             *(float *)&_outletParams[4] = 0.0f;
+
+            *static_cast<vector<float> *>(_outletParams[5]) = emptyVec;
         }
     }
 
@@ -183,6 +230,9 @@ void MidiReceiver::drawObjectNodeConfig(){
             }
             ImGui::EndCombo();
         }
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Checkbox("Log MIDI",&isLogging);
     }else{
         ImGui::Text("No MIDI devices found!");
 
@@ -195,7 +245,7 @@ void MidiReceiver::drawObjectNodeConfig(){
 
 
     ImGuiEx::ObjectInfo(
-                "Receive data from a physical midi interface",
+                "Receive data from a physical/virtual midi interface",
                 "https://mosaic.d3cod3.org/reference.php?r=midi-receiver", scaleFactor);
 }
 
@@ -252,6 +302,38 @@ void MidiReceiver::rescanMIDI(){
 void MidiReceiver::newMidiMessage(ofxMidiMessage& msg){
     //ofLog(OF_LOG_NOTICE,"%s",msg.toString().c_str());
     lastMessage = msg;
+
+    if(isLogging){
+        if(msg.status < MIDI_SYSEX) {
+            if(msg.status == MIDI_NOTE_ON || msg.status == MIDI_NOTE_OFF) {
+                ofLog(OF_LOG_NOTICE,"MIDI Message STATUS: %s, PITCH: %i, VELOCITY: %i",ofxMidiMessage::getStatusString(msg.status).c_str(),msg.pitch,msg.velocity);
+            }
+        }
+        if(msg.status == MIDI_CONTROL_CHANGE) {
+            ofLog(OF_LOG_NOTICE,"MIDI Message STATUS: %s, CONTROL: %i, VALUE: %i",ofxMidiMessage::getStatusString(msg.status).c_str(),msg.control,msg.value);
+        }
+        else if(msg.status == MIDI_PROGRAM_CHANGE) {
+            ofLog(OF_LOG_NOTICE,"MIDI Message STATUS: %s, VALUE: %i",ofxMidiMessage::getStatusString(msg.status).c_str(),msg.value);
+        }
+        else if(msg.status == MIDI_PITCH_BEND) {
+            ofLog(OF_LOG_NOTICE,"MIDI Message STATUS: %s, VALUE: %i",ofxMidiMessage::getStatusString(msg.status).c_str(),msg.value);
+        }
+        else if(msg.status == MIDI_AFTERTOUCH) {
+            ofLog(OF_LOG_NOTICE,"MIDI Message STATUS: %s, VALUE: %i",ofxMidiMessage::getStatusString(msg.status).c_str(),msg.value);
+        }
+        else if(msg.status == MIDI_POLY_AFTERTOUCH) {
+            ofLog(OF_LOG_NOTICE,"MIDI Message STATUS: %s, PITCH: %i, VALUE: %i",ofxMidiMessage::getStatusString(msg.status).c_str(),msg.pitch,msg.value);
+        }
+
+    }
+
+    // add the latest message to the message queue
+    midiMessages.push_back(msg);
+
+    // remove any old messages if we have too many
+    while(midiMessages.size() > maxMessages) {
+        midiMessages.erase(midiMessages.begin());
+    }
 }
 
 OBJECT_REGISTER( MidiReceiver, "midi receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)

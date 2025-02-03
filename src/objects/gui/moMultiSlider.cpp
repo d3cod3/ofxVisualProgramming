@@ -118,7 +118,7 @@ void moMultiSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             }
         }
 
-        this->width = 20*scaleFactor + numSliders*(sliderW+9.0f)*scaleFactor + 10*scaleFactor;
+        this->width = 20*scaleFactor + numSliders*(30.0f + 9.0f)*scaleFactor + 10*scaleFactor;
         if(this->width < OBJECT_WIDTH*scaleFactor){
             this->width = OBJECT_WIDTH*scaleFactor;
         }
@@ -190,7 +190,7 @@ void moMultiSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, IM_COL32(120,120,120,60));
             ImGui::PushStyleColor(ImGuiCol_FrameBgActive, IM_COL32(120,120,120,60));
             ImGui::PushStyleColor(ImGuiCol_SliderGrab, IM_COL32(120,120,120,160));
-            ImGui::VSliderFloat("##v", ImVec2(sliderW*scaleFactor, this->height - 36.0f*scaleFactor), &values[i], 0.0f, 1.0f, "");
+            ImGui::VSliderFloat("##v", ImVec2(sliderW*this->scaleFactor, this->height*_nodeCanvas.GetCanvasScale() - 36.0f*scaleFactor), &values[i], 0.0f, 1.0f, "");
             if (ImGui::IsItemActive() || ImGui::IsItemHovered()){
                 ImGui::SetTooltip("s%i %.2f", i+1, values[i]);
                 this->setCustomVar(values[i],"SLIDERVALUE_"+ofToString(i+1));
@@ -199,8 +199,11 @@ void moMultiSlider::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PopID();
         }
 
+        sliderW = ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,-2,72);
+
         _nodeCanvas.EndNodeContent();
     }
+
 }
 
 //--------------------------------------------------------------

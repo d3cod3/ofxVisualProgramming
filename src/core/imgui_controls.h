@@ -32,4 +32,6 @@ SmartButtonState SmartButton(const char* label, ImVec2 size = {0, 0});
 
 SmartButtonState BangButton(const char* label, ImVec4& color, ImVec2 size = {0, 0});
 
+void ToggleButton(const char* str_id, bool* v);
+
 }

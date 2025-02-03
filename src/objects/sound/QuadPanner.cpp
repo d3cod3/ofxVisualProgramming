@@ -174,7 +174,7 @@ void QuadPanner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGuiEx::Pad2D(_nodeCanvas.getNodeDrawList(), 0, ImGui::GetWindowSize().y - 26,&padX,&padY)){
+        if(ImGuiEx::Pad2D(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor),&padX,&padY)){
             this->setCustomVar(padX,"XPOS");
             this->setCustomVar(padY,"YPOS");
         }

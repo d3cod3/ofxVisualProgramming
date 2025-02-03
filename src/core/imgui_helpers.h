@@ -153,10 +153,10 @@ inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int data
 }
 
 //--------------------------------------------------------------
-inline void plotValue(float value, float min, float max, ImU32 color=IM_COL32(255,255,255,255), float retinaScale=1.0f){
+inline void plotValue(float value, float min, float max, ImU32 color=IM_COL32(255,255,255,255), float height=OBJECT_STANDARD_HEIGHT, float scale=1.0f){
     ImGuiEx::PlotVarConfig conf;
     conf.value = value;
-    conf.frame_size = ImVec2(ImGui::GetWindowSize().x - 20, ImGui::GetWindowSize().y - ((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*retinaScale));
+    conf.frame_size = ImVec2(ImGui::GetWindowSize().x - (20*scale), height);
     conf.scale.min = min;
     conf.scale.max = max;
     conf.buffer_size = 256;

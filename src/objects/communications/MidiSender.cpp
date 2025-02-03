@@ -56,6 +56,8 @@ MidiSender::MidiSender() : PatchObject("midi sender"){
     trigger             = false;
     lastNote            = 0.0f;
 
+    this->width         *= 2;
+
     loaded              = false;
 
 }
@@ -199,7 +201,7 @@ void MidiSender::drawObjectNodeConfig(){
 
 
     ImGuiEx::ObjectInfo(
-                "Send data to a physical ( or virtual ) midi interface",
+                "Send data to a physical/virtual midi interface",
                 "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
 }
 
