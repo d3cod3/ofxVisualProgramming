@@ -73,6 +73,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFft](https://github.com/kylemcdonald/ofxFft)
 
+#### [ofxGLEditor](https://github.com/Akira-Hayasaka/ofxGLEditor)
+
 #### [ofxImGui](https://github.com/d3cod3/ofxImGui)
 
 #### [ofxInfiniteCanvas](https://github.com/d3cod3/ofxInfiniteCanvas)
@@ -91,6 +93,8 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxPDSP](https://github.com/d3cod3/ofxPDSP)
 
+#### [ofxScheme](https://github.com/d3cod3/ofxScheme)
+
 #### [ofxSyphon](https://github.com/d3cod3/ofxSyphon)
 
 #### [ofxTimeline](https://github.com/d3cod3/ofxTimeline)
@@ -107,7 +111,7 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 Clone [this addon repository](https://github.com/d3cod3/ofxVisualProgramming) into your `<your_openframeworks_release_folder>/addons` together with all the others addons listed:
 
-```bash
+```bash  
 cd <your_openframeworks_release_folder>/addons
 
 git clone https://github.com/npisanti/ofxAudioFile
@@ -116,6 +120,7 @@ git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
 git clone https://github.com/kylemcdonald/ofxFft
+git clone https://github.com/Akira-Hayasaka/ofxGLEditor
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
 git clone https://github.com/danomatika/ofxLua
@@ -125,6 +130,7 @@ git clone --branch=NDI5 https://github.com/d3cod3/ofxNDI
 git clone https://github.com/d3cod3/ofxOpenDHT
 git clone https://github.com/danomatika/ofxPd
 git clone https://github.com/d3cod3/ofxPDSP
+git clone https://github.com/d3cod3/ofxScheme
 git clone https://github.com/d3cod3/ofxSyphon
 git clone https://github.com/d3cod3/ofxTimeline
 git clone https://github.com/d3cod3/ofxWarp
@@ -344,6 +350,8 @@ ofxCv, ofxFft original addons by [Kyle McDonald](https://github.com/kylemcdonald
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 
 ofxFFmpegRecorder original addon by [Furkan Üzümcü](https://github.com/Furkanzmc)
+
+ofxGLEditor original addon by [Akira Hayasaka](https://github.com/Akira-Hayasaka)
 
 ofxImGui original addon by [Jason Van Cleave](https://github.com/jvcleave)
 
