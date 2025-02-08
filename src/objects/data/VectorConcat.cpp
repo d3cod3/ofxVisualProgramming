@@ -87,11 +87,11 @@ void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    static_cast<vector<float> *>(_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
     for(int i=0;i<this->numInlets;i++){
-        if(this->inletsConnected[i] && !static_cast<vector<float> *>(_inletParams[i])->empty()){
-            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
-                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[i])->at(s));
+        if(this->inletsConnected[i] && !ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[i])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[i])->size());s++){
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[i])->at(s));
             }
         }
     }
@@ -154,10 +154,10 @@ void VectorConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
 
         ImGui::Dummy(ImVec2(-1,10*scaleFactor));
-        if(static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()) > 0){
+        if(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size()) > 0){
             ImGui::Text("size\nrange");
             ImGui::SameLine();
-            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()),static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size())-1);
+            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size()),static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size())-1);
         }
 
 

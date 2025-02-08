@@ -66,10 +66,10 @@ void moMultiSlider::newObject(){
 
     this->setCustomVar(static_cast<float>(numSliders),"NUM_SLIDERS");
 
-    static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(numSliders,0.0f);
-    static_cast<vector<float> *>(_outletParams[0])->clear();
-    static_cast<vector<float> *>(_outletParams[0])->assign(numSliders,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(numSliders,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(numSliders,0.0f);
 
     values.assign(numSliders,0.0f);
 
@@ -90,12 +90,12 @@ void moMultiSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(this->inletsConnected[0]){
         for(size_t i=0;i<numSliders;i++){
-            values[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            values[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i);
         }
     }
 
     for(size_t i=0;i<numSliders;i++){
-        static_cast<vector<float> *>(_outletParams[0])->at(i) = values[i];
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = values[i];
     }
 
     if(needReset){
@@ -103,10 +103,10 @@ void moMultiSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
         numSliders = newNumSliders;
 
-        static_cast<vector<float> *>(_inletParams[0])->clear();
-        static_cast<vector<float> *>(_inletParams[0])->assign(numSliders,0.0f);
-        static_cast<vector<float> *>(_outletParams[0])->clear();
-        static_cast<vector<float> *>(_outletParams[0])->assign(numSliders,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(numSliders,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(numSliders,0.0f);
 
         values.assign(numSliders,0.0f);
 
@@ -132,10 +132,10 @@ void moMultiSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         numSliders = this->getCustomVar("NUM_SLIDERS");
         newNumSliders   = numSliders;
 
-        static_cast<vector<float> *>(_inletParams[0])->clear();
-        static_cast<vector<float> *>(_inletParams[0])->assign(numSliders,0.0f);
-        static_cast<vector<float> *>(_outletParams[0])->clear();
-        static_cast<vector<float> *>(_outletParams[0])->assign(numSliders,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(numSliders,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(numSliders,0.0f);
 
         values.assign(numSliders,0.0f);
 

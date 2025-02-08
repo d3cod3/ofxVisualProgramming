@@ -79,7 +79,7 @@ void MelBandsExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 
     // INIT FFT BUFFER
     for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
     }
 
 }
@@ -110,10 +110,10 @@ void MelBandsExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
         isConnectionRight = false;
     }
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty() && isConnectionRight){
         int index = 0;
         for(int i=bufferSize + spectrumSize;i<bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS-1;i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(index) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i);
             index++;
         }
     }else if(this->inletsConnected[0] && !isConnectionRight){
@@ -155,7 +155,7 @@ void MelBandsExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw MEL BANDS
-        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor), static_cast<vector<float> *>(_outletParams[0]));
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor), ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0]));
 
         _nodeCanvas.EndNodeContent();
     }

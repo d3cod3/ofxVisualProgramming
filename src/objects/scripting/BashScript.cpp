@@ -43,10 +43,10 @@ BashScript::BashScript() : PatchObject("bash script"){
     this->numOutlets = 1;
 
     _inletParams[0] = new string();         // control
-    *(string *)&_inletParams[0] = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]) = "";
 
     _outletParams[0] = new string();        // output
-    *(string *)&_outletParams[0] = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[0]) = "";
 
     this->initInletsState();
 
@@ -126,8 +126,8 @@ void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     // listen to message control (_inletParams[0])
     if(this->inletsConnected[0]){
-        if(lastMessage != *static_cast<string *>(_inletParams[0])){
-            lastMessage = *static_cast<string *>(_inletParams[0]);
+        if(lastMessage != *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0])){
+            lastMessage = *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]);
         }
 
         if(lastMessage == "bang"){
@@ -318,7 +318,7 @@ void BashScript::loadScript(string scriptFile){
 
             char buffer[128];
             _outletParams[0] = new string();
-            *static_cast<string *>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
             while(!feof(execFile)){
                 if(fgets(buffer, sizeof(buffer), execFile) != nullptr){
                     char *s = buffer;

@@ -54,10 +54,10 @@ FrequencyToNote::FrequencyToNote() : PatchObject("frequency to note"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // frequency
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _outletParams[0] = new float(); // midi [0 - 127]
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -89,11 +89,11 @@ void FrequencyToNote::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
-        frequency = ofClamp(*(float *)&_inletParams[0],1.0f,13289.0f);
+        frequency = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),1.0f,13289.0f);
     }
 
     lastNote = static_cast<int>(frequencyToPitch(frequency));
-    *(float *)&_outletParams[0] = lastNote;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = lastNote;
 
     if(!loaded){
         loaded = true;

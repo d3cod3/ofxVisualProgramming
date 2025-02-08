@@ -46,7 +46,7 @@ MotionDetection::MotionDetection() : PatchObject("motion detection"){
     _inletParams[0] = new ofTexture();  // input
 
     _outletParams[0] = new float(); // MOTION QUANTITY
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -88,13 +88,13 @@ void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
     unusedArgs(patchObjects);
 
     // MOTION DETECTION UPDATE
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         if(!newConnection){
             newConnection = true;
-            resetTextures(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            resetTextures(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight());
         }
 
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
 
         colorImg->setFromPixels(*pix);
         colorImg->updateTexture();
@@ -106,18 +106,18 @@ void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
             motionImg->absDiff(*grayPrev, *grayNow);   // motionImg is the difference between current and previous frame
             motionImg->updateTexture();
             cvThreshold(motionImg->getCvImage(), motionImg->getCvImage(), static_cast<int>(threshold), 255, CV_THRESH_TOZERO); // anything below threshold, drop to zero (compensate for noise)
-            numPixelsChanged = motionImg->countNonZeroInRegion(0, 0, static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            numPixelsChanged = motionImg->countNonZeroInRegion(0, 0, ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight());
 
             if(numPixelsChanged >= static_cast<int>(noise)){ // noise compensation
                 *grayPrev = *grayNow; // save current frame for next loop
                 cvThreshold(motionImg->getCvImage(), motionImg->getCvImage(), static_cast<int>(threshold), 255, CV_THRESH_TOZERO);// chop dark areas
                 motionImg->updateTexture();
             }else{
-                motionImg->setFromPixels(blackPixels, static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight());
+                motionImg->setFromPixels(blackPixels, ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight());
                 motionImg->updateTexture();
             }
 
-            *(float *)&_outletParams[0] = static_cast<float>(numPixelsChanged)/static_cast<float>(_totPixels);
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<float>(numPixelsChanged)/static_cast<float>(_totPixels);
 
         }
 
@@ -165,7 +165,7 @@ void MotionDetection::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.0f, 1.0f, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), 0.0f, 1.0f, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

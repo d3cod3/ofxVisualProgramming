@@ -41,19 +41,19 @@ pdspKick::pdspKick() : PatchObject("kick"){
     this->numOutlets = 3;
 
     _inletParams[0] = new float();          // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();          // osc freq
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // filter freq
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // filter res
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
     _outletParams[1] = new float();         // ADSR func
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
     _outletParams[2] = new float();          // Freq. ADSR func
-    *(float *)&_outletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
 
     this->initInletsState();
 
@@ -179,15 +179,15 @@ void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     modEnv.set(f_attackDuration,f_decayDuration,f_sustainLevel,f_releaseDuration);
 
     if(this->inletsConnected[1]){
-        oscFreq = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
+        oscFreq = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,100.0f);
     }
 
     if(this->inletsConnected[2]){
-        filterFreq = ofClamp(*(float *)&_inletParams[2],0.0f, 8260.0f);
+        filterFreq = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f, 8260.0f);
     }
 
     if(this->inletsConnected[3]){
-        filterRes = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        filterRes = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
     }
 
 
@@ -358,18 +358,18 @@ void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
 
     // bang --> trigger envelope
     if(this->inletsConnected[0]){
-        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
+        gate_ctrl.trigger(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),0.0f,1.0f));
     }else{
         gate_ctrl.off();
     }
 
     // output envelope func
-    *(float *)&_outletParams[1] = ampEnv.meter_output();
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = ampEnv.meter_output();
     // output freq. envelope func
-    *(float *)&_outletParams[2] = modEnv.meter_output();
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = modEnv.meter_output();
 
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 
 }
 

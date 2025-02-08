@@ -191,8 +191,8 @@ void SchemeScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     unusedArgs(patchObjects);
 
     // receive external data
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-        scheme.setExternalData(*static_cast<vector<float> *>(_inletParams[0]));
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+        scheme.setExternalData(*ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0]));
     }else{
         scheme.setExternalData(emptyData);
     }

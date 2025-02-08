@@ -41,12 +41,12 @@ MidiKnob::MidiKnob() : PatchObject("midi knob"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // control
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // value
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -81,14 +81,14 @@ void MidiKnob::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && this->inletsConnected[1]){
-        if(static_cast<int>(floor(*(float *)&_inletParams[0])) == savedControl){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+        if(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) == savedControl){
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
         }
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 
-    actualValue = *(float *)&_outletParams[0];
+    actualValue = *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]);
 
     if(!loaded){
         loaded = true;

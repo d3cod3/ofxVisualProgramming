@@ -42,11 +42,11 @@ Smooth::Smooth() : PatchObject("smooth"){
 
     _inletParams[0] = new float();  // input
     _inletParams[1] = new float();  // smoothing
-    *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 1.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 1.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -78,20 +78,20 @@ void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
-        *(float *)&_outletParams[0] = *(float *)&_outletParams[0]*(1.0f-smoothing) + *(float *)&_inletParams[0]*smoothing;
-        if(*(float *)&_inletParams[0] > maxRange){
-            maxRange = *(float *)&_inletParams[0];
-        }else if(*(float *)&_inletParams[0] < minRange){
-            minRange = *(float *)&_inletParams[0];
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0])*(1.0f-smoothing) + *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])*smoothing;
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) > maxRange){
+            maxRange = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]);
+        }else if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < minRange){
+            minRange = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]);
         }
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
         minRange    = 0.0f;
         maxRange    = 1.0f;
     }
 
     if(this->inletsConnected[1]){
-        smoothing = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        smoothing = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
     }
 
     if(!loaded){
@@ -131,7 +131,7 @@ void Smooth::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], minRange, maxRange, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), minRange, maxRange, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
 
         _nodeCanvas.EndNodeContent();

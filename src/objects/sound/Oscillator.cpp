@@ -41,25 +41,25 @@ Oscillator::Oscillator() : PatchObject("oscillator"){
     this->numOutlets = 7;
 
     _inletParams[0] = new float();  // pitch
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // level
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _inletParams[2] = new float();  // sine
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _inletParams[3] = new float();  // triangle
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _inletParams[4] = new float();  // saw
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
 
     _inletParams[5] = new float();  // pulse
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
 
     _inletParams[6] = new float();  // noise
-    *(float *)&_inletParams[6] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[6]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // osc output
     _outletParams[1] = new ofSoundBuffer(); // sine output
@@ -208,13 +208,13 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(this->inletsConnected[0]){
-        pitch_float = ofClamp(*(float *)&_inletParams[0],0,127);
+        pitch_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),0,127);
         pitch_ctrl.set(pitch_float);
     }
 
     if(this->inletsConnected[1]){
         if(pitch_float > 0.0f){
-            level_float = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+            level_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
         }else{
             level_float = 0.0f;
         }
@@ -222,27 +222,27 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(this->inletsConnected[2]){
-        sine_float = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        sine_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
         sine_ctrl.set(sine_float);
     }
 
     if(this->inletsConnected[3]){
-        triangle_float = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        triangle_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
         triangle_ctrl.set(triangle_float);
     }
 
     if(this->inletsConnected[4]){
-        saw_float = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
+        saw_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0f,1.0f);
         saw_ctrl.set(saw_float);
     }
 
     if(this->inletsConnected[5]){
-        pulse_float = ofClamp(*(float *)&_inletParams[5],0.0f,1.0f);
+        pulse_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),0.0f,1.0f);
         pulse_ctrl.set(pulse_float);
     }
 
     if(this->inletsConnected[6]){
-        noise_float = ofClamp(*(float *)&_inletParams[6],0.0f,1.0f);
+        noise_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[6]),0.0f,1.0f);
         noise_ctrl.set(noise_float);
     }
 
@@ -415,7 +415,7 @@ void Oscillator::loadAudioSettings(){
 
             plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[6])->push_back(0.0f);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[6])->push_back(0.0f);
                 plot_data[i] = 0.0f;
             }
 
@@ -433,15 +433,15 @@ void Oscillator::audioOutObject(ofSoundBuffer &outputBuffer){
         plot_data[i] = hardClip(sample);
 
         // SIGNAL BUFFER DATA
-        static_cast<vector<float> *>(_outletParams[6])->at(i) = sample;
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[6])->at(i) = sample;
     }
     // SIGNALS BUFFERS
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(sine_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[2])->copyFrom(triangle_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[3])->copyFrom(saw_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[4])->copyFrom(pulse_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[5])->copyFrom(noise_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(sine_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[2])->copyFrom(triangle_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[3])->copyFrom(saw_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->copyFrom(pulse_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[5])->copyFrom(noise_scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( Oscillator, "oscillator", OFXVP_OBJECT_CAT_SOUND)

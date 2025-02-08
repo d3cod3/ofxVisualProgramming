@@ -43,8 +43,8 @@ QuadPanner::QuadPanner() : PatchObject("quad panner"){
     _inletParams[0] = new ofSoundBuffer();  // audio input
     _inletParams[1] = new float();          // pan X
     _inletParams[2] = new float();          // pan Y
-    *(float *)&_inletParams[1] = 0.0f;
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output 1
     _outletParams[1] = new ofSoundBuffer(); // audio output 2
@@ -122,10 +122,10 @@ void QuadPanner::setupAudioOutObjectContent(pdsp::Engine &engine){
 void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        padX    = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        padX    = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
     }
     if(this->inletsConnected[2]){
-        padY    = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        padY    = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
     }
 
     gain_ctrl1.set(ofClamp(ofMap(padY,0.0,1.0,1.0,0.0),0.0f,1.0f) * ofClamp(ofMap(padX,0.0,1.0,1.0,0.0),0.0f,1.0f));
@@ -226,10 +226,10 @@ void QuadPanner::audioInObject(ofSoundBuffer &inputBuffer){
 //--------------------------------------------------------------
 void QuadPanner::audioOutObject(ofSoundBuffer &outputBuffer){
     // QUAD SIGNAL BUFFERS
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope1.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scope2.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[2])->copyFrom(scope3.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[3])->copyFrom(scope4.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope1.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scope2.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[2])->copyFrom(scope3.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[3])->copyFrom(scope4.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

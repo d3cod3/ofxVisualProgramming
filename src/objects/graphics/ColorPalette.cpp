@@ -42,7 +42,7 @@ ColorPalette::ColorPalette() : PatchObject("color palette"){
 
     _inletParams[0] = new vector<float>(); // base color
     _inletParams[1] = new float();      // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new vector<float>(); // palette
 
@@ -104,15 +104,15 @@ void ColorPalette::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void ColorPalette::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-        if(static_cast<vector<float> *>(_inletParams[0])->size() == 1){
-            baseColor.set(static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(0));
-        }else if(static_cast<vector<float> *>(_inletParams[0])->size() == 3){
-            baseColor.set(static_cast<vector<float> *>(_inletParams[0])->at(0),static_cast<vector<float> *>(_inletParams[0])->at(1),static_cast<vector<float> *>(_inletParams[0])->at(2));
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+        if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size() == 1){
+            baseColor.set(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(0),ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(0),ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(0));
+        }else if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size() == 3){
+            baseColor.set(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(0),ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(1),ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(2));
         }
     }
 
-    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0){
+    if(this->inletsConnected[1] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) == 1.0){
         if(selectedGeneration == 0){
             generateRandom(numColors);
         }else if(selectedGeneration == 1){
@@ -128,11 +128,11 @@ void ColorPalette::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         }
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
     for(size_t i=0;i<palette.size();i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(palette.at(i).r);
-        static_cast<vector<float> *>(_outletParams[0])->push_back(palette.at(i).g);
-        static_cast<vector<float> *>(_outletParams[0])->push_back(palette.at(i).b);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(palette.at(i).r);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(palette.at(i).g);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(palette.at(i).b);
     }
 
     if(!loaded){

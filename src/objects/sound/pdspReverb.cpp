@@ -43,15 +43,15 @@ pdspReverb::pdspReverb() : PatchObject("reverb"){
     _inletParams[0] = new ofSoundBuffer();  // audio input
 
     _inletParams[1] = new float();          // time
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // density
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // damping
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();          // modSpeed
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
     _inletParams[5] = new float();          // mosAmount
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output L
     _outletParams[1] = new ofSoundBuffer(); // audio output R
@@ -140,23 +140,23 @@ void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        time = ofClamp(*(float *)&_inletParams[1],0.0f,60.0f);
+        time = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,60.0f);
     }
 
     if(this->inletsConnected[2]){
-        density = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        density = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
     }
 
     if(this->inletsConnected[3]){
-        damping = ofClamp(*(float *)&_inletParams[3],0.0f,2.0f);
+        damping = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,2.0f);
     }
 
     if(this->inletsConnected[4]){
-        modSpeed = ofClamp(*(float *)&_inletParams[4],0.0f,20.0f);
+        modSpeed = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0f,20.0f);
     }
 
     if(this->inletsConnected[5]){
-        modAmount = ofClamp(*(float *)&_inletParams[5],0.0f,2.0f);
+        modAmount = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),0.0f,2.0f);
     }
 
     time_ctrl.set(time);
@@ -274,8 +274,8 @@ void pdspReverb::audioInObject(ofSoundBuffer &inputBuffer){
 //--------------------------------------------------------------
 void pdspReverb::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

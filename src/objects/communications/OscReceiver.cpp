@@ -81,18 +81,18 @@ void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
                     if(this->getOutletType(i) == VP_LINK_NUMERIC){
                         if(m.getNumArgs() == 1){
                             if(m.getArgType(0) == OFXOSC_TYPE_INT32 || m.getArgType(0) == OFXOSC_TYPE_FLOAT){
-                                *(float *)&_outletParams[i] = static_cast<float>(m.getArgAsFloat(0));
+                                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[i]) = static_cast<float>(m.getArgAsFloat(0));
                             }
                         }
                     }else if(this->getOutletType(i) == VP_LINK_STRING){
                         if(m.getNumArgs() == 1 && m.getArgType(0) == OFXOSC_TYPE_STRING){
-                            *static_cast<string *>(_outletParams[i]) = m.getArgAsString(0);
+                            *ofxVP_CAST_PIN_PTR<string>(_outletParams[i]) = m.getArgAsString(0);
                         }
                     }else if(this->getOutletType(i) == VP_LINK_ARRAY){
-                        static_cast<vector<float> *>(_outletParams[i])->clear();
+                        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[i])->clear();
                         for(size_t a = 0; a < m.getNumArgs(); a++){
                             if(m.getArgType(a) == OFXOSC_TYPE_INT32 || m.getArgType(a) == OFXOSC_TYPE_FLOAT){
-                                static_cast<vector<float> *>(_outletParams[i])->push_back(m.getArgAsFloat(a));
+                                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[i])->push_back(m.getArgAsFloat(a));
                             }
                         }
                     }else if(this->getOutletType(i) == VP_LINK_TEXTURE){
@@ -101,14 +101,14 @@ void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
                         if(m.getNumArgs() == 4 && m.getArgType(2) == OFXOSC_TYPE_INT32 && m.getArgType(3) == OFXOSC_TYPE_BLOB){
                             _tempImage->load(m.getArgAsBlob(3));
                             if(m.getArgAsInt32(2) == OF_IMAGE_GRAYSCALE){
-                                static_cast<ofTexture *>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_LUMINANCE);
-                                static_cast<ofTexture *>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_LUMINANCE);
+                                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_LUMINANCE);
+                                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_LUMINANCE);
                             }else if(m.getArgAsInt32(2) == OF_IMAGE_COLOR){
-                                static_cast<ofTexture *>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_RGB);
-                                static_cast<ofTexture *>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_RGB);
+                                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_RGB);
+                                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_RGB);
                             }else if(m.getArgAsInt32(2) == OF_IMAGE_COLOR_ALPHA){
-                                static_cast<ofTexture *>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_RGBA);
-                                static_cast<ofTexture *>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_RGB);
+                                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[i])->allocate(m.getArgAsInt32(0),m.getArgAsInt32(1),GL_RGBA);
+                                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[i])->loadData(_tempImage->getPixels(),GL_RGB);
                             }
                         }
                     }
@@ -194,7 +194,7 @@ void OscReceiver::drawObjectNodeConfig(){
 
     if(ImGui::Button("ADD OSC NUMBER",ImVec2(224*scaleFactor,26*scaleFactor))){
         _outletParams[this->numOutlets] = new float();
-        *(float *)&_outletParams[this->numOutlets] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[this->numOutlets]) = 0.0f;
         this->addOutlet(VP_LINK_NUMERIC,"number");
 
         osc_labels.push_back("/numberlabel");
@@ -207,7 +207,7 @@ void OscReceiver::drawObjectNodeConfig(){
     ImGui::Spacing();
     if(ImGui::Button("ADD OSC TEXT",ImVec2(224*scaleFactor,26*scaleFactor))){
         _outletParams[this->numOutlets] = new string();  // control
-        *static_cast<string *>(_outletParams[this->numOutlets]) = "";
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[this->numOutlets]) = "";
         this->addOutlet(VP_LINK_STRING,"text");
 
         osc_labels.push_back("/textlabel");
@@ -324,13 +324,13 @@ void OscReceiver::initOutlets(){
                                 if(XML.getValue("name","") != "PORT"){
                                     if(tempTypes.at(tempCounter) == 0){
                                         _outletParams[tempCounter] = new float();
-                                        *(float *)&_outletParams[tempCounter] = 0.0f;
+                                        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[tempCounter]) = 0.0f;
                                         osc_labels.push_back(XML.getValue("name",""));
                                         osc_labels_type.push_back(VP_LINK_NUMERIC);
                                         tempCounter++;
                                     }else if(tempTypes.at(tempCounter) == 1){
                                         _outletParams[tempCounter] = new string();
-                                        *static_cast<string *>(_outletParams[tempCounter]) = "";
+                                        *ofxVP_CAST_PIN_PTR<string>(_outletParams[tempCounter]) = "";
                                         osc_labels.push_back(XML.getValue("name",""));
                                         osc_labels_type.push_back(VP_LINK_STRING);
                                         tempCounter++;

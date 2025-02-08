@@ -69,10 +69,10 @@ void moMultiToggle::newObject(){
 
     this->setCustomVar(static_cast<float>(numToggles),"NUM_TOGGLES");
 
-    static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(numToggles,0.0f);
-    static_cast<vector<float> *>(_outletParams[0])->clear();
-    static_cast<vector<float> *>(_outletParams[0])->assign(numToggles,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(numToggles,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(numToggles,0.0f);
 
     for(size_t i=0;i<numToggles;i++){
         values[i] = false;
@@ -95,7 +95,7 @@ void moMultiToggle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     if(this->inletsConnected[0]){
         for(size_t i=0;i<numToggles;i++){
-            if(static_cast<vector<float> *>(_inletParams[0])->at(i) >= 1.0f){
+            if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i) >= 1.0f){
                 values[i] = true;
             }else{
                 values[i] = false;
@@ -105,9 +105,9 @@ void moMultiToggle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     for(size_t i=0;i<numToggles;i++){
         if(values[i]){
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = 1.0f;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = 1.0f;
         }else{
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = 0.0f;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = 0.0f;
         }
     }
 
@@ -116,10 +116,10 @@ void moMultiToggle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
         numToggles = newNumToggles;
 
-        static_cast<vector<float> *>(_inletParams[0])->clear();
-        static_cast<vector<float> *>(_inletParams[0])->assign(numToggles,0.0f);
-        static_cast<vector<float> *>(_outletParams[0])->clear();
-        static_cast<vector<float> *>(_outletParams[0])->assign(numToggles,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(numToggles,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(numToggles,0.0f);
 
         values = new bool[numToggles];
         for(size_t i=0;i<numToggles;i++){
@@ -148,10 +148,10 @@ void moMultiToggle::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         numToggles = this->getCustomVar("NUM_TOGGLES");
         newNumToggles   = numToggles;
 
-        static_cast<vector<float> *>(_inletParams[0])->clear();
-        static_cast<vector<float> *>(_inletParams[0])->assign(numToggles,0.0f);
-        static_cast<vector<float> *>(_outletParams[0])->clear();
-        static_cast<vector<float> *>(_outletParams[0])->assign(numToggles,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(numToggles,0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(numToggles,0.0f);
 
         values = new bool[numToggles];
         for(size_t i=0;i<numToggles;i++){

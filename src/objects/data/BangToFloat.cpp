@@ -41,13 +41,13 @@ BangToFloat::BangToFloat() : PatchObject("bang to float"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // number
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -80,7 +80,7 @@ void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else{
             bang = true;
@@ -88,15 +88,15 @@ void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
     }
 
     if(this->inletsConnected[1]){
-      number = *(float *)&_inletParams[1];
+      number = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
 
     if(bang && this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }else if(bang && !this->inletsConnected[1]){
-        *(float *)&_outletParams[0] = number;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = number;
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 
     if(!loaded){

@@ -43,15 +43,15 @@ pdspCompressor::pdspCompressor() : PatchObject("compressor"){
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
     _inletParams[1] = new float();          // attack
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // release
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // thresh
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();          // ratio
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
     _inletParams[5] = new float();          // knee
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -137,8 +137,8 @@ void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
     // attack
     if(this->inletsConnected[1]){
-        if(attack != *(float *)&_inletParams[1]){
-            attack = ofClamp(*(float *)&_inletParams[1],1.0f,100.0f);
+        if(attack != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])){
+            attack = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),1.0f,100.0f);
             attack_ctrl.set(attack);
             this->setCustomVar(attack,"ATTACK");
         }
@@ -146,8 +146,8 @@ void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
     // release
     if(this->inletsConnected[2]){
-        if(release != *(float *)&_inletParams[2]){
-            release = ofClamp(*(float *)&_inletParams[2],1.0f,100.0f);
+        if(release != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2])){
+            release = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),1.0f,100.0f);
             release_ctrl.set(release);
             this->setCustomVar(release,"RELEASE");
         }
@@ -155,8 +155,8 @@ void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
     // thresh
     if(this->inletsConnected[3]){
-        if(thresh != *(float *)&_inletParams[3]){
-            thresh = ofClamp(*(float *)&_inletParams[3],-48.0f,0.0f);
+        if(thresh != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3])){
+            thresh = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),-48.0f,0.0f);
             thresh_ctrl.set(thresh);
             this->setCustomVar(thresh,"THRESH");
         }
@@ -164,8 +164,8 @@ void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
     // ratio
     if(this->inletsConnected[4]){
-        if(ratio != *(float *)&_inletParams[4]){
-            ratio = ofClamp(*(float *)&_inletParams[4],1.0f,100.0f);
+        if(ratio != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4])){
+            ratio = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),1.0f,100.0f);
             ratio_ctrl.set(ratio);
             this->setCustomVar(ratio,"RATIO");
         }
@@ -173,8 +173,8 @@ void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
     // knee
     if(this->inletsConnected[5]){
-        if(knee != *(float *)&_inletParams[5]){
-            knee = ofClamp(*(float *)&_inletParams[5],-48.0f,0.0f);
+        if(knee != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5])){
+            knee = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),-48.0f,0.0f);
             knee_ctrl.set(knee);
             this->setCustomVar(knee,"KNEE");
         }
@@ -286,7 +286,7 @@ void pdspCompressor::loadAudioSettings(){
 //--------------------------------------------------------------
 void pdspCompressor::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( pdspCompressor, "compressor", OFXVP_OBJECT_CAT_SOUND)

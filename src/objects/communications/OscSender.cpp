@@ -80,41 +80,41 @@ void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
                 bool messageOK = false;
                 m.setAddress(osc_labels.at(i));
                 if(this->getInletType(i) == VP_LINK_NUMERIC){
-                    m.addFloatArg(*(float *)&_inletParams[i]);
+                    m.addFloatArg(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]));
                     messageOK = true;
                 }else if(this->getInletType(i) == VP_LINK_STRING){
-                    m.addStringArg(*static_cast<string *>(_inletParams[i]));
+                    m.addStringArg(*ofxVP_CAST_PIN_PTR<string>(_inletParams[i]));
                     messageOK = true;
                 }else if(this->getInletType(i) == VP_LINK_ARRAY){
-                    if(!static_cast<vector<float> *>(_inletParams[i])->empty()){
-                        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[i])->size());s++){
-                            m.addFloatArg(static_cast<vector<float> *>(_inletParams[i])->at(s));
+                    if(!ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[i])->empty()){
+                        for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[i])->size());s++){
+                            m.addFloatArg(ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[i])->at(s));
                         }
                         messageOK = true;
                     }
-                }else if(this->getInletType(i) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+                }else if(this->getInletType(i) == VP_LINK_TEXTURE && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->isAllocated()){
                     // note: the size of the image depends greatly on your network buffer sizes,
                     // if an image is too big the message won't come through
                     int depth = 1;
-                    if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
+                    if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
                         depth = 1;
-                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
+                    }else if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
                         depth = 3;
-                    }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
+                    }else if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
                         depth = 4;
                     }
-                    if(static_cast<ofTexture *>(_inletParams[i])->getWidth()*static_cast<ofTexture *>(_inletParams[i])->getHeight()*depth < 922000){ // 327680
-                        static_cast<ofTexture *>(_inletParams[i])->readToPixels(*_tempPixels);
-                        m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getWidth());
-                        m.addFloatArg(static_cast<ofTexture *>(_inletParams[i])->getHeight());
-                        if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
-                            _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_GRAYSCALE);
+                    if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getWidth()*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getHeight()*depth < 922000){ // 327680
+                        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->readToPixels(*_tempPixels);
+                        m.addFloatArg(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getWidth());
+                        m.addFloatArg(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getHeight());
+                        if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE8 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE16 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_LUMINANCE32F_ARB){
+                            _tempImage->setFromPixels(_tempPixels->getData(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getHeight(),OF_IMAGE_GRAYSCALE);
                             m.addInt32Arg(OF_IMAGE_GRAYSCALE);
-                        }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
-                            _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR);
+                        }else if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB8 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB16 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGB32F_ARB){
+                            _tempImage->setFromPixels(_tempPixels->getData(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR);
                             m.addInt32Arg(OF_IMAGE_COLOR);
-                        }else if(static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || static_cast<ofTexture *>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
-                            _tempImage->setFromPixels(_tempPixels->getData(),static_cast<ofTexture *>(_inletParams[i])->getWidth(),static_cast<ofTexture *>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR_ALPHA);
+                        }else if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA ||ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA16 || ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getTextureData().glInternalFormat == GL_RGBA32F_ARB){
+                            _tempImage->setFromPixels(_tempPixels->getData(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->getHeight(),OF_IMAGE_COLOR_ALPHA);
                             m.addInt32Arg(OF_IMAGE_COLOR_ALPHA);
                         }
                         _tempImage->save(*_tempBuffer);
@@ -215,7 +215,7 @@ void OscSender::drawObjectNodeConfig(){
 
     if(ImGui::Button("ADD OSC NUMBER",ImVec2(224*scaleFactor,26*scaleFactor))){
         _inletParams[this->numInlets] = new float();
-        *(float *)&_inletParams[this->numInlets] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[this->numInlets]) = 0.0f;
         this->addInlet(VP_LINK_NUMERIC,"number");
         this->inletsConnected.push_back(false);
 
@@ -229,7 +229,7 @@ void OscSender::drawObjectNodeConfig(){
     ImGui::Spacing();
     if(ImGui::Button("ADD OSC TEXT",ImVec2(224*scaleFactor,26*scaleFactor))){
         _inletParams[this->numInlets] = new string();  // control
-        *static_cast<string *>(_inletParams[this->numInlets]) = "";
+        *ofxVP_CAST_PIN_PTR<string>(_inletParams[this->numInlets]) = "";
         this->addInlet(VP_LINK_STRING,"text");
         this->inletsConnected.push_back(false);
 
@@ -354,13 +354,13 @@ void OscSender::initInlets(){
                                 if(XML.getValue("name","") != "PORT" && !isreceiverIP){
                                     if(tempTypes.at(tempCounter) == 0){ // float
                                         _inletParams[tempCounter] = new float();
-                                        *(float *)&_inletParams[tempCounter] = 0.0f;
+                                        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[tempCounter]) = 0.0f;
                                         osc_labels.push_back(XML.getValue("name",""));
                                         osc_labels_type.push_back(VP_LINK_NUMERIC);
                                         tempCounter++;
                                     }else if(tempTypes.at(tempCounter) == 1){ // string
                                         _inletParams[tempCounter] = new string();  // control
-                                        *static_cast<string *>(_inletParams[tempCounter]) = "";
+                                        *ofxVP_CAST_PIN_PTR<string>(_inletParams[tempCounter]) = "";
                                         osc_labels.push_back(XML.getValue("name",""));
                                         osc_labels_type.push_back(VP_LINK_STRING);
                                         tempCounter++;

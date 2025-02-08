@@ -43,11 +43,11 @@ pdspChorusEffect::pdspChorusEffect() : PatchObject("dimension chorus"){
     _inletParams[0] = new ofSoundBuffer();  // audio input
 
     _inletParams[1] = new float();          // speed
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // depth
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // delay
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -117,17 +117,17 @@ void pdspChorusEffect::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        speed = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        speed = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
         speed_ctrl.set(speed);
     }
 
     if(this->inletsConnected[2]){
-        depth = ofClamp(*(float *)&_inletParams[2],0.0f,1000.0f);
+        depth = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1000.0f);
         depth_ctrl.set(depth);
     }
 
     if(this->inletsConnected[3]){
-        delay = ofClamp(*(float *)&_inletParams[3],0.0f,1000.0f);
+        delay = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1000.0f);
         delay_ctrl.set(delay);
     }
 
@@ -236,7 +236,7 @@ void pdspChorusEffect::audioInObject(ofSoundBuffer &inputBuffer){
 
 //--------------------------------------------------------------
 void pdspChorusEffect::audioOutObject(ofSoundBuffer &outputBuffer){
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

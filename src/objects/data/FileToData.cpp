@@ -41,7 +41,7 @@ FileToData::FileToData() : PatchObject("file to data"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _outletParams[0] = new vector<float>(); // output
 
     this->initInletsState();
@@ -87,12 +87,12 @@ void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(readData){
-        static_cast<vector<float> *>(_outletParams[0])->clear();
-        *static_cast<vector<float> *>(_outletParams[0]) = dataMatrix.at(actualIndex);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+        *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0]) = dataMatrix.at(actualIndex);
     }
 
     if(this->inletsConnected[0] && readData){
-        if(*(float *)&_inletParams[0] == 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) == 1.0){
             if(actualIndex < dataMatrix.size()-1){
                 actualIndex++;
             }else{

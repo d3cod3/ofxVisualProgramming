@@ -42,9 +42,9 @@ VectorExtract::VectorExtract() : PatchObject("vector extract"){
 
     _inletParams[0] = new vector<float>(); // data vector
     _inletParams[1] = new float();  // start
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // end
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new vector<float>();  // final vector
 
@@ -80,19 +80,19 @@ void VectorExtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void VectorExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    static_cast<vector<float> *>(_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && start < end){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty() && start < end){
         for(int s=start;s<end;s++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s));
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s));
         }
     }
 
     if(this->inletsConnected[1]){
-        start = ofClamp(static_cast<int>(floor(*(float *)&_inletParams[1])),0,static_cast<vector<float> *>(_inletParams[0])->size()-2);
+        start = ofClamp(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]))),0,ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()-2);
     }
     if(this->inletsConnected[2]){
-        end = ofClamp(static_cast<int>(floor(*(float *)&_inletParams[2])),start+1,static_cast<vector<float> *>(_inletParams[0])->size()-1);
+        end = ofClamp(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]))),start+1,ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()-1);
     }
 
     if(!loaded){
@@ -135,10 +135,10 @@ void VectorExtract::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         ImGui::SetCursorPos(ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL+(4*scaleFactor), (this->height/2 *_nodeCanvas.GetCanvasScale()) - (6*scaleFactor)));
-        if(static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()) > 0){
+        if(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size()) > 0){
             ImGui::Text("size\nrange");
             ImGui::SameLine();
-            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()),static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size())-1);
+            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size()),static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size())-1);
         }
 
 
@@ -154,9 +154,9 @@ void VectorExtract::drawObjectNodeConfig(){
         if(start < 0){
             start = 0;
         }
-        if(static_cast<vector<float> *>(_inletParams[0])->size()>1){
-            if(start > static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size())-2){
-                start = static_cast<vector<float> *>(_inletParams[0])->size()-2;
+        if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()>1){
+            if(start > static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size())-2){
+                start = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()-2;
             }
         }else{
             start = 0;
@@ -167,8 +167,8 @@ void VectorExtract::drawObjectNodeConfig(){
     ImGui::Spacing();
     int prevEnd = end;
     if(ImGui::InputInt("Size",&end)){
-        if(static_cast<vector<float> *>(_inletParams[0])->size()>1){
-            if(end > start && end <= static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size())-1){
+        if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()>1){
+            if(end > start && end <= static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size())-1){
                 this->setCustomVar(static_cast<float>(end),"END");
             }else{
                 end = prevEnd;

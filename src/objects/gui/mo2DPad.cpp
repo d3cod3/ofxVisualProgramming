@@ -42,13 +42,13 @@ mo2DPad::mo2DPad() : PatchObject("2d pad"){
 
     _inletParams[0] = new float();  // X
     _inletParams[1] = new float();  // Y
-    *(float *)&_inletParams[0] = 0.0f;
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // output X
     _outletParams[1] = new float(); // output Y
-    *(float *)&_outletParams[0] = 0.0f;
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -82,11 +82,11 @@ void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 
 
     if(this->inletsConnected[0]){
-        _x = ofClamp(*(float *)&_inletParams[0],0.0f,1.0f);
+        _x = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),0.0f,1.0f);
     }
 
     if(this->inletsConnected[1]){
-        _y = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        _y = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
     }
 
     if(!loaded){
@@ -95,8 +95,8 @@ void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         _y = this->getCustomVar("YPOS");
     }
 
-    *(float *)&_outletParams[0] = _x;
-    *(float *)&_outletParams[1] = _y;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = _x;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = _y;
 
 }
 

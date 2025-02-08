@@ -103,28 +103,28 @@ void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     if(receiveTypeIndex == VP_LINK_NUMERIC){
         if(this->inletsConnected[0] && isReceivingON){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[0];
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]);
         }else{
-            *(float *)&_outletParams[0] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
         }
     }else if(receiveTypeIndex == VP_LINK_STRING){
         if(this->inletsConnected[0] && isReceivingON){
-            *static_cast<string *>(_outletParams[0]) = *static_cast<string *>(_inletParams[0]);
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]);
         }else{
-            *static_cast<string *>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
         }
     }else if(receiveTypeIndex == VP_LINK_ARRAY){
         if(this->inletsConnected[0] && isReceivingON){
-            *static_cast<vector<float> *>(_outletParams[0]) = *static_cast<vector<float> *>(_inletParams[0]);
+            *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0]);
         }else{
-            *static_cast<vector<float> *>(_outletParams[0]) = *emptyVector;
+            *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0]) = *emptyVector;
         }
 
     }else if(receiveTypeIndex == VP_LINK_TEXTURE){
         if(this->inletsConnected[0] && isReceivingON){
-            *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]);
         }else{
-            *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = kuro->getTexture();
         }
     }
 
@@ -276,11 +276,11 @@ void vpReceiver::audioOutObject(ofSoundBuffer &outBuffer){
     unusedArgs(outBuffer);
 
     if(receiveTypeIndex == VP_LINK_AUDIO){
-        if(this->inletsConnected[0] && isReceivingON && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
-            *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        if(this->inletsConnected[0] && isReceivingON && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
+            *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]);
         }/*else{
-            if(static_cast<ofSoundBuffer *>(_outletParams[0]) != nullptr && static_cast<ofSoundBuffer *>(_outletParams[0])->getBuffer().empty()){
-                static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+            if(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0]) != nullptr && ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->getBuffer().empty()){
+                ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->set(0.0f);
             }
 
         }*/
@@ -369,10 +369,10 @@ void vpReceiver::changeDataType(int type, bool init){
     switch( type ) {
         case 0:
             _inletParams[0] = new float();
-            *(float *)&_inletParams[0] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
             _outletParams[0] = new float();
-            *(float *)&_outletParams[0] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
             this->addInlet(VP_LINK_NUMERIC,"number");
             this->addOutlet(VP_LINK_NUMERIC,"number");
@@ -380,10 +380,10 @@ void vpReceiver::changeDataType(int type, bool init){
             break;
         case 1:
             _inletParams[0] = new string();
-            *static_cast<string *>(_inletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]) = "";
 
             _outletParams[0] = new string();
-            *static_cast<string *>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
             this->addInlet(VP_LINK_STRING,"string");
             this->addOutlet(VP_LINK_STRING,"string");
@@ -414,8 +414,8 @@ void vpReceiver::changeDataType(int type, bool init){
 
             this->pdspIn[0] >> this->pdspOut[0];
 
-            static_cast<ofSoundBuffer *>(_inletParams[0])->set(0.0f);
-            static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+            ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->set(0.0f);
+            ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->set(0.0f);
 
             break;
         default:

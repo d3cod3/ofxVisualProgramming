@@ -104,8 +104,8 @@ void Mixer::newObject(){
         this->setCustomVar(pans_float[i],"PAN_"+ofToString(i+1));
     }
 
-    static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets*2,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(signalInlets*2,0.0f);
 
 }
 
@@ -145,12 +145,12 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-        for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+        for(int i=0;i<static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size());i++){
             if(i < signalInlets){ // volumes
-                levels_float[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+                levels_float[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i);
             }else if(i >= signalInlets && i < signalInlets*2){ // pans
-                pans_float[i-signalInlets] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+                pans_float[i-signalInlets] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i);
             }
         }
     }
@@ -237,9 +237,9 @@ void Mixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::SameLine();
 
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), static_cast<ofSoundBuffer *>(_outletParams[0])->getRMSAmplitude(), false);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->getRMSAmplitude(), false);
         ImGui::SameLine();
-        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), static_cast<ofSoundBuffer *>(_outletParams[1])->getRMSAmplitude(), false);
+        ImGuiEx::VUMeter(_nodeCanvas.getNodeDrawList(), sliderW*scaleFactor/4.0f, (150.0f*scaleFactor - (26*scaleFactor + IMGUI_EX_NODE_CONTENT_PADDING*3*scaleFactor))*_nodeCanvas.GetCanvasScale(), ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->getRMSAmplitude(), false);
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*4*scaleFactor*_nodeCanvas.GetCanvasScale()));
 
@@ -346,8 +346,8 @@ void Mixer::resetInletsSettings(){
     this->width = 20*scaleFactor + signalInlets*(56.0f+6.0f)*scaleFactor + 56.0f*scaleFactor/8.0f + 56.0f*scaleFactor + (56.0f*scaleFactor*2) + 10*scaleFactor; // inlets gap + sliders + gap + main + vumeters + outlets gap
 
     _inletParams[0] = new vector<float>();
-    static_cast<vector<float> *>(_inletParams[0])->clear();
-    static_cast<vector<float> *>(_inletParams[0])->assign(signalInlets*2,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->assign(signalInlets*2,0.0f);
 
     for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new ofSoundBuffer();
@@ -431,8 +431,8 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND)

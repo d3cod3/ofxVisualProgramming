@@ -100,8 +100,8 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
         resetResolution();
     }
 
-    if(static_cast<ofTexture *>(_outletParams[0])->isAllocated() && pix->isAllocated()){
-        if( (this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()) || (this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()) || (this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()) ){
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated() && pix->isAllocated()){
+        if( (this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()) || (this->inletsConnected[1] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->empty()) || (this->inletsConnected[2] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->empty()) ){
             for(size_t s=0;s<pix->size()/3;s++){
                 posR = 0;
                 sampleR = 0;
@@ -110,19 +110,19 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
                 posB = 0;
                 sampleB = 0;
                 // RED
-                if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-                    posR = static_cast<int>(floor(ofMap(s,0,pix->size()/3,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),true)));
-                    sampleR = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(posR), -0.5f, 0.5f, 0, 255, true)));
+                if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+                    posR = static_cast<int>(floor(ofMap(s,0,pix->size()/3,0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()),true)));
+                    sampleR = static_cast<int>(floor(ofMap(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(posR), -0.5f, 0.5f, 0, 255, true)));
                 }
                 // GREEN
-                if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
-                    posG = static_cast<int>(floor(ofMap(s,0,pix->size()/3,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()),true)));
-                    sampleG = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[1])->at(posG), -0.5f, 0.5f, 0, 255, true)));
+                if(this->inletsConnected[1] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->empty()){
+                    posG = static_cast<int>(floor(ofMap(s,0,pix->size()/3,0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->size()),true)));
+                    sampleG = static_cast<int>(floor(ofMap(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->at(posG), -0.5f, 0.5f, 0, 255, true)));
                 }
                 // BLUE
-                if(this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()){
-                    posB = static_cast<int>(floor(ofMap(s,0,pix->size()/3,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[2])->size()),true)));
-                    sampleB = static_cast<int>(floor(ofMap(static_cast<vector<float> *>(_inletParams[2])->at(posB), -0.5f, 0.5f, 0, 255, true)));
+                if(this->inletsConnected[2] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->empty()){
+                    posB = static_cast<int>(floor(ofMap(s,0,pix->size()/3,0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->size()),true)));
+                    sampleB = static_cast<int>(floor(ofMap(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->at(posB), -0.5f, 0.5f, 0, 255, true)));
                 }
                 c.set(sampleR,sampleG,sampleB);
                 x = 0;
@@ -138,7 +138,7 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             }
             if(scaledPix->isAllocated()){
                 pix->resizeTo(*scaledPix);
-                static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
+                ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->loadData(*scaledPix);
             }
         }
     }
@@ -172,8 +172,8 @@ void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
         ofDisableArbTex();
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
-        static_cast<ofTexture *>(_outletParams[0])->loadData(*scaledPix);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->loadData(*scaledPix);
         ofEnableArbTex();
     }
 
@@ -209,10 +209,10 @@ void DataToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -280,11 +280,11 @@ void DataToTexture::resetResolution(){
 
         ofDisableArbTex();
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(this->output_width,this->output_height,GL_RGB);
         ofEnableArbTex();
 
 
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
             this->setCustomVar(static_cast<float>(this->output_width),"OUTPUT_WIDTH");
             this->setCustomVar(static_cast<float>(this->output_height),"OUTPUT_HEIGHT");
             this->saveConfig(false);

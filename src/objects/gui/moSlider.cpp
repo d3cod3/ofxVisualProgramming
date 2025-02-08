@@ -41,11 +41,11 @@ moSlider::moSlider() : PatchObject("slider"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // value
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -77,10 +77,10 @@ void moSlider::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
-        value = *(float *)&_inletParams[0];
+        value = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]);
     }
 
-    *(float *)&_outletParams[0] = value;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = value;
 
     if(!loaded){
         loaded = true;

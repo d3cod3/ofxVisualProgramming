@@ -41,18 +41,18 @@ MidiPad::MidiPad() : PatchObject("midi pad"){
     this->numOutlets = 3;
 
     _inletParams[0] = new float();  // pitch (index)
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // value
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // velocity
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new float(); // bang
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     _outletParams[1] = new float(); // value
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
     _outletParams[2] = new float(); // velocity
-    *(float *)&_outletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
 
     this->initInletsState();
 
@@ -91,39 +91,39 @@ void MidiPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        if(static_cast<int>(floor(*(float *)&_inletParams[0])) == savedPitch){
+        if(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) == savedPitch){
             if(!lockReadings){
                 lockReadings = true;
             }
             if(!onebang){
                 onebang = true;
-                *(float *)&_outletParams[0] = 1.0f;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1.0f;
             }else{
-                *(float *)&_outletParams[0] = 0.0f;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
             }
         }else{
-            *(float *)&_outletParams[0] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
             onebang = false;
         }
 
         if(lockReadings){
             if(this->inletsConnected[1]){
-                *(float *)&_outletParams[1] = *(float *)&_inletParams[1];
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
             }
             if(this->inletsConnected[2]){
-                *(float *)&_outletParams[2] = *(float *)&_inletParams[2];
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]);
             }
         }
         // velocity
-        if(*(float *)&_outletParams[1] == 0.0f && *(float *)&_outletParams[2] == 0.0f){
-            *(float *)&_outletParams[0] = 0.0f;
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) == 0.0f && *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) == 0.0f){
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
             onebang = false;
             lockReadings = false;
         }
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
-        *(float *)&_outletParams[1] = 0.0f;
-        *(float *)&_outletParams[2] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
         onebang = false;
         lockReadings = false;
     }

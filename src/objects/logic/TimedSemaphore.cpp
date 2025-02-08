@@ -41,13 +41,13 @@ TimedSemaphore::TimedSemaphore() : PatchObject("timed semaphore"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // ms
-    *(float *)&_inletParams[1] = 1000.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 1000.0f;
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -91,7 +91,7 @@ void TimedSemaphore::setupAudioOutObjectContent(pdsp::Engine &engine){
     // ---- this code runs in the audio thread ----
     sync.code = [&]() noexcept {
         if(this->inletsConnected[0] && loadStart){
-            if(*(float *)&_inletParams[0] == 1.0 && !bang){
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) == 1.0 && !bang){
                 bang        = true;
                 loadStart   = false;
                 startTime   = ofGetElapsedTimeMillis();
@@ -100,7 +100,7 @@ void TimedSemaphore::setupAudioOutObjectContent(pdsp::Engine &engine){
           bang        = false;
         }
 
-        *(float *)&_outletParams[0] = static_cast<float>(bang);
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<float>(bang);
     };
 
 }
@@ -110,7 +110,7 @@ void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-      wait = static_cast<int>(floor(*(float *)&_inletParams[1]));
+      wait = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
     }
 
     if(!loadStart && (ofGetElapsedTimeMillis()-startTime > wait)){

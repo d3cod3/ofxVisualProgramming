@@ -93,9 +93,9 @@ void StringMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 void StringMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
-            if(*static_cast<string *>(_inletParams[i]) != inletsMemory.at(i)){
-                inletsMemory.at(i) = *static_cast<string *>(_inletParams[i]);
-                *static_cast<string *>(_outletParams[0]) = *static_cast<string *>(_inletParams[i]);
+            if(*ofxVP_CAST_PIN_PTR<string>(_inletParams[i]) != inletsMemory.at(i)){
+                inletsMemory.at(i) = *ofxVP_CAST_PIN_PTR<string>(_inletParams[i]);
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<string>(_inletParams[i]);
                 //break;
             }
         }

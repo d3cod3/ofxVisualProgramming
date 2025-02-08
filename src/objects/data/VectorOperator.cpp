@@ -42,7 +42,7 @@ VectorOperator::VectorOperator() : PatchObject("vector operator"){
 
     _inletParams[0] = new vector<float>();  // input data
     _inletParams[1] = new float();  // multiplier
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new vector<float>(); // output
 
@@ -88,20 +88,20 @@ void VectorOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     }
 
     if(this->inletsConnected[1]){
-        number = *(float *)&_inletParams[1];
+        number = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->clear();
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-        for(size_t s=0;s<static_cast<vector<float> *>(_inletParams[0])->size();s++){
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+        for(size_t s=0;s<ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size();s++){
             if(_operator == Vec_Operator_ADD){
-                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)+number);
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s)+number);
             }else if(_operator == Vec_Operator_SUBTRACT){
-                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)-number);
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s)-number);
             }else if(_operator == Vec_Operator_MULTIPLY){
-                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)*number);
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s)*number);
             }else if(_operator == Vec_Operator_DIVIDE){
-                static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[0])->at(s)/number);
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s)/number);
             }
         }
     }

@@ -89,10 +89,10 @@ void StringConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void StringConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
-            *static_cast<string *>(_outletParams[0]) += *static_cast<string *>(_inletParams[i]);
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) += *ofxVP_CAST_PIN_PTR<string>(_inletParams[i]);
         }
     }
 
@@ -154,10 +154,10 @@ void StringConcat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         }
 
         ImGui::Dummy(ImVec2(-1,10*scaleFactor));
-        if(static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()) > 0){
+        if(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size()) > 0){
             ImGui::Text("size\nrange");
             ImGui::SameLine();
-            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size()),static_cast<int>(static_cast<vector<float> *>(_outletParams[0])->size())-1);
+            ImGui::Text("= %i\n= [0 - %i]",static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size()),static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size())-1);
         }
 
 

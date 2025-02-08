@@ -43,7 +43,8 @@ LuaScript::LuaScript() : PatchObject("lua script"){
     _inletParams[0] = new vector<float>();      // data
 
     _inletParams[1] = new string();             // string
-    *static_cast<string *>(_inletParams[1]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[1]) = "";
+
 
     _outletParams[0] = new ofTexture();         // output
     _outletParams[1] = new LiveCoding();        // lua script reference (for keyboard and mouse events on external windows)
@@ -83,7 +84,7 @@ LuaScript::LuaScript() : PatchObject("lua script"){
     loaded              = false;
     loadTime            = ofGetElapsedTimeMillis();
 
-    static_cast<LiveCoding *>(_outletParams[1])->hide = true;
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->hide = true;
 
     this->setIsResizable(true);
     this->setIsTextureObj(true);
@@ -129,8 +130,8 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofEnableArbTex();
 
     // init lua
-    static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
-    static_cast<LiveCoding *>(_outletParams[1])->lua.addListener(this);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.init(true);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.addListener(this);
     watcher.start();
 
 }
@@ -155,7 +156,7 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     if(scriptLoaded && !isError){
         if(!setupTrigger){
             setupTrigger = true;
-            static_cast<LiveCoding *>(_outletParams[1])->lua.scriptSetup();
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.scriptSetup();
         }
     }
     ///////////////////////////////////////////
@@ -166,47 +167,46 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     if(scriptLoaded && !isError){
 
         // receive external data
-        if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-            for(int i=0;i<static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size());i++){
-                lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_updateMosaicData");
-                lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,i+1);
-                lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,static_cast<vector<float> *>(_inletParams[0])->at(i));
-                lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,2,0,0);
+        if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+            for(int i=0;i<static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size());i++){
+                lua_getglobal(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua, "_updateMosaicData");
+                lua_pushnumber(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua,i+1);
+                lua_pushnumber(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua,ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i));
+                lua_pcall(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua,2,0,0);
             }
-            static_cast<LiveCoding *>(_outletParams[1])->lua.doString("USING_DATA_INLET = true");
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString("USING_DATA_INLET = true");
         }else{
-            static_cast<LiveCoding *>(_outletParams[1])->lua.doString("USING_DATA_INLET = false");
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString("USING_DATA_INLET = false");
         }
 
 
         if(this->inletsConnected[1]){
             string temp = mosaicStringName+" = '";
-            temp.append(*static_cast<string *>(_inletParams[1]));
+            temp.append(*ofxVP_CAST_PIN_PTR<string>(_inletParams[1]));
             temp.append("'");
-            static_cast<LiveCoding *>(_outletParams[1])->lua.doString(temp);
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(temp);
         }else{
             string temp = mosaicStringName+" = ''";
-            static_cast<LiveCoding *>(_outletParams[1])->lua.doString(temp);
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(temp);
         }
 
         // send internal data
-        size_t len = static_cast<LiveCoding *>(_outletParams[1])->lua.tableSize(luaTablename);
+        size_t len = ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.tableSize(luaTablename);
         if(len > 0){
-            static_cast<vector<float> *>(_outletParams[2])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->clear();
             for(size_t s=0;s<len;s++){
-                lua_getglobal(static_cast<LiveCoding *>(_outletParams[1])->lua, "_getLUAOutletTableAt");
-                lua_pushnumber(static_cast<LiveCoding *>(_outletParams[1])->lua,s+1);
-                lua_pcall(static_cast<LiveCoding *>(_outletParams[1])->lua,1,1,0);
-                lua_Number tn = lua_tonumber(static_cast<LiveCoding *>(_outletParams[1])->lua, -2);
-                static_cast<vector<float> *>(_outletParams[2])->push_back(static_cast<float>(tn));
+                lua_getglobal(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua, "_getLUAOutletTableAt");
+                lua_pushnumber(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua,s+1);
+                lua_pcall(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua,1,1,0);
+                lua_Number tn = lua_tonumber(ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua, -2);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(static_cast<float>(tn));
             }
-            std::rotate(static_cast<vector<float> *>(_outletParams[2])->begin(),static_cast<vector<float> *>(_outletParams[2])->begin()+1,static_cast<vector<float> *>(_outletParams[2])->end());
+            std::rotate(ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->begin(),ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->begin()+1,ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->end());
         }
-
 
         // update lua state
         ofSoundUpdate();
-        static_cast<LiveCoding *>(_outletParams[1])->lua.scriptUpdate();
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.scriptUpdate();
     }
     ///////////////////////////////////////////
 
@@ -219,11 +219,11 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     ofPushView();
     ofPushStyle();
     ofPushMatrix();
-    if(!static_cast<LiveCoding *>(_outletParams[1])->hide){
+    if(!ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->hide){
         ofBackground(0);
     }
     if(scriptLoaded && !isError){
-        static_cast<LiveCoding *>(_outletParams[1])->lua.scriptDraw();
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.scriptDraw();
     }else{
         kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
     }
@@ -233,7 +233,7 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     glPopAttrib();
     fbo->end();
 
-    *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
+    *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
 
 
@@ -293,10 +293,10 @@ void LuaScript::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -344,7 +344,7 @@ void LuaScript::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    ImGui::Text("Rendering at: %.0fx%.0f",static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
+    ImGui::Text("Rendering at: %.0fx%.0f",ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getHeight());
     ImGui::Spacing();
     ImGui::Spacing();
     ImGui::Spacing();
@@ -418,7 +418,7 @@ void LuaScript::removeObjectContent(bool removeFileFromData){
 
     ///////////////////////////////////////////
     // LUA EXIT
-    static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.scriptExit();
     ///////////////////////////////////////////
 }
 
@@ -442,7 +442,7 @@ void LuaScript::initResolution(){
     texData.bFlipTexture = true;
 
     _outletParams[0] = new ofTexture();
-    static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+    ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(texData);
 
     ofEnableArbTex();
 }
@@ -482,27 +482,27 @@ void LuaScript::resetResolution(int fromID, int newWidth, int newHeight){
         texData.bFlipTexture = true;
 
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(texData);
 
         ofEnableArbTex();
 
         tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
-        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
         tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
-        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
         if(this->inletsConnected[0]){
             tempstring = "USING_DATA_INLET = true";
         }else{
             tempstring = "USING_DATA_INLET = false";
         }
-        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
         tempstring = mosaicStringName+" = ''";
-        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
         ofFile tempFileScript(filepath);
         tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
-        static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     }
 
@@ -566,35 +566,35 @@ void LuaScript::loadScript(string scriptFile){
 
     currentScriptFile.open(filepath);
 
-    static_cast<LiveCoding *>(_outletParams[1])->filepath = filepath;
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->filepath = filepath;
 
     // inject incoming data vector to lua
     string tempstring = mosaicTableName+" = {}";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _updateMosaicData(i,data) "+mosaicTableName+"[i] = data  end";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // inject outgoing data vector
     tempstring = luaTablename+" = {}";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _getLUAOutletTableAt(i) return "+luaTablename+"[i] end";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // inject incoming string
     tempstring = mosaicStringName+" = ''";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // set Mosaic scripting vars
     tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     if(this->inletsConnected[0]){
         tempstring = "USING_DATA_INLET = true";
     }else{
         tempstring = "USING_DATA_INLET = false";
     }
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     ofFile tempFileScript(currentScriptFile.getAbsolutePath());
     tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
 
@@ -602,17 +602,17 @@ void LuaScript::loadScript(string scriptFile){
         std::replace(tempstring.begin(),tempstring.end(),'\\','/');
     #endif
 
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // load lua Mosaic lib
     tempstring = ofBufferFromFile("livecoding/lua_mosaicLib.lua").getText();
 
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // finally load the script
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doScript(filepath, true);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doScript(filepath, true);
 
-    scriptLoaded = static_cast<LiveCoding *>(_outletParams[1])->lua.isValid();
+    scriptLoaded = ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.isValid();
 
     ///////////////////////////////////////////
     // LUA SETUP
@@ -628,42 +628,42 @@ void LuaScript::loadScript(string scriptFile){
 
 //--------------------------------------------------------------
 void LuaScript::unloadScript(){
-    static_cast<LiveCoding *>(_outletParams[1])->lua.scriptExit();
-    static_cast<LiveCoding *>(_outletParams[1])->lua.init(true);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.scriptExit();
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.init(true);
 }
 
 //--------------------------------------------------------------
 void LuaScript::clearScript(){
     unloadScript();
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString("function draw() of.background(0) end");
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString("function draw() of.background(0) end");
 
     // inject incoming data vector to lua
     string tempstring = mosaicTableName+" = {}";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _updateMosaicData(i,data) "+mosaicTableName+"[i] = data  end";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // inject outgoing data vector
     tempstring = luaTablename+" = {}";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "function _getLUAOutletTableAt(i) return "+luaTablename+"[i] end";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // inject incoming string
     tempstring = mosaicStringName+" = ''";
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
     // set Mosaic scripting vars
     tempstring = "OUTPUT_WIDTH = "+ofToString(output_width);
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     tempstring = "OUTPUT_HEIGHT = "+ofToString(output_height);
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     if(this->inletsConnected[0]){
         tempstring = "USING_DATA_INLET = true";
     }else{
         tempstring = "USING_DATA_INLET = false";
     }
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
     ofFile tempFileScript(filepath);
     tempstring = "SCRIPT_PATH = '"+tempFileScript.getEnclosingDirectory().substr(0,tempFileScript.getEnclosingDirectory().size()-1)+"'";
 
@@ -671,9 +671,9 @@ void LuaScript::clearScript(){
         std::replace(tempstring.begin(),tempstring.end(),'\\','/');
     #endif
 
-    static_cast<LiveCoding *>(_outletParams[1])->lua.doString(tempstring);
+    ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.doString(tempstring);
 
-    scriptLoaded = static_cast<LiveCoding *>(_outletParams[1])->lua.isValid();
+    scriptLoaded = ofxVP_CAST_PIN_PTR<LiveCoding>(_outletParams[1])->lua.isValid();
 }
 
 //--------------------------------------------------------------

@@ -68,8 +68,8 @@ void TextureToPixels::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 void TextureToPixels::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*static_cast<ofPixels *>(_outletParams[0]));
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*ofxVP_CAST_PIN_PTR<ofPixels>(_outletParams[0]));
     }
 }
 

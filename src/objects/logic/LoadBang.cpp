@@ -41,13 +41,13 @@ LoadBang::LoadBang() : PatchObject("loadbang"){
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // time
-    *(float *)&_inletParams[0] = 1000.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 1000.0f;
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     _outletParams[1] = new string(); // output string
-    *static_cast<string *>(_outletParams[1]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[1]) = "";
 
     this->initInletsState();
 
@@ -86,8 +86,8 @@ void LoadBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(this->inletsConnected[0] && static_cast<size_t>(floor(*(float *)&_inletParams[0])) != wait){
-        wait = static_cast<int>(floor(*(float *)&_inletParams[0]));
+    if(this->inletsConnected[0] && static_cast<size_t>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) != wait){
+        wait = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])));
         this->setCustomVar(static_cast<float>(wait),"TIME");
         loadStart = false;
         startTime = ofGetElapsedTimeMillis();
@@ -99,12 +99,12 @@ void LoadBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     }else{
         bang = false;
     }
-    *(float *)&_outletParams[0] = static_cast<float>(bang);
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<float>(bang);
 
     if(bang){
-        *static_cast<string *>(_outletParams[1]) = "bang";
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[1]) = "bang";
     }else{
-        *static_cast<string *>(_outletParams[1]) = "";
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[1]) = "";
     }
 
     if(!loaded){

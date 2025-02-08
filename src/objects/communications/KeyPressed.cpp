@@ -41,7 +41,7 @@ KeyPressed::KeyPressed() : PatchObject("key pressed"){
     this->numOutlets = 1;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -73,9 +73,9 @@ void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     if(lastKey == static_cast<int>(floor(this->getCustomVar("KEY"))) && lastKey != -1){
         lastKey = -1;
-        *(float *)&_outletParams[0] = 1.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1.0f;
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 
     if(!loaded){

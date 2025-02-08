@@ -42,7 +42,7 @@ FloatsToVector::FloatsToVector() : PatchObject("floats to vector"){
 
     for(size_t i=0;i<32;i++){
         _inletParams[i] = new float();
-        *(float *)&_inletParams[i] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) = 0.0f;
     }
 
     _outletParams[0] = new vector<float>();  // final vector
@@ -82,7 +82,7 @@ void FloatsToVector::newObject(){
 void FloatsToVector::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    static_cast<vector<float> *>(_outletParams[0])->assign(this->numInlets,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(this->numInlets,0.0f);
 
     initInlets();
 }
@@ -91,9 +91,9 @@ void FloatsToVector::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = *(float *)&_inletParams[i];
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]);
         }else{
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = 0.0f;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = 0.0f;
         }
     }
 
@@ -151,7 +151,7 @@ void FloatsToVector::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(int i=0;i<this->numInlets;i++){
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(60,60,60,255),2.0f);
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)+((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(60,60,60,255),2.0f);
-            sprintf_s(temp,"%.2f",*(float *)&_inletParams[i]);
+            sprintf_s(temp,"%.2f",*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]));
             _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(window_pos.x+(20*this->scaleFactor),window_pos.y + ((IMGUI_EX_NODE_HEADER_HEIGHT-7)*this->scaleFactor) + (pinDistance/2) + pinDistance*i), IM_COL32_WHITE, temp, NULL, 0.0f);
         }
 
@@ -221,12 +221,12 @@ void FloatsToVector::resetInletsSettings(){
 
     this->numInlets = floatInlets;
 
-    static_cast<vector<float> *>(_outletParams[0])->clear();
-    static_cast<vector<float> *>(_outletParams[0])->assign(this->numInlets,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(this->numInlets,0.0f);
 
     for(int i=0;i<floatInlets;i++){
         _inletParams[i] = new float();
-        *(float *)&_inletParams[i] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) = 0.0f;
     }
 
     this->inletsType.clear();

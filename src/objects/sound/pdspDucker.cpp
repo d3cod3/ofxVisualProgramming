@@ -43,15 +43,15 @@ pdspDucker::pdspDucker() : PatchObject("sidechain compressor"){
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
     _inletParams[1] = new float();          // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // ducking
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // A
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();          // H
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
     _inletParams[5] = new float();          // R
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -140,35 +140,35 @@ void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     // bang --> trigger ducker (sidechain compressor)
     if(this->inletsConnected[1]){
-        gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
+        gate_ctrl.trigger(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f));
     }else{
         gate_ctrl.off();
     }
 
     // ducking
-    if(this->inletsConnected[2] && ducking != *(float *)&_inletParams[2]){
-        ducking = ofClamp(*(float *)&_inletParams[2],-48.0f,0.0f);
+    if(this->inletsConnected[2] && ducking != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2])){
+        ducking = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),-48.0f,0.0f);
         duck_ctrl.set(ducking);
         this->setCustomVar(ducking,"DUCKER");
     }
 
     // A
-    if(this->inletsConnected[3] && attackDuration != *(float *)&_inletParams[3]){
-        attackDuration = ofClamp(*(float *)&_inletParams[3],0.0f,std::numeric_limits<float>::max());
+    if(this->inletsConnected[3] && attackDuration != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3])){
+        attackDuration = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,std::numeric_limits<float>::max());
         attack_ctrl.set(attackDuration);
         this->setCustomVar(attackDuration,"ATTACK");
     }
 
     // H
-    if(this->inletsConnected[4] && holdDuration != *(float *)&_inletParams[4]){
-        holdDuration = ofClamp(*(float *)&_inletParams[4],0.0f,std::numeric_limits<float>::max());
+    if(this->inletsConnected[4] && holdDuration != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4])){
+        holdDuration = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0f,std::numeric_limits<float>::max());
         hold_ctrl.set(holdDuration);
         this->setCustomVar(holdDuration,"HOLD");
     }
 
     // R
-    if(this->inletsConnected[5] && releaseDuration != *(float *)&_inletParams[5]){
-        releaseDuration = ofClamp(*(float *)&_inletParams[5],0.0f,std::numeric_limits<float>::max());
+    if(this->inletsConnected[5] && releaseDuration != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5])){
+        releaseDuration = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),0.0f,std::numeric_limits<float>::max());
         release_ctrl.set(releaseDuration);
         this->setCustomVar(releaseDuration,"RELEASE");
     }
@@ -280,7 +280,7 @@ void pdspDucker::loadAudioSettings(){
 //--------------------------------------------------------------
 void pdspDucker::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

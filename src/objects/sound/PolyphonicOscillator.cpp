@@ -43,19 +43,19 @@ PolyphonicOscillator::PolyphonicOscillator() : PatchObject("polyphonic oscillato
     _inletParams[0] = new vector<float>();  // pitch
 
     _inletParams[1] = new float();  // level
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _inletParams[2] = new float();  // sine
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _inletParams[3] = new float();  // triangle
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _inletParams[4] = new float();  // saw
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
 
     _inletParams[5] = new float();  // pulse
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // osc output
     _outletParams[1] = new ofSoundBuffer(); // sine output
@@ -244,19 +244,19 @@ void PolyphonicOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 void PolyphonicOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && static_cast<vector<float> *>(_inletParams[0])->size()>0){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()>0){
         size_t counter = 0;
         size_t activeVoices = 0;
-        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
-            if(static_cast<vector<float> *>(_inletParams[0])->at(i) > 0){
+        for(size_t i=0;i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size();i++){
+            if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i) > 0){
                 activeVoices++;
             }
         }
         if(activeVoices > MAX_OSC_VOICES){
             activeVoices = MAX_OSC_VOICES;
         }
-        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
-            if(static_cast<vector<float> *>(_inletParams[0])->at(i) > 0){
+        for(size_t i=0;i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size();i++){
+            if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i) > 0){
                 if(counter<MAX_OSC_VOICES){
                     pitch_float.at(counter) = i;
                     pitch_ctrl.at(counter).set(pitch_float.at(counter));
@@ -284,35 +284,35 @@ void PolyphonicOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> 
     }
 
     if(this->inletsConnected[1]){
-        level_float = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        level_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
         for(size_t i=0;i<MAX_OSC_VOICES;i++){
             level_ctrl.at(i).set(level_float);
         }
     }
 
     if(this->inletsConnected[2]){
-        sine_float = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        sine_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
         for(size_t i=0;i<MAX_OSC_VOICES;i++){
             sine_ctrl.at(i).set(sine_float);
         }
     }
 
     if(this->inletsConnected[3]){
-        triangle_float = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        triangle_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
         for(size_t i=0;i<MAX_OSC_VOICES;i++){
             triangle_ctrl.at(i).set(triangle_float);
         }
     }
 
     if(this->inletsConnected[4]){
-        saw_float = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
+        saw_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0f,1.0f);
         for(size_t i=0;i<MAX_OSC_VOICES;i++){
             saw_ctrl.at(i).set(saw_float);
         }
     }
 
     if(this->inletsConnected[5]){
-        pulse_float = ofClamp(*(float *)&_inletParams[5],0.0f,1.0f);
+        pulse_float = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),0.0f,1.0f);
         for(size_t i=0;i<MAX_OSC_VOICES;i++){
             pulse_ctrl.at(i).set(pulse_float);
         }
@@ -478,7 +478,7 @@ void PolyphonicOscillator::loadAudioSettings(){
 
             plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[5])->push_back(0.0f);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->push_back(0.0f);
                 plot_data[i] = 0.0f;
             }
 
@@ -496,14 +496,14 @@ void PolyphonicOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
         plot_data[i] = hardClip(sample);
 
         // SIGNAL BUFFER DATA
-        static_cast<vector<float> *>(_outletParams[5])->at(i) = sample;
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->at(i) = sample;
     }
     // SIGNALS BUFFERS
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(sine_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[2])->copyFrom(triangle_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[3])->copyFrom(saw_scope.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[4])->copyFrom(pulse_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(sine_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[2])->copyFrom(triangle_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[3])->copyFrom(saw_scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->copyFrom(pulse_scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( PolyphonicOscillator, "polyphonic oscillator", OFXVP_OBJECT_CAT_SOUND)

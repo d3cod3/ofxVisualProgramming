@@ -103,10 +103,10 @@ void moVideoViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLR
 
     ofSetColor(255);
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        *static_cast<ofTexture *>(_outletParams[0]) = *static_cast<ofTexture *>(_inletParams[0]);
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]);
     }else{
-        *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = kuro->getTexture();
     }
 
 }
@@ -135,10 +135,10 @@ void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

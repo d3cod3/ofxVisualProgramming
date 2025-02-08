@@ -107,15 +107,15 @@ void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
     unusedArgs(patchObjects);
 
     // OPTICAL FLOW UPDATE
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
 
         if(!isFBOAllocated){
             isFBOAllocated = true;
             pix             = new ofPixels();
             scaledPix       = new ofPixels();
             ofDisableArbTex();
-            scaledPix->allocate(320,static_cast<ofTexture *>(_inletParams[0])->getHeight()/static_cast<ofTexture *>(_inletParams[0])->getWidth()*320,OF_PIXELS_RGB);
-            outputFBO->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),GL_RGB,1);
+            scaledPix->allocate(320,ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight()/ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth()*320,OF_PIXELS_RGB);
+            outputFBO->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),GL_RGB,1);
             ofEnableArbTex();
         }
 
@@ -127,26 +127,26 @@ void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
         fb.setPolySigma(fbPolySigma);
         fb.setUseGaussian(fbUseGaussian);
 
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
 
         pix->resizeTo(*scaledPix);
 
         fb.calcOpticalFlow(*scaledPix);
 
         if(outputFBO->isAllocated()){
-            *static_cast<ofTexture *>(_outletParams[0]) = outputFBO->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = outputFBO->getTexture();
 
-            static_cast<vector<float> *>(_outletParams[1])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->clear();
 
-            static_cast<vector<float> *>(_outletParams[1])->push_back(fb.getFlow().rows);
-            static_cast<vector<float> *>(_outletParams[1])->push_back(fb.getFlow().cols);
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(fb.getFlow().rows);
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(fb.getFlow().cols);
 
             for(int y = 0; y < fb.getFlow().rows; y += 10) {
                 for(int x = 0; x < fb.getFlow().cols; x += 10) {
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(x);
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(y);
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(fb.getFlowPosition(x, y).x);
-                    static_cast<vector<float> *>(_outletParams[1])->push_back(fb.getFlowPosition(x, y).y);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(x);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(y);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(fb.getFlowPosition(x, y).x);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(fb.getFlowPosition(x, y).y);
                 }
             }
         }
@@ -179,17 +179,17 @@ void OpticalFlow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
     unusedArgs(font,glRenderer);
 
     // OPTICAL FLOW DRAW
-    if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && outputFBO->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
 
         outputFBO->begin();
 
         ofClear(0,0,0,255);
 
         ofSetColor(255);
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(0,0);
 
         ofSetColor(ofColor::yellowGreen);
-        fb.draw(0,0,static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
+        fb.draw(0,0,ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getHeight());
 
         outputFBO->end();
     }
@@ -223,10 +223,10 @@ void OpticalFlow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

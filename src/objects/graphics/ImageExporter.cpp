@@ -42,7 +42,7 @@ ImageExporter::ImageExporter() : PatchObject("image exporter"){
 
     _inletParams[0] = new ofTexture(); // input
     _inletParams[1] = new float();      // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -102,7 +102,7 @@ void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     }
 
-    if(this->inletsConnected[1] && *(float *)&_inletParams[1] == 1.0){
+    if(this->inletsConnected[1] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) == 1.0){
         saveImageFile();
     }else if(!this->inletsConnected[1]){
         imageSequenceCounter = 0;
@@ -150,10 +150,10 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -238,17 +238,17 @@ void ImageExporter::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void ImageExporter::saveImageFile(){
-    static_cast<ofTexture *>(_inletParams[0])->readToPixels(capturePix);
+    ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(capturePix);
 
     img = unique_ptr<ofImage>(new ofImage());
     // OF_IMAGE_GRAYSCALE, OF_IMAGE_COLOR, or OF_IMAGE_COLOR_ALPHA
     // GL_LUMINANCE, GL_RGB, GL_RGBA
-    if(static_cast<ofTexture *>(_inletParams[0])->getTextureData().glInternalFormat == GL_LUMINANCE){
-        img->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_IMAGE_GRAYSCALE);
-    }else if(static_cast<ofTexture *>(_inletParams[0])->getTextureData().glInternalFormat == GL_RGB){
-        img->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR);
-    }else if(static_cast<ofTexture *>(_inletParams[0])->getTextureData().glInternalFormat == GL_RGBA){
-        img->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR_ALPHA);
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().glInternalFormat == GL_LUMINANCE){
+        img->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),OF_IMAGE_GRAYSCALE);
+    }else if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().glInternalFormat == GL_RGB){
+        img->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR);
+    }else if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().glInternalFormat == GL_RGBA){
+        img->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR_ALPHA);
     }
 
     ofFile tempFilename(lastImageFile);

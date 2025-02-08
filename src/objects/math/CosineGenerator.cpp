@@ -42,12 +42,12 @@ CosineGenerator::CosineGenerator() : PatchObject("cosine generator")
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // speed
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // cosine value
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -88,7 +88,7 @@ void CosineGenerator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        increment = ofClamp(*(float *)&_inletParams[1],0.0f,PI);
+        increment = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,PI);
     }
 
     if(!loaded){
@@ -126,7 +126,7 @@ void CosineGenerator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], -1.0f, 1.0f, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), -1.0f, 1.0f, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }
@@ -153,7 +153,7 @@ void CosineGenerator::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else if(!bang){
             bang = true;
@@ -161,7 +161,7 @@ void CosineGenerator::audioOutObject(ofSoundBuffer &outputBuffer){
             if(angle >= TWO_PI || angle < 0.0f){
                 angle = 0.0f;
             }
-            *(float *)&_outletParams[0] = static_cast<float>(cos(angle));
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<float>(cos(angle));
         }
     }
 

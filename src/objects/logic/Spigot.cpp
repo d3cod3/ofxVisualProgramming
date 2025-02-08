@@ -123,19 +123,19 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     labels.at(3) = "texture";
     labels.at(4) = "audio signal";
 
-    static_cast<ofSoundBuffer *>(_inletParams[5])->set(0.0f);
-    static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[5])->set(0.0f);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->set(0.0f);
 }
 
 //--------------------------------------------------------------
 void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
     
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
 
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+        for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size());s++){
             if(s<5){
-                if(static_cast<vector<float> *>(_inletParams[0])->at(s) < 1.0f){
+                if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s) < 1.0f){
                     isOpen[s] = false;
                 }else{
                     isOpen[s] = true;
@@ -155,7 +155,7 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
         }else{
             *ofxVP_CAST_PIN_PTR<string>(this->_outletParams[1]) = "empty";
         }
-        if(isOpen[2] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
+        if(isOpen[2] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3])->empty()){
             *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[2]) = *ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3]);
         }else{
             *ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[2]) = *empty;
@@ -267,13 +267,13 @@ void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     if(isOpen[4]){
-        if(this->inletsConnected[5] && !static_cast<ofSoundBuffer *>(_inletParams[5])->getBuffer().empty()){
+        if(this->inletsConnected[5] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[5])->getBuffer().empty()){
             *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(this->_outletParams[4]) = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(this->_inletParams[5]);
         }else{
-            static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
+            ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->set(0.0f);
         }
     }else{
-        static_cast<ofSoundBuffer *>(_outletParams[4])->set(0.0f);
+        ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->set(0.0f);
     }
 }
 

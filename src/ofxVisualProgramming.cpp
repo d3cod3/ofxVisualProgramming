@@ -488,21 +488,21 @@ void ofxVisualProgramming::drawInspector(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::drawLivePatchingSession(){
     if(weAlreadyHaveObject("live patching") && livePatchingObiID != -1 && currentSubpatch == "root" && !patchObjects.empty() && patchObjects.find(livePatchingObiID) != patchObjects.end()){
-        if(patchObjects[livePatchingObiID]->inletsConnected[0] && static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->isAllocated()){
+        if(patchObjects[livePatchingObiID]->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->isAllocated()){
             float lpDrawW, lpDrawH, lpPosX, lpPosY;
-            if(static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth() >= static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight()){   // horizontal texture
+            if(ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth() >= ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight()){   // horizontal texture
                 lpDrawW           = ofGetWidth();
-                lpDrawH           = (ofGetWidth()/static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth())*static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight();
+                lpDrawH           = (ofGetWidth()/ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth())*ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight();
                 lpPosX            = 0;
                 lpPosY            = (ofGetHeight()-lpDrawH)/2.0f;
             }else{ // vertical texture
-                lpDrawW           = (static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth()*ofGetHeight())/static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight();
+                lpDrawW           = (ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->getWidth()*ofGetHeight())/ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->getHeight();
                 lpDrawH           = ofGetHeight();
                 lpPosX            = (ofGetWidth()-lpDrawW)/2.0f;
                 lpPosY            = 0;
             }
-            ofSetColor(255,*(float *)&patchObjects[livePatchingObiID]->_outletParams[0]);
-            static_cast<ofTexture *>(patchObjects[livePatchingObiID]->_inletParams[0])->draw(lpPosX,lpPosY,lpDrawW,lpDrawH);
+            ofSetColor(255,*ofxVP_CAST_PIN_PTR<float>(patchObjects[livePatchingObiID]->_outletParams[0]));
+            ofxVP_CAST_PIN_PTR<ofTexture>(patchObjects[livePatchingObiID]->_inletParams[0])->draw(lpPosX,lpPosY,lpDrawW,lpDrawH);
         }
     }
 }

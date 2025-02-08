@@ -41,11 +41,11 @@ pdspBitNoise::pdspBitNoise() : PatchObject("bit noise"){
     this->numOutlets = 3;
 
     _inletParams[0] = new float();          // pitch
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();          // decimation
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // bits
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output L
     _outletParams[1] = new ofSoundBuffer(); // audio output R
@@ -116,17 +116,17 @@ void pdspBitNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        pitch = ofClamp(*(float *)&_inletParams[0],-100,150);
+        pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),-100,150);
         pitch_ctrl.set(pitch);
     }
 
     if(this->inletsConnected[1]){
-        decimation = ofClamp(*(float *)&_inletParams[1],1,200);
+        decimation = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),1,200);
         decimation_ctrl.set(decimation);
     }
 
     if(this->inletsConnected[2]){
-        bits = ofClamp(*(float *)&_inletParams[2],0.0f,8.0f);
+        bits = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,8.0f);
         bits_ctrl.set(bits);
     }
 
@@ -219,7 +219,7 @@ void pdspBitNoise::loadAudioSettings(){
             bufferSize = XML.getValue("buffer_size",0);
 
             for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[2])->push_back(0.0f);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(0.0f);
             }
 
             XML.popTag();
@@ -233,11 +233,11 @@ void pdspBitNoise::audioOutObject(ofSoundBuffer &outputBuffer){
         float sample = (scopeL.getBuffer().at(i) + scopeR.getBuffer().at(i))/2;
 
         // SIGNAL BUFFER DATA
-        static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->at(i) = sample;
     }
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

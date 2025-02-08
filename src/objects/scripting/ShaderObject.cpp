@@ -133,10 +133,10 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(scriptLoaded){
         // receive external data
         for(int i=0;i<this->numInlets;i++){
-            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_TEXTURE && i < static_cast<int>(textures.size()) && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+            if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_TEXTURE && i < static_cast<int>(textures.size()) && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->isAllocated()){
                 textures[i]->begin();
                 ofSetColor(255);
-                static_cast<ofTexture *>(_inletParams[i])->draw(0,0,output_width, output_height);
+                ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->draw(0,0,output_width, output_height);
                 textures[i]->end();
             }
         }
@@ -154,7 +154,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
         for(int i=0;i<this->numInlets;i++){
             if(this->inletsConnected[i] && this->getInletType(i) == VP_LINK_NUMERIC){
-                shaderSliders.at(i-static_cast<int>(textures.size())) = *(float *)&_inletParams[i];
+                shaderSliders.at(i-static_cast<int>(textures.size())) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]);
             }
         }
 
@@ -218,7 +218,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         kuro->draw(0,0,fbo->getWidth(),fbo->getHeight());
     }
     fbo->end();
-    *static_cast<ofTexture *>(_outletParams[0]) = fbo->getTexture();
+    *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = fbo->getTexture();
     ///////////////////////////////////////////
 
 
@@ -380,10 +380,10 @@ void ShaderObject::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -437,7 +437,7 @@ void ShaderObject::drawObjectNodeConfig(){
         if (ImGui::IsItemHovered()) ImGui::SetTooltip("%s",tempFilename.getAbsolutePath().c_str());
     }
     ImGui::Spacing();
-    ImGui::Text("Rendering at: %.0fx%.0f",static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
+    ImGui::Text("Rendering at: %.0fx%.0f",ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getHeight());
     ImGui::Spacing();
     ImGui::Spacing();
     ImGui::Spacing();
@@ -610,7 +610,7 @@ void ShaderObject::doFragmentShader(){
             shaderSlidersType.push_back(ShaderSliderType_FLOAT);
 
             _inletParams[this->numInlets] = new float();
-            *(float *)&_inletParams[this->numInlets] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[this->numInlets]) = 0.0f;
             this->numInlets++;
             this->addInlet(VP_LINK_NUMERIC,varName);
 
@@ -640,7 +640,7 @@ void ShaderObject::doFragmentShader(){
             shaderSlidersType.push_back(ShaderSliderType_INT);
 
             _inletParams[this->numInlets] = new float();
-            *(float *)&_inletParams[this->numInlets] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[this->numInlets]) = 0.0f;
             this->numInlets++;
             this->addInlet(VP_LINK_NUMERIC,varName);
 

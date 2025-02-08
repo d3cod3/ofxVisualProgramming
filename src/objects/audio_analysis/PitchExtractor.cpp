@@ -43,7 +43,7 @@ PitchExtractor::PitchExtractor() : PatchObject("pitch extractor"){
     _inletParams[0] = new vector<float>();  // RAW Data
 
     _outletParams[0] = new float(); // Pitch
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -106,8 +106,8 @@ void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
         isConnectionRight = false;
     }
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
-        *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition);
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty() && isConnectionRight){
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(arrayPosition);
     }else if(this->inletsConnected[0] && !isConnectionRight){
         ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer object ONLY! Just reconnect it right!",this->getName().c_str());
     }
@@ -145,7 +145,7 @@ void PitchExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 4186.f,IM_COL32(255,255,120,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), 0.f, 4186.f,IM_COL32(255,255,120,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

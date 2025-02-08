@@ -41,24 +41,24 @@ SoundfilePlayer::SoundfilePlayer() : PatchObject("soundfile player"){
     this->numOutlets = 3;
 
     _inletParams[0] = new string();  // control
-    *static_cast<string *>(_inletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]) = "";
     _inletParams[1] = new float();  // playhead
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // speed
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();  // volume
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();  // cue IN
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
     _inletParams[5] = new float();  // cue OUT
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
     _inletParams[6] = new float();  // trigger
-    *(float *)&_inletParams[6] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[6]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new vector<float>(); // audio buffer
     _outletParams[2] = new float();  // finish bang
-    *(float *)&_outletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
 
     this->initInletsState();
 
@@ -176,8 +176,8 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
     if(isFileLoaded && audiofile.loaded()){
         // listen to message control (_inletParams[0])
         if(this->inletsConnected[0]){
-            if(lastMessage != *static_cast<string *>(_inletParams[0])){
-                lastMessage = *static_cast<string *>(_inletParams[0]);
+            if(lastMessage != *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0])){
+                lastMessage = *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]);
 
                 if(lastMessage == "play"){
                     isPlaying = true;
@@ -202,33 +202,33 @@ void SoundfilePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
             }
         }
         // playhead
-        if(this->inletsConnected[1] && *(float *)&_inletParams[1] != -1.0f){
-            playhead = static_cast<double>(*(float *)&_inletParams[1]) * audiofile.length();
+        if(this->inletsConnected[1] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) != -1.0f){
+            playhead = static_cast<double>(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])) * audiofile.length();
         }
         // speed
         if(this->inletsConnected[2]){
-            speed = ofClamp(*(float *)&_inletParams[2],-10.0f,10.0f);
+            speed = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),-10.0f,10.0f);
         }
         // volume
         if(this->inletsConnected[3]){
-            volume = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+            volume = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
         }
 
         // cue IN
         if(this->inletsConnected[4]){
-            cueIN = static_cast<double>(ofClamp(*(float *)&_inletParams[4],0.0,cueOUT-2));
+            cueIN = static_cast<double>(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0,cueOUT-2));
         }
 
         // cue OUT
         if(this->inletsConnected[5]){
-            cueOUT = static_cast<double>(ofClamp(*(float *)&_inletParams[5],cueIN+2, audiofile.length()-2));
+            cueOUT = static_cast<double>(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),cueIN+2, audiofile.length()-2));
         }
 
         // outlet finish bang
         if(finishBang){
-            *(float *)&_outletParams[2] = 1.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 1.0f;
         }else{
-            *(float *)&_outletParams[2] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
         }
 
         if(finishBang){
@@ -457,7 +457,7 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 
     // trigger, this needs to run in audio thread
     if(this->inletsConnected[6]){
-        if(ofClamp(*(float *)&_inletParams[6],0.0f,1.0f) == 1.0f && !isNextCycle){
+        if(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[6]),0.0f,1.0f) == 1.0f && !isNextCycle){
             isNextCycle = true;
             playhead = cueIN;
             isPlaying = true;
@@ -502,8 +502,8 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 
     fileOUT.copyInput(lastBuffer.getBuffer().data(),lastBuffer.getNumFrames());
-    *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastBuffer;
-    *static_cast<vector<float> *>(_outletParams[1]) = scope.getBuffer();
+    *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0]) = lastBuffer;
+    *ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1]) = scope.getBuffer();
 
 }
 
@@ -524,7 +524,7 @@ void SoundfilePlayer::loadSettings(){
     }
 
     for(int i=0;i<bufferSize;i++){
-        static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);
     }
 
     shortBuffer = new short[bufferSize];

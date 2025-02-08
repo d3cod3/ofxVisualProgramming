@@ -41,16 +41,16 @@ Counter::Counter() : PatchObject("counter"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // start
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _inletParams[2] = new float();  // end
-    *(float *)&_inletParams[2] = 1.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 1.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -98,21 +98,21 @@ void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
     if(!this->inletsConnected[1]){
         if(resetCounter){
             resetCounter = false;
-            *(float *)&_outletParams[0] = _st;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = _st;
         }
     }
 
     if(this->inletsConnected[1]){
-        _st = *(float *)&_inletParams[1];
+        _st = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
         if(!startConnect){
             startConnect = true;
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
         }
     }else{
         startConnect = false;
     }
     if(this->inletsConnected[2]){
-        _en = *(float *)&_inletParams[2];
+        _en = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]);
     }
 
     if(!loaded){
@@ -154,7 +154,7 @@ void Counter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::SetCursorPos(ImVec2((this->width*0.5f*_nodeCanvas.GetCanvasScale()),IMGUI_EX_NODE_HEADER_HEIGHT*1.4*scaleFactor));
 
-        ImGui::Text("%i",static_cast<int>(floor(*(float *)&_outletParams[0])));
+        ImGui::Text("%i",static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]))));
 
         ImGui::Dummy(ImVec2(-1,6*scaleFactor));
 
@@ -192,23 +192,23 @@ void Counter::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else if(!bang){
             bang = true;
             int tempEnd = 1;
             if(this->inletsConnected[2]){
-                tempEnd = static_cast<int>(*(float *)&_inletParams[2]);
+                tempEnd = static_cast<int>(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]));
             }else{
                 tempEnd = _en;
             }
-            if(*(float *)&_outletParams[0] < tempEnd){
-                *(float *)&_outletParams[0] += 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) < tempEnd){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) += 1;
             }else{
                 if(this->inletsConnected[1]){
-                    *(float *)&_outletParams[0] = *(float *)&_inletParams[1];
+                    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
                 }else{
-                    *(float *)&_outletParams[0] = _st;
+                    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = _st;
                 }
             }
         }

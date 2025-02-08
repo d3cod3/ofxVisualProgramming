@@ -42,7 +42,7 @@ pdspBitCruncher::pdspBitCruncher() : PatchObject("bit cruncher"){
 
     _inletParams[0] = new ofSoundBuffer();  // audio in
     _inletParams[1] = new float();          // bits
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -95,7 +95,7 @@ void pdspBitCruncher::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        bits = ofClamp(*(float *)&_inletParams[1],1.0f,8.0f);
+        bits = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),1.0f,8.0f);
         bits_ctrl.set(bits);
     }
 
@@ -195,7 +195,7 @@ void pdspBitCruncher::audioInObject(ofSoundBuffer &inputBuffer){
 //--------------------------------------------------------------
 void pdspBitCruncher::audioOutObject(ofSoundBuffer &outputBuffer){
     // STEREO SIGNAL BUFFERS
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

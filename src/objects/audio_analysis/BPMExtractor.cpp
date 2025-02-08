@@ -43,11 +43,11 @@ BPMExtractor::BPMExtractor() : PatchObject("bpm extractor"){
     _inletParams[0] = new vector<float>();  // RAW Data
 
     _outletParams[0] = new float(); // beat
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     _outletParams[1] = new float(); // BPM
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
     _outletParams[2] = new float(); // MS
-    *(float *)&_outletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = 0.0f;
 
     this->initInletsState();
 
@@ -116,10 +116,10 @@ void BPMExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         isConnectionRight = false;
     }
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
-        *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->back(); // beat
-        *(float *)&_outletParams[1] = static_cast<vector<float> *>(_inletParams[0])->at(arrayPosition); // bpm
-        *(float *)&_outletParams[2] = 60000.0f / *(float *)&_outletParams[1]; // millis
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty() && isConnectionRight){
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->back(); // beat
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(arrayPosition); // bpm
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 60000.0f / *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]); // millis
     }else if(this->inletsConnected[0] && !isConnectionRight){
         ofLog(OF_LOG_ERROR,"%s --> This object can receive data from audio analyzer object ONLY! Just reconnect it right!",this->getName().c_str());
     }
@@ -163,10 +163,10 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 pos = ImVec2(window_pos.x + window_size.x - (50*scaleFactor), window_pos.y + window_size.y/2);
 
         char temp[32];
-        sprintf_s(temp,"%i",static_cast<int>(floor(*(float *)&_outletParams[1])));
+        sprintf_s(temp,"%i",static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]))));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, IM_COL32_WHITE,temp, NULL, 0.0f);
 
-        if(*(float *)&_outletParams[0] > 0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) > 0){
             // draw beat
             _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x - (10*scaleFactor),pos.y + (8*scaleFactor)), 6*scaleFactor, IM_COL32(255, 255, 120, 255), 40);
         }

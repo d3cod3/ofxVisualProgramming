@@ -69,8 +69,8 @@ void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
-        if(static_cast<ofPixels *>(_inletParams[0])->getWidth() > 0 && static_cast<ofPixels *>(_inletParams[0])->getHeight() > 0){
-            static_cast<ofTexture *>(_outletParams[0])->loadData(*static_cast<ofPixels *>(_inletParams[0]));
+        if(ofxVP_CAST_PIN_PTR<ofPixels>(_inletParams[0])->getWidth() > 0 && ofxVP_CAST_PIN_PTR<ofPixels>(_inletParams[0])->getHeight() > 0){
+            ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->loadData(*ofxVP_CAST_PIN_PTR<ofPixels>(_inletParams[0]));
         }
     }
 }

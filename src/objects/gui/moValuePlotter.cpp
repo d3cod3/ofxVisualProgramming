@@ -48,13 +48,13 @@ moValuePlotter::moValuePlotter() :
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // value
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
-    *(float *)&_inletParams[1] = lastMinRange.get();
-    *(float *)&_inletParams[2] = lastMaxRange.get();
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = lastMinRange.get();
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = lastMaxRange.get();
 
     _outletParams[0] = new float(); // value
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -102,14 +102,14 @@ void moValuePlotter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 void moValuePlotter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1] || this->inletsConnected[2]){
-        if(lastMinRange.get() != *(float *)&_inletParams[1] || lastMaxRange.get() != *(float *)&_inletParams[2]){
-            lastMinRange.get()    = *(float *)&_inletParams[1];
-            lastMaxRange.get()    = *(float *)&_inletParams[2];
+        if(lastMinRange.get() != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) || lastMaxRange.get() != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2])){
+            lastMinRange.get()    = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
+            lastMaxRange.get()    = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]);
         }
     }
 
     // bypass value
-    *(float *)&_outletParams[0] = *(float *)&_inletParams[0];
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]);
 
 
     if(!loaded){
@@ -157,7 +157,7 @@ void moValuePlotter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], lastMinRange.get(), lastMaxRange.get(), IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), lastMinRange.get(), lastMaxRange.get(), IM_COL32(color.x*255,color.y*255,color.z*255,color.w*255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize()*_nodeCanvas.GetCanvasScale(), ImVec2(window_pos.x +(40*_nodeCanvas.GetCanvasScale()), window_pos.y+window_size.y-(36*_nodeCanvas.GetCanvasScale())), IM_COL32_WHITE, name.c_str(), NULL, 0.0f);
 

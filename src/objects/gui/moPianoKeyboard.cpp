@@ -71,7 +71,7 @@ void moPianoKeyboard::newObject(){
 void moPianoKeyboard::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    static_cast<vector<float> *>(_outletParams[0])->assign(128,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(128,0.0f);
 }
 
 //--------------------------------------------------------------
@@ -82,27 +82,27 @@ void moPianoKeyboard::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
         for(size_t i =0;i<256;i++){
             key_states[i] = 0;
         }
-        for(size_t i=0;i<static_cast<vector<float> *>(_outletParams[0])->size();i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = 0;
+        for(size_t i=0;i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size();i++){
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = 0;
         }
-        if(static_cast<vector<float> *>(_inletParams[0])->size()>2){
-            for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size()-2;i++){
-                key_states[static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1))] = static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+2));
-                if(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1)) >= 21 && static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1)) <= 108){
-                    static_cast<vector<float> *>(_outletParams[0])->at(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1))) = static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+2));
+        if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()>2){
+            for(size_t i=0;i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()-2;i++){
+                key_states[static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+1))] = static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+2));
+                if(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+1)) >= 21 && static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+1)) <= 108){
+                    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+1))) = static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+2));
                 }else{
-                    static_cast<vector<float> *>(_outletParams[0])->at(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(i+1))) = 0;
+                    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i+1))) = 0;
                 }
                 i++;
             }
         }
 
     }else{
-        for(size_t i=0;i<static_cast<vector<float> *>(_outletParams[0])->size();i++){
+        for(size_t i=0;i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->size();i++){
             if(i == pitch && pitch >= 21 && pitch <= 108){
-                static_cast<vector<float> *>(_outletParams[0])->at(i) = 127;
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = 127;
             }else{
-                static_cast<vector<float> *>(_outletParams[0])->at(i) = 0;
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = 0;
             }
         }
 

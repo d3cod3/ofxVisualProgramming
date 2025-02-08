@@ -168,20 +168,20 @@ void SignalOperator::removeObjectContent(bool removeFileFromData){
 void SignalOperator::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty() && this->inletsConnected[1] && !static_cast<ofSoundBuffer *>(_inletParams[1])->getBuffer().empty() && monoBuffer.getNumFrames() == static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames() && monoBuffer.getNumFrames() == static_cast<ofSoundBuffer *>(_inletParams[1])->getNumFrames()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty() && this->inletsConnected[1] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getBuffer().empty() && monoBuffer.getNumFrames() == ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getNumFrames() && monoBuffer.getNumFrames() == ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getNumFrames()){
         for(size_t i = 0; i < monoBuffer.getNumFrames(); i++) {
             if(_operator == Sig_Operator_ADD){
-                monoBuffer.getSample(i,0) = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i, 0) + static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0);
+                monoBuffer.getSample(i,0) = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i, 0) + ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getSample(i, 0);
             }else if(_operator == Sig_Operator_SUBTRACT){
-                monoBuffer.getSample(i,0) = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i, 0) - static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0);
+                monoBuffer.getSample(i,0) = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i, 0) - ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getSample(i, 0);
             }else if(_operator == Sig_Operator_MULTIPLY){
-                monoBuffer.getSample(i,0) = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i, 0) * static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0);
+                monoBuffer.getSample(i,0) = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i, 0) * ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getSample(i, 0);
             }else if(_operator == Sig_Operator_DIVIDE){
                 // avoid division by zero
-                if(static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0) == 0.0f){
-                    monoBuffer.getSample(i,0) = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i, 0) / ( 0.000001f + static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0));
+                if(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getSample(i, 0) == 0.0f){
+                    monoBuffer.getSample(i,0) = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i, 0) / ( 0.000001f + ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getSample(i, 0));
                 }else{
-                    monoBuffer.getSample(i,0) = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i, 0) / static_cast<ofSoundBuffer *>(_inletParams[1])->getSample(i, 0);
+                    monoBuffer.getSample(i,0) = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i, 0) / ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getSample(i, 0);
                 }
             }else{
                 monoBuffer.getSample(i,0) = 0.0f;
@@ -189,13 +189,13 @@ void SignalOperator::audioOutObject(ofSoundBuffer &outputBuffer){
 
             lastBuffer = monoBuffer;
         }
-    }else if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty() && !this->inletsConnected[1]){
-        lastBuffer= *static_cast<ofSoundBuffer *>(_inletParams[0]);
+    }else if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty() && !this->inletsConnected[1]){
+        lastBuffer= *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]);
     }else{
         lastBuffer = monoBuffer * 0.0f;
     }
 
-    *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastBuffer;
+    *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0]) = lastBuffer;
 
     buffer.copyInput(lastBuffer.getBuffer().data(),lastBuffer.getNumFrames());
 

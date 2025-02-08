@@ -49,7 +49,7 @@ moSignalViewer::moSignalViewer() :
     _outletParams[1] = new ofSoundBuffer();     // signal
     _outletParams[2] = new vector<float>();     // audio buffer
     _outletParams[3] = new float();             // RMS
-    *(float *)&_outletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = 0.0f;
 
     this->initInletsState();
 
@@ -91,9 +91,9 @@ void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
-        *(float *)&_outletParams[3] = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
     }else{
-        *(float *)&_outletParams[3] = 0;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = 0;
     }
 }
 
@@ -130,7 +130,7 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,this->height*_nodeCanvas.GetCanvasScale()), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         // draw signal RMS amplitude
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
 
         _nodeCanvas.EndNodeContent();
     }
@@ -171,7 +171,7 @@ void moSignalViewer::loadAudioSettings(){
 
             plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[2])->push_back(0.0f);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(0.0f);
                 plot_data[i] = 0.0f;
             }
 
@@ -190,19 +190,19 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
     unusedArgs(outBuffer);
 
     if(this->inletsConnected[0]){
-        *static_cast<ofSoundBuffer *>(_outletParams[0]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
-        *static_cast<ofSoundBuffer *>(_outletParams[1]) = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]);
+        *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1]) = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]);
 
-        for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
-            float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
+        for(size_t i = 0; i < ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getNumFrames(); i++) {
+            float sample = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i,0);
             plot_data[i] = hardClip(sample);
 
             // SIGNAL BUFFER DATA
-            static_cast<vector<float> *>(_outletParams[2])->at(i) = sample;
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->at(i) = sample;
         }
     }else{
-        static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
-        static_cast<ofSoundBuffer *>(_outletParams[1])->set(0.0f);
+        ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->set(0.0f);
+        ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->set(0.0f);
     }
 
 }

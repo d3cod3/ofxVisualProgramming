@@ -41,13 +41,13 @@ moMessage::moMessage() : PatchObject("message"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new string();  // message
-    *static_cast<string *>(_inletParams[1]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_inletParams[1]) = "";
 
     _outletParams[0] = new string(); // output
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     this->initInletsState();
 
@@ -76,14 +76,14 @@ void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    if(this->inletsConnected[0] && *(float *)&_inletParams[0] >= 1.0){
+    if(this->inletsConnected[0] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) >= 1.0){
         if(this->inletsConnected[1]){
-            *static_cast<string *>(_outletParams[0]) = "";
-            *static_cast<string *>(_outletParams[0]) = *static_cast<string *>(_inletParams[1]);
-            actualMessage = *static_cast<string *>(_inletParams[1]);
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<string>(_inletParams[1]);
+            actualMessage = *ofxVP_CAST_PIN_PTR<string>(_inletParams[1]);
         }else{
-            *static_cast<string *>(_outletParams[0]) = "";
-            *static_cast<string *>(_outletParams[0]) = actualMessage;
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = actualMessage;
         }
 
     }
@@ -130,8 +130,8 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Spacing();
         if(ImGui::Button("SEND",ImVec2(-1,26*scaleFactor))){
-            *static_cast<string *>(_outletParams[0]) = "";
-            *static_cast<string *>(_outletParams[0]) = actualMessage;
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = actualMessage;
         }
 
 

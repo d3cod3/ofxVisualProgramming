@@ -42,7 +42,7 @@ pdspDecimator::pdspDecimator() : PatchObject("decimator"){
 
     _inletParams[0] = new ofSoundBuffer();  // audio input
     _inletParams[1] = new float();          // sample rate freq
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -91,7 +91,7 @@ void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        freq = ofClamp(*(float *)&_inletParams[1],2.0f,1600.0f);
+        freq = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),2.0f,1600.0f);
         freq_ctrl.set(freq);
     }
 
@@ -192,7 +192,7 @@ void pdspDecimator::audioInObject(ofSoundBuffer &inputBuffer){
 //--------------------------------------------------------------
 void pdspDecimator::audioOutObject(ofSoundBuffer &outputBuffer){
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

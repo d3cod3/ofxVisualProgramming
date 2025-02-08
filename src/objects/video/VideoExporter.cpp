@@ -46,7 +46,7 @@ VideoExporter::VideoExporter() :
     _inletParams[0] = new ofTexture(); // input
 
     _inletParams[1] = new float();  // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -103,14 +103,14 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) < 1.0){
             bang = false;
         }else{
             bang = true;
         }
     }
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && filepath != "none" && bang){
         if(!recorder.isRecording()){
             recorder.setBitRate(20000);
             recorder.startCustomRecord();
@@ -124,18 +124,18 @@ void VideoExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     if(this->inletsConnected[0]){
-        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
             if(!needToGrab){
                 needToGrab = true;
-                captureFbo.allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGB );
-                recorder.setup(true, false, glm::vec2(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight())); // record video only for now
+                captureFbo.allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), GL_RGB );
+                recorder.setup(true, false, glm::vec2(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight())); // record video only for now
                 recorder.setOverWrite(true);
             }
 
             captureFbo.begin();
             ofClear(0,0,0,255);
             ofSetColor(255);
-            static_cast<ofTexture *>(_inletParams[0])->draw(0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight());
+            ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(0,0,ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight());
             captureFbo.end();
 
             if(recorder.isRecording()) {
@@ -201,10 +201,10 @@ void VideoExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -293,7 +293,7 @@ void VideoExporter::drawObjectNodeConfig(){
     char tmp[256];
     sprintf_s(tmp,"%s %s",ICON_FA_CIRCLE, recButtonLabel.c_str());
     if(ImGui::Button(tmp,ImVec2(108*scaleFactor,26*scaleFactor))){
-        if(!this->inletsConnected[0] || !static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(!this->inletsConnected[0] || !ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
             ofLog(OF_LOG_WARNING,"%s","There is no ofTexture connected to the object inlet, connect something if you want to export it as video!");
         }else if(filepath == "none"){
             ofLog(OF_LOG_WARNING,"%s","No file selected. Please select one before recording!");

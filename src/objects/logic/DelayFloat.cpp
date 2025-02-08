@@ -41,16 +41,16 @@ DelayFloat::DelayFloat() : PatchObject("delay float"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // number
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _inletParams[2] = new float();  // ms
-    *(float *)&_inletParams[2] = 1000.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 1000.0f;
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -89,7 +89,7 @@ void DelayFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] == 1.0 && !bang){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) == 1.0 && !bang){
             bang        = true;
             loadStart   = false;
             startTime   = ofGetElapsedTimeMillis();
@@ -97,11 +97,11 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(this->inletsConnected[1]){
-        number = *(float *)&_inletParams[1];
+        number = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
 
     if(this->inletsConnected[2]){
-        wait                = static_cast<size_t>(floor(*(float *)&_inletParams[2]));
+        wait                = static_cast<size_t>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2])));
     }
 
     if(!loadStart && (ofGetElapsedTimeMillis()-startTime > wait)){
@@ -113,7 +113,7 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     }
 
     if(delayBang){
-        *(float *)&_outletParams[0] = number;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = number;
     }
 
     if(!loaded){

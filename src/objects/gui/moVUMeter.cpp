@@ -43,7 +43,7 @@ moVUMeter::moVUMeter() : PatchObject("vu meter"){
     _inletParams[0] = new ofSoundBuffer();  // signal
 
     _outletParams[0] = new float(); // RMS
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -70,11 +70,11 @@ void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
-        RMS = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
-        *(float *)&_outletParams[0] = RMS;
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
+        RMS = ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude(),0.0,1.0);
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = RMS;
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 }
 

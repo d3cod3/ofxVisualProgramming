@@ -43,7 +43,7 @@ VideoTimelapse::VideoTimelapse() : PatchObject("video timedelay"){
     _inletParams[0] = new ofTexture();  // input
 
     _inletParams[1] = new float();  // delay frames
-    *(float *)&_inletParams[1] = 25.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 25.0f;
 
     _outletParams[0] = new ofTexture(); // output
 
@@ -101,8 +101,8 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        if(nDelayFrames != static_cast<int>(floor(*(float *)&_inletParams[1]))){
-            nDelayFrames = static_cast<int>(floor(*(float *)&_inletParams[1]));
+        if(nDelayFrames != static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])))){
+            nDelayFrames = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
 
             capturedFrame   = 0;
             delayFrame      = 0;
@@ -121,8 +121,8 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 
             ofImage rgbaImage;
             ofDisableArbTex();
-            rgbaImage.allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR_ALPHA);
-            static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+            rgbaImage.allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),OF_IMAGE_COLOR_ALPHA);
+            ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
             rgbaImage.setFromPixels(*pix);
             videoBuffer->pushTexture(rgbaImage.getTexture());
             ofEnableArbTex();
@@ -138,12 +138,12 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
             }
         }
         if(capturedFrame >= nDelayFrames){
-            *static_cast<ofTexture *>(_outletParams[0]) = videoBuffer->getDelayedtexture(delayFrame);
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = videoBuffer->getDelayedtexture(delayFrame);
         }else{
-            *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = kuro->getTexture();
         }
     }else{
-        *static_cast<ofTexture *>(_outletParams[0]) = kuro->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = kuro->getTexture();
     }
 
     if(!loaded){
@@ -188,10 +188,10 @@ void VideoTimelapse::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

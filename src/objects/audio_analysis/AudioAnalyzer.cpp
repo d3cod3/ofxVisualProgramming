@@ -46,8 +46,8 @@ AudioAnalyzer::AudioAnalyzer() : PatchObject("audio analyzer"){
 
     _inletParams[1] = new float();  // level
     _inletParams[2] = new float();  // smooth
-    *(float *)&_inletParams[1] = 1.0f;
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 1.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new vector<float>();  // Analysis Data
 
@@ -122,22 +122,22 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             index += lastBuffer.getNumFrames();
             // SPECTRUM
             for(int i = 0; i < fftBinSize; i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = _s_spectrum[i];
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i+index) = _s_spectrum[i];
             }
 
             index += fftBinSize;
             // MEL BANDS
             for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
-                static_cast<vector<float> *>(_outletParams[0])->at(i+index) = _s_melBins[i];
+                ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i+index) = _s_melBins[i];
             }
 
             index += MEL_SCALE_CRITICAL_BANDS-1;
 
             // SINGLE VALUES (RMS, PITCH, BPM, BEAT)
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = _s_rms;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+1) = _s_pitch;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+2) = bpm;
-            static_cast<vector<float> *>(_outletParams[0])->at(index+3) = static_cast<float>(beat);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(index) = _s_rms;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(index+1) = _s_pitch;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(index+2) = bpm;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(index+3) = static_cast<float>(beat);
 
         }
     }else{
@@ -146,12 +146,12 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     // LEVEL
     if(this->inletsConnected[1]){
-        audioInputLevel = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        audioInputLevel = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
     }
 
     // SMOOTH
     if(this->inletsConnected[2]){
-        smoothingValue = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        smoothingValue = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
     }
 
     if(!isLoaded){
@@ -199,7 +199,7 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale()), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         // draw signal RMS amplitude
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*0.5f*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale() * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*0.5f*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale() * (1.0f - ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
 
         ImGui::Spacing();
         ImGui::Spacing();
@@ -239,11 +239,11 @@ void AudioAnalyzer::removeObjectContent(bool removeFileFromData){
 void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
     unusedArgs(inputBuffer);
 
-    if(static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()) return;
+    if(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()) return;
 
     if(this->inletsConnected[0] && isConnected && ofGetElapsedTimeMillis()-startTime > waitTime){
 
-        lastBuffer = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        lastBuffer = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]);
 
         lastBuffer *= audioInputLevel;
 
@@ -252,7 +252,7 @@ void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
             plot_data[i] = hardClip(lastBuffer.getSample(i,0));
 
             // SIGNAL BUFFER
-            static_cast<vector<float> *>(_outletParams[0])->at(i) = lastBuffer.getSample(i,0);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = lastBuffer.getSample(i,0);
         }
 
         lastBuffer.copyTo(monoBuffer, lastBuffer.getNumFrames(), 1, 0);
@@ -355,22 +355,22 @@ void AudioAnalyzer::loadAudioSettings(){
         // SIGNAL BUFFER
         plot_data = new float[bufferSize];
         for(int i=0;i<bufferSize;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
             plot_data[i] = 0.0f;
         }
         // SPECTRUM
         for(int i=0;i<fftBinSize;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
         }
 
         // MEL BANDS
         for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
         }
 
         // SINGLE VALUES (RMS, PITCH, BPM, BEAT)
         for(int i=0;i<4;i++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
         }
     }
 }
@@ -417,7 +417,7 @@ void AudioAnalyzer::detectRMS(){
     }
     rms /= bufferSize;*/
 
-    rms = ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0);
+    rms = ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0);
 }
 
 //--------------------------------------------------------------

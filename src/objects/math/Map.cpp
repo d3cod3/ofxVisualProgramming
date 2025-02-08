@@ -41,18 +41,18 @@ Map::Map() : PatchObject("map"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // value
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // in min
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // in max
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();  // out min
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();  // out max
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
 
     _outletParams[0] = new float(); // mapped value
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -94,20 +94,20 @@ void Map::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
       if(this->inletsConnected[1]){
-          inMin = *(float *)&_inletParams[1];
+          inMin = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
       }
       if(this->inletsConnected[2]){
-          inMax = *(float *)&_inletParams[2];
+          inMax = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]);
       }
       if(this->inletsConnected[3]){
-          outMin = *(float *)&_inletParams[3];
+          outMin = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]);
       }
       if(this->inletsConnected[4]){
-          outMax = *(float *)&_inletParams[4];
+          outMax = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]);
       }
-      *(float *)&_outletParams[0] = ofMap(*(float *)&_inletParams[0],inMin, inMax, outMin, outMax,true);
+      *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofMap(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),inMin, inMax, outMin, outMax,true);
     }else{
-      *(float *)&_outletParams[0] = 0.0f;
+      *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 
     if(!loaded){
@@ -152,7 +152,7 @@ void Map::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImVec2 window_pos = ImGui::GetWindowPos();
         ImVec2 window_size = ImVec2(this->width*_nodeCanvas.GetCanvasScale(),this->height*_nodeCanvas.GetCanvasScale());
         float pinDistance = (window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/this->numInlets;
-        float valuePercentage = ofMap(*(float *)&_outletParams[0],outMin,outMax,0.0f,1.0f,true);
+        float valuePercentage = ofMap(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]),outMin,outMax,0.0f,1.0f,true);
 
         // vertical ranges
         _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*1)),ImVec2(window_pos.x + (50*this->scaleFactor*_nodeCanvas.GetCanvasScale()),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + (pinDistance*3)),IM_COL32(60,60,60,255),2.0f);

@@ -41,11 +41,11 @@ pdspLFO::pdspLFO() : PatchObject("lfo"){
     this->numOutlets = 5;
 
     _inletParams[0] = new float();  // retrig (bang)
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // frequency
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // phase
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // triangle LFO
     _outletParams[1] = new ofSoundBuffer(); // sine     LFO
@@ -127,20 +127,20 @@ void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
     unusedArgs(patchObjects);
     // retrig
     if(this->inletsConnected[0]){
-        retrig_ctrl.trigger(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f));
+        retrig_ctrl.trigger(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),0.0f,1.0f));
     }else{
         retrig_ctrl.off();
     }
 
     // frequency
     if(this->inletsConnected[1]){
-        pitch = ofClamp(*(float *)&_inletParams[1],0.0f,10.0f);
+        pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,10.0f);
         pitch_ctrl.set(pitch);
     }
 
     // phase
     if(this->inletsConnected[2]){
-        phase = ofClamp(*(float *)&_inletParams[2],-1.0f,1.0f);
+        phase = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),-1.0f,1.0f);
         phase_ctrl.set(phase);
     }
 
@@ -241,11 +241,11 @@ void pdspLFO::loadAudioSettings(){
 void pdspLFO::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope_tri.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scope_sine.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[2])->copyFrom(scope_saw.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[3])->copyFrom(scope_square.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[4])->copyFrom(scope_random.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope_tri.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scope_sine.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[2])->copyFrom(scope_saw.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[3])->copyFrom(scope_square.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->copyFrom(scope_random.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

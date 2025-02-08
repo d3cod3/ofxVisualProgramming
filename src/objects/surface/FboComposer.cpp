@@ -107,8 +107,8 @@ void FboComposer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRen
     ofPushMatrix();
     ofEnableAlphaBlending();
     ofSetColor(255);
-    if(this->inletsConnected[0] && this->getInletType(0) == VP_LINK_TEXTURE && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,0,output_width, output_height);
+    if(this->inletsConnected[0] && this->getInletType(0) == VP_LINK_TEXTURE && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(0,0,output_width, output_height);
     }else{
         kuro->draw(0,0,output_width, output_height);
     }

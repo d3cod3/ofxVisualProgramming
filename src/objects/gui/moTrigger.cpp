@@ -41,10 +41,10 @@ moTrigger::moTrigger() : PatchObject("trigger"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -79,7 +79,7 @@ void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     unusedArgs(patchObjects);
     
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0f){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0f){
             trigger = false;
             currentColor = releaseColor;
         }else{
@@ -87,7 +87,7 @@ void moTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
             currentColor = pressColor;
         }
     }
-    *(float *)&_outletParams[0] = static_cast<float>(trigger);
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<float>(trigger);
 
     if(!loaded){
         loaded = true;

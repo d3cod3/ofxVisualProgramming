@@ -43,8 +43,8 @@ FboParticles::FboParticles() : PatchObject("fbo particles"){
     // fbo inlet
     _inletParams[0] = new ofxPingPong();
     // effect control
-    *(float *)&_inletParams[1] = 0.0f; // particle system origin X
-    *(float *)&_inletParams[2] = 0.0f; // particle system otigin Y
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f; // particle system origin X
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f; // particle system otigin Y
 
     _outletParams[0] = new ofxPingPong();
     _outletParams[1] = new ofTexture();
@@ -109,16 +109,16 @@ void FboParticles::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     // particle system origin X
     if(this->inletsConnected[1]){
-        _x = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        _x = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
     }
 
     // particle system origin Y
     if(this->inletsConnected[2]){
-        _y = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        _y = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
     }
 
-    fboW = static_cast<ofTexture *>(_outletParams[1])->getWidth();
-    fboH = static_cast<ofTexture *>(_outletParams[1])->getHeight();
+    fboW = ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getWidth();
+    fboH = ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getHeight();
     fboRect.set(0,0,fboW,fboH);
 
     updateFBOEffect();
@@ -162,17 +162,17 @@ void FboParticles::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRe
         static_cast<ofxPingPong *>(_outletParams[0])->swap();
 
         // texture outlet
-        *static_cast<ofTexture *>(_outletParams[1]) = static_cast<ofxPingPong *>(_outletParams[0])->dst->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]) = static_cast<ofxPingPong *>(_outletParams[0])->dst->getTexture();
     }else{
-        *static_cast<ofTexture *>(_outletParams[1]) = kuro->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]) = kuro->getTexture();
     }
     ///////////////////////////////////////////
 
     ofSetColor(255);
-    if(static_cast<ofTexture *>(_outletParams[1])->isAllocated()){
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->isAllocated()){
         // draw node texture preview with OF
         if(scaledObjW*canvasZoom > 90.0f){
-            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[1]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            drawNodeOFTexture(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
     }else{
         // background
@@ -287,11 +287,11 @@ void FboParticles::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void FboParticles::drawObjectNodeConfig(){
 
     ImGui::Spacing();
-    ImGui::Text("Rendering at: %.0fx%.0f",static_cast<ofTexture *>(_outletParams[1])->getWidth(),static_cast<ofTexture *>(_outletParams[1])->getHeight());
+    ImGui::Text("Rendering at: %.0fx%.0f",ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getHeight());
     ImGui::Spacing();
 
     ImGui::Text("Particle System Origin");
-    if(ImGuiEx::Pad2D( ImGui::GetContentRegionAvail().x,ImGui::GetContentRegionAvail().x/static_cast<ofTexture *>(_outletParams[1])->getWidth()*static_cast<ofTexture *>(_outletParams[1])->getHeight(),&_x,&_y)){
+    if(ImGuiEx::Pad2D( ImGui::GetContentRegionAvail().x,ImGui::GetContentRegionAvail().x/ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getWidth()*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getHeight(),&_x,&_y)){
         this->setCustomVar(static_cast<float>(_x),"XPOS");
         this->setCustomVar(static_cast<float>(_y),"YPOS");
     }

@@ -43,9 +43,9 @@ moTimeline::moTimeline() : PatchObject("timeline"){
     this->numOutlets = 0;
 
     _inletParams[0] = new string();  // control
-    *static_cast<string *>(_inletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]) = "";
     _inletParams[1] = new float();  // playhead
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -202,8 +202,8 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     // listen to message control (_inletParams[0])
     if(this->inletsConnected[0]){
-        if(lastMessage != *static_cast<string *>(_inletParams[0])){
-            lastMessage = *static_cast<string *>(_inletParams[0]);
+        if(lastMessage != *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0])){
+            lastMessage = *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]);
 
             if(lastMessage == "play"){
                 timeline->play();
@@ -225,8 +225,8 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     // listen to playhead control (_inletParams[1])
     if(this->inletsConnected[1]){
-        if(lastPlayheadPos != *(float *)&_inletParams[1]){
-            lastPlayheadPos = *(float *)&_inletParams[1];
+        if(lastPlayheadPos != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])){
+            lastPlayheadPos = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
             timeline->setCurrentTimeSeconds(lastPlayheadPos*timeline->getDurationInSeconds());
         }
     }
@@ -236,15 +236,15 @@ void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         if(this->getOutletType(i) == VP_LINK_NUMERIC){
             if(actualTracks->at(i).at(2) == 'S' || (actualTracks->at(i).at(0) == '_' && actualTracks->at(i).at(3) == 'S')){ // SWITCHES
                 ofxTLSwitches* tempMT = (ofxTLSwitches*)timeline->getTrack(actualTracks->at(i));
-                *(float *)&_outletParams[i] = static_cast<float>(tempMT->isOn());
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[i]) = static_cast<float>(tempMT->isOn());
             }else{
-                *(float *)&_outletParams[i] = static_cast<float>(timeline->getValue(actualTracks->at(i)));
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[i]) = static_cast<float>(timeline->getValue(actualTracks->at(i)));
             }
         }else if(this->getOutletType(i) == VP_LINK_ARRAY){
             if(actualTracks->at(i).at(2) == 'C' || (actualTracks->at(i).at(0) == '_' && actualTracks->at(i).at(3) == 'C')){ // COLOR
-                static_cast<vector<float> *>(_outletParams[i])->at(0) = timeline->getColor(actualTracks->at(i)).r; // RED
-                static_cast<vector<float> *>(_outletParams[i])->at(1) = timeline->getColor(actualTracks->at(i)).g; // GREEN
-                static_cast<vector<float> *>(_outletParams[i])->at(2) = timeline->getColor(actualTracks->at(i)).b; // BLUE
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[i])->at(0) = timeline->getColor(actualTracks->at(i)).r; // RED
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[i])->at(1) = timeline->getColor(actualTracks->at(i)).g; // GREEN
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[i])->at(2) = timeline->getColor(actualTracks->at(i)).b; // BLUE
             }
         }
     }
@@ -778,11 +778,11 @@ void moTimeline::resetOutlets(){
     for( int i = 0; i < static_cast<int>(tempTracks.size()); i++){
         if(tempTracks.at(i)->getTrackType() == "Colors"){
             _outletParams[i] = new vector<float>();
-            static_cast<vector<float> *>(_outletParams[i])->assign(3,0.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[i])->assign(3,0.0f);
             this->addOutlet(VP_LINK_ARRAY,"colorTrackRGB");
         }else{
             _outletParams[i] = new float();
-            *(float *)&_outletParams[i] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[i]) = 0.0f;
             this->addOutlet(VP_LINK_NUMERIC,"trackData");
         }
     }

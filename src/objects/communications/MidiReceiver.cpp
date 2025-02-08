@@ -41,15 +41,15 @@ MidiReceiver::MidiReceiver() : PatchObject("midi receiver"){
     this->numOutlets = 6;
 
     _outletParams[0] = new float();         // channel
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     _outletParams[1] = new float();         // control
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
     _outletParams[2] = new float();         // value
-    *(float *)&_outletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
     _outletParams[3] = new float();         // pitch
-    *(float *)&_outletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = 0.0f;
     _outletParams[4] = new float();         // velocity
-    *(float *)&_outletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[4]) = 0.0f;
     _outletParams[5] = new vector<float>(); // midi notes array ( polyphony )
 
     this->initInletsState();
@@ -108,14 +108,14 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 }
             }
             // last message data
-            *(float *)&_outletParams[0] = lastMessage.channel;
-            *(float *)&_outletParams[1] = lastMessage.control;
-            *(float *)&_outletParams[2] = lastMessage.value;
-            *(float *)&_outletParams[3] = lastMessage.pitch;
-            *(float *)&_outletParams[4] = lastMessage.velocity;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = lastMessage.channel;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = lastMessage.control;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = lastMessage.value;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = lastMessage.pitch;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[4]) = lastMessage.velocity;
             // message queue data
-            static_cast<vector<float> *>(_outletParams[5])->clear();
-            static_cast<vector<float> *>(_outletParams[5])->push_back(0); // vector first position save number of notes ON
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->push_back(0); // vector first position save number of notes ON
 
             for(size_t i=0;i<midiMessages.size();i++){
                 ofxMidiMessage &message = midiMessages[i];
@@ -129,21 +129,21 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
             for(map<int,int>::iterator it = midinotes.begin(); it != midinotes.end(); it++ ){
                 if(it->second > 0){
-                    static_cast<vector<float> *>(_outletParams[5])->at(0) += 1;
-                    static_cast<vector<float> *>(_outletParams[5])->push_back(it->first);
-                    static_cast<vector<float> *>(_outletParams[5])->push_back(it->second);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->at(0) += 1;
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->push_back(it->first);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->push_back(it->second);
                 }
             }
 
 
         }else{
-            *(float *)&_outletParams[0] = 0.0f;
-            *(float *)&_outletParams[1] = 0.0f;
-            *(float *)&_outletParams[2] = 0.0f;
-            *(float *)&_outletParams[3] = 0.0f;
-            *(float *)&_outletParams[4] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[4]) = 0.0f;
 
-            *static_cast<vector<float> *>(_outletParams[5]) = emptyVec;
+            *ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5]) = emptyVec;
         }
     }
 
@@ -208,7 +208,7 @@ void MidiReceiver::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PopStyleColor(1);
             ImGui::Spacing();
             ImGui::Text("Channel\nControl\nValue\nPitch\nVelocity"); ImGui::SameLine();
-            ImGui::Text("%i\n%i\n%i\n%i\n%i",static_cast<int>(floor(*(float *)&_outletParams[0])),static_cast<int>(floor(*(float *)&_outletParams[1])),static_cast<int>(floor(*(float *)&_outletParams[2])),static_cast<int>(floor(*(float *)&_outletParams[3])),static_cast<int>(floor(*(float *)&_outletParams[4])));
+            ImGui::Text("%i\n%i\n%i\n%i\n%i",static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[4]))));
         }
 
         _nodeCanvas.EndNodeContent();

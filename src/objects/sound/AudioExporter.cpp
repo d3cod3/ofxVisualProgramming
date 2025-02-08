@@ -43,7 +43,7 @@ AudioExporter::AudioExporter() : PatchObject("audio exporter"){
     _inletParams[0] = new ofSoundBuffer(); // input
 
     _inletParams[1] = new float();  // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -92,14 +92,14 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) < 1.0){
             bang = false;
         }else{
             bang = true;
         }
     }
 
-    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty() && filepath != "none" && bang){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty() && filepath != "none" && bang){
         if(!recorder.isRecording()){
             recorder.startCustomAudioRecord();
             recButtonLabel = "STOP";
@@ -147,12 +147,12 @@ void AudioExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
+        if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
             // draw waveform
             ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,this->height*_nodeCanvas.GetCanvasScale()), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
             // draw signal RMS amplitude
-            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(static_cast<ofSoundBuffer *>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,ImGui::GetWindowSize().y * (1.0f - ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude(),0.0,1.0))),IM_COL32(255,255,120,12));
 
         }
 
@@ -319,13 +319,13 @@ void AudioExporter::audioOutObject(ofSoundBuffer &inputBuffer){
         audioCounter++;
     }
 
-    if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
         if(recorder.isRecording()){
-            recorder.addBuffer(*static_cast<ofSoundBuffer *>(_inletParams[0]),audioFPS);
+            recorder.addBuffer(*ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]),audioFPS);
         }
 
-        for(size_t i = 0; i < static_cast<ofSoundBuffer *>(_inletParams[0])->getNumFrames(); i++) {
-            float sample = static_cast<ofSoundBuffer *>(_inletParams[0])->getSample(i,0);
+        for(size_t i = 0; i < ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getNumFrames(); i++) {
+            float sample = ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getSample(i,0);
             plot_data[i] = hardClip(sample);
         }
     }

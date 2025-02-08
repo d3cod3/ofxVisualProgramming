@@ -41,13 +41,13 @@ MidiSender::MidiSender() : PatchObject("midi sender"){
     this->numOutlets = 0;
 
     _inletParams[0] = new float();         // trigger
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();         // channel
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();         // note
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();         // velocity
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     this->initInletsState();
 
@@ -90,23 +90,23 @@ void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     if(midiDevicesList.size() > 0){
         if(midiOut.isOpen()){
             if(this->inletsConnected[0] && this->inletsConnected[1] && this->inletsConnected[2] && this->inletsConnected[3]){
-                if(lastNote != *(float *)&_inletParams[2] && trigger){
+                if(lastNote != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) && trigger){
                     trigger = false;
                 }
 
-                if(*(float *)&_inletParams[0] != 0.0f && !trigger){
+                if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) != 0.0f && !trigger){
                     trigger = true;
-                    midiOut.sendNoteOn(static_cast<int>(floor(*(float *)&_inletParams[1])),static_cast<int>(floor(*(float *)&_inletParams[2])),static_cast<int>(floor(*(float *)&_inletParams[3])));
+                    midiOut.sendNoteOn(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]))));
                 }
 
-                if(*(float *)&_inletParams[0] == 0.0f && trigger){
+                if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) == 0.0f && trigger){
                     trigger = false;
                     for(int i=0;i<128;i++){
-                        midiOut.sendNoteOff(static_cast<int>(floor(*(float *)&_inletParams[1])),i,0);
+                        midiOut.sendNoteOff(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]))),i,0);
                     }
                 }
 
-                lastNote = *(float *)&_inletParams[2];
+                lastNote = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]);
             }
         }
     }
@@ -166,7 +166,7 @@ void MidiSender::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             ImGui::PopStyleColor(1);
             ImGui::Spacing();
             ImGui::Text("Channel\nNote\nVelocity"); ImGui::SameLine();
-            ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*(float *)&_inletParams[1])),static_cast<int>(floor(*(float *)&_inletParams[2])),static_cast<int>(floor(*(float *)&_inletParams[3])));
+            ImGui::Text("%i\n%i\n%i",static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]))),static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]))));
         }
 
         _nodeCanvas.EndNodeContent();

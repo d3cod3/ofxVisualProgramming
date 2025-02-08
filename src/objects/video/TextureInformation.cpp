@@ -98,12 +98,12 @@ void TextureInformation::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
     }
 
     // Sync pointers with pointers
-    *(float *)&_outletParams[0] = this->texWidth;
-    *(float *)&_outletParams[1] = this->texHeight;
-    *(float *)&_outletParams[2] = this->texIsAllocated;
-    *(float *)&_outletParams[3] = this->texID;
-    *(float *)&_outletParams[4] = this->texChannels;
-    *(float *)&_outletParams[5] = this->texBytesPerChannel;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = this->texWidth;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = this->texHeight;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = this->texIsAllocated;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = this->texID;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[4]) = this->texChannels;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[5]) = this->texBytesPerChannel;
 
 }
 

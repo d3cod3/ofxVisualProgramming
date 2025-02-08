@@ -41,13 +41,13 @@ Conditional::Conditional() : PatchObject("conditional operator"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // input number
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // value
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -84,37 +84,37 @@ void Conditional::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void Conditional::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        number = *(float *)&_inletParams[1];
+        number = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
 
     if(this->inletsConnected[0]){
         if(_operator == Conditional_Operator_EQUAL){
-            if(*(float *)&_inletParams[0] == number){
-                *(float *)&_outletParams[0] = 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) == number){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1;
             }else{
-                *(float *)&_outletParams[0] = 0;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
             }
         }else if(_operator == Conditional_Operator_NOTEQUAL){
-            if(*(float *)&_inletParams[0] != number){
-                *(float *)&_outletParams[0] = 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) != number){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1;
             }else{
-                *(float *)&_outletParams[0] = 0;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
             }
         }else if(_operator == Conditional_Operator_LESSTHAN){
-            if(*(float *)&_inletParams[0] < number){
-                *(float *)&_outletParams[0] = 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < number){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1;
             }else{
-                *(float *)&_outletParams[0] = 0;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
             }
         }else if(_operator == Conditional_Operator_BIGGERTHAN){
-            if(*(float *)&_inletParams[0] > number){
-                *(float *)&_outletParams[0] = 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) > number){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1;
             }else{
-                *(float *)&_outletParams[0] = 0;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
             }
         }
     }else{
-        *(float *)&_outletParams[0] = 0;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
     }
 
     if(!loaded){

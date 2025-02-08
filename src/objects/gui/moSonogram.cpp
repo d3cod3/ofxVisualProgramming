@@ -103,18 +103,18 @@ void moSonogram::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
         if(ofGetElapsedTimeMillis()-resetTime > wait){
             resetTime = ofGetElapsedTimeMillis();
-            if(timePosition >= static_cast<ofTexture *>(_outletParams[0])->getWidth()){
+            if(timePosition >= ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getWidth()){
                 timePosition = 0;
             }else{
                 timePosition++;
             }
         }
 
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            *static_cast<ofTexture *>(_outletParams[0]) = sonogram->getTexture();
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = sonogram->getTexture();
         }
     }
 
@@ -131,7 +131,7 @@ void moSonogram::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 void moSonogram::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
         sonogram->begin();
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA,GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
@@ -139,16 +139,16 @@ void moSonogram::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRend
         ofPushStyle();
         ofPushMatrix();
         ofSetColor(0,0,0,0);
-        ofDrawRectangle(0,0,static_cast<ofTexture *>(_outletParams[0])->getWidth(),static_cast<ofTexture *>(_outletParams[0])->getHeight());
-        if(!static_cast<vector<float> *>(_inletParams[0])->empty()){
-            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
-                float valueDB = log10(ofMap(static_cast<vector<float> *>(_inletParams[0])->at(s),0.0f,1.0f,1.0f,10.0f,true));
+        ofDrawRectangle(0,0,ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getHeight());
+        if(!ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size());s++){
+                float valueDB = log10(ofMap(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s),0.0f,1.0f,1.0f,10.0f,true));
                 int colorIndex = static_cast<int>(floor(ofMap(valueDB,0.0f,1.0f,0,colors.size()-1,true)));
                 if(colorIndex>0 && colorIndex<colors.size()){
                     ofSetColor(0);
-                    ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
+                    ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getHeight(),0,true),1,1);
                     ofSetColor(colors.at(colorIndex),255*valueDB);
-                    ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()),static_cast<ofTexture *>(_outletParams[0])->getHeight(),0,true),1,1);
+                    ofDrawRectangle(timePosition,ofMap(s,0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getHeight(),0,true),1,1);
                 }
             }
         }
@@ -186,10 +186,10 @@ void moSonogram::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -246,8 +246,8 @@ void moSonogram::resetTextures(){
     texData.height = sonogram->getHeight();
     texData.textureTarget = GL_TEXTURE_2D;
     texData.bFlipTexture = true;
-    static_cast<ofTexture *>(_outletParams[0])->allocate(texData);
-    *static_cast<ofTexture *>(_outletParams[0]) = sonogram->getTexture();
+    ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(texData);
+    *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = sonogram->getTexture();
 
     ofEnableArbTex();
 }

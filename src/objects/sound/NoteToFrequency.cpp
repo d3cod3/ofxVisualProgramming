@@ -88,10 +88,10 @@ NoteToFrequency::NoteToFrequency() : PatchObject("note to frequency"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // midi [0 - 127]
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _outletParams[0] = new float(); // frequency
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -123,10 +123,10 @@ void NoteToFrequency::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
-      lastNote = ofClamp(ofToInt(ofToString(*(float *)&_inletParams[0])),0,127);
+      lastNote = ofClamp(ofToInt(ofToString(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))),0,127);
     }
 
-    *(float *)&_outletParams[0] = noteToFrequency(static_cast<int>(lastNote));
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = noteToFrequency(static_cast<int>(lastNote));
 
     if(!loaded){
         loaded = true;
@@ -183,7 +183,7 @@ void NoteToFrequency::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
-        ImGui::Text("Frequency: %s", ofToString(*(float *)&_outletParams[0],2).c_str());
+        ImGui::Text("Frequency: %s", ofToString(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]),2).c_str());
         ImGui::Spacing();
         ImGui::Text("Notation: %s", notation[static_cast<int>(lastNote)].c_str());
 

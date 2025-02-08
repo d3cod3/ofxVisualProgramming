@@ -45,11 +45,11 @@ pdspDelay::pdspDelay() : PatchObject("delay"){
     _inletParams[0] = new ofSoundBuffer();  // audio input
 
     _inletParams[1] = new float();          // time
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // damping
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // feedback
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -121,15 +121,15 @@ void pdspDelay::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        time = ofClamp(*(float *)&_inletParams[1],0.0f,DELAY_MAX_TIME);
+        time = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,DELAY_MAX_TIME);
     }
 
     if(this->inletsConnected[2]){
-        damping = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        damping = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
     }
 
     if(this->inletsConnected[3]){
-        feedback = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        feedback = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
     }
 
     time_ctrl.set(time);
@@ -231,7 +231,7 @@ void pdspDelay::audioInObject(ofSoundBuffer &inputBuffer){
 
 //--------------------------------------------------------------
 void pdspDelay::audioOutObject(ofSoundBuffer &outputBuffer){
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

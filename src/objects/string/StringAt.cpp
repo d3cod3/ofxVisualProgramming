@@ -41,12 +41,12 @@ StringAt::StringAt() : PatchObject("string at"){
     this->numOutlets = 1;
 
     _inletParams[0] = new string();             // input string
-    *static_cast<string *>(_inletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(this->_inletParams[0]) = "";
     _inletParams[1] = new float();              // at
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new string();            // char
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     this->initInletsState();
 
@@ -77,18 +77,18 @@ void StringAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
 
     if(this->inletsConnected[1]){
-        stringAt = static_cast<int>(floor(*(float *)&_inletParams[1]));
+        stringAt = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
     }
 
     if(this->inletsConnected[0]){
         if(stringAt >= 0 && stringAt < static_cast<string *>(_inletParams[0])->size()){
             string s(1,static_cast<string *>(_inletParams[0])->at(stringAt));
-            *static_cast<string *>(_outletParams[0]) = s;
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = s;
         }else{
-            *static_cast<string *>(_outletParams[0]) = "";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
         }
     }else{
-        *static_cast<string *>(_outletParams[0]) = "";
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
     }
 
     if(!loaded){

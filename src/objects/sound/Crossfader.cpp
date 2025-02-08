@@ -43,7 +43,7 @@ Crossfader::Crossfader() : PatchObject("crossfader"){
     _inletParams[0] = new ofSoundBuffer();  // audio in 1
     _inletParams[1] = new ofSoundBuffer();  // audio in 2
     _inletParams[2] = new float();          // fade
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output L
 
@@ -102,7 +102,7 @@ void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[2]){
-        fade_value = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        fade_value = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
     }
 
     if(!loaded){
@@ -206,7 +206,7 @@ void Crossfader::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // STEREO SIGNAL BUFFERS
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND)

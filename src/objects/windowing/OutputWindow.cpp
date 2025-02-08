@@ -162,12 +162,12 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     ofAddListener(window->events().mouseScrolled ,this,&OutputWindow::mouseScrolled);
     ofAddListener(window->events().windowResized ,this,&OutputWindow::windowResized);
 
-    if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         ofLog(OF_LOG_NOTICE,"%s: NEW PROJECTOR WINDOW CREATED WITH RESOLUTION %ix%i",this->name.c_str(),this->output_width,this->output_height);
     }
 
     // init outlet mouse data
-    static_cast<vector<float> *>(_outletParams[0])->assign(3,0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->assign(3,0.0f);
 
 }
 
@@ -257,7 +257,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
         // setup drawing  dimensions
         if(inletsConnected[0]){
-            scaleTextureToWindow(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), window->getWidth(),window->getHeight());
+            scaleTextureToWindow(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), window->getWidth(),window->getHeight());
         }else{
             scaleTextureToWindow(STANDARD_TEXTURE_WIDTH, STANDARD_TEXTURE_HEIGHT, window->getWidth(),window->getHeight());
         }
@@ -332,10 +332,10 @@ void OutputWindow::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -556,9 +556,9 @@ void OutputWindow::toggleWindowFullscreen(){
 
     if(!isFullscreen){
         window->setWindowShape(window_actual_width, window_actual_height);
-        scaleTextureToWindow(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), window_actual_width, window_actual_height);
+        scaleTextureToWindow(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), window_actual_width, window_actual_height);
     }else{
-        scaleTextureToWindow(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), window->getScreenSize().x,window->getScreenSize().y);
+        scaleTextureToWindow(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), window->getScreenSize().x,window->getScreenSize().y);
     }
 
     this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
@@ -580,13 +580,13 @@ void OutputWindow::drawInWindow(ofEventArgs &e){
     ofPushStyle();
     ofPushView();
     ofPushMatrix();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
 
         ofSetColor(255);
         if(useMapping && isFullscreen){
-            warpController->getWarp(0)->draw(*static_cast<ofTexture *>(_inletParams[0]));
+            warpController->getWarp(0)->draw(*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]));
         }else{
-            static_cast<ofTexture *>(_inletParams[0])->draw(thposX, thposY, thdrawW, thdrawH);
+            ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(thposX, thposY, thdrawW, thdrawH);
         }
     }
     ofPopMatrix();
@@ -616,9 +616,9 @@ void OutputWindow::resetOutputResolution(){
         this->saveConfig(false);
 
         if(!isFullscreen){
-            scaleTextureToWindow(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), window->getWidth(),window->getHeight());
+            scaleTextureToWindow(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), window->getWidth(),window->getHeight());
         }else{
-            scaleTextureToWindow(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), window->getScreenSize().x,window->getScreenSize().y);
+            scaleTextureToWindow(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), window->getScreenSize().x,window->getScreenSize().y);
         }
 
         warpController->getWarp(0)->setSize(this->output_width,this->output_height);
@@ -631,12 +631,12 @@ void OutputWindow::resetOutputResolution(){
 //--------------------------------------------------------------
 void OutputWindow::keyPressed(ofKeyEventArgs &e){
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onKeyPressed(e.key);
     }
 
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyPressed(e.key);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptKeyPressed(e.key);
     }
 }
 
@@ -647,90 +647,90 @@ void OutputWindow::keyReleased(ofKeyEventArgs &e){
         toggleWindowFullscreen();
     // OSX: CMD-T, WIN/LINUX: CTRL-T    (HIDE LIVECODING EDITOR)
     }else if(e.hasModifier(MOD_KEY) && e.keycode == 84){
-        static_cast<LiveCoding *>(_inletParams[1])->hide = !static_cast<LiveCoding *>(_inletParams[1])->hide;
+        ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->hide = !ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->hide;
     }
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onKeyReleased(e.key);
     }
 
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptKeyReleased(e.key);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.isValid()){
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptKeyReleased(e.key);
         }
     }
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseMoved(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMouseMoved(window->events().getMouseX(),window->events().getMouseY());
     }
 
     ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.isValid()){
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptMouseMoved(static_cast<int>(tm.x),static_cast<int>(tm.y));
         }
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
-    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
-    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(0) = tm.x;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(1) = tm.y;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(2) = e.button;
 
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseDragged(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMouseDragged(window->events().getMouseX(),window->events().getMouseY());
     }
 
     ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.isValid()){
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptMouseDragged(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
-    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
-    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(0) = tm.x;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(1) = tm.y;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(2) = e.button;
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mousePressed(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMousePressed(window->events().getMouseX(),window->events().getMouseY());
     }
 
     ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.isValid()){
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptMousePressed(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
-    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
-    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(0) = tm.x;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(1) = tm.y;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(2) = e.button;
 }
 
 //--------------------------------------------------------------
 void OutputWindow::mouseReleased(ofMouseEventArgs &e){
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && isFullscreen){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && isFullscreen){
         warpController->onMouseReleased(window->events().getMouseX(),window->events().getMouseY());
     }
     ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.isValid()){
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptMouseReleased(static_cast<int>(tm.x),static_cast<int>(tm.y), e.button);
         }
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
-    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
-    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(0) = tm.x;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(1) = tm.y;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(2) = e.button;
 
     this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");
     this->setCustomVar(window->getWindowPosition().y,"OUTPUT_POSY");
@@ -739,21 +739,21 @@ void OutputWindow::mouseReleased(ofMouseEventArgs &e){
 //--------------------------------------------------------------
 void OutputWindow::mouseScrolled(ofMouseEventArgs &e){
     ofVec2f tm = ofVec2f(((window->events().getMouseX()-thposX)/thdrawW * this->output_width),((window->events().getMouseY()-thposY)/thdrawH * this->output_height));
-    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        if(static_cast<LiveCoding *>(_inletParams[1])->lua.isValid()){
-            static_cast<LiveCoding *>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
+    if(this->inletsConnected[0] && this->inletsConnected[1] && _inletParams[1] != nullptr && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.isValid()){
+            ofxVP_CAST_PIN_PTR<LiveCoding>(_inletParams[1])->lua.scriptMouseScrolled(static_cast<int>(tm.x),static_cast<int>(tm.y), e.scrollX,e.scrollY);
         }
     }
 
-    static_cast<vector<float> *>(_outletParams[0])->at(0) = tm.x;
-    static_cast<vector<float> *>(_outletParams[0])->at(1) = tm.y;
-    static_cast<vector<float> *>(_outletParams[0])->at(2) = e.button;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(0) = tm.x;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(1) = tm.y;
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(2) = e.button;
 }
 
 //--------------------------------------------------------------
 void OutputWindow::windowResized(ofResizeEventArgs &e){
-    if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        scaleTextureToWindow(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), e.width,e.height);
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        scaleTextureToWindow(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), e.width,e.height);
     }
 
     this->setCustomVar(window->getWindowPosition().x,"OUTPUT_POSX");

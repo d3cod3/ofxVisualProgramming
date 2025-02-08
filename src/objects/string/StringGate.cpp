@@ -41,7 +41,7 @@ StringGate::StringGate() : PatchObject("string gate"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     for(size_t i=1;i<32;i++){
          _inletParams[i] = new string();
@@ -95,14 +95,14 @@ void StringGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void StringGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     if(this->inletsConnected[0]){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        openInlet = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])));
     }
 
     if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
-        *static_cast<string *>(_outletParams[0]) = *static_cast<string *>(_inletParams[openInlet]);
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = *ofxVP_CAST_PIN_PTR<string>(_inletParams[openInlet]);
     }
 
     if(needReset){
@@ -238,7 +238,7 @@ void StringGate::resetInletsSettings(){
     this->numInlets = dataInlets+1;
 
     _inletParams[0] = new float();  // open
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new string();

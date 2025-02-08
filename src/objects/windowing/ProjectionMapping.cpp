@@ -137,11 +137,11 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
     ofAddListener(window->events().mouseScrolled ,this,&ProjectionMapping::mouseScrolled);
     ofAddListener(window->events().windowResized ,this,&ProjectionMapping::windowResized);
 
-    static_cast<ofTexture *>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA);
+    ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->allocate(output_width,output_height,GL_RGBA);
 
     _mapping->init(output_width,output_height,ofToDataPath("mapping/default.xml"));
 
-    if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         ofLog(OF_LOG_NOTICE,"%s: PROJECTION MAPPING CREATED WITH OUTPUT RESOLUTION %ix%i",this->name.c_str(),output_width,output_height);
     }
 
@@ -166,7 +166,7 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
 
     // reset mapping textures resolution on inlet connection
     if(this->inletsConnected[0]){
-        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
             if(!needReset){
                 needReset = true;
                 resetMappingResolution();
@@ -183,7 +183,7 @@ void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &pa
         this->willErase = true;
     }
 
-    *static_cast<ofTexture *>(_outletParams[0]) = _mapping->getOutputFbo().getTexture();
+    *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = _mapping->getOutputFbo().getTexture();
 
     if(!loaded){
         loaded = true;
@@ -229,10 +229,10 @@ void ProjectionMapping::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -365,9 +365,9 @@ void ProjectionMapping::drawInWindow(ofEventArgs &e){
     ofBackground(0);
 
     _mapping->bindBackground();
-    if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[1])->isAllocated()){
+    if(this->inletsConnected[1] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[1])->isAllocated()){
         // mapping reference background
-        static_cast<ofTexture *>(_inletParams[1])->draw(0,0,output_width,output_height);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[1])->draw(0,0,output_width,output_height);
     }else{
         ofSetColor(0);
         ofDrawRectangle(0,0,output_width,output_height);
@@ -375,9 +375,9 @@ void ProjectionMapping::drawInWindow(ofEventArgs &e){
     _mapping->unbindBackground();
 
     _mapping->bind();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         // base
-        static_cast<ofTexture *>(_inletParams[0])->draw(0,0,output_width,output_height);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(0,0,output_width,output_height);
     }else{
         ofSetColor(0);
         ofDrawRectangle(0,0,output_width,output_height);
@@ -391,9 +391,9 @@ void ProjectionMapping::drawInWindow(ofEventArgs &e){
 //--------------------------------------------------------------
 void ProjectionMapping::resetMappingResolution(){
 
-    if(output_width != static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth()) || output_height != static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getHeight())){
-        output_width            = static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth());
-        output_height           = static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getHeight());
+    if(output_width != static_cast<int>(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth()) || output_height != static_cast<int>(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight())){
+        output_width            = static_cast<int>(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth());
+        output_height           = static_cast<int>(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight());
 
         _mapping->reset(output_width,output_height);
 

@@ -41,16 +41,16 @@ Gate::Gate() : PatchObject("gate"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
 
     for(size_t i=1;i<32;i++){
         _inletParams[i] = new float();
-        *(float *)&_inletParams[i] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) = 0.0f;
     }
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     floatInlets     = this->numInlets-1;
 
@@ -161,7 +161,7 @@ void Gate::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(int i=1;i<this->numInlets;i++){
             if(i == openInlet){
                 _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,2,180)*scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(60,60,60,255),2.0f);
-                sprintf_s(temp,"%.2f",*(float *)&_inletParams[i]);
+                sprintf_s(temp,"%.2f",*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]));
                 _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(window_pos.x+(20*this->scaleFactor),window_pos.y + ((IMGUI_EX_NODE_HEADER_HEIGHT-7)*this->scaleFactor) + (pinDistance/2) + pinDistance*i), IM_COL32_WHITE, temp, NULL, 0.0f);
             }
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (ofMap(_nodeCanvas.GetCanvasScale(),CANVAS_MIN_SCALE,CANVAS_MAX_SCALE,2,180)*scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)+((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(60,60,60,255),2.0f);
@@ -222,14 +222,14 @@ void Gate::removeObjectContent(bool removeFileFromData){
 void Gate::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     if(this->inletsConnected[0]){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        openInlet = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])));
     }
 
     if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet]){
-        *(float *)&_outletParams[0] = *(float *)&_inletParams[openInlet];
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[openInlet]);
     }
 }
 
@@ -257,11 +257,11 @@ void Gate::resetInletsSettings(){
     this->numInlets = floatInlets+1;
 
     _inletParams[0] = new float();  // open
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new float();
-        *(float *)&_inletParams[i] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) = 0.0f;
     }
 
     this->inletsType.clear();

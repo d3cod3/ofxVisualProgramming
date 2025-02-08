@@ -127,7 +127,7 @@ void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
             colorImage->mirror(vMirror,hMirror);
             colorImage->updateTexture();
 
-            *static_cast<ofTexture *>(_outletParams[0]) = colorImage->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = colorImage->getTexture();
         }
     }
 
@@ -187,10 +187,10 @@ void VideoGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(isOneDeviceAvailable){
             if(vidGrabber->isInitialized() && !needReset){
                 _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-                if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-                    calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+                if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+                    calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
                     ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-                    ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+                    ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
                 }
             }
         }
@@ -290,7 +290,7 @@ void VideoGrabber::loadCameraSettings(){
         colorImage->allocate(camWidth,camHeight);
 
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(camWidth,camHeight,GL_RGB);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(camWidth,camHeight,GL_RGB);
 
         ofEnableArbTex();
 
@@ -338,7 +338,7 @@ void VideoGrabber::resetCameraSettings(int devID){
             colorImage->allocate(camWidth,camHeight);
 
             _outletParams[0] = new ofTexture();
-            static_cast<ofTexture *>(_outletParams[0])->allocate(camWidth,camHeight,GL_RGB);
+            ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(camWidth,camHeight,GL_RGB);
 
             ofEnableArbTex();
 

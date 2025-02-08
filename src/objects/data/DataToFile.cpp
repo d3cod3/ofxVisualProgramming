@@ -45,7 +45,7 @@ DataToFile::DataToFile() :
     _inletParams[0] = new vector<float>(); // input
 
     _inletParams[1] = new float();  // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -80,7 +80,7 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) < 1.0){
             bang = false;
         }else{
             bang = true;
@@ -96,11 +96,11 @@ void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
         ofLog(OF_LOG_NOTICE,"%s","FINISHED EXPORTING DATA");
     }
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && recordData){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty() && recordData){
         string temp = "";
-        for(size_t i=0;i<static_cast<vector<float> *>(_inletParams[0])->size();i++){
-            temp += ofToString(static_cast<vector<float> *>(_inletParams[0])->at(i));
-            if(i<static_cast<vector<float> *>(_inletParams[0])->size()-1){
+        for(size_t i=0;i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size();i++){
+            temp += ofToString(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i));
+            if(i<ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()-1){
                 temp += ",";
             }
         }

@@ -87,13 +87,13 @@ void ToGrayScaleTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
     unusedArgs(patchObjects);
 
     // UPDATE STUFF
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         if(!newConnection){
             newConnection = true;
-            resetTextures(static_cast<int>(floor(static_cast<ofTexture *>(_inletParams[0])->getWidth())),static_cast<int>(floor(static_cast<ofTexture *>(_inletParams[0])->getHeight())));
+            resetTextures(static_cast<int>(floor(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth())),static_cast<int>(floor(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight())));
         }
 
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
 
         pix->setImageType(OF_IMAGE_COLOR);
         colorImg->setFromPixels(*pix);
@@ -102,7 +102,7 @@ void ToGrayScaleTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
         *grayImg = *colorImg;
         grayImg->updateTexture();
 
-        *static_cast<ofTexture *>(_outletParams[0]) = grayImg->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = grayImg->getTexture();
 
     }else if(!this->inletsConnected[0]){
         newConnection = false;
@@ -149,10 +149,10 @@ void ToGrayScaleTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

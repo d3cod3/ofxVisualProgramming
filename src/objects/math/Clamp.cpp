@@ -41,14 +41,14 @@ Clamp::Clamp() : PatchObject("clamp"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // min
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // max
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // value
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -82,16 +82,16 @@ void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void Clamp::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
-      *(float *)&_outletParams[0] = ofClamp(*(float *)&_inletParams[0],min,max);
+      *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),min,max);
     }else{
-      *(float *)&_outletParams[0] = 0.0f;
+      *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 
     if(this->inletsConnected[1]){
-      min = *(float *)&_inletParams[1];
+      min = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
     if(this->inletsConnected[2]){
-      max = *(float *)&_inletParams[2];
+      max = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]);
     }
 
     if(!loaded){

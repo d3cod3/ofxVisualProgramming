@@ -41,7 +41,7 @@ VectorGate::VectorGate() : PatchObject("vector gate"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // open
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     for(size_t i=1;i<32;i++){
         _inletParams[i] = new vector<float>();
@@ -216,15 +216,15 @@ void VectorGate::removeObjectContent(bool removeFileFromData){
 void VectorGate::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-    static_cast<vector<float> *>(_outletParams[0])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
 
     if(this->inletsConnected[0]){
-        openInlet = static_cast<int>(floor(*(float *)&_inletParams[0]));
+        openInlet = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])));
     }
 
-    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet] && !static_cast<vector<float> *>(_inletParams[openInlet])->empty()){
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[openInlet])->size());s++){
-            static_cast<vector<float> *>(_outletParams[0])->push_back(static_cast<vector<float> *>(_inletParams[openInlet])->at(s));
+    if(openInlet >= 1 && openInlet < this->numInlets && this->inletsConnected[openInlet] && !ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[openInlet])->empty()){
+        for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[openInlet])->size());s++){
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(ofxVP_CAST_PIN_PTR<vector<float>>(_inletParams[openInlet])->at(s));
         }
     }
 }
@@ -253,7 +253,7 @@ void VectorGate::resetInletsSettings(){
     this->numInlets = dataInlets+1;
 
     _inletParams[0] = new float();  // open
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     for(int i=1;i<this->numInlets;i++){
         _inletParams[i] = new vector<float>();

@@ -187,12 +187,12 @@ void AudioDevice::audioInObject(ofSoundBuffer &inputBuffer){
         if(in_channels == 1){
             inputBuffer.copyTo(IN_CH.at(0), inputBuffer.getNumFrames(), 1, 0);
             PN_IN_CH.at(0).copyInput(IN_CH.at(0).getBuffer().data(),IN_CH.at(0).getNumFrames());
-            static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(IN_SCOPE[0].getBuffer(),1,inputBuffer.getNumFrames());
+            ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(IN_SCOPE[0].getBuffer(),1,inputBuffer.getNumFrames());
         }else{
             for(size_t c=0;c<static_cast<size_t>(in_channels);c++){
                 inputBuffer.getChannel(IN_CH.at(c),c);
                 PN_IN_CH.at(c).copyInput(IN_CH.at(c).getBuffer().data(),IN_CH.at(c).getNumFrames());
-                static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(IN_SCOPE[c].getBuffer(),1,inputBuffer.getNumFrames());
+                ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(IN_SCOPE[c].getBuffer(),1,inputBuffer.getNumFrames());
             }
         }
     }
@@ -204,8 +204,8 @@ void AudioDevice::audioOutObject(ofSoundBuffer &outputBuffer){
 
     if(deviceLoaded && out_channels>0){
         for(size_t c=0;c<static_cast<size_t>(out_channels);c++){
-            if(this->inletsConnected[c] && !static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().empty()){
-                OUT_CH.at(c).copyInput(static_cast<ofSoundBuffer *>(_inletParams[c])->getBuffer().data(),static_cast<ofSoundBuffer *>(_inletParams[c])->getNumFrames());
+            if(this->inletsConnected[c] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[c])->getBuffer().empty()){
+                OUT_CH.at(c).copyInput(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[c])->getBuffer().data(),ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[c])->getNumFrames());
             }
         }
     }

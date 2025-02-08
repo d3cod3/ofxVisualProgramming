@@ -41,7 +41,7 @@ pdspDataOscillator::pdspDataOscillator() : PatchObject("data oscillator"){
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // pitch
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new vector<float>(); // data
 
@@ -106,26 +106,26 @@ void pdspDataOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 
     // PITCH
     if(this->inletsConnected[0]){
-        pitch = ofClamp(*(float *)&_inletParams[0],0,127);
+        pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),0,127);
         pitch_ctrl.set(pitch);
         //oscInfo->setLabel(ofToString() + " Hz");
     }
 
     // DATA
     if(datatable.ready()){
-        if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
+        if(this->inletsConnected[1] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->empty()){
             if(datatable.ready()){
                 datatable.begin();
-                if(static_cast<vector<float> *>(_inletParams[1])->size() <= static_cast<size_t>(datatable.getTableLength())){
-                    for(int n=0; n<static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()); n++){
-                        int pos = static_cast<int>(floor(ofMap(n,0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()),0,datatable.getTableLength())));
-                        float sample = ofMap(static_cast<vector<float> *>(_inletParams[1])->at(n), 0.0f, 1.0f, -0.5f, 0.5f);
+                if(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->size() <= static_cast<size_t>(datatable.getTableLength())){
+                    for(int n=0; n<static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->size()); n++){
+                        int pos = static_cast<int>(floor(ofMap(n,0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->size()),0,datatable.getTableLength())));
+                        float sample = ofMap(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->at(n), 0.0f, 1.0f, -0.5f, 0.5f);
                         datatable.data(pos, sample);
                     }
                 }else{
                     for(int n=0; n<datatable.getTableLength(); ++n){
-                        int pos = static_cast<int>(floor(ofMap(n,0,datatable.getTableLength(),0,static_cast<int>(static_cast<vector<float> *>(_inletParams[1])->size()))));
-                        float sample = ofMap(static_cast<vector<float> *>(_inletParams[1])->at(pos), 0.0f, 1.0f, -0.5f, 0.5f);
+                        int pos = static_cast<int>(floor(ofMap(n,0,datatable.getTableLength(),0,static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->size()))));
+                        float sample = ofMap(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->at(pos), 0.0f, 1.0f, -0.5f, 0.5f);
                         datatable.data(n, sample);
                     }
                 }
@@ -236,7 +236,7 @@ void pdspDataOscillator::loadAudioSettings(){
 
             plot_data = new float[bufferSize];
             for(int i=0;i<bufferSize;i++){
-                static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);
                 plot_data[i] = 0.0f;
             }
 
@@ -254,10 +254,10 @@ void pdspDataOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
         plot_data[i] = hardClip(sample);
 
         // SIGNAL BUFFER DATA
-        static_cast<vector<float> *>(_outletParams[1])->at(i) = sample;
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->at(i) = sample;
     }
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

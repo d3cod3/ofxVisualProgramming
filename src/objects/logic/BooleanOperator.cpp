@@ -41,12 +41,12 @@ BooleanOperator::BooleanOperator() : PatchObject("boolean operator"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // b1
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // b2
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -82,24 +82,24 @@ void BooleanOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 
     if(this->inletsConnected[0] && this->inletsConnected[1]){
         if(_operator == Bool_Operator_AND){
-            if(*(float *)&_inletParams[0] >= 1.0 && *(float *)&_inletParams[1] >= 1.0){
-                *(float *)&_outletParams[0] = 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) >= 1.0 && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) >= 1.0){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1;
                 bang                = true;
             }else{
-                *(float *)&_outletParams[0] = 0;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
                 bang                = false;
             }
         }else if(_operator == Bool_Operator_OR){
-            if(*(float *)&_inletParams[0] >= 1.0 || *(float *)&_inletParams[1] >= 1.0){
-                *(float *)&_outletParams[0] = 1;
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) >= 1.0 || *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) >= 1.0){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1;
                 bang                = true;
             }else{
-                *(float *)&_outletParams[0] = 0;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
                 bang                = false;
             }
         }
     }else{
-        *(float *)&_outletParams[0] = 0;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
         bang                = false;
     }
 

@@ -42,9 +42,9 @@ StringExtract::StringExtract() : PatchObject("string extract"){
 
     _inletParams[0] = new string(); // data vector
     _inletParams[1] = new float();  // start
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // end
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
 
     _outletParams[0] = new string();  // final vector
 
@@ -78,17 +78,17 @@ void StringExtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void StringExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     if(this->inletsConnected[0] && start < end){
-        *static_cast<string *>(_outletParams[0]) = static_cast<string *>(_inletParams[0])->substr(start,end);
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = static_cast<string *>(_inletParams[0])->substr(start,end);
     }
 
     if(this->inletsConnected[1]){
-        start = ofClamp(static_cast<int>(floor(*(float *)&_inletParams[1])),0,static_cast<string *>(_inletParams[0])->size()-1);
+        start = ofClamp(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]))),0,static_cast<string *>(_inletParams[0])->size()-1);
     }
     if(this->inletsConnected[2]){
-        end = ofClamp(static_cast<int>(floor(*(float *)&_inletParams[2])),start+1,static_cast<string *>(_inletParams[0])->size());
+        end = ofClamp(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]))),start+1,static_cast<string *>(_inletParams[0])->size());
     }
 
     if(!loaded){

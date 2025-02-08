@@ -42,7 +42,7 @@ pdspHiCut::pdspHiCut() : PatchObject("low pass"){
 
     _inletParams[0] = new ofSoundBuffer();  // audio input
     _inletParams[1] = new float();          // cut frequency
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -103,7 +103,7 @@ void pdspHiCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        freq = ofClamp(*(float *)&_inletParams[1],20.0f,20000.0f);
+        freq = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),20.0f,20000.0f);
         freq_ctrl.set(freq);
     }
 
@@ -221,7 +221,7 @@ void pdspHiCut::audioInObject(ofSoundBuffer &inputBuffer){
 void pdspHiCut::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

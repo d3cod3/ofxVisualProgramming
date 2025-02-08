@@ -41,12 +41,12 @@ moComment::moComment() : PatchObject("comment"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new string();  // comment
-    *static_cast<string *>(_inletParams[1]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_inletParams[1]) = "";
 
     _outletParams[0] = new string(); // output string
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     this->initInletsState();
 
@@ -88,7 +88,7 @@ void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else{
             bang = true;
@@ -97,17 +97,17 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 
     if(this->inletsConnected[1]){
         actualComment = "";
-        actualComment.append(*static_cast<string *>(_inletParams[1]));
+        actualComment.append(*ofxVP_CAST_PIN_PTR<string>(_inletParams[1]));
     }
 
     if(!nextFrame){
         nextFrame = true;
-        *static_cast<string *>(_outletParams[0]) = actualComment;
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = actualComment;
     }
 
     if(bang){
         nextFrame = false;
-        *static_cast<string *>(_outletParams[0]) = actualComment+" ";
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = actualComment+" ";
     }
 
 

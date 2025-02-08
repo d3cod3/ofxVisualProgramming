@@ -92,8 +92,8 @@ void FboEffect::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void FboEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
-    fboW = static_cast<ofTexture *>(_outletParams[1])->getWidth();
-    fboH = static_cast<ofTexture *>(_outletParams[1])->getHeight();
+    fboW = ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getWidth();
+    fboH = ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getHeight();
 
     if(!loaded){
         loaded = true;
@@ -132,17 +132,17 @@ void FboEffect::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRende
         static_cast<ofxPingPong *>(_outletParams[0])->swap();
 
         // texture outlet
-        *static_cast<ofTexture *>(_outletParams[1]) = static_cast<ofxPingPong *>(_outletParams[0])->dst->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]) = static_cast<ofxPingPong *>(_outletParams[0])->dst->getTexture();
     }else{
-        *static_cast<ofTexture *>(_outletParams[1]) = kuro->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]) = kuro->getTexture();
     }
     ///////////////////////////////////////////
 
     ofSetColor(255);
-    if(static_cast<ofTexture *>(_outletParams[1])->isAllocated()){
+    if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->isAllocated()){
         // draw node texture preview with OF
         if(scaledObjW*canvasZoom > 90.0f){
-            drawNodeOFTexture(*static_cast<ofTexture *>(_outletParams[1]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+            drawNodeOFTexture(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
         }
     }else{
         // background
@@ -215,7 +215,7 @@ void FboEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void FboEffect::drawObjectNodeConfig(){
 
     ImGui::Spacing();
-    ImGui::Text("Rendering at: %.0fx%.0f",static_cast<ofTexture *>(_outletParams[1])->getWidth(),static_cast<ofTexture *>(_outletParams[1])->getHeight());
+    ImGui::Text("Rendering at: %.0fx%.0f",ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getHeight());
     ImGui::Spacing();
 
     ImGuiEx::ObjectInfo(

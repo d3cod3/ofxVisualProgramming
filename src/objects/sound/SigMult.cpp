@@ -42,7 +42,7 @@ SigMult::SigMult() : PatchObject("amplifier"){
 
     _inletParams[0] = new ofSoundBuffer();  // audio input
     _inletParams[1] = new float();          // gain
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -93,7 +93,7 @@ void SigMult::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        gainValue = ofClamp(*(float *)&_inletParams[1],0.0f,12.0f);
+        gainValue = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,12.0f);
     }
 
     gain_ctrl.set(gainValue);
@@ -198,9 +198,9 @@ void SigMult::audioOutObject(ofSoundBuffer &outputBuffer){
 
     // SIGNAL BUFFER
     if(this->inletsConnected[0]){
-        static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+        ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
     }else{
-        static_cast<ofSoundBuffer *>(_outletParams[0])->set(0.0f);
+        ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->set(0.0f);
     }
 }
 

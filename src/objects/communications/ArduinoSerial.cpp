@@ -93,7 +93,7 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 
     for(int i=0;i<MAX_ARDUINO_RECEIVING_VECTOR_LENGTH;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0);
     }
 
 
@@ -108,14 +108,14 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             resetTime = ofGetElapsedTimeMillis();
 
             // SENDING DATA TO ARDUINO
-            if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+            if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
                 temp = "";
-                if(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) <= MAX_ARDUINO_SENDING_VECTOR_LENGTH){
-                    temp += ofToString(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()));
+                if(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()) <= MAX_ARDUINO_SENDING_VECTOR_LENGTH){
+                    temp += ofToString(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()));
                     temp += ",";
-                    for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
-                        temp += ofToString(ofClamp(static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->at(s)),0,127));
-                        if(s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size())-1){
+                    for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size());s++){
+                        temp += ofToString(ofClamp(static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s)),0,127));
+                        if(s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size())-1){
                             temp += ",";
                         }
                     }
@@ -137,7 +137,7 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
                         memcpy(bytesReadString, bytesReturned, MAX_ARDUINO_RECEIVING_VECTOR_LENGTH);
 
                         for(int i=0;i<MAX_ARDUINO_RECEIVING_VECTOR_LENGTH;i++){
-                            static_cast<vector<float> *>(_outletParams[0])->at(i) = static_cast<int>(bytesReadString[i]);
+                            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = static_cast<int>(bytesReadString[i]);
                         }
                     }
                 }

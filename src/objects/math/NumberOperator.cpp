@@ -41,12 +41,12 @@ NumberOperator::NumberOperator() : PatchObject("operator"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // input number
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // value
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -90,30 +90,30 @@ void NumberOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
     }
 
     if(this->inletsConnected[1]){
-        number = *(float *)&_inletParams[1];
+        number = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]);
     }
 
     if(this->inletsConnected[0]){
         if(_operator == Num_Operator_ADD){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[0] + number;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) + number;
         }else if(_operator == Num_Operator_SUBTRACT){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[0] - number;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) - number;
         }else if(_operator == Num_Operator_MULTIPLY){
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[0] * number;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) * number;
         }else if(_operator == Num_Operator_DIVIDE){
             // avoid divide by zero
             if(number == 0){
                 number = 1;
             }
-            *(float *)&_outletParams[0] = *(float *)&_inletParams[0] / number;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) / number;
         }else if(_operator == Num_Operator_MODULE){
             if(number < 1.0f){
                 number = 1.0f;
             }
-            *(float *)&_outletParams[0] = static_cast<int>(floor(*(float *)&_inletParams[0])) % static_cast<int>(floor(number));
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) % static_cast<int>(floor(number));
         }
     }else{
-      *(float *)&_outletParams[0] = 0.0f;
+      *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 }
 

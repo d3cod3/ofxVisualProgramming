@@ -109,25 +109,25 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     unusedArgs(patchObjects);
 
     // HAAR Tracking UPDATE
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
 
         if(!isFBOAllocated){
             isFBOAllocated  = true;
             pix             = new ofPixels();
             ofDisableArbTex();
-            outputFBO->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),GL_RGB,1);
+            outputFBO->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),GL_RGB,1);
             ofEnableArbTex();
         }
 
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
 
         haarFinder->update(*pix);
 
         if(outputFBO->isAllocated()){
-            *static_cast<ofTexture *>(_outletParams[0]) = outputFBO->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = outputFBO->getTexture();
 
-            static_cast<vector<float> *>(_outletParams[1])->clear();
-            static_cast<vector<float> *>(_outletParams[1])->push_back(haarFinder->size());
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(haarFinder->size());
 
             for(int i = 0; i < haarFinder->size(); i++) {
 
@@ -138,18 +138,18 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
                 ofRectangle boundingRect = haarFinder->getObjectSmoothed(i);
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[1])->push_back(static_cast<float>(label));
-                static_cast<vector<float> *>(_outletParams[1])->push_back(haarFinder->getTracker().getAge(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(static_cast<float>(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(haarFinder->getTracker().getAge(label));
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.getCenter().x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.getCenter().y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.getCenter().x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.getCenter().y);
 
                 // 4
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.y);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.width);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.height);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.width);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.height);
             }
 
         }
@@ -173,14 +173,14 @@ void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 void HaarTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // HAAR Tracking DRAW
-    if(this->inletsConnected[0] && outputFBO->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && outputFBO->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
         if(outputFBO->isAllocated()){
             outputFBO->begin();
 
             ofClear(0,0,0,255);
 
             ofSetColor(255);
-            static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+            ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(0,0);
 
             for(int i = 0; i < haarFinder->size(); i++) {
                 ofNoFill();
@@ -234,10 +234,10 @@ void HaarTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

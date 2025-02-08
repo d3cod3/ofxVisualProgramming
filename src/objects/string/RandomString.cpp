@@ -42,13 +42,13 @@ RandomString::RandomString() : PatchObject("random string")
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // length
-    *(float *)&_inletParams[1] = 1.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 1.0f;
 
     _outletParams[0] = new string();  // random string
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     this->initInletsState();
 
@@ -82,18 +82,18 @@ void RandomString::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 //--------------------------------------------------------------
 void RandomString::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else{
             bang = true;
         }
     }
     if(bang){
-        *static_cast<string *>(_outletParams[0]) = random_string(static_cast<size_t>(floor(length)));
+        *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = random_string(static_cast<size_t>(floor(length)));
     }
 
     if(this->inletsConnected[1]){
-        length = abs(static_cast<int>(floor(*(float *)&_inletParams[1])));
+        length = abs(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]))));
     }
 
     if(!loaded){

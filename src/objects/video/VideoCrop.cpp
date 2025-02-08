@@ -42,13 +42,13 @@ VideoCrop::VideoCrop() : PatchObject("texture crop"){
 
     _inletParams[0] = new ofTexture();  // input
     _inletParams[1] = new float();      // x
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();      // y
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();      // w
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();      // h
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
 
     _outletParams[0] = new ofTexture(); // output
 
@@ -108,42 +108,42 @@ void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[1] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _x = ofClamp(*(float *)&_inletParams[1],0.0f,100.0f);
+    if(this->inletsConnected[1] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        _x = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,100.0f);
     }
 
-    if(this->inletsConnected[2] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _y = ofClamp(*(float *)&_inletParams[2],0.0f,100.0f);
+    if(this->inletsConnected[2] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        _y = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,100.0f);
     }
 
-    if(this->inletsConnected[3] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _w = ofClamp(*(float *)&_inletParams[3],0.0f,100.0f);
+    if(this->inletsConnected[3] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        _w = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,100.0f);
     }
 
-    if(this->inletsConnected[4] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-        _h = ofClamp(*(float *)&_inletParams[4],0.0f,100.0f);
+    if(this->inletsConnected[4] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+        _h = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0f,100.0f);
     }
 
     // UPDATE
     if(this->inletsConnected[0]){
-        if(static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
             if(!needToGrab){
                 needToGrab = true;
                 ofDisableArbTex();
-                croppedFbo->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(), static_cast<ofTexture *>(_inletParams[0])->getHeight(), GL_RGBA );
+                croppedFbo->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(), ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(), GL_RGBA );
                 ofEnableArbTex();
-                _maxW = static_cast<ofTexture *>(_inletParams[0])->getWidth();
-                _maxH = static_cast<ofTexture *>(_inletParams[0])->getHeight();
+                _maxW = ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth();
+                _maxH = ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight();
             }
 
             croppedFbo->begin();
             ofClear(0,0,0,255);
             bounds.set((_x/100.0f)*_maxW,(_y/100.0f)*_maxH,(_w/100.0f)*_maxW,(_h/100)*_maxH);
             ofSetColor(255);
-            drawTextureCropInsideRect(static_cast<ofTexture *>(_inletParams[0]),0,0,static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),bounds);
+            drawTextureCropInsideRect(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]),0,0,ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),bounds);
             croppedFbo->end();
 
-            *static_cast<ofTexture *>(_outletParams[0]) = croppedFbo->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = croppedFbo->getTexture();
         }
     }else{
         needToGrab = false;
@@ -191,10 +191,10 @@ void VideoCrop::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

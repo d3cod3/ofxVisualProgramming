@@ -44,13 +44,13 @@ moBang::moBang() :
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _outletParams[0] = new float(); // output numeric
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     _outletParams[1] = new string(); // output string
-    *static_cast<string *>(_outletParams[1]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[1]) = "";
 
     isAudioOUTObject        = true;
 
@@ -88,7 +88,7 @@ void moBang::setupAudioOutObjectContent(pdsp::Engine &engine){
     // ---- this code runs in the audio thread ----
     sync.code = [&]() noexcept {
         if(this->inletsConnected[0]){
-            if(*(float *)&_inletParams[0] < 1.0){
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
                 bang = false;
                 isBangFinished = true;
             }else{
@@ -101,14 +101,14 @@ void moBang::setupAudioOutObjectContent(pdsp::Engine &engine){
 
             currentColor = pressColor;
 
-            *(float *)&_outletParams[0] = static_cast<float>(bang);
-            *static_cast<string *>(_outletParams[1]) = "bang";
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = static_cast<float>(bang);
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[1]) = "bang";
 
         }else{
             currentColor = releaseColor;
 
-            *(float *)&_outletParams[0] = 0;
-            *static_cast<string *>(_outletParams[1]) = "";
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0;
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[1]) = "";
         }
     };
 

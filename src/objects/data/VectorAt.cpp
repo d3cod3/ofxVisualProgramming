@@ -42,10 +42,10 @@ VectorAt::VectorAt() : PatchObject("vector at"){
 
     _inletParams[0] = new vector<float>();  // input vector
     _inletParams[1] = new float();          // at
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float();         // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -81,21 +81,21 @@ void VectorAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
     }
 
     if(this->inletsConnected[1]){
-        vectorAt = static_cast<int>(floor(*(float *)&_inletParams[1]));
+        vectorAt = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
     }
 
     if(this->inletsConnected[0] && _inletParams[0]){
-        if(!static_cast<vector<float> *>(_inletParams[0])->empty()){
-            if(vectorAt < static_cast<int>(static_cast<vector<float> *>(_inletParams[0])->size()) && vectorAt >= 0){
-                *(float *)&_outletParams[0] = static_cast<vector<float> *>(_inletParams[0])->at(vectorAt);
+        if(!ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+            if(vectorAt < static_cast<int>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()) && vectorAt >= 0){
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(vectorAt);
             }else{
-                *(float *)&_outletParams[0] = 0.0f;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
             }
         }else{
-            *(float *)&_outletParams[0] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
         }
     }else{
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
     }
 
 
@@ -142,7 +142,7 @@ void VectorAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(static_cast<float>(vectorAt),"AT");
         }
         ImGui::Spacing();
-        ImGui::Text("vector[%i] = %.2f", vectorAt,*(float *)&_outletParams[0]);
+        ImGui::Text("vector[%i] = %.2f", vectorAt,*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]));
         ImGui::PopItemWidth();
 
         _nodeCanvas.EndNodeContent();

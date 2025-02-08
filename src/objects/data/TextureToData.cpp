@@ -77,20 +77,20 @@ void TextureToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void TextureToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    static_cast<vector<float> *>(_outletParams[0])->clear();
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         if(!newConnection){
             newConnection = true;
             pix = new ofPixels();
-            pix->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),OF_PIXELS_RGB);
-            col = static_cast<int>(static_cast<ofTexture *>(_inletParams[0])->getWidth()/2);
+            pix->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),OF_PIXELS_RGB);
+            col = static_cast<int>(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth()/2);
         }
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
-        for(int n=0; n<static_cast<ofTexture *>(_inletParams[0])->getHeight(); ++n){
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
+        for(int n=0; n<ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(); ++n){
             float sampleR = ofMap(pix->getColor(col, n).r, 0, 255, -0.5f, 0.5f);        // RED CHANNEL
             float sampleG = ofMap(pix->getColor(col, n).g, 0, 255, -0.5f, 0.5f);        // GREEN CHANNEL
             float sampleB = ofMap(pix->getColor(col, n).b, 0, 255, -0.5f, 0.5f);        // BLUE CHANNEL
-            static_cast<vector<float> *>(_outletParams[0])->push_back((sampleR+sampleG+sampleB)/3.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back((sampleR+sampleG+sampleB)/3.0f);
         }
     }else{
         newConnection       = false;
@@ -136,10 +136,10 @@ void TextureToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

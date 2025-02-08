@@ -41,13 +41,13 @@ moPlayerControls::moPlayerControls() : PatchObject("player controls"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
 
     _inletParams[1] = new float();  // select
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new string(); // output
-    *static_cast<string *>(_outletParams[0]) = "";
+    *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     this->initInletsState();
 
@@ -80,7 +80,7 @@ void moPlayerControls::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 void moPlayerControls::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
-        if(*(float *)&_inletParams[0] < 1.0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
             bang = false;
         }else{
             bang = true;
@@ -88,25 +88,25 @@ void moPlayerControls::updateObjectContent(map<int,shared_ptr<PatchObject>> &pat
     }
 
     if(bang && this->inletsConnected[1]){
-        int temp = static_cast<int>(floor(*(float *)&_inletParams[1]));
+        int temp = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
         switch (temp) {
             case 1:
-                *static_cast<string *>(_outletParams[0]) = "play";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "play";
                 break;
             case 2:
-                *static_cast<string *>(_outletParams[0]) = "stop";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "stop";
                 break;
             case 3:
-                *static_cast<string *>(_outletParams[0]) = "pause";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "pause";
                 break;
             case 4:
-                *static_cast<string *>(_outletParams[0]) = "unpause";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "unpause";
                 break;
             case 5:
-                *static_cast<string *>(_outletParams[0]) = "loop_normal";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "loop_normal";
                 break;
             case 6:
-                *static_cast<string *>(_outletParams[0]) = "loop_none";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "loop_none";
                 break;
             default:
                 break;
@@ -154,11 +154,11 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, VHS_BLUE_OVER);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, VHS_BLUE_OVER);
         if(ImGui::Button(ICON_FA_PLAY,ImVec2(69*scaleFactor*_nodeCanvas.GetCanvasScale(),26*scaleFactor*_nodeCanvas.GetCanvasScale()))){
-            *static_cast<string *>(_outletParams[0]) = "play";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "play";
         }
         ImGui::SameLine();
         if(ImGui::Button(ICON_FA_STOP,ImVec2(69*scaleFactor*_nodeCanvas.GetCanvasScale(),26*scaleFactor*_nodeCanvas.GetCanvasScale()))){
-            *static_cast<string *>(_outletParams[0]) = "stop";
+            *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "stop";
         }
         ImGui::PopStyleColor(3);
         ImGui::SameLine();
@@ -168,9 +168,9 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         if(ImGui::Button(ICON_FA_PAUSE,ImVec2(69*scaleFactor*_nodeCanvas.GetCanvasScale(),26*scaleFactor*_nodeCanvas.GetCanvasScale()))){
             pause = !pause;
             if(pause){
-                *static_cast<string *>(_outletParams[0]) = "pause";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "pause";
             }else{
-                *static_cast<string *>(_outletParams[0]) = "unpause";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "unpause";
             }
         }
         ImGui::PopStyleColor(3);
@@ -178,9 +178,9 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGui::Spacing();
         if(ImGui::Checkbox("LOOP " ICON_FA_REDO,&loop)){
             if(loop){
-                *static_cast<string *>(_outletParams[0]) = "loop_normal";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "loop_normal";
             }else{
-                *static_cast<string *>(_outletParams[0]) = "loop_none";
+                *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "loop_none";
             }
             this->setCustomVar(static_cast<float>(loop),"LOOP");
             this->saveConfig(false);

@@ -41,10 +41,10 @@ SimpleNoise::SimpleNoise() : PatchObject("1D noise"){
     this->numOutlets = 1;
 
     _inletParams[0] = new float();  // step
-    *(float *)&_inletParams[0] = 0.001f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.001f;
 
     _outletParams[0] = new float(); // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -75,10 +75,10 @@ void SimpleNoise::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
 //--------------------------------------------------------------
 void SimpleNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
-    *(float *)&_outletParams[0] = ofNoise(timePosition);
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofNoise(timePosition);
 
     if(this->inletsConnected[0]){
-        step = fabs(*(float *)&_inletParams[0]);
+        step = fabs(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]));
     }
 
     timePosition += step;
@@ -119,7 +119,7 @@ void SimpleNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.0f, 1.0f, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), 0.0f, 1.0f, IM_COL32(255,255,255,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         _nodeCanvas.EndNodeContent();
     }

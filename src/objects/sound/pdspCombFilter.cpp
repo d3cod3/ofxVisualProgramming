@@ -43,11 +43,11 @@ pdspCombFilter::pdspCombFilter() : PatchObject("comb filter"){
     _inletParams[0] = new ofSoundBuffer();  // audio input
 
     _inletParams[1] = new float();          // pitch
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // damping
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // feedback
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -116,17 +116,17 @@ void pdspCombFilter::setupAudioOutObjectContent(pdsp::Engine &engine){
 void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        pitch = ofClamp(*(float *)&_inletParams[1],0.0f,127.0f);
+        pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,127.0f);
         pitch_ctrl.set(pitch);
     }
 
     if(this->inletsConnected[2]){
-        damping = ofClamp(*(float *)&_inletParams[2],0.0f,1.0f);
+        damping = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,1.0f);
         damping_ctrl.set(damping);
     }
 
     if(this->inletsConnected[3]){
-        feedback = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        feedback = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
         feedback_ctrl.set(feedback);
     }
 
@@ -233,7 +233,7 @@ void pdspCombFilter::audioInObject(ofSoundBuffer &inputBuffer){
 
 //--------------------------------------------------------------
 void pdspCombFilter::audioOutObject(ofSoundBuffer &outputBuffer){
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

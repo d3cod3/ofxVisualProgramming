@@ -42,11 +42,11 @@ FloatMultiplexer::FloatMultiplexer() : PatchObject("float multiplexer"){
 
     for(size_t i=0;i<32;i++){
         _inletParams[i] = new float();
-        *(float *)&_inletParams[i] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) = 0.0f;
     }
 
     _outletParams[0] = new float();  // output
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     floatInlets     = 6;
 
@@ -91,9 +91,9 @@ void FloatMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 void FloatMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
-            if(*(float *)&_inletParams[i] != inletsMemory.at(i)){
-                inletsMemory.at(i) = *(float *)&_inletParams[i];
-                *(float *)&_outletParams[0] = *(float *)&_inletParams[i];
+            if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) != inletsMemory.at(i)){
+                inletsMemory.at(i) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]);
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]);
                 //break;
             }
         }
@@ -153,7 +153,7 @@ void FloatMultiplexer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         for(int i=0;i<this->numInlets;i++){
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (50*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),IM_COL32(60,60,60,255),2.0f);
             _nodeCanvas.getNodeDrawList()->AddLine(ImVec2(window_pos.x + (90*this->scaleFactor),window_pos.y + (IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor) + (pinDistance/2) + pinDistance*i),ImVec2(window_pos.x+window_size.x,window_pos.y+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)+((window_size.y-((IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT)*this->scaleFactor))/2)),IM_COL32(60,60,60,255),2.0f);
-            sprintf_s(temp,"%.2f",*(float *)&_inletParams[i]);
+            sprintf_s(temp,"%.2f",*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]));
             _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), ImVec2(window_pos.x+(20*this->scaleFactor),window_pos.y + ((IMGUI_EX_NODE_HEADER_HEIGHT-7)*this->scaleFactor) + (pinDistance/2) + pinDistance*i), IM_COL32_WHITE, temp, NULL, 0.0f);
         }
 
@@ -228,7 +228,7 @@ void FloatMultiplexer::resetInletsSettings(){
 
     for(int i=0;i<floatInlets;i++){
         _inletParams[i] = new float();
-        *(float *)&_inletParams[i] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) = 0.0f;
     }
 
     this->inletsType.clear();

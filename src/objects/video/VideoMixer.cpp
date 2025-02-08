@@ -136,16 +136,16 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     // mix texture inlets with alpha
     if(mixFbo->isAllocated()){
-        *static_cast<ofTexture *>(_outletParams[0]) = mixFbo->getTexture();
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = mixFbo->getTexture();
     }else{
-        *static_cast<ofTexture *>(_outletParams[0]) = *kuroTex;
+        *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = *kuroTex;
     }
 
     // get alphas from data inlet
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
-        for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[0])->size());s++){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
+        for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size());s++){
             if(s<32){
-                alphas.at(s) = static_cast<vector<float> *>(_inletParams[0])->at(s);
+                alphas.at(s) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(s);
             }
         }
     }
@@ -156,9 +156,9 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
     ofDrawRectangle(0,0,canvasWidth,canvasHeight);
 
     for(int i=1;i<=finalTextureInlets;i++){
-        if(this->inletsConnected[i] && static_cast<ofTexture *>(_inletParams[i])->isAllocated()){
+        if(this->inletsConnected[i] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->isAllocated()){
             ofSetColor(255,255,255,alphas.at(i-1));
-            static_cast<ofTexture *>(_inletParams[i])->draw(0,0,canvasWidth,canvasHeight);
+            ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[i])->draw(0,0,canvasWidth,canvasHeight);
         }
     }
 
@@ -219,10 +219,10 @@ void VideoMixer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -383,7 +383,7 @@ void VideoMixer::resetInletsSettings(){
         mixFbo->end();
 
         _outletParams[0] = new ofTexture();
-        static_cast<ofTexture *>(_outletParams[0])->allocate(canvasWidth,canvasHeight,GL_RGB);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->allocate(canvasWidth,canvasHeight,GL_RGB);
 
         ofEnableArbTex();
 

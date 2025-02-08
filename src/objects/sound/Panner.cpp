@@ -42,7 +42,7 @@ Panner::Panner() : PatchObject("panner"){
 
     _inletParams[0] = new ofSoundBuffer();  // audio input
     _inletParams[1] = new float();          // gain
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output L
     _outletParams[1] = new ofSoundBuffer(); // audio output R
@@ -102,7 +102,7 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        pan = ofClamp(*(float *)&_inletParams[1],-1.0f,1.0f);
+        pan = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),-1.0f,1.0f);
     }
 
     if(!loaded){
@@ -202,8 +202,8 @@ void Panner::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // STEREO SIGNAL BUFFERS
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
-    static_cast<ofSoundBuffer *>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scopeL.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

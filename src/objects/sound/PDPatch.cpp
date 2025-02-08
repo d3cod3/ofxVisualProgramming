@@ -312,23 +312,23 @@ void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     if(pd.isInited() && pd.isComputingAudio() && currentPatch.isValid()){
-        if(this->inletsConnected[0] && !static_cast<ofSoundBuffer *>(_inletParams[0])->getBuffer().empty()){
-            lastInputBuffer1 = *static_cast<ofSoundBuffer *>(_inletParams[0]);
+        if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
+            lastInputBuffer1 = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]);
         }else{
             lastInputBuffer1.set(0.0f);
         }
-        if(this->inletsConnected[1] && !static_cast<ofSoundBuffer *>(_inletParams[1])->getBuffer().empty()){
-            lastInputBuffer2 = *static_cast<ofSoundBuffer *>(_inletParams[1]);
+        if(this->inletsConnected[1] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1])->getBuffer().empty()){
+            lastInputBuffer2 = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[1]);
         }else{
             lastInputBuffer2.set(0.0f);
         }
-        if(this->inletsConnected[2] && !static_cast<ofSoundBuffer *>(_inletParams[2])->getBuffer().empty()){
-            lastInputBuffer3 = *static_cast<ofSoundBuffer *>(_inletParams[2]);
+        if(this->inletsConnected[2] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[2])->getBuffer().empty()){
+            lastInputBuffer3 = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[2]);
         }else{
             lastInputBuffer3.set(0.0f);
         }
-        if(this->inletsConnected[3] && !static_cast<ofSoundBuffer *>(_inletParams[3])->getBuffer().empty()){
-            lastInputBuffer4 = *static_cast<ofSoundBuffer *>(_inletParams[3]);
+        if(this->inletsConnected[3] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[3])->getBuffer().empty()){
+            lastInputBuffer4 = *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[3]);
         }else{
             lastInputBuffer4.set(0.0f);
         }
@@ -346,9 +346,9 @@ void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
         pd.audioIn(lastInputBuffer.getBuffer().data(), lastInputBuffer.getNumFrames(), lastInputBuffer.getNumChannels());
 
         pd.startMessage();
-        if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
-            for(size_t s=0;s<static_cast<size_t>(static_cast<vector<float> *>(_inletParams[4])->size());s++){
-                pd.addFloat(static_cast<vector<float> *>(_inletParams[4])->at(s));
+        if(this->inletsConnected[4] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->empty()){
+            for(size_t s=0;s<static_cast<size_t>(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->size());s++){
+                pd.addFloat(ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->at(s));
             }
         }
         pd.finishList("fromMosaic");
@@ -371,10 +371,10 @@ void PDPatch::audioOutObject(ofSoundBuffer &outputBuffer){
     ch3OUT.copyInput(lastOutputBuffer3.getBuffer().data(),lastOutputBuffer3.getNumFrames());
     ch4OUT.copyInput(lastOutputBuffer4.getBuffer().data(),lastOutputBuffer4.getNumFrames());
 
-    *static_cast<ofSoundBuffer *>(_outletParams[0]) = lastOutputBuffer1;
-    *static_cast<ofSoundBuffer *>(_outletParams[1]) = lastOutputBuffer2;
-    *static_cast<ofSoundBuffer *>(_outletParams[2]) = lastOutputBuffer3;
-    *static_cast<ofSoundBuffer *>(_outletParams[3]) = lastOutputBuffer4;
+    *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0]) = lastOutputBuffer1;
+    *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1]) = lastOutputBuffer2;
+    *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[2]) = lastOutputBuffer3;
+    *ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[3]) = lastOutputBuffer4;
 }
 
 //--------------------------------------------------------------
@@ -509,12 +509,12 @@ void PDPatch::receiveList(const std::string& dest, const List& list) {
 
     //ofLog(OF_LOG_NOTICE,"Mosaic: list %s: ", dest.c_str());
 
-    static_cast<vector<float> *>(_outletParams[4])->clear();
-    static_cast<vector<float> *>(_outletParams[4])->assign(list.len(),0.0f);
+    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[4])->clear();
+    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[4])->assign(list.len(),0.0f);
 
     for(size_t i = 0; i < list.len(); ++i) {
         if(list.isFloat(i)){
-            static_cast<vector<float> *>(_outletParams[4])->at(i) = list.getFloat(i);
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[4])->at(i) = list.getFloat(i);
         }
     }
 }

@@ -45,16 +45,16 @@ Metronome::Metronome() :
     this->numInlets  = 2;
     this->numOutlets = 2;
 
-    *(float *)&_inletParams[0] = timeSetting.get();
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = timeSetting.get();
 
     _inletParams[1] = new float(); // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float(); // bang
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     _outletParams[1] = new float(); // system bpm bang
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
 
     isAudioOUTObject        = true;
 
@@ -99,7 +99,7 @@ void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
         metroTime = ofGetElapsedTimeMicros();
 
         if(this->inletsConnected[1]){
-            sync = static_cast<bool>(floor(*(float *)&_inletParams[1]));
+            sync = static_cast<bool>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
         }
 
         if(sync){
@@ -108,9 +108,9 @@ void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
 
         if(metroTime-resetTime > static_cast<size_t>(timeSetting.get()*1000.0f)){
             resetTime = ofGetElapsedTimeMicros();
-            *(float *)&_outletParams[0] = 1.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1.0f;
         }else{
-            *(float *)&_outletParams[0] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
         }
 
         // Mosaic main BPM
@@ -118,9 +118,9 @@ void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
 
         // BPM metronome
         if(systemBPM.frame()%4==0){
-            *(float *)&_outletParams[1] = 1.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 1.0f;
         }else{
-            *(float *)&_outletParams[1] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
         }
     };
 
@@ -130,8 +130,8 @@ void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
 void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && static_cast<int>(floor(*(float *)&_inletParams[0])) != timeSetting.get()){
-        timeSetting.get() = static_cast<int>(floor(*(float *)&_inletParams[0]));
+    if(this->inletsConnected[0] && static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) != timeSetting.get()){
+        timeSetting.get() = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])));
         this->setCustomVar(static_cast<float>(timeSetting.get()),"TIME");
     }
 
@@ -171,7 +171,7 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImGuiEx::plotValue(*(float *)&_outletParams[0], 0.f, 1.f, IM_COL32(170,170,170,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
+        ImGuiEx::plotValue(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]), 0.f, 1.f, IM_COL32(170,170,170,255), this->height*_nodeCanvas.GetCanvasScale() - (IMGUI_EX_NODE_HEADER_HEIGHT+IMGUI_EX_NODE_FOOTER_HEIGHT), this->scaleFactor);
 
         // draw System BPM
         ImVec2 window_pos = ImGui::GetWindowPos();
@@ -187,7 +187,7 @@ void Metronome::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         sprintf_s(temp,"%i",static_cast<int>(mbpm));
         _nodeCanvas.getNodeDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), pos, IM_COL32_WHITE,temp, NULL, 0.0f);
 
-        if(*(float *)&_outletParams[1] > 0){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) > 0){
             // draw system BPM beat
             _nodeCanvas.getNodeDrawList()->AddCircleFilled(ImVec2(pos.x + (28*scaleFactor*_nodeCanvas.GetCanvasScale()),pos.y + (8*scaleFactor)), radius, IM_COL32(255, 255, 120, 255), 40);
         }

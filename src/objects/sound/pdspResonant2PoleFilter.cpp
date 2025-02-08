@@ -43,11 +43,11 @@ pdspResonant2PoleFilter::pdspResonant2PoleFilter() : PatchObject("resonant filte
     _inletParams[0] = new ofSoundBuffer();  // audio input
 
     _inletParams[1] = new float();          // pitch
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // cutoff
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // resonance
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
 
@@ -128,17 +128,17 @@ void pdspResonant2PoleFilter::updateObjectContent(map<int,shared_ptr<PatchObject
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
-        pitch = ofClamp(*(float *)&_inletParams[1],0.0f,127.0f);
+        pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,127.0f);
         pitch_ctrl.set(pitch);
     }
 
     if(this->inletsConnected[2]){
-        cutoff = ofClamp(*(float *)&_inletParams[2],0.0f,127.0f);
+        cutoff = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,127.0f);
         cutoff_ctrl.set(cutoff);
     }
 
     if(this->inletsConnected[3]){
-        resonance = ofClamp(*(float *)&_inletParams[3],0.0f,1.0f);
+        resonance = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,1.0f);
         resonance_ctrl.set(resonance);
     }
 
@@ -262,7 +262,7 @@ void pdspResonant2PoleFilter::audioInObject(ofSoundBuffer &inputBuffer){
 //--------------------------------------------------------------
 void pdspResonant2PoleFilter::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 

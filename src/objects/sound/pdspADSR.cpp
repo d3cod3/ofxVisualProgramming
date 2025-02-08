@@ -43,19 +43,19 @@ pdspADSR::pdspADSR() : PatchObject("ADSR envelope"){
     _inletParams[0] = new ofSoundBuffer(); // audio input
 
     _inletParams[1] = new float();          // bang
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();          // A
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();          // D
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
     _inletParams[4] = new float();          // S
-    *(float *)&_inletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]) = 0.0f;
     _inletParams[5] = new float();          // R
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer(); // audio output
     _outletParams[1] = new float();         // ADSR func
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
 
     this->initInletsState();
 
@@ -126,25 +126,25 @@ void pdspADSR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
     // A
     if(this->inletsConnected[2]){
-        attackDuration = ofClamp(*(float *)&_inletParams[2],0.0f,std::numeric_limits<float>::max());
+        attackDuration = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,std::numeric_limits<float>::max());
         this->setCustomVar(attackDuration,"ATTACK");
     }
 
     // D
     if(this->inletsConnected[3]){
-        decayDuration = ofClamp(*(float *)&_inletParams[3],0.0f,std::numeric_limits<float>::max());
+        decayDuration = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),0.0f,std::numeric_limits<float>::max());
         this->setCustomVar(decayDuration,"DECAY");
     }
 
     // S
     if(this->inletsConnected[4]){
-        sustainLevel = ofClamp(*(float *)&_inletParams[4],0.0f,1.0f);
+        sustainLevel = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[4]),0.0f,1.0f);
         this->setCustomVar(sustainLevel,"SUSTAIN");
     }
 
     // R
     if(this->inletsConnected[5]){
-        releaseDuration = ofClamp(*(float *)&_inletParams[5],0.0f,std::numeric_limits<float>::max());
+        releaseDuration = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),0.0f,std::numeric_limits<float>::max());
         this->setCustomVar(releaseDuration,"RELEASE");
     }
 
@@ -261,8 +261,8 @@ void pdspADSR::audioOutObject(ofSoundBuffer &outputBuffer){
 
     // bang --> trigger envelope
     if(this->inletsConnected[1]){
-        if(*(float *)&_inletParams[1] == 1.0f){
-            gate_ctrl.trigger(ofClamp(*(float *)&_inletParams[1],0.0f,1.0f));
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) == 1.0f){
+            gate_ctrl.trigger(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f));
         }else{
             gate_ctrl.off();
         }
@@ -271,10 +271,10 @@ void pdspADSR::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 
     // output envelope func
-    *(float *)&_outletParams[1] = env.meter_output();
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = env.meter_output();
 
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
 OBJECT_REGISTER( pdspADSR, "ADSR envelope", OFXVP_OBJECT_CAT_SOUND)

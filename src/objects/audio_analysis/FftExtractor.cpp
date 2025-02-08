@@ -88,7 +88,7 @@ void FftExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // INIT FFT BUFFER
     for(int i=0;i<(bufferSize/2)+1;i++){
-        static_cast<vector<float> *>(_outletParams[0])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
     }
 
 }
@@ -119,10 +119,10 @@ void FftExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         isConnectionRight = false;
     }
 
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty() && isConnectionRight){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty() && isConnectionRight){
         int index = 0;
         for(int i=bufferSize;i<bufferSize + spectrumSize;i++){
-            static_cast<vector<float> *>(_outletParams[0])->at(index) = static_cast<vector<float> *>(_inletParams[0])->at(i)*multiplier;
+            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(index) = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i)*multiplier;
             index++;
         }
     }else if(this->inletsConnected[0] && !isConnectionRight){
@@ -169,7 +169,7 @@ void FftExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
         // draw FFT
-        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor), static_cast<vector<float> *>(_outletParams[0]));
+        ImGuiEx::PlotBands(_nodeCanvas.getNodeDrawList(), 0, (this->height*_nodeCanvas.GetCanvasScale()) - (26*this->scaleFactor), ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0]));
 
         _nodeCanvas.EndNodeContent();
     }

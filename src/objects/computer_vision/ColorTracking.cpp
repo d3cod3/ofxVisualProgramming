@@ -106,7 +106,7 @@ void ColorTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
 
         // UPDATE STUFF
         contourFinder->setMinAreaRadius(minAreaRadius);
@@ -119,25 +119,25 @@ void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             isFBOAllocated = true;
             pix             = new ofPixels();
             ofDisableArbTex();
-            outputFBO->allocate(static_cast<ofTexture *>(_inletParams[0])->getWidth(),static_cast<ofTexture *>(_inletParams[0])->getHeight(),GL_RGB,1);
+            outputFBO->allocate(ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getWidth(),ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->getHeight(),GL_RGB,1);
             ofEnableArbTex();
         }
 
-        static_cast<ofTexture *>(_inletParams[0])->readToPixels(*pix);
+        ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->readToPixels(*pix);
 
         blur(*pix, 10);
         contourFinder->findContours(*pix);
 
         if(outputFBO->isAllocated()){
-            *static_cast<ofTexture *>(_outletParams[0]) = outputFBO->getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = outputFBO->getTexture();
 
-            static_cast<vector<float> *>(_outletParams[1])->clear();
-            static_cast<vector<float> *>(_outletParams[2])->clear();
-            static_cast<vector<float> *>(_outletParams[3])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->clear();
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->clear();
 
-            static_cast<vector<float> *>(_outletParams[1])->push_back(contourFinder->size());
-            static_cast<vector<float> *>(_outletParams[2])->push_back(contourFinder->size());
-            static_cast<vector<float> *>(_outletParams[3])->push_back(contourFinder->size());
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(contourFinder->size());
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(contourFinder->size());
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->push_back(contourFinder->size());
 
             for(int i = 0; i < contourFinder->size(); i++) {
                 // blob id
@@ -163,55 +163,55 @@ void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
                 ofPolyline convexHull = toOf(contourFinder->getConvexHull(i));
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[1])->push_back(static_cast<float>(label));
-                static_cast<vector<float> *>(_outletParams[1])->push_back(contourFinder->getTracker().getAge(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(static_cast<float>(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(contourFinder->getTracker().getAge(label));
 
                 // 6
-                static_cast<vector<float> *>(_outletParams[1])->push_back(centroid.x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(centroid.y);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(average.x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(average.y);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(center.x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(center.y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(centroid.x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(centroid.y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(average.x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(average.y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(center.x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(center.y);
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[1])->push_back(velocity.x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(velocity.y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(velocity.x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(velocity.y);
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[1])->push_back(area);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(perimeter);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(area);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(perimeter);
 
                 // 4
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.x);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.y);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.width);
-                static_cast<vector<float> *>(_outletParams[1])->push_back(boundingRect.height);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.x);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.y);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.width);
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(boundingRect.height);
 
                 // 1
-                static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().size());
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(contour.getVertices().size());
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[2])->push_back(static_cast<float>(label));
-                static_cast<vector<float> *>(_outletParams[2])->push_back(contourFinder->getTracker().getAge(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(static_cast<float>(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(contourFinder->getTracker().getAge(label));
 
                 // contour.getVertices().size() * 2
                 for(int c=0;c<contour.getVertices().size();c++){
-                    static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().at(c).x);
-                    static_cast<vector<float> *>(_outletParams[2])->push_back(contour.getVertices().at(c).y);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(contour.getVertices().at(c).x);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(contour.getVertices().at(c).y);
                 }
 
                 // 1
-                static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().size());
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->push_back(convexHull.getVertices().size());
 
                 // 2
-                static_cast<vector<float> *>(_outletParams[3])->push_back(static_cast<float>(label));
-                static_cast<vector<float> *>(_outletParams[3])->push_back(contourFinder->getTracker().getAge(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->push_back(static_cast<float>(label));
+                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->push_back(contourFinder->getTracker().getAge(label));
 
                 // convexHull.getVertices().size() * 2
                 for(int c=0;c<convexHull.getVertices().size();c++){
-                    static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().at(c).x);
-                    static_cast<vector<float> *>(_outletParams[3])->push_back(convexHull.getVertices().at(c).y);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->push_back(convexHull.getVertices().at(c).x);
+                    ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[3])->push_back(convexHull.getVertices().at(c).y);
                 }
 
             }
@@ -252,14 +252,14 @@ void ColorTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 void ColorTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(glRenderer);
 
-    if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated()){
+    if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         if(outputFBO->isAllocated()){
             outputFBO->begin();
 
             ofClear(0,0,0,255);
 
             ofSetColor(255);
-            static_cast<ofTexture *>(_inletParams[0])->draw(0,0);
+            ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->draw(0,0);
 
             ofSetLineWidth(2);
             ofSetColor(ofColor::aquamarine);
@@ -317,10 +317,10 @@ void ColorTracking::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(this->inletsConnected[0] && static_cast<ofTexture *>(_inletParams[0])->isAllocated() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF

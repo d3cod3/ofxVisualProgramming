@@ -42,10 +42,10 @@ SignalTrigger::SignalTrigger() : PatchObject("signal trigger"){
 
     _inletParams[0] = new ofSoundBuffer();  // audio in
     _inletParams[1] = new float();          // threshold
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
 
     _outletParams[0] = new float();         // signal trigger --> bang
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     this->initInletsState();
 
@@ -100,17 +100,17 @@ void SignalTrigger::setupAudioOutObjectContent(pdsp::Engine &engine){
 void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
-        thresh = ofClamp(*(float *)&_inletParams[1],0.0f,1.0f);
+        thresh = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);
         thresh_ctrl.set(thresh);
     }
 
     if(toTrigger.meter_gate() > 0.0f){
         // trigger on
-        *(float *)&_outletParams[0] = 1.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 1.0f;
         bang = true;
     }else{
         // trigger off
-        *(float *)&_outletParams[0] = 0.0f;
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
         bang = false;
     }
 

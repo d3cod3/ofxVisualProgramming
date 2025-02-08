@@ -224,7 +224,7 @@ void pdspParametricEQ::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImGui::Dummy(ImVec2(-1,IMGUI_EX_NODE_CONTENT_PADDING*2*scaleFactor));
         // Signal FFT
-        ImGuiEx::PlotSpectrum(_nodeCanvas.getNodeDrawList(), 0, (ImGui::GetWindowSize().y/3) - 26*scaleFactor, static_cast<vector<float> *>(_outletParams[1]),1.0f,true,IM_COL32(90,90,80,235));
+        ImGuiEx::PlotSpectrum(_nodeCanvas.getNodeDrawList(), 0, (ImGui::GetWindowSize().y/3) - 26*scaleFactor, ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1]),1.0f,true,IM_COL32(90,90,80,235));
         // parametric eq points
         //ImGuiEx::PlotEQPoint(_nodeCanvas.getNodeDrawList(),ImVec2((float_l1freq/27000.0f)*this->width*scaleFactor*_nodeCanvas.GetCanvasScale(),float_l1gain/20.0f),0, (ImGui::GetWindowSize().y/3) - 26*scaleFactor,0.3,IM_COL32(118,57,52,255));
         //ImGuiEx::PlotEQPoint(_nodeCanvas.getNodeDrawList(),ImVec2((float_m1freq/27000.0f)*this->width*scaleFactor*_nodeCanvas.GetCanvasScale(),float_m1gain/20.0f),0, (ImGui::GetWindowSize().y/3) - 26*scaleFactor,0.3,IM_COL32(38,95,90,255));
@@ -357,7 +357,7 @@ void pdspParametricEQ::loadAudioSettings(){
         parametricFilter = new std::vector<float>;
 
         for(int i=0;i<fft->getBinSize();i++){
-            static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);
 
             l1Filter->push_back(0.0f);
             m1Filter->push_back(0.0f);
@@ -380,7 +380,7 @@ void pdspParametricEQ::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // SIGNAL BUFFER
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 
     fft->setSignal(scope.getBuffer().data());
     memcpy(spectrum, fft->getAmplitude(), sizeof(float) * fft->getBinSize());
@@ -391,7 +391,7 @@ void pdspParametricEQ::audioOutObject(ofSoundBuffer &outputBuffer){
     for(size_t i = 0; i < fft->getBinSize(); i++){
         size_t pos = static_cast<int>(floor((std::log(i+20 / 20.f) / std::log(1024.f))*fft->getBinSize()));
         if(pos < fft->getBinSize()){
-            static_cast<vector<float> *>(_outletParams[1])->at(pos) = spectrum[i];
+            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->at(pos) = spectrum[i];
         }
         l1Filter->at(i) = lowShelfFn(i, float_l1gain/20.0f, (std::log(float_l1freq / 20.f) / std::log(1000.f))*this->width, float_l1Q);
         m1Filter->at(i) = gaussianFn(i, float_m1gain/20.0f, (std::log(float_m1freq / 20.f) / std::log(1000.f))*this->width, float_m1Q);

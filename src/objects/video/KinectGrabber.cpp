@@ -116,12 +116,12 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
     }
 
     // KINECT UPDATE
-    if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected()){
-        static_cast<ofxKinect *>(_outletParams[2])->update();
-        if(static_cast<ofxKinect *>(_outletParams[2])->isFrameNew()){
-            *static_cast<ofTexture *>(_outletParams[0]) = static_cast<ofxKinect *>(_outletParams[2])->getTexture();
+    if(weHaveKinect && ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isInitialized() && ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isConnected()){
+        ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->update();
+        if(ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isFrameNew()){
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]) = ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->getTexture();
 
-            cleanImage.setFromPixels(static_cast<ofxKinect *>(_outletParams[2])->getDepthPixels());
+            cleanImage.setFromPixels(ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->getDepthPixels());
             cleanImage.updateTexture();
 
             grayThreshNear = cleanImage;
@@ -139,7 +139,7 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
             colorCleanImage = cleanImage;
             colorCleanImage.updateTexture();
 
-            *static_cast<ofTexture *>(_outletParams[1]) = colorCleanImage.getTexture();
+            *ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1]) = colorCleanImage.getTexture();
         }
     }
 
@@ -163,10 +163,10 @@ void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
             loadKinectSettings();
 
-            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
-            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
-            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setRegistration(true);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->init(isIR,true,true);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->open(deviceID);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setCameraTiltAngle(0);
 
         }
     }
@@ -203,10 +203,10 @@ void KinectGrabber::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
         ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
         _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
-        if(weHaveKinect && static_cast<ofxKinect *>(_outletParams[2])->isInitialized() && static_cast<ofxKinect *>(_outletParams[2])->isConnected() && static_cast<ofTexture *>(_outletParams[0])->isAllocated()){
-            calcTextureDims(*static_cast<ofTexture *>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
+        if(weHaveKinect && ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isInitialized() && ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isConnected() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){
+            calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));
-            ImGui::Image((ImTextureID)(uintptr_t)static_cast<ofTexture *>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
+            ImGui::Image((ImTextureID)(uintptr_t)ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->getTextureData().textureID, ImVec2(drawW, drawH));
         }
 
         // get imgui node translated/scaled position/dimension for drawing textures in OF
@@ -278,8 +278,8 @@ void KinectGrabber::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void KinectGrabber::removeObjectContent(bool removeFileFromData){
-    static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
-    static_cast<ofxKinect *>(_outletParams[2])->close();
+    ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setCameraTiltAngle(0);
+    ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->close();
 }
 
 //--------------------------------------------------------------
@@ -314,14 +314,14 @@ void KinectGrabber::resetKinectSettings(int devID){
         this->setCustomVar(static_cast<float>(deviceID),"DEVICE_ID");
 
 
-        if(static_cast<ofxKinect *>(_outletParams[2])->isInitialized()){
-            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
-            static_cast<ofxKinect *>(_outletParams[2])->close();
+        if(ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isInitialized()){
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setCameraTiltAngle(0);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->close();
 
             _outletParams[2] = new ofxKinect();
-            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-            static_cast<ofxKinect *>(_outletParams[2])->init(isIR,true,true);
-            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setRegistration(true);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->init(isIR,true,true);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->open(deviceID);
         }
     }
 }
@@ -335,14 +335,14 @@ void KinectGrabber::resetKinectImage(bool ir){
 
         this->setCustomVar(static_cast<float>(ir),"INFRARED");
 
-        if(static_cast<ofxKinect *>(_outletParams[2])->isInitialized()){
-            static_cast<ofxKinect *>(_outletParams[2])->setCameraTiltAngle(0);
-            static_cast<ofxKinect *>(_outletParams[2])->close();
+        if(ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->isInitialized()){
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setCameraTiltAngle(0);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->close();
 
             _outletParams[2] = new ofxKinect();
-            static_cast<ofxKinect *>(_outletParams[2])->setRegistration(true);
-            static_cast<ofxKinect *>(_outletParams[2])->init(ir,true,true);
-            static_cast<ofxKinect *>(_outletParams[2])->open(deviceID);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->setRegistration(true);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->init(ir,true,true);
+            ofxVP_CAST_PIN_PTR<ofxKinect>(_outletParams[2])->open(deviceID);
         }
     }
 
