@@ -38,21 +38,18 @@
 pdspAddressSequencer::pdspAddressSequencer() : PatchObject("address sequencer"){
 
     this->numInlets  = 4;
-    this->numOutlets = 2;
+    this->numOutlets = 1;
 
     _inletParams[0] = new vector<float>();      // values
     _inletParams[1] = new float();              // ratio
-    *(float *)&_inletParams[1] = 1.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 1.0f;
     _inletParams[2] = new float();              // steps
-    *(float *)&_inletParams[2] = 8.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 8.0f;
     _inletParams[3] = new float();              // sync
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
-    _outletParams[0] = new float();             // bang
-    *(float *)&_outletParams[0] = 0.0f;
-
-    _outletParams[1] = new float();             // value
-    *(float *)&_outletParams[1] = 0.0f;
+    _outletParams[0] = new float();             // value
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
 
     this->initInletsState();
@@ -85,7 +82,6 @@ void pdspAddressSequencer::newObject(){
     this->addInlet(VP_LINK_NUMERIC,"steps");
     this->addInlet(VP_LINK_NUMERIC,"sync");
 
-    this->addOutlet(VP_LINK_NUMERIC,"bang");
     this->addOutlet(VP_LINK_NUMERIC,"value");
 
     this->setCustomVar(static_cast<float>(actualSteps),"MANUAL_STEPS");
@@ -104,7 +100,7 @@ void pdspAddressSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainW
 
     for(size_t i=0;i<8;i++){
         seqSteps[i] = 0.0f;
-        static_cast<vector<float> *>(_inletParams[0])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->push_back(0.0f);
     }
 
     scaleModesString.push_back("/4");
@@ -151,16 +147,8 @@ void pdspAddressSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
             //meter_step = static_cast<int>(floor(seq.frame()*scaleMultiplier))%actualSteps.load();
         }
 
-
-        // SEQ bangs
-        if(seqSteps[meter_step]>0.0f){
-            *(float *)&_outletParams[0] = 1.0f;
-        }else{
-            *(float *)&_outletParams[0] = 0.0f;
-        }
-
-        // CTRLS values
-        *(float *)&_outletParams[1] = seqSteps[meter_step];      // value
+        // SEQ address values
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = seqSteps[meter_step];      // value
 
     };
 
@@ -171,17 +159,17 @@ void pdspAddressSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> 
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){ // ratio
-        scaleMultiplier = *(float *)&_inletParams[1]; //ofClamp(*(float *)&_inletParams[1],0.25f,4.0f);
+        scaleMultiplier = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]); //ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.25f,4.0f);
     }
 
     if(this->inletsConnected[2]){ // steps
-        manualSteps = static_cast<int>(floor(ofClamp(*(float *)&_inletParams[2],1,8)));
+        manualSteps = static_cast<int>(floor(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),1,8)));
         actualSteps = manualSteps;
     }
 
     // SYNC
     if(this->inletsConnected[3]){
-        if(*(float *)&_inletParams[3] == 1.0f){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) == 1.0f){
             if(rev){
                  meter_step = actualSteps.load()-1;
             }else{
@@ -372,10 +360,10 @@ void pdspAddressSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
     // S
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
         for(size_t i=0;i<8;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[0])->size()){
-                seqSteps[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            if(i < ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()){
+                seqSteps[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i);
             }
         }
     }

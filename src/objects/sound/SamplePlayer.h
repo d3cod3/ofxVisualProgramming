@@ -86,6 +86,7 @@ public:
     pdsp::ValueControl      gain_ctrl;
     pdsp::ValueControl      direction_ctrl;
     pdsp::ValueControl      start_ctrl;
+    bool                    hasTriggered;
 
     pdsp::Scope         scope;
     float               *plot_data;

@@ -49,72 +49,72 @@ pdspSequencer::pdspSequencer() : PatchObject("sequencer"){
     _inletParams[3] = new vector<float>(); // C
     _inletParams[4] = new vector<float>(); // D
     _inletParams[5] = new float();         // steps
-    *(float *)&_inletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]) = 0.0f;
     _inletParams[6] = new float();         // sync
-    *(float *)&_inletParams[6] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[6]) = 0.0f;
 
     _outletParams[0] = new float();          // step
-    *(float *)&_outletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = 0.0f;
 
     _outletParams[1] = new float();          // step
-    *(float *)&_outletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
 
     _outletParams[2] = new float();          // step
-    *(float *)&_outletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[2]) = 0.0f;
 
     _outletParams[3] = new float();          // step
-    *(float *)&_outletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[3]) = 0.0f;
 
     _outletParams[4] = new float();          // step
-    *(float *)&_outletParams[4] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[4]) = 0.0f;
 
     _outletParams[5] = new float();          // step
-    *(float *)&_outletParams[5] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[5]) = 0.0f;
 
     _outletParams[6] = new float();          // step
-    *(float *)&_outletParams[6] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[6]) = 0.0f;
 
     _outletParams[7] = new float();          // step
-    *(float *)&_outletParams[7] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[7]) = 0.0f;
 
     _outletParams[8] = new float();          // step
-    *(float *)&_outletParams[8] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[8]) = 0.0f;
 
     _outletParams[9] = new float();          // step
-    *(float *)&_outletParams[9] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[9]) = 0.0f;
 
     _outletParams[10] = new float();          // step
-    *(float *)&_outletParams[10] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[10]) = 0.0f;
 
     _outletParams[11] = new float();          // step
-    *(float *)&_outletParams[11] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[11]) = 0.0f;
 
     _outletParams[12] = new float();          // step
-    *(float *)&_outletParams[12] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[12]) = 0.0f;
 
     _outletParams[13] = new float();          // step
-    *(float *)&_outletParams[13] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[13]) = 0.0f;
 
     _outletParams[14] = new float();          // step
-    *(float *)&_outletParams[14] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[14]) = 0.0f;
 
     _outletParams[15] = new float();          // step
-    *(float *)&_outletParams[15] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[15]) = 0.0f;
 
     _outletParams[16] = new float();          // S
-    *(float *)&_outletParams[16] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[16]) = 0.0f;
 
     _outletParams[17] = new float();          // A
-    *(float *)&_outletParams[17] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[17]) = 0.0f;
 
     _outletParams[18] = new float();          // B
-    *(float *)&_outletParams[18] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[18]) = 0.0f;
 
     _outletParams[19] = new float();          // C
-    *(float *)&_outletParams[19] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[19]) = 0.0f;
 
     _outletParams[20] = new float();          // D
-    *(float *)&_outletParams[20] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[20]) = 0.0f;
 
     this->initInletsState();
 
@@ -205,24 +205,24 @@ void pdspSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         }
 
         // CTRLS
-        *(float *)&_outletParams[16] = seqSteps[meter_step];      // S
-        *(float *)&_outletParams[17] = ctrl1Steps[meter_step];    // A
-        *(float *)&_outletParams[18] = ctrl2Steps[meter_step];    // B
-        *(float *)&_outletParams[19] = ctrl3Steps[meter_step];    // C
-        *(float *)&_outletParams[20] = ctrl4Steps[meter_step];    // D
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[16]) = seqSteps[meter_step];      // S
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[17]) = ctrl1Steps[meter_step];    // A
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[18]) = ctrl2Steps[meter_step];    // B
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[19]) = ctrl3Steps[meter_step];    // C
+        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[20]) = ctrl4Steps[meter_step];    // D
 
         // SEQ
         if(seqSteps[meter_step]>0.0f){
-            *(float *)&_outletParams[meter_step - (static_cast<int>(floor(meter_step/16))*CHAPTER_STEPS)] = 1.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[meter_step - (static_cast<int>(floor(meter_step/16))*CHAPTER_STEPS)]) = 1.0f;
         }else{
-            *(float *)&_outletParams[meter_step - (static_cast<int>(floor(meter_step/16))*CHAPTER_STEPS)] = 0.0f;
+            *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[meter_step - (static_cast<int>(floor(meter_step/16))*CHAPTER_STEPS)]) = 0.0f;
         }
 
         for(int i=0;i<CHAPTER_STEPS;i++){
             if(i == meter_step){
-                *(float *)&_outletParams[i] = seqSteps[meter_step];
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[i]) = seqSteps[meter_step];
             }else{
-                *(float *)&_outletParams[i] = 0.0f;
+                *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[i]) = 0.0f;
             }
         }
 
@@ -235,11 +235,11 @@ void pdspSequencer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
         ctrl3Steps[i] = 0.0f;
         ctrl4Steps[i] = 0.0f;
 
-        static_cast<vector<float> *>(_inletParams[0])->push_back(0.0f);
-        static_cast<vector<float> *>(_inletParams[1])->push_back(0.0f);
-        static_cast<vector<float> *>(_inletParams[2])->push_back(0.0f);
-        static_cast<vector<float> *>(_inletParams[3])->push_back(0.0f);
-        static_cast<vector<float> *>(_inletParams[4])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->push_back(0.0f);
     }
 }
 
@@ -255,7 +255,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     // steps
     if(this->inletsConnected[5]){
-        manualSteps = static_cast<int>(ofClamp(*(float *)&_inletParams[5],1.0f,SEQUENCER_STEPS*1.0f));
+        manualSteps = static_cast<int>(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[5]),1.0f,SEQUENCER_STEPS*1.0f));
         actualSteps = manualSteps;
         if(actualSteps <= 16){
             maxChapter = 0;
@@ -271,7 +271,7 @@ void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 
     // SYNC
     if(this->inletsConnected[6]){
-        if(*(float *)&_inletParams[6] == 1.0f){
+        if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[6]) == 1.0f){
             meter_step = 0;
         }
     }
@@ -459,46 +459,46 @@ void pdspSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
     //seq.timing = actualSteps.load();
 
     // S
-    if(this->inletsConnected[0] && !static_cast<vector<float> *>(_inletParams[0])->empty()){
+    if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[0])->size()){
-                seqSteps[i] = static_cast<vector<float> *>(_inletParams[0])->at(i);
+            if(i < ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()){
+                seqSteps[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->at(i);
             }
         }
     }
 
     // A
-    if(this->inletsConnected[1] && !static_cast<vector<float> *>(_inletParams[1])->empty()){
+    if(this->inletsConnected[1] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[1])->size()){
-                ctrl1Steps[i] = static_cast<vector<float> *>(_inletParams[1])->at(i);
+            if(i < ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->size()){
+                ctrl1Steps[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[1])->at(i);
             }
         }
     }
 
     // B
-    if(this->inletsConnected[2] && !static_cast<vector<float> *>(_inletParams[2])->empty()){
+    if(this->inletsConnected[2] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[2])->size()){
-                ctrl2Steps[i] = static_cast<vector<float> *>(_inletParams[2])->at(i);
+            if(i < ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->size()){
+                ctrl2Steps[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[2])->at(i);
             }
         }
     }
 
     // C
-    if(this->inletsConnected[3] && !static_cast<vector<float> *>(_inletParams[3])->empty()){
+    if(this->inletsConnected[3] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[3])->size()){
-                ctrl3Steps[i] = static_cast<vector<float> *>(_inletParams[3])->at(i);
+            if(i < ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3])->size()){
+                ctrl3Steps[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[3])->at(i);
             }
         }
     }
 
     // D
-    if(this->inletsConnected[4] && !static_cast<vector<float> *>(_inletParams[4])->empty()){
+    if(this->inletsConnected[4] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->empty()){
         for(size_t i=0;i<SEQUENCER_STEPS;i++){
-            if(i < static_cast<vector<float> *>(_inletParams[4])->size()){
-                ctrl4Steps[i] = static_cast<vector<float> *>(_inletParams[4])->at(i);
+            if(i < ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->size()){
+                ctrl4Steps[i] = ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[4])->at(i);
             }
         }
     }

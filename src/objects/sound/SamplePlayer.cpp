@@ -41,13 +41,13 @@ SamplePlayer::SamplePlayer() : PatchObject("sample player"){
     this->numOutlets = 2;
 
     _inletParams[0] = new float();  // bang
-    *(float *)&_inletParams[0] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) = 0.0f;
     _inletParams[1] = new float();  // pitch
-    *(float *)&_inletParams[1] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) = 0.0f;
     _inletParams[2] = new float();  // gain
-    *(float *)&_inletParams[2] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]) = 0.0f;
     _inletParams[3] = new float();  // direction
-    *(float *)&_inletParams[3] = 0.0f;
+    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]) = 0.0f;
 
     _outletParams[0] = new ofSoundBuffer();  // signal
     _outletParams[1] = new vector<float>(); // audio buffer
@@ -70,6 +70,7 @@ SamplePlayer::SamplePlayer() : PatchObject("sample player"){
     loadSoundfileFlag   = false;
     soundfileLoaded     = false;
     loadingFile         = false;
+    hasTriggered        = false;
 
     isPDSPPatchableObject   = true;
 
@@ -122,9 +123,11 @@ void SamplePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
     // ---- this code runs in the audio thread ----
     sseq.code = [&]() noexcept {
         if(this->inletsConnected[0]){
-            if(ofClamp(*(float *)&_inletParams[0],0.0f,1.0f) == 1.0f){
+            if(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),0.0f,1.0f) == 1.0f && !hasTriggered){
+                hasTriggered = true;
                 trigger.trigger(1.0f);
             }else{
+                hasTriggered = false;
                 trigger.off();
             }
         }
@@ -183,17 +186,17 @@ void SamplePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     if(isFileLoaded && sampleBuffer.loaded()){
         // pitch
         if(this->inletsConnected[1]){
-            pitch = ofClamp(*(float *)&_inletParams[1],1.0f,10.0f);
+            pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),1.0f,10.0f);
             pitch_ctrl.set(pitch);
         }
         // gain
         if(this->inletsConnected[2]){
-            gain = ofClamp(*(float *)&_inletParams[2],0.0f,10.0f);
+            gain = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2]),0.0f,10.0f);
             gain_ctrl.set(gain);
         }
         // direction
         if(this->inletsConnected[3]){
-            direction = static_cast<int>(ofClamp(*(float *)&_inletParams[3],-1.0f,1.0f));
+            direction = static_cast<int>(ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[3]),-1.0f,1.0f));
             direction_ctrl.set(direction);
             if(direction < 0){
                 reverse = true;
@@ -388,9 +391,9 @@ void SamplePlayer::removeObjectContent(bool removeFileFromData){
 void SamplePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
     unusedArgs(outputBuffer);
 
-    static_cast<ofSoundBuffer *>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
+    ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 
-    *static_cast<vector<float> *>(_outletParams[1]) = scope.getBuffer();
+    *ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1]) = scope.getBuffer();
 
 }
 
@@ -411,7 +414,7 @@ void SamplePlayer::loadSettings(){
     }
 
     for(int i=0;i<bufferSize;i++){
-        static_cast<vector<float> *>(_outletParams[1])->push_back(0.0f);
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);
     }
 
 }
