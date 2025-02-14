@@ -105,7 +105,6 @@ public:
     void            resetSystemObjects();
     void            resetSpecificSystemObjects(string name);
     bool            weAlreadyHaveObject(string name);
-    void            deleteObject(int id);
     void            clearObjectsMap();
     bool            isObjectInLibrary(string name);
     bool            isObjectIDInPatchMap(int id);
