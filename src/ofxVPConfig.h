@@ -36,6 +36,8 @@
 #define	VERSION_OFXVP       "0.7.2"
 #define DESCRIPTION_OFXVP   "A visual programming patching environment for OF"
 
+#define MOSAIC_CHECK_STRING "https://mosaic.d3cod3.org"
+#define PRE_PUGIXML_MOSAIC_RELEASE "072"
 
 // choose modifier key based on platform
 #ifdef TARGET_OSX

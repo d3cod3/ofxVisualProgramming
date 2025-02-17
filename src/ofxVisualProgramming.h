@@ -35,6 +35,7 @@
 #include "ofMain.h"
 
 #include "ofxVPConfig.h"
+#include "ofxVPXmlEngine.h"
 
 #include "ofxPDSP.h"
 #include "ofxImGui.h"
@@ -131,24 +132,27 @@ public:
 
     void            resetCanvas();
 
+    // PATCH FILE
+    ofxVPXmlEngine                      ofxVPXml;
+
     // PATCH CANVAS
-    ofRectangle                     canvasViewport;
-    ofxImGui::Gui*                  ofxVPGui;
-    ImGuiEx::NodeCanvas             nodeCanvas;
-    ImGuiEx::ProfilersWindow        profiler;
-    ImGuiEx::ProfilerTask           *pt;
-    bool                            isCanvasVisible;
-    bool                            isCanvasActive;
+    ofRectangle                         canvasViewport;
+    ofxImGui::Gui*                      ofxVPGui;
+    ImGuiEx::NodeCanvas                 nodeCanvas;
+    ImGuiEx::ProfilersWindow            profiler;
+    ImGuiEx::ProfilerTask               *pt;
+    bool                                isCanvasVisible;
+    bool                                isCanvasActive;
 
 
     // PATCH DRAWING RESOURCES
-    ofTrueTypeFont                  *font;
-    int                             fontSize;
-    bool                            isRetina;
-    float                           scaleFactor;
+    ofTrueTypeFont                      *font;
+    int                                 fontSize;
+    bool                                isRetina;
+    float                               scaleFactor;
 
     // PUGG external plugins objects
-    pugg::Kernel                    plugins_kernel;
+    pugg::Kernel                        plugins_kernel;
 
     // PATCH OBJECTS
     map<int,shared_ptr<PatchObject>>    patchObjects;
@@ -223,11 +227,11 @@ public:
     bool                                dspON;
 
     // MEMORY
-    uint64_t                loadPatchTime;
-    uint64_t                resetTime;
-    uint64_t                deferredLoadTime;
-    uint64_t                wait;
-    bool                    deferredLoad;
+    uint64_t                            loadPatchTime;
+    uint64_t                            resetTime;
+    uint64_t                            deferredLoadTime;
+    uint64_t                            wait;
+    bool                                deferredLoad;
 
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
