@@ -33,7 +33,7 @@
 #pragma once
 
 #define PACKAGE_OFXVP       "ofxVisualProgramming"
-#define	VERSION_OFXVP       "0.7.2"
+#define	VERSION_OFXVP       "0.7.3"
 #define DESCRIPTION_OFXVP   "A visual programming patching environment for OF"
 
 #define MOSAIC_CHECK_STRING "https://mosaic.d3cod3.org"
