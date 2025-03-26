@@ -223,162 +223,151 @@ void AudioDevice::resetSystemObject(){
         }
     }
 
-    ofxXmlSettings XML;
-
     deviceLoaded      = false;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-        if (XML.pushTag("settings")){
-            in_channels  = XML.getValue("input_channels",0);
-            out_channels = XML.getValue("output_channels",0);
-            sampleRateIN = XML.getValue("sample_rate_in",0);
-            sampleRateOUT= XML.getValue("sample_rate_out",0);
-            bufferSize   = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
+    in_channels  = this->ofxVPXml.getMosaicConfigInt("input_channels");
+    out_channels = this->ofxVPXml.getMosaicConfigInt("output_channels");
+    sampleRateIN = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    sampleRateOUT= this->ofxVPXml.getMosaicConfigInt("sample_rate_out");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-        this->numInlets  = out_channels;
-        this->numOutlets = in_channels;
+    bool isNumOutletChanged = true;
+    if(this->numOutlets == in_channels){
+        isNumOutletChanged = false;
+    }
 
-        IN_CH.clear();
-        PN_IN_CH.resize(in_channels);
-        LC_IN_CH.resize(in_channels);
-        HC_IN_CH.resize(in_channels);
-        IN_SCOPE.resize(in_channels);
-        OUT_CH.resize(out_channels);
+    this->numInlets  = out_channels;
+    this->numOutlets = in_channels;
 
-        shortBuffer = new short[bufferSize];
-        for (int i = 0; i < bufferSize; i++){
-            shortBuffer[i] = 0;
-        }
+    IN_CH.clear();
+    PN_IN_CH.resize(in_channels);
+    LC_IN_CH.resize(in_channels);
+    HC_IN_CH.resize(in_channels);
+    IN_SCOPE.resize(in_channels);
+    OUT_CH.resize(out_channels);
 
-        for( int i = 0; i < out_channels; i++){
-            _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
-        }
+    shortBuffer = new short[bufferSize];
+    for (int i = 0; i < bufferSize; i++){
+        shortBuffer[i] = 0;
+    }
 
-        for( unsigned int i = 0; i < this->pdspOut.size(); i++){
-            this->pdspOut[i].disconnectOut();
-        }
-        this->pdspOut.clear();
+    for( int i = 0; i < out_channels; i++){
+        _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
+    }
 
-        for( int i = 0; i < in_channels; i++){
-            _outletParams[i] = new ofSoundBuffer();
-            ofSoundBuffer temp;
-            IN_CH.push_back(temp);
+    for( unsigned int i = 0; i < this->pdspOut.size(); i++){
+        this->pdspOut[i].disconnectOut();
+    }
+    this->pdspOut.clear();
 
-            pdsp::PatchNode *tempPN = new pdsp::PatchNode();
-            this->pdspOut[i] = *tempPN;
-        }
+    for( int i = 0; i < in_channels; i++){
+        _outletParams[i] = new ofSoundBuffer();
+        ofSoundBuffer temp;
+        IN_CH.push_back(temp);
 
-        this->inletsType.clear();
-        this->inletsNames.clear();
-        this->inletsIDs.clear();
-        this->inletsWirelessReceive.clear();
+        pdsp::PatchNode *tempPN = new pdsp::PatchNode();
+        this->pdspOut[i] = *tempPN;
+    }
 
-        for( int i = 0; i < out_channels; i++){
-            this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
-        }
+    this->inletsType.clear();
+    this->inletsNames.clear();
+    this->inletsIDs.clear();
+    this->inletsWirelessReceive.clear();
 
-        this->outletsType.clear();
-        this->outletsNames.clear();
-        this->outletsIDs.clear();
-        this->outletsWirelessSend.clear();
-        for( int i = 0; i < in_channels; i++){
-            this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
-        }
+    for( int i = 0; i < out_channels; i++){
+        this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
+    }
 
-        this->inletsConnected.clear();
-        this->initInletsState();
+    this->outletsType.clear();
+    this->outletsNames.clear();
+    this->outletsIDs.clear();
+    this->outletsWirelessSend.clear();
+    for( int i = 0; i < in_channels; i++){
+        this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
+    }
 
-        for(int i=0;i<this->numInlets;i++){
-            if(i<static_cast<int>(tempInletsConn.size())){
-                if(tempInletsConn.at(i)){
-                    this->inletsConnected.push_back(true);
-                }else{
-                    this->inletsConnected.push_back(false);
-                }
+    this->inletsConnected.clear();
+    this->initInletsState();
+
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
             }else{
                 this->inletsConnected.push_back(false);
             }
+        }else{
+            this->inletsConnected.push_back(false);
         }
+    }
 
-        this->height      = OBJECT_HEIGHT;
+    this->height      = OBJECT_HEIGHT;
 
-        if(this->numInlets > 6 || this->numOutlets > 6){
-            this->height          *= 2;
+    if(this->numInlets > 6 || this->numOutlets > 6){
+        this->height          *= 2;
+    }
+
+    if(this->numInlets > 12 || this->numOutlets > 12){
+        this->height          *= 2;
+    }
+
+    // ---------------------------------------- Save new object config
+
+
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
+
+    // Dynamic reloading outlets
+    if(isNumOutletChanged){
+        this->ofxVPXml.removeObjectOutlets(this->nId);
+        this->ofxVPXml.appendObjectOutletsBlock(this->nId);
+        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
+            this->ofxVPXml.addObjectOutlet(this->nId,this->outletsType.at(j),this->outletsNames.at(j));
         }
+    }
 
-        if(this->numInlets > 12 || this->numOutlets > 12){
-            this->height          *= 2;
-        }
+    // remove links to this object if exceed new inlets number
+    pugi::xpath_node_set objs = this->ofxVPXml.getPatchObjects();
 
-        // Save new object config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    // Dynamic reloading outlets
-                    XML.removeTag("outlets");
-                    int newOutlets = XML.addTag("outlets");
-                    if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
-                            int newLink = XML.addTag("link");
-                            if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outletsType.at(j));
-                                XML.setValue("name",this->outletsNames.at(j));
-                                XML.popTag();
+    if(!objs.empty()){
+        for(auto & obj: objs){
+            auto o = obj.node();
+            int tid = this->ofxVPXml.getPatchChildInt(o,"id");
+            if(tid != this->nId){
+                pugi::xpath_node_set objOutlets = this->ofxVPXml.getObjectOutlets(tid);
+                if(!objOutlets.empty()){
+                    int oIndex = 0;
+                    for(auto & outlet: objOutlets){
+                        pugi::xpath_node_set ooLinks = this->ofxVPXml.getObjectLinks(tid,oIndex);
+                        if(!ooLinks.empty()){
+                            vector<bool> delLinks;
+                            for(auto & link: ooLinks){
+                                auto l = link.node();
+                                if(this->ofxVPXml.getPatchChildInt(l,"id") == this->nId && this->ofxVPXml.getPatchChildInt(l,"inlet") > this->getNumInlets()-1){
+                                    delLinks.push_back(true);
+                                }else{
+                                    delLinks.push_back(false);
+                                }
+                            }
+                            for(int d=delLinks.size()-1;d>=0;d--){
+                                if(delLinks.at(d)){
+                                    this->ofxVPXml.removeObjectLink(tid,oIndex,d);
+                                }
                             }
                         }
-                        XML.popTag();
-                    }
-                }else{
-                    // remove links to this object if exceed new inlets number
-                    if(XML.pushTag("outlets")){
-                        int totalLinks = XML.getNumTags("link");
-                        for(int l=0;l<totalLinks;l++){
-                            if(XML.pushTag("link",l)){
-                                int totalTo = XML.getNumTags("to");
-                                vector<bool> delLinks;
-                                for(int t=0;t<totalTo;t++){
-                                    if(XML.pushTag("to",t)){
-                                        if(XML.getValue("id", -1) == this->nId && XML.getValue("inlet", -1) > this->getNumInlets()-1){
-                                            delLinks.push_back(true);
-                                        }else{
-                                            delLinks.push_back(false);
-                                        }
-                                        XML.popTag();
-                                    }
-                                }
-                                for(int d=delLinks.size()-1;d>=0;d--){
-                                    if(delLinks.at(d)){
-                                        XML.removeTag("to",d);
-                                    }
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
+                        oIndex++;
                     }
                 }
-                XML.popTag();
             }
         }
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-
         deviceLoaded      = true;
+
     }
 
     this->saveConfig(false);
+
 }
 
 //--------------------------------------------------------------
@@ -393,109 +382,91 @@ void AudioDevice::loadDeviceInfo(){
         }
     }
 
-    ofxXmlSettings XML;
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            in_channels  = XML.getValue("input_channels",0);
-            out_channels = XML.getValue("output_channels",0);
-            sampleRateIN = XML.getValue("sample_rate_in",0);
-            sampleRateOUT= XML.getValue("sample_rate_out",0);
-            bufferSize   = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
+    in_channels  = this->ofxVPXml.getMosaicConfigInt("input_channels");
+    out_channels = this->ofxVPXml.getMosaicConfigInt("output_channels");
+    sampleRateIN = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    sampleRateOUT= this->ofxVPXml.getMosaicConfigInt("sample_rate_out");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-        bool isNewObject = true;
+    bool isNewObject = !this->ofxVPXml.objIDExists(this->nId);
 
-        int totalObjects = XML.getNumTags("object");
-        for (int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id",-1) == this->nId){
-                    isNewObject = false;
-                }
-                XML.popTag();
-            }
-        }
+    this->numInlets  = out_channels;
+    this->numOutlets = in_channels;
 
-        this->numInlets  = out_channels;
-        this->numOutlets = in_channels;
+    IN_CH.clear();
+    PN_IN_CH.resize(in_channels);
+    LC_IN_CH.resize(in_channels);
+    HC_IN_CH.resize(in_channels);
+    IN_SCOPE.resize(in_channels);
+    OUT_CH.resize(out_channels);
 
-        IN_CH.clear();
-        PN_IN_CH.resize(in_channels);
-        LC_IN_CH.resize(in_channels);
-        HC_IN_CH.resize(in_channels);
-        IN_SCOPE.resize(in_channels);
-        OUT_CH.resize(out_channels);
+    shortBuffer = new short[bufferSize];
+    for (int i = 0; i < bufferSize; i++){
+        shortBuffer[i] = 0;
+    }
 
-        shortBuffer = new short[bufferSize];
-        for (int i = 0; i < bufferSize; i++){
-            shortBuffer[i] = 0;
-        }
+    for( int i = 0; i < out_channels; i++){
+        _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
+    }
 
-        for( int i = 0; i < out_channels; i++){
-            _inletParams[i] = new ofSoundBuffer(shortBuffer,static_cast<size_t>(bufferSize),1,static_cast<unsigned int>(sampleRateOUT));
-        }
+    for( int i = 0; i < (int)this->pdspOut.size(); i++){
+        this->pdspOut[i].disconnectOut();
+    }
+    this->pdspOut.clear();
 
-        for( int i = 0; i < (int)this->pdspOut.size(); i++){
-            this->pdspOut[i].disconnectOut();
-        }
-        this->pdspOut.clear();
+    for( int i = 0; i < in_channels; i++){
+        _outletParams[i] = new ofSoundBuffer();
+        ofSoundBuffer temp;
+        IN_CH.push_back(temp);
 
+        pdsp::PatchNode *tempPN = new pdsp::PatchNode();
+        this->pdspOut[i] = *tempPN;
+    }
+
+    this->inletsType.clear();
+    this->inletsNames.clear();
+
+    for( int i = 0; i < out_channels; i++){
+        this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
+    }
+
+    if(isNewObject){
+        this->outletsType.clear();
+        this->outletsNames.clear();
         for( int i = 0; i < in_channels; i++){
-            _outletParams[i] = new ofSoundBuffer();
-            ofSoundBuffer temp;
-            IN_CH.push_back(temp);
-
-            pdsp::PatchNode *tempPN = new pdsp::PatchNode();
-            this->pdspOut[i] = *tempPN;
+            this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
         }
+    }
 
-        this->inletsType.clear();
-        this->inletsNames.clear();
+    this->inletsConnected.clear();
+    this->initInletsState();
 
-        for( int i = 0; i < out_channels; i++){
-            this->addInlet(VP_LINK_AUDIO,"OUT CHANNEL "+ofToString(i+1));
-        }
-
-        if(isNewObject){
-            this->outletsType.clear();
-            this->outletsNames.clear();
-            for( int i = 0; i < in_channels; i++){
-                this->addOutlet(VP_LINK_AUDIO,"IN CHANNEL "+ofToString(i+1));
-            }
-        }
-
-        this->inletsConnected.clear();
-        this->initInletsState();
-
-        for(int i=0;i<this->numInlets;i++){
-            if(i<static_cast<int>(tempInletsConn.size())){
-                if(tempInletsConn.at(i)){
-                    this->inletsConnected.push_back(true);
-                }else{
-                    this->inletsConnected.push_back(false);
-                }
+    for(int i=0;i<this->numInlets;i++){
+        if(i<static_cast<int>(tempInletsConn.size())){
+            if(tempInletsConn.at(i)){
+                this->inletsConnected.push_back(true);
             }else{
                 this->inletsConnected.push_back(false);
             }
+        }else{
+            this->inletsConnected.push_back(false);
         }
-
-        this->height      = OBJECT_HEIGHT;
-
-        if(this->numInlets > 6 || this->numOutlets > 6){
-            this->height          *= 2;
-        }
-
-        if(this->numInlets > 12 || this->numOutlets > 12){
-            this->height          *= 2;
-        }
-
-        deviceLoaded      = true;
     }
+
+    this->height      = OBJECT_HEIGHT;
+
+    if(this->numInlets > 6 || this->numOutlets > 6){
+        this->height          *= 2;
+    }
+
+    if(this->numInlets > 12 || this->numOutlets > 12){
+        this->height          *= 2;
+    }
+
+    deviceLoaded      = true;
+
 }
 
 OBJECT_REGISTER( AudioDevice, "audio device", OFXVP_OBJECT_CAT_SOUND)

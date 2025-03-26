@@ -72,19 +72,10 @@ void FftExtractor::newObject(){
 void FftExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            spectrumSize = (bufferSize/2) + 1;
-            XML.popTag();
-        }
-    }
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
+    spectrumSize = (bufferSize/2) + 1;
 
     // INIT FFT BUFFER
     for(int i=0;i<(bufferSize/2)+1;i++){

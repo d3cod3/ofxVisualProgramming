@@ -334,39 +334,30 @@ void pdspParametricEQ::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void pdspParametricEQ::loadAudioSettings(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-            XML.popTag();
-        }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-        fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING);
-        spectrum = new float[fft->getBinSize()];
-        l1Filter = new std::vector<float>;
-        m1Filter = new std::vector<float>;
-        m2Filter = new std::vector<float>;
-        h1Filter = new std::vector<float>;
-        parametricFilter = new std::vector<float>;
+    fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING);
+    spectrum = new float[fft->getBinSize()];
+    l1Filter = new std::vector<float>;
+    m1Filter = new std::vector<float>;
+    m2Filter = new std::vector<float>;
+    h1Filter = new std::vector<float>;
+    parametricFilter = new std::vector<float>;
 
-        for(int i=0;i<fft->getBinSize();i++){
-            ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);
+    for(int i=0;i<fft->getBinSize();i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);
 
-            l1Filter->push_back(0.0f);
-            m1Filter->push_back(0.0f);
-            m2Filter->push_back(0.0f);
-            h1Filter->push_back(0.0f);
-            parametricFilter->push_back(0.0f);
+        l1Filter->push_back(0.0f);
+        m1Filter->push_back(0.0f);
+        m2Filter->push_back(0.0f);
+        h1Filter->push_back(0.0f);
+        parametricFilter->push_back(0.0f);
 
-            spectrum[i] = 0.0f;
-        }
+        spectrum[i] = 0.0f;
     }
 }
 

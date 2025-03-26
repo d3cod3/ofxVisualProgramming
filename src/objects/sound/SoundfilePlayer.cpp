@@ -509,19 +509,10 @@ void SoundfilePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 
 //--------------------------------------------------------------
 void SoundfilePlayer::loadSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if(XML.pushTag("settings")){
-            sampleRate = static_cast<double>(XML.getValue("sample_rate_out",0));
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
     for(int i=0;i<bufferSize;i++){
         ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);

@@ -296,32 +296,16 @@ void vpReceiver::initWireless(){
     changeDataType(receiveTypeIndex);
     this->wirelessType = receiveTypeIndex;
 
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-        // Get object inlets config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    if (XML.pushTag("vars")){
-                        int totalVars = XML.getNumTags("var");
-                        for (int t=0;t<totalVars;t++){
-                            if(XML.pushTag("var",t)){
-                                if(XML.getValue("name","") != "DATA_TYPE" && XML.getValue("name","") != "IS_RECEIVING" && XML.getValue("name","") != "_unassigned"){
-                                    varName = XML.getValue("name","");
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
+    pugi::xpath_node_set vars = this->ofxVPXml.getObjectVars(this->nId);
+
+    if(!vars.empty()){
+        for(auto & var: vars){
+            auto v = var.node();
+            std::string n = this->ofxVPXml.getPatchChildString(v,"name");
+            if(n != "DATA_TYPE" && n != "IS_RECEIVING" && n != "_unassigned"){
+                varName = n;
             }
         }
     }
@@ -424,43 +408,13 @@ void vpReceiver::changeDataType(int type, bool init){
 
     // changed inlets/outlet type
     if(!init){ // remove links
-        ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-        if (XML.loadFile(this->patchFile)){
-#else
-        if (XML.load(this->patchFile)){
-#endif
-            int totalObjects = XML.getNumTags("object");
+        this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-            // Save new object config
-            for(int i=0;i<totalObjects;i++){
-                if(XML.pushTag("object", i)){
-                    if(XML.getValue("id", -1) == this->nId){
-                        // Dynamic reloading outlets
-                        XML.removeTag("outlets");
-                        int newOutlets = XML.addTag("outlets");
-                        if(XML.pushTag("outlets",newOutlets)){
-                            int newLink = XML.addTag("link");
-                            if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outletsType.at(0));
-                                XML.setValue("name",this->outletsNames.at(0));
-                                XML.popTag();
-                            }
-                            XML.popTag();
-                        }
-                    }
-                    XML.popTag();
-                }
-            }
-
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-
-        }
+        // Dynamic reloading outlets
+        this->ofxVPXml.removeObjectOutlets(this->nId);
+        this->ofxVPXml.appendObjectOutletsBlock(this->nId);
+        this->ofxVPXml.addObjectOutlet(this->nId,this->outletsType.at(0),this->outletsNames.at(0));
 
         this->outPut.clear();
     }

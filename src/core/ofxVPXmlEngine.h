@@ -51,8 +51,11 @@ public:
     ~ofxVPXmlEngine() {}
 
     // LOAD/SAVE
+    std::string getMosaicPatch() { return filepath; }
     void loadMosaicPatch(std::string path);
     void saveMosaicPatch(std::string path);
+    bool isPatchOK() { return isMosaicPatch; }
+    pugi::xpath_node_set getScriptLanguageMethods(std::string path);
 
     // TESTING
     void printTests();
@@ -69,50 +72,18 @@ public:
 
     // CHECKS
     bool checkIsMosaicPatch();
-    bool nodeExists(pugi::xml_node &node,std::string name) { assert(isLoaded); return bool(node.child(name.c_str())); }
+    bool objIDExists(int id);
+    bool nodeExists(pugi::xml_node &node,std::string name) { return bool(node.child(name.c_str())); }
     bool checkIsObjectNode(pugi::xml_node node);
+    bool isEmptyNode(pugi::xml_node n) {return  n == empty ? true : false;  }
 
-    // READ/WRITE/REMOVE
-    int getLastObjectID();
-    void addNewObject(std::string name, std::string _filepath, std::string subpatch, ofVec2f pos);
-    void setObjectFilepath(int objid, std::string _filepath);
-    void setObjectSubpatch(int objid, std::string subpatch);
-    void setObjectPos(int objid, ofVec2f pos);
-    void removeObject(int id);
-
-    void addObjectInlet(int objid, int type, std::string name);
-    void setObjectInletType(int objid, int inlet_order, int type);
-    void setObjectInletName(int objid, int inlet_order, std::string name);
-    void removeObjectInlet(int objid, int inlet_order);
-
-    void addObjectOutlet(int objid, int type, std::string name);
-    void setObjectOutletType(int objid, int outlet_order, int type);
-    void setObjectOutletName(int objid, int outlet_order, std::string name);
-    void removeObjectOutlet(int objid, int outlet_order);
-
-    void addObjectLink(int objid, int outlet_order, int toObjId, int toInletId);
-    void setObjectLinkToObjID(int objid, int outlet_order, int link_order, int toObjId);
-    void setObjectLinkToInletID(int objid, int outlet_order, int link_order, int toInletId);
-    void removeObjectLink(int objid, int outlet_order, int link_order);
-    void removeAllObjectOutletLinks(int objid, int outlet_order);
-    void removeAllObjectLinks(int objid);
-
-    void addObjectVar(int objid, std::string varName, float varValue);
-    void setObjectVar(int objid, std::string varName, float varValue);
-    void removeObjectVar(int objid, std::string varName);
-
-    void setMosaicConfig(std::string configVar, int value);
-    int getMosaicConfig(std::string configVar);
-
-    std::string getMosaicRelease(){ assert(isLoaded); return ofxVP_XML_ENGINE_VALUE_CAST<std::string>(getPatchValue(xml,"release")); }
-    size_t getMosaicReleaseMAJOR(){ return size_t(ofToInt(string(1,getMosaicRelease().at(0)))); }
-    size_t getMosaicReleaseMINOR(){ return size_t(ofToInt(string(1,getMosaicRelease().at(1)))); }
-    size_t getMosaicReleasePATCH(){ return size_t(ofToInt(string(1,getMosaicRelease().at(2)))); }
-    
-
-private:
-    
-    pugi::xml_node getPatchChildNode(pugi::xml_node parent, std::string name) { assert(isLoaded); return parent.select_node(name.c_str()).node(); }
+    // GETTERS
+    pugi::xml_node getObjectAtPos(int pos);
+    pugi::xpath_node_set getPatchObjects() { return xml.select_nodes("object");}
+    pugi::xpath_node_set getObjectVars(int id);
+    pugi::xpath_node_set getObjectInlets(int id);
+    pugi::xpath_node_set getObjectOutlets(int id);
+    pugi::xpath_node_set getObjectLinks(int objid, int outlet_order);
 
     pugi::xml_node getObjectNode(int id);
     std::string getObjectName(int id);
@@ -120,11 +91,86 @@ private:
     std::string getObjectSubpatch(int id);
     ofVec2f getObjectPosition(int id);
 
-    pugi::xpath_node_set getPatchObjects() { assert(isMosaicPatch); return xml.select_nodes("object");}
-    pugi::xpath_node_set getObjectVars(int id);
-    pugi::xpath_node_set getObjectInlets(int id);
-    pugi::xpath_node_set getObjectOutlets(int id);
-    pugi::xpath_node_set getObjectLinks(int objid, int outlet_order);
+    bool getPatchChildBool(pugi::xml_node &node, std::string childname) { return node.child(childname.c_str()).text().as_bool(); }
+    int getPatchChildInt(pugi::xml_node &node, std::string childname) { return node.child(childname.c_str()).text().as_int(); }
+    float getPatchChildFloat(pugi::xml_node &node, std::string childname) { return node.child(childname.c_str()).text().as_float(); }
+    std::string getPatchChildString(pugi::xml_node &node, std::string childname) { return node.child(childname.c_str()).text().as_string(); }
+
+    // READ/WRITE/REMOVE
+    int getLastObjectID();
+    int addNewObject(std::string name, std::string _filepath, std::string subpatch, ofVec2f pos);
+    void setObjectFilepath(int objid, std::string _filepath);
+    void setObjectSubpatch(int objid, std::string subpatch);
+    void setObjectPos(int objid, ofVec2f pos);
+    void appendObjectInletsBlock(int objid) { getObjectNode(objid).append_child("inlets"); }
+    void appendObjectOutletsBlock(int objid) { getObjectNode(objid).append_child("outlets"); }
+    void appendObjectVarsBlock(int objid) { getObjectNode(objid).append_child("vars"); }
+    void removeObject(int id);
+
+    void addObjectInlet(int objid, int type, std::string name);
+    void setObjectInletType(int objid, int inlet_order, int type);
+    void setObjectInletName(int objid, int inlet_order, std::string name);
+    void removeObjectInlet(int objid, int inlet_order);
+    void removeObjectInlets(int objid);
+
+    void addObjectOutlet(int objid, int type, std::string name);
+    void setObjectOutletType(int objid, int outlet_order, int type);
+    void setObjectOutletName(int objid, int outlet_order, std::string name);
+    void removeObjectOutlet(int objid, int outlet_order);
+    void removeObjectOutlets(int objid);
+
+    void addObjectLink(int objid, int outlet_order, int toObjId, int toInletId);
+    void setObjectLinkToObjID(int objid, int outlet_order, int link_order, int toObjId);
+    void setObjectLinkToInletID(int objid, int outlet_order, int link_order, int toInletId);
+    void removeObjectLink(int objid, int outlet_order, int link_order);
+    void removeAllObjectOutletLinks(int objid, int outlet_order);
+    void removeAllObjectLinks(int objid);
+    void removeAllLinksToObject(int objid, int objNumInlets);
+
+    void addObjectVar(int objid, std::string varName, float varValue);
+    void setObjectVar(int objid, std::string varName, float varValue);
+    void removeObjectVar(int objid, std::string varName);
+    void removeObjectVars(int objid);
+
+    void setMosaicConfig(std::string configVar, int value);
+    int getMosaicConfigInt(std::string configVar);
+    float getMosaicConfigFloat(std::string configVar);
+    bool getMosaicConfigBool(std::string configVar);
+
+    void setMosaicRelease(std::string release) { setPatchValue(xml,"release",release); saveMosaicPatch(filepath); }
+    std::string getMosaicRelease(){ return ofxVP_XML_ENGINE_VALUE_CAST<std::string>(getPatchValue(xml,"release")); }
+    size_t getMosaicReleaseMAJOR(){ return size_t(ofToInt(string(1,getMosaicRelease().at(0)))); }
+    size_t getMosaicReleaseMINOR(){ return size_t(ofToInt(string(1,getMosaicRelease().at(1)))); }
+    size_t getMosaicReleasePATCH(){ return size_t(ofToInt(string(1,getMosaicRelease().at(2)))); }
+
+    bool checkReleaseIsPrePugiXml(std::string currentRelease);
+
+    void setPatchValue(pugi::xml_node &node, std::string childname, int value) {
+        assert(isLoaded);
+        if(node.child(childname.c_str()).empty()){
+            node.append_child(childname.c_str());
+        }
+        node.child(childname.c_str()).text().set(std::to_string(value).c_str());
+    }
+    void setPatchValue(pugi::xml_node &node, std::string childname, float value) {
+        assert(isLoaded);
+        if(node.child(childname.c_str()).empty()){
+            node.append_child(childname.c_str());
+        }
+        node.child(childname.c_str()).text().set(std::to_string(value).c_str());
+    }
+    void setPatchValue(pugi::xml_node &node, std::string childname, std::string value) {
+        assert(isLoaded);
+        if(node.child(childname.c_str()).empty()){
+            node.append_child(childname.c_str());
+        }
+        node.child(childname.c_str()).text().set(value.c_str());
+    }
+    
+
+private:
+    
+    pugi::xml_node getPatchChildNode(pugi::xml_node parent, std::string name) { return parent.select_node(name.c_str()).node(); }
 
     float getObjectVar(int objid, std::string varname);
     int getInletType(int objid, int inlet_order);
@@ -134,18 +180,7 @@ private:
     int getLinkID(int objid, int outlet_order, int link_order);
     int getLinkToInlet(int objid, int outlet_order, int link_order);
 
-    bool getPatchChildBool(pugi::xml_node &node, std::string childname) { assert(isLoaded); return node.child(childname.c_str()).text().as_bool(); }
-    int getPatchChildInt(pugi::xml_node &node, std::string childname) { assert(isLoaded); return node.child(childname.c_str()).text().as_int(); }
-    float getPatchChildFloat(pugi::xml_node &node, std::string childname) { assert(isLoaded); return node.child(childname.c_str()).text().as_float(); }
-    std::string getPatchChildString(pugi::xml_node &node, std::string childname) { assert(isLoaded); return node.child(childname.c_str()).text().as_string(); }
-
-    const pugi::char_t* getPatchValue(pugi::xml_node &node, std::string name){ assert(isLoaded); return node.child_value(name.c_str()); }
-
-    void setPatchValue(pugi::xml_node &node, std::string childname, int value) { assert(isLoaded); node.child(childname.c_str()).text().set(std::to_string(value).c_str()); }
-    void setPatchValue(pugi::xml_node &node, std::string childname, float value) { assert(isLoaded); node.child(childname.c_str()).text().set(std::to_string(value).c_str()); }
-    void setPatchValue(pugi::xml_node &node, std::string childname, std::string value) { assert(isLoaded); node.child(childname.c_str()).text().set(value.c_str()); }
-
-
+    const pugi::char_t* getPatchValue(pugi::xml_node &node, std::string name){ return node.child_value(name.c_str()); }
 
     pugi::xml_document      xml;
     pugi::xml_node          settingNode;

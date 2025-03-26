@@ -291,68 +291,50 @@ void OscReceiver::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void OscReceiver::initOutlets(){
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
 
-        // Load object outlet config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    vector<int> tempTypes;
-                    if(XML.pushTag("outlets")){
-                        for (int t=0;t<XML.getNumTags("link");t++){
-                            if(XML.pushTag("link",t)){
-                                int type = XML.getValue("type", 0);
-                                tempTypes.push_back(type);
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
-                    if (XML.pushTag("vars")){
-                        int totalOutlets = XML.getNumTags("var");
-                        this->numOutlets = totalOutlets-1;
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-                        int tempCounter = 0;
-                        for (int t=0;t<totalOutlets;t++){
-                            if(XML.pushTag("var",t)){
-                                if(XML.getValue("name","") != "PORT"){
-                                    if(tempTypes.at(tempCounter) == 0){
-                                        _outletParams[tempCounter] = new float();
-                                        *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[tempCounter]) = 0.0f;
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_NUMERIC);
-                                        tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 1){
-                                        _outletParams[tempCounter] = new string();
-                                        *ofxVP_CAST_PIN_PTR<string>(_outletParams[tempCounter]) = "";
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_STRING);
-                                        tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 2){
-                                        _outletParams[tempCounter] = new vector<float>();
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_ARRAY);
-                                        tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 3){
-                                        _outletParams[tempCounter] = new ofTexture();
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_TEXTURE);
-                                        tempCounter++;
-                                    }
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
+    pugi::xpath_node_set thisOutlets =  this->ofxVPXml.getObjectOutlets(this->nId);
+    pugi::xpath_node_set thisVars = this->ofxVPXml.getObjectVars(this->nId);
+
+    // Get object outlets config
+    if(!thisOutlets.empty()){
+        vector<int> tempTypes;
+        for(auto & outlet: thisOutlets){
+            auto o = outlet.node();
+            int type = this->ofxVPXml.getPatchChildInt(o,"type");
+            tempTypes.push_back(type);
+        }
+        this->numOutlets = thisVars.size()-1;
+        int tempCounter = 0;
+        for(auto & var: thisVars){
+            auto v = var.node();
+
+            std::string varName = this->ofxVPXml.getPatchChildString(v,"name");
+            if(varName != "PORT"){
+                if(tempTypes.at(tempCounter) == 0){
+                    _outletParams[tempCounter] = new float();
+                    *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[tempCounter]) = 0.0f;
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_NUMERIC);
+                    tempCounter++;
+                }else if(tempTypes.at(tempCounter) == 1){
+                    _outletParams[tempCounter] = new string();
+                    *ofxVP_CAST_PIN_PTR<string>(_outletParams[tempCounter]) = "";
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_STRING);
+                    tempCounter++;
+                }else if(tempTypes.at(tempCounter) == 2){
+                    _outletParams[tempCounter] = new vector<float>();
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_ARRAY);
+                    tempCounter++;
+                }else if(tempTypes.at(tempCounter) == 3){
+                    _outletParams[tempCounter] = new ofTexture();
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_TEXTURE);
+                    tempCounter++;
                 }
-                XML.popTag();
             }
         }
     }
@@ -369,42 +351,41 @@ void OscReceiver::resetOutlets(){
         this->height          *= 2;
     }
 
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-        // Save new object outlet config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    // Dynamic reloading outlets
-                    XML.removeTag("outlets");
-                    int newOutlets = XML.addTag("outlets");
-                    if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
-                            int newLink = XML.addTag("link");
-                            if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outletsType.at(j));
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
+    // Load existing Links
+    pugi::xpath_node_set objOutlets = this->ofxVPXml.getObjectOutlets(this->nId);
+    vector<ofVec3f> tempLinks;
+    if(!objOutlets.empty()){
+        int oIndex = 0;
+        for(auto & outlet: objOutlets){
+            pugi::xpath_node_set objLinks = this->ofxVPXml.getObjectLinks(this->nId,oIndex);
+            if(!objLinks.empty()){
+                for(auto & link: objLinks){
+                    auto l = link.node();
+                    tempLinks.push_back(ofVec3f(oIndex,this->ofxVPXml.getPatchChildInt(l,"id"),this->ofxVPXml.getPatchChildInt(l,"inlet")));
                 }
-                XML.popTag();
+            }
+            oIndex++;
+        }
+    }
+
+    // Save new object outlet config
+
+    // Dynamic reloading outlets
+    this->ofxVPXml.removeObjectOutlets(this->nId);
+    this->ofxVPXml.appendObjectOutletsBlock(this->nId);
+    for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
+        this->ofxVPXml.addObjectOutlet(this->nId,this->outletsType.at(j),this->outletsNames.at(j));
+        // re-add previous links
+        for(int z=0;z<static_cast<int>(tempLinks.size());z++){
+            if(static_cast<int>(floor(tempLinks.at(z).x)) == j){
+                this->ofxVPXml.addObjectLink(this->nId,j,static_cast<int>(floor(tempLinks.at(z).y)),static_cast<int>(floor(tempLinks.at(z).z)));
             }
         }
-
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
     }
+
+    ofNotifyEvent(this->reconnectOutletsEvent, this->nId);
 
     this->saveConfig(false);
 }

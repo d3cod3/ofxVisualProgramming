@@ -207,54 +207,23 @@ void moValuePlotter::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moValuePlotter::removeObjectContent(bool removeFileFromData){
-
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void moValuePlotter::loadVariableName(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    name = XML.getValue("varname","none");
-                }
-                XML.popTag();
-            }
-        }
-    }
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    name = this->ofxVPXml.getPatchChildString(obj,"varname");
 }
 
 //--------------------------------------------------------------
-void moValuePlotter::saveVariableName(){
-    ofxXmlSettings XML;
+void moValuePlotter::saveVariableName(){    
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    XML.setValue("varname",name);
-                }
-                XML.popTag();
-            }
-        }
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-    }
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    this->ofxVPXml.setPatchValue(obj,"varname",name);
 }
 
 OBJECT_REGISTER( moValuePlotter, "value plotter", OFXVP_OBJECT_CAT_GUI)

@@ -86,6 +86,7 @@ moTimeline::moTimeline() : PatchObject("timeline"){
     waitTime                = 100;
 
     this->setIsSharedContextObj(true);
+    this->setIsResizable(true);
 
 }
 
@@ -683,82 +684,39 @@ void moTimeline::updateOutletsConfig(){
 
 //--------------------------------------------------------------
 void moTimeline::saveOutletConfig(){
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
 
-        // Load Links
-        vector<ofVec3f> tempLinks;
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    if (XML.pushTag("outlets")){
-                        int totalOutlets = XML.getNumTags("link");
-                        for(int j=0;j<totalOutlets;j++){
-                            if (XML.pushTag("link",j)){
-                                int totalLinks = XML.getNumTags("to");
-                                for(int z=0;z<totalLinks;z++){
-                                    if(XML.pushTag("to",z)){
-                                        int toObjectID = XML.getValue("id", 0);
-                                        int toInletID = XML.getValue("inlet", 0);
-                                        tempLinks.push_back(ofVec3f(j,toObjectID,toInletID));
-                                        XML.popTag();
-                                    }
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
+
+    // Load existing Links
+    pugi::xpath_node_set objOutlets = this->ofxVPXml.getObjectOutlets(this->nId);
+    vector<ofVec3f> tempLinks;
+    if(!objOutlets.empty()){
+        int oIndex = 0;
+        for(auto & outlet: objOutlets){
+            pugi::xpath_node_set objLinks = this->ofxVPXml.getObjectLinks(this->nId,oIndex);
+            if(!objLinks.empty()){
+                for(auto & link: objLinks){
+                    auto l = link.node();
+                    tempLinks.push_back(ofVec3f(oIndex,this->ofxVPXml.getPatchChildInt(l,"id"),this->ofxVPXml.getPatchChildInt(l,"inlet")));
                 }
-                XML.popTag();
+            }
+            oIndex++;
+        }
+    }
+
+    // Save new object outlet config
+
+    // Dynamic reloading outlets
+    this->ofxVPXml.removeObjectOutlets(this->nId);
+    this->ofxVPXml.appendObjectOutletsBlock(this->nId);
+    for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
+        this->ofxVPXml.addObjectOutlet(this->nId,this->outletsType.at(j),this->outletsNames.at(j));
+        // re-add previous links
+        for(int z=0;z<static_cast<int>(tempLinks.size());z++){
+            if(static_cast<int>(floor(tempLinks.at(z).x)) == j){
+                this->ofxVPXml.addObjectLink(this->nId,j,static_cast<int>(floor(tempLinks.at(z).y)),static_cast<int>(floor(tempLinks.at(z).z)));
             }
         }
-
-        // Save new object outlet config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    // Dynamic reloading outlets
-                    XML.removeTag("outlets");
-                    int newOutlets = XML.addTag("outlets");
-                    if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
-                            int newLink = XML.addTag("link");
-                            if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outletsType.at(j));
-
-                                // re-add previous links
-                                for(int z=0;z<static_cast<int>(tempLinks.size());z++){
-                                    if(static_cast<int>(floor(tempLinks.at(z).x)) == j){
-                                        int newTo = XML.addTag("to");
-                                        if(XML.pushTag("to", newTo)){
-                                            XML.setValue("id",static_cast<int>(floor(tempLinks.at(z).y)));
-                                            XML.setValue("inlet",static_cast<int>(floor(tempLinks.at(z).z)));
-                                            XML.popTag();
-                                        }
-                                    }
-                                }
-
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
-            }
-        }
-
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
     }
 
     ofNotifyEvent(this->reconnectOutletsEvent, this->nId);

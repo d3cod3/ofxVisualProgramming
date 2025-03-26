@@ -179,54 +179,27 @@ void moComment::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moComment::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void moComment::loadCommentSetting(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    actualComment = XML.getValue("text","none");
-                }
-                XML.popTag();
-            }
-        }
-    }
+    ofxVPXml.loadMosaicPatch(this->patchFile);
+
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    actualComment = this->ofxVPXml.getPatchChildString(obj,"text");
+
 }
 
 //--------------------------------------------------------------
 void moComment::saveCommentSetting(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    XML.setValue("text",actualComment);
-                }
-                XML.popTag();
-            }
-        }
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-    }
+    ofxVPXml.loadMosaicPatch(this->patchFile);
+
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    this->ofxVPXml.setPatchValue(obj,"text",actualComment);
+
 }
 
 OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)

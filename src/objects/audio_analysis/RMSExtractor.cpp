@@ -64,20 +64,11 @@ void RMSExtractor::newObject(){
 void RMSExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            spectrumSize = (bufferSize/2) + 1;
-            arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS - 1;
-            XML.popTag();
-        }
-    }
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
+    spectrumSize = (bufferSize/2) + 1;
+    arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS - 1;
 
 }
 

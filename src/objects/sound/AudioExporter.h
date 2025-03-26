@@ -71,6 +71,7 @@ public:
 
     bool                bang;
     bool                exportAudioFlag;
+    bool                recording;
 
     int                 bufferSize;
     int                 sampleRate;

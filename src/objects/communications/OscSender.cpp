@@ -315,74 +315,57 @@ void OscSender::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void OscSender::initInlets(){
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
 
-        // Get object inlets config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    vector<int> tempTypes;
-                    if(XML.pushTag("inlets")){
-                        for (int t=0;t<XML.getNumTags("link");t++){
-                            if(XML.pushTag("link",t)){
-                                int type = XML.getValue("type", 0);
-                                tempTypes.push_back(type);
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
-                    if (XML.pushTag("vars")){
-                        int totalOutlets = XML.getNumTags("var");
-                        this->numInlets = totalOutlets-2;
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-                        int tempCounter = 0;
-                        for (int t=0;t<totalOutlets;t++){
-                            if(XML.pushTag("var",t)){
-                                bool isreceiverIP = false;
-                                if (XML.getValue("name","").find('@') != std::string::npos){
-                                    isreceiverIP = true;
-                                }else{
-                                    isreceiverIP = false;
-                                }
-                                if(XML.getValue("name","") != "PORT" && !isreceiverIP){
-                                    if(tempTypes.at(tempCounter) == 0){ // float
-                                        _inletParams[tempCounter] = new float();
-                                        *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[tempCounter]) = 0.0f;
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_NUMERIC);
-                                        tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 1){ // string
-                                        _inletParams[tempCounter] = new string();  // control
-                                        *ofxVP_CAST_PIN_PTR<string>(_inletParams[tempCounter]) = "";
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_STRING);
-                                        tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 2){ // vector<float>
-                                        _inletParams[tempCounter] = new vector<float>();
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_ARRAY);
-                                        tempCounter++;
-                                    }else if(tempTypes.at(tempCounter) == 3){ // ofTexture
-                                        _inletParams[tempCounter] = new ofTexture();
-                                        osc_labels.push_back(XML.getValue("name",""));
-                                        osc_labels_type.push_back(VP_LINK_TEXTURE);
-                                        tempCounter++;
-                                    }
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
+    pugi::xpath_node_set thisInlets =  this->ofxVPXml.getObjectInlets(this->nId);
+    pugi::xpath_node_set thisVars = this->ofxVPXml.getObjectVars(this->nId);
+
+    // Get object inlets config
+    if(!thisInlets.empty()){
+        vector<int> tempTypes;
+        for(auto & inlet: thisInlets){
+            auto i = inlet.node();
+            int type = this->ofxVPXml.getPatchChildInt(i,"type");
+            tempTypes.push_back(type);
+        }
+        this->numInlets = thisVars.size()-2;
+        int tempCounter = 0;
+        for(auto & var: thisVars){
+            auto v = var.node();
+
+            bool isreceiverIP = false;
+            std::string varName = this->ofxVPXml.getPatchChildString(v,"name");
+            if (varName.find('@') != std::string::npos){
+                isreceiverIP = true;
+            }else{
+                isreceiverIP = false;
+            }
+
+            if(varName != "PORT" && !isreceiverIP){
+                if(tempTypes.at(tempCounter) == 0){ // float
+                    _inletParams[tempCounter] = new float();
+                    *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[tempCounter]) = 0.0f;
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_NUMERIC);
+                    tempCounter++;
+                }else if(tempTypes.at(tempCounter) == 1){ // string
+                    _inletParams[tempCounter] = new string();  // control
+                    *ofxVP_CAST_PIN_PTR<string>(_inletParams[tempCounter]) = "";
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_STRING);
+                    tempCounter++;
+                }else if(tempTypes.at(tempCounter) == 2){ // vector<float>
+                    _inletParams[tempCounter] = new vector<float>();
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_ARRAY);
+                    tempCounter++;
+                }else if(tempTypes.at(tempCounter) == 3){ // ofTexture
+                    _inletParams[tempCounter] = new ofTexture();
+                    osc_labels.push_back(varName);
+                    osc_labels_type.push_back(VP_LINK_TEXTURE);
+                    tempCounter++;
                 }
-                XML.popTag();
             }
         }
     }
@@ -393,33 +376,18 @@ void OscSender::initInlets(){
 //--------------------------------------------------------------
 string OscSender::getHostFromConfig(){
 
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
+    pugi::xml_node obj = this->ofxVPXml.getObjectNode(this->nId);
 
-        // Get object inlets config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    string temp = XML.getValue("filepath","none");
+    std::string temp = this->ofxVPXml.getPatchChildString(obj,"filepath");
 
-                    size_t found = temp.find_last_of("/");
-                    if(found != string::npos){
-                        return temp.substr(found+1);
-                    }else{
-                        if(temp == "none"){
-                            return "localhost";
-                        }else{
-                            return temp;
-                        }
-                    }
-                }
-                XML.popTag();
-            }
+    size_t found = temp.find_last_of("/");
+    if(found != string::npos){
+        return temp.substr(found+1);
+    }else{
+        if(temp == "none"){
+            return "localhost";
+        }else{
+            return temp;
         }
     }
 

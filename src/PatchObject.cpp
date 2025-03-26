@@ -547,9 +547,7 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
             _inletParams[toInlet] = new ofSoundBuffer();
             if(patchObjects[fromObjectID]->getIsPDSPPatchableObject() && getIsPDSPPatchableObject()){
                 patchObjects[fromObjectID]->pdspOut[fromOutlet] >> pdspIn[toInlet];
-            }/*else if(patchObjects[fromObjectID]->getName() == "audio device" && getIsPDSPPatchableObject()){
-                patchObjects[fromObjectID]->pdspOut[fromOutlet] >> pdspIn[toInlet];
-            }*/
+            }
         }
 
         // check special connections
@@ -660,396 +658,212 @@ void PatchObject::disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects,
 //---------------------------------------------------------------------------------- LOAD/SAVE
 //--------------------------------------------------------------
 bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile){
-    ofxXmlSettings XML;
-    bool loaded = false;
 
+    patchFile = configFile;
+    ofxVPXml.loadMosaicPatch(patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(configFile)){
-#else
-    if (XML.load(configFile)){
-#endif
+    pugi::xml_node objNode = ofxVPXml.getObjectAtPos(oTag);
 
-        patchFile = configFile;
+    // exit with false if object at oTag do not exists
+    if(ofxVPXml.isEmptyNode(objNode)) return false;
 
-        if(XML.pushTag("object", oTag)){
+    nId = ofxVPXml.getPatchChildInt(objNode,"id");
+    name = ofxVPXml.getPatchChildString(objNode,"name");
+    filepath = ofxVPXml.getPatchChildString(objNode,"filepath");
+    subpatchName = ofxVPXml.getPatchChildString(objNode,"subpatch");
+    if(subpatchName == ""){
+        subpatchName = "root";
+    }
 
-            nId = XML.getValue("id", 0);
-            name = XML.getValue("name","none");
-            filepath = XML.getValue("filepath","none");
-            subpatchName = XML.getValue("subpatch","root");
+    ofVec2f p = ofxVPXml.getObjectPosition(nId);
+    move(p.x,p.y);
 
-            move(XML.getValue("position:x", 0),XML.getValue("position:y", 0));
-
-            if(XML.pushTag("vars")){
-                int totalCustomVars = XML.getNumTags("var");
-                for (int i=0;i<totalCustomVars;i++){
-                    if(XML.pushTag("var",i)){
-                        customVars[XML.getValue("name", "")] = XML.getValue("value", 0.0);
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
-            }
-
-            if(XML.pushTag("inlets")){
-                int totalInlets = XML.getNumTags("link");
-                inletsPositions.clear();
-                inletsIDs.clear();
-                inletsWirelessReceive.clear();
-                for (int i=0;i<totalInlets;i++){
-                    if(XML.pushTag("link",i)){
-                        inletsType.push_back(XML.getValue("type", 0));
-                        inletsNames.push_back(XML.getValue("name", ""));
-                        inletsIDs.push_back("");
-                        inletsWirelessReceive.push_back(false);
-                        inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
-            }
-
-            setup(mainWindow);
-            setupDSP(engine);
-
-            if(XML.pushTag("outlets")){
-                int totalOutlets = XML.getNumTags("link");
-                outletsPositions.clear();
-                outletsIDs.clear();
-                outletsWirelessSend.clear();
-                for (int i=0;i<totalOutlets;i++){
-                    if(XML.pushTag("link",i)){
-                        outletsType.push_back(XML.getValue("type", 0));
-                        outletsNames.push_back(XML.getValue("name", ""));
-                        outletsIDs.push_back("");
-                        outletsWirelessSend.push_back(false);
-                        outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) );
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
-            }
-
-            XML.popTag(); // if(XML.pushTag("object", oTag))
-
-            loaded = true;
-
+    pugi::xpath_node_set objVars = ofxVPXml.getObjectVars(nId);
+    if(!objVars.empty()){
+        for(auto & var: objVars){
+            auto v = var.node();
+            customVars[ofxVPXml.getPatchChildString(v,"name")] = ofxVPXml.getPatchChildFloat(v,"value");
         }
     }
 
-    return loaded;
+    pugi::xpath_node_set objInlets = ofxVPXml.getObjectInlets(nId);
+    if(!objInlets.empty()){
+        inletsPositions.clear();
+        inletsIDs.clear();
+        inletsWirelessReceive.clear();
+        for(auto & inlet: objInlets){
+            auto i = inlet.node();
+            inletsType.push_back(ofxVPXml.getPatchChildInt(i,"type"));
+            inletsNames.push_back(ofxVPXml.getPatchChildString(i,"name"));
+            inletsIDs.push_back("");
+            inletsWirelessReceive.push_back(false);
+            inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) );
+        }
+    }
+
+    setup(mainWindow);
+    setupDSP(engine);
+
+    pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(nId);
+    if(!objOutlets.empty()){
+        outletsPositions.clear();
+        outletsIDs.clear();
+        outletsWirelessSend.clear();
+        for(auto & outlet: objOutlets){
+            auto o = outlet.node();
+            outletsType.push_back(ofxVPXml.getPatchChildInt(o,"type"));
+            outletsNames.push_back(ofxVPXml.getPatchChildString(o,"name"));
+            outletsIDs.push_back("");
+            outletsWirelessSend.push_back(false);
+            outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) );
+        }
+    }
+
+    return true;
 
 }
 
 //--------------------------------------------------------------
 bool PatchObject::saveConfig(bool newConnection){
-    ofxXmlSettings XML;
-    bool saved = false;
 
     if(patchFile != ""){
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-        if (XML.loadFile(patchFile)){
-#else
-        if (XML.load(patchFile)){
-#endif
-            int totalObjects = XML.getNumTags("object");
-            // first save of the object
-            if(nId == -1){
-                int freeId = 0;
-                int maxId = 0;
-                for (int i=0;i<totalObjects;i++){
-                    if(XML.pushTag("object", i)){
-                        if(XML.getValue("id",-1) > maxId){
-                            maxId = XML.getValue("id",-1);
-                        }
-                        XML.popTag();
+
+        ofxVPXml.loadMosaicPatch(patchFile);
+
+        // first save of the object
+        if(nId == -1){
+
+            nId = ofxVPXml.addNewObject(name,filepath,subpatchName,ofVec2f(static_cast<double>(x),static_cast<double>(y)));
+
+            // Save Custom Vars (GUI, vars, etc...)
+            for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
+                ofxVPXml.addObjectVar(nId, it->first, it->second);
+            }
+
+            // Save inlets
+            for(int i=0;i<static_cast<int>(inletsType.size());i++){
+                ofxVPXml.addObjectInlet(nId,inletsType.at(i),inletsNames.at(i));
+            }
+
+            // Save oulets & links
+            for(int i=0;i<static_cast<int>(outletsType.size());i++){
+                ofxVPXml.addObjectOutlet(nId,outletsType.at(i),outletsNames.at(i));
+            }
+
+
+
+        }else{ // previously saved object
+            ofxVPXml.setObjectFilepath(nId, filepath);
+            ofxVPXml.setObjectSubpatch(nId, subpatchName);
+            ofxVPXml.setObjectPos(nId, ofVec2f(static_cast<double>(x),static_cast<double>(y)));
+
+
+            // Dynamic reloading custom vars (reconfig capabilities objects, as ShaderObject, etc...)
+            ofxVPXml.removeObjectVars(nId);
+            ofxVPXml.appendObjectVarsBlock(nId);
+            for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
+                ofxVPXml.addObjectVar(nId, it->first, it->second);
+            }
+
+            // Dynamic reloading inlets (reconfig capabilities objects, as ShaderObject, etc...)
+            ofxVPXml.removeObjectInlets(nId);
+            ofxVPXml.appendObjectInletsBlock(nId);
+            for(int i=0;i<static_cast<int>(inletsType.size());i++){
+                ofxVPXml.addObjectInlet(nId,inletsType.at(i),inletsNames.at(i));
+            }
+
+            // Fixed static outlets
+            for(int j=0;j<static_cast<int>(outletsType.size());j++){
+                if(static_cast<int>(outPut.size()) > 0 && newConnection){
+                    int totalTo = ofxVPXml.getObjectLinks(nId,j).size();
+                    if(outPut.at(static_cast<int>(outPut.size())-1)->fromOutletID == j){
+                        ofxVPXml.addObjectLink(nId, j, outPut.at(static_cast<int>(outPut.size())-1)->toObjectID, outPut.at(static_cast<int>(outPut.size())-1)->toInletID);
                     }
-                }
-
-                freeId = maxId+1;
-
-                if(freeId >= 0){
-                    nId = freeId;
-                    int newObject = XML.addTag("object");
-
-                    if(XML.pushTag("object",newObject)){
-                        XML.addTag("id");
-                        XML.setValue("id",nId);
-                        XML.addTag("name");
-                        XML.setValue("name",name);
-                        XML.addTag("filepath");
-                        XML.setValue("filepath",filepath);
-                        XML.addTag("subpatch");
-                        XML.setValue("subpatch",subpatchName);
-                        XML.addTag("position");
-                        XML.setValue("position:x",static_cast<double>(x));
-                        XML.setValue("position:y",static_cast<double>(y));
-
-                        // Save Custom Vars (GUI, vars, etc...)
-                        int newCustomVars = XML.addTag("vars");
-                        if(XML.pushTag("vars",newCustomVars)){
-                            for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
-                                int newVar = XML.addTag("var");
-                                if(XML.pushTag("var",newVar)){
-                                    XML.setValue("name",it->first);
-                                    XML.setValue("value",it->second);
-                                    XML.popTag();
-                                }
-                            }
-                            XML.popTag();
+                    if(static_cast<int>(outPut.size())<totalTo){
+                        for(int z=totalTo;z>static_cast<int>(outPut.size());z--){
+                            ofxVPXml.removeObjectLink(nId, j-1, z);
                         }
-
-                        // Save inlets
-                        int newInlets = XML.addTag("inlets");
-                        if(XML.pushTag("inlets",newInlets)){
-                            for(int i=0;i<static_cast<int>(inletsType.size());i++){
-                                int newLink = XML.addTag("link");
-                                if(XML.pushTag("link",newLink)){
-                                    XML.setValue("type",inletsType.at(i));
-                                    XML.setValue("name",inletsNames.at(i));
-                                    XML.popTag();
-                                }
-                            }
-                            XML.popTag();
-                        }
-
-                        // Save oulets & links
-                        int newOutlets = XML.addTag("outlets");
-                        if(XML.pushTag("outlets",newOutlets)){
-                            for(int i=0;i<static_cast<int>(outletsType.size());i++){
-                                int newLink = XML.addTag("link");
-                                if(XML.pushTag("link",newLink)){
-                                    XML.setValue("type",outletsType.at(i));
-                                    XML.setValue("name",outletsNames.at(i));
-                                    XML.popTag();
-                                }
-                            }
-                            XML.popTag();
-                        }
-
-                        XML.popTag();
-                    }
-                }
-
-            }else{ // object previously saved
-                for(int i=0;i<totalObjects;i++){
-                    if(XML.pushTag("object", i)){
-                        if(XML.getValue("id", -1) == nId){
-                            XML.setValue("filepath",filepath);
-                            XML.setValue("subpatch",subpatchName);
-                            XML.setValue("position:x",static_cast<double>(x));
-                            XML.setValue("position:y",static_cast<double>(y));
-
-                            // Dynamic reloading custom vars (reconfig capabilities objects, as ShaderObject, etc...)
-                            XML.removeTag("vars");
-                            int newCustomVars = XML.addTag("vars");
-                            if(XML.pushTag("vars",newCustomVars)){
-                                for(map<string,float>::iterator it = customVars.begin(); it != customVars.end(); it++ ){
-                                    int newLink = XML.addTag("var");
-                                    if(XML.pushTag("var",newLink)){
-                                        XML.setValue("name",it->first);
-                                        XML.setValue("value",it->second);
-                                        XML.popTag();
-                                    }
-                                }
-                                XML.popTag();
-                            }
-
-                            // Dynamic reloading inlets (reconfig capabilities objects, as ShaderObject, etc...)
-                            XML.removeTag("inlets");
-                            int newInlets = XML.addTag("inlets");
-                            if(XML.pushTag("inlets",newInlets)){
-                                for(int i=0;i<static_cast<int>(inletsType.size());i++){
-                                    int newLink = XML.addTag("link");
-                                    if(XML.pushTag("link",newLink)){
-                                        XML.setValue("type",inletsType.at(i));
-                                        XML.setValue("name",inletsNames.at(i));
-                                        XML.popTag();
-                                    }
-                                }
-                                XML.popTag();
-                            }
-
-                            // Fixed static outlets
-                            if(XML.pushTag("outlets")){
-                                for(int j=0;j<static_cast<int>(outletsType.size());j++){
-                                    if(XML.pushTag("link", j)){
-                                        if(static_cast<int>(outPut.size()) > 0 && newConnection){
-                                            int totalTo = XML.getNumTags("to");
-                                            if(outPut.at(static_cast<int>(outPut.size())-1)->fromOutletID == j){
-                                                int newTo = XML.addTag("to");
-                                                if(XML.pushTag("to", newTo)){
-                                                    XML.setValue("id",outPut.at(static_cast<int>(outPut.size())-1)->toObjectID);
-                                                    XML.setValue("inlet",outPut.at(static_cast<int>(outPut.size())-1)->toInletID);
-                                                    XML.popTag();
-                                                }
-                                            }
-                                            if(static_cast<int>(outPut.size())<totalTo){
-                                                for(int z=totalTo;z>static_cast<int>(outPut.size());z--){
-                                                    XML.removeTag("to",j-1);
-                                                }
-                                            }
-                                        }
-                                        XML.popTag();
-                                    }
-                                }
-                                XML.popTag();
-                            }
-
-                        }
-
-                        XML.popTag();
                     }
                 }
             }
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            saved = XML.saveFile();
-#else
-            saved = XML.save();
-#endif
+
         }
+
     }
 
-    return saved;
+    return true;
 
 }
 
 //--------------------------------------------------------------
 bool PatchObject::removeLinkFromConfig(int outlet, int toObjectID, int toInletID){
-    ofxXmlSettings XML;
-    bool saved = false;
 
     if(patchFile != ""){
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-        if (XML.loadFile(patchFile)){
-#else
-        if (XML.load(patchFile)){
-#endif
-            int totalObjects = XML.getNumTags("object");
-            for(int i=0;i<totalObjects;i++){
-                if(XML.pushTag("object", i)){
-                    if(XML.getValue("id", -1) == nId){
-                        if(XML.pushTag("outlets")){
-                            if(XML.pushTag("link", outlet)){
-                                int totalTo = XML.getNumTags("to");
-                                int linkToRemove = -1;
-                                for(int z=0;z<totalTo;z++){
-                                    if(XML.pushTag("to", z)){
-                                        if(XML.getValue("id", -1) == toObjectID && XML.getValue("inlet", -1) == toInletID){
-                                            linkToRemove = z;
-                                        }
-                                        XML.popTag();
-                                    }
-                                }
-                                if(linkToRemove != -1){
-                                    XML.removeTag("to",linkToRemove);
-                                }
-                                XML.popTag();
-                            }
-                            XML.popTag();
-                        }
-                    }
-                    XML.popTag();
+
+        ofxVPXml.loadMosaicPatch(patchFile);
+
+        pugi::xpath_node_set links = ofxVPXml.getObjectLinks(nId, outlet);
+        int linkToRemove = -1;
+        if(!links.empty()){
+            int lindex = 0;
+            for(auto & link: links){
+                auto l = link.node();
+                if(ofxVPXml.getPatchChildInt(l,"id") == toObjectID && ofxVPXml.getPatchChildInt(l,"inlet") == toInletID){
+                    linkToRemove = lindex;
                 }
+                lindex++;
             }
         }
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            saved = XML.saveFile();
-#else
-            saved = XML.save();
-#endif
+        if(linkToRemove != -1){
+            ofxVPXml.removeObjectLink(nId,outlet,linkToRemove);
+            return true;
+        }
+
     }
 
-    return saved;
+    return false;
 }
 
 //--------------------------------------------------------------
 bool PatchObject::clearCustomVars(){
-    ofxXmlSettings XML;
-    bool saved = false;
 
     if(patchFile != ""){
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-        if (XML.loadFile(patchFile)){
-#else
-        if (XML.load(patchFile)){
-#endif
-            int totalObjects = XML.getNumTags("object");
-            for(int i=0;i<totalObjects;i++){
-                if(XML.pushTag("object", i)){
-                    if(XML.getValue("id", -1) == nId){
-                        if(XML.pushTag("vars")){
-                            int numVars = XML.getNumTags("var");
-                            vector<bool> needErase;
-                            for(int v=0;v<numVars;v++){
-                                if(XML.pushTag("var",v)){
-                                    if(ofIsStringInString(XML.getValue("name",""),"GUI_")){
-                                        needErase.push_back(true);
-                                        customVars.erase(XML.getValue("name",""));
-                                        //ofLog(OF_LOG_NOTICE,"Removing var: %s",XML.getValue("name","").c_str());
-                                    }else{
-                                        needErase.push_back(false);
-                                    }
-                                    XML.popTag();
-                                }
-                            }
-                            for(size_t r=0;r<needErase.size();r++){
-                                if(needErase.at(r)){
-                                    XML.removeTag("var",static_cast<int>(r));
 
-                                }
-                            }
+        ofxVPXml.loadMosaicPatch(patchFile);
 
-                            XML.popTag();
-                        }
-                    }
-                    XML.popTag();
+        pugi::xpath_node_set vars = ofxVPXml.getObjectVars(nId);
+        if(!vars.empty()){
+            for(auto & var: vars){
+                auto v = var.node();
+                std::string vn = ofxVPXml.getPatchChildString(v,"name");
+                if(ofIsStringInString(vn,"GUI_")){
+                    customVars.erase(vn);
+                    ofxVPXml.removeObjectVar(nId, vn);
                 }
             }
         }
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            saved = XML.saveFile();
-#else
-            saved = XML.save();
-#endif
+        return true;
 
     }
 
-    return saved;
+    return false;
 }
 
 //--------------------------------------------------------------
 map<string,float> PatchObject::loadCustomVars(){
     map<string,float> tempVars;
 
-    ofxXmlSettings XML;
-
     if(patchFile != ""){
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-        if (XML.loadFile(patchFile)){
-#else
-        if (XML.load(patchFile)){
-#endif
-            int totalObjects = XML.getNumTags("object");
-            for(int i=0;i<totalObjects;i++){
-                if(XML.pushTag("object", i)){
-                    if(XML.getValue("id", -1) == nId){
-                        if(XML.pushTag("vars")){
-                            int numVars = XML.getNumTags("var");
-                            for(int v=0;v<numVars;v++){
-                                if(XML.pushTag("var",v)){
-                                    tempVars[XML.getValue("name","")] = XML.getValue("value",0.0f);
-                                    XML.popTag();
-                                }
-                            }
-                            XML.popTag();
-                        }
-                    }
-                    XML.popTag();
-                }
+
+        ofxVPXml.loadMosaicPatch(patchFile);
+
+        pugi::xpath_node_set objVars = ofxVPXml.getObjectVars(nId);
+        if(!objVars.empty()){
+            for(auto & var: objVars){
+                auto v = var.node();
+                tempVars[ofxVPXml.getPatchChildString(v,"name")] = ofxVPXml.getPatchChildFloat(v,"value");
             }
         }
 
@@ -1167,6 +981,7 @@ string PatchObject::getOutletTypeName(const int& oid) const{
 //--------------------------------------------------------------
 void PatchObject::setPatchfile(string pf) {
     patchFile = pf;
+    ofxVPXml.loadMosaicPatch(patchFile);
     ofFile temp(patchFile);
     patchFolderPath = temp.getEnclosingDirectory()+"data/";
     if(filepath != "none"){

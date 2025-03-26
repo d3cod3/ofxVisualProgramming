@@ -34,9 +34,9 @@
 #include "ofMain.h"
 
 #include "ofxVPConfig.h"
+#include "ofxVPXmlEngine.h"
 #include "utils.h"
 
-#include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
 #include "ofxPingPong.h"
 
@@ -242,6 +242,9 @@ public:
     int                                 wirelessType;
 
 protected:
+
+    // Patch file
+    ofxVPXmlEngine          ofxVPXml;
 
     // Texture drawing object vars
     int                     output_width, output_height;

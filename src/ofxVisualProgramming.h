@@ -134,6 +134,7 @@ public:
 
     // PATCH FILE
     ofxVPXmlEngine                      ofxVPXml;
+    bool                                isPrePugiXmlRelease;
 
     // PATCH CANVAS
     ofRectangle                         canvasViewport;
@@ -176,7 +177,6 @@ public:
     // LOAD/SAVE
     string                              currentPatchFile;
     string                              currentPatchFolderPath;
-    string                              tempPatchFile;
     int                                 output_width;
     int                                 output_height;
     string                              alphabet;
@@ -225,6 +225,7 @@ public:
     bool                                isInputDeviceAvailable;
     bool                                isOutputDeviceAvailable;
     bool                                dspON;
+    bool                                pauseDSP;
 
     // MEMORY
     uint64_t                            loadPatchTime;
