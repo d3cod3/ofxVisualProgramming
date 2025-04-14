@@ -71,8 +71,6 @@ In order to build ofxVisualProgramming, you'll need this addons:
 
 #### [ofxFFmpegRecorder](https://github.com/d3cod3/ofxFFmpegRecorder)
 
-#### [ofxFft](https://github.com/kylemcdonald/ofxFft)
-
 #### [ofxGLEditor](https://github.com/Akira-Hayasaka/ofxGLEditor)
 
 #### [ofxImGui](https://github.com/d3cod3/ofxImGui)
@@ -119,7 +117,6 @@ git clone https://github.com/d3cod3/ofxBTrack
 git clone https://github.com/kylemcdonald/ofxCv
 git clone https://github.com/arturoc/ofxEasing
 git clone https://github.com/d3cod3/ofxFFmpegRecorder
-git clone https://github.com/kylemcdonald/ofxFft
 git clone https://github.com/Akira-Hayasaka/ofxGLEditor
 git clone https://github.com/d3cod3/ofxImGui
 git clone https://github.com/d3cod3/ofxInfiniteCanvas
@@ -345,7 +342,7 @@ ofxAudioFile, ofxPDSP original addons by [Nicola Pisanti](https://github.com/npi
 
 ofxBTrack original addon by [Nao Tokui](https://github.com/naotokui)
 
-ofxCv, ofxFft original addons by [Kyle McDonald](https://github.com/kylemcdonald)
+ofxCv original addons by [Kyle McDonald](https://github.com/kylemcdonald)
 
 ofxEasing original addon by [Arturo Castro](https://github.com/arturoc)
 

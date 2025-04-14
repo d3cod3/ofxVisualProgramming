@@ -24,8 +24,8 @@ meta:
 common:
 	# dependencies with other addons, a list of them separated by spaces
 	# or use += in several lines
-        ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc ofxXmlSettings
-        ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxCv ofxEasing ofxFFmpegRecorder ofxFft
+        ADDON_DEPENDENCIES = ofxKinect ofxOpenCv ofxOsc
+        ADDON_DEPENDENCIES += ofxAudioFile ofxBTrack ofxCv ofxEasing ofxFFmpegRecorder
         ADDON_DEPENDENCIES += ofxGLEditor ofxImGui ofxLua ofxMidi ofxMtlMapping2D
         ADDON_DEPENDENCIES += ofxOpenDHT ofxPd ofxPDSP ofxTimeline ofxWarp
 
