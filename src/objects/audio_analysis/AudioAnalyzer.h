@@ -36,7 +36,7 @@
 
 #include "PatchObject.h"
 
-#include "ofxFft.h"
+#include "ofxVPFFT.h"
 #include "ofxBTrack.h"
 
 #include "imgui_plot.h"
@@ -82,7 +82,7 @@ public:
     std::mutex                              audioMutex;
 
     // Analysis variables
-    ofxFft                                  *fft;
+    ofxVP::Fft                              *fft;
     ofxBTrack                               *beatTrack;
 
     float                                   *plot_data;

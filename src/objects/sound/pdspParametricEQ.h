@@ -36,7 +36,7 @@
 
 #include "PatchObject.h"
 
-#include "ofxFft.h"
+#include "ofxVPFFT.h"
 
 #include "imgui_plot.h"
 #include "imgui-knobs.h"
@@ -65,7 +65,7 @@ public:
     void            loadAudioSettings();
 
 
-    ofxFft                  *fft;
+    ofxVP::Fft              *fft;
     float                   *spectrum;
 
     pdsp::Scope             scope;

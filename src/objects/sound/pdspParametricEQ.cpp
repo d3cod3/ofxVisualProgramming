@@ -340,7 +340,8 @@ void pdspParametricEQ::loadAudioSettings(){
     sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
     bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-    fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING);
+    fft = new ofxVP::Fft();
+    fft->setup(bufferSize);
     spectrum = new float[fft->getBinSize()];
     l1Filter = new std::vector<float>;
     m1Filter = new std::vector<float>;

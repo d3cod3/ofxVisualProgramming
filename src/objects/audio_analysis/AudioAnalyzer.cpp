@@ -316,10 +316,15 @@ void AudioAnalyzer::loadAudioSettings(){
     beatTrack->setConfidentThreshold(0.35);
 
     // Audio Analysis
-    fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING);
+    fft = new ofxVP::Fft();
+    fft->setup(bufferSize);
 
-    fftBinSize              = fft->getBinSize();
-    fft_binSizeHz           = ((sampleRate/2)/(fftBinSize-1));
+    fftBinSize              = (bufferSize / 2) + 1;
+    // avoid division by 0
+    if(fftBinSize<=1){
+        fftBinSize = 2;
+    }
+    fft_binSizeHz           = (sampleRate/2)/(fftBinSize-1);
     fft_StrongestBinValue   = 0.0f;
     fft_StrongestBinIndex	= 0;
     fft_pitchBin			= 0;
