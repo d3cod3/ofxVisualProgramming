@@ -36,7 +36,7 @@
 
 #include "PatchObject.h"
 
-#include "ofxVPFFT.h"
+#include "ofxVPFft.h"
 #include "ofxBTrack.h"
 
 #include "imgui_plot.h"

@@ -36,7 +36,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofTypes.h"
 #include "kiss_fftr.h"
 
 namespace ofxVP {
@@ -349,4 +348,4 @@ protected:
     }
 };
 
-}
+}// End namespace ofxVP
