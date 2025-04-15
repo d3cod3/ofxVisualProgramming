@@ -119,7 +119,7 @@ void QuadPanner::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void QuadPanner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void QuadPanner::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         padX    = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);

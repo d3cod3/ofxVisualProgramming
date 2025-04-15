@@ -98,7 +98,7 @@ void pdspLowCut::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspLowCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspLowCut::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

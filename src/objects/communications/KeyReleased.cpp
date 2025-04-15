@@ -69,7 +69,7 @@ void KeyReleased::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void KeyReleased::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(lastKey == static_cast<int>(floor(this->getCustomVar("KEY"))) && lastKey != -1){
         lastKey = -1;

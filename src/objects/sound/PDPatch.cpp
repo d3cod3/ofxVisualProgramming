@@ -140,7 +140,7 @@ void PDPatch::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PDPatch::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PDPatch::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(patchLoaded){

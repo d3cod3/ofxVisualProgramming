@@ -132,7 +132,7 @@ void VideoPlayer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoPlayer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(needToLoadVideo){
         needToLoadVideo = false;

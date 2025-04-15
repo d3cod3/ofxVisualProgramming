@@ -99,7 +99,7 @@ void moValuePlotter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void moValuePlotter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moValuePlotter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1] || this->inletsConnected[2]){
         if(lastMinRange.get() != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) || lastMaxRange.get() != *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[2])){

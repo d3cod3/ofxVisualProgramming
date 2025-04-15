@@ -148,7 +148,7 @@ void ProjectionMapping::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 }
 
 //--------------------------------------------------------------
-void ProjectionMapping::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ProjectionMapping::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(warpingConfigLoaded){

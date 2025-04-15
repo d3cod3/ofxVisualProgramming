@@ -85,7 +85,7 @@ void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moVideoViewer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!loaded){

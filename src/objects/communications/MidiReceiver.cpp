@@ -89,7 +89,7 @@ void MidiReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MidiReceiver::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(midiDevicesList.size() > 0){
         if(midiIn.isOpen()){

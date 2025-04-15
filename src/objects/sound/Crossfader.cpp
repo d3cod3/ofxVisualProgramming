@@ -98,7 +98,7 @@ void Crossfader::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Crossfader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Crossfader::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[2]){

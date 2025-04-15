@@ -105,7 +105,7 @@ void HaarTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void HaarTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void HaarTracking::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // HAAR Tracking UPDATE

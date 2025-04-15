@@ -77,7 +77,7 @@ void moPlayerControls::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void moPlayerControls::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moPlayerControls::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){

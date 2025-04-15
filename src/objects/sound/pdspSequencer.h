@@ -53,7 +53,7 @@ public:
     void            newObject() override;
     void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
     void            setupAudioOutObjectContent(pdsp::Engine &engine) override;
-    void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+    void            updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects) override;
     void            updateAudioObjectContent(pdsp::Engine &engine) override;
 
     void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;

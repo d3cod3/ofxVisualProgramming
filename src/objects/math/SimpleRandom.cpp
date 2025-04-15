@@ -96,7 +96,7 @@ void SimpleRandom::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SimpleRandom::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SimpleRandom::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] || this->inletsConnected[2]){

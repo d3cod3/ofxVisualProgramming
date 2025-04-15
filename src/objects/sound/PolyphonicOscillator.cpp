@@ -241,7 +241,7 @@ void PolyphonicOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PolyphonicOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PolyphonicOscillator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()>0){

@@ -121,7 +121,7 @@ void BashScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BashScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BashScript::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // listen to message control (_inletParams[0])

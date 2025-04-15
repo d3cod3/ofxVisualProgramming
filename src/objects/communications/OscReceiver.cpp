@@ -69,7 +69,7 @@ void OscReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OscReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void OscReceiver::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(osc_labels.size() > 0 && loaded && osc_receiver.isListening()){
         while(osc_receiver.hasWaitingMessages()){

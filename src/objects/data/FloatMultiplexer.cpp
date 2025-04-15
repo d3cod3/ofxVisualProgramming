@@ -88,7 +88,7 @@ void FloatMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindo
 }
 
 //--------------------------------------------------------------
-void FloatMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void FloatMultiplexer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]) != inletsMemory.at(i)){

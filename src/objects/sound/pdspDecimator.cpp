@@ -88,7 +88,7 @@ void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspDecimator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         freq = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),2.0f,1600.0f);

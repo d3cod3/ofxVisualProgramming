@@ -133,7 +133,7 @@ void pdspCompressor::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspCompressor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspCompressor::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     // attack
     if(this->inletsConnected[1]){

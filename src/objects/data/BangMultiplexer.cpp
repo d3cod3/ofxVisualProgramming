@@ -86,7 +86,7 @@ void BangMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BangMultiplexer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){

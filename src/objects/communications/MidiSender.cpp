@@ -84,7 +84,7 @@ void MidiSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MidiSender::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(midiDevicesList.size() > 0){

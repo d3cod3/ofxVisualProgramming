@@ -90,7 +90,7 @@ void StringMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWind
 }
 
 //--------------------------------------------------------------
-void StringMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringMultiplexer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             if(*ofxVP_CAST_PIN_PTR<string>(_inletParams[i]) != inletsMemory.at(i)){

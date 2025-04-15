@@ -198,7 +198,7 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Oscillator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // silence pitch 0

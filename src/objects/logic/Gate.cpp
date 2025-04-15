@@ -102,7 +102,7 @@ void Gate::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Gate::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(needReset){

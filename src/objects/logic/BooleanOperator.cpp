@@ -78,7 +78,7 @@ void BooleanOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void BooleanOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BooleanOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && this->inletsConnected[1]){
         if(_operator == Bool_Operator_AND){

@@ -92,7 +92,7 @@ void SignalOperator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SignalOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SignalOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!loaded){

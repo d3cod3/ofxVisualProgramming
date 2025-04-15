@@ -92,7 +92,7 @@ void ImageLoader::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ImageLoader::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ImageLoader::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(!isFileLoaded && img->isAllocated()){
         isFileLoaded = true;

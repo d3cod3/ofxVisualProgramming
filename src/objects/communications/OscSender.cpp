@@ -70,7 +70,7 @@ void OscSender::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OscSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void OscSender::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(loaded){

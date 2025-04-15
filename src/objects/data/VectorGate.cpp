@@ -100,7 +100,7 @@ void VectorGate::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void VectorGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VectorGate::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(needReset){

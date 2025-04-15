@@ -136,7 +136,7 @@ void pdspReverb::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspReverb::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspReverb::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

@@ -92,7 +92,7 @@ void Counter::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Counter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Counter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!this->inletsConnected[1]){

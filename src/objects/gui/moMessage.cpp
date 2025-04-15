@@ -74,7 +74,7 @@ void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moMessage::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) >= 1.0){
         if(this->inletsConnected[1]){

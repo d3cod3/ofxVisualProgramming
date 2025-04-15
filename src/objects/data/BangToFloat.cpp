@@ -77,7 +77,7 @@ void BangToFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void BangToFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BangToFloat::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){

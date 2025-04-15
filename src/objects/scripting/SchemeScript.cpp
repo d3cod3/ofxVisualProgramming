@@ -187,7 +187,7 @@ void SchemeScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void SchemeScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SchemeScript::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // receive external data

@@ -106,7 +106,7 @@ void TimedSemaphore::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void TimedSemaphore::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

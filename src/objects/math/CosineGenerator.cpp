@@ -84,7 +84,7 @@ void CosineGenerator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void CosineGenerator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void CosineGenerator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

@@ -156,7 +156,7 @@ void SamplePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SamplePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SamplePlayer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){

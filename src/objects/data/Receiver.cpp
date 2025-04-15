@@ -98,7 +98,7 @@ void vpReceiver::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void vpReceiver::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(receiveTypeIndex == VP_LINK_NUMERIC){
@@ -130,7 +130,7 @@ void vpReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 
     if(signalSendEvent){
         signalSendEvent = false;
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 if(it->second->getName() == "sender"){
                     for(int wid=0;wid<it->second->getNumOutlets();wid++){

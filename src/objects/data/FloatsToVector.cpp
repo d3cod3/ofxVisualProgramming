@@ -88,7 +88,7 @@ void FloatsToVector::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void FloatsToVector::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void FloatsToVector::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
             ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->at(i) = *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[i]);

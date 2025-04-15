@@ -90,7 +90,7 @@ void Map::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Map::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Map::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
       if(this->inletsConnected[1]){

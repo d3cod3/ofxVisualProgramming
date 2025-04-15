@@ -136,7 +136,7 @@ void ofxVisualProgramming::setRetina(bool retina, float retinaScale){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
+void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, std::string release){
 
     // Load resources
     font->load(MAIN_FONT,fontSize);
@@ -147,7 +147,7 @@ void ofxVisualProgramming::setup(ofxImGui::Gui* _guiRef, string release){
     if( _guiRef == nullptr ){
         ofxVPGui = new ofxImGui::Gui();
         ofxVPGui->setup();
-        string tmpstr = "Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();";
+        std::string tmpstr = "Automatically setting up a new ImGui instance. If your app has its own one, pass it's reference in setup();";
         ofLogNotice("ofxVP","%s",tmpstr.c_str());
     }
     else {
@@ -256,7 +256,7 @@ void ofxVisualProgramming::update(){
 
         // left to right computing order
         leftToRightIndexOrder.clear();
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 leftToRightIndexOrder.push_back(make_pair(static_cast<int>(floor(it->second->getPos().x)),it->second->getId()));
             }
@@ -267,7 +267,7 @@ void ofxVisualProgramming::update(){
         ImGuiEx::ProfilerTask *pt = new ImGuiEx::ProfilerTask[leftToRightIndexOrder.size()];
 
         for(unsigned int i=0;i<leftToRightIndexOrder.size();i++){
-            string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
+            std::string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_update";
 
             pt[i].color = profiler.cpuGraph.colors[static_cast<unsigned int>(i%16)];
             pt[i].startTime = ofGetElapsedTimef();
@@ -282,23 +282,23 @@ void ofxVisualProgramming::update(){
             std::ifstream testPath(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
             if(testPath){ // file exists
                 ofFile tempsofp(patchObjects[leftToRightIndexOrder[i].second]->getFilepath());
-                string fileExt = ofToUpper(tempsofp.getExtension());
+                std::string fileExt = ofToUpper(tempsofp.getExtension());
                 if(fileExt == "LUA" || fileExt == "SH"){
-                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    std::map<std::string,std::string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                     if (sofpIT == scriptsObjectsFilesPaths.end()){
                         // not found, insert it
-                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                        scriptsObjectsFilesPaths.insert( std::pair<std::string,std::string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
                     }
                 }else if(fileExt == "FRAG"){
-                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    std::map<std::string,std::string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                     if (sofpIT == scriptsObjectsFilesPaths.end()){
                         // not found, insert FRAG
-                        scriptsObjectsFilesPaths.insert( pair<string,string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
+                        scriptsObjectsFilesPaths.insert( std::pair<std::string,std::string>(tempsofp.getFileName(),tempsofp.getAbsolutePath()) );
                         // insert VERT
-                        string fsName = tempsofp.getFileName();
-                        string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
+                        std::string fsName = tempsofp.getFileName();
+                        std::string vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,fsName.find_last_of('.'))+".vert";
                         ofFile newVertGLSLFile (vsName);
-                        scriptsObjectsFilesPaths.insert( pair<string,string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
+                        scriptsObjectsFilesPaths.insert( std::pair<std::string,std::string>(newVertGLSLFile.getFileName(),newVertGLSLFile.getAbsolutePath()) );
                     }
                 }
             }
@@ -330,7 +330,7 @@ void ofxVisualProgramming::updateCanvasViewport(){
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::updateSubpatchNavigation(){
-    for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+    for(std::map<std::string,std::vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
         for(int z=0;z<it->second.size();z++){
             if(it->second.at(z).objID != -1){
                 it->second.at(z).name = patchObjects[it->second.at(z).objID]->wirelessName;
@@ -393,7 +393,7 @@ void ofxVisualProgramming::draw(){
 
             if(patchObjects[leftToRightIndexOrder[i].second]->subpatchName == currentSubpatch){
 
-                string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw";
+                std::string tmpon = patchObjects[leftToRightIndexOrder[i].second]->getName()+ofToString(patchObjects[leftToRightIndexOrder[i].second]->getId())+"_draw";
 
                 pt[i].color = profiler.gpuGraph.colors[static_cast<unsigned int>(i%16)];
                 pt[i].startTime = ofGetElapsedTimef();
@@ -566,13 +566,13 @@ void ofxVisualProgramming::drawSubpatchNavigation(){
     ImGui::Spacing();
     ImGui::Spacing();
 
-    for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+    for(std::map<std::string,std::vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
 
         ImGuiTreeNodeFlags node_flags = base_flags;
         const bool is_selected = (selection_mask & (1 << i)) != 0;
         if (is_selected) node_flags |= ImGuiTreeNodeFlags_Selected;
 
-        string rName = "[ ";
+        std::string rName = "[ ";
         rName += it->first;
         rName += " ]";
         bool node_open;
@@ -683,24 +683,24 @@ void ofxVisualProgramming::cleanPatchDataFolder(){
     for(size_t i = 0; i < dir.size(); i++){
         if(dir.getFile(i).exists()){
             if(dir.getFile(i).isFile()){
-                map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(dir.getFile(i).getFileName());
+                std::map<std::string,std::string>::iterator sofpIT = scriptsObjectsFilesPaths.find(dir.getFile(i).getFileName());
                 if (sofpIT == scriptsObjectsFilesPaths.end()){
                     // not found in patch scripts map, remove it from patch data folder
                     //ofLog(OF_LOG_NOTICE,"%s",dir.getFile(i).getAbsolutePath().c_str());
-                    string fileExt = ofToUpper(dir.getFile(i).getExtension());
+                    std::string fileExt = ofToUpper(dir.getFile(i).getExtension());
                     if(fileExt == "SH" || fileExt == "FRAG"){
                         dir.getFile(i).remove();
                     }
                     // remove if filename is empty
-                    string tfn = dir.getFile(i).getFileName();
+                    std::string tfn = dir.getFile(i).getFileName();
                     if(dir.getFile(i).getFileName().substr(0,tfn.find_last_of('.')) == "empty"){
                         dir.getFile(i).remove();
                     }
                     // remove alone .vert files
                     if(fileExt == "VERT"){
-                        string vsName = dir.getFile(i).getFileName();
-                        string fsName = dir.getFile(i).getFileName().substr(0,vsName.find_last_of('.'))+".frag";
-                        map<string,string>::iterator sofpIT2 = scriptsObjectsFilesPaths.find(fsName);
+                        std::string vsName = dir.getFile(i).getFileName();
+                        std::string fsName = dir.getFile(i).getFileName().substr(0,vsName.find_last_of('.'))+".frag";
+                        std::map<std::string,std::string>::iterator sofpIT2 = scriptsObjectsFilesPaths.find(fsName);
                         if (sofpIT2 == scriptsObjectsFilesPaths.end()){
                             // related fragment shader not found in patch scripts map, remove it from patch data folder
                             dir.getFile(i).remove();
@@ -722,7 +722,7 @@ void ofxVisualProgramming::reloadFont(){
 //--------------------------------------------------------------
 void ofxVisualProgramming::exit(){
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             it->second->removeObjectContent();
         }
@@ -818,7 +818,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
 
             // compute audio input
             if(!inputBuffer.getBuffer().empty()){
-                for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                     if(it->second != nullptr){
                         if(!it->second->getWillErase()){
                             it->second->audioIn(inputBuffer);
@@ -832,7 +832,7 @@ void ofxVisualProgramming::audioProcess(float *input, int bufferSize, int nChann
         }
         if(audioGUIOUTChannels > 0){
             // compute audio output
-            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(it->second != nullptr){
                     if(!it->second->getWillErase()){
                         it->second->audioOut(emptyBuffer);
@@ -863,7 +863,7 @@ void ofxVisualProgramming::addObject(string name,ofVec2f pos,std::string fp){
 
     bLoadingNewObject       = true;
 
-    shared_ptr<PatchObject> tempObj = selectObject(name);
+    std::shared_ptr<PatchObject> tempObj = selectObject(name);
 
     // selectObject can return nullptr !
     if( tempObj.get() == nullptr ){
@@ -944,9 +944,9 @@ void ofxVisualProgramming::resetObject(int &id){
 
         ofxVPXml.loadMosaicPatch(currentPatchFile);
 
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
-                vector<shared_ptr<PatchLink>> tempBuffer;
+                std::vector<std::shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                     if(it->second->outPut[j]->toObjectID == id){
                         if(it->second->outPut[j]->toInletID < patchObjects[id]->getNumInlets()){
@@ -973,9 +973,9 @@ void ofxVisualProgramming::resetObject(int &id){
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetObject(int id){
     if ((id != -1) && (patchObjects[id] != nullptr)){
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
-                vector<shared_ptr<PatchLink>> tempBuffer;
+                std::vector<std::shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                     if(it->second->outPut[j]->toObjectID != id){
                         tempBuffer.push_back(it->second->outPut[j]);
@@ -1027,7 +1027,7 @@ void ofxVisualProgramming::clearObjectsMap(){
     if(ofGetElapsedTimeMillis()-resetTime > wait){
         resetTime = ofGetElapsedTimeMillis();
         eraseIndexes.clear();
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 if(it->second->getWillErase()){
                     eraseIndexes.push_back(it->first);
@@ -1046,25 +1046,25 @@ void ofxVisualProgramming::clearObjectsMap(){
             std::ifstream testPath(patchObjects.at(eraseIndexes.at(x))->getFilepath());
             if(testPath){ // file exists
                 ofFile tempsofp(patchObjects.at(eraseIndexes.at(x))->getFilepath());
-                string fileExt = ofToUpper(tempsofp.getExtension());
+                std::string fileExt = ofToUpper(tempsofp.getExtension());
                 if(fileExt == "LUA" || fileExt == "SH"){
-                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    std::map<std::string,std::string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                     if (sofpIT != scriptsObjectsFilesPaths.end()){
                         // found it, remove it
                         scriptsObjectsFilesPaths.erase(sofpIT);
                     }
                 }else if(fileExt == "FRAG"){
                     // remove .frag
-                    map<string,string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
+                    std::map<std::string,std::string>::iterator sofpIT = scriptsObjectsFilesPaths.find(tempsofp.getFileName());
                     if (sofpIT != scriptsObjectsFilesPaths.end()){
                         // found it, remove it
                         scriptsObjectsFilesPaths.erase(sofpIT);
                     }
                     // remove .vert
-                    string pf_fsName = tempsofp.getFileName();
-                    string pf_vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,pf_fsName.find_last_of('.'))+".vert";
+                    std::string pf_fsName = tempsofp.getFileName();
+                    std::string pf_vsName = tempsofp.getEnclosingDirectory()+tempsofp.getFileName().substr(0,pf_fsName.find_last_of('.'))+".vert";
                     ofFile tempVert(pf_vsName);
-                    map<string,string>::iterator sofpITV = scriptsObjectsFilesPaths.find(tempVert.getFileName());
+                    std::map<std::string,std::string>::iterator sofpITV = scriptsObjectsFilesPaths.find(tempVert.getFileName());
                     if (sofpITV != scriptsObjectsFilesPaths.end()){
                         // found it, remove it
                         scriptsObjectsFilesPaths.erase(sofpITV);
@@ -1086,7 +1086,7 @@ void ofxVisualProgramming::clearObjectsMap(){
 }
 
 //--------------------------------------------------------------
-bool ofxVisualProgramming::isObjectInLibrary(string name){
+bool ofxVisualProgramming::isObjectInLibrary(std::string name){
     bool exists = false;
     for(ofxVPObjects::factory::objectRegistry::iterator it = ofxVPObjects::factory::getObjectRegistry().begin(); it != ofxVPObjects::factory::getObjectRegistry().end(); it++ ){
         if(it->first == name){
@@ -1102,7 +1102,7 @@ bool ofxVisualProgramming::isObjectInLibrary(string name){
 bool ofxVisualProgramming::isObjectIDInPatchMap(int id){
     bool exists = false;
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             if(it->first == id){
                 exists = true;
@@ -1116,8 +1116,8 @@ bool ofxVisualProgramming::isObjectIDInPatchMap(int id){
 
 //--------------------------------------------------------------
 string ofxVisualProgramming::getObjectNameFromID(int id){
-    string name = "";
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    std::string name = "";
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             if(it->first == id){
                 name = it->second->getName();
@@ -1129,9 +1129,9 @@ string ofxVisualProgramming::getObjectNameFromID(int id){
 }
 
 //--------------------------------------------------------------
-int ofxVisualProgramming::getSubpatchIndex(string name){
+int ofxVisualProgramming::getSubpatchIndex(std::string name){
     int ind = 0;
-    for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+    for(std::map<std::string,std::vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
         if(it->first == name){
             return ind;
         }
@@ -1159,7 +1159,7 @@ void ofxVisualProgramming::removeObject(int &id){
         // remove object
         ofxVPXml.removeObject(id);
 
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 vector<shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
@@ -1175,7 +1175,7 @@ void ofxVisualProgramming::removeObject(int &id){
         }
 
         // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
-        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+        for(std::map<std::string,std::vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
             for(int z=0;z<it->second.size();z++){
                 if(it->second.at(z).objID == id){
                     it->second.at(z).objID = -1;
@@ -1226,9 +1226,9 @@ void ofxVisualProgramming::disconnectObject(int id){
         // remove all links to the disconnecting object
         ofxVPXml.removeAllLinksToObject(id,0);
 
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
-                vector<shared_ptr<PatchLink>> tempBuffer;
+                std::vector<std::shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                     if(it->second->outPut[j]->toObjectID != id){
                         tempBuffer.push_back(it->second->outPut[j]);
@@ -1242,7 +1242,7 @@ void ofxVisualProgramming::disconnectObject(int id){
         }
 
         // check reference from subpatches map ( if the object was a wireless one ,sender or receiver )
-        for(map<string,vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
+        for(std::map<std::string,std::vector<SubpatchConnection>>::iterator it = subpatchesMap.begin(); it != subpatchesMap.end(); it++ ){
             for(int z=0;z<it->second.size();z++){
                 if(it->second.at(z).objID == id){
                     it->second.at(z).objID = -1;
@@ -1265,9 +1265,9 @@ bool ofxVisualProgramming::connect(int fromID, int fromOutlet, int toID,int toIn
 
         //std::cout << "Mosaic :: "<< "Connect object " << patchObjects[fromID]->getName().c_str() << ":" << ofToString(fromID) << " to object " << patchObjects[toID]->getName().c_str() << ":" << ofToString(toID) << std::endl;
 
-        shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
+        std::shared_ptr<PatchLink> tempLink = std::shared_ptr<PatchLink>(new PatchLink());
 
-        string tmpID = ofToString(fromID)+ofToString(fromOutlet)+ofToString(toID)+ofToString(toInlet);
+        std::string tmpID = ofToString(fromID)+ofToString(fromOutlet)+ofToString(toID)+ofToString(toInlet);
 
         tempLink->id            = stoi(tmpID);
         tempLink->posFrom       = patchObjects[fromID]->getOutletPosition(fromOutlet);
@@ -1330,7 +1330,7 @@ void ofxVisualProgramming::checkSpecialConnection(int fromID, int toID, int link
 
 //--------------------------------------------------------------
 void ofxVisualProgramming::resetSystemObjects(){
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             if(it->second->getIsSystemObject()){
                 it->second->resetSystemObject();
@@ -1346,8 +1346,8 @@ void ofxVisualProgramming::resetSystemObjects(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::resetSpecificSystemObjects(string name){
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+void ofxVisualProgramming::resetSpecificSystemObjects(std::string name){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             if(it->second->getIsSystemObject() && it->second->getName() == name){
                 it->second->resetSystemObject();
@@ -1361,9 +1361,9 @@ void ofxVisualProgramming::resetSpecificSystemObjects(string name){
 }
 
 //--------------------------------------------------------------
-bool ofxVisualProgramming::weAlreadyHaveObject(string name){
+bool ofxVisualProgramming::weAlreadyHaveObject(std::string name){
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             if(it->second->getName() == name){
                 return true;
@@ -1376,22 +1376,22 @@ bool ofxVisualProgramming::weAlreadyHaveObject(string name){
 }
 
 //--------------------------------------------------------------
-shared_ptr<PatchObject> ofxVisualProgramming::selectObject(string objname){
+std::shared_ptr<PatchObject> ofxVisualProgramming::selectObject(string objname){
     ofxVPObjects::factory::objectRegistry& reg = ofxVPObjects::factory::getObjectRegistry();
     ofxVPObjects::factory::objectRegistry::iterator it = reg.find(objname);
 
     if (it != reg.end()) {
         ofxVPObjects::factory::CreateObjectFunc func = it->second;
-        return shared_ptr<PatchObject>( func() );
+        return std::shared_ptr<PatchObject>( func() );
     }
 
     ofLogError("ofxVisualProgramming::selectObject") << "Object not found: " << objname << ". Maybe this PatchObject is not available on your platform or there might be a version error.";
-    return shared_ptr<PatchObject>(nullptr);
+    return std::shared_ptr<PatchObject>(nullptr);
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::newPatch(string release){
-    string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
+void ofxVisualProgramming::newPatch(std::string release){
+    std::string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
     ofFile fileToRead(ofToDataPath("empty_patch.xml",true));
 
     pauseDSP = true;
@@ -1411,10 +1411,10 @@ void ofxVisualProgramming::newPatch(string release){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
+void ofxVisualProgramming::newTempPatchFromFile(std::string patchFile){
     pauseDSP = true;
 
-    string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
+    std::string newFileName = "patch_"+ofGetTimestampString("%y%m%d")+alphabet.at(newFileCounter)+".xml";
     ofFile fileToRead(patchFile);
     ofFile newPatchFile(ofToDataPath("temp/"+newFileName,true));
     ofFile::copyFromTo(fileToRead.getAbsolutePath(),newPatchFile.getAbsolutePath(),true,true);
@@ -1437,7 +1437,7 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 #endif
         }
 
-        string oldDataPath = oldData.getAbsolutePath();
+        std::string oldDataPath = oldData.getAbsolutePath();
 
         // copy new data content
 #ifdef OFXVP_DEBUG
@@ -1458,14 +1458,14 @@ void ofxVisualProgramming::newTempPatchFromFile(string patchFile){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::preloadPatch(string patchFile){
+void ofxVisualProgramming::preloadPatch(std::string patchFile){
     pauseDSP = true;
 
     currentPatchFile = patchFile;
     actualObjectID          = 0;
 
     // clear previous patch
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             if(it->second->getName() != "audio device"){
                 it->second->setWillErase(true);
@@ -1488,7 +1488,7 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
     subpatchesMap.clear();
     currentSubpatch         = "root";
     newSubpatchName         = "";
-    vector<SubpatchConnection> rootBranch;
+    std::vector<SubpatchConnection> rootBranch;
     subpatchesMap[currentSubpatch] = rootBranch;
 
     resetTime = ofGetElapsedTimeMillis();
@@ -1496,7 +1496,7 @@ void ofxVisualProgramming::preloadPatch(string patchFile){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::openPatch(string patchFile){
+void ofxVisualProgramming::openPatch(std::string patchFile){
 
     bLoadingNewPatch = true;
     pauseDSP = true;
@@ -1520,13 +1520,13 @@ void ofxVisualProgramming::openPatch(string patchFile){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::loadPatch(string patchFile){
+void ofxVisualProgramming::loadPatch(std::string patchFile){
 
     loadPatchTime           = ofGetElapsedTimeMillis();
 
     ofxVPXml.loadMosaicPatch(patchFile);
 
-    string tstr;
+    std::string tstr;
 
     // Load main settings
 
@@ -1573,7 +1573,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
     tstr = "------------------- AUDIO DEVICES";
     ofLog(OF_LOG_NOTICE,"%s",tstr.c_str());
     for(size_t i=0;i<audioDevices.size();i++){
-        string tempSR = "";
+        std::string tempSR = "";
         for(size_t sr=0;sr<audioDevices[i].sampleRates.size();sr++){
             if(sr < audioDevices[i].sampleRates.size()-1){
                 tempSR += ofToString(audioDevices[i].sampleRates.at(sr))+", ";
@@ -1762,7 +1762,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             bool loaded = false;
 
             if(isObjectInLibrary(objname)){
-                shared_ptr<PatchObject> tempObj = selectObject(objname);
+                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
                     loaded = tempObj->loadConfig(mainWindow,*engine,oi,patchFile);
                     if(loaded){
@@ -1772,7 +1772,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
                         if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
                         tempObj->setSubpatch(objSubpatch);
                         if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
-                            vector<SubpatchConnection> _sp;
+                            std::vector<SubpatchConnection> _sp;
                             subpatchesMap[objSubpatch] = _sp;
                         }
                         ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
@@ -1813,7 +1813,7 @@ void ofxVisualProgramming::loadPatch(string patchFile){
             auto o = obj.node();
             std::string objname = ofxVPXml.getPatchChildString(o,"name");
             if(isObjectInLibrary(objname)){
-                shared_ptr<PatchObject> tempObj = selectObject(objname);
+                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
                     int fromID = ofxVPXml.getPatchChildInt(o,"id");
                     pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(fromID);
@@ -1878,7 +1878,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
             auto o = obj.node();
             std::string objname = ofxVPXml.getPatchChildString(o,"name");
             if(isObjectInLibrary(objname)){
-                shared_ptr<PatchObject> tempObj = selectObject(objname);
+                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
                     int fromID = ofxVPXml.getPatchChildInt(o,"id");
                     pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(fromID);
@@ -1924,7 +1924,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
             bool loaded = false;
 
             if(isObjectInLibrary(objname)){
-                shared_ptr<PatchObject> tempObj = selectObject(objname);
+                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
                 if(tempObj != nullptr && tempObj->getIsSharedContextObject()){
                     loaded = tempObj->loadConfig(mainWindow,*engine,oi,currentPatchFile);
                     if(loaded){
@@ -1934,7 +1934,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                         if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
                         tempObj->setSubpatch(objSubpatch);
                         if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
-                            vector<SubpatchConnection> _sp;
+                            std::vector<SubpatchConnection> _sp;
                             subpatchesMap[objSubpatch] = _sp;
                         }
                         ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
@@ -1976,7 +1976,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                                 auto l = link.node();
                                 int toObjectID = ofxVPXml.getPatchChildInt(l,"id");
                                 int toInletID = ofxVPXml.getPatchChildInt(l,"inlet");
-                                string toObjName = getObjectNameFromID(toObjectID);
+                                std::string toObjName = getObjectNameFromID(toObjectID);
 
                                 if(toObjName != ""){
                                     shared_ptr<PatchObject> _tempToObj = selectObject(toObjName);
@@ -2010,7 +2010,7 @@ void ofxVisualProgramming::reloadPatch(){
     bLoadingNewPatch = true;
 
     // clear previous patch
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             it->second->removeObjectContent();
         }
@@ -2022,7 +2022,7 @@ void ofxVisualProgramming::reloadPatch(){
     subpatchesMap.clear();
     currentSubpatch         = "root";
     newSubpatchName         = "";
-    vector<SubpatchConnection> rootBranch;
+    std::vector<SubpatchConnection> rootBranch;
     subpatchesMap[currentSubpatch] = rootBranch;
 
     // load new patch
@@ -2030,7 +2030,7 @@ void ofxVisualProgramming::reloadPatch(){
 }
 
 //--------------------------------------------------------------
-void ofxVisualProgramming::savePatchAs(string patchFile){
+void ofxVisualProgramming::savePatchAs(std::string patchFile){
 
     // Mosaic patch folder structure:
     //
@@ -2041,19 +2041,19 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
 
     // sanitize filename
     ofFile tempPF(patchFile);
-    string preSanitizeFN = tempPF.getFileName();
+    std::string preSanitizeFN = tempPF.getFileName();
     sanitizeFilename(preSanitizeFN);
 
-    string sanitizedPatchFile = tempPF.getEnclosingDirectory()+preSanitizeFN;
+    std::string sanitizedPatchFile = tempPF.getEnclosingDirectory()+preSanitizeFN;
     //ofLog(OF_LOG_NOTICE,"%s",patchFile.c_str());
     //ofLog(OF_LOG_NOTICE,"%s",sanitizedPatchFile.c_str());
 
     // copy patch file & patch data folder
     ofFile tempFile(sanitizedPatchFile);
-    string tempFileName = tempFile.getFileName();
-    string finalTempFileName = tempFile.getFileName().substr(0,tempFileName.find_last_of('.'));
+    std::string tempFileName = tempFile.getFileName();
+    std::string finalTempFileName = tempFile.getFileName().substr(0,tempFileName.find_last_of('.'));
 
-    string newFileName = checkFileExtension(sanitizedPatchFile, ofToUpper(tempFile.getExtension()), "XML");
+    std::string newFileName = checkFileExtension(sanitizedPatchFile, ofToUpper(tempFile.getExtension()), "XML");
     ofFile fileToRead(currentPatchFile);
     ofDirectory dataFolderOrigin;
     dataFolderOrigin.listDir(currentPatchFolderPath+"data/");
@@ -2070,7 +2070,7 @@ void ofxVisualProgramming::savePatchAs(string patchFile){
 
     dataFolderOrigin.copyTo(tp,true,true);
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             it->second->setPatchfile(currentPatchFile);
         }
@@ -2146,7 +2146,7 @@ void ofxVisualProgramming::setAudioBufferSize(int bs){
 //--------------------------------------------------------------
 void ofxVisualProgramming::activateDSP(){
 
-    string tstr;
+    std::string tstr;
 
     engine->setChannels(0,0);
 

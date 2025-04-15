@@ -115,7 +115,7 @@ void moBang::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void moBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moBang::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
 }

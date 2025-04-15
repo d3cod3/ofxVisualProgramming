@@ -105,7 +105,7 @@ void FboParticles::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FboParticles::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void FboParticles::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     // particle system origin X
     if(this->inletsConnected[1]){

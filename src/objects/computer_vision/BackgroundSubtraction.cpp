@@ -114,7 +114,7 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BackgroundSubtraction::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // External background reset (BANG)

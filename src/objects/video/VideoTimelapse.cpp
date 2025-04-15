@@ -97,7 +97,7 @@ void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoTimelapse::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

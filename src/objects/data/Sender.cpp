@@ -93,7 +93,7 @@ void vpSender::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void vpSender::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(sendTypeIndex == VP_LINK_NUMERIC){
@@ -125,7 +125,7 @@ void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
     if(resetLinks){
         resetLinks = false;
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 vector<shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){

@@ -105,7 +105,7 @@ void VideoCrop::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoCrop::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoCrop::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){

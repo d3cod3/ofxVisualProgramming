@@ -79,7 +79,7 @@ void moDataViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moDataViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moDataViewer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!loaded){

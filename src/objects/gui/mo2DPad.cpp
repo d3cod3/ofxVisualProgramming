@@ -78,7 +78,7 @@ void mo2DPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void mo2DPad::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
 
     if(this->inletsConnected[0]){

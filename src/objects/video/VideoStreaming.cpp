@@ -93,7 +93,7 @@ void VideoStreaming::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void VideoStreaming::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoStreaming::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]) == 1.0f){

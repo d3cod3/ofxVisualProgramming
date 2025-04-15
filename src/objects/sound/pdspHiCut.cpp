@@ -99,7 +99,7 @@ void pdspHiCut::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspHiCut::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspHiCut::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

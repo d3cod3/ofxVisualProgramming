@@ -105,7 +105,7 @@ void AudioDevice::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void AudioDevice::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void AudioDevice::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 }
 

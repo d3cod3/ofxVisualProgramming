@@ -123,7 +123,7 @@ void pdspLFO::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspLFO::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspLFO::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
     // retrig
     if(this->inletsConnected[0]){

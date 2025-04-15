@@ -114,7 +114,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoGrabber::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(needReset && isOneDeviceAvailable){
         resetCameraSettings(deviceID);

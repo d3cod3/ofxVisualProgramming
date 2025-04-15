@@ -118,7 +118,7 @@ void pdspDelay::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspDelay::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         time = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,DELAY_MAX_TIME);

@@ -78,7 +78,7 @@ void VectorOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void VectorOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VectorOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!loaded){

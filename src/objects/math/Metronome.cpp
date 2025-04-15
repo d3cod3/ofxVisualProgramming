@@ -127,7 +127,7 @@ void Metronome::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Metronome::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Metronome::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) != timeSetting.get()){

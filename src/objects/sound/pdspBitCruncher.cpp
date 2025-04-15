@@ -92,7 +92,7 @@ void pdspBitCruncher::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspBitCruncher::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         bits = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),1.0f,8.0f);

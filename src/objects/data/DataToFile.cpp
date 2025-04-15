@@ -76,7 +76,7 @@ void DataToFile::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DataToFile::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void DataToFile::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

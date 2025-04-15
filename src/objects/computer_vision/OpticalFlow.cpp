@@ -103,7 +103,7 @@ void OpticalFlow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OpticalFlow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void OpticalFlow::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // OPTICAL FLOW UPDATE

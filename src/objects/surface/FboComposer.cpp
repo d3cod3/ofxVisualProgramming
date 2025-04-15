@@ -87,7 +87,7 @@ void FboComposer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FboComposer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void FboComposer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded = true;

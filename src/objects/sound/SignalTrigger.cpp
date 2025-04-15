@@ -97,7 +97,7 @@ void SignalTrigger::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SignalTrigger::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SignalTrigger::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         thresh = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);

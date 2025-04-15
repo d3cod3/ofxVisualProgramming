@@ -87,7 +87,7 @@ void moSignalViewer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void moSignalViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moSignalViewer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){

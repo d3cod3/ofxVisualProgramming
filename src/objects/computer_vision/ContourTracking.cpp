@@ -100,7 +100,7 @@ void ContourTracking::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void ContourTracking::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ContourTracking::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){

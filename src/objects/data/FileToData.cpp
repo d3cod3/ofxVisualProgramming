@@ -76,7 +76,7 @@ void FileToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FileToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void FileToData::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(fileOpened){

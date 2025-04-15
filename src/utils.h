@@ -105,8 +105,8 @@ inline std::string random_string( size_t length ){
 }
 
 //--------------------------------------------------------------
-inline bool containString(string str1, string str2) {
-    return (str1.find(str2) != string::npos);
+inline bool containString(std::string str1, std::string str2) {
+    return (str1.find(str2) != std::string::npos);
 }
 
 //--------------------------------------------------------------
@@ -404,7 +404,7 @@ inline std::string forceCheckMosaicDataPath(std::string filepath){
     if(file.exists()){
         return filepath;
     }else{
-        if(filepath.find("Mosaic/data/") != std::string::npos || filepath.find("Mosaic/examples/") != string::npos) {
+        if(filepath.find("Mosaic/data/") != std::string::npos || filepath.find("Mosaic/examples/") != std::string::npos) {
             size_t start = filepath.find("Mosaic/");
             std::string newPath = filepath.substr(start,filepath.size()-start);
 

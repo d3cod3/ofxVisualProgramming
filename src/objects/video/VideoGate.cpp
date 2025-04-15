@@ -109,7 +109,7 @@ void VideoGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoGate::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
     
     if(this->inletsConnected[0]){

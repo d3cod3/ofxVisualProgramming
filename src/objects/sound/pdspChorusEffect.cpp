@@ -114,7 +114,7 @@ void pdspChorusEffect::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspChorusEffect::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         speed = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,1.0f);

@@ -92,7 +92,7 @@ void DataToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DataToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void DataToTexture::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(needReset){

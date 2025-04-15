@@ -106,7 +106,7 @@ void KinectGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KinectGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void KinectGrabber::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(needReset){
         needReset = false;

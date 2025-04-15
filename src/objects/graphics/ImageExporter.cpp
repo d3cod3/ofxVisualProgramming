@@ -86,7 +86,7 @@ void ImageExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ImageExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ImageExporter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(isImageSaved){

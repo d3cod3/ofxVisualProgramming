@@ -75,7 +75,7 @@ void moPianoKeyboard::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void moPianoKeyboard::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moPianoKeyboard::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){

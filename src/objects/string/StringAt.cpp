@@ -73,7 +73,7 @@ void StringAt::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void StringAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringAt::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
 
     if(this->inletsConnected[1]){

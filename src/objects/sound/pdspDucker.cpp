@@ -133,7 +133,7 @@ void pdspDucker::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDucker::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspDucker::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     ducker.setAttackCurve(attackHardness);
     ducker.setReleaseCurve(releaseHardness);

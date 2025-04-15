@@ -78,7 +78,7 @@ void MidiKnob::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiKnob::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MidiKnob::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && this->inletsConnected[1]){
         if(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) == savedControl){

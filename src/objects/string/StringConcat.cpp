@@ -88,7 +88,7 @@ void StringConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void StringConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringConcat::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){

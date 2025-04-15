@@ -113,7 +113,7 @@ void pdspBitNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspBitNoise::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),-100,150);

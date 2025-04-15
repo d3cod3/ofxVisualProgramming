@@ -126,7 +126,7 @@ void ShaderObject::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ShaderObject::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     ///////////////////////////////////////////
     // SHADER UPDATE
@@ -225,7 +225,7 @@ void ShaderObject::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
     // Recursive reset for shader objects chain
     if(needReset){
         needReset = false;
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){

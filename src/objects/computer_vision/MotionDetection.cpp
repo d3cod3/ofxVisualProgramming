@@ -84,7 +84,7 @@ void MotionDetection::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MotionDetection::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // MOTION DETECTION UPDATE

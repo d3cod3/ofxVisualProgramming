@@ -93,7 +93,7 @@ PatchObject::~PatchObject(){
 }
 
 //--------------------------------------------------------------
-void PatchObject::setup(shared_ptr<ofAppGLFWWindow> &mainWindow){
+void PatchObject::setup(std::shared_ptr<ofAppGLFWWindow> &mainWindow){
 
     // init vars
     for(int i=0;i<static_cast<int>(inletsType.size());i++){
@@ -142,7 +142,7 @@ void PatchObject::setupDSP(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine){
+void PatchObject::update(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine){
 
     if(willErase) return;
 
@@ -197,12 +197,12 @@ void PatchObject::update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::E
 }
 
 //--------------------------------------------------------------
-void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PatchObject::updateWirelessLinks(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(willErase) return;
 
     // Continuosly update float type ONLY wireless links
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             for(int in=0;in<it->second->getNumInlets();in++){
                 for(int out=0;out<this->getNumOutlets();out++){
@@ -223,7 +223,7 @@ void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObj
     if(initWirelessLink && resetWirelessPin != -1){
         initWirelessLink = false;
         if(this->getOutletWirelessSend(resetWirelessPin)){
-            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(it->second != nullptr){
                     for(int in=0;in<it->second->getNumInlets();in++){
                         if(this->getOutletType(resetWirelessPin) == it->second->getInletType(in) && this->getOutletID(resetWirelessPin) == it->second->getInletID(in) && it->second->getInletWirelessReceive(in)){
@@ -247,7 +247,7 @@ void PatchObject::updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObj
     // Manually close wireless link from internal object code ( GUI )
     if(resetWirelessLink && resetWirelessPin != -1){
         resetWirelessLink = false;
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 if(this->getId() != it->first){
                     for(int in=0;in<it->second->getNumInlets();in++){
@@ -274,12 +274,12 @@ void PatchObject::draw(ofTrueTypeFont *font){
     if(willErase) return;
 
     // Draw the specific object content ()
-    drawObjectContent(font,(shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer());
+    drawObjectContent(font,(std::shared_ptr<ofBaseGLRenderer>&)ofGetCurrentRenderer());
 
 }
 
 //--------------------------------------------------------------
-void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects){
+void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(willErase) return;
 
@@ -298,7 +298,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
     ImVec2 imSize( this->width, this->height );
 
     // Begin Node
-    string displayName = "";
+    std::string displayName = "";
     if(this->getSpecialName() != ""){
         displayName = PatchObject::getDisplayName()+" "+this->getSpecialName();
     }else{
@@ -316,11 +316,11 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
         // Inlets
         for(int i=0;i<static_cast<int>(inletsType.size());i++){
             auto pinCol = getInletColor(i);
-            vector<ImGuiEx::ofxVPLinkData> tempLinkData;
+            std::vector<ImGuiEx::ofxVPLinkData> tempLinkData;
 
             // if connected, get link origin (outlet origin position and link id)
             if(inletsConnected[i]){
-                for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+                for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                     if(it->second != nullptr){
                         for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                             if(it->second->outPut[j]->toObjectID == nId && it->second->outPut[j]->toInletID == i){
@@ -383,7 +383,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared
             auto pinCol = getOutletColor(i);
 
             // links
-            vector<ImGuiEx::ofxVPLinkData> tempLinkData;
+            std::vector<ImGuiEx::ofxVPLinkData> tempLinkData;
 
             for(int j=0;j<static_cast<int>(outPut.size());j++){
                 if(!outPut[j]->isDisabled && outPut[j]->fromOutletID == i){
@@ -506,16 +506,16 @@ bool PatchObject::getIsOutletConnected(int oid){
 
 //---------------------------------------------------------------------------------- PatchLinks utils
 //--------------------------------------------------------------
-bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType){
+bool PatchObject::connectTo(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType){
     bool connected = false;
 
     if( (fromObjectID != -1) && (patchObjects[fromObjectID] != nullptr) && (fromObjectID!=this->getId()) && (this->getId() != -1) && (patchObjects[fromObjectID]->getOutletType(fromOutlet) == getInletType(toInlet)) && !inletsConnected[toInlet]){
 
         //cout << "Mosaic :: "<< "Connect object " << getName().c_str() << ":" << ofToString(getId()) << " to object " << getName().c_str() << ":" << ofToString(this->getId()) << endl;
 
-        shared_ptr<PatchLink> tempLink = shared_ptr<PatchLink>(new PatchLink());
+        std::shared_ptr<PatchLink> tempLink = std::shared_ptr<PatchLink>(new PatchLink());
 
-        string tmpID = ofToString(fromObjectID)+ofToString(fromOutlet)+ofToString(this->getId())+ofToString(toInlet);
+        std::string tmpID = ofToString(fromObjectID)+ofToString(fromOutlet)+ofToString(this->getId())+ofToString(toInlet);
 
         tempLink->id            = stoi(tmpID);
         tempLink->posFrom       = patchObjects[fromObjectID]->getOutletPosition(fromOutlet);
@@ -569,9 +569,9 @@ bool PatchObject::connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int 
 }
 
 //--------------------------------------------------------------
-void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectInlet){
+void PatchObject::disconnectFrom(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, int objectInlet){
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->toObjectID == this->getId() && it->second->outPut[j]->toInletID == objectInlet){
@@ -585,7 +585,7 @@ void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects,
                         }
                     }
 
-                    vector<shared_ptr<PatchLink>> tempBuffer;
+                    std::vector<std::shared_ptr<PatchLink>> tempBuffer;
                     tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
 
                     for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
@@ -612,9 +612,9 @@ void PatchObject::disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects,
 }
 
 //--------------------------------------------------------------
-void PatchObject::disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID){
+void PatchObject::disconnectLink(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, int linkID){
 
-    for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+    for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
         if(it->second != nullptr){
             for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
                 if(it->second->outPut[j]->id == linkID){
@@ -628,7 +628,7 @@ void PatchObject::disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects,
                         }
                     }
 
-                    vector<shared_ptr<PatchLink>> tempBuffer;
+                    std::vector<std::shared_ptr<PatchLink>> tempBuffer;
                     tempBuffer.reserve(it->second->outPut.size()-tempEraseLinks.size());
 
                     for(int s=0;s<static_cast<int>(it->second->outPut.size());s++){
@@ -657,7 +657,7 @@ void PatchObject::disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects,
 
 //---------------------------------------------------------------------------------- LOAD/SAVE
 //--------------------------------------------------------------
-bool PatchObject::loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile){
+bool PatchObject::loadConfig(std::shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile){
 
     patchFile = configFile;
     ofxVPXml.loadMosaicPatch(patchFile);
@@ -853,7 +853,7 @@ bool PatchObject::clearCustomVars(){
 
 //--------------------------------------------------------------
 map<string,float> PatchObject::loadCustomVars(){
-    map<string,float> tempVars;
+    std::map<std::string,float> tempVars;
 
     if(patchFile != ""){
 
@@ -926,7 +926,7 @@ ofColor PatchObject::getOutletColor(const int& oid) const {
 }
 
 //--------------------------------------------------------------
-string PatchObject::getInletTypeName(const int& iid) const{
+std::string PatchObject::getInletTypeName(const int& iid) const{
     switch( getInletType(iid) ) {
         case 0: return "float";
             break;
@@ -952,7 +952,7 @@ string PatchObject::getInletTypeName(const int& iid) const{
 }
 
 //--------------------------------------------------------------
-string PatchObject::getOutletTypeName(const int& oid) const{
+std::string PatchObject::getOutletTypeName(const int& oid) const{
     switch( getOutletType(oid) ) {
         case 0: return "float";
             break;
@@ -979,7 +979,7 @@ string PatchObject::getOutletTypeName(const int& oid) const{
 
 //---------------------------------------------------------------------------------- SETTERS
 //--------------------------------------------------------------
-void PatchObject::setPatchfile(string pf) {
+void PatchObject::setPatchfile(std::string pf) {
     patchFile = pf;
     ofxVPXml.loadMosaicPatch(patchFile);
     ofFile temp(patchFile);
@@ -987,9 +987,9 @@ void PatchObject::setPatchfile(string pf) {
     if(filepath != "none"){
         ofFile t2(filepath);
         if(t2.isDirectory()){
-            string tst = filepath.substr(0, filepath.size()-1);
+            std::string tst = filepath.substr(0, filepath.size()-1);
             size_t needle = tst.find_last_of("/");
-            string folderName = filepath.substr(needle+1);
+            std::string folderName = filepath.substr(needle+1);
             filepath = patchFolderPath+folderName;
         }else{
             filepath = patchFolderPath+t2.getFileName();
@@ -1004,7 +1004,7 @@ void PatchObject::setPatchfile(string pf) {
 }
 
 //--------------------------------------------------------------
-void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
+void PatchObject::keyPressed(ofKeyEventArgs &e,std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
     if(!willErase){
 
@@ -1012,7 +1012,7 @@ void PatchObject::keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void PatchObject::keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects){
+void PatchObject::keyReleased(ofKeyEventArgs &e,std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     if(!willErase){
         // DELETE SELECTED OBJECTS
         if(e.key == OF_KEY_BACKSPACE){

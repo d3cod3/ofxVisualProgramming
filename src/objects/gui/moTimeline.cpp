@@ -155,7 +155,7 @@ void moTimeline::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moTimeline::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moTimeline::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(!timelineLoaded){
         timelineLoaded = true;

@@ -172,7 +172,7 @@ void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspKick::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     ampEnv.set(attackDuration,decayDuration,sustainLevel,releaseDuration);

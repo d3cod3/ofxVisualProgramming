@@ -92,7 +92,7 @@ void StringGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void StringGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringGate::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";

@@ -81,7 +81,7 @@ void NumberOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void NumberOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void NumberOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded = true;

@@ -159,7 +159,7 @@ void pdspParametricEQ::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspParametricEQ::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspParametricEQ::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!loaded){

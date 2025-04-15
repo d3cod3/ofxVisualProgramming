@@ -155,7 +155,7 @@ void pdspAddressSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspAddressSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspAddressSequencer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){ // ratio

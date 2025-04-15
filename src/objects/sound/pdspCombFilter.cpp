@@ -113,7 +113,7 @@ void pdspCombFilter::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspCombFilter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspCombFilter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),0.0f,127.0f);

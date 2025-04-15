@@ -76,7 +76,7 @@ void TextureToData::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void TextureToData::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void TextureToData::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
     if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
         if(!newConnection){

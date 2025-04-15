@@ -108,7 +108,7 @@ void SummingMixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SummingMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SummingMixer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(needReset){

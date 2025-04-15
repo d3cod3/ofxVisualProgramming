@@ -121,7 +121,7 @@ void pdspADSR::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspADSR::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspADSR::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // A

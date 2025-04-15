@@ -98,7 +98,7 @@ void Panner::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Panner::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){

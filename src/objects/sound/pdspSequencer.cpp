@@ -250,7 +250,7 @@ void pdspSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspSequencer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // steps
