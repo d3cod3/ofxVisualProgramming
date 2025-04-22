@@ -1759,51 +1759,56 @@ void ofxVisualProgramming::loadPatch(std::string patchFile){
         for(auto & obj: objs){
             auto o = obj.node();
             std::string objname = ofxVPXml.getPatchChildString(o,"name");
-            bool loaded = false;
 
-            if(isObjectInLibrary(objname)){
-                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
-                if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
-                    loaded = tempObj->loadConfig(mainWindow,*engine,oi,patchFile);
-                    if(loaded){
-                        tempObj->setPatchfile(currentPatchFile);
-                        tempObj->setIsRetina(isRetina,scaleFactor);
-                        std::string objSubpatch = ofxVPXml.getPatchChildString(o,"subpatch");
-                        if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
-                        tempObj->setSubpatch(objSubpatch);
-                        if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
-                            std::vector<SubpatchConnection> _sp;
-                            subpatchesMap[objSubpatch] = _sp;
+
+            if(objname != "timeline" && objname != "output window" && objname != "projection mapping" && objname != "scheme live coding"){
+                bool loaded = false;
+
+                if(isObjectInLibrary(objname)){
+                    std::shared_ptr<PatchObject> tempObj = selectObject(objname);
+                    if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
+                        loaded = tempObj->loadConfig(mainWindow,*engine,oi,patchFile);
+                        if(loaded){
+                            tempObj->setPatchfile(currentPatchFile);
+                            tempObj->setIsRetina(isRetina,scaleFactor);
+                            std::string objSubpatch = ofxVPXml.getPatchChildString(o,"subpatch");
+                            if(objSubpatch == "") objSubpatch = "root"; // retro compatibility for pre-subpatch patches
+                            tempObj->setSubpatch(objSubpatch);
+                            if (subpatchesMap.find(objSubpatch) == subpatchesMap.end()) {
+                                std::vector<SubpatchConnection> _sp;
+                                subpatchesMap[objSubpatch] = _sp;
+                            }
+                            ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
+                            ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
+                            ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
+                            ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
+                            // Insert the new object into the map
+                            patchObjects[tempObj->getId()] = tempObj;
+                            actualObjectID = tempObj->getId();
+                            lastAddedObjectID = tempObj->getId();
+                            nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
+                            // if wireless object, add reference to subpatch data map
+                            if(objname == "sender"){
+                                SubpatchConnection _t;
+                                _t.objID = tempObj->getId();
+                                _t.inOut = 1;
+                                subpatchesMap[objSubpatch].push_back(_t);
+                            }else if(objname == "receiver"){
+                                SubpatchConnection _t;
+                                _t.objID = tempObj->getId();
+                                _t.inOut = 0;
+                                subpatchesMap[objSubpatch].push_back(_t);
+                            }
+
+    #ifdef OFXVP_DEBUG
+                            std::cout << "Loading "<< tempObj->getName() << std::endl;
+    #endif
+
+                            std::this_thread::sleep_for(std::chrono::milliseconds(10));
                         }
-                        ofAddListener(tempObj->removeEvent ,this,&ofxVisualProgramming::removeObject);
-                        ofAddListener(tempObj->resetEvent ,this,&ofxVisualProgramming::resetObject);
-                        ofAddListener(tempObj->reconnectOutletsEvent ,this,&ofxVisualProgramming::reconnectObjectOutlets);
-                        ofAddListener(tempObj->duplicateEvent ,this,&ofxVisualProgramming::duplicateObject);
-                        // Insert the new object into the map
-                        patchObjects[tempObj->getId()] = tempObj;
-                        actualObjectID = tempObj->getId();
-                        lastAddedObjectID = tempObj->getId();
-                        nodeCanvas.addNodeToMap(tempObj->getId(),tempObj->getName());
-                        // if wireless object, add reference to subpatch data map
-                        if(objname == "sender"){
-                            SubpatchConnection _t;
-                            _t.objID = tempObj->getId();
-                            _t.inOut = 1;
-                            subpatchesMap[objSubpatch].push_back(_t);
-                        }else if(objname == "receiver"){
-                            SubpatchConnection _t;
-                            _t.objID = tempObj->getId();
-                            _t.inOut = 0;
-                            subpatchesMap[objSubpatch].push_back(_t);
-                        }
-
-#ifdef OFXVP_DEBUG
-                        std::cout << "Loading "<< tempObj->getName() << std::endl;
-#endif
-
-                        std::this_thread::sleep_for(std::chrono::milliseconds(10));
                     }
                 }
+
             }
             oi++;
         }
@@ -1812,40 +1817,44 @@ void ofxVisualProgramming::loadPatch(std::string patchFile){
         for(auto & obj: objs){
             auto o = obj.node();
             std::string objname = ofxVPXml.getPatchChildString(o,"name");
-            if(isObjectInLibrary(objname)){
-                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
-                if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
-                    int fromID = ofxVPXml.getPatchChildInt(o,"id");
-                    pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(fromID);
-                    if(!objOutlets.empty()){
-                        int oIndex = 0;
-                        for(auto & outlet: objOutlets){
-                            auto out = outlet.node();
-                            int linkType = ofxVPXml.getPatchChildInt(out,"type");
-                            if(linkType != VP_LINK_AUDIO){
-                                pugi::xpath_node_set outletLinks = ofxVPXml.getObjectLinks(fromID, oIndex);
-                                if(!outletLinks.empty()){
-                                    for(auto & link: outletLinks){
-                                        auto l = link.node();
-                                        int toObjectID = ofxVPXml.getPatchChildInt(l,"id");
-                                        int toInletID = ofxVPXml.getPatchChildInt(l,"inlet");
+            if(objname != "timeline" && objname != "output window" && objname != "projection mapping" && objname != "scheme live coding"){
 
-                                        // fix loading patches with non-existent objects (older OFXVP versions)
-                                        if(isObjectIDInPatchMap(toObjectID)){
-                                            if(connect(fromID,oIndex,toObjectID,toInletID,linkType)){
-                                                //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),oIndex,patchObjects[toObjectID]->getName().c_str(),toInletID);
-                                                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                if(isObjectInLibrary(objname)){
+                    std::shared_ptr<PatchObject> tempObj = selectObject(objname);
+                    if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
+                        int fromID = ofxVPXml.getPatchChildInt(o,"id");
+                        pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(fromID);
+                        if(!objOutlets.empty()){
+                            int oIndex = 0;
+                            for(auto & outlet: objOutlets){
+                                auto out = outlet.node();
+                                int linkType = ofxVPXml.getPatchChildInt(out,"type");
+                                if(linkType != VP_LINK_AUDIO){
+                                    pugi::xpath_node_set outletLinks = ofxVPXml.getObjectLinks(fromID, oIndex);
+                                    if(!outletLinks.empty()){
+                                        for(auto & link: outletLinks){
+                                            auto l = link.node();
+                                            int toObjectID = ofxVPXml.getPatchChildInt(l,"id");
+                                            int toInletID = ofxVPXml.getPatchChildInt(l,"inlet");
+
+                                            // fix loading patches with non-existent objects (older OFXVP versions)
+                                            if(isObjectIDInPatchMap(toObjectID)){
+                                                if(connect(fromID,oIndex,toObjectID,toInletID,linkType)){
+                                                    //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),oIndex,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            oIndex++;
+                                oIndex++;
+                            }
                         }
                     }
                 }
             }
+
         }
 
     }
@@ -1877,40 +1886,45 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
         for(auto & obj: objs){
             auto o = obj.node();
             std::string objname = ofxVPXml.getPatchChildString(o,"name");
-            if(isObjectInLibrary(objname)){
-                std::shared_ptr<PatchObject> tempObj = selectObject(objname);
-                if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
-                    int fromID = ofxVPXml.getPatchChildInt(o,"id");
-                    pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(fromID);
-                    if(!objOutlets.empty()){
-                        int oIndex = 0;
-                        for(auto & outlet: objOutlets){
-                            auto out = outlet.node();
-                            int linkType = ofxVPXml.getPatchChildInt(out,"type");
-                            if(linkType == VP_LINK_AUDIO){
-                                pugi::xpath_node_set outletLinks = ofxVPXml.getObjectLinks(fromID, oIndex);
-                                if(!outletLinks.empty()){
-                                    for(auto & link: outletLinks){
-                                        auto l = link.node();
-                                        int toObjectID = ofxVPXml.getPatchChildInt(l,"id");
-                                        int toInletID = ofxVPXml.getPatchChildInt(l,"inlet");
+            if(objname != "timeline" && objname != "output window" && objname != "projection mapping" && objname != "scheme live coding"){
 
-                                        // fix loading patches with non-existent objects (older OFXVP versions)
-                                        if(isObjectIDInPatchMap(toObjectID)){
-                                            if(connect(fromID,oIndex,toObjectID,toInletID,linkType)){
-                                                //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),oIndex,patchObjects[toObjectID]->getName().c_str(),toInletID);
-                                                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                if(isObjectInLibrary(objname)){
+                    std::shared_ptr<PatchObject> tempObj = selectObject(objname);
+
+                    if(tempObj != nullptr && !tempObj->getIsSharedContextObject()){
+                        int fromID = ofxVPXml.getPatchChildInt(o,"id");
+                        pugi::xpath_node_set objOutlets = ofxVPXml.getObjectOutlets(fromID);
+                        if(!objOutlets.empty()){
+                            int oIndex = 0;
+                            for(auto & outlet: objOutlets){
+                                auto out = outlet.node();
+                                int linkType = ofxVPXml.getPatchChildInt(out,"type");
+                                if(linkType == VP_LINK_AUDIO){
+                                    pugi::xpath_node_set outletLinks = ofxVPXml.getObjectLinks(fromID, oIndex);
+                                    if(!outletLinks.empty()){
+                                        for(auto & link: outletLinks){
+                                            auto l = link.node();
+                                            int toObjectID = ofxVPXml.getPatchChildInt(l,"id");
+                                            int toInletID = ofxVPXml.getPatchChildInt(l,"inlet");
+
+                                            // fix loading patches with non-existent objects (older OFXVP versions)
+                                            if(isObjectIDInPatchMap(toObjectID)){
+                                                if(connect(fromID,oIndex,toObjectID,toInletID,linkType)){
+                                                    //ofLog(OF_LOG_NOTICE,"Connected object %s, outlet %i TO object %s, inlet %i",patchObjects[fromID]->getName().c_str(),oIndex,patchObjects[toObjectID]->getName().c_str(),toInletID);
+                                                    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            oIndex++;
+                                oIndex++;
+                            }
                         }
                     }
                 }
             }
+
         }
     }
 
@@ -1979,7 +1993,7 @@ void ofxVisualProgramming::loadPatchSharedContextObjects(){
                                 std::string toObjName = getObjectNameFromID(toObjectID);
 
                                 if(toObjName != ""){
-                                    shared_ptr<PatchObject> _tempToObj = selectObject(toObjName);
+                                    std::shared_ptr<PatchObject> _tempToObj = selectObject(toObjName);
                                     if(_tempToObj != nullptr && _tempToObj->getIsSharedContextObject()){
                                         // fix loading patches with non-existent objects (older OFXVP versions)
                                         if(isObjectIDInPatchMap(toObjectID)){
