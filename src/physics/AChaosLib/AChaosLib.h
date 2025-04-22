@@ -38,3 +38,5 @@
 #include "AChaosStein1.h"
 #include "AChaosTorus.h"
 #include "AChaosVerhulst.h"
+
+#include "AChaosVisualizer.h"

@@ -7,6 +7,9 @@
 */
 #pragma once
 
+#include <vector>
+#include <iostream>
+
 // comment for 64bits version (not all objects support)
 #define ACHAOS32
 
@@ -45,8 +48,8 @@ public:
 		}
         std::cout << "A-Chaos Lib (c) Richard Dudas 1996, (c) Andre Sier 2004, 2012, 2015 " << __DATE__ << " " __TIME__ << std::endl;
 	}
-    virtual void reset(){std::cout << "reset base" << std::endl;}
-	void set(vector<REAL> &params){
+    virtual void reset(){/*std::cout << "reset base" << std::endl;*/}
+    void set(std::vector<REAL> &params){
 		iv.clear();
 		for(int i=0; i<params.size();i++){
 			iv.push_back( params[i] );			
@@ -59,8 +62,17 @@ public:
 		}
 		reset();
 	}
+    void setVector(std::vector<REAL> params){
+        for(int i=0; i<iv.size();i++){
+            iv[i] = params[i] ;
+        }
+        reset();
+    }
 	REAL * update(){ calc(); return get(); }
-    virtual void calc(){std::cout << "calc base" << std::endl;}
+    virtual void calc(){}
 	REAL * get(){ return &ov[0];}
     std::vector<REAL> & getVec(){return ov;}
+
+    void restart() { iv.clear(); }
 };
+
