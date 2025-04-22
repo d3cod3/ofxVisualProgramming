@@ -106,7 +106,7 @@ void PitchExtractor::updateObjectContent(std::map<int,std::shared_ptr<PatchObjec
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void PitchExtractor::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

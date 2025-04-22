@@ -104,7 +104,7 @@ void FileToData::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void FileToData::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void FileToData::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

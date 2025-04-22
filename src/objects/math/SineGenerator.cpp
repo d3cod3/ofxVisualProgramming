@@ -98,7 +98,7 @@ void SineGenerator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject
 }
 
 //--------------------------------------------------------------
-void SineGenerator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void SineGenerator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

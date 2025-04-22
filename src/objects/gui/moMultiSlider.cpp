@@ -154,7 +154,7 @@ void moMultiSlider::updateObjectContent(std::map<int,std::shared_ptr<PatchObject
 }
 
 //--------------------------------------------------------------
-void moMultiSlider::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moMultiSlider::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

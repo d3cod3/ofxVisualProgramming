@@ -279,7 +279,7 @@ void moTimeline::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void moTimeline::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moTimeline::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(glRenderer);
 
     localFont = font;

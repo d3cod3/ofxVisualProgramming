@@ -258,7 +258,7 @@ void SoundfilePlayer::updateObjectContent(std::map<int,std::shared_ptr<PatchObje
 }
 
 //--------------------------------------------------------------
-void SoundfilePlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void SoundfilePlayer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

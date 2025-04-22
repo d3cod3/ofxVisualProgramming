@@ -102,7 +102,7 @@ void VectorAt::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void VectorAt::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VectorAt::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

@@ -125,7 +125,7 @@ void TimedSemaphore::updateObjectContent(std::map<int,std::shared_ptr<PatchObjec
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void TimedSemaphore::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

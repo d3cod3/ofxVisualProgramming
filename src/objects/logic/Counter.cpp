@@ -124,7 +124,7 @@ void Counter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void Counter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Counter::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

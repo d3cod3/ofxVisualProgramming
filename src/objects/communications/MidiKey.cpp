@@ -123,7 +123,7 @@ void MidiKey::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void MidiKey::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void MidiKey::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
 }
 

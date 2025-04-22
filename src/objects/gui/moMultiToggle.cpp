@@ -173,7 +173,7 @@ void moMultiToggle::updateObjectContent(std::map<int,std::shared_ptr<PatchObject
 }
 
 //--------------------------------------------------------------
-void moMultiToggle::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moMultiToggle::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

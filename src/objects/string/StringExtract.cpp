@@ -99,7 +99,7 @@ void StringExtract::updateObjectContent(std::map<int,std::shared_ptr<PatchObject
 }
 
 //--------------------------------------------------------------
-void StringExtract::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void StringExtract::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

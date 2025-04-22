@@ -160,7 +160,7 @@ void VideoTimelapse::updateObjectContent(std::map<int,std::shared_ptr<PatchObjec
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 

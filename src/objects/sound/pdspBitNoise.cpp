@@ -143,7 +143,7 @@ void pdspBitNoise::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspBitNoise::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
 
 }

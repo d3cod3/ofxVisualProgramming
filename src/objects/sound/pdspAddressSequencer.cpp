@@ -222,7 +222,7 @@ void pdspAddressSequencer::updateAudioObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspAddressSequencer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspAddressSequencer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

@@ -110,7 +110,7 @@ void BooleanOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObje
 }
 
 //--------------------------------------------------------------
-void BooleanOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void BooleanOperator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

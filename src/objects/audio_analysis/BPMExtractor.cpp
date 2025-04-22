@@ -119,7 +119,7 @@ void BPMExtractor::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void BPMExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void BPMExtractor::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

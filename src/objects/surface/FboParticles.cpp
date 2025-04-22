@@ -135,7 +135,7 @@ void FboParticles::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void FboParticles::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void FboParticles::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     ///////////////////////////////////////////
     // FBO DRAW

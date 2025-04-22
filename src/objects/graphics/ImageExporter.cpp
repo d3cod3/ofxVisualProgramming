@@ -120,7 +120,7 @@ void ImageExporter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject
 }
 
 //--------------------------------------------------------------
-void ImageExporter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ImageExporter::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

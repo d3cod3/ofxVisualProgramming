@@ -115,7 +115,7 @@ void Crossfader::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void Crossfader::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Crossfader::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

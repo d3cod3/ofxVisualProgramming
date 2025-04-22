@@ -154,7 +154,7 @@ void pdspDataOscillator::updateObjectContent(std::map<int,std::shared_ptr<PatchO
 }
 
 //--------------------------------------------------------------
-void pdspDataOscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspDataOscillator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

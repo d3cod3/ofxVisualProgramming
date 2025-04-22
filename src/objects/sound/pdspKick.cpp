@@ -215,7 +215,7 @@ void pdspKick::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void pdspKick::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspKick::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

@@ -103,7 +103,7 @@ void SignalOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObjec
 }
 
 //--------------------------------------------------------------
-void SignalOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void SignalOperator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

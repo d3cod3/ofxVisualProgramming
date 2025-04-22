@@ -136,7 +136,7 @@ void NoteToFrequency::updateObjectContent(std::map<int,std::shared_ptr<PatchObje
 }
 
 //--------------------------------------------------------------
-void NoteToFrequency::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void NoteToFrequency::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

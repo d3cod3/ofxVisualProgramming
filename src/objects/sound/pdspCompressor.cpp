@@ -191,7 +191,7 @@ void pdspCompressor::updateObjectContent(std::map<int,std::shared_ptr<PatchObjec
 }
 
 //--------------------------------------------------------------
-void pdspCompressor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspCompressor::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

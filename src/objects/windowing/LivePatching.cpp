@@ -103,7 +103,7 @@ void LivePatching::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void LivePatching::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void LivePatching::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

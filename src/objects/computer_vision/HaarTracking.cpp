@@ -170,7 +170,7 @@ void HaarTracking::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>
 }
 
 //--------------------------------------------------------------
-void HaarTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void HaarTracking::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     // HAAR Tracking DRAW
     if(this->inletsConnected[0] && outputFBO->isAllocated() && ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[0])->isAllocated()){

@@ -99,7 +99,7 @@ void FboComposer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>>
 }
 
 //--------------------------------------------------------------
-void FboComposer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void FboComposer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     static_cast<ofxPingPong *>(_outletParams[0])->src->begin();
     ofPushView();

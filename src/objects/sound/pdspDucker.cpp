@@ -185,7 +185,7 @@ void pdspDucker::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void pdspDucker::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspDucker::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

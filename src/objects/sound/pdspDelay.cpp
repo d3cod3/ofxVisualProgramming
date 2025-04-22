@@ -146,7 +146,7 @@ void pdspDelay::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &
 }
 
 //--------------------------------------------------------------
-void pdspDelay::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspDelay::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

@@ -137,7 +137,7 @@ void MidiPad::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void MidiPad::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void MidiPad::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
 }
 

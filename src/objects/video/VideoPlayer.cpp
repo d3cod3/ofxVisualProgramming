@@ -281,7 +281,7 @@ void VideoPlayer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>>
 }
 
 //--------------------------------------------------------------
-void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoPlayer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

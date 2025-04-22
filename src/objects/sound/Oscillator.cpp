@@ -274,10 +274,8 @@ void Oscillator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void Oscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Oscillator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-
-    ofSetColor(0);
 
 }
 

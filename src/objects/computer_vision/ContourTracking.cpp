@@ -251,7 +251,7 @@ void ContourTracking::updateObjectContent(std::map<int,std::shared_ptr<PatchObje
 }
 
 //--------------------------------------------------------------
-void ContourTracking::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ContourTracking::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(glRenderer);
 
     if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){

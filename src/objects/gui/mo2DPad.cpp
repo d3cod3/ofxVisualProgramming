@@ -101,7 +101,7 @@ void mo2DPad::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void mo2DPad::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void mo2DPad::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

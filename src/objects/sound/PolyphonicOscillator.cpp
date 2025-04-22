@@ -347,7 +347,7 @@ void PolyphonicOscillator::updateObjectContent(std::map<int,std::shared_ptr<Patc
 }
 
 //--------------------------------------------------------------
-void PolyphonicOscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void PolyphonicOscillator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(0);

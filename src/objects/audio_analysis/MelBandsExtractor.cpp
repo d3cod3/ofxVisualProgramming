@@ -114,7 +114,7 @@ void MelBandsExtractor::updateObjectContent(std::map<int,std::shared_ptr<PatchOb
 }
 
 //--------------------------------------------------------------
-void MelBandsExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void MelBandsExtractor::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

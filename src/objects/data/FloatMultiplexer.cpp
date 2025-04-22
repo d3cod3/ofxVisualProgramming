@@ -115,7 +115,7 @@ void FloatMultiplexer::updateObjectContent(std::map<int,std::shared_ptr<PatchObj
 }
 
 //--------------------------------------------------------------
-void FloatMultiplexer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void FloatMultiplexer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

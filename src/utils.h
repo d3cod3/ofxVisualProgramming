@@ -43,6 +43,7 @@
 #endif
 
 #include <math.h>
+#include <cmath>
 #include <random>
 #include <string>
 #include <iostream>

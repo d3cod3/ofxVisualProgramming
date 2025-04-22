@@ -99,7 +99,7 @@ public:
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) { unusedArgs(engine); }
     virtual void            updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects) { unusedArgs(patchObjects); }
     virtual void            updateAudioObjectContent(pdsp::Engine &engine) { unusedArgs(engine); }
-    virtual void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) { unusedArgs(font,glRenderer); }
+    virtual void            drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer) { unusedArgs(font,glRenderer); }
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) { unusedArgs(_nodeCanvas); }
     virtual void            drawObjectNodeConfig() {}
     virtual void            removeObjectContent(bool removeFileFromData=false) { unusedArgs(removeFileFromData); }

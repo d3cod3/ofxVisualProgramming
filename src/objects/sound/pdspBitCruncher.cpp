@@ -107,7 +107,7 @@ void pdspBitCruncher::updateObjectContent(std::map<int,std::shared_ptr<PatchObje
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspBitCruncher::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

@@ -127,7 +127,7 @@ void DelayBang::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &
 }
 
 //--------------------------------------------------------------
-void DelayBang::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void DelayBang::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

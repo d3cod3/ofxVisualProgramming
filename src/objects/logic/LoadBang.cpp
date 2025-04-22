@@ -115,7 +115,7 @@ void LoadBang::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void LoadBang::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void LoadBang::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

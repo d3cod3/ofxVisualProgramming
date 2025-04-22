@@ -105,7 +105,7 @@ void FboEffect::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &
 }
 
 //--------------------------------------------------------------
-void FboEffect::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void FboEffect::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     ///////////////////////////////////////////
     // FBO DRAW

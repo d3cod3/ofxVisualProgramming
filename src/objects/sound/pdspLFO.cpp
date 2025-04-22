@@ -155,7 +155,7 @@ void pdspLFO::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &pa
 }
 
 //--------------------------------------------------------------
-void pdspLFO::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspLFO::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
     ofSetColor(0);
 }

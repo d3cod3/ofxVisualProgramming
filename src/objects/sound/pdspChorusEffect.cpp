@@ -144,7 +144,7 @@ void pdspChorusEffect::updateObjectContent(std::map<int,std::shared_ptr<PatchObj
 }
 
 //--------------------------------------------------------------
-void pdspChorusEffect::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspChorusEffect::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

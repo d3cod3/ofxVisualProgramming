@@ -197,7 +197,7 @@ void pdspParametricEQ::updateObjectContent(std::map<int,std::shared_ptr<PatchObj
 }
 
 //--------------------------------------------------------------
-void pdspParametricEQ::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspParametricEQ::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

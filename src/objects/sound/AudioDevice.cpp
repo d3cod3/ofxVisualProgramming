@@ -110,7 +110,7 @@ void AudioDevice::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>>
 }
 
 //--------------------------------------------------------------
-void AudioDevice::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void AudioDevice::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     if(this->height < OBJECT_HEIGHT*scaleFactor){

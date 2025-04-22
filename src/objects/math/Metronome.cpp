@@ -143,7 +143,7 @@ void Metronome::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &
 }
 
 //--------------------------------------------------------------
-void Metronome::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Metronome::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

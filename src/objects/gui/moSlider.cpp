@@ -96,7 +96,7 @@ void moSlider::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void moSlider::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moSlider::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 
