@@ -203,6 +203,16 @@ vector extract | X  |
 vector gate | X  |
 vector operator | X  |
 
+Generative | Ready
+---------- | ----------
+strange attractors | X |
+
+Graphics | Ready
+---------- | ----------
+image loader | X |
+image exporter | X |
+color palette | X |
+
 GUI | Ready
 ---------- | ----------
 2D pad | X |
@@ -299,6 +309,21 @@ signal operator | X |
 signal trigger | X |
 soundfile player | X |
 summing mixer | X |
+
+String | Ready
+---------- | ----------
+random string | X |
+string at | X |
+string concat | X |
+string extract | X |
+string gate | X |
+string multiplexer | X |
+
+Surface | In process
+---------- | ----------
+fbo composer |   |
+fbo effect |   |
+fbo particle |   |
 
 Texture | Ready
 ---------- | ----------
