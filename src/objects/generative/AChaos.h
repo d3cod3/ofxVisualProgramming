@@ -35,6 +35,7 @@
 #pragma once
 
 #include "PatchObject.h"
+#include "imgui_controls.h"
 
 #include "AChaosLib.h"
 

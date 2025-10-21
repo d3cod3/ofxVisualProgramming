@@ -301,6 +301,9 @@ void AChaos::drawObjectNodeConfig(){
     ImGui::Spacing();
     ImGui::Spacing();
     ImGui::Spacing();
+    ImGuiEx::Pad2D(0, 180*this->scaleFactor,&_x,&_y);
+
+    ImGui::Spacing();
     if(ImGui::SliderFloat("amp",&volume,0.0f,1.0f)){
         this->setCustomVar(volume,"VOLUME");
     }
