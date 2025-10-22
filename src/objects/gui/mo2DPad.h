@@ -59,6 +59,8 @@ public:
 
     float           _x,_y;
 
+    float           prevW, prevH;
+
 
 private:
 
