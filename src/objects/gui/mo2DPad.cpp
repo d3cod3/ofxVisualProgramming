@@ -51,6 +51,7 @@ mo2DPad::mo2DPad() : PatchObject("2d pad"){
     *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
 
     this->initInletsState();
+    this->setIsResizable(true);
 
     loaded              = false;
 
