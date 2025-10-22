@@ -51,11 +51,15 @@ mo2DPad::mo2DPad() : PatchObject("2d pad"){
     *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[1]) = 0.0f;
 
     this->initInletsState();
+    this->setIsResizable(true);
 
     loaded              = false;
 
     _x = 0.5f;
     _y = 0.5f;
+
+    prevW                   = this->width;
+    prevH                   = this->height;
 
 }
 
@@ -70,6 +74,9 @@ void mo2DPad::newObject(){
 
     this->setCustomVar(static_cast<float>(_x),"XPOS");
     this->setCustomVar(static_cast<float>(_y),"YPOS");
+
+    this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+    this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
 }
 
 //--------------------------------------------------------------
@@ -78,7 +85,7 @@ void mo2DPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void mo2DPad::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
 
     if(this->inletsConnected[0]){
@@ -93,6 +100,10 @@ void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
         loaded = true;
         _x = this->getCustomVar("XPOS");
         _y = this->getCustomVar("YPOS");
+        prevW = this->getCustomVar("WIDTH");
+        prevH = this->getCustomVar("HEIGHT");
+        this->width             = prevW;
+        this->height            = prevH;
     }
 
     *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = _x;
@@ -101,7 +112,7 @@ void mo2DPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void mo2DPad::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void mo2DPad::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }
@@ -134,6 +145,16 @@ void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
             this->setCustomVar(static_cast<float>(_x),"XPOS");
             this->setCustomVar(static_cast<float>(_y),"YPOS");
         }
+
+        if(this->width != prevW){
+            prevW = this->width;
+            this->setCustomVar(static_cast<float>(prevW),"WIDTH");
+        }
+        if(this->height != prevH){
+            prevH = this->height;
+            this->setCustomVar(static_cast<float>(prevH),"HEIGHT");
+        }
+
 
         _nodeCanvas.EndNodeContent();
     }

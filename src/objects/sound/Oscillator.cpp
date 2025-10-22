@@ -198,7 +198,7 @@ void Oscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Oscillator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // silence pitch 0
@@ -274,10 +274,8 @@ void Oscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void Oscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Oscillator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
-
-    ofSetColor(0);
 
 }
 
@@ -402,25 +400,15 @@ void Oscillator::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void Oscillator::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-            plot_data = new float[bufferSize];
-            for(int i=0;i<bufferSize;i++){
-                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[6])->push_back(0.0f);
-                plot_data[i] = 0.0f;
-            }
-
-            XML.popTag();
-        }
+    plot_data = new float[bufferSize];
+    for(int i=0;i<bufferSize;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[6])->push_back(0.0f);
+        plot_data[i] = 0.0f;
     }
 }
 

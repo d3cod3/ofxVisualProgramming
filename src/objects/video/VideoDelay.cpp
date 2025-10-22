@@ -104,7 +104,7 @@ void VideoDelay::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoDelay::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
@@ -177,7 +177,7 @@ void VideoDelay::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void VideoDelay::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoDelay::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

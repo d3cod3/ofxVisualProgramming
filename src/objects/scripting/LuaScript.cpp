@@ -137,7 +137,7 @@ void LuaScript::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void LuaScript::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(needToLoadScript  && filepath != "none"){
@@ -258,7 +258,7 @@ void LuaScript::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void LuaScript::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void LuaScript::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 

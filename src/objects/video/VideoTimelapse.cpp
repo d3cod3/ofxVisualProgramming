@@ -97,7 +97,7 @@ void VideoTimelapse::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoTimelapse::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
@@ -160,7 +160,7 @@ void VideoTimelapse::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoTimelapse::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 

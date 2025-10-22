@@ -241,7 +241,7 @@ void PolyphonicOscillator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void PolyphonicOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PolyphonicOscillator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->size()>0){
@@ -347,7 +347,7 @@ void PolyphonicOscillator::updateObjectContent(map<int,shared_ptr<PatchObject>> 
 }
 
 //--------------------------------------------------------------
-void PolyphonicOscillator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void PolyphonicOscillator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(0);
@@ -465,25 +465,15 @@ void PolyphonicOscillator::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void PolyphonicOscillator::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-            plot_data = new float[bufferSize];
-            for(int i=0;i<bufferSize;i++){
-                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->push_back(0.0f);
-                plot_data[i] = 0.0f;
-            }
-
-            XML.popTag();
-        }
+    plot_data = new float[bufferSize];
+    for(int i=0;i<bufferSize;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[5])->push_back(0.0f);
+        plot_data[i] = 0.0f;
     }
 }
 

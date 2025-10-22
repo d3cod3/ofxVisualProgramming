@@ -93,7 +93,7 @@ void vpSender::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void vpSender::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(sendTypeIndex == VP_LINK_NUMERIC){
@@ -125,7 +125,7 @@ void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 
     if(resetLinks){
         resetLinks = false;
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 vector<shared_ptr<PatchLink>> tempBuffer;
                 for(int j=0;j<static_cast<int>(it->second->outPut.size());j++){
@@ -150,7 +150,7 @@ void vpSender::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void vpSender::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void vpSender::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 
@@ -292,33 +292,16 @@ void vpSender::initWireless(){
     changeDataType(sendTypeIndex);
     this->wirelessType = sendTypeIndex;
 
-    ofxXmlSettings XML;
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-        // Get object inlets config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    if (XML.pushTag("vars")){
-                        int totalVars = XML.getNumTags("var");
-                        for (int t=0;t<totalVars;t++){
-                            //ofLog(OF_LOG_NOTICE,"%s",XML.getValue("name","").c_str());
-                            if(XML.pushTag("var",t)){
-                                if(XML.getValue("name","") != "DATA_TYPE" && XML.getValue("name","") != "IS_SENDING" && XML.getValue("name","") != "_unassigned"){
-                                    varName = XML.getValue("name","");
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
-                    }
-                }
-                XML.popTag();
+    pugi::xpath_node_set vars = this->ofxVPXml.getObjectVars(this->nId);
+
+    if(!vars.empty()){
+        for(auto & var: vars){
+            auto v = var.node();
+            std::string n = this->ofxVPXml.getPatchChildString(v,"name");
+            if(n != "DATA_TYPE" && n != "IS_SENDING" && n != "_unassigned"){
+                varName = n;
             }
         }
     }
@@ -424,73 +407,52 @@ void vpSender::changeDataType(int type, bool init){
 
     this->setOutletWirelessSend(wirelessPin,true);
 
-    ofxXmlSettings XML;
+    // Save new object config
+    this->ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(this->patchFile)){
-#else
-    if (XML.load(this->patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
+    // Dynamic reloading outlets
+    this->ofxVPXml.removeObjectOutlets(this->nId);
+    this->ofxVPXml.appendObjectOutletsBlock(this->nId);
+    for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
+        this->ofxVPXml.addObjectOutlet(this->nId,this->outletsType.at(j),this->outletsNames.at(j));
+    }
 
-        // Save new object config
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    // Dynamic reloading outlets
-                    XML.removeTag("outlets");
-                    int newOutlets = XML.addTag("outlets");
-                    if(XML.pushTag("outlets",newOutlets)){
-                        for(int j=0;j<static_cast<int>(this->outletsType.size());j++){
-                            int newLink = XML.addTag("link");
-                            if(XML.pushTag("link",newLink)){
-                                XML.setValue("type",this->outletsType.at(j));
-                                XML.setValue("name",this->outletsNames.at(j));
-                                XML.popTag();
+    // remove links to this object if are not of the same type as before
+    pugi::xpath_node_set objs = this->ofxVPXml.getPatchObjects();
+
+    if(!objs.empty()){
+        for(auto & obj: objs){
+            auto o = obj.node();
+            int tid = this->ofxVPXml.getPatchChildInt(o,"id");
+            if(tid != this->nId){
+                pugi::xpath_node_set outlets = this->ofxVPXml.getObjectOutlets(tid);
+                if(!outlets.empty()){
+                    int oIndex = 0;
+                    for(auto & outlet: outlets){
+                        auto out = outlet.node();
+                        int type = this->ofxVPXml.getPatchChildInt(out,"type");
+                        pugi::xpath_node_set links = this->ofxVPXml.getObjectLinks(tid,oIndex);
+                        if(!links.empty()){
+                            vector<bool> delLinks;
+                            for(auto & link: links){
+                                auto l = link.node();
+                                if(this->ofxVPXml.getPatchChildInt(l,"id") == this->nId && type != this->outletsType.at(wirelessPin)){
+                                    delLinks.push_back(true);
+                                }else{
+                                    delLinks.push_back(false);
+                                }
+                            }
+                            for(int d=delLinks.size()-1;d>=0;d--){
+                                if(delLinks.at(d)){
+                                    this->ofxVPXml.removeObjectLink(tid,oIndex,d);
+                                }
                             }
                         }
-                        XML.popTag();
-                    }
-                }else{
-                    // remove links to this object if are not of the same type as before
-                    if(XML.pushTag("outlets")){
-                        int totalLinks = XML.getNumTags("link");
-                        for(int l=0;l<totalLinks;l++){
-                            if(XML.pushTag("link",l)){
-                                int totalTo = XML.getNumTags("to");
-                                int type = XML.getValue("type",-1);
-                                vector<bool> delLinks;
-                                for(int t=0;t<totalTo;t++){
-                                    if(XML.pushTag("to",t)){
-                                        if(XML.getValue("id", -1) == this->nId && type != this->outletsType.at(wirelessPin)){
-                                            delLinks.push_back(true);
-                                        }else{
-                                            delLinks.push_back(false);
-                                        }
-                                        XML.popTag();
-                                    }
-                                }
-                                for(int d=delLinks.size()-1;d>=0;d--){
-                                    if(delLinks.at(d)){
-                                        XML.removeTag("to",d);
-                                    }
-                                }
-                                XML.popTag();
-                            }
-                        }
-                        XML.popTag();
+                        oIndex++;
                     }
                 }
-                XML.popTag();
             }
         }
-
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-
     }
 
     if(!init){

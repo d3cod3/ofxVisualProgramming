@@ -106,7 +106,7 @@ void TimedSemaphore::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void TimedSemaphore::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
@@ -125,7 +125,7 @@ void TimedSemaphore::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void TimedSemaphore::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void TimedSemaphore::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

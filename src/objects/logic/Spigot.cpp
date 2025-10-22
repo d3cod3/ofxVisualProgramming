@@ -128,7 +128,7 @@ void Spigot::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Spigot::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
     
     if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
@@ -182,7 +182,7 @@ void Spigot::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 }
 
 //--------------------------------------------------------------
-void Spigot::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Spigot::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

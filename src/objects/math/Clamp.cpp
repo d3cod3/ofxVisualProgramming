@@ -80,7 +80,7 @@ void Clamp::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Clamp::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Clamp::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
       *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),min,max);
     }else{
@@ -102,7 +102,7 @@ void Clamp::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 }
 
 //--------------------------------------------------------------
-void Clamp::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Clamp::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

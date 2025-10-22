@@ -69,7 +69,7 @@ void KeyPressed::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void KeyPressed::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(lastKey == static_cast<int>(floor(this->getCustomVar("KEY"))) && lastKey != -1){
         lastKey = -1;
@@ -86,7 +86,7 @@ void KeyPressed::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void KeyPressed::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void KeyPressed::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

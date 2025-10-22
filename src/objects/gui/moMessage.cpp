@@ -74,7 +74,7 @@ void moMessage::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moMessage::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) >= 1.0){
         if(this->inletsConnected[1]){
@@ -90,7 +90,7 @@ void moMessage::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moMessage::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moMessage::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 
@@ -149,54 +149,23 @@ void moMessage::drawObjectNodeConfig(){
 
 //--------------------------------------------------------------
 void moMessage::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void moMessage::loadMessageSetting(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    actualMessage = XML.getValue("text","none");
-                }
-                XML.popTag();
-            }
-        }
-    }
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    actualMessage = this->ofxVPXml.getPatchChildString(obj,"text");
 }
 
 //--------------------------------------------------------------
 void moMessage::saveMessageSetting(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    XML.setValue("text",actualMessage);
-                }
-                XML.popTag();
-            }
-        }
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-    }
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    this->ofxVPXml.setPatchValue(obj,"text",actualMessage);
 }
 
 

@@ -91,7 +91,7 @@ void DelayBang::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void DelayBang::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[1]){
         wait                = static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1])));
     }
@@ -127,7 +127,7 @@ void DelayBang::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void DelayBang::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void DelayBang::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 

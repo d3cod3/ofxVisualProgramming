@@ -98,7 +98,7 @@ void Panner::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Panner::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
@@ -115,7 +115,7 @@ void Panner::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 }
 
 //--------------------------------------------------------------
-void Panner::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Panner::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }
@@ -177,19 +177,10 @@ void Panner::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void Panner::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 }
 
 //--------------------------------------------------------------

@@ -172,7 +172,7 @@ void OutputWindow::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void OutputWindow::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(needReset){
         needReset = false;
@@ -180,7 +180,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
         int fromOutletID = -1;
         bool isSpecialLink = false;
         if(this->inletsConnected[0]){
-            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(it->second != nullptr){
                     if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                         for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
@@ -217,7 +217,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 
     // Manage the different scripts reference available (ofxLua)
     if(!isNewScriptConnected && this->inletsConnected[1]){
-        for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+        for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
             if(it->second != nullptr){
                 if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                     for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
@@ -297,7 +297,7 @@ void OutputWindow::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void OutputWindow::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void OutputWindow::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     unusedArgs(font,glRenderer);
 

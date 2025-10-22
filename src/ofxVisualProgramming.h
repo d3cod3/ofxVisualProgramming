@@ -49,10 +49,10 @@
 
 
 struct SubpatchConnection{
-    int     objID;
-    string  name;
-    uint8_t type;   // LINK_TYPE
-    uint8_t inOut;  // 0 receive, 1 send
+    int             objID;
+    std::string     name;
+    uint8_t         type;   // LINK_TYPE
+    uint8_t         inOut;  // 0 receive, 1 send
 };
 
 class ofxVisualProgramming : public pdsp::Wrapper {
@@ -63,7 +63,7 @@ public:
     ~ofxVisualProgramming();
 
     void            setRetina(bool retina, float retinaScale=1);
-    void            setup(ofxImGui::Gui* guiRef = nullptr, string release="");
+    void            setup(ofxImGui::Gui* guiRef = nullptr, std::string release="");
     void            setupFailsafeWindow();
     void            update();
     void            updateRetina(float scale);
@@ -90,9 +90,9 @@ public:
 
     void            activeObject(int oid);
 
-    shared_ptr<PatchObject>    selectObject(string objname);
-    void            addObject(string name, ofVec2f pos,std::string fp="none");
-    shared_ptr<PatchObject>    getLastAddedObject();
+    std::shared_ptr<PatchObject>    selectObject(std::string objname);
+    void            addObject(std::string name, ofVec2f pos,std::string fp="none");
+    std::shared_ptr<PatchObject>    getLastAddedObject();
 
     void            resetObject(int &id);
     void            resetObject(int id);
@@ -104,23 +104,23 @@ public:
     bool            connect(int fromID, int fromOutlet, int toID,int toInlet, int linkType);
     void            checkSpecialConnection(int fromID, int toID, int linkType);
     void            resetSystemObjects();
-    void            resetSpecificSystemObjects(string name);
-    bool            weAlreadyHaveObject(string name);
+    void            resetSpecificSystemObjects(std::string name);
+    bool            weAlreadyHaveObject(std::string name);
     void            clearObjectsMap();
-    bool            isObjectInLibrary(string name);
+    bool            isObjectInLibrary(std::string name);
     bool            isObjectIDInPatchMap(int id);
-    string          getObjectNameFromID(int id);
+    std::string          getObjectNameFromID(int id);
     int             getSubpatchIndex(string name);
 
-    void            newPatch(string release);
-    void            newTempPatchFromFile(string patchFile);
-    void            preloadPatch(string patchFile);
-    void            openPatch(string patchFile);
-    void            loadPatch(string patchFile);
+    void            newPatch(std::string release);
+    void            newTempPatchFromFile(std::string patchFile);
+    void            preloadPatch(std::string patchFile);
+    void            openPatch(std::string patchFile);
+    void            loadPatch(std::string patchFile);
     void            loadPatchSharedContextObjects();
     void            reloadPatch();
-    void            savePatchAs(string patchFile);
-    void            setPatchVariable(string var, int value);
+    void            savePatchAs(std::string patchFile);
+    void            setPatchVariable(std::string var, int value);
 
     void            setAudioInDevice(int ind);
     void            setAudioOutDevice(int ind);
@@ -134,6 +134,7 @@ public:
 
     // PATCH FILE
     ofxVPXmlEngine                      ofxVPXml;
+    bool                                isPrePugiXmlRelease;
 
     // PATCH CANVAS
     ofRectangle                         canvasViewport;
@@ -155,15 +156,15 @@ public:
     pugg::Kernel                        plugins_kernel;
 
     // PATCH OBJECTS
-    map<int,shared_ptr<PatchObject>>    patchObjects;
-    map<string,string>                  scriptsObjectsFilesPaths;
-    vector<pair<int,int>>               leftToRightIndexOrder;
-    vector<int>                         eraseIndexes;
-    ofPoint                             nextObjectPosition;
+    std::map<int,std::shared_ptr<PatchObject>>      patchObjects;
+    std::map<std::string,std::string>               scriptsObjectsFilesPaths;
+    std::vector<std::pair<int,int>>                 leftToRightIndexOrder;
+    std::vector<int>                                eraseIndexes;
+    ofPoint                                         nextObjectPosition;
 
-    map<string,vector<SubpatchConnection>>  subpatchesMap;
-    string                                  currentSubpatch;
-    string                                  newSubpatchName;
+    std::map<std::string,std::vector<SubpatchConnection>>   subpatchesMap;
+    std::string                                             currentSubpatch;
+    std::string                                             newSubpatchName;
 
     int                                 selectedObjectID;
     int                                 actualObjectID;
@@ -174,16 +175,15 @@ public:
     bool                                clearingObjectsMap;
 
     // LOAD/SAVE
-    string                              currentPatchFile;
-    string                              currentPatchFolderPath;
-    string                              tempPatchFile;
+    std::string                         currentPatchFile;
+    std::string                         currentPatchFolderPath;
     int                                 output_width;
     int                                 output_height;
-    string                              alphabet;
+    std::string                         alphabet;
     int                                 newFileCounter;
 
     // SYSTEM
-    shared_ptr<ofAppGLFWWindow>         mainWindow;
+    std::shared_ptr<ofAppGLFWWindow>    mainWindow;
     bool                                profilerActive;
     bool                                inspectorActive;
     bool                                navigationActive;
@@ -200,13 +200,13 @@ public:
     ofSoundBuffer                       inputBuffer;
     ofSoundBuffer                       emptyBuffer;
 
-    vector<ofSoundDevice>               audioDevices;
-    vector<string>                      audioDevicesStringIN;
-    vector<string>                      audioDevicesStringOUT;
-    vector<int>                         audioDevicesID_IN;
-    vector<int>                         audioDevicesID_OUT;
-    vector<string>                      audioDevicesSR;
-    vector<string>                      audioDevicesBS;
+    std::vector<ofSoundDevice>               audioDevices;
+    std::vector<std::string>                 audioDevicesStringIN;
+    std::vector<std::string>                 audioDevicesStringOUT;
+    std::vector<int>                         audioDevicesID_IN;
+    std::vector<int>                         audioDevicesID_OUT;
+    std::vector<std::string>                 audioDevicesSR;
+    std::vector<std::string>                 audioDevicesBS;
     ofSoundStream                       soundStreamIN;
     ofSoundBuffer                       lastInputBuffer;
     ofPolyline                          inputBufferWaveform;
@@ -225,6 +225,7 @@ public:
     bool                                isInputDeviceAvailable;
     bool                                isOutputDeviceAvailable;
     bool                                dspON;
+    bool                                pauseDSP;
 
     // MEMORY
     uint64_t                            loadPatchTime;
@@ -236,8 +237,8 @@ public:
 private:
     void audioProcess(float *input, int bufferSize, int nChannels);
 
-    mutable ofMutex                 vp_mutex;
+    mutable ofMutex                     vp_mutex;
 
-    shared_ptr<ofAppGLFWWindow>     failsafeWindow;
+    std::shared_ptr<ofAppGLFWWindow>    failsafeWindow;
 
 };

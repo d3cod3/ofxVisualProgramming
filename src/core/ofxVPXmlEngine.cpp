@@ -50,6 +50,7 @@ void ofxVPXmlEngine::loadMosaicPatch(std::string path){
             if(nodeExists(xml,"settings")){
                 settingNode = getPatchChildNode(xml,"settings");
             }
+            //ofLog(OF_LOG_NOTICE,"[notice] Mosaic patch %s loaded!",filepath.c_str());
         }
     }else{
         #ifdef OFXVP_DEBUG
@@ -60,9 +61,15 @@ void ofxVPXmlEngine::loadMosaicPatch(std::string path){
 
 //--------------------------------------------------------------
 void ofxVPXmlEngine::saveMosaicPatch(std::string path){
-    if(isMosaicPatch){
-        xml.save_file(path.c_str());
-    }
+    xml.save_file(path.c_str());
+}
+
+//--------------------------------------------------------------
+pugi::xpath_node_set ofxVPXmlEngine::getScriptLanguageMethods(std::string path){
+    pugi::xml_document file;
+    file.load_file(path.c_str());
+
+    return file.select_nodes("method");
 }
 
 //--------------------------------------------------------------
@@ -169,11 +176,12 @@ void ofxVPXmlEngine::printPatchSettings(){
 
 //--------------------------------------------------------------
 void ofxVPXmlEngine::printPatchObjects(){
+    std::cout << "Mosaic Patch: " << filepath << " Objects:" << std::endl;
     auto objectsXml = getPatchObjects();
     for(auto & obj: objectsXml){
         auto n = obj.node();
         int objID = getPatchChildInt(n,"id");
-        std::cout << "Loading " << getPatchChildString(n,"name") << " object with id " << objID << " at canvas position (" << getObjectPosition(objID).x << "," << getObjectPosition(objID).y << ")" << std::endl;
+        std::cout << getPatchChildString(n,"name") << " object with id " << objID << " at canvas position (" << getObjectPosition(objID).x << "," << getObjectPosition(objID).y << ")" << std::endl;
     }
 }
 
@@ -201,7 +209,7 @@ void ofxVPXmlEngine::printObjectInlets(int id){
     for(auto & inlet: inlets){
         auto i = inlet.node();
 
-        std::cout << getPatchChildString(i,"name") << " : type  " << getPatchChildFloat(i,"type") << std::endl;
+        std::cout << getPatchChildString(i,"name") << " : type  " << getPatchChildInt(i,"type") << std::endl;
     }
 }
 
@@ -215,7 +223,7 @@ void ofxVPXmlEngine::printObjectOutlets(int id){
     for(auto & outlet: outlets){
         auto o = outlet.node();
 
-        std::cout << getPatchChildString(o,"name") << " : type  " << getPatchChildFloat(o,"type") << std::endl;
+        std::cout << getPatchChildString(o,"name") << " : type  " << getPatchChildInt(o,"type") << std::endl;
     }
 }
 
@@ -341,6 +349,20 @@ void ofxVPXmlEngine::scrambleObjectVars(int id){
 }
 
 //--------------------------------------------------------------
+bool ofxVPXmlEngine::objIDExists(int id){
+    auto objectsXml = getPatchObjects();
+    for(auto & obj: objectsXml){
+        auto n = obj.node();
+        int nid = getPatchChildInt(n,"id") ;
+        if(nid == id){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------
 bool ofxVPXmlEngine::checkIsObjectNode(pugi::xml_node node){
     if(node != empty){
         return true;
@@ -364,7 +386,7 @@ int ofxVPXmlEngine::getLastObjectID(){
 }
 
 //--------------------------------------------------------------
-void ofxVPXmlEngine::addNewObject(std::string name, std::string _filepath, std::string subpatch, ofVec2f pos){
+int ofxVPXmlEngine::addNewObject(std::string name, std::string _filepath, std::string subpatch, ofVec2f pos){
     pugi::xml_node newObject = xml.append_child("object");
     int nextID = getLastObjectID() + 1;
     newObject.append_child("id");
@@ -386,6 +408,8 @@ void ofxVPXmlEngine::addNewObject(std::string name, std::string _filepath, std::
     setPatchValue(objPos,"y", pos.y);
 
     saveMosaicPatch(filepath);
+
+    return nextID;
 
 }
 
@@ -497,6 +521,15 @@ void ofxVPXmlEngine::removeObjectInlet(int objid, int inlet_order){
 }
 
 //--------------------------------------------------------------
+void ofxVPXmlEngine::removeObjectInlets(int objid){
+    pugi::xml_node obj = getObjectNode(objid);
+
+    obj.remove_child("inlets");
+
+    saveMosaicPatch(filepath);
+}
+
+//--------------------------------------------------------------
 void ofxVPXmlEngine::addObjectOutlet(int objid, int type, std::string name){
     pugi::xml_node oo = getObjectNode(objid).child("outlets");
 
@@ -562,6 +595,15 @@ void ofxVPXmlEngine::removeObjectOutlet(int objid, int outlet_order){
             index++;
         }
     }
+
+    saveMosaicPatch(filepath);
+}
+
+//--------------------------------------------------------------
+void ofxVPXmlEngine::removeObjectOutlets(int objid){
+    pugi::xml_node obj = getObjectNode(objid);
+
+    obj.remove_child("outlets");
 
     saveMosaicPatch(filepath);
 }
@@ -707,6 +749,54 @@ void ofxVPXmlEngine::removeAllObjectLinks(int objid){
 
 
 //--------------------------------------------------------------
+void ofxVPXmlEngine::removeAllLinksToObject(int objid, int objNumInlets){
+    std::vector<int> OtoDel;
+    std::vector<int> OOtoDel;
+    std::vector<int> LtoDel;
+
+    auto objectsXml = getPatchObjects();
+    if(!objectsXml.empty()){
+        for(auto & obj: objectsXml){
+            auto n = obj.node();
+            int oid = getPatchChildInt(n,"id");
+            if(oid != objid){
+                pugi::xpath_node_set oo = getObjectOutlets(oid);
+                if(!oo.empty()){
+                    int oindex = 0;
+                    for(auto & outlet: oo){
+                        pugi::xpath_node_set objLinks = getObjectLinks(oid,oindex);
+                        if(!objLinks.empty()){
+                            int lindex = 0;
+                            for(auto & link: objLinks){
+                                auto l = link.node();
+                                if(getPatchChildInt(l,"id") == objid && getPatchChildInt(l,"inlet") >= objNumInlets){
+                                    OtoDel.push_back(oid);
+                                    OOtoDel.push_back(oindex);
+                                    LtoDel.push_back(lindex);
+                                }
+                                lindex++;
+                            }
+                        }
+                        oindex++;
+                    }
+                }
+            }
+        }
+    }
+
+
+    // if there is something to remove
+    if(OtoDel.size() > 0){
+        for(size_t i=OtoDel.size()-1;i>0;i--){
+            removeObjectLink(OtoDel[i],OOtoDel[i],LtoDel[i]);
+            //ofLog(OF_LOG_NOTICE,"%i - Removing link from object %s, outlet %i link %i",i,getObjectName(OtoDel[i]).c_str(),OOtoDel[i],LtoDel[i]);
+        }
+        removeObjectLink(OtoDel[0],OOtoDel[0],LtoDel[0]);
+        //ofLog(OF_LOG_NOTICE,"0 - Removing link from object %s, outlet %i link %i",getObjectName(OtoDel[0]).c_str(),OOtoDel[0],LtoDel[0]);
+    }
+}
+
+//--------------------------------------------------------------
 void ofxVPXmlEngine::addObjectVar(int objid, std::string varName, float varValue){
     pugi::xml_node n = getObjectNode(objid);
     if(checkIsObjectNode(n)){
@@ -761,25 +851,75 @@ void ofxVPXmlEngine::removeObjectVar(int objid, std::string varName){
 }
 
 //--------------------------------------------------------------
+void ofxVPXmlEngine::removeObjectVars(int objid){
+    pugi::xml_node n = getObjectNode(objid);
+
+    n.remove_child("vars");
+
+    saveMosaicPatch(filepath);
+}
+
+//--------------------------------------------------------------
 void ofxVPXmlEngine::setMosaicConfig(std::string configVar, int value){
     setPatchValue(settingNode,configVar,value);
     saveMosaicPatch(filepath);
 }
 
 //--------------------------------------------------------------
-int ofxVPXmlEngine::getMosaicConfig(std::string configVar){
+int ofxVPXmlEngine::getMosaicConfigInt(std::string configVar){
     return getPatchChildInt(settingNode,configVar);
 }
 
 //--------------------------------------------------------------
+float ofxVPXmlEngine::getMosaicConfigFloat(std::string configVar){
+    return getPatchChildFloat(settingNode,configVar);
+}
+
+//--------------------------------------------------------------
+bool ofxVPXmlEngine::getMosaicConfigBool(std::string configVar){
+    return getPatchChildBool(settingNode,configVar);
+}
+
+//--------------------------------------------------------------
+bool ofxVPXmlEngine::checkReleaseIsPrePugiXml(std::string currentRelease){
+    size_t major = size_t(ofToInt(string(1,currentRelease.at(0))));
+    size_t minor = size_t(ofToInt(string(1,currentRelease.at(1))));
+    size_t patch = size_t(ofToInt(string(1,currentRelease.at(2))));
+
+    size_t pre_major = 0;
+    size_t pre_minor = 7;
+    size_t pre_patch = 2;
+
+    if( (patch > pre_patch && minor >= pre_minor && major >= pre_major) || ( minor > pre_minor && major >= pre_major) || (major > pre_major) ){
+        return false;
+    }else{
+        return true;
+    }
+}
+
+
+//--------------------------------------------------------------
+pugi::xml_node ofxVPXmlEngine::getObjectAtPos(int pos){
+    auto objectsXml = getPatchObjects();
+    int index = 0;
+    for(auto & obj: objectsXml){
+        auto n = obj.node();
+        if(index == pos){
+            return n;
+        }
+        index++;
+    }
+    return empty;
+}
+
+
+//--------------------------------------------------------------
 pugi::xml_node ofxVPXmlEngine::getObjectNode(int id){
-    if(isMosaicPatch){
-        auto objectsXml = getPatchObjects();
-        for(auto & obj: objectsXml){
-            auto n = obj.node();
-            if(getPatchChildInt(n,"id") == id){
-                return n;
-            }
+    auto objectsXml = getPatchObjects();
+    for(auto & obj: objectsXml){
+        auto n = obj.node();
+        if(getPatchChildInt(n,"id") == id){
+            return n;
         }
     }
     return empty;

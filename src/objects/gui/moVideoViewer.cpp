@@ -85,7 +85,7 @@ void moVideoViewer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moVideoViewer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(!loaded){
@@ -98,7 +98,7 @@ void moVideoViewer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void moVideoViewer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moVideoViewer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

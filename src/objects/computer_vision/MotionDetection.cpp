@@ -84,7 +84,7 @@ void MotionDetection::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MotionDetection::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // MOTION DETECTION UPDATE
@@ -136,7 +136,7 @@ void MotionDetection::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void MotionDetection::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void MotionDetection::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

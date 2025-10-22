@@ -67,7 +67,7 @@ void moVUMeter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moVUMeter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
@@ -79,7 +79,7 @@ void moVUMeter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moVUMeter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moVUMeter::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

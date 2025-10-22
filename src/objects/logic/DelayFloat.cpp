@@ -86,7 +86,7 @@ void DelayFloat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void DelayFloat::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) == 1.0 && !bang){
@@ -125,7 +125,7 @@ void DelayFloat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void DelayFloat::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void DelayFloat::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

@@ -51,6 +51,7 @@ AudioExporter::AudioExporter() : PatchObject("audio exporter"){
     isAudioOUTObject    = true;
 
     exportAudioFlag     = false;
+    recording           = false;
 
     audioFPS            = 0.0f;
     audioCounter        = 0;
@@ -88,7 +89,7 @@ void AudioExporter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void AudioExporter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){
@@ -116,7 +117,7 @@ void AudioExporter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void AudioExporter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void AudioExporter::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);
@@ -237,11 +238,13 @@ void AudioExporter::drawObjectNodeConfig(){
                 recButtonLabel = "STOP";
                 string tmpstr = "START EXPORTING AUDIO";
                 ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
+                recording = true;
             }else if(recorder.isRecording()){
                 recorder.stop();
                 recButtonLabel = "REC";
                 string tmpstr = "FINISHED EXPORTING AUDIO";
                 ofLog(OF_LOG_NOTICE,"%s",tmpstr.c_str());
+                recording = false;
             }
         }
     }
@@ -286,24 +289,14 @@ void AudioExporter::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void AudioExporter::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-            plot_data = new float[bufferSize];
-            for(int i=0;i<bufferSize;i++){
-                plot_data[i] = 0.0f;
-            }
-
-            XML.popTag();
-        }
+    plot_data = new float[bufferSize];
+    for(int i=0;i<bufferSize;i++){
+        plot_data[i] = 0.0f;
     }
 }
 
@@ -311,7 +304,7 @@ void AudioExporter::loadAudioSettings(){
 void AudioExporter::audioOutObject(ofSoundBuffer &inputBuffer){
     unusedArgs(inputBuffer);
 
-    if(ofGetElapsedTimeMillis()-lastAudioTimeReset >= 1000){
+    if(ofGetElapsedTimeMillis()-lastAudioTimeReset >= 1000000){
         lastAudioTimeReset = ofGetElapsedTimeMillis();
         audioFPS = audioCounter;
         audioCounter = 0;
@@ -320,7 +313,7 @@ void AudioExporter::audioOutObject(ofSoundBuffer &inputBuffer){
     }
 
     if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getBuffer().empty()){
-        if(recorder.isRecording()){
+        if(recorder.isRecording() && recording){
             recorder.addBuffer(*ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0]),audioFPS);
         }
 

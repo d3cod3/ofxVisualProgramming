@@ -172,7 +172,7 @@ void pdspKick::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspKick::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     ampEnv.set(attackDuration,decayDuration,sustainLevel,releaseDuration);
@@ -215,7 +215,7 @@ void pdspKick::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void pdspKick::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspKick::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);
@@ -336,20 +336,10 @@ void pdspKick::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void pdspKick::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
-
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 }
 
 //--------------------------------------------------------------

@@ -64,29 +64,20 @@ void PitchExtractor::newObject(){
 void PitchExtractor::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            bufferSize = XML.getValue("buffer_size",0);
-            spectrumSize = (bufferSize/2) + 1;
-            arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS;
-            XML.popTag();
-        }
-    }
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
+    spectrumSize = (bufferSize/2) + 1;
+    arrayPosition = bufferSize + spectrumSize + MEL_SCALE_CRITICAL_BANDS;
 
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PitchExtractor::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         if(!isNewConnection){
             isNewConnection = true;
-            for(map<int,shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
+            for(std::map<int,std::shared_ptr<PatchObject>>::iterator it = patchObjects.begin(); it != patchObjects.end(); it++ ){
                 if(it->second != nullptr){
                     if(patchObjects[it->first] != nullptr && it->first != this->getId() && !patchObjects[it->first]->getWillErase()){
                         for(int o=0;o<static_cast<int>(it->second->outPut.size());o++){
@@ -115,7 +106,7 @@ void PitchExtractor::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void PitchExtractor::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void PitchExtractor::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

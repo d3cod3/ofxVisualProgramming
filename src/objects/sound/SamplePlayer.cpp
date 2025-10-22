@@ -156,7 +156,7 @@ void SamplePlayer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void SamplePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void SamplePlayer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(soundfileLoaded && ofGetElapsedTimeMillis()-startTime > 100){
@@ -232,7 +232,7 @@ void SamplePlayer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void SamplePlayer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void SamplePlayer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 
@@ -399,19 +399,10 @@ void SamplePlayer::audioOutObject(ofSoundBuffer &outputBuffer){
 
 //--------------------------------------------------------------
 void SamplePlayer::loadSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if(XML.pushTag("settings")){
-            sampleRate = static_cast<double>(XML.getValue("sample_rate_out",0));
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
     for(int i=0;i<bufferSize;i++){
         ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[1])->push_back(0.0f);

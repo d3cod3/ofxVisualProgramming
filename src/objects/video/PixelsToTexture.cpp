@@ -65,7 +65,7 @@ void PixelsToTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void PixelsToTexture::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
@@ -76,7 +76,7 @@ void PixelsToTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void PixelsToTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void PixelsToTexture::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

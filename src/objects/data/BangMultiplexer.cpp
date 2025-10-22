@@ -86,7 +86,7 @@ void BangMultiplexer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BangMultiplexer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     for(int i=0;i<this->numInlets;i++){
         if(this->inletsConnected[i]){
@@ -115,7 +115,7 @@ void BangMultiplexer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void BangMultiplexer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void BangMultiplexer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

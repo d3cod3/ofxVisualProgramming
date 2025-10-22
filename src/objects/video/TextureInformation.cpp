@@ -77,7 +77,7 @@ void TextureInformation::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWin
 }
 
 //--------------------------------------------------------------
-void TextureInformation::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void TextureInformation::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     if( this->inletsConnected[0] ){
         ofTexture* inTex = static_cast< ofTexture* >(_inletParams[0]);
         if( inTex && inTex->isAllocated() ){
@@ -108,7 +108,7 @@ void TextureInformation::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void TextureInformation::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void TextureInformation::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

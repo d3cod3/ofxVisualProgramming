@@ -90,7 +90,7 @@ void FboEffect::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void FboEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void FboEffect::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     fboW = ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getWidth();
     fboH = ofxVP_CAST_PIN_PTR<ofTexture>(_outletParams[1])->getHeight();
@@ -105,7 +105,7 @@ void FboEffect::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void FboEffect::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void FboEffect::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
     ///////////////////////////////////////////
     // FBO DRAW

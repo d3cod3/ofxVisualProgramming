@@ -92,7 +92,7 @@ void AudioAnalyzer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void AudioAnalyzer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0]){
@@ -163,7 +163,7 @@ void AudioAnalyzer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void AudioAnalyzer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void AudioAnalyzer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);
@@ -304,74 +304,71 @@ void AudioAnalyzer::audioOutObject(ofSoundBuffer &inputBuffer){
 
 //--------------------------------------------------------------
 void AudioAnalyzer::loadAudioSettings(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-        // Beat Tracking
-        beatTrack = new ofxBTrack();
-        beatTrack->setup(bufferSize);
-        beatTrack->setConfidentThreshold(0.35);
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-        // Audio Analysis
-        fft = ofxFft::create(bufferSize, OF_FFT_WINDOW_HAMMING);
+    // Beat Tracking
+    beatTrack = new ofxBTrack();
+    beatTrack->setup(bufferSize);
+    beatTrack->setConfidentThreshold(0.35);
 
-        fftBinSize              = fft->getBinSize();
-        fft_binSizeHz           = ((sampleRate/2)/(fftBinSize-1));
-        fft_StrongestBinValue   = 0.0f;
-        fft_StrongestBinIndex	= 0;
-        fft_pitchBin			= 0;
+    // Audio Analysis
+    fft = new ofxVP::Fft();
+    fft->setup(bufferSize);
 
-        autoCorrelation			= new float[bufferSize];
-        autoCorrelationNorm		= new float[bufferSize];
-        spectrum                = new float[fftBinSize];
-        binsToMel               = new int[fftBinSize];
-        melBins                 = new float[MEL_SCALE_CRITICAL_BANDS];
+    fftBinSize              = (bufferSize / 2) + 1;
+    // avoid division by 0
+    if(fftBinSize<=1){
+        fftBinSize = 2;
+    }
+    fft_binSizeHz           = (sampleRate/2)/(fftBinSize-1);
+    fft_StrongestBinValue   = 0.0f;
+    fft_StrongestBinIndex	= 0;
+    fft_pitchBin			= 0;
 
-        _s_spectrum            = new float[fftBinSize];
-        _s_melBins             = new float[MEL_SCALE_CRITICAL_BANDS];
+    autoCorrelation			= new float[bufferSize];
+    autoCorrelationNorm		= new float[bufferSize];
+    spectrum                = new float[fftBinSize];
+    binsToMel               = new int[fftBinSize];
+    melBins                 = new float[MEL_SCALE_CRITICAL_BANDS];
+
+    _s_spectrum            = new float[fftBinSize];
+    _s_melBins             = new float[MEL_SCALE_CRITICAL_BANDS];
 
 
-        rms                     = 0.0f;
-        pitch                   = 0.0f;
-        _s_rms                  = 0.0f;
-        _s_pitch                = 0.0f;
+    rms                     = 0.0f;
+    pitch                   = 0.0f;
+    _s_rms                  = 0.0f;
+    _s_pitch                = 0.0f;
 
-        setupMelScale();
+    setupMelScale();
 
-        audioInputLevel = this->getCustomVar("INPUT_LEVEL");
-        smoothingValue  = this->getCustomVar("SMOOTHING");
+    audioInputLevel = this->getCustomVar("INPUT_LEVEL");
+    smoothingValue  = this->getCustomVar("SMOOTHING");
 
-        _outletParams[0] = new vector<float>();
-        // SIGNAL BUFFER
-        plot_data = new float[bufferSize];
-        for(int i=0;i<bufferSize;i++){
-            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
-            plot_data[i] = 0.0f;
-        }
-        // SPECTRUM
-        for(int i=0;i<fftBinSize;i++){
-            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
-        }
+    _outletParams[0] = new vector<float>();
+    // SIGNAL BUFFER
+    plot_data = new float[bufferSize];
+    for(int i=0;i<bufferSize;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
+        plot_data[i] = 0.0f;
+    }
+    // SPECTRUM
+    for(int i=0;i<fftBinSize;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
+    }
 
-        // MEL BANDS
-        for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
-            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
-        }
+    // MEL BANDS
+    for(int i=0;i<MEL_SCALE_CRITICAL_BANDS-1;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
+    }
 
-        // SINGLE VALUES (RMS, PITCH, BPM, BEAT)
-        for(int i=0;i<4;i++){
-            ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
-        }
+    // SINGLE VALUES (RMS, PITCH, BPM, BEAT)
+    for(int i=0;i<4;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->push_back(0.0f);
     }
 }
 

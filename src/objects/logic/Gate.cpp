@@ -102,7 +102,7 @@ void Gate::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Gate::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(needReset){
@@ -124,7 +124,7 @@ void Gate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 }
 
 //--------------------------------------------------------------
-void Gate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Gate::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

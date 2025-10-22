@@ -155,7 +155,7 @@ void pdspAddressSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspAddressSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspAddressSequencer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[1]){ // ratio
@@ -222,7 +222,7 @@ void pdspAddressSequencer::updateAudioObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspAddressSequencer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspAddressSequencer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

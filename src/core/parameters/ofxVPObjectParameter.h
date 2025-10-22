@@ -9,7 +9,6 @@
 #pragma once
 
 #include "ofxVPBaseParameter.h"
-#include "ofxXmlSettings.h"
 //#include "<sstream>"
 #include "sstream"
 
@@ -32,14 +31,17 @@ public:
 
     // writes the ofxVPBaseParameter data to XML.
     // The xml's cursor is already pushed into the right <param> tag.
-    virtual void saveTo( ofxXmlSettings& _xmlHandle) const {
+    virtual void saveTo( pugi::xml_node& _xmlHandle) const {
         // ensure tags are there
-        _xmlHandle.addValue(OFXVP_PARAM_XML_TAG_VALUE, this->serialize() );
+        if(_xmlHandle.child(OFXVP_PARAM_XML_TAG_VALUE).empty()){
+            _xmlHandle.append_child(OFXVP_PARAM_XML_TAG_VALUE);
+        }
+        _xmlHandle.child(OFXVP_PARAM_XML_TAG_VALUE).text().set(this->serialize().c_str());
     }
 
     // load ofxVPBaseParameter from xml
     // xml's cursor is pushed to the root of the <param> tag to load
-    bool loadFrom(const ofxXmlSettings& _xmlHandle){
+    bool loadFrom(const pugi::xml_node& _xmlHandle){
 
         //effectName = _xmlHandle.getValue("paramName", getType() );
 

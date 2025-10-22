@@ -81,7 +81,7 @@ void NumberOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow)
 }
 
 //--------------------------------------------------------------
-void NumberOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void NumberOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(!loaded){
         loaded = true;
@@ -118,7 +118,7 @@ void NumberOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patch
 }
 
 //--------------------------------------------------------------
-void NumberOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void NumberOperator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
     
 }

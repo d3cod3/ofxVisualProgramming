@@ -100,7 +100,7 @@ void ArduinoSerial::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ArduinoSerial::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(deviceNameList.size() > 0){
@@ -173,7 +173,7 @@ void ArduinoSerial::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void ArduinoSerial::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ArduinoSerial::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

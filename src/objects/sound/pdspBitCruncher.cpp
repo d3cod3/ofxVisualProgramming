@@ -92,7 +92,7 @@ void pdspBitCruncher::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspBitCruncher::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         bits = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),1.0f,8.0f);
@@ -107,7 +107,7 @@ void pdspBitCruncher::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void pdspBitCruncher::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspBitCruncher::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 
@@ -172,19 +172,10 @@ void pdspBitCruncher::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void pdspBitCruncher::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 }
 
 //--------------------------------------------------------------

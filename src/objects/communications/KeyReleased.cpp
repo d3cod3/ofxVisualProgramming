@@ -69,7 +69,7 @@ void KeyReleased::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void KeyReleased::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(lastKey == static_cast<int>(floor(this->getCustomVar("KEY"))) && lastKey != -1){
         lastKey = -1;
@@ -86,7 +86,7 @@ void KeyReleased::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObj
 }
 
 //--------------------------------------------------------------
-void KeyReleased::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void KeyReleased::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

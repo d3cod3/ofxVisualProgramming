@@ -78,9 +78,9 @@ public:
   // object setup
   void              setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) override;
   // object update
-  void              updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) override;
+  void              updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects) override;
   // object draw
-  void              drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) override;
+  void              drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer) override;
   void              drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) override;
   void              drawObjectNodeConfig() override;
   // call on remove object

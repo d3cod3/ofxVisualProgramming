@@ -34,9 +34,9 @@
 #include "ofMain.h"
 
 #include "ofxVPConfig.h"
+#include "ofxVPXmlEngine.h"
 #include "utils.h"
 
-#include "ofxXmlSettings.h"
 #include "ofxPDSP.h"
 #include "ofxPingPong.h"
 
@@ -83,23 +83,23 @@ public:
 
     void                    setup(shared_ptr<ofAppGLFWWindow> &mainWindow);
     void                    setupDSP(pdsp::Engine &engine);
-    void                    update(map<int,shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine);
-    void                    updateWirelessLinks(map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    update(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, pdsp::Engine &engine);
+    void                    updateWirelessLinks(std::map<int,std::shared_ptr<PatchObject>> &patchObjects);
     void                    draw(ofTrueTypeFont *font);
-    void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, std::map<int,std::shared_ptr<PatchObject>> &patchObjects);
     void                    drawImGuiNodeConfig();
 
     // Virtual Methods
     virtual void            newObject() {}
 
-    virtual void            autoloadFile(string _fp) { unusedArgs(_fp); }
-    virtual void            autosaveNewFile(string fromFile) { unusedArgs(fromFile); }
+    virtual void            autoloadFile(std::string _fp) { unusedArgs(_fp); }
+    virtual void            autosaveNewFile(std::string fromFile) { unusedArgs(fromFile); }
 
-    virtual void            setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow) { unusedArgs(mainWindow); }
+    virtual void            setupObjectContent(std::shared_ptr<ofAppGLFWWindow> &mainWindow) { unusedArgs(mainWindow); }
     virtual void            setupAudioOutObjectContent(pdsp::Engine &engine) { unusedArgs(engine); }
-    virtual void            updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects) { unusedArgs(patchObjects); }
+    virtual void            updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects) { unusedArgs(patchObjects); }
     virtual void            updateAudioObjectContent(pdsp::Engine &engine) { unusedArgs(engine); }
-    virtual void            drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer) { unusedArgs(font,glRenderer); }
+    virtual void            drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer) { unusedArgs(font,glRenderer); }
     virtual void            drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ) { unusedArgs(_nodeCanvas); }
     virtual void            drawObjectNodeConfig() {}
     virtual void            removeObjectContent(bool removeFileFromData=false) { unusedArgs(removeFileFromData); }
@@ -112,8 +112,8 @@ public:
     virtual void            resetResolution(int fromID=-1, int newWidth=-1, int newHeight=-1) { unusedArgs(fromID,newWidth,newHeight); }
 
     // Keyboard Events
-    void                    keyPressed(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects);
-    void                    keyReleased(ofKeyEventArgs &e,map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    keyPressed(ofKeyEventArgs &e,std::map<int,shared_ptr<PatchObject>> &patchObjects);
+    void                    keyReleased(ofKeyEventArgs &e,std::map<int,shared_ptr<PatchObject>> &patchObjects);
 
     // Sound
     void                    audioIn(ofSoundBuffer &inputBuffer);
@@ -122,32 +122,32 @@ public:
     void                    move(int _x, int _y);
 
     // PatchLinks utils
-    bool                    connectTo(map<int,shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType);
-    void                    disconnectFrom(map<int,shared_ptr<PatchObject>> &patchObjects, int objectInlet);
-    void                    disconnectLink(map<int,shared_ptr<PatchObject>> &patchObjects, int linkID);
+    bool                    connectTo(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, int fromObjectID, int fromOutlet, int toInlet, int linkType);
+    void                    disconnectFrom(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, int objectInlet);
+    void                    disconnectLink(std::map<int,std::shared_ptr<PatchObject>> &patchObjects, int linkID);
     void                    openWirelessLink(int objectOutlet) { if(getNumOutlets()>objectOutlet){ resetWirelessPin=objectOutlet;initWirelessLink = true; } };
     void                    closeWirelessLink(int objectOutlet) { if(getNumOutlets()>objectOutlet){ resetWirelessPin=objectOutlet;resetWirelessLink = true; } };
 
     // LOAD/SAVE
-    bool                    loadConfig(shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile);
+    bool                    loadConfig(std::shared_ptr<ofAppGLFWWindow> &mainWindow, pdsp::Engine &engine,int oTag, string &configFile);
     bool                    saveConfig(bool newConnection);
     bool                    removeLinkFromConfig(int outlet, int toObjectID, int toInletID);
 
-    void                    addInlet(int type,string name) { inletsType.push_back(type);inletsNames.push_back(name); inletsIDs.push_back(""); inletsWirelessReceive.push_back(false); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
-    void                    addOutlet(int type,string name = "") { outletsType.push_back(type);outletsNames.push_back(name); outletsIDs.push_back(""); outletsWirelessSend.push_back(false); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
+    void                    addInlet(int type,std::string name) { inletsType.push_back(type);inletsNames.push_back(name); inletsIDs.push_back(""); inletsWirelessReceive.push_back(false); inletsPositions.push_back( ImVec2(this->x, this->y + this->height*.5f) ); }
+    void                    addOutlet(int type,std::string name = "") { outletsType.push_back(type);outletsNames.push_back(name); outletsIDs.push_back(""); outletsWirelessSend.push_back(false); outletsPositions.push_back( ImVec2( this->x + this->width, this->y + this->height*.5f) ); }
     void                    initInletsState() { for(int i=0;i<numInlets;i++){ inletsConnected.push_back(false); } }
-    void                    setCustomVar(float value, string name){ customVars[name] = value; saveConfig(false); }
-    float                   getCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
-    float                   existsCustomVar(string name) { if ( customVars.find(name) != customVars.end() ) { return true; }else{ return false; } }
-    void                    substituteCustomVar(string oldName, string newName) { if ( customVars.find(oldName) != customVars.end() ) { customVars[newName] = customVars[oldName]; customVars.erase(oldName); } }
-    bool                    clearCustomVars();
-    map<string,float>       loadCustomVars();
+    void                    setCustomVar(float value, std::string name){ customVars[name] = value; saveConfig(false); }
+    float                   getCustomVar(std::string name) { if ( customVars.find(name) != customVars.end() ) { return customVars[name]; }else{ return 0; } }
+    float                   existsCustomVar(std::string name) { if ( customVars.find(name) != customVars.end() ) { return true; }else{ return false; } }
+    void                    substituteCustomVar(std::string oldName, std::string newName) { if ( customVars.find(oldName) != customVars.end() ) { customVars[newName] = customVars[oldName]; customVars.erase(oldName); } }
+    bool                            clearCustomVars();
+    std::map<std::string,float>     loadCustomVars();
 
     // GETTERS
     int                     getId() const { return nId; }
     ofPoint                 getPos() const { return ofPoint(x,y); }
-    string                  getName() const { return name; }
-    string                  getSpecialName() const { return specialName; }
+    std::string             getName() const { return name; }
+    std::string             getSpecialName() const { return specialName; }
     bool                    getIsResizable() const { return isResizable; }
     bool                    getIsRetina() const { return isRetina; }
     bool                    getIsSystemObject() const { return isSystemObject; }
@@ -159,16 +159,16 @@ public:
     bool                    getIsSharedContextObject() const { return isSharedContextObject; }
     bool                    getIsHardwareObject() const { return isHardwareObject; }
     int                     getInletType(int iid) const { return inletsType[iid]; }
-    string                  getInletID(int iid) const { return inletsIDs[iid]; }
+    std::string             getInletID(int iid) const { return inletsIDs[iid]; }
     bool                    getInletWirelessReceive(int iid) const { return inletsWirelessReceive[iid]; }
-    string                  getInletTypeName(const int& iid) const;
+    std::string             getInletTypeName(const int& iid) const;
     ofColor                 getInletColor(const int& iid) const;
     ofColor                 getOutletColor(const int& oid) const;
     int                     getOutletType(int oid) const { return outletsType[oid]; }
-    string                  getOutletName(int oid) const { return outletsNames[oid]; }
-    string                  getOutletID(int oid) const { return outletsIDs[oid]; }
+    std::string             getOutletName(int oid) const { return outletsNames[oid]; }
+    std::string             getOutletID(int oid) const { return outletsIDs[oid]; }
     bool                    getOutletWirelessSend(int oid) const { return outletsWirelessSend[oid]; }
-    string                  getOutletTypeName(const int& oid) const;
+    std::string             getOutletTypeName(const int& oid) const;
     ImVec2                  getInletPosition(int iid);
     ImVec2                  getOutletPosition(int oid);
     int                     getNumInlets() { return static_cast<int>(inletsType.size()); }
@@ -182,14 +182,14 @@ public:
     int                     getOutputHeight() { return output_height; }
     float                   getConfigmenuWidth() { return configMenuWidth; }
 
-    string                  getFilepath() { return filepath; }
+    std::string             getFilepath() { return filepath; }
 
     // SETTERS
-    void                    setName(string _name) { name = _name; }
-    void                    setSpecialName(string _name) { specialName = _name; }
-    void                    setFilepath(string fp) { filepath = fp; }
+    void                    setName(std::string _name) { name = _name; }
+    void                    setSpecialName(std::string _name) { specialName = _name; }
+    void                    setFilepath(std::string fp) { filepath = fp; }
 
-    void                    setPatchfile(string pf);
+    void                    setPatchfile(std::string pf);
 
     void                    setIsTextureObj(bool it) { isTextureObject = it; }
     void                    setIsSharedContextObj(bool isc) { isSharedContextObject = isc; }
@@ -201,9 +201,9 @@ public:
     void                    setIsObjectSelected(bool s) { isObjectSelected = s; }
     void                    setConfigmenuWidth(float cmw) { configMenuWidth = cmw; }
     void                    setDimensions(float w, float h) { width = w; height = h;}
-    void                    setSubpatch(string sp) { subpatchName = sp; }
-    void                    setInletID(int inlet, string ID) { inletsIDs[inlet] = ID; }
-    void                    setOutletID(int outlet, string ID) { outletsIDs[outlet] = ID; }
+    void                    setSubpatch(std::string sp) { subpatchName = sp; }
+    void                    setInletID(int inlet, std::string ID) { inletsIDs[inlet] = ID; }
+    void                    setOutletID(int outlet, std::string ID) { outletsIDs[outlet] = ID; }
     void                    setInletWirelessReceive(int inlet, bool wireless) { inletsWirelessReceive.at(inlet) = wireless; }
     void                    setOutletWirelessSend(int outlet, bool wireless) { outletsWirelessSend.at(outlet) = wireless; }
 
@@ -212,22 +212,22 @@ public:
     static const std::string server_name() {return "PatchObjectServer";}
 
     // patch object connections
-    vector<shared_ptr<PatchLink>>       outPut;
-    vector<int>                         linksToDisconnect;
-    vector<int>                         linksDeactivated;
-    vector<int>                         objectsSelected;
-    vector<bool>                        inletsConnected;
+    std::vector<std::shared_ptr<PatchLink>>  outPut;
+    std::vector<int>                         linksToDisconnect;
+    std::vector<int>                         linksDeactivated;
+    std::vector<int>                         objectsSelected;
+    std::vector<bool>                        inletsConnected;
 
     // subpatch vars
-    string                              subpatchName;
+    std::string                         subpatchName;
 
     // inlets/outlets
     void                                *_inletParams[MAX_INLETS];
     void                                *_outletParams[MAX_OUTLETS];
 
     // PDSP nodes
-    map<int,pdsp::PatchNode>            pdspIn;
-    map<int,pdsp::PatchNode>            pdspOut;
+    std::map<int,pdsp::PatchNode>       pdspIn;
+    std::map<int,pdsp::PatchNode>       pdspOut;
 
     // events
     ofEvent<int>                        resetEvent;
@@ -235,13 +235,16 @@ public:
     ofEvent<int>                        reconnectOutletsEvent;
     ofEvent<int>                        duplicateEvent;
 
-    string                              specialLinkTypeName;
+    std::string                         specialLinkTypeName;
 
     // Wireless object vars
-    string                              wirelessName;
+    std::string                         wirelessName;
     int                                 wirelessType;
 
 protected:
+
+    // Patch file
+    ofxVPXmlEngine          ofxVPXml;
 
     // Texture drawing object vars
     int                     output_width, output_height;
@@ -255,22 +258,22 @@ protected:
     float                   scaleFactor;
 
     // Core vars
-    string                  name;
-    string                  specialName;
-    string                  filepath;
-    string                  patchFile;
-    string                  patchFolderPath;
-    vector<string>          inletsNames;
-    vector<string>          outletsNames;
-    vector<string>          inletsIDs;
-    vector<string>          outletsIDs;
-    vector<bool>            inletsWirelessReceive;
-    vector<bool>            outletsWirelessSend;
-    vector<ImVec2>          inletsPositions; // ImVec2 to prevent too much type casting
-    vector<ImVec2>          outletsPositions; // Will hold screenpositions of pins, updated by ImGui
-    vector<int>             inletsType;
-    vector<int>             outletsType;
-    map<string,float>       customVars;
+    std::string                  name;
+    std::string                  specialName;
+    std::string                  filepath;
+    std::string                  patchFile;
+    std::string                  patchFolderPath;
+    std::vector<std::string>     inletsNames;
+    std::vector<std::string>     outletsNames;
+    std::vector<std::string>     inletsIDs;
+    std::vector<std::string>     outletsIDs;
+    std::vector<bool>            inletsWirelessReceive;
+    std::vector<bool>            outletsWirelessSend;
+    std::vector<ImVec2>          inletsPositions; // ImVec2 to prevent too much type casting
+    std::vector<ImVec2>          outletsPositions; // Will hold screenpositions of pins, updated by ImGui
+    std::vector<int>             inletsType;
+    std::vector<int>             outletsType;
+    std::map<std::string,float>  customVars;
 
 
     int                     numInlets;
@@ -300,7 +303,7 @@ protected:
 class PatchObjectDriver : public pugg::Driver
 {
 public:
-    PatchObjectDriver(string name, int version) : pugg::Driver(PatchObject::server_name(),name,version) {}
+    PatchObjectDriver(std::string name, int version) : pugg::Driver(PatchObject::server_name(),name,version) {}
     virtual PatchObject* create() = 0;
 };
 

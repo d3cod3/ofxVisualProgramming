@@ -73,7 +73,7 @@ void StringAt::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void StringAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringAt::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
 
     if(this->inletsConnected[1]){
@@ -99,7 +99,7 @@ void StringAt::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void StringAt::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void StringAt::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

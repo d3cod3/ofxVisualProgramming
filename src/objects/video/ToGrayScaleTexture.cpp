@@ -83,7 +83,7 @@ void ToGrayScaleTexture::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWin
 }
 
 //--------------------------------------------------------------
-void ToGrayScaleTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void ToGrayScaleTexture::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // UPDATE STUFF
@@ -118,7 +118,7 @@ void ToGrayScaleTexture::updateObjectContent(map<int,shared_ptr<PatchObject>> &p
 }
 
 //--------------------------------------------------------------
-void ToGrayScaleTexture::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void ToGrayScaleTexture::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

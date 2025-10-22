@@ -33,7 +33,7 @@
 #pragma once
 
 #define PACKAGE_OFXVP       "ofxVisualProgramming"
-#define	VERSION_OFXVP       "0.7.2"
+#define	VERSION_OFXVP       "0.7.3"
 #define DESCRIPTION_OFXVP   "A visual programming patching environment for OF"
 
 #define MOSAIC_CHECK_STRING "https://mosaic.d3cod3.org"
@@ -55,8 +55,8 @@
 #define STANDARD_PROJECTOR_WINDOW_WIDTH     854
 #define STANDARD_PROJECTOR_WINDOW_HEIGHT    480
 
-#define STANDARD_TEXTURE_WIDTH              1280
-#define STANDARD_TEXTURE_HEIGHT             720
+#define STANDARD_TEXTURE_WIDTH              1920
+#define STANDARD_TEXTURE_HEIGHT             1080
 
 #define OBJECT_STANDARD_WIDTH   160
 #define OBJECT_STANDARD_HEIGHT  120
@@ -107,6 +107,7 @@
 #define OFXVP_OBJECT_CAT_COMMUNICATIONS "communications"
 #define OFXVP_OBJECT_CAT_CV             "computer vision"
 #define OFXVP_OBJECT_CAT_DATA           "data"
+#define OFXVP_OBJECT_CAT_GENERATIVE     "generative"
 #define OFXVP_OBJECT_CAT_GRAPHICS       "graphics"
 #define OFXVP_OBJECT_CAT_GUI            "gui"
 #define OFXVP_OBJECT_CAT_LOGIC          "logic"

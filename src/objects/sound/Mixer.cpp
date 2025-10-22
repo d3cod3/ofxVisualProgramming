@@ -142,7 +142,7 @@ void Mixer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Mixer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     if(this->inletsConnected[0] && !ofxVP_CAST_PIN_PTR<vector<float>>(this->_inletParams[0])->empty()){
@@ -171,7 +171,7 @@ void Mixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
 }
 
 //--------------------------------------------------------------
-void Mixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Mixer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }
@@ -297,19 +297,10 @@ void Mixer::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void Mixer::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 }
 
 //--------------------------------------------------------------

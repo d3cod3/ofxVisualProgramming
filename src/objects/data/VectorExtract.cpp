@@ -77,7 +77,7 @@ void VectorExtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VectorExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VectorExtract::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
@@ -103,7 +103,7 @@ void VectorExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void VectorExtract::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VectorExtract::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

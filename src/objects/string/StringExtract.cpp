@@ -77,7 +77,7 @@ void StringExtract::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void StringExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringExtract::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
 
     if(this->inletsConnected[0] && start < end){
@@ -99,7 +99,7 @@ void StringExtract::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void StringExtract::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void StringExtract::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

@@ -88,7 +88,7 @@ void pdspDecimator::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspDecimator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[1]){
         freq = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[1]),2.0f,1600.0f);
@@ -104,7 +104,7 @@ void pdspDecimator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchO
 }
 
 //--------------------------------------------------------------
-void pdspDecimator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspDecimator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 }
 
@@ -169,19 +169,10 @@ void pdspDecimator::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void pdspDecimator::loadAudioSettings(){
-    ofxXmlSettings XML;
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
-            XML.popTag();
-        }
-    }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 }
 
 //--------------------------------------------------------------

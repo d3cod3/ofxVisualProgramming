@@ -89,7 +89,7 @@ void MidiReceiver::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MidiReceiver::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(midiDevicesList.size() > 0){
         if(midiIn.isOpen()){
@@ -173,7 +173,7 @@ void MidiReceiver::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void MidiReceiver::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void MidiReceiver::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
 }
 

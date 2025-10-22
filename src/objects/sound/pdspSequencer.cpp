@@ -250,7 +250,7 @@ void pdspSequencer::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspSequencer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspSequencer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // steps
@@ -297,7 +297,7 @@ void pdspSequencer::updateAudioObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspSequencer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspSequencer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
     ofSetColor(255);

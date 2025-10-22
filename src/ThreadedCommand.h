@@ -83,7 +83,7 @@ public:
 
 protected:
     std::condition_variable condition;
-    string                  command;
+    std::string             command;
     int                     sys_status;
     bool                    executed;
     bool                    commandExecuted;

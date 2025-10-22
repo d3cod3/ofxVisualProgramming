@@ -92,7 +92,7 @@ void StringGate::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void StringGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void StringGate::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     *ofxVP_CAST_PIN_PTR<string>(_outletParams[0]) = "";
@@ -123,7 +123,7 @@ void StringGate::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void StringGate::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void StringGate::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

@@ -53,7 +53,7 @@ moComment::moComment() : PatchObject("comment"){
     bang                = false;
     nextFrame           = true;
 
-    this->width             *= 2;
+    this->width             *= 2.2;
 
     this->setIsResizable(true);
 
@@ -79,13 +79,13 @@ void moComment::newObject(){
 void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    actualComment = "Comment your patches and share!";
+    actualComment = "Comment your patches and share your knowledge!";
     loadCommentSetting();
 
 }
 
 //--------------------------------------------------------------
-void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void moComment::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0){
@@ -122,7 +122,7 @@ void moComment::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjec
 }
 
 //--------------------------------------------------------------
-void moComment::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void moComment::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }
@@ -151,10 +151,10 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGui::InputTextMultiline("##source", &actualComment, ImVec2(ImGui::GetWindowSize().x-30, ImGui::GetWindowSize().y-24), ImGuiInputTextFlags_AllowTabInput)){
+        if(ImGui::InputTextMultiline("##source", &actualComment, ImVec2(ImGui::GetWindowSize().x-30, ImGui::GetWindowSize().y-24), ImGuiInputTextFlags_AllowTabInput|ImGuiInputTextFlags_Multiline)){
             saveCommentSetting();
-        }
 
+        }
 
         if(this->width != prevW){
             prevW = this->width;
@@ -172,61 +172,45 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void moComment::drawObjectNodeConfig(){
+
+    ImGui::Spacing();
+    if(ImGui::MenuItem("Copy")) ImGui::SetClipboardText(actualComment.c_str());
+    ImGui::Spacing();
+    ImGui::Spacing();
+    if(ImGui::MenuItem("Paste")) actualComment = ImGui::GetClipboardText();
+    ImGui::Spacing();
+
     ImGuiEx::ObjectInfo(
-                "A simple comment object.",
+                "A simple comment object. You can copy/paste from the object config.",
                 "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
 }
 
 //--------------------------------------------------------------
 void moComment::removeObjectContent(bool removeFileFromData){
-    
+    unusedArgs(removeFileFromData);
 }
 
 //--------------------------------------------------------------
 void moComment::loadCommentSetting(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    actualComment = XML.getValue("text","none");
-                }
-                XML.popTag();
-            }
-        }
+    ofxVPXml.loadMosaicPatch(this->patchFile);
+
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    string tempC = this->ofxVPXml.getPatchChildString(obj,"text");
+    if(tempC != ""){
+        actualComment = tempC;
     }
+
 }
 
 //--------------------------------------------------------------
 void moComment::saveCommentSetting(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        int totalObjects = XML.getNumTags("object");
-        for(int i=0;i<totalObjects;i++){
-            if(XML.pushTag("object", i)){
-                if(XML.getValue("id", -1) == this->nId){
-                    XML.setValue("text",actualComment);
-                }
-                XML.popTag();
-            }
-        }
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-            XML.saveFile();
-#else
-            XML.save();
-#endif
-    }
+    ofxVPXml.loadMosaicPatch(this->patchFile);
+
+    pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
+    this->ofxVPXml.setPatchValue(obj,"text",actualComment);
+
 }
 
 OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)

@@ -78,7 +78,7 @@ void BooleanOperator::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow
 }
 
 //--------------------------------------------------------------
-void BooleanOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BooleanOperator::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0] && this->inletsConnected[1]){
         if(_operator == Bool_Operator_AND){
@@ -110,7 +110,7 @@ void BooleanOperator::updateObjectContent(map<int,shared_ptr<PatchObject>> &patc
 }
 
 //--------------------------------------------------------------
-void BooleanOperator::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void BooleanOperator::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

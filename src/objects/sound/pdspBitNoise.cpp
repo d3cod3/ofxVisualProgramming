@@ -113,7 +113,7 @@ void pdspBitNoise::setupAudioOutObjectContent(pdsp::Engine &engine){
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void pdspBitNoise::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         pitch = ofClamp(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]),-100,150);
@@ -143,7 +143,7 @@ void pdspBitNoise::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void pdspBitNoise::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void pdspBitNoise::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(0);
 
 }
@@ -207,23 +207,14 @@ void pdspBitNoise::removeObjectContent(bool removeFileFromData){
 
 //--------------------------------------------------------------
 void pdspBitNoise::loadAudioSettings(){
-    ofxXmlSettings XML;
 
-#if OF_VERSION_MAJOR == 0 && OF_VERSION_MINOR < 12
-    if (XML.loadFile(patchFile)){
-#else
-    if (XML.load(patchFile)){
-#endif
-        if (XML.pushTag("settings")){
-            sampleRate = XML.getValue("sample_rate_in",0);
-            bufferSize = XML.getValue("buffer_size",0);
+    ofxVPXml.loadMosaicPatch(this->patchFile);
 
-            for(int i=0;i<bufferSize;i++){
-                ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(0.0f);
-            }
+    sampleRate = this->ofxVPXml.getMosaicConfigInt("sample_rate_in");
+    bufferSize = this->ofxVPXml.getMosaicConfigInt("buffer_size");
 
-            XML.popTag();
-        }
+    for(int i=0;i<bufferSize;i++){
+        ofxVP_CAST_PIN_PTR<vector<float>>(_outletParams[2])->push_back(0.0f);
     }
 }
 

@@ -84,7 +84,7 @@ void VectorConcat::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VectorConcat::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     ofxVP_CAST_PIN_PTR<vector<float>>(this->_outletParams[0])->clear();
@@ -112,7 +112,7 @@ void VectorConcat::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void VectorConcat::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VectorConcat::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

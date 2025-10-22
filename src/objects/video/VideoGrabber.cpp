@@ -114,7 +114,7 @@ void VideoGrabber::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoGrabber::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(needReset && isOneDeviceAvailable){
         resetCameraSettings(deviceID);
@@ -156,7 +156,7 @@ void VideoGrabber::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchOb
 }
 
 //--------------------------------------------------------------
-void VideoGrabber::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoGrabber::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 }
 

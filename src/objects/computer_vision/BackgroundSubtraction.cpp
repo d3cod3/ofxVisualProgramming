@@ -58,8 +58,6 @@ BackgroundSubtraction::BackgroundSubtraction() : PatchObject("background subtrac
     newConnection       = false;
     bLearnBackground    = false;
 
-    bgSubTech           = 0;
-
     threshold           = 80.0f;
     brightness          = 0.0f;
     contrast            = 0.0f;
@@ -114,7 +112,7 @@ void BackgroundSubtraction::setupObjectContent(shared_ptr<ofAppGLFWWindow> &main
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void BackgroundSubtraction::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     unusedArgs(patchObjects);
 
     // External background reset (BANG)
@@ -211,7 +209,7 @@ void BackgroundSubtraction::updateObjectContent(map<int,shared_ptr<PatchObject>>
 }
 
 //--------------------------------------------------------------
-void BackgroundSubtraction::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void BackgroundSubtraction::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

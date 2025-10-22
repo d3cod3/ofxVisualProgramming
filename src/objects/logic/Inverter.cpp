@@ -71,7 +71,7 @@ void Inverter::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Inverter::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     
     if(this->inletsConnected[0]){
         if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) < 1.0f){
@@ -84,7 +84,7 @@ void Inverter::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObject
 }
 
 //--------------------------------------------------------------
-void Inverter::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Inverter::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

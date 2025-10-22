@@ -132,7 +132,7 @@ void VideoMixer::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void VideoMixer::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     // mix texture inlets with alpha
     if(mixFbo->isAllocated()){
@@ -188,7 +188,7 @@ void VideoMixer::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObje
 }
 
 //--------------------------------------------------------------
-void VideoMixer::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void VideoMixer::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     unusedArgs(font,glRenderer);
 
 }

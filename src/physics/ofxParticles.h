@@ -2,7 +2,8 @@
 //  ofxParticles.h
 //
 //  Created by Timothy Scaffidi on 6/14/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//
+//  Updated for ofxVP
 //
 
 #pragma once
@@ -385,25 +386,25 @@ public:
     }
 
     void attractTo(ofPoint p, const float accel, const float minDist, const bool consumeParticle = false) {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             (**it).attractTo(p, accel, minDist, consumeParticle);
         }
     }
 
     void gravitateTo(ofPoint p, const float gravity, const float mass, const float minDist, const float consumeParticle) {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             (**it).gravitateTo(p, gravity, mass, minDist, consumeParticle);
         }
     }
 
     void rotateAround(ofPoint p, const float accel, const float minDist, const float consumeParticle) {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             (**it).rotateAround(p, accel, minDist, consumeParticle);
         }
     }
 
     void applyVectorField(float * field, int fieldWidth, int fieldHeight, int numComponents, ofRectangle areaOfInfluence, float force) {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             ofxParticle & p = (**it);
             ofVec2f pos(p.position.x,p.position.y);
             if(areaOfInfluence.inside(pos)) {
@@ -419,7 +420,7 @@ public:
 
     int update(float timeStep, float drag) {
         int particlesRemoved = 0;
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             if((**it).isAlive()) {
                 (**it).update(timeStep, drag);
             }
@@ -435,19 +436,19 @@ public:
     }
 
     void draw() {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             (**it).draw();
         }
     }
 
     void draw(ofTexture &tex) {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             (**it).draw(tex);
         }
     }
 
     void draw(ofTexture &tex, ofTexture &tex2) {
-        for(list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
+        for(std::list<ofxParticle*>::iterator it = particles.begin(); it != particles.end(); it++) {
             int index = (**it).particleID;
             if(index%2==0)
                 (**it).draw(tex);
@@ -458,7 +459,7 @@ public:
 
     int getNumParticles() {return numParticles;}
 
-    void binParticles(vector<ofxParticle *> particles, const int binPower, const ofRectangle bounds) {
+    void binParticles(std::vector<ofxParticle *> particles, const int binPower, const ofRectangle bounds) {
         if (this->binPower != binPower || bounds != binBounds) {
             this->binPower = binPower;
 
@@ -486,15 +487,15 @@ public:
         }
     }
 
-    int getNeighbors(vector<ofxParticle *> &neighbors, const ofxParticle p, const float radius) {
+    int getNeighbors(std::vector<ofxParticle *> &neighbors, const ofxParticle p, const float radius) {
         return getNeighbors(neighbors, p.position, radius);
     }
 
-    int getNeighbors(vector<ofxParticle *> &neighbors, const ofVec3f p, const float radius) {
+    int getNeighbors(std::vector<ofxParticle *> &neighbors, const ofVec3f p, const float radius) {
         return getNeighbors(neighbors, p.x, p.y, radius);
     }
 
-    int getNeighbors(vector<ofxParticle *> &neighbors, float targetX, float targetY, const float radius) {
+    int getNeighbors(std::vector<ofxParticle *> &neighbors, float targetX, float targetY, const float radius) {
         //adapted from kylemcdonalds binned particle system
         int x, y, p, bindex, minX, minY, maxX, maxY;
         unsigned int minXBin, maxXBin, minYBin, maxYBin;
@@ -534,11 +535,11 @@ public:
 
 
 private:
-    list<ofxParticle*> particles;
+    std::list<ofxParticle*> particles;
     int numParticles;
     int totalParticlesEmitted;
 
-    vector<vector<ofxParticle *>> bins;
+    std::vector<vector<ofxParticle *>> bins;
     ofRectangle binBounds;
     int binPower;
     int xbins, ybins;

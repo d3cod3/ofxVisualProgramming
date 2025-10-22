@@ -76,7 +76,7 @@ void Smooth::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void Smooth::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
     if(this->inletsConnected[0]){
         *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0]) = *ofxVP_CAST_PIN_PTR<float>(this->_outletParams[0])*(1.0f-smoothing) + *ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0])*smoothing;
         if(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]) > maxRange){
@@ -102,7 +102,7 @@ void Smooth::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects)
 }
 
 //--------------------------------------------------------------
-void Smooth::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void Smooth::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
     ofSetColor(255);
 
 }

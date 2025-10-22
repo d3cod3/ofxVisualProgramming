@@ -88,7 +88,7 @@ void MidiPad::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
 }
 
 //--------------------------------------------------------------
-void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects){
+void MidiPad::updateObjectContent(std::map<int,std::shared_ptr<PatchObject>> &patchObjects){
 
     if(this->inletsConnected[0]){
         if(static_cast<int>(floor(*ofxVP_CAST_PIN_PTR<float>(this->_inletParams[0]))) == savedPitch){
@@ -137,7 +137,7 @@ void MidiPad::updateObjectContent(map<int,shared_ptr<PatchObject>> &patchObjects
 }
 
 //--------------------------------------------------------------
-void MidiPad::drawObjectContent(ofTrueTypeFont *font, shared_ptr<ofBaseGLRenderer>& glRenderer){
+void MidiPad::drawObjectContent(ofTrueTypeFont *font, std::shared_ptr<ofBaseGLRenderer>& glRenderer){
 
 }
 
