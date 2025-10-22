@@ -53,7 +53,7 @@ moComment::moComment() : PatchObject("comment"){
     bang                = false;
     nextFrame           = true;
 
-    this->width             *= 2;
+    this->width             *= 2.2;
 
     this->setIsResizable(true);
 
@@ -79,7 +79,7 @@ void moComment::newObject(){
 void moComment::setupObjectContent(shared_ptr<ofAppGLFWWindow> &mainWindow){
     unusedArgs(mainWindow);
 
-    actualComment = "Comment your patches and share!";
+    actualComment = "Comment your patches and share your knowledge!";
     loadCommentSetting();
 
 }
@@ -151,10 +151,10 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        if(ImGui::InputTextMultiline("##source", &actualComment, ImVec2(ImGui::GetWindowSize().x-30, ImGui::GetWindowSize().y-24), ImGuiInputTextFlags_AllowTabInput)){
+        if(ImGui::InputTextMultiline("##source", &actualComment, ImVec2(ImGui::GetWindowSize().x-30, ImGui::GetWindowSize().y-24), ImGuiInputTextFlags_AllowTabInput|ImGuiInputTextFlags_Multiline)){
             saveCommentSetting();
-        }
 
+        }
 
         if(this->width != prevW){
             prevW = this->width;
@@ -172,8 +172,16 @@ void moComment::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 
 //--------------------------------------------------------------
 void moComment::drawObjectNodeConfig(){
+
+    ImGui::Spacing();
+    if(ImGui::MenuItem("Copy")) ImGui::SetClipboardText(actualComment.c_str());
+    ImGui::Spacing();
+    ImGui::Spacing();
+    if(ImGui::MenuItem("Paste")) actualComment = ImGui::GetClipboardText();
+    ImGui::Spacing();
+
     ImGuiEx::ObjectInfo(
-                "A simple comment object.",
+                "A simple comment object. You can copy/paste from the object config.",
                 "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
 }
 
@@ -188,7 +196,10 @@ void moComment::loadCommentSetting(){
     ofxVPXml.loadMosaicPatch(this->patchFile);
 
     pugi::xml_node obj =  this->ofxVPXml.getObjectNode(this->nId);
-    actualComment = this->ofxVPXml.getPatchChildString(obj,"text");
+    string tempC = this->ofxVPXml.getPatchChildString(obj,"text");
+    if(tempC != ""){
+        actualComment = tempC;
+    }
 
 }
 
