@@ -114,7 +114,7 @@ void PixelsToTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void PixelsToTexture::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Transforms the signal from a pixels cable (emerald green) into a texture signal (blue cable). Texture data is processed on GPU while pixel data on CPU",
-                "https://mosaic.d3cod3.org/reference.php?r=pixel-to-texture", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=pixel-to-texture", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -122,6 +122,6 @@ void PixelsToTexture::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( PixelsToTexture, "pixels to texture", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( PixelsToTexture, "pixels to texture"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

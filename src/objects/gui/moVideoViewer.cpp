@@ -168,7 +168,7 @@ void moVideoViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moVideoViewer::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A basic video viewer, the object visualizes it, and bypasses it by its outlet.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-viewer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-viewer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -176,6 +176,6 @@ void moVideoViewer::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moVideoViewer, "video viewer", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moVideoViewer, "video viewer"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

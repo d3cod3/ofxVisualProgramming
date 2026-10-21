@@ -314,7 +314,7 @@ void VideoExporter::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Export video from every texture cable (blue ones). You can choose the video codec: mpeg4, mjpeg, jpg2000, libx264, or hevc.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-exporter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-exporter", scaleFactor);
 
     // file dialog
 #if defined(TARGET_WIN32)
@@ -350,6 +350,6 @@ void VideoExporter::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoExporter, "video exporter", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoExporter, "video exporter"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

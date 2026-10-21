@@ -182,7 +182,7 @@ void moComment::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "A simple comment object. You can copy/paste from the object config.",
-                "https://mosaic.d3cod3.org/reference.php?r=comment", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=comment", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -213,6 +213,6 @@ void moComment::saveCommentSetting(){
 
 }
 
-OBJECT_REGISTER( moComment, "comment", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moComment, "comment"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

@@ -129,7 +129,7 @@ void Inverter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Inverter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Invert the value transmitted by a trigger or bang object.",
-                "https://mosaic.d3cod3.org/reference.php?r=inverter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=inverter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -138,6 +138,6 @@ void Inverter::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( Inverter, "inverter", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( Inverter, "inverter"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

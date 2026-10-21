@@ -202,7 +202,7 @@ void MidiSender::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Send data to a physical/virtual midi interface",
-                "https://mosaic.d3cod3.org/reference.php?r=midi-sender", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=midi-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -250,6 +250,6 @@ void MidiSender::rescanMIDI(){
     }
 }
 
-OBJECT_REGISTER( MidiSender, "midi sender", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( MidiSender, "midi sender"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

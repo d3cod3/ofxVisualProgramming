@@ -195,7 +195,7 @@ void pdspBitNoise::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspBitNoise::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Stereo Digital noise generator",
-                "https://mosaic.d3cod3.org/reference.php?r=bit-noise", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=bit-noise", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -232,6 +232,6 @@ void pdspBitNoise::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspBitNoise, "bit noise", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspBitNoise, "bit noise"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

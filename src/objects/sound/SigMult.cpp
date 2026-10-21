@@ -157,7 +157,7 @@ void SigMult::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void SigMult::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Signal amplifier",
-                "https://mosaic.d3cod3.org/reference.php?r=amp", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=amp", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -196,6 +196,6 @@ void SigMult::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( SigMult, "amplifier", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( SigMult, "amplifier"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

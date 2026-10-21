@@ -331,7 +331,7 @@ void BackgroundSubtraction::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Static and adaptive background subtraction.",
-                "https://mosaic.d3cod3.org/reference.php?r=background-subtraction", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=background-subtraction", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -362,6 +362,6 @@ void BackgroundSubtraction::resetTextures(int w, int h){
 }
 
 
-OBJECT_REGISTER( BackgroundSubtraction, "background subtraction", OFXVP_OBJECT_CAT_CV)
+OBJECT_REGISTER( BackgroundSubtraction, "background subtraction"s, OFXVP_OBJECT_CAT_CV)
 
 #endif

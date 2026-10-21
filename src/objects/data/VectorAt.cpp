@@ -154,7 +154,7 @@ void VectorAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void VectorAt::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Extracts the value at a particular index from a vector",
-                "https://mosaic.d3cod3.org/reference.php?r=vector-at", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=vector-at", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -163,6 +163,6 @@ void VectorAt::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VectorAt, "vector at", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( VectorAt, "vector at"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

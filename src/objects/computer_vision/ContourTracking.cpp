@@ -378,7 +378,7 @@ void ContourTracking::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Contour tracking over background subtraction. Extract blobs, contours and convex hulls.",
-                "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=contour-tracking", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -388,6 +388,6 @@ void ContourTracking::removeObjectContent(bool removeFileFromData){
 
 
 
-OBJECT_REGISTER( ContourTracking, "contour tracking", OFXVP_OBJECT_CAT_CV)
+OBJECT_REGISTER( ContourTracking, "contour tracking"s, OFXVP_OBJECT_CAT_CV)
 
 #endif

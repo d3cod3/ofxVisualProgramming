@@ -252,7 +252,7 @@ void AudioExporter::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Export audio from every sound buffer cable (yellow ones). Export format is fixed to 320 kb mp3.",
-                "https://mosaic.d3cod3.org/reference.php?r=audio-exporter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=audio-exporter", scaleFactor);
 
     // file dialog
 #if defined(TARGET_WIN32)
@@ -324,6 +324,6 @@ void AudioExporter::audioOutObject(ofSoundBuffer &inputBuffer){
     }
 }
 
-OBJECT_REGISTER( AudioExporter, "audio exporter", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( AudioExporter, "audio exporter"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

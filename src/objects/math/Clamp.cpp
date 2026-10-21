@@ -150,7 +150,7 @@ void Clamp::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Clamp::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Force the numerical input between the configured range.",
-                "https://mosaic.d3cod3.org/reference.php?r=clamp", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=clamp", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -158,6 +158,6 @@ void Clamp::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( Clamp, "clamp", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( Clamp, "clamp"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

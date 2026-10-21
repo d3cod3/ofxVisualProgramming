@@ -260,7 +260,7 @@ void DataToTexture::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This object performs “analog style” video synthesis, with a separate control over RGB channels",
-                "https://mosaic.d3cod3.org/reference.php?r=data-to-texture", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=data-to-texture", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -295,6 +295,6 @@ void DataToTexture::resetResolution(){
 
 }
 
-OBJECT_REGISTER( DataToTexture, "data to texture", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( DataToTexture, "data to texture"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

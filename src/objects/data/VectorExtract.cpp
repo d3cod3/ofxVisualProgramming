@@ -181,7 +181,7 @@ void VectorExtract::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Extract a subsection of a data vector.",
-                "https://mosaic.d3cod3.org/reference.php?r=vector-extract", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=vector-extract", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -190,6 +190,6 @@ void VectorExtract::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VectorExtract, "vector extract", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( VectorExtract, "vector extract"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

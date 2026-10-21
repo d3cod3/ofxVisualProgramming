@@ -280,7 +280,7 @@ void ColorPalette::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Color palette generator.",
-                "https://mosaic.d3cod3.org/reference.php?r=color-palette", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=color-palette", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -454,6 +454,6 @@ float ColorPalette::normalizeValue(float val){
 
 
 
-OBJECT_REGISTER( ColorPalette, "color palette", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( ColorPalette, "color palette"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

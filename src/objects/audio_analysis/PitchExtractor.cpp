@@ -146,7 +146,7 @@ void PitchExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void PitchExtractor::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Extracts the pitch data of the audio signal as a float value (between 0.0 and 4186.0).",
-                "https://mosaic.d3cod3.org/reference.php?r=pitch-extractor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=pitch-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -154,6 +154,6 @@ void PitchExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( PitchExtractor , "pitch extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+OBJECT_REGISTER( PitchExtractor , "pitch extractor"s, OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

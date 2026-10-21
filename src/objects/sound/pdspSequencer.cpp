@@ -444,7 +444,7 @@ void pdspSequencer::drawObjectNodeConfig(){
     ImGui::ListBox("sections", &chapter, &vectorSteps[0], vectorSteps.size(), 4);
     ImGuiEx::ObjectInfo(
                 "Up to 64 step sequencer with 5 per-step assignable controls.",
-                "https://mosaic.d3cod3.org/reference.php?r=sequencer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=sequencer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -504,6 +504,6 @@ void pdspSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 }
 
-OBJECT_REGISTER( pdspSequencer, "sequencer", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspSequencer, "sequencer"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

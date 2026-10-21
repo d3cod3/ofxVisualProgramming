@@ -451,7 +451,7 @@ void PolyphonicOscillator::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Polyphonic Oscillator, with up to 16 voices, with antialiased waveforms",
-                "https://mosaic.d3cod3.org/reference.php?r=polyphonic-oscillator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=polyphonic-oscillator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -496,6 +496,6 @@ void PolyphonicOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[4])->copyFrom(pulse_scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( PolyphonicOscillator, "polyphonic oscillator", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( PolyphonicOscillator, "polyphonic oscillator"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -196,7 +196,7 @@ void pdspCombFilter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspCombFilter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A comb filter is a delay tuned to a specific pitch frequency (mix it with the dry signal)",
-                "https://mosaic.d3cod3.org/reference.php?r=comb-filter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=comb-filter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -228,6 +228,6 @@ void pdspCombFilter::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspCombFilter, "comb filter", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspCombFilter, "comb filter"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

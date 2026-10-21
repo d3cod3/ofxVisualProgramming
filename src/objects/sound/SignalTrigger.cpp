@@ -175,7 +175,7 @@ void SignalTrigger::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Triggers a bang when the sound signal level exceeds the threshold.",
-                "https://mosaic.d3cod3.org/reference.php?r=signal-trigger", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=signal-trigger", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -204,6 +204,6 @@ void SignalTrigger::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( SignalTrigger, "signal trigger", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( SignalTrigger, "signal trigger"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

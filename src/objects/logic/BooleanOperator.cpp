@@ -171,7 +171,7 @@ void BooleanOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void BooleanOperator::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Basic boolean operator",
-                "https://mosaic.d3cod3.org/reference.php?r=boolean-operator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=boolean-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -179,6 +179,6 @@ void BooleanOperator::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( BooleanOperator, "boolean operator", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( BooleanOperator, "boolean operator"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

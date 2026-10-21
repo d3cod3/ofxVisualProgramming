@@ -166,7 +166,7 @@ void StringExtract::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Extract a subsection of a string.",
-                "https://mosaic.d3cod3.org/reference.php?r=string-extract", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=string-extract", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -175,6 +175,6 @@ void StringExtract::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( StringExtract, "string extract", OFXVP_OBJECT_CAT_STRING)
+OBJECT_REGISTER( StringExtract, "string extract"s, OFXVP_OBJECT_CAT_STRING)
 
 #endif

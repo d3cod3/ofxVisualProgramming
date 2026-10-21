@@ -206,7 +206,7 @@ void StringGate::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receives up to 31 strings, and transmits only the one indicated in its first inlet: open.",
-                "https://mosaic.d3cod3.org/reference.php?r=string-gate", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=string-gate", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -274,6 +274,6 @@ void StringGate::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( StringGate, "string gate", OFXVP_OBJECT_CAT_STRING)
+OBJECT_REGISTER( StringGate, "string gate"s, OFXVP_OBJECT_CAT_STRING)
 
 #endif

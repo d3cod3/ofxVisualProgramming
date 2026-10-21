@@ -217,7 +217,7 @@ void DataToFile::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Saves the vector data in a .txt file, line by line for each computing frame.",
-                "https://mosaic.d3cod3.org/reference.php?r=data-to-file", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=data-to-file", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, exportFileFlag, "Export new data file as", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".txt", "data.txt", scaleFactor)){
@@ -244,6 +244,6 @@ void DataToFile::appendLineToFile(string filepath, string line){
     file.close();
 }
 
-OBJECT_REGISTER( DataToFile, "data to file", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( DataToFile, "data to file"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

@@ -295,7 +295,7 @@ void HaarTracking::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Detects shapes with specific characteristics or structures within images or video frames.",
-                "https://mosaic.d3cod3.org/reference.php?r=haar-tracking", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=haar-tracking", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadHaarConfigFlag, "Select haarcascade xml file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml", "", scaleFactor)){
@@ -315,6 +315,6 @@ void HaarTracking::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( HaarTracking, "haar tracking", OFXVP_OBJECT_CAT_CV)
+OBJECT_REGISTER( HaarTracking, "haar tracking"s, OFXVP_OBJECT_CAT_CV)
 
 #endif

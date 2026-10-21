@@ -171,7 +171,7 @@ void SimpleRandom::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Standard Range controlled random number generator.",
-                "https://mosaic.d3cod3.org/reference.php?r=simple-random", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=simple-random", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -198,6 +198,6 @@ void SimpleRandom::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( SimpleRandom, "simple random", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( SimpleRandom, "simple random"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

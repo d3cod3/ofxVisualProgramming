@@ -280,7 +280,7 @@ void Mixer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Line mixer, mix up to 31 audio signals. Volumes and panning can be controlled from the first data inlet, for example with a 6 channels mixer, the first inlet can receive a data cable ( green ) with 12 numbers, the first 6 will control volumes, and the last 6 will control panning.)",
-                "https://mosaic.d3cod3.org/reference.php?r=mixer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=mixer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -426,6 +426,6 @@ void Mixer::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[1])->copyFrom(scopeR.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( Mixer, "mixer", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( Mixer, "mixer"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -292,7 +292,7 @@ void Quantizer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Pitch quantizer, select your desired scale and octave to quantize notes",
-                "https://mosaic.d3cod3.org/reference.php?r=quantizer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=quantizer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -393,6 +393,6 @@ void Quantizer::updateScale(string scalename){
     quant.UpdateScale(quantScale);
 }
 
-OBJECT_REGISTER( Quantizer, "quantizer", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( Quantizer, "quantizer"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

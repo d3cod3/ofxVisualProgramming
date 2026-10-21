@@ -251,7 +251,7 @@ void vpSender::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Wireless sender.",
-                "https://mosaic.d3cod3.org/reference.php?r=sender", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=sender", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -463,6 +463,6 @@ void vpSender::changeDataType(int type, bool init){
 
 }
 
-OBJECT_REGISTER( vpSender, "sender", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( vpSender, "sender"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

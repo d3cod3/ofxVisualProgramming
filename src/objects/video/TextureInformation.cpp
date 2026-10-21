@@ -153,7 +153,7 @@ void TextureInformation::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void TextureInformation::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Extracts some texture information.",
-                "https://mosaic.d3cod3.org/reference.php?r=texture-information");
+                "http://localhost:8680/getMosaicReference.php?r=texture-information");
 }
 
 //--------------------------------------------------------------
@@ -161,6 +161,6 @@ void TextureInformation::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( TextureInformation, "texture information", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( TextureInformation, "texture information"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

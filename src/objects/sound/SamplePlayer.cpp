@@ -365,7 +365,7 @@ void SamplePlayer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Sample player, run in audio thread, this must be used instead of Soundfile Player in case we need realtime audio precision.",
-                "https://mosaic.d3cod3.org/reference.php?r=sample-player", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=sample-player", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio sample", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac,.WAV,.MP3,.OGG,.FLAC", "", scaleFactor)){
@@ -431,6 +431,6 @@ void SamplePlayer::loadAudioFile(string audiofilepath){
 
 }
 
-OBJECT_REGISTER( SamplePlayer, "sample player", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( SamplePlayer, "sample player"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

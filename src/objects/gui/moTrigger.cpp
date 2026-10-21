@@ -155,7 +155,7 @@ void moTrigger::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moTrigger::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Basic trigger. Useful to keep an action active, or inactive, continuously over time.",
-                "https://mosaic.d3cod3.org/reference.php?r=trigger", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=trigger", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -164,6 +164,6 @@ void moTrigger::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( moTrigger, "trigger", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moTrigger, "trigger"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

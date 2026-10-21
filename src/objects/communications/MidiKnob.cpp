@@ -147,7 +147,7 @@ void MidiKnob::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void MidiKnob::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object is used linked to the midi receiver object to map a knob on a midi device",
-                "https://mosaic.d3cod3.org/reference.php?r=midi-knob", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=midi-knob", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -157,6 +157,6 @@ void MidiKnob::removeObjectContent(bool removeFileFromData){
 
 
 
-OBJECT_REGISTER( MidiKnob, "midi knob", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( MidiKnob, "midi knob"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

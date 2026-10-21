@@ -235,7 +235,7 @@ void pdspReverb::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspReverb::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Dubby metallic reverb with mono input and stereo output",
-                "https://mosaic.d3cod3.org/reference.php?r=reverb", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=reverb", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -270,6 +270,6 @@ void pdspReverb::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspReverb, "reverb", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspReverb, "reverb"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

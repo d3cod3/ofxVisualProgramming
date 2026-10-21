@@ -254,7 +254,7 @@ void VideoDelay::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "With this object you can make a texture feedback. The action is visualized by scaling and/or moving the texture, showing the trace of its edges in the path.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-feedback", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-feedback", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -262,6 +262,6 @@ void VideoDelay::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( VideoDelay, "video feedback", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoDelay, "video feedback"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

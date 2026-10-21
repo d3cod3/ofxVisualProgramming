@@ -193,7 +193,7 @@ void Constant::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Single numeric value controller.",
-                "https://mosaic.d3cod3.org/reference.php?r=constant", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=constant", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -201,4 +201,4 @@ void Constant::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( Constant, "number", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( Constant, "number"s, OFXVP_OBJECT_CAT_MATH)

@@ -132,7 +132,7 @@ void KeyReleased::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void KeyReleased::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Sends a bang when the selected key has been released. To know the key ascii code, press it and its number appears next to Last Key:",
-                "https://mosaic.d3cod3.org/reference.php?r=key-released", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=key-released", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -147,6 +147,6 @@ void KeyReleased::objectKeyReleased(ofKeyEventArgs &e){
 }
 
 
-OBJECT_REGISTER( KeyReleased, "key released", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( KeyReleased, "key released"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

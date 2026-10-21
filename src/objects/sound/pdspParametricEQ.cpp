@@ -317,7 +317,7 @@ void pdspParametricEQ::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspParametricEQ::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Multiband Parametric Equalizer.",
-                "https://mosaic.d3cod3.org/reference.php?r=parametric-eq", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=parametric-eq", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -394,6 +394,6 @@ void pdspParametricEQ::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( pdspParametricEQ, "parametric EQ", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspParametricEQ, "parametric EQ"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -141,7 +141,7 @@ void moSignalViewer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moSignalViewer::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Audio signal display, also bypass it through its outlets, extracting the data buffer and the RMS amplitude.",
-                "https://mosaic.d3cod3.org/reference.php?r=signal-viewer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=signal-viewer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -196,6 +196,6 @@ void moSignalViewer::audioOutObject(ofSoundBuffer &outBuffer){
 
 }
 
-OBJECT_REGISTER( moSignalViewer, "signal viewer", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moSignalViewer, "signal viewer"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

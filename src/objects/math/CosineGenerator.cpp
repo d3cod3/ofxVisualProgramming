@@ -140,7 +140,7 @@ void CosineGenerator::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Cosine function generator.",
-                "https://mosaic.d3cod3.org/reference.php?r=cosine-generator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=cosine-generator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -167,6 +167,6 @@ void CosineGenerator::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( CosineGenerator, "cosine generator", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( CosineGenerator, "cosine generator"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

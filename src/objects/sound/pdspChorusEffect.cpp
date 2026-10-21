@@ -199,7 +199,7 @@ void pdspChorusEffect::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspChorusEffect::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Chorus loosely based on Roland Dimension C-D models",
-                "https://mosaic.d3cod3.org/reference.php?r=chorus", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=chorus", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -232,6 +232,6 @@ void pdspChorusEffect::audioOutObject(ofSoundBuffer &outputBuffer){
 
 
 
-OBJECT_REGISTER( pdspChorusEffect, "dimension chorus", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspChorusEffect, "dimension chorus"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

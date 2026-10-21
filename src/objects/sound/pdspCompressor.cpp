@@ -252,7 +252,7 @@ void pdspCompressor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspCompressor::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Feed-forward compressor.",
-                "https://mosaic.d3cod3.org/reference.php?r=compressor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=compressor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -279,6 +279,6 @@ void pdspCompressor::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( pdspCompressor, "compressor", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspCompressor, "compressor"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

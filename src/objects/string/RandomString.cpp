@@ -150,7 +150,7 @@ void RandomString::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Random string generator.",
-                "https://mosaic.d3cod3.org/reference.php?r=random-string", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=random-string", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -159,7 +159,6 @@ void RandomString::removeObjectContent(bool removeFileFromData){
 }
 
 
-
-OBJECT_REGISTER( RandomString, "random string", OFXVP_OBJECT_CAT_STRING)
+OBJECT_REGISTER( RandomString, "random string"s, OFXVP_OBJECT_CAT_STRING)
 
 #endif

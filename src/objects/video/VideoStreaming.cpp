@@ -263,7 +263,7 @@ void VideoStreaming::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Video streaming via ffmpeg and the VLC video player.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-streaming", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-streaming", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -272,6 +272,6 @@ void VideoStreaming::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoStreaming, "video streaming", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoStreaming, "video streaming"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

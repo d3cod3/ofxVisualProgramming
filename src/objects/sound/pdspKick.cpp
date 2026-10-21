@@ -322,7 +322,7 @@ void pdspKick::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspKick::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A pretty simple kick synth.",
-                "https://mosaic.d3cod3.org/reference.php?r=kick", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=kick", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -363,6 +363,6 @@ void pdspKick::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( pdspKick, "kick", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspKick, "kick"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

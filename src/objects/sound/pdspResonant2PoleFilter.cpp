@@ -223,7 +223,7 @@ void pdspResonant2PoleFilter::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "A Resonant 2 pole state variable filter with switchable LP, BP, HP and Notch outputs and pitched cutoff control",
-                "https://mosaic.d3cod3.org/reference.php?r=resonant-2pole-filter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=resonant-2pole-filter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -257,6 +257,6 @@ void pdspResonant2PoleFilter::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspResonant2PoleFilter, "resonant filter", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspResonant2PoleFilter, "resonant filter"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

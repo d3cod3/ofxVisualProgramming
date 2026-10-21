@@ -175,7 +175,7 @@ void FileToData::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Loads a txt file, previously saved by the 'data to file' object, and return the vector data, line by line, with reading synced by his bang inlet.",
-                "https://mosaic.d3cod3.org/reference.php?r=file-to-data", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=file-to-data", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, openFileFlag, "Open a previously saved Mosaic data file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".txt", "", scaleFactor)){
@@ -226,6 +226,6 @@ void FileToData::loadDataFile(string filepath){
     fileOpened = true;
 }
 
-OBJECT_REGISTER( FileToData, "file to data", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( FileToData, "file to data"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

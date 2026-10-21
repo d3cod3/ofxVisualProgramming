@@ -255,7 +255,7 @@ void ArduinoSerial::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This object communicates with Arduino for both sending and receiving data. This template MosaicConnector.ino must be used as Arduino template file",
-                "https://mosaic.d3cod3.org/reference.php?r=arduino-serial", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=arduino-serial", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -293,6 +293,6 @@ void ArduinoSerial::resetSERIALSettings(int devID, int br){
     }
 }
 
-OBJECT_REGISTER( ArduinoSerial, "arduino serial", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( ArduinoSerial, "arduino serial"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

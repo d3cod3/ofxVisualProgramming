@@ -273,7 +273,7 @@ void KinectGrabber::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Opens a compatible Kinect sensor device",
-                "https://mosaic.d3cod3.org/reference.php?r=kinect-grabber", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=kinect-grabber", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -349,6 +349,6 @@ void KinectGrabber::resetKinectImage(bool ir){
 }
 
 
-OBJECT_REGISTER( KinectGrabber, "kinect grabber", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( KinectGrabber, "kinect grabber"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

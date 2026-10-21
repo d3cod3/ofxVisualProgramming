@@ -209,7 +209,7 @@ void pdspDataOscillator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspDataOscillator::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Data table based oscillator",
-                "https://mosaic.d3cod3.org/reference.php?r=data-oscillator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=data-oscillator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -252,6 +252,6 @@ void pdspDataOscillator::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspDataOscillator, "data oscillator", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspDataOscillator, "data oscillator"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

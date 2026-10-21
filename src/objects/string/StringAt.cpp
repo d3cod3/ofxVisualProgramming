@@ -148,8 +148,8 @@ void StringAt::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 //--------------------------------------------------------------
 void StringAt::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
-                "Extracts the char at a particular position from a string",
-                "https://mosaic.d3cod3.org/reference.php?r=vector-at", scaleFactor);
+                "Extracts the char at a specific position from a string",
+                "http://localhost:8680/getMosaicReference.php?r=string-at", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -158,6 +158,6 @@ void StringAt::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( StringAt, "string at", OFXVP_OBJECT_CAT_STRING)
+OBJECT_REGISTER( StringAt, "string at"s, OFXVP_OBJECT_CAT_STRING)
 
 #endif

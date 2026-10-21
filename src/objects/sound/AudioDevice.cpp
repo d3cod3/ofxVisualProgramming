@@ -163,7 +163,7 @@ void AudioDevice::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void AudioDevice::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Mosaic system object, which means that it cannot be added/deleted. The audio device object is a virtual direct connection to the audio hardware.",
-                "https://mosaic.d3cod3.org/reference.php?r=audio-device", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=audio-device", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -469,6 +469,6 @@ void AudioDevice::loadDeviceInfo(){
 
 }
 
-OBJECT_REGISTER( AudioDevice, "audio device", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( AudioDevice, "audio device"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

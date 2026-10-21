@@ -458,7 +458,7 @@ void moTimeline::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Advanced GUI module, it allows you to visualize/ edit a timeline with different keyframes controlled tracks : curves, bangs, switches, colors, and lfo.",
-                "https://mosaic.d3cod3.org/reference.php?r=timeline", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=timeline", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -890,6 +890,6 @@ void moTimeline::windowResized(ofResizeEventArgs &e){
 }
 
 
-OBJECT_REGISTER( moTimeline, "timeline", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moTimeline, "timeline"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

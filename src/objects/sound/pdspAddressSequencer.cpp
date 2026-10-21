@@ -347,7 +347,7 @@ void pdspAddressSequencer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "8 step address sequencer.",
-                "https://mosaic.d3cod3.org/reference.php?r=address-sequencer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=address-sequencer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -371,6 +371,6 @@ void pdspAddressSequencer::audioOutObject(ofSoundBuffer &outputBuffer){
     
 }
 
-OBJECT_REGISTER( pdspAddressSequencer, "address sequencer", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspAddressSequencer, "address sequencer"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

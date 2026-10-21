@@ -148,7 +148,7 @@ void RMSExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void RMSExtractor::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Extracts the rms (Root Mean Square) power from the audio analysis data vector as a float value (between 0.0 and 1.0).",
-                "https://mosaic.d3cod3.org/reference.php?r=rms-extractor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=rms-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -156,6 +156,6 @@ void RMSExtractor::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( RMSExtractor , "rms extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+OBJECT_REGISTER( RMSExtractor , "rms extractor"s, OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

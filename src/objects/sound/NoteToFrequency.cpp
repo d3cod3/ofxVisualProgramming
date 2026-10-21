@@ -196,7 +196,7 @@ void NoteToFrequency::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void NoteToFrequency::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Convert a MIDI note to his correspondent frequency",
-                "https://mosaic.d3cod3.org/reference.php?r=note-to-frequency", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=note-to-frequency", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -219,6 +219,6 @@ float NoteToFrequency::frequencyToPitch(float freq){
     return pdsp::f2p(freq);
 }
 
-OBJECT_REGISTER( NoteToFrequency, "note to frequency", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( NoteToFrequency, "note to frequency"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

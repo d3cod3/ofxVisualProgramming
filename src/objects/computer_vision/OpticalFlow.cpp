@@ -286,7 +286,7 @@ void OpticalFlow::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Optical flow Farneback algorithm.",
-                "https://mosaic.d3cod3.org/reference.php?r=optical-flow", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=optical-flow", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -296,6 +296,6 @@ void OpticalFlow::removeObjectContent(bool removeFileFromData){
 
 
 
-OBJECT_REGISTER( OpticalFlow, "optical flow", OFXVP_OBJECT_CAT_CV)
+OBJECT_REGISTER( OpticalFlow, "optical flow"s, OFXVP_OBJECT_CAT_CV)
 
 #endif

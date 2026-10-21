@@ -190,7 +190,7 @@ void FloatsToVector::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Concatenates up to 32 float data in a vector. It can be used in cascade, with the addition of vector concat object, to obtain data vectors larger than 32 in size.",
-                "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=floats-to-vector", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -257,6 +257,6 @@ void FloatsToVector::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( FloatsToVector, "floats to vector", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( FloatsToVector, "floats to vector"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

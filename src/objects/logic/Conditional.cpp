@@ -187,7 +187,7 @@ void Conditional::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Conditional::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Conditional operator",
-                "https://mosaic.d3cod3.org/reference.php?r=conditional-operator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=conditional-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -195,6 +195,6 @@ void Conditional::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( Conditional, "conditional operator", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( Conditional, "conditional operator"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

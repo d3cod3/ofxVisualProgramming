@@ -189,7 +189,7 @@ void StringMultiplexer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Simultaneously receive up to 32 strings and transmits the last one changed",
-                "https://mosaic.d3cod3.org/reference.php?r=string-multiplexer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=string-multiplexer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -255,6 +255,6 @@ void StringMultiplexer::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( StringMultiplexer, "string multiplexer", OFXVP_OBJECT_CAT_STRING)
+OBJECT_REGISTER( StringMultiplexer, "string multiplexer"s, OFXVP_OBJECT_CAT_STRING)
 
 #endif

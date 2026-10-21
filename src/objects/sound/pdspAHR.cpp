@@ -202,7 +202,7 @@ void pdspAHR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspAHR::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Standard AHR envelope.",
-                "https://mosaic.d3cod3.org/reference.php?r=ahr-envelope", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=ahr-envelope", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -247,6 +247,6 @@ void pdspAHR::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( pdspAHR, "AHR envelope", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspAHR, "AHR envelope"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

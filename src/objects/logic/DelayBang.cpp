@@ -182,7 +182,7 @@ void DelayBang::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Time delayed bang.",
-                "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=delay-bang", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -191,6 +191,6 @@ void DelayBang::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( DelayBang, "delay bang", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( DelayBang, "delay bang"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

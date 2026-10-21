@@ -164,7 +164,7 @@ void Crossfader::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Crossfader::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A basic linear crossfader",
-                "https://mosaic.d3cod3.org/reference.php?r=crossfader", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=crossfader", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -200,6 +200,6 @@ void Crossfader::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( Crossfader, "crossfader", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( Crossfader, "crossfader"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

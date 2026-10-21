@@ -154,7 +154,7 @@ void FrequencyToNote::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void FrequencyToNote::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Convert a frequency in Hz to his correspondent quantized note",
-                "https://mosaic.d3cod3.org/reference.php?r=frequency-to-note", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=frequency-to-note", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -167,6 +167,6 @@ float FrequencyToNote::frequencyToPitch(float freq){
     return pdsp::f2p(freq);
 }
 
-OBJECT_REGISTER( FrequencyToNote, "frequency to note", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( FrequencyToNote, "frequency to note"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

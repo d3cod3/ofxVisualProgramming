@@ -310,7 +310,7 @@ void AChaos::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "A-Chaos Lib is a systematic approach to emulate the use of up-to-date known strange attractors non-linear equations by Andre Sier.\n\nhttp://s373.net/code/A-Chaos-Lib/A-Chaos.html",
-                "https://mosaic.d3cod3.org/reference.php?r=strange-attractors", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=strange-attractors", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -411,6 +411,6 @@ void AChaos::setChaosNLE(){
     visualizer->setup(chaos,1024);
 }
 
-OBJECT_REGISTER( AChaos, "strange attractors", OFXVP_OBJECT_CAT_GENERATIVE)
+OBJECT_REGISTER( AChaos, "strange attractors"s, OFXVP_OBJECT_CAT_GENERATIVE)
 
 #endif

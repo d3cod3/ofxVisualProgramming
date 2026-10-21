@@ -217,7 +217,7 @@ void ImageLoader::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Simple object for loading image files. Compatible formats are jpg, png, gif and tif.",
-                "https://mosaic.d3cod3.org/reference.php?r=image-loader", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=image-loader", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadImgFlag, "Select image", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".jpg,.jpeg,.gif,.png,.tif,.tiff", "", scaleFactor)){
@@ -256,6 +256,6 @@ void ImageLoader::loadImageFile(){
     }
 }
 
-OBJECT_REGISTER( ImageLoader, "image loader", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( ImageLoader, "image loader"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

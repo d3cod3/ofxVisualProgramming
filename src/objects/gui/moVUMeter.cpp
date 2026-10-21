@@ -116,7 +116,7 @@ void moVUMeter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moVUMeter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Simple VUMeter, shows the audio signal level.",
-                "https://mosaic.d3cod3.org/reference.php?r=vu-meter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=vu-meter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -124,6 +124,6 @@ void moVUMeter::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moVUMeter, "vu meter", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moVUMeter, "vu meter"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

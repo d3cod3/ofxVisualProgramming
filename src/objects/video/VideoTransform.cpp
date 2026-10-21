@@ -292,7 +292,7 @@ void VideoTransform::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This object allows you to translate, scale and rotate a texture.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-transform", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-transform", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -301,6 +301,6 @@ void VideoTransform::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoTransform, "texture transform", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoTransform, "texture transform"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

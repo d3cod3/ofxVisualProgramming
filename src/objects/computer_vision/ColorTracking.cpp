@@ -374,7 +374,7 @@ void ColorTracking::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Contour tracking over selected color. Extract blobs, contours and convex hulls.",
-                "https://mosaic.d3cod3.org/reference.php?r=contour-tracking", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=contour-tracking", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -383,6 +383,6 @@ void ColorTracking::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( ColorTracking, "color tracking", OFXVP_OBJECT_CAT_CV)
+OBJECT_REGISTER( ColorTracking, "color tracking"s, OFXVP_OBJECT_CAT_CV)
 
 #endif

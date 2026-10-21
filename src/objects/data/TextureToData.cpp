@@ -169,7 +169,7 @@ void TextureToData::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void TextureToData::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object processes the image or video texture data, and transmits them as a data vector that can generate a custom sound waveform via the data oscillator object",
-                "https://mosaic.d3cod3.org/reference.php?r=texture-to-data", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=texture-to-data", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -177,6 +177,6 @@ void TextureToData::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( TextureToData, "texture to data", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( TextureToData, "texture to data"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

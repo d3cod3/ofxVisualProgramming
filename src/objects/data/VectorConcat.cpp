@@ -196,7 +196,7 @@ void VectorConcat::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "receive up to 32 data vectors, and concatenates them as a single vector",
-                "https://mosaic.d3cod3.org/reference.php?r=vector-concat", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=vector-concat", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -259,6 +259,6 @@ void VectorConcat::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( VectorConcat, "vector concat", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( VectorConcat, "vector concat"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

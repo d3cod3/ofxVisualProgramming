@@ -240,7 +240,7 @@ void VideoCrop::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Basic texture crop.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-crop", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-crop", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -300,6 +300,6 @@ ofRectangle VideoCrop::getIntersection(ofRectangle & r1,ofRectangle & r2){
     }
 }
 
-OBJECT_REGISTER( VideoCrop, "texture crop", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoCrop, "texture crop"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

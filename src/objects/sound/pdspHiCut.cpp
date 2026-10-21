@@ -181,7 +181,7 @@ void pdspHiCut::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "12 dB Low Pass (aka High Cut filter). Non-resonant.",
-                "https://mosaic.d3cod3.org/reference.php?r=low-pass", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=low-pass", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -217,6 +217,6 @@ void pdspHiCut::audioOutObject(ofSoundBuffer &outputBuffer){
 
 
 
-OBJECT_REGISTER( pdspHiCut, "low pass", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspHiCut, "low pass"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

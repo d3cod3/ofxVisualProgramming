@@ -170,7 +170,7 @@ void VectorOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void VectorOperator::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Operates on all the values of a float vector, with selected operator and value",
-                "https://mosaic.d3cod3.org/reference.php?r=vector-multiply", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=vector-multiply", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -178,6 +178,6 @@ void VectorOperator::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( VectorOperator, "vector operator", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( VectorOperator, "vector operator"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

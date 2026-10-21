@@ -246,7 +246,7 @@ void MidiReceiver::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receive data from a physical/virtual midi interface",
-                "https://mosaic.d3cod3.org/reference.php?r=midi-receiver", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=midi-receiver", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -336,6 +336,6 @@ void MidiReceiver::newMidiMessage(ofxMidiMessage& msg){
     }
 }
 
-OBJECT_REGISTER( MidiReceiver, "midi receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( MidiReceiver, "midi receiver"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

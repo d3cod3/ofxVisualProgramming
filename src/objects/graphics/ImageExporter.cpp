@@ -221,7 +221,7 @@ void ImageExporter::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Export an image or image sequence (using ### for auto-numeration) from every texture cable (blue ones).",
-                "https://mosaic.d3cod3.org/reference.php?r=image-exporter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=image-exporter", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, saveImgFlag, "Save image", imgui_addons::ImGuiFileBrowser::DialogMode::SAVE, ".jpg,.jpeg,.gif,.png,.tif,.tiff", "imageExport.jpg", scaleFactor)){
@@ -284,6 +284,6 @@ void ImageExporter::saveImageFile(){
 
 }
 
-OBJECT_REGISTER( ImageExporter, "image exporter", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( ImageExporter, "image exporter"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

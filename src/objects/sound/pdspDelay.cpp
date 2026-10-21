@@ -194,7 +194,7 @@ void pdspDelay::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspDelay::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Delay with feedback damping",
-                "https://mosaic.d3cod3.org/reference.php?r=delay", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=delay", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -226,6 +226,6 @@ void pdspDelay::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspDelay, "delay", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspDelay, "delay"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

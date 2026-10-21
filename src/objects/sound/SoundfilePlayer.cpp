@@ -429,7 +429,7 @@ void SoundfilePlayer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Audiofile player, it can load .wav, .mp3, .ogg, and .flac files. In case of needed realtime audio precision, use Sample Player object.",
-                "https://mosaic.d3cod3.org/reference.php?r=soundfile-player", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=soundfile-player", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadSoundfileFlag, "Select an audio file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".wav,.mp3,.ogg,.flac,.WAV,.MP3,.OGG,.FLAC", "", scaleFactor)){
@@ -564,6 +564,6 @@ void SoundfilePlayer::loadAudioFile(string audiofilepath){
 
 }
 
-OBJECT_REGISTER( SoundfilePlayer, "soundfile player", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( SoundfilePlayer, "soundfile player"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -209,7 +209,7 @@ void AudioGate::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receives up to 31 audio signals, and transmits only the one indicated in its first inlet: open.",
-                "https://mosaic.d3cod3.org/reference.php?r=audio-gate", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=audio-gate", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -301,6 +301,6 @@ void AudioGate::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( AudioGate, "signal gate", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( AudioGate, "signal gate"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

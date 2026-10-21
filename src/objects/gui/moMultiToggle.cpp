@@ -242,7 +242,7 @@ void moMultiToggle::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Multiple toggles gui object.",
-                "https://mosaic.d3cod3.org/reference.php?r=multitoggle", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=multitoggle", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -250,6 +250,6 @@ void moMultiToggle::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moMultiToggle, "multitoggle", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moMultiToggle, "multitoggle"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

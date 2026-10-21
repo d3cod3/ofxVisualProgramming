@@ -188,7 +188,7 @@ void QuadPanner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void QuadPanner::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A quadraphonic panning controlled by 2D pad interface. Channels order is clockwise starting from top left (ch 1), top right (ch 2), bottom right (ch 3) and bottom left (ch 4).",
-                "https://mosaic.d3cod3.org/reference.php?r=quad-panner", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=quad-panner", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -224,6 +224,6 @@ void QuadPanner::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( QuadPanner, "quad panner", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( QuadPanner, "quad panner"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

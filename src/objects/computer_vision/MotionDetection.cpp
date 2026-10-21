@@ -185,7 +185,7 @@ void MotionDetection::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Basic motion detection.",
-                "https://mosaic.d3cod3.org/reference.php?r=motion-detection", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=motion-detection", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -218,6 +218,6 @@ void MotionDetection::resetTextures(int w, int h){
 }
 
 
-OBJECT_REGISTER( MotionDetection, "motion detection", OFXVP_OBJECT_CAT_CV)
+OBJECT_REGISTER( MotionDetection, "motion detection"s, OFXVP_OBJECT_CAT_CV)
 
 #endif

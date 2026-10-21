@@ -181,7 +181,7 @@ void MidiPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void MidiPad::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object is used linked to the midi receiver object to map a pad on a midi device",
-                "https://mosaic.d3cod3.org/reference.php?r=midi-pad", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=midi-pad", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -190,6 +190,6 @@ void MidiPad::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( MidiPad, "midi pad", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( MidiPad, "midi pad"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

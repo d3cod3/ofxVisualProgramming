@@ -147,7 +147,7 @@ void moSlider::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Basic slider. Interactively adjust a numeric float value (with a range from 0.0 to 1.0) to send it to other objects.",
-                "https://mosaic.d3cod3.org/reference.php?r=slider", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=slider", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -155,6 +155,6 @@ void moSlider::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moSlider, "slider", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moSlider, "slider"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

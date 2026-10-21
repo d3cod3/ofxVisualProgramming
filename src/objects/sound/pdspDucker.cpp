@@ -246,7 +246,7 @@ void pdspDucker::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspDucker::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A sidechain compression effect",
-                "https://mosaic.d3cod3.org/reference.php?r=ducker", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=ducker", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -274,6 +274,6 @@ void pdspDucker::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspDucker, "sidechain compressor", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspDucker, "sidechain compressor"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

@@ -160,7 +160,7 @@ void Panner::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Panner::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Basic stereo panner",
-                "https://mosaic.d3cod3.org/reference.php?r=panner", this->scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=panner", this->scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -198,6 +198,6 @@ void Panner::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( Panner, "panner", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( Panner, "panner"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

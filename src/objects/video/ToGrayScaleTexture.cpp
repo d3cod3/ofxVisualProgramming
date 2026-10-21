@@ -182,7 +182,7 @@ void ToGrayScaleTexture::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void ToGrayScaleTexture::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "RGB to Grayscale texture conversion.",
-                "https://mosaic.d3cod3.org/reference.php?r=to-grayscale-texture", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=to-grayscale-texture", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -209,6 +209,6 @@ void ToGrayScaleTexture::resetTextures(int w, int h){
 }
 
 
-OBJECT_REGISTER( ToGrayScaleTexture, "to grayscale texture", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( ToGrayScaleTexture, "to grayscale texture"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

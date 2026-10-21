@@ -179,7 +179,7 @@ void NumberOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void NumberOperator::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Basic numerical operator",
-                "https://mosaic.d3cod3.org/reference.php?r=numerical-operator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=numerical-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -187,6 +187,6 @@ void NumberOperator::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( NumberOperator, "operator", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( NumberOperator, "operator"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

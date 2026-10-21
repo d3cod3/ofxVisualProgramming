@@ -589,6 +589,6 @@ void SchemeScript::loadBuffers(){
 }
 
 // REGISTER THE OBJECT
-OBJECT_REGISTER( SchemeScript, "scheme live coding", OFXVP_OBJECT_CAT_SCRIPTING)
+OBJECT_REGISTER( SchemeScript, "scheme live coding"s, OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

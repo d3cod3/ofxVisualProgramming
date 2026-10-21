@@ -218,7 +218,7 @@ void moPianoKeyboard::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moPianoKeyboard::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "An interactive piano keyboard, it can be used to play notes or to visualize MIDI notes from an external MIDI device ( via midi receiver object )",
-                "https://mosaic.d3cod3.org/reference.php?r=piano-keyboard", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=piano-keyboard", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -247,6 +247,6 @@ std::vector<int> moPianoKeyboard::current_notes() {
 }
 
 
-OBJECT_REGISTER( moPianoKeyboard, "piano keyboard", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moPianoKeyboard, "piano keyboard"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

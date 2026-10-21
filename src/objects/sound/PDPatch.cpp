@@ -272,7 +272,7 @@ void PDPatch::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Pure Data ( Pd-Vanilla ) patch container with inlets and outlets. As for live coding, with this object you can live patching, passing in real time and in both directions audio and data cables.",
-                "https://mosaic.d3cod3.org/reference.php?r=pd-patch", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=pd-patch", scaleFactor);
 
     // file dialog
     string newFileName = "pdPatch_"+ofGetTimestampString("%y%m%d")+".pd";
@@ -568,6 +568,6 @@ void PDPatch::receiveMidiByte(const int port, const int byte) {
     //ofLog(OF_LOG_NOTICE,"Mosaic MIDI: midi byte: %i %i", port, byte);
 }
 
-OBJECT_REGISTER( PDPatch, "pd patch", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( PDPatch, "pd patch"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

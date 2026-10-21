@@ -295,7 +295,7 @@ void ProjectionMapping::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Module for video mapping. It provides an interface with more flexible resources than the warping grid.",
-                "https://mosaic.d3cod3.org/reference.php?r=projection-mapping", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=projection-mapping", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a mapping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".xml", "", scaleFactor)){
@@ -449,6 +449,6 @@ void ProjectionMapping::windowResized(ofResizeEventArgs &e){
 }
 
 
-OBJECT_REGISTER( ProjectionMapping, "projection mapping", OFXVP_OBJECT_CAT_WINDOWING)
+OBJECT_REGISTER( ProjectionMapping, "projection mapping"s, OFXVP_OBJECT_CAT_WINDOWING)
 
 #endif

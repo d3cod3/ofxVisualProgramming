@@ -170,7 +170,7 @@ void LivePatching::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Displays real-time texture in the background patch, with alpha so you can work with the objects, for live sessions.",
-                "https://mosaic.d3cod3.org/reference.php?r=live-patching", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=live-patching", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -178,6 +178,6 @@ void LivePatching::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( LivePatching, "live patching", OFXVP_OBJECT_CAT_WINDOWING)
+OBJECT_REGISTER( LivePatching, "live patching"s, OFXVP_OBJECT_CAT_WINDOWING)
 
 #endif

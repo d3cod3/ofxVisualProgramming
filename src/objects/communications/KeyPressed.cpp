@@ -131,7 +131,7 @@ void KeyPressed::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void KeyPressed::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "sends a bang when the selected key has been pressed. To know the key ascii code, press it and the number appears next to Last Key:",
-                "https://mosaic.d3cod3.org/reference.php?r=key-pressed", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=key-pressed", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -146,6 +146,6 @@ void KeyPressed::objectKeyPressed(ofKeyEventArgs &e){
 }
 
 
-OBJECT_REGISTER( KeyPressed, "key pressed", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( KeyPressed, "key pressed"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

@@ -156,7 +156,7 @@ void SignalOperator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void SignalOperator::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Signal operator",
-                "https://mosaic.d3cod3.org/reference.php?r=signal-operator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=signal-operator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -217,6 +217,6 @@ void SignalOperator::loadSettings(){
     monoBuffer = tmpBuffer;
 }
 
-OBJECT_REGISTER( SignalOperator, "signal operator", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( SignalOperator, "signal operator"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

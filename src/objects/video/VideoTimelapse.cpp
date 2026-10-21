@@ -233,7 +233,7 @@ void VideoTimelapse::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Delay the playback of a video file or live video.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-timedelay", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-timedelay", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -242,6 +242,6 @@ void VideoTimelapse::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( VideoTimelapse, "video timedelay", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoTimelapse, "video timedelay"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

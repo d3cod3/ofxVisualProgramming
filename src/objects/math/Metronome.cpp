@@ -206,7 +206,7 @@ void Metronome::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Sends a bang with the time periodicity you specify in milliseconds. The second outlet return the bang from Mosaic main BPM",
-                "https://mosaic.d3cod3.org/reference.php?r=metronome", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=metronome", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -220,6 +220,6 @@ void Metronome::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( Metronome, "metronome", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( Metronome, "metronome"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

@@ -190,7 +190,7 @@ void Map::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Map a number range to another one.",
-                "https://mosaic.d3cod3.org/reference.php?r=map", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=map", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -199,6 +199,6 @@ void Map::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( Map, "map", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( Map, "map"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

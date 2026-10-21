@@ -254,7 +254,7 @@ void Spigot::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Multiple switch of different cable types.",
-                "https://mosaic.d3cod3.org/reference.php?r=spigot", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=spigot", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -277,6 +277,6 @@ void Spigot::audioOutObject(ofSoundBuffer &outputBuffer){
     }
 }
 
-OBJECT_REGISTER( Spigot, "spigot", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( Spigot, "spigot"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

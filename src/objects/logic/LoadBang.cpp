@@ -185,9 +185,9 @@ void LoadBang::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Automatically triggered bang on patch load, with configurable delay time.",
-                "https://mosaic.d3cod3.org/reference.php?r=delay-bang", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=delay-bang", scaleFactor);
 }
 
-OBJECT_REGISTER( LoadBang, "loadbang", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( LoadBang, "loadbang"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

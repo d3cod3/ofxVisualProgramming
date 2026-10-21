@@ -192,7 +192,7 @@ void TimedSemaphore::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Interrupts, for a certain time, the continuous data flow to generate a discrete action.",
-                "https://mosaic.d3cod3.org/reference.php?r=timed-semaphore", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=timed-semaphore", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -207,6 +207,6 @@ void TimedSemaphore::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( TimedSemaphore, "timed semaphore", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( TimedSemaphore, "timed semaphore"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

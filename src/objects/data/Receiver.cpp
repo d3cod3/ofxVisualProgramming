@@ -256,7 +256,7 @@ void vpReceiver::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Wireless receiver.",
-                "https://mosaic.d3cod3.org/reference.php?r=receiver", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=receiver", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -426,6 +426,6 @@ void vpReceiver::changeDataType(int type, bool init){
 
 }
 
-OBJECT_REGISTER( vpReceiver, "receiver", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( vpReceiver, "receiver"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

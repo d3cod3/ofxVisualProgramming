@@ -157,7 +157,7 @@ void MelBandsExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void MelBandsExtractor::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Extracts the 24 MEL BANDS from the audio analysis data vector",
-                "https://mosaic.d3cod3.org/reference.php?r=mel-bands-extractor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=mel-bands-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -165,6 +165,6 @@ void MelBandsExtractor::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( MelBandsExtractor , "mel bands extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+OBJECT_REGISTER( MelBandsExtractor , "mel bands extractor"s, OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

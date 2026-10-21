@@ -513,7 +513,7 @@ void ShaderObject::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This object is a GLSL ( #version 150 ) container, capable of loading shaders and editing them in real-time. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
-                "https://mosaic.d3cod3.org/reference.php?r=glsl-shader", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=glsl-shader", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadShaderScriptFlag, "Select a GLSL shader", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".frag,.vert", "", scaleFactor)){
@@ -851,6 +851,6 @@ void ShaderObject::pathChanged(const PathWatcher::Event &event) {
 
 }
 
-OBJECT_REGISTER( ShaderObject, "glsl shader", OFXVP_OBJECT_CAT_SCRIPTING)
+OBJECT_REGISTER( ShaderObject, "glsl shader"s, OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

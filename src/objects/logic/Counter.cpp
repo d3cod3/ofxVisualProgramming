@@ -179,7 +179,7 @@ void Counter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void Counter::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Basic counter for iterative structures.",
-                "https://mosaic.d3cod3.org/reference.php?r=counter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=counter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -217,6 +217,6 @@ void Counter::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( Counter, "counter", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( Counter, "counter"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

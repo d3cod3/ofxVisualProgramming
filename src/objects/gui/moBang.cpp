@@ -177,7 +177,7 @@ void moBang::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moBang::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Triggers a bang. You can control it manually with the mouse or automate it by its inlet.",
-                "https://mosaic.d3cod3.org/reference.php?r=bang", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=bang", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -191,6 +191,6 @@ void moBang::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( moBang, "bang", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moBang, "bang"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

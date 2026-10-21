@@ -267,7 +267,7 @@ void VideoGrabber::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Opens a compatible video input/webcam device",
-                "https://mosaic.d3cod3.org/reference.php?r=video-grabber", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-grabber", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -358,6 +358,6 @@ void VideoGrabber::resetCameraSettings(int devID){
     needReset = false;
 }
 
-OBJECT_REGISTER( VideoGrabber, "video grabber", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoGrabber, "video grabber"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

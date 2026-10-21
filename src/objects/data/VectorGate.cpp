@@ -204,7 +204,7 @@ void VectorGate::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receives up to 31 vectors, and transmits only the one indicated in its first inlet: open.",
-                "https://mosaic.d3cod3.org/reference.php?r=vector-gate", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=vector-gate", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -289,6 +289,6 @@ void VectorGate::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( VectorGate, "vector gate", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( VectorGate, "vector gate"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

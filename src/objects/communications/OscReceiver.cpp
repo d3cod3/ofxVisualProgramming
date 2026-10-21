@@ -279,7 +279,7 @@ void OscReceiver::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receive data via OSC protocol as numeric type (float), text (string), vector<float> or texture. Texture receive is limited by the maximum buffer size permitted, so you have max 1280x720 for grayscale texture, 640x480 for RGB and 640x360 for RGBA",
-                "https://mosaic.d3cod3.org/reference.php?r=osc-receiver", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=osc-receiver", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -436,6 +436,6 @@ string OscReceiver::getLocalIP(){
     return IP;
 }
 
-OBJECT_REGISTER( OscReceiver, "osc receiver", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( OscReceiver, "osc receiver"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

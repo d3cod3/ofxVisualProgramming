@@ -305,7 +305,7 @@ void OscSender::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Send data via OSC protocol as numeric type (float), text (string), vector<float> or texture. Texture send is limited by the maximum buffer size permitted, so you have max 1280x720 for grayscale texture, 640x480 for RGB and 640x360 for RGBA",
-                "https://mosaic.d3cod3.org/reference.php?r=osc-sender", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=osc-sender", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -395,6 +395,6 @@ string OscSender::getHostFromConfig(){
 }
 
 
-OBJECT_REGISTER( OscSender, "osc sender", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( OscSender, "osc sender"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

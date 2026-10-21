@@ -202,7 +202,7 @@ void moValuePlotter::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "A customizable numeric value plotter.",
-                "https://mosaic.d3cod3.org/reference.php?r=value-plotter", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=value-plotter", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -226,6 +226,6 @@ void moValuePlotter::saveVariableName(){
     this->ofxVPXml.setPatchValue(obj,"varname",name);
 }
 
-OBJECT_REGISTER( moValuePlotter, "value plotter", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moValuePlotter, "value plotter"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

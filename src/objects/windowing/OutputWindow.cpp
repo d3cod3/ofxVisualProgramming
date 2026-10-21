@@ -483,7 +483,7 @@ void OutputWindow::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This object creates a output window projector. (cmd/ctrl) + F focusing the window = activate/deactivate fullscreen. With warping option active and fullscreen you can adjust the projection surface.",
-                "https://mosaic.d3cod3.org/reference.php?r=output-window", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=output-window", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadWarpingFlag, "Select a warping config file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".json", "", scaleFactor)){
@@ -761,6 +761,6 @@ void OutputWindow::windowResized(ofResizeEventArgs &e){
 }
 
 
-OBJECT_REGISTER( OutputWindow, "output window", OFXVP_OBJECT_CAT_WINDOWING)
+OBJECT_REGISTER( OutputWindow, "output window"s, OFXVP_OBJECT_CAT_WINDOWING)
 
 #endif

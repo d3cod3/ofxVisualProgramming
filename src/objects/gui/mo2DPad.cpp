@@ -165,7 +165,7 @@ void mo2DPad::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void mo2DPad::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Simultaneously adjust two float values XY (with a range from 0.0 to 1.0) by moving the pad point.",
-                "https://mosaic.d3cod3.org/reference.php?r=2d-pad", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=2d-pad", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -174,6 +174,6 @@ void mo2DPad::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( mo2DPad, "2d pad", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( mo2DPad, "2d pad"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

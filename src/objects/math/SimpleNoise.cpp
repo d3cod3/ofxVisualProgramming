@@ -136,7 +136,7 @@ void SimpleNoise::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Standard 1D Perlin noise generator.",
-                "https://mosaic.d3cod3.org/reference.php?r=simple-noise", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=simple-noise", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -144,6 +144,6 @@ void SimpleNoise::removeObjectContent(bool removeFileFromData){
     
 }
 
-OBJECT_REGISTER( SimpleNoise, "1D noise", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( SimpleNoise, "1D noise"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

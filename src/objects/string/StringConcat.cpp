@@ -193,7 +193,7 @@ void StringConcat::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receive up to 32 strings, and concatenates them as a single string",
-                "https://mosaic.d3cod3.org/reference.php?r=string-concat", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=string-concat", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -256,6 +256,6 @@ void StringConcat::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( StringConcat, "string concat", OFXVP_OBJECT_CAT_STRING)
+OBJECT_REGISTER( StringConcat, "string concat"s, OFXVP_OBJECT_CAT_STRING)
 
 #endif

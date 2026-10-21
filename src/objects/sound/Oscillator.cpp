@@ -386,7 +386,7 @@ void Oscillator::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Oscillator with antialiased waveforms",
-                "https://mosaic.d3cod3.org/reference.php?r=oscillator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=oscillator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -432,6 +432,6 @@ void Oscillator::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[5])->copyFrom(noise_scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( Oscillator, "oscillator", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( Oscillator, "oscillator"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

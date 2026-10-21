@@ -167,7 +167,7 @@ void MidiKey::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void MidiKey::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object is used linked to the midi receiver object to map a key on a midi device",
-                "https://mosaic.d3cod3.org/reference.php?r=midi-key", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=midi-key", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -176,6 +176,6 @@ void MidiKey::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( MidiKey, "midi key", OFXVP_OBJECT_CAT_COMMUNICATIONS)
+OBJECT_REGISTER( MidiKey, "midi key"s, OFXVP_OBJECT_CAT_COMMUNICATIONS)
 
 #endif

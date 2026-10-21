@@ -227,7 +227,7 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void AudioAnalyzer::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object is an audio analysis station which transmits a vector with all the analyzed data. Each type of audio data is available in the different extractor objects inside the same category.",
-                "https://mosaic.d3cod3.org/reference.php?r=audio-analyzer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=audio-analyzer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -475,6 +475,6 @@ void AudioAnalyzer::smoothingValues(){
 }
 
 
-OBJECT_REGISTER( AudioAnalyzer , "audio analyzer", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+OBJECT_REGISTER( AudioAnalyzer , "audio analyzer"s, OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

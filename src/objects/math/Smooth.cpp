@@ -149,7 +149,7 @@ void Smooth::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Apply interpolation smoothing filter to received numerical data flow.",
-                "https://mosaic.d3cod3.org/reference.php?r=smooth", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=smooth", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -158,6 +158,6 @@ void Smooth::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( Smooth, "smooth", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( Smooth, "smooth"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

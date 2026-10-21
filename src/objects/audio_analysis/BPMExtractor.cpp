@@ -172,7 +172,7 @@ void BPMExtractor::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void BPMExtractor::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Get the beat, the average bmp over a period of time, and the beat time period in milliseconds",
-                "https://mosaic.d3cod3.org/reference.php?r=bpm-extractor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=bpm-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -180,6 +180,6 @@ void BPMExtractor::removeObjectContent(bool removeFileFromData){
 
 }
 
-OBJECT_REGISTER( BPMExtractor , "bpm extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+OBJECT_REGISTER( BPMExtractor , "bpm extractor"s, OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

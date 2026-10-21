@@ -208,7 +208,7 @@ void pdspLFO::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Low Frequency Oscillator",
-                "https://mosaic.d3cod3.org/reference.php?r=lfo", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=lfo", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -240,6 +240,6 @@ void pdspLFO::audioOutObject(ofSoundBuffer &outputBuffer){
 
 
 
-OBJECT_REGISTER( pdspLFO, "lfo", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspLFO, "lfo"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

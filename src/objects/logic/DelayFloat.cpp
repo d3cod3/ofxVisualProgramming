@@ -187,7 +187,7 @@ void DelayFloat::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Time delayed number transmission.",
-                "https://mosaic.d3cod3.org/reference.php?r=delay-float", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=delay-float", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -196,6 +196,6 @@ void DelayFloat::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( DelayFloat, "delay float", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( DelayFloat, "delay float"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

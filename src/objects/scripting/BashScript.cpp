@@ -272,7 +272,7 @@ void BashScript::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Load and run a bash script files (Bourne-Again SHell). You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
-                "https://mosaic.d3cod3.org/reference.php?r=bash-script", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=bash-script", scaleFactor);
 
 
     if(ImGuiEx::getFileDialog(fileDialog, loadScriptFlag, "Select a bash script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".sh", "", scaleFactor)){
@@ -365,6 +365,6 @@ void BashScript::pathChanged(const PathWatcher::Event &event) {
 
 }
 
-OBJECT_REGISTER( BashScript, "bash script", OFXVP_OBJECT_CAT_SCRIPTING)
+OBJECT_REGISTER( BashScript, "bash script"s, OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

@@ -177,7 +177,7 @@ void FftExtractor::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Extracts the FFT (Fast Fourier Transform) from the audio analysis data vector",
-                "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=fft-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -185,6 +185,6 @@ void FftExtractor::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( FftExtractor , "fft extractor", OFXVP_OBJECT_CAT_AUDIOANALYSIS)
+OBJECT_REGISTER( FftExtractor , "fft extractor"s, OFXVP_OBJECT_CAT_AUDIOANALYSIS)
 
 #endif

@@ -210,7 +210,7 @@ void Gate::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receives up to 31 float numbers, and transmits only the one indicated in its first inlet: open.",
-                "https://mosaic.d3cod3.org/reference.php?r=gate", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=gate", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -294,6 +294,6 @@ void Gate::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( Gate, "gate", OFXVP_OBJECT_CAT_LOGIC)
+OBJECT_REGISTER( Gate, "gate"s, OFXVP_OBJECT_CAT_LOGIC)
 
 #endif

@@ -222,7 +222,7 @@ void VideoGate::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Receives up to 31 textures, and transmits only the one indicated in its first inlet: open.",
-                "https://mosaic.d3cod3.org/reference.php?r=video-gate", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=video-gate", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -290,6 +290,6 @@ void VideoGate::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( VideoGate, "texture gate", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoGate, "texture gate"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif

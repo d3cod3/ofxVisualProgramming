@@ -226,7 +226,7 @@ void moMultiSlider::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Multiple slider gui object.",
-                "https://mosaic.d3cod3.org/reference.php?r=multislider", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=multislider", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -234,6 +234,6 @@ void moMultiSlider::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moMultiSlider, "multislider", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moMultiSlider, "multislider"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

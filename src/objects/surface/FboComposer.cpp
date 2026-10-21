@@ -193,7 +193,7 @@ void FboComposer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "TODO",
-                "https://mosaic.d3cod3.org/reference.php?r=fbo-composer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=fbo-composer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -212,6 +212,6 @@ void FboComposer::initResolution(){
 
 }
 
-//OBJECT_REGISTER( FboComposer, "fbo composer", OFXVP_OBJECT_CAT_SURFACE)
+//OBJECT_REGISTER( FboComposer, "fbo composer"s, OFXVP_OBJECT_CAT_SURFACE)
 
 #endif

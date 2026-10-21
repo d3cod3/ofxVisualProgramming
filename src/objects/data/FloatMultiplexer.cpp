@@ -192,7 +192,7 @@ void FloatMultiplexer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Simultaneously receive up to 32 float values and transmits the last one changed",
-                "https://mosaic.d3cod3.org/reference.php?r=float-multiplexer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=float-multiplexer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -259,6 +259,6 @@ void FloatMultiplexer::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( FloatMultiplexer, "float multiplexer", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( FloatMultiplexer, "float multiplexer"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

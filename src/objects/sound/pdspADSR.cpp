@@ -218,7 +218,7 @@ void pdspADSR::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspADSR::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Standard ADSR envelope",
-                "https://mosaic.d3cod3.org/reference.php?r=adsr-envelope", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=adsr-envelope", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -267,6 +267,6 @@ void pdspADSR::audioOutObject(ofSoundBuffer &outputBuffer){
     ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_outletParams[0])->copyFrom(scope.getBuffer().data(), bufferSize, 1, sampleRate);
 }
 
-OBJECT_REGISTER( pdspADSR, "ADSR envelope", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspADSR, "ADSR envelope"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

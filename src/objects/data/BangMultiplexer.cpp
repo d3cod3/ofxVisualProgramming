@@ -192,7 +192,7 @@ void BangMultiplexer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "receive up to 32 bangs, and process them as a shared transmission medium (multiple socket)",
-                "https://mosaic.d3cod3.org/reference.php?r=floats-to-vector", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=floats-to-vector", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -256,6 +256,6 @@ void BangMultiplexer::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( BangMultiplexer, "bang multiplexer", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( BangMultiplexer, "bang multiplexer"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

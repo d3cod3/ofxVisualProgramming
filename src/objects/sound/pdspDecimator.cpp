@@ -154,7 +154,7 @@ void pdspDecimator::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspDecimator::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Sample Rate Decimator, reduce the sample rate of the input signal",
-                "https://mosaic.d3cod3.org/reference.php?r=decimator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=decimator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -187,6 +187,6 @@ void pdspDecimator::audioOutObject(ofSoundBuffer &outputBuffer){
 }
 
 
-OBJECT_REGISTER( pdspDecimator, "decimator", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspDecimator, "decimator"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

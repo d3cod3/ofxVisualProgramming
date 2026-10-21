@@ -220,7 +220,7 @@ void FboEffect::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This is the FBO effect template for create new FBO surface objects",
-                "https://mosaic.d3cod3.org/reference.php?r=fbo-effect", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=fbo-effect", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -239,6 +239,6 @@ void FboEffect::initResolution(){
 
 }
 
-//OBJECT_REGISTER( FboEffect, "fbo effect", OFXVP_OBJECT_CAT_SURFACE)
+//OBJECT_REGISTER( FboEffect, "fbo effect"s, OFXVP_OBJECT_CAT_SURFACE)
 
 #endif

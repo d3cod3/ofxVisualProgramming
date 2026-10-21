@@ -299,7 +299,7 @@ void FboParticles::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "FBO particle system effect",
-                "https://mosaic.d3cod3.org/reference.php?r=fbo-particles", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=fbo-particles", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -318,6 +318,6 @@ void FboParticles::initResolution(){
 
 }
 
-//OBJECT_REGISTER( FboParticles, "fbo particles", OFXVP_OBJECT_CAT_SURFACE)
+//OBJECT_REGISTER( FboParticles, "fbo particles"s, OFXVP_OBJECT_CAT_SURFACE)
 
 #endif

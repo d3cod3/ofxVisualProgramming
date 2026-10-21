@@ -403,7 +403,7 @@ void LuaScript::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "This object is a live-coding lua script container, with OF bindings mimicking the OF programming structure. You can type code with the Mosaic code editor, or with your default code editor. Scripts will refresh automatically on save.",
-                "https://mosaic.d3cod3.org/reference.php?r=lua-script", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=lua-script", scaleFactor);
 
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadLuaScriptFlag, "Select a lua script", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, ".lua", "", scaleFactor)){
@@ -718,6 +718,6 @@ void LuaScript::errorReceived(std::string& msg) {
     }
 }
 
-OBJECT_REGISTER( LuaScript, "lua script", OFXVP_OBJECT_CAT_SCRIPTING)
+OBJECT_REGISTER( LuaScript, "lua script"s, OFXVP_OBJECT_CAT_SCRIPTING)
 
 #endif

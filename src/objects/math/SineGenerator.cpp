@@ -140,7 +140,7 @@ void SineGenerator::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Sine function generator.",
-                "https://mosaic.d3cod3.org/reference.php?r=sine-generator", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=sine-generator", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -167,6 +167,6 @@ void SineGenerator::audioOutObject(ofSoundBuffer &outputBuffer){
 
 }
 
-OBJECT_REGISTER( SineGenerator, "sine generator", OFXVP_OBJECT_CAT_MATH)
+OBJECT_REGISTER( SineGenerator, "sine generator"s, OFXVP_OBJECT_CAT_MATH)
 
 #endif

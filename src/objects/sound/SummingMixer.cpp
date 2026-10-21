@@ -200,7 +200,7 @@ void SummingMixer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "Sum/mix up to 32 audio signals.",
-                "https://mosaic.d3cod3.org/reference.php?r=summing-mixer", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=summing-mixer", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -308,6 +308,6 @@ void SummingMixer::resetInletsSettings(){
 
 }
 
-OBJECT_REGISTER( SummingMixer, "summing mixer", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( SummingMixer, "summing mixer"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

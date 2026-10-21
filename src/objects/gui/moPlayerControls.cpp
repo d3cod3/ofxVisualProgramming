@@ -195,7 +195,7 @@ void moPlayerControls::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moPlayerControls::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Control the status of other objects, such as video player, soundfile player, or timeline. Useful for syncronize play/stop.",
-                "https://mosaic.d3cod3.org/reference.php?r=player-controls", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=player-controls", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -204,6 +204,6 @@ void moPlayerControls::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( moPlayerControls, "player controls", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moPlayerControls, "player controls"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

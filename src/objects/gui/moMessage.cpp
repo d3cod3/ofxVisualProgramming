@@ -144,7 +144,7 @@ void moMessage::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void moMessage::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "A basic text string sending object. Useful to use with string command controlled objects.",
-                "https://mosaic.d3cod3.org/reference.php?r=message", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=message", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -169,6 +169,6 @@ void moMessage::saveMessageSetting(){
 }
 
 
-OBJECT_REGISTER( moMessage, "message", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moMessage, "message"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

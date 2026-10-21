@@ -153,7 +153,7 @@ void BangToFloat::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void BangToFloat::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "This object only sends the configured numerical value after receiving a bang",
-                "https://mosaic.d3cod3.org/reference.php?r=bang-to-float", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=bang-to-float", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -162,6 +162,6 @@ void BangToFloat::removeObjectContent(bool removeFileFromData){
 }
 
 
-OBJECT_REGISTER( BangToFloat, "bang to float", OFXVP_OBJECT_CAT_DATA)
+OBJECT_REGISTER( BangToFloat, "bang to float"s, OFXVP_OBJECT_CAT_DATA)
 
 #endif

@@ -157,7 +157,7 @@ void pdspBitCruncher::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
 void pdspBitCruncher::drawObjectNodeConfig(){
     ImGuiEx::ObjectInfo(
                 "Lo-Fi audio effect, reducing the bit for the signal amplitude.",
-                "https://mosaic.d3cod3.org/reference.php?r=bit-cruncher", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=bit-cruncher", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -191,6 +191,6 @@ void pdspBitCruncher::audioOutObject(ofSoundBuffer &outputBuffer){
 
 
 
-OBJECT_REGISTER( pdspBitCruncher, "bit cruncher", OFXVP_OBJECT_CAT_SOUND)
+OBJECT_REGISTER( pdspBitCruncher, "bit cruncher"s, OFXVP_OBJECT_CAT_SOUND)
 
 #endif

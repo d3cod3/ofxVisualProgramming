@@ -161,7 +161,7 @@ void moDataViewer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
                 "A basic data vector visualizer",
-                "https://mosaic.d3cod3.org/reference.php?r=fft-extractor", scaleFactor);
+                "http://localhost:8680/getMosaicReference.php?r=fft-extractor", scaleFactor);
 }
 
 //--------------------------------------------------------------
@@ -169,6 +169,6 @@ void moDataViewer::removeObjectContent(bool removeFileFromData){
     unusedArgs(removeFileFromData);
 }
 
-OBJECT_REGISTER( moDataViewer , "data viewer", OFXVP_OBJECT_CAT_GUI)
+OBJECT_REGISTER( moDataViewer , "data viewer"s, OFXVP_OBJECT_CAT_GUI)
 
 #endif

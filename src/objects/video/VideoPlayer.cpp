@@ -454,7 +454,7 @@ void VideoPlayer::drawObjectNodeConfig(){
 
     ImGuiEx::ObjectInfo(
             "Simple object for playing video files. In mac OSX you can upload .mov and .mp4 files; in linux .mp4, .mpeg and .mpg, while in windows .mp4 and .avi can be used.",
-            "https://mosaic.d3cod3.org/reference.php?r=video-player", scaleFactor);
+            "http://localhost:8680/getMosaicReference.php?r=video-player", scaleFactor);
     // file dialog
     if(ImGuiEx::getFileDialog(fileDialog, loadVideoFlag, "Select a video file", imgui_addons::ImGuiFileBrowser::DialogMode::OPEN, "*.*", "", scaleFactor)){
         ofFile file (fileDialog.selected_path);
@@ -501,6 +501,6 @@ void VideoPlayer::loadVideoFile(){
     }
 }
 
-OBJECT_REGISTER( VideoPlayer, "video player", OFXVP_OBJECT_CAT_TEXTURE)
+OBJECT_REGISTER( VideoPlayer, "video player"s, OFXVP_OBJECT_CAT_TEXTURE)
 
 #endif
