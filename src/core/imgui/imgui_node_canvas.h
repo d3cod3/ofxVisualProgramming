@@ -189,7 +189,7 @@ struct PinLayout {
         region(_posMin, _posMax),
         curDrawPos( _posMin ),
         numPins( _numPins ),
-        pinSpace( (numPins > 0) ? ImVec2(region.GetSize() / ImVec2(numPins,numPins)) : ImVec2(0,0) )
+        pinSpace( (numPins > 0) ? ImVec2(region.GetSize().x / numPins, region.GetSize().y / numPins) : ImVec2(0,0) )
         {}
 };
 
@@ -208,10 +208,10 @@ struct NodeLayoutData {
 
     NodeLayoutData() = default;
     NodeLayoutData(const ImVec2& _origin, const ImVec2& _size, const float _scale, const float sf) :
-        outerContentBox(ImFloor(_origin), ImFloor(_origin+_size)),
+        outerContentBox(ImFloor(_origin), ImFloor(ImVec2(_origin.x+_size.x,_origin.y+_size.y))),
         innerContentBox(
             ImFloor(ImVec2(_origin.x,_origin.y+(IMGUI_EX_NODE_HEADER_HEIGHT*sf))),
-            ImFloor(ImVec2(outerContentBox.Max - ImVec2(0, (IMGUI_EX_NODE_FOOTER_HEIGHT*sf))))
+            ImFloor(ImVec2(outerContentBox.Max.x, outerContentBox.Max.y - (IMGUI_EX_NODE_FOOTER_HEIGHT*sf)))
         ),
         leftPins(
             ImFloor(ImVec2(outerContentBox.Min.x,outerContentBox.Min.y+(IMGUI_EX_NODE_HEADER_HEIGHT*sf))),

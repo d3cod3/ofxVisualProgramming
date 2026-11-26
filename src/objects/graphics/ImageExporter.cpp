@@ -148,8 +148,9 @@ void ImageExporter::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        ImVec2 window_pos = ImVec2(ImGui::GetWindowPos().x+IMGUI_EX_NODE_PINS_WIDTH_NORMAL, ImGui::GetWindowPos().y+IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,ImVec2(window_pos.x+scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), window_pos.y+scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
         if(this->inletsConnected[0] && ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0])->isAllocated()){
             calcTextureDims(*ofxVP_CAST_PIN_PTR<ofTexture>(_inletParams[0]), posX, posY, drawW, drawH, objOriginX, objOriginY, scaledObjW, scaledObjH, canvasZoom, this->scaleFactor);
             ImGui::SetCursorPos(ImVec2(posX+(IMGUI_EX_NODE_PINS_WIDTH_NORMAL*this->scaleFactor), posY+(IMGUI_EX_NODE_HEADER_HEIGHT*this->scaleFactor)));

@@ -422,7 +422,8 @@ void PlotBands(ImDrawList* drawList, float width, float height, std::vector<floa
     float bin_w = Canvas.x / data->size();
 
     for(unsigned int i=0;i<data->size();i++){
-        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(max-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i) + bin_w, bb.Max.y),color,0,0,1);
+        //const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding = 0.0f, float thickness = 1.0f, ImDrawFlags flags = 0
+        drawList->AddRect(ImVec2( bb.Min.x + (bin_w*i), bb.Min.y+(Canvas.y*(max-data->at(i)) )),ImVec2(bb.Min.x + (bin_w*i) + bin_w, bb.Max.y),color,0.0f,0,1.0f);
     }
 
 }
@@ -469,7 +470,7 @@ void PlotEQFilter(ImDrawList* drawList, float width, float height, std::vector<f
     for(unsigned int i=0;i<data->size();i++){
         points[i] = ImVec2( bb.Min.x + (bin_w*i),bb.Min.y+(Canvas.y*(data->at(i)*-1*max)) - height/2 );
     }
-    drawList->AddPolyline(points,data->size(),color,0,3);
+    drawList->AddPolyline(points,data->size(),color,0,3.0f);
 }
 
 void PlotEQPoint(ImDrawList* drawList,ImVec2 pos,float width, float height, float max,ImU32 color){

@@ -199,7 +199,7 @@ void AudioAnalyzer::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
         ImGuiEx::drawWaveform(_nodeCanvas.getNodeDrawList(), ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale()), plot_data, bufferSize, 1.3f, IM_COL32(255,255,120,255), this->scaleFactor);
 
         // draw signal RMS amplitude
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImGui::GetWindowPos()+ImVec2(0,this->height*0.5f*_nodeCanvas.GetCanvasScale()),ImGui::GetWindowPos()+ImVec2(ImGui::GetWindowSize().x,this->height*0.5f*_nodeCanvas.GetCanvasScale() * (1.0f - ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0))),IM_COL32(255,255,120,12));
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x,ImGui::GetWindowPos().y+(this->height*0.5f*_nodeCanvas.GetCanvasScale())),ImVec2(ImGui::GetWindowPos().x+ImGui::GetWindowSize().x,ImGui::GetWindowPos().y+(this->height*0.5f*_nodeCanvas.GetCanvasScale() * (1.0f - ofClamp(ofxVP_CAST_PIN_PTR<ofSoundBuffer>(_inletParams[0])->getRMSAmplitude()*audioInputLevel,0.0,1.0)))),IM_COL32(255,255,120,12));
 
         ImGui::Spacing();
         ImGui::Spacing();

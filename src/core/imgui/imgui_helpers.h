@@ -133,7 +133,7 @@ inline void drawTimecode(ImDrawList* drawList, int seconds, std::string pre="", 
 //--------------------------------------------------------------
 inline void drawWaveform(ImDrawList* drawList, ImVec2 dim, float* data, int dataSize, float thickness, ImU32 color, float retinaScale=1.0f){
     // draw signal background
-    drawList->AddRectFilled(ImGui::GetWindowPos(),ImGui::GetWindowPos()+dim,IM_COL32_BLACK);
+    drawList->AddRectFilled(ImGui::GetWindowPos(),ImVec2(ImGui::GetWindowPos().x+dim.x, ImGui::GetWindowPos().y+dim.y),IM_COL32_BLACK);
 
     // draw signal plot
     ImGuiEx::PlotConfig conf;

@@ -294,7 +294,7 @@ void PatchObject::drawImGuiNode(ImGuiEx::NodeCanvas& _nodeCanvas, std::map<int,s
         }
     }
 
-    ImVec2 imPos( this->getPos() );
+    ImVec2 imPos( this->getPos().x, this->getPos().y );
     ImVec2 imSize( this->width, this->height );
 
     // Begin Node

@@ -173,13 +173,14 @@ void ColorPalette::drawObjectNodeGui( ImGuiEx::NodeCanvas& _nodeCanvas ){
     // Visualize (Object main view)
     if( _nodeCanvas.BeginNodeContent(ImGuiExNodeView_Visualise) ){
 
-        ImVec2 window_pos = ImGui::GetWindowPos()+ImVec2(IMGUI_EX_NODE_PINS_WIDTH_NORMAL, IMGUI_EX_NODE_HEADER_HEIGHT);
-        _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,window_pos+ImVec2(scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
+        ImVec2 window_pos = ImVec2(ImGui::GetWindowPos().x+IMGUI_EX_NODE_PINS_WIDTH_NORMAL, ImGui::GetWindowPos().y+IMGUI_EX_NODE_HEADER_HEIGHT);
+
+        _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos,ImVec2(window_pos.x+scaledObjW*this->scaleFactor*_nodeCanvas.GetCanvasScale(), window_pos.y+scaledObjH*this->scaleFactor*_nodeCanvas.GetCanvasScale()),ImGui::GetColorU32(ImVec4(0.0f, 0.0f, 0.0f, 1.0f)));
 
         for(size_t i=0;i<palette.size();i++){
             float tw = scaledObjW/palette.size() * canvasZoom;
             float th = scaledObjH * canvasZoom;
-            _nodeCanvas.getNodeDrawList()->AddRectFilled(window_pos + ImVec2(tw*i,0),window_pos + ImVec2(tw*i,0) + ImVec2(tw, th),ImGui::GetColorU32(ImVec4(palette.at(i).r, palette.at(i).g, palette.at(i).b, 1.0f)));
+            _nodeCanvas.getNodeDrawList()->AddRectFilled(ImVec2(window_pos.x+(tw*i),window_pos.y),ImVec2(window_pos.x+(tw*i) + tw,window_pos.y + th),ImGui::GetColorU32(ImVec4(palette.at(i).r, palette.at(i).g, palette.at(i).b, 1.0f)));
         }
 
 
