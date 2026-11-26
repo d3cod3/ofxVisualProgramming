@@ -462,21 +462,21 @@ void ImGuiEx::NodeCanvas::UpdateCanvasScrollZoom(){
 }
 
 void ImGuiEx::NodeCanvas::UpdateCanvasGrid(ImDrawList* drawList) const{
-    const float grid = 32.0f * canvasView.scale;
+    const float grid = 16.0f * canvasView.scale;
     float x = std::fmod(canvasView.scroll.x, grid);
     float y = std::fmod(canvasView.scroll.y, grid);
     auto markX = static_cast<int>(canvasView.scroll.x / grid);
     auto markY = static_cast<int>(canvasView.scroll.y / grid);
     while (x < canvasView.size.x)
     {
-        ImColor color = markX % 5 ? ImColor(0.5f, 0.5f, 0.5f, 0.05f) : ImColor(1.0f, 1.0f, 1.0f, 0.05f);
-        drawList->AddLine(ImVec2(x, 0.0f) + canvasView.position, ImVec2(x, canvasView.size.y) + canvasView.position, color, 0.1f);
+        ImColor color = markX % 5 ? ImColor(0.5f, 0.5f, 0.5f, 0.05f) : ImColor(1.0f, 1.0f, 1.0f, 0.2f);
+        drawList->AddLine(ImVec2(x+canvasView.position.x, canvasView.position.y), ImVec2(x+canvasView.position.x, canvasView.size.y+canvasView.position.y), color, 0.1f);
         x += grid;
         markX -= 1;
     }
     while (y < canvasView.size.y)
     {
-        ImColor color = markY % 5 ? ImColor(0.5f, 0.5f, 0.5f, 0.05f) : ImColor(1.0f, 1.0f, 1.0f, 0.05f);
+        ImColor color = markY % 5 ? ImColor(0.5f, 0.5f, 0.5f, 0.05f) : ImColor(1.0f, 1.0f, 1.0f, 0.2);
         drawList->AddLine(ImVec2(0.0f, y) + canvasView.position, ImVec2(canvasView.size.x, y) + canvasView.position, color, 0.1f);
         y += grid;
         markY -= 1;
